@@ -1,0 +1,177 @@
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import API from '../utils/api.axios';
+import handleError from '../utils/handleError';
+import { UPLOADMEDIA, MEDIALIST, DELETEMEDIA } from '@/utils/apiConstants';
+
+// Thunks
+
+// Fetch Medias
+export const fetchMedia = createAsyncThunk(
+  'media/fetchMedia',
+  async ({ClientId,contentTypeStr}, { rejectWithValue }) => {
+    try {
+      const response = await API.get(`${MEDIALIST}?ClientId=${ClientId}&contentTypeStr=${contentTypeStr}`);
+      if (response?.status === 200 && response.data?.result) {
+        return {
+          medias: response.data.result,
+          totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
+        };
+      } else {
+        throw new Error('Failed to fetch medias');
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
+
+// upload Media
+export const uploadMedia = createAsyncThunk(
+  'media/uploadMedia',
+  async (mediaData, { rejectWithValue }) => {
+    try {
+      const response = await API.post(UPLOADMEDIA, mediaData);
+      return response.data;
+    } catch (error) {
+      const handledError = handleError(error);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
+
+// Delete Media
+export const deleteMedia = createAsyncThunk(
+  'media/deleteMedia',
+  async ({ mediaId }, { rejectWithValue }) => {
+    try {
+      const response = await API.delete(`${DELETEMEDIA}?id=${mediaId}`);
+      return response.data;
+    } catch (error) {
+      const handledError = handleError(error);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
+// Slice
+const mediaSlice = createSlice({
+  name: 'media',
+  initialState: {
+    medias: [],
+    media: null,
+    loading: false,
+    error: null,
+    success: false,
+    message: '',
+    currentPage: 1,
+    totalPages: 1,
+    pageSize: 10,
+    totalRecords: 0,
+  },
+  reducers: {
+    // Pagination and reset actions
+    setPageSize: (state, action) => {
+      state.pageSize = action.payload;
+      state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
+    },
+    setCurrentPage: (state, action) => {
+      state.currentPage = action.payload;
+    },
+    clearMediaState: (state) => {
+      state.medias = [];
+      state.media = null;
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+      state.currentPage = 1;
+      state.totalPages = 1;
+      state.pageSize = 10;
+      state.totalRecords = 0;
+    },
+   
+    clearMediaUploadState: (state) => {
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    },
+    clearMediaDeleteState: (state) => {
+      state.media = null;
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // Fetch Medias
+      .addCase(fetchMedia.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchMedia.fulfilled, (state, action) => {
+        state.loading = false;
+        state.medias = action.payload.medias;
+        state.totalRecords = action.payload.totalRecords;
+        state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
+        state.message = action.payload.message || '';
+      })
+      .addCase(fetchMedia.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+
+     
+
+      // upload Media
+      .addCase(uploadMedia.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(uploadMedia.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.message = action.payload.message || 'Media uploaded successfully';
+      })
+      .addCase(uploadMedia.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+
+      
+
+      // Delete Media
+      .addCase(deleteMedia.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(deleteMedia.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.message = action.payload.message || 'Media deleted successfully';
+      })
+      .addCase(deleteMedia.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      });
+  },
+});
+
+// Export actions
+export const {
+  setPageSize,
+  setCurrentPage,
+  clearMediaState,
+  clearMediaUploadState,
+  clearMediaDeleteState,
+} = mediaSlice.actions;
+
+export default mediaSlice.reducer;
+ 
