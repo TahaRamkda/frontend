@@ -48,18 +48,10 @@ import { sidebarItems } from '@/utils/sidebarItems';
           if (matchingItem) {
             router.push(matchingItem.href);
           } else {
-            SweetAlert.fire({
-              icon: "error",
-              title: "Permission Error",
-              text: "No valid permissions found for accessible pages.",
-            });
+           
           }
         } else {
-          SweetAlert.fire({
-            icon: "error",
-            title: "Permission Error",
-            text: "No permissions data found.",
-          });
+          router.push("/auth/login");
         }
       }
   
@@ -69,7 +61,7 @@ import { sidebarItems } from '@/utils/sidebarItems';
           icon: "error",
           title: "Oops...",
           text: "Incorrect Username or Password!",
-          footer: '<a href="#">Forget password?</a>',
+         
         });
       }
     }, [authData, error, router]);
@@ -83,7 +75,7 @@ import { sidebarItems } from '@/utils/sidebarItems';
         </div>
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
           <form onSubmit={handleLogin} className="space-y-6">
-          <h2 class="text-left text-2xl font-bold">Sign In</h2>
+          <h2 class="text-center text-2xl font-bold">Sign In</h2>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email Address
@@ -92,7 +84,7 @@ import { sidebarItems } from '@/utils/sidebarItems';
                 id="email"
                 type="text"
                 required
-                placeholder="Enter Your Email"
+                placeholder="Email Address"
                 value={email}
                 name="email"
                 onChange={(e) => setEmail(e.target.value)}
@@ -107,7 +99,7 @@ import { sidebarItems } from '@/utils/sidebarItems';
                 <input
                   id="password"
                   type={show ? "text" : "password"}
-                  placeholder="Enter Your Password"
+                  placeholder="******"
                   onChange={(e) => setPassword(e.target.value)}
                   value={password}
                   name="password"

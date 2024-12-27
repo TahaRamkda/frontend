@@ -10,7 +10,7 @@ export const fetchTemplates = createAsyncThunk(
   'template/fetchTemplates',
   async ({clientId,TransactonType}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${TEMPLATELIST}?ClientId=${clientId}&TransactionType=${TransactonType}`);
+      const response = await API.get(`${TEMPLATELIST}?ClientId=${clientId}&TransactionType=${0}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           templates: response.data.result,
