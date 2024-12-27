@@ -17,7 +17,7 @@ export const fetchMessageReport = createAsyncThunk(
         totalRecords: response.data.result.length > 0 ? response.data.result[0].totalItems : 0,
         };
       } else {
-        throw new Error('Failed to fetch message report');
+        throw new Error('Failed to fetch details');
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -42,7 +42,7 @@ export const fetchMessageReportSummary = createAsyncThunk(
             totalRecords: response.data.result.length > 0 ? response.data.result[0].totalItems : 0,
           };
         } else {
-          throw new Error('Failed to fetch message report');
+          throw new Error('Failed to fetch details');
         }
       } catch (err) {
       const handledError = handleError(err);
@@ -66,7 +66,7 @@ export const fetchDashboardSummary = createAsyncThunk(
           dashboardsummary: response.data.result,
         };
       } else {
-        throw new Error('Failed to fetch dashboard report');
+        throw new Error('Failed to fetch details');
       }
     } catch (err) {
     const handledError = handleError(err);
@@ -90,7 +90,7 @@ export const fetchTemplateInsight = createAsyncThunk(
           templateInsight: response.data.result,
         };
       } else {
-        throw new Error('Failed to fetch Template Insight ');
+        throw new Error('Failed to fetch details ');
       }
     } catch (err) {
     const handledError = handleError(err);
@@ -113,7 +113,7 @@ export const fetchActiveConvo = createAsyncThunk(
             activeconvo: response.data.result,
           };
         } else {
-          throw new Error('Failed to fetch message report');
+          throw new Error('Failed to fetch details');
         }
       } catch (err) {
       const handledError = handleError(err);
@@ -138,7 +138,7 @@ export const fetchAgentStatus = createAsyncThunk(
           };
           
         } else {
-          throw new Error('Failed to fetch message report');
+          throw new Error('Failed to fetch details');
         }
       } catch (err) {
       const handledError = handleError(err);

@@ -29,7 +29,7 @@ const GroupList = () => {
       name: "Action",
       cell: (row) => (
         <>
-         <div className="flex gap-2 float-right">
+         <div className="flex gap-2 ">
           <button
             className="uniform_icon_btn"
             onClick={() => handleDetailClick(row.groupId)}
@@ -58,7 +58,7 @@ const GroupList = () => {
         setGroupForm(response.result);
         setIsModalOpen(true);
       } else {
-        showSweetAlert({ title: "Error", text: "Failed to fetch group details", icon: "error" });
+        showSweetAlert({ title: "Error", text: "Failed to fetch details", icon: "error" });
       }
     } catch (error) {
       alert("Failed to fetch group details: " + error.message);
@@ -79,15 +79,36 @@ const GroupList = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          dispatch(deleteGroup({ groupId })).unwrap();
-          showSweetAlert({ title: "Group Deleted", text: "", icon: "success" });
-          refreshGroupList();
+          dispatch(deleteGroup({ groupId })).then(()=>{
+            showSweetAlert({ title: "Deleted Successfully", text: "", icon: "success" });
+            refreshGroupList();
+          });
+         
+         
         } catch (error) {
           alert("An unexpected error occurred: " + error.message);
         }
       }
     });
   };
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    const handlePageChange = async (page) => {
       // Update current page state in Redux
       dispatch(setCurrentPage(page));
@@ -123,7 +144,7 @@ const GroupList = () => {
       const response = await dispatch(updateGroup(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({
-          title: "Group Updated",
+          title: "Updated Successfully",
           text: "",
           icon: "success",
         });
@@ -161,8 +182,8 @@ const GroupList = () => {
     return (
       <div className="w-full">
         <div className="grid grid-cols-5 gap-4">
-         <div className="flex flex-col space-y-1 text-start ">
-         <label className="font-medium text-gray-700 text-sm  mt-1">Search </label>
+         <div className="flex flex-col space-y-1 text-start mb-1 ">
+         <label className="font-medium text-gray-700 text-sm">Search </label>
          <input
           type="search"
           value={filterText}
@@ -187,10 +208,10 @@ const GroupList = () => {
       
       <div className="flex items-center">
   {loading && <Loading />}
-  <div className='mb-1'>
-  <h4 className="font-bold mb-2">Groups List</h4>
+  <div className=''>
+  <h4 className="font-bold">Groups List</h4>
   </div>
-  <div className="ml-auto mb-2">
+  <div className="ml-auto mb-1">
   <button
             className="uniform_btn"
             onClick={handleCreate}
@@ -205,45 +226,45 @@ const GroupList = () => {
             columns={groupColumns}
             highlightOnHover
             striped
-             pagination
-              paginationServer
-              paginationTotalRows={totalRecords}
-              onChangePage={handlePageChange}
-              onChangeRowsPerPage={handlePageSizeChange}
-              subHeader
-              subHeaderComponent={subHeaderComponentMemo}
-              className="w-full border"
-              customStyles={{
-                table: {
-                  style: {
-                    width: '100%',
-                    borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
-                  },
+            pagination
+            paginationServer
+            paginationTotalRows={totalRecords}
+            onChangePage={handlePageChange}
+            onChangeRowsPerPage={handlePageSizeChange}
+            subHeader
+            subHeaderComponent={subHeaderComponentMemo}
+            className="w-full border"
+            customStyles={{
+              table: {
+                style: {
+                  width: '100%',
+                  borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
                 },
-                headRow: {
-                  style: {
-                    borderBottom: '1px solid #ddd', // Grid line at the bottom of the header
-                  },
+              },
+              headRow: {
+                style: {
+                  borderBottom: '1px solid #ddd', // Grid line at the bottom of the header
                 },
-                headCells: {
-                  style: {
-                   
-                    borderRight: '1px solid #ddd', // Grid line between columns
-                    fontWeight: 'bold',
-                  },
+              },
+              headCells: {
+                style: {
+                  
+                  borderRight: '1px solid #ddd', // Grid line between columns
+                  fontWeight: 'bold',
                 },
-                rows: {
-                  style: {
-                    borderBottom: '1px solid #ddd', // Horizontal grid line between rows
-                  },
+              },
+              rows: {
+                style: {
+                  borderBottom: '1px solid #ddd', // Horizontal grid line between rows
                 },
-                cells: {
-                  style: {
-                    
-                    borderRight: '1px solid #ddd', // Vertical grid line between cells
-                  },
+              },
+              cells: {
+                style: {
+                  
+                  borderRight: '1px solid #ddd', // Vertical grid line between cells
                 },
-              }}
+              },
+            }}
           />
         </div>
       
@@ -263,7 +284,7 @@ const GroupList = () => {
             {groupForm && (
             <form onSubmit={handleUpdateSubmit}>
             <div className="flex flex-col">
-                    <label htmlFor="groupName" className="font-semibold mb-2">
+                    <label htmlFor="groupName" className="font-medium text-gray-700 text-sm">
                       Group Name
                     </label>
                     <input
@@ -272,7 +293,7 @@ const GroupList = () => {
                       name="groupName"
                       value={groupForm.groupName || ""}
                       onChange={handleFormChange}
-                      className="p-2 border rounded-md"
+                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
                     />
                   </div>
                 

@@ -2,11 +2,10 @@ import authSlice from "@/slices/AuthSlice";
 import testSlice from "@/slices/test.slice";
 import ContactSlice from "@/slices/ContactSlice";
 import clientSlice from "@/slices/ClientSlice";
-import sendernameSlice from "@/slices/SenderNameSlice";
-import GroupSlice from "@/slices/GroupSlice";
-import contactsSlice from "@/slices/ContactSlice";
+import sendernameSlice from "@/slices/sendernameSlice";
+import GroupSlice from "@/slices/Groupslice";
 import templateSlice from "@/slices/TemplateSlice";
-import campaignSlice from "@/slices/CampaignSlice";
+import CampaignSlice from "@/slices/campaignSlice"
 import mediaSlice from "@/slices/MediaSlice";
 import roleSlice from "@/slices/RoleSlice";
 import userSlice from "@/slices/UserSlice";
@@ -25,7 +24,7 @@ export const store = configureStore({
     groups:GroupSlice,
     contacts:ContactSlice,
     templates:templateSlice,
-    campaigns:campaignSlice,
+    campaigns:CampaignSlice,
     media:mediaSlice,
     permission:permissionSlice,
     roles:roleSlice,

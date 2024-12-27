@@ -4,31 +4,32 @@ import { Input } from "reactstrap";
 import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
-import { fetchClientsDrop, clearClientDropState } from "@/slices/ClientSlice";
+import { fetchTemplatesDrop, clearTemplateDropState } from "@/slices/TemplateSlice";
 
-export const ClientsDropdown = ({ onChange }) => {
+export const TemplatesDropdown = ({ onChange }) => {
   const dispatch = useDispatch();
-  const { clientsDrop, loading, error } = useSelector((state) => state.clients);
-  const [selectedClientId, setSelectedClientId] = useState([]);
+  const { templateDrop, loading, error } = useSelector((state) => state.templates);
+  const [selectedTemplateId, setSelectedTemplateId] = useState([]);
   const [searchString, setsearchString] = useState("")
+    const [transactionType, settransactionType] =useState(0)
   const selectRef = useRef(null);
 
-  // Fetch clients when the component mounts
+  // Fetch templates when the component mounts
   useEffect(() => {
-    dispatch(fetchClientsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString }));
+    dispatch(fetchTemplatesDrop({ clientId: localStorage.getItem("clientId"), TransactonType: transactionType }));
     return () => {
-      dispatch(clearClientDropState());
+      dispatch(clearTemplateDropState());
     };
   }, [dispatch]);
 
-  // Notify parent of selected client changes
+  // Notify parent of selected template changes
   useEffect(() => {
     if (onChange) {
-      onChange(selectedClientId);
+      onChange(selectedTemplateId);
     }
-  }, [selectedClientId, onChange]);
+  }, [selectedTemplateId, onChange]);
 
-  // Handle select/deselect clients (via select2)
+  // Handle select/deselect templates (via select2)
   useEffect(() => {
     if (selectRef.current) {
       $(selectRef.current).select2({
@@ -39,7 +40,7 @@ export const ClientsDropdown = ({ onChange }) => {
 
       $(selectRef.current).on("change", (e) => {
         const selectedValues = $(selectRef.current).val() || [];
-        setSelectedClientId(selectedValues);
+        setSelectedTemplateId(selectedValues);
       });
     }
 
@@ -48,33 +49,34 @@ export const ClientsDropdown = ({ onChange }) => {
         $(selectRef.current).off("change");
       }
     };
-  }, [clientsDrop]);
+  }, [templateDrop]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
 
-  // Filter out the selected clients from the available options
-  const availableClients = clientsDrop.filter(
-    (clientsDrop) => !selectedClientId.includes(clientsDrop.clientId)
+  // Filter out the selected templates from the available options
+  const availableTemplates = templateDrop.filter(
+    (templateDrop) => !selectedTemplateId.includes(templateDrop.templateId)
   );
 
   return (
     <>
-      <div className="mb-4">
+      <div>
         <select
           ref={selectRef}
-          id="clientSelect"
+          id="templateSelect"
+          innerRef={selectRef}
           className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          value={selectedClientId}
-          onChange={(e) => setSelectedClientId(Array.from(e.target.selectedOptions, option => option.value))}
+          value={selectedTemplateId}
+          onChange={(e) => setSelectedTemplateId(Array.from(e.target.selectedOptions, option => option.value))}
           multiple
           required
         >
           <option value="">Select</option>
-          {availableClients && availableClients.length > 0 ? (
-            availableClients.map((client) => (
-              <option key={client.id} value={client.id}>
-                {client.name}
+          {availableTemplates && availableTemplates.length > 0 ? (
+            availableTemplates.map((template) => (
+              <option key={template.id} value={template.id}>
+                {template.name}
               </option>
             ))
           ) : (
@@ -86,4 +88,4 @@ export const ClientsDropdown = ({ onChange }) => {
   );
 };
 
-export default ClientsDropdown;
+export default TemplatesDropdown;

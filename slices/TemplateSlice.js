@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { TEMPLATELIST, TEMPLATEDETAILS, CREATETEMPLATE, UPDATETEMPLATE, DELETETEMPLATE,SYNCTEMPLATE } from '@/utils/apiConstants';
+import { TEMPLATELIST, TEMPLATEDETAILS, CREATETEMPLATE, UPDATETEMPLATE, DELETETEMPLATE,SYNCTEMPLATE,TEMPLATEDROPDOWN } from '@/utils/apiConstants';
 
 // Thunks
 
@@ -17,7 +17,26 @@ export const fetchTemplates = createAsyncThunk(
           totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
         };
       } else {
-        throw new Error('Failed to fetch templates');
+        throw new Error('Failed to fetch details');
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+export const fetchTemplatesDrop = createAsyncThunk(
+  'template/fetchTemplatesDrop',
+  async ({clientId,TransactonType}, { rejectWithValue }) => {
+    try {
+      const response = await API.get(`${TEMPLATEDROPDOWN}?ClientId=${clientId}&TransactionType=${TransactonType}`);
+      if (response?.status === 200 && response.data?.result) {
+        return {
+          templateDrop: response.data.result,
+          totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
+        };
+      } else {
+        throw new Error('Failed to fetch details');
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -102,6 +121,7 @@ const templateSlice = createSlice({
   name: 'template',
   initialState: {
     templates: [],
+    templateDrop:[],
     template: null,
     loading: false,
     error: null,
@@ -129,6 +149,13 @@ const templateSlice = createSlice({
       state.currentPage = 1;
       state.totalPages = 1;
       state.pageSize = 10;
+      state.totalRecords = 0;
+    },
+    clearTemplateDropState: (state) => {
+      state.templateDrop = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
       state.totalRecords = 0;
     },
     clearTemplateDetailState: (state) => {
@@ -167,6 +194,22 @@ const templateSlice = createSlice({
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
+      // Template Dropdown
+      .addCase(fetchTemplatesDrop.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTemplatesDrop.fulfilled, (state, action) => {
+        state.loading = false;
+        state.templateDrop = action.payload.templateDrop;
+        state.totalRecords = action.payload.totalRecords;
+        state.message = action.payload.message || '';
+      })
+      .addCase(fetchTemplatesDrop.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
       
       // Fetch Template by ID
       .addCase(fetchTemplatesById.pending, (state) => {
@@ -193,7 +236,7 @@ const templateSlice = createSlice({
       .addCase(createTemplates.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Template created successfully';
+        state.message = action.payload.message || 'Created Successfully';
       })
       .addCase(createTemplates.rejected, (state, action) => {
         state.loading = false;
@@ -210,7 +253,7 @@ const templateSlice = createSlice({
       .addCase(updateTemplates.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Template updated successfully';
+        state.message = action.payload.message || 'Updated Successfully';
       })
       .addCase(updateTemplates.rejected, (state, action) => {
         state.loading = false;
@@ -227,7 +270,7 @@ const templateSlice = createSlice({
       .addCase(deleteTemplates.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Template deleted successfully';
+        state.message = action.payload.message || 'Deleted Successfully';
       })
       .addCase(deleteTemplates.rejected, (state, action) => {
         state.loading = false;
@@ -242,6 +285,7 @@ export const {
   setPageSize,
   setCurrentPage,
   clearTemplateState,
+  clearTemplateDropState,
   clearTemplateDetailState,
   clearTemplateCreateState,
   clearTemplateDeleteState,

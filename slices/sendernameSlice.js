@@ -17,7 +17,7 @@ export const fetchSendernames = createAsyncThunk(
           totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
         };
       } else {
-        throw new Error('Failed to fetch sendernames');
+        throw new Error('Failed to fetch details');
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -181,7 +181,7 @@ const sendernameSlice = createSlice({
       .addCase(createSendername.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Client created successfully';
+        state.message = action.payload.message || 'Created Successfully';
       })
       .addCase(createSendername.rejected, (state, action) => {
         state.loading = false;
@@ -198,7 +198,7 @@ const sendernameSlice = createSlice({
       .addCase(updateSendername.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Client updated successfully';
+        state.message = action.payload.message || 'Updated Successfully';
       })
       .addCase(updateSendername.rejected, (state, action) => {
         state.loading = false;
@@ -215,7 +215,7 @@ const sendernameSlice = createSlice({
       .addCase(deleteSendername.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Client deleted successfully';
+        state.message = action.payload.message || 'Deleted Successfully';
       })
       .addCase(deleteSendername.rejected, (state, action) => {
         state.loading = false;

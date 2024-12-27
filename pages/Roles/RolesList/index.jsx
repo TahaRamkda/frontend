@@ -5,7 +5,10 @@ import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchRoles, clearRoleState, deleteRole, fetchRoleById, updateRole } from "@/slices/RoleSlice";
 import showSweetAlert from "@/components/Sweetalert";
+import Loading from "@/components/Loader";
+import CreateRole from "../CreateRoles";
 import App from '@/components/App';
+import { HiPencilAlt, HiTrash } from "react-icons/hi";
 const RoleList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -13,15 +16,13 @@ const RoleList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [roleForm, setRoleForm] = useState({});
   const [filterText, setFilterText] = useState("");
+  const [CreateModalOpen, setCreateModalOpen] = useState(false)
   
   const roleColumns = [
-    { name: "Role ID", selector: (row) => row.roleId, sortable: true },
-    { name: "Client ID", selector: (row) => row.clientId, sortable: true },
+   
     { name: "Role Name", selector: (row) => row.roleName, sortable: true },
-    { name: "Created By", selector: (row) => row.createdBy, sortable: true },
     { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
-    { name: "Updated By", selector: (row) => row.updatedBy, sortable: true },
-    { name: "Updated Date", selector: (row) => row.updatedDate, sortable: true },
+   
     {
       name: "Action",
       cell: (row) => (
@@ -30,13 +31,13 @@ const RoleList = () => {
             className="uniform_icon_btn"
             onClick={() => handleDetailClick(row.roleId)}
           >
-            Edit
+           <HiPencilAlt style={{fontSize: "15px"}}/>
           </button>
           <button
             className="uniform_icon_btn"
             onClick={() => handleDeleteClick(row.roleId)}
           >
-            Delete
+            <HiTrash style={{fontSize: "15px"}}/>
           </button>
         </div>
       ),
@@ -50,12 +51,18 @@ const RoleList = () => {
         setRoleForm(response.result);
         setIsModalOpen(true);
       } else {
-        showSweetAlert({ title: "Error", text: t("Failed to fetch role details"), icon: "error" });
+        showSweetAlert({ title: "Error", text:"", icon: "error" });
       }
     } catch (error) {
       alert(t("Failed to fetch role details: ") + error.message);
     }
   };
+  const handleCreate = () =>{
+    setCreateModalOpen(true)
+  }
+  const handleCancel = () =>{
+    setCreateModalOpen(false)
+  }
 
   const handleDeleteClick = (roleId) => {
     SweetAlert.fire({
@@ -70,9 +77,11 @@ const RoleList = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          dispatch(deleteRole({ roleId })).unwrap();
-          showSweetAlert({ title: "Role Deleted", text: "The role has been deleted successfully", icon: "success" });
-          refreshRoleList();
+          dispatch(deleteRole({ roleId })).then(()=>{
+            showSweetAlert({ title: "Deleted Successfully", text: "", icon: "success" });
+            refreshRoleList();
+          });
+          
         } catch (error) {
           alert(t("An unexpected error occurred: ") + error.message);
         }
@@ -92,17 +101,14 @@ const RoleList = () => {
         roleId: roleForm.roleId || 0,
         clientId: roleForm.clientId || 0,
         roleName: roleForm.roleName || "string",
-        createdBy: roleForm.createdBy || "string",
-        createdDate: roleForm.createdDate || "string",
-        updatedBy: roleForm.updatedBy || "string",
         actionBy: 1,
       };
 
       const response = await dispatch(updateRole(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({
-          title: t("Role Updated"),
-          text: t("Role details have been updated successfully."),
+          title: "Updated Successfully",
+          text: "",
           icon: "success",
         });
         setIsModalOpen(false);
@@ -111,7 +117,7 @@ const RoleList = () => {
         showSweetAlert({ title: "Error", text: response.message, icon: "error" });
       }
     } catch (error) {
-      alert("Failed to update role: " + error.message);
+      alert("Failed to update: " + error.message);
     }
   };
 
@@ -132,8 +138,10 @@ const RoleList = () => {
 
   const subHeaderComponentMemo = useMemo(() => {
     return (
-      <div className="flex items-center mb-4">
-        <label className="mr-2">Search Roles</label>
+      <div className="w-full">
+          <div className='grid grid-cols-5 gap-4'>
+            <div className="flex flex-col text-start mb-1">
+        <label className="font-medium text-gray-700 text-sm">Search Roles</label>
         <input
           type="search"
           value={filterText}
@@ -141,6 +149,8 @@ const RoleList = () => {
           placeholder="Search by role name"
           className="border px-3 py-2 rounded"
         />
+        </div>
+        </div>
       </div>
     );
   }, [filterText]);
@@ -151,15 +161,18 @@ const RoleList = () => {
 
   return (
     <App>
-    <div className="p-6">
-      <div className="mb-4">
-      <div className="flex justify-between items-center mb-4">
-        <h4 className="text-lg font-bold mb-2">Roles List</h4>
-        <button className="uniform_icon_btn"  onClick={() => router.push("/Roles/CreateRoles")}>
-          Create New Roles
+    
+      <div className="flex items-center">
+  {loading && <Loading />}
+  <div >
+  <h4 className="font-bold ">Roles List</h4>
+  </div>
+  <div className="ml-auto mb-1">
+  <button className="uniform_btn" onClick={handleCreate}>
+          Create Roles
         </button>
-        </div>
-      </div>
+  </div>
+</div>
         
       
       <div className="overflow-x-auto">
@@ -173,11 +186,42 @@ const RoleList = () => {
             className="w-full border"
             subHeader
             subHeaderComponent={subHeaderComponentMemo}
+            customStyles={{
+              table: {
+                style: {
+                  width: '100%',
+                  borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
+                },
+              },
+              headRow: {
+                style: {
+                  borderBottom: '1px solid #ddd', // Grid line at the bottom of the header
+                },
+              },
+              headCells: {
+                style: {
+                  
+                  borderRight: '1px solid #ddd', // Grid line between columns
+                  fontWeight: 'bold',
+                },
+              },
+              rows: {
+                style: {
+                  borderBottom: '1px solid #ddd', // Horizontal grid line between rows
+                },
+              },
+              cells: {
+                style: {
+                  
+                  borderRight: '1px solid #ddd', // Vertical grid line between cells
+                },
+              },
+            }}
           />
         </div>
       {isModalOpen && (
   <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white p-6 rounded shadow-lg w-3/4 max-w-lg relative">
+          <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
       {/* Close button */}
       <button
         onClick={() => setIsModalOpen(false)}
@@ -185,11 +229,11 @@ const RoleList = () => {
       >
         &times;
       </button>
-      <h4 className="text-xl mb-4">Edit Role Details</h4>
+      <h4 className="text-xl mb-4">Edit Role</h4>
       <form onSubmit={handleUpdateSubmit}>
-        <div className="grid grid-cols-2 gap-4">
+        
           <div>
-            <label className="block mb-1" htmlFor="roleName">
+            <label className="font-medium text-gray-700 text-sm" htmlFor="roleName">
               Role Name
             </label>
             <input
@@ -198,92 +242,30 @@ const RoleList = () => {
               name="roleName"
               value={roleForm.roleName || ""}
               onChange={handleFormChange}
-              className="w-full border px-3 py-2 rounded"
+              className="border rounded py-1 px-2 w-full text-sm"
             />
           </div>
-          <div>
-            <label className="block mb-1" htmlFor="createdBy">
-              Created By
-            </label>
-            <input
-              type="text"
-              id="createdBy"
-              name="createdBy"
-              value={roleForm.createdBy || ""}
-              onChange={handleFormChange}
-              className="w-full border px-3 py-2 rounded"
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-4 mt-4">
-          <div>
-            <label className="block mb-1" htmlFor="createdDate">
-              Created Date
-            </label>
-            <input
-              type="text"
-              id="createdDate"
-              name="createdDate"
-              value={roleForm.createdDate || ""}
-              onChange={handleFormChange}
-              className="w-full border px-3 py-2 rounded"
-            />
-          </div>
-          <div>
-            <label className="block mb-1" htmlFor="appId">
-              App ID
-            </label>
-            <input
-              type="text"
-              id="appId"
-              name="appId"
-              value={roleForm.appId || ""}
-              onChange={handleFormChange}
-              className="w-full border px-3 py-2 rounded"
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-4 mt-4">
-          <div>
-            <label className="block mb-1" htmlFor="updatedBy">
-              Updated By
-            </label>
-            <input
-              type="text"
-              id="updatedBy"
-              name="updatedBy"
-              value={roleForm.updatedBy || ""}
-              onChange={handleFormChange}
-              className="w-full border px-3 py-2 rounded"
-            />
-          </div>
-          <div>
-            <label className="block mb-1" htmlFor="updatedDate">
-              Updated Date
-            </label>
-            <input
-              type="text"
-              id="updatedDate"
-              name="updatedDate"
-              value={roleForm.updatedDate || ""}
-              onChange={handleFormChange}
-              className="w-full border px-3 py-2 rounded"
-            />
-          </div>
-        </div>
         <div className="flex mt-6 justify-end">
           <button
             type="submit"
-            className="bg-blue-500 text-white px-6 py-2 rounded"
+            className="uniform_btn"
           >
-            Update Role
+           Save
           </button>
         </div>
       </form>
     </div>
   </div>
 )}
-</div>
+{CreateModalOpen &&(
+        <CreateRole 
+        isVisible={true}
+        onClose={handleCancel}
+        onsuccess={refreshRoleList}
+    />
+        
+      )}
+
 </App>
   );
 };

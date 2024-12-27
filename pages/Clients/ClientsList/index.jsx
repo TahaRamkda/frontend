@@ -81,9 +81,11 @@ const ClientList = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          dispatch(deleteClient({ clientId })).unwrap();
-          showSweetAlert({ title: "Client Deleted", text: "The client has been deleted successfully", icon: "success" });
-          refreshClientList();
+          dispatch(deleteClient({ clientId })).then(()=>{
+            showSweetAlert({ title: "Deleted Successfully", text: "", icon: "success" });
+            refreshClientList();
+          });
+         
         } catch (error) {
           alert("An unexpected error occurred: " + error.message);
         }
@@ -113,7 +115,7 @@ const ClientList = () => {
     try {
       const response = await dispatch(updateClient(requestBody)).unwrap();
       if (response.success) {
-        showSweetAlert({ title: "Client Updated", text: "Client details have been updated successfully.", icon: "success" });
+        showSweetAlert({ title: "Updated Successfully", text: "", icon: "success" });
         setIsModalOpen(false);
         refreshClientList();
       } else {

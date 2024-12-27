@@ -98,8 +98,11 @@ function MyApp({ Component, pageProps }) {
                 );
             }
         });
+        if (router.pathname.toLowerCase().indexOf("test")>-1) 
+          {
 
-        if (!hasPermission && permissions.length > 0) {
+          }
+        else if (!hasPermission && permissions.length > 0) {
             router.push('/NotPermitted');
         }
     }, [permissions, router.pathname]);

@@ -281,25 +281,25 @@ const TemplateUpdatePage = () => {
         debugger
         clearTemplateCreateState();
         showSweetAlert({
-          title: "Template Updated",
-          text: response.result.message || "The Template has been successfully Updated.",
+          title: "Updated Successfully",
+          text:  "",
           icon: "success",
         });
         router.push('/Templates/Templateslist');
       } else {
         showSweetAlert({
-          title: "Update Failed",
-          text: response.message || "Failed to Update Template. Please try again.",
+          title: "Failed",
+          text: response.message || "",
           icon: "error",
         });
 
         //window.location.reload();
       }
     } catch (err) {
-      console.error("Failed to create Template", err);
+      console.error("Failed to update Template", err);
       showSweetAlert({
-        title: "Creation Failed",
-        text: err.message || "Failed to create Template. Please try again.",
+        title: "Failed",
+        text: err.message || "",
         icon: "error",
       });
       //window.location.reload();

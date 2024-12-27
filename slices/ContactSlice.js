@@ -8,16 +8,16 @@ import { CONTACTLIST, CONTACTDETAILS, CREATECONTACT, DELETECONTACT, UPDATECONTAC
 // Fetch Clients
 export const fetchContact = createAsyncThunk(
   'contact/fetchContact',
-  async ({clientId}, { rejectWithValue }) => {
+  async ({clientId,groupId,searchStr,pageNo,pageSize}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${CONTACTLIST}?ClientId=${clientId}`);
+      const response = await API.get(`${CONTACTLIST}?ClientId=${clientId}&GroupId=${groupId}&PageNo=${pageNo}&PageSize=${pageSize}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           contacts: response.data.result,
           totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
         };
       } else {
-        throw new Error('Failed to fetch contacts');
+        throw new Error('Failed to fetch details');
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -180,7 +180,7 @@ const contactSlice = createSlice({
       .addCase(createContact.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Client created successfully';
+        state.message = action.payload.message || 'Created Successfully';
       })
       .addCase(createContact.rejected, (state, action) => {
         state.loading = false;
@@ -197,7 +197,7 @@ const contactSlice = createSlice({
       .addCase(updateContact.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Client updated successfully';
+        state.message = action.payload.message || 'Updated Successfully';
       })
       .addCase(updateContact.rejected, (state, action) => {
         state.loading = false;
@@ -214,7 +214,7 @@ const contactSlice = createSlice({
       .addCase(deleteContact.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Client deleted successfully';
+        state.message = action.payload.message || 'Deleted Successfully';
       })
       .addCase(deleteContact.rejected, (state, action) => {
         state.loading = false;

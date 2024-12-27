@@ -21,7 +21,7 @@ export const fetchPermissions = createAsyncThunk(
             totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
           };
         } else {
-          throw new Error('Failed to fetch permissions');
+          throw new Error('Failed to fetch details');
         }
       } catch (err) {
         const handledError = handleError(err);
@@ -118,7 +118,7 @@ const permissionSlice = createSlice({
       .addCase(createPermission.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Permission created successfully';
+        state.message = action.payload.message || 'Created Successfully';
       })
       .addCase(createPermission.rejected, (state, action) => {
         state.loading = false;

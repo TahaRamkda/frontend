@@ -130,13 +130,13 @@ const CampaignsList = () => {
 
       const response = await dispatch(activateCampaign(requestBody)).unwrap();
       if (response.success) {
-        showSweetAlert({ title: "Client Updated", text: response.message, icon: "success" });
+        showSweetAlert({ title: "Updated Successfully", text: "", icon: "success" });
         setIsModalOpen(false);
       } else {
         showSweetAlert({ title: "Error", text: response.message, icon: "error" });
       }
     } catch (error) {
-      showSweetAlert({ title: "Cannot schedule campaign", text: error.message, icon: "error" });
+      showSweetAlert({ title: "Failed", text: error.message, icon: "error" });
     }
   };
 

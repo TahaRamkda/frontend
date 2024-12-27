@@ -17,7 +17,7 @@ export const fetchUser = createAsyncThunk(
             totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
           };
         } else {
-          throw new Error('Failed to fetch Groups');
+          throw new Error('Failed to fetch details');
         }
       } catch (err) {
         const handledError = handleError(err);
@@ -181,7 +181,7 @@ const UserSlice = createSlice({
       .addCase(createUser.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'User created successfully';
+        state.message = action.payload.message || 'Created Successfully';
       })
       .addCase(createUser.rejected, (state, action) => {
         state.loading = false;
@@ -198,7 +198,7 @@ const UserSlice = createSlice({
       .addCase(updateUser.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Client updated successfully';
+        state.message = action.payload.message || 'Updated Successfully';
       })
       .addCase(updateUser.rejected, (state, action) => {
         state.loading = false;
@@ -215,7 +215,7 @@ const UserSlice = createSlice({
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Client deleted successfully';
+        state.message = action.payload.message || 'Deleted Successfully';
       })
       .addCase(deleteUser.rejected, (state, action) => {
         state.loading = false;

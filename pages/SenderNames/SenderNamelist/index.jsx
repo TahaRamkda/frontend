@@ -14,6 +14,7 @@ import {
 } from "@/slices/SenderNameSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import App from "@/components/App"
+import SenderNameForm from "../CreateSenderName";
 
 const SendernameList = () => {
   const router = useRouter();
@@ -22,16 +23,14 @@ const SendernameList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sendernameForm, setSendernameForm] = useState({});
   const [filterText, setFilterText] = useState("");
+  const [CreateModalOPen, setCreateModalOpen] = useState(false);
 
   const sendernameColumns = [   
     { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
     { name: "Client Name", selector: (row) => row.clientName, sortable: true },
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
-    { name: "Phone Id", selector: (row) => row.phoneNumber, sortable: true },
-    { name: "App Id", selector: (row) => row.phoneNumber, sortable: true },
     { name: "Limit", selector: (row) => row.limit, sortable: true },
     { name: "Quality", selector: (row) => row.quality, sortable: true },
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
     {
       name: "Action",
       cell: (row) => (
@@ -41,13 +40,13 @@ const SendernameList = () => {
             title="Edit"
             onClick={() => handleDetailClick(row.senderId)}
           >
-            <HiPencilAlt style={{fontSize: "20px"}}/>
+            <HiPencilAlt style={{fontSize: "15px"}}/>
           </button>
           <button
             className="uniform_icon_btn"
             onClick={() => handleDeleteClick(row.senderId)}
           >
-            <HiTrash style={{fontSize: "20px"}}/>
+            <HiTrash style={{fontSize: "15px"}}/>
           </button>
         </div>
       ),
@@ -67,11 +66,18 @@ const SendernameList = () => {
       alert("Failed to fetch sender details: " + error.message);
     }
   };
+  const handleCancel = () => {
+    setCreateModalOpen(false)
+  };
 
+  const handleCreate = () => {
+    setCreateModalOpen(true)
+  };
+  
   const handleDeleteClick = (senderId) => {
     SweetAlert.fire({
       title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      text: "",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -81,13 +87,15 @@ const SendernameList = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          dispatch(deleteSendername({ senderId })).unwrap();
-          showSweetAlert({
-            title: "Sender Deleted",
-            text: "The sender has been deleted successfully",
-            icon: "success",
+          dispatch(deleteSendername({ senderId })).then(()=>{
+            showSweetAlert({
+              title: "Deleted Successfully",
+              text: "",
+              icon: "success",
+            });
+            refreshSendernameList();
           });
-          refreshSendernameList();
+          
         } catch (error) {
           alert("An unexpected error occurred: " + error.message);
         }
@@ -118,8 +126,8 @@ const SendernameList = () => {
       const response = await dispatch(updateSendername(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({
-          title: "Sender Updated",
-          text: "Sender details have been updated successfully.",
+          title: "Updated Successfully",
+          text: "",
           icon: "success",
         });
         setIsModalOpen(false);
@@ -149,9 +157,10 @@ const SendernameList = () => {
 
   const subHeaderComponentMemo = useMemo(() => {
     return (
-      <div className="flex justify-between w-full ">
-      <div className="justify-start ">
-      <label className="mr-1">Search </label>
+      <div className="w-full">
+      <div className="grid grid-cols-5 gap-4">
+      <div className="flex flex-col space-y-1 text-start mb-1">
+      <label className="font-medium text-gray-700 text-sm ">Search </label>
       <input 
        type="search" 
        value={filterText} 
@@ -160,6 +169,7 @@ const SendernameList = () => {
       //  placeholder=" "
      />
      </div>
+   </div>
    </div>
     );
   }, [filterText]);
@@ -173,11 +183,11 @@ const SendernameList = () => {
       
       <div className="flex items-center">
   {loading && <Loading />}
-  <div className='mb-1'>
-  <h4 className="font-bold mb-2">Sender Name List</h4>
+  <div className=''>
+  <h4 className="font-bold ">Sender Name List</h4>
   </div>
-  <div className="ml-auto mb-2">
-  <button className="uniform_btn" onClick={() => router.push("/SenderNames/CreateSenderName")}>
+  <div className="ml-auto mb-1">
+  <button className="uniform_btn" onClick={handleCreate}>
           Create Sender Name
         </button>
   </div>
@@ -190,9 +200,9 @@ const SendernameList = () => {
               highlightOnHover
               striped
               pagination
-              className="w-full border"
               subHeader
               subHeaderComponent={subHeaderComponentMemo}
+              className="w-full border"
               customStyles={{
                 table: {
                   style: {
@@ -207,7 +217,7 @@ const SendernameList = () => {
                 },
                 headCells: {
                   style: {
-                   
+                    
                     borderRight: '1px solid #ddd', // Grid line between columns
                     fontWeight: 'bold',
                   },
@@ -229,13 +239,20 @@ const SendernameList = () => {
         
        
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white rounded-lg p-6 w-full max-w-3xl">
-              <h4 className="text-lg font-semibold mb-4">Modify Sender</h4>
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
+             {/* Close button */}
+             <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-4 right-4 text-xl text-gray-600 hover:text-gray-800"
+            >
+              &times;
+            </button>
+              <h4 className="text-xl mb-4">Edit Sender</h4>
               <form onSubmit={handleUpdateSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+               
                   <div>
-                    <label className="block mb-1">
+                    <label className="font-medium text-gray-700 text-sm">
                       Sender Name
                     </label>
                     <input
@@ -244,11 +261,11 @@ const SendernameList = () => {
                       name="senderName"
                       value={sendernameForm.senderName || ""}
                       onChange={handleFormChange}
-                      className="p-2 border rounded w-full"
+                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
                     />
                   </div>
                   <div>
-                    <label  className="block mb-1">
+                    <label  className="font-medium text-gray-700 text-sm">
                       Phone Number
                     </label>
                     <input
@@ -257,13 +274,13 @@ const SendernameList = () => {
                       name="phoneNumber"
                       value={sendernameForm.phoneNumber || ""}
                       onChange={handleFormChange}
-                      className="p-2 border rounded w-full"
+                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
                     />
                   </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
+                
+                
                   <div>
-                    <label className="block mb-1">
+                    <label className="font-medium text-gray-700 text-sm">
                       Limit
                     </label>
                     <input
@@ -272,11 +289,11 @@ const SendernameList = () => {
                       name="limit"
                       value={sendernameForm.limit || ""}
                       onChange={handleFormChange}
-                      className="p-2 border rounded w-full"
+                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block mb-1">
+                    <label className="font-medium text-gray-700 text-sm">
                       Quality
                     </label>
                     <input
@@ -285,29 +302,31 @@ const SendernameList = () => {
                       name="quality"
                       value={sendernameForm.quality || ""}
                       onChange={handleFormChange}
-                      className="p-2 border rounded w-full"
+                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
                     />
                   </div>
-                </div>
                 
-                  <button
-                    type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded"
-                  >
-                    Cancel
-                  </button>
+                
+                 <div className="flex w-full justify-end">
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-gray-500 text-white rounded ml-4"
+                    className="uniform_btn"
                   >
                     Save
                   </button>
+                  </div>
                 
               </form>
             </div>
           </div>
         )}
+        {CreateModalOPen &&(
+        <SenderNameForm 
+        isVisible={true}
+        onClose={handleCancel}
+        onsuccess={refreshSendernameList}
+        />
+      )}
       
     </App>
   );

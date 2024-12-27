@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { GROUPLIST, CREATEGROUP, GROUPDETAILS,  UPDATEGROUP, DELETEGROUP } from '@/utils/apiConstants';
+import { GROUPLIST, CREATEGROUP, GROUPDETAILS,  UPDATEGROUP, DELETEGROUP, GROUPDROPDOWN } from '@/utils/apiConstants';
 
 // Thunks
 // Fetch Group
@@ -16,7 +16,26 @@ export const fetchGroup = createAsyncThunk(
             totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
           };
         } else {
-          throw new Error('Failed to fetch Groups');
+          throw new Error('Failed to fetch details');
+        }
+      } catch (err) {
+        const handledError = handleError(err);
+        return rejectWithValue(handledError);
+      }
+    }
+  );
+export const fetchGroupsDrop = createAsyncThunk(
+    'group/fetchGroupsDrop',
+    async ({clientId, SearchStr}, { rejectWithValue }) => {
+      try {
+        const response = await API.get(`${GROUPDROPDOWN}?ClientId=${clientId}&searchStr=${SearchStr}`);
+        if (response?.status === 200 && response.data?.result) {
+          return {
+            groupDrop: response.data.result,
+            totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
+          };
+        } else {
+          throw new Error('Failed to fetch details');
         }
       } catch (err) {
         const handledError = handleError(err);
@@ -87,6 +106,7 @@ const GroupSlice = createSlice({
   name: 'group',
   initialState: {
     groups: [],
+    groupDrop:[],
     group: null,
     loading: false,
     error: null,
@@ -115,6 +135,13 @@ const GroupSlice = createSlice({
       state.currentPage = 1;
       state.totalPages = 1;
       state.pageSize = 10;
+      state.totalRecords = 0;
+    },
+    clearGroupDropState: (state) => {
+      state.groupDrop = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
       state.totalRecords = 0;
     },
     
@@ -154,6 +181,22 @@ const GroupSlice = createSlice({
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
+      // Group Dropdowns
+      .addCase(fetchGroupsDrop.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchGroupsDrop.fulfilled, (state, action) => {
+        state.loading = false;
+        state.groupDrop = action.payload.groupDrop;
+        state.totalRecords = action.payload.totalRecords;
+        state.message = action.payload.message || '';
+      })
+      .addCase(fetchGroupsDrop.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
 
       // Fetch Client by ID
       .addCase(fetchGroupById.pending, (state) => {
@@ -180,7 +223,7 @@ const GroupSlice = createSlice({
       .addCase(createGroup.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Client created successfully';
+        state.message = action.payload.message || ' Created Successfully';
       })
       .addCase(createGroup.rejected, (state, action) => {
         state.loading = false;
@@ -197,7 +240,7 @@ const GroupSlice = createSlice({
       .addCase(updateGroup.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Client updated successfully';
+        state.message = action.payload.message || 'Updated Successfully';
       })
       .addCase(updateGroup.rejected, (state, action) => {
         state.loading = false;
@@ -214,7 +257,7 @@ const GroupSlice = createSlice({
       .addCase(deleteGroup.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Client deleted successfully';
+        state.message = action.payload.message || 'Deleted Successfully';
       })
       .addCase(deleteGroup.rejected, (state, action) => {
         state.loading = false;
@@ -231,6 +274,7 @@ export const {
   clearGroupState,
   clearGroupDetailState,
   clearGroupCreateState,
+  clearGroupDropState,
   clearGroupDeleteState,
 } = GroupSlice.actions;
 

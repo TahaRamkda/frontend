@@ -28,6 +28,7 @@ export const CREATEGROUP = "/Groups/addGroup" ;
 export const GROUPDETAILS = "/Groups/getgroupbyid";
 export const UPDATEGROUP = "/Groups/updategroup";
 export const DELETEGROUP = "/Groups/deletegroup";
+export const GROUPDROPDOWN = "/Groups/getgroups"
 
 export const TEMPLATELIST = "/Templates/gettemplateslist";
 export const TEMPLATEDETAILS = "/Templates/gettemplatedetails";
@@ -35,6 +36,7 @@ export const CREATETEMPLATE = "/Templates/addTemplate";
 export const SYNCTEMPLATE = "/Templates/templatesync";
 export const UPDATETEMPLATE = "/Templates/updatetemplate";
 export const DELETETEMPLATE = "/Templates/deletetemplate";
+export const TEMPLATEDROPDOWN = "/Templates/gettemplates"
 
 export const ROLELIST = "/Role/getRolelist";
 export const ROLEDETAILS = "/Role/getRolebyid";
@@ -77,6 +79,7 @@ export const AGENTSTIMINGLIST = "/Agents/getagenttiminglist"
 export const ADDAGENTSTIMING = "/Agents/addagenttimings"
 export const UPDATEAGENT = "/Agents/updateagent"
 export const DELETEAGENT = "/Agents/deleteagent"
+export const AGENTDROPDOWN = "/Agents/getagents"
 
 //convesration Endpoints
 export const CONVERSATIONLIST = "/Conversation/getagentconversationlist";

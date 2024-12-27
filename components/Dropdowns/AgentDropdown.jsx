@@ -1,19 +1,22 @@
-import React, { useEffect, useRef } from 'react';
+import React, {useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
-import { fetchRoles, clearRoleState } from "@/slices/RoleSlice";
+import { fetchAgentsDrop, cleaAgenDroptState } from '@/slices/AgentSlice'; 
+import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
-const RoleDropdown = ({ name, value, onChange }) => {
+const AgentDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null); 
-  const { roles, loading, error } = useSelector((state) => state.roles);
-
+  const { agentDrop, loading, error } = useSelector((state) => state.agents);
+ const [searchString, setsearchString] = useState("")
+ const [SenderId,setSenderId] = useState(0)
+ 
   useEffect(() => {
-    dispatch(fetchRoles({clientId: localStorage.getItem("clientId") }));
+    dispatch(fetchAgentsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString, senderId:SenderId }));
     return () => {
-      dispatch(clearRoleState());
+      dispatch(cleaAgenDroptState());
     };
   }, [dispatch]);
 
@@ -38,36 +41,34 @@ const RoleDropdown = ({ name, value, onChange }) => {
         $(selectRef.current).off('change');
       }
     };
-  }, [roles, onChange]);
+  }, [agentDrop, onChange]);
 
-  if (loading) return <p className="text-gray-500">Loading...</p>;
-  if (error) return <p className="text-red-500">Error loading: {error}</p>;
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p className="text-danger">Error loading: {error}</p>;
 
   return (
-    <div className="">
-     
-      <select
-        id={name}
+    <div>
+      <Input
+        type="select"
+        innerRef={selectRef}
         name={name}
-        ref={selectRef}
         value={value}
         onChange={onChange}
-        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
         required
       >
         <option value="0">Select</option>
-        {roles && roles.length > 0 ? (
-          roles.map((role) => (
-            <option key={role.roleId} value={role.roleId}>
-              {role.roleName}
+        {agentDrop && agentDrop.length > 0 ? (
+          agentDrop.map((agent) => (
+            <option key={agent.id} value={agent.id}>
+              {agent.name}
             </option>
           ))
         ) : (
           <option disabled>No records found</option>
         )}
-      </select>
+      </Input>
     </div>
   );
 };
 
-export default RoleDropdown;
+export default AgentDropdown;

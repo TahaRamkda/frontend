@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { createAgent } from "@/slices/AgentSlice"; // Assuming this action exists
+import { createAgent, clearAgentCreateState } from "@/slices/AgentSlice"; // Assuming this action exists
 import showSweetAlert from "@/components/Sweetalert"; // Import your SweetAlert utility
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Table, Input } from "reactstrap";
 import { useRouter } from "next/navigation";
 import App from '@/components/App';
-import Sendernames from "@/components/Dropdowns/SendernameDropdown";
+import SendernameDropdown from "@/components/MultiSelect/SendernameDropdown";
 
-const AgentsForm = ({onClose, isVisible}) => {
+const AgentsForm = ({onClose, isVisible ,onsuccess}) => {
   const [selectedSenderId, setSelectedSenderId] = useState(null);
   const [formData, setFormData] = useState({
     userName: "",
     password: "",
     agentFName: "",
     agentLName: "",
-    senderIds: selectedSenderId,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -42,25 +41,28 @@ const AgentsForm = ({onClose, isVisible}) => {
       ...formData,
       actionBy: localStorage.getItem("userId"),
       clientId: localStorage.getItem("clientId"),
+      senderIds:selectedSenderId,
     };
 
     try {
       const response = await dispatch(createAgent(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({
-          title: "Agent Created",
-          text: response.message || "The agent has been successfully created.",
+          title: "Created Successfully",
+          text: "",
           icon: "success",
         });
-        router.push("/Agents/AgentsList");
+        clearAgentCreateState()
+        onsuccess()
+        onClose()
       } else {
         throw new Error(response.message || "Creation failed");
       }
     } catch (err) {
       console.error("Failed to create agent:", err);
       showSweetAlert({
-        title: "Creation Failed",
-        text: err.message || "Failed to create agent. Please try again.",
+        title: "Failed",
+        text: err.message || "",
         icon: "error",
       });
     } finally {
@@ -70,7 +72,7 @@ const AgentsForm = ({onClose, isVisible}) => {
 
   return (
     <App>
-   <Modal isOpen={isVisible} toggle={onClose}>
+   <Modal isOpen={isVisible} toggle={onClose} fade={false}>
       <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center ">
         <div className="bg-white p-6 rounded shadow-lg w-2/5  relative">
         
@@ -79,56 +81,57 @@ const AgentsForm = ({onClose, isVisible}) => {
       <form onSubmit={handleSubmit} className="space-y-6">
        
         <div>
-        <label className="block mb-1 mt-1">Sender Name</label>
-          <Sendernames name="senderId" value={selectedSenderId} onChange={handleSenderChange} />
+        <label className="font-medium text-gray-700 text-sm">Sender Name</label>
+          <SendernameDropdown name="senderIds" value={selectedSenderId} />
         </div>
         <div>
-          <label className="block mb-1 mt-1">User Name</label>
-          <input
-          required
-            type="text"
-            name="userName"
-            value={formData.userName}
-            onChange={handleChange}
-            className="border rounded py-1 px-2 w-full text-sm"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 mt-1">Password</label>
-          <input
-          required
-            type="text"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="border rounded py-1 px-2 w-full text-sm"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 mt-1">First Name</label>
+          <label className="font-medium text-gray-700 text-sm">First Name</label>
           <input
           required
             type="text"
             name="agentFName"
             value={formData.agentFName}
             onChange={handleChange}
-            className="border rounded py-1 px-2 w-full text-sm"
+            className="border rounded py-1 px-2 w-full mt-1 text-sm"
           />
         </div>
 
         <div>
-          <label className="block mb-1 mt-1">Last Name</label>
+          <label className="font-medium text-gray-700 text-sm">Last Name</label>
           <input
           required
             type="text"
             name="agentLName"
             value={formData.agentLName}
             onChange={handleChange}
-            className="border rounded py-1 px-2 w-full text-sm"
+            className="border rounded py-1 px-2 w-full mt-1 text-sm"
           />
         </div>
+        <div>
+          <label className="font-medium text-gray-700 text-sm">User Name</label>
+          <input
+          required
+            type="text"
+            name="userName"
+            value={formData.userName}
+            onChange={handleChange}
+            className="border rounded py-1 px-2 w-full mt-1 text-sm"
+          />
+        </div>
+
+        <div>
+          <label className="font-medium text-gray-700 text-sm">Password</label>
+          <input
+          required
+            type="text"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            className="border rounded py-1 px-2 w-full mt-1 text-sm"
+          />
+        </div>
+
+       
         <div className="flex space-x-4 justify-end">
          
           
