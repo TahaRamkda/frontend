@@ -31,19 +31,16 @@ const TemplateList = () => {
     {
       name: "Action",
       cell: (row) => (
+        <center>
         <div className="flex gap-2">
            <button className="uniform_icon_btn" onClick={() => handleDetailClick(row.id)}>
               <HiPencilAlt style={{fontSize: "15px"}}/>
              </button> 
           <button className="uniform_icon_btn" onClick={() => handleDeleteClick(row.id)}>
               <HiTrash style={{fontSize: "15px"}}/>
-              </button>
-           {/* <button
-            className="uniform_icon_btn"
-             onClick={() => handleAsynClick(row.id)}>
-              <HiRefresh style={{fontSize: "15px"}}/>
-             </button> */}
+              </button>          
         </div>
+        </center>
       ),
     },
   ];
@@ -58,27 +55,7 @@ const TemplateList = () => {
     }
   };
 
-  const handleAsynClick = async (templates_Id) => {
-    try {
-      const requestBody = {
-        templatesId: templates_Id,
-       
-      };
-      const response = await dispatch(syncTemplates(requestBody)).unwrap();
-      if (response) {
-        showSweetAlert({
-          title: "Sync Successfully",
-          text: response.result.message,
-          icon: "success",
-        });
-      } else {
-        showSweetAlert({ title: "Error", text: "", icon: "error" });
-      }
-    } catch (error) {
-      alert("Failed to fetch details: " + error.message);
-    }
-  };
-
+  
   const handleDeleteClick = (templateId) => {
     SweetAlert.fire({
       title: "Are you sure?",
@@ -178,7 +155,8 @@ const TemplateList = () => {
                 },
                 headRow: {
                   style: {
-                    borderBottom: '1px solid #ddd', // Grid line at the bottom of the header
+                    borderBottom: '1px solid #ddd',  padding: '0px',
+                    padding: '0px', // Grid line at the bottom of the header
                   },
                 },
                 headCells: {

@@ -152,7 +152,7 @@ const Messagereports = () => {
             },
             headRow: {
               style: {
-                borderBottom: '1px solid #ddd', // Grid line at the bottom of the header
+                borderBottom: '1px solid #ddd',  padding: '0px',
               },
             },
             headCells: {

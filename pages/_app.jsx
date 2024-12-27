@@ -98,7 +98,7 @@ function MyApp({ Component, pageProps }) {
                 );
             }
         });
-        if (router.pathname.toLowerCase().indexOf("test")>-1) 
+        if (router.pathname.toLowerCase().indexOf("test")>-1 || router.pathname.toLowerCase().indexOf("flows")>-1) 
           {
 
           }
