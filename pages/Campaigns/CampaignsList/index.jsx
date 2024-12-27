@@ -9,7 +9,7 @@ import App from "@/components/App";
 import { useRouter } from 'next/router';  // Correct import
 import DataTable from 'react-data-table-component';
 import Loading from "@/components/Loader";
-import { HiPencilAlt, HiTrash, HiLightningBolt  } from "react-icons/hi";
+import { HiPencilAlt, HiTrash, HiLightningBolt, HiClock  } from "react-icons/hi";
 
 import { useSetRecoilState } from 'recoil';
 import { CampaignState } from '@/components/recoil';
@@ -181,10 +181,13 @@ const CampaignsList = () => {
       <button className="uniform_icon_btn" onClick={() => handleActivateClick(row.campaignId)}>
         <HiLightningBolt style={{fontSize: "15px"}} />
       </button>
+      <button className="uniform_icon_btn" onClick={handelClick}>
+      <HiClock style={{fontSize: "15px"}} />
+      </button>
       <button className="uniform_icon_btn" onClick={() => HandleUpdateCampaign(row.campaignId)}>
         <HiPencilAlt style={{fontSize: "15px"}} />
       </button>
-      <button className="uniform_icon_btn" onClick={handelClick}></button>
+     
       </div>
       
     )},
@@ -192,8 +195,9 @@ const CampaignsList = () => {
   ];
   const subHeaderComponentMemo = useMemo(() => {
     return (
-      <div className="flex gap-5 w-full">
-        <div className="text-start">
+      <div className='w-full'>
+      <div className="grid grid-cols-5 gap-4 justify-start">
+        <div className="flex flex-col text-start mb-1">
           <Label className="font-medium text-sm mb-0">Select Templates</Label>
           <TemplateDropdown
             name="role_Id"
@@ -201,7 +205,7 @@ const CampaignsList = () => {
             className="border rounded w-100 MarginBOt"
           />
         </div>
-        <div className="text-start ">
+        <div className="flex flex-col text-start mb-1">
           <Label className="font-medium text-sm mb-0">Search</Label>
           <Input
             type="text"
@@ -211,7 +215,7 @@ const CampaignsList = () => {
             className="border rounded  w-100"
           />
         </div>
-        <div className="text-start">
+        <div className="flex flex-col text-start mb-1">
           <Label className="font-medium text-sm mb-0">From Date</Label>
           <Input
             type="date"
@@ -221,7 +225,7 @@ const CampaignsList = () => {
             className="border rounded  w-100"
           />
         </div>
-        <div className="text-start ">
+        <div className="flex flex-col text-start mb-1">
           <Label className="font-medium text-sm mb-0">To Date</Label>
           <Input
             type="date"
@@ -233,7 +237,7 @@ const CampaignsList = () => {
         </div>
        
       </div>
-      
+      </div>
     );
   }, [srcStr, FromDate, ToDate, templateId]);
 

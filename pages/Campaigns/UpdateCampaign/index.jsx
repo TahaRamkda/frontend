@@ -305,7 +305,9 @@ const UpdateCampaigns = () => {
 
     setTypingTimeout(timeout);
   };
-
+ const handelCancel = ()=>{
+  router.push("/Campaigns/CampaignsList")
+ }
  
 
   const handleheaderVariableChange = (index, value) => {
@@ -381,7 +383,7 @@ const UpdateCampaigns = () => {
 
                 return (
                   <Form  >
-                    <div style={{ background: "#fff" }} className="p-2 px-3 rounded border-1 shadow-sm">
+                    <div style={{ background: "#fff" }} className="">
                     <FormGroup>
               <Label for="campaignName">Campaign Name</Label>
               <Input
@@ -397,7 +399,7 @@ const UpdateCampaigns = () => {
             </FormGroup>
 
                     </div>
-                    <div style={{ background: "#fff" }} className="mt-3 p-2 px-3 rounded border-1 shadow-sm">
+                    <div style={{ background: "#fff" }} className="">
                     <FormGroup>
                    <Label>Select Template</Label>
                   <Templates
@@ -411,7 +413,7 @@ const UpdateCampaigns = () => {
                     </div>
 
 
-                    <div className="border-1 rounded p-2 px-3 mt-2 shadow-sm">
+                    <div className="">
                     <FormGroup>
               <Label>Select Groups</Label>
               <Groups
@@ -481,9 +483,15 @@ const UpdateCampaigns = () => {
                         </Row>
                       </FormGroup>
                     ))}
-                    <Button className="uniform_btn mt-4 w-50" onClick={() => handleSubmit(values)}>
+                    <div className="w-full flex justify-end gap-3">
+                    <Button className="uniform_btn_Cancel " onClick={handelCancel}>
+                      Cancel
+                    </Button>
+                    <Button className="uniform_btn " onClick={() => handleSubmit(values)}>
                       Submit
                     </Button>
+                    
+                    </div>
                   </Form>
                 );
               }}

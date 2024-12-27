@@ -99,6 +99,14 @@ ul {
   color: white;
   background: linear-gradient(45deg, rgb(14, 94, 174), midnightblue);
 }
+.uniform_btn_Cancel {
+  height: 40px;
+  width: fit-content;
+  padding: 0 20px;
+  border-radius: 4px;
+  color: white;
+  background: linear-gradient(45deg, rgb(123, 127, 131), rgb(77, 77, 83));
+}
 
 .uniform_icon_btn {
   height: 30px;
@@ -286,4 +294,8 @@ input {
 .w-500{
   width: 500px;
 
+}
+
+.bWLRyr{
+  padding: 0 !important; 
 }

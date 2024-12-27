@@ -265,6 +265,9 @@ const CampaignCreate = () => {
       return newVariables;
     });
   };
+  const handelCancel = ()=>{
+    router.push("/Campaigns/CampaignsList")
+   }
 
   const handleBodyChange = (value) => {
     // Allow typing without interruptions
@@ -460,12 +463,15 @@ const CampaignCreate = () => {
                         </Row>
                       </FormGroup>
                     ))}
-                    <div className="w-full justify-end flex gap-2">
-                    <Button className="uniform_btn mt-4" onClick={() => handleSubmit(values)}>
-                      Save Campaign
-                    </Button>
-                   
                     
+                    <div className="w-full flex justify-end gap-3">
+                    <Button className="uniform_btn_Cancel " onClick={handelCancel}>
+                      Cancel
+                    </Button>
+                    
+                    <Button className="uniform_btn " onClick={() => handleSubmit(values)}>
+                      Submit
+                    </Button>
                     </div>
                   </Form>
                 );
