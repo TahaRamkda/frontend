@@ -1,17 +1,17 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { CONTACTLIST, CONTACTDETAILS, CREATECONTACT, DELETECONTACT, UPDATECONTACT } from '@/utils/apiConstants';
+import { CONTACTLIST, CONTACTDETAILS, CREATECONTACT, DELETECONTACT, UPDATECONTACT, BULKUPLOAD } from '@/utils/apiConstants';
 
 // Thunks
 
-// Fetch Clients
 export const fetchContact = createAsyncThunk(
   'contact/fetchContact',
   async ({clientId,groupId,searchStr,pageNo,pageSize}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${CONTACTLIST}?ClientId=${clientId}&GroupId=${groupId}&PageNo=${pageNo}&PageSize=${pageSize}&SearchStr=${searchStr}`);
+     const response = await API.get(`${CONTACTLIST}?ClientId=${clientId}&GroupId=${groupId}&PageNo=${pageNo}&PageSize=${pageSize}${searchStr ? `&SearchStr=${searchStr}` : ''}`);
       if (response?.status === 200 && response.data?.result) {
+        console.log("Total Recordsssssss:", response.data.result[0]);
         return {
           contacts: response.data.result,
           totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
@@ -26,7 +26,6 @@ export const fetchContact = createAsyncThunk(
   }
 );
 
-// Fetch Client by ID
 export const fetchContactById = createAsyncThunk(
   'contact/fetchContactById',
   async (contactId, { rejectWithValue }) => {
@@ -75,6 +74,20 @@ export const deleteContact = createAsyncThunk(
     try {
       const response = await API.delete(`${DELETECONTACT}?ContactId=${contactId}`);
       if (onSuccess) onSuccess(); // Handle success callback
+      return response.data;
+    } catch (error) {
+      const handledError = handleError(error);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
+// Bulk Upload
+export const bulkUpload = createAsyncThunk(
+  'media/bulkUpload',
+  async (contactData, { rejectWithValue }) => {
+    try {
+      const response = await API.post(BULKUPLOAD, contactData);
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -134,10 +147,15 @@ const contactSlice = createSlice({
       state.error = null;
       state.success = false;
     },
+    clearBulkUploadState: (state) => {
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    },
   },
   extraReducers: (builder) => {
     builder
-      // Fetch Clients
+      // Fetch Contact
       .addCase(fetchContact.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -155,7 +173,7 @@ const contactSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      // Fetch Client by ID
+      // Fetch Contact by ID
       .addCase(fetchContactById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -171,7 +189,7 @@ const contactSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      // Create Client
+      // Create Contact
       .addCase(createContact.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -188,7 +206,7 @@ const contactSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      // Update Client
+      // Update Contact
       .addCase(updateContact.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -205,7 +223,7 @@ const contactSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      // Delete Client
+      // Delete Contact
       .addCase(deleteContact.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -220,6 +238,23 @@ const contactSlice = createSlice({
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
+      })
+
+      // Bulk Upload
+      .addCase(bulkUpload.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(bulkUpload.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.message = action.payload.message || 'Uploaded Successfully';
+      })
+      .addCase(bulkUpload.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
       });
   },
 });
@@ -231,6 +266,7 @@ export const {
   clearContactState,
   clearContactDetailState,
   clearContactCreateState,
+  clearBulkUploadState,
   clearContactDeleteState,
 } = contactSlice.actions;
 

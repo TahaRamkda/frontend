@@ -10,6 +10,7 @@ import GroupDropdown from '@/components/Dropdowns/GroupDropdown';
 import ContactForm from "../CreateContact";
 import Loading from "@/components/Loader";
 import { HiPencilAlt, HiTrash ,HiRefresh  } from "react-icons/hi";
+import BulkUpload from "../BulkUpload";
 import App from '@/components/App';
 const ContactList = () => {
   const router = useRouter();
@@ -20,8 +21,9 @@ const ContactList = () => {
   const [contactForm, setcontactForm] = useState({});
   const [filterText, setFilterText] = useState('');
   const [GroupId,setGroupId] = useState(0);
-  const [SearchStr , setSearchStr]= useState("")
+  const [SearchStr , setSearchStr]= useState('')
   const [CreateModalOPen, setCreateModalOpen] = useState(false);
+  const [BulkUploadModal , setBulkUploadModal] = useState(false);
   const clientColumns = [
     { name: "Group Name", selector: (row) => row.groupName, sortable: true },
     { name: "First name", selector: (row) => row.firstName, sortable: true },
@@ -93,6 +95,7 @@ const ContactList = () => {
     const groupId = e.target.value;
     setGroupId(groupId)
     dispatch(fetchContact({clientId: localStorage.getItem("clientId"),groupId: groupId,searchStr: SearchStr,pageNo: currentPage, pageSize,}))
+    console.log("Total Records:", totalRecords);
   };
   
   const handleFormChange = (e) => {
@@ -127,6 +130,10 @@ const ContactList = () => {
       alert("Failed to update" + error.message);
     }
   };
+  const toggleModal = (reason = null) => {
+    console.log("Modal closed due to:", reason);
+    setIsModalOpen(false);
+  };
 
   const handlePageSizeChange = async (newSize) => {
           // Update page size and reset to the first page
@@ -149,6 +156,7 @@ const ContactList = () => {
 
   useEffect(() => {
     dispatch(fetchContact({ clientId: localStorage.getItem("clientId"), groupId: GroupId,searchStr: filterText,pageNo: currentPage, pageSize}));
+    console.log("Total Records:", totalRecords);
     return () => {
       dispatch(clearContactState());
     };
@@ -160,9 +168,15 @@ const ContactList = () => {
   const handleCancel = () => {
     setCreateModalOpen(false)
   };
+  const handleCancelBulk = () => {
+    setBulkUploadModal(false)
+  };
 
   const handleCreate = () => {
     setCreateModalOpen(true)
+  };
+  const handleBulkUpload = () => {
+    setBulkUploadModal(true)
   };
   
 
@@ -212,73 +226,78 @@ const ContactList = () => {
   <div >
   <h4 className="font-bold ">Contact List</h4>
   </div>
-  <div className="ml-auto mb-1">
+  <div className=" flex ml-auto mb-1 gap-4">
+  <button className="uniform_btn" onClick={handleBulkUpload}>
+          Bulk Upload
+        </button>
   <button className="uniform_btn" onClick={handleCreate}>
           Create Contact
         </button>
+        
   </div>
-</div>
+</div> 
         <div className="overflow-auto">
         <DataTable
-              data={contacts}
-              columns={clientColumns}
-              highlightOnHover
-            striped
-             pagination
-              paginationServer
-              paginationTotalRows={totalRecords}
-              onChangePage={handlePageChange}
-              onChangeRowsPerPage={handlePageSizeChange}
-              subHeader
-              subHeaderComponent={subHeaderComponentMemo}
-              className="w-full border"
-              customStyles={{
-                table: {
-                  style: {
-                    width: '100%',
-                    borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
-                  },
-                },
-                headRow: {
-                  style: {
-                    borderBottom: '1px solid #ddd',  padding: '0px',
-                  },
-                },
-                headCells: {
-                  style: {
-                   
-                    borderRight: '1px solid #ddd', // Grid line between columns
-                    fontWeight: 'bold',
-                  },
-                },
-                rows: {
-                  style: {
-                    borderBottom: '1px solid #ddd', // Horizontal grid line between rows
-                  },
-                },
-                cells: {
-                  style: {
-                    
-                    borderRight: '1px solid #ddd', // Vertical grid line between cells
-                  },
-                },
-              }}
-            />
+          data={contacts}
+          columns={clientColumns}
+          highlightOnHover
+          striped
+          pagination
+          paginationServer
+          paginationTotalRows={totalRecords}
+          onChangePage={handlePageChange}
+          onChangeRowsPerPage={handlePageSizeChange}
+          subHeader
+          subHeaderComponent={subHeaderComponentMemo}
+          className="w-full border"
+          customStyles={{
+            table: {
+              style: {
+                width: '100%',
+                borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
+              },
+            },
+            headRow: {
+              style: {
+                borderBottom: '1px solid #ddd',  padding: '0px',
+              },
+            },
+            headCells: {
+              style: {
+              
+                borderRight: '1px solid #ddd', // Grid line between columns
+                fontWeight: 'bold',
+              },
+            },
+            rows: {
+              style: {
+                borderBottom: '1px solid #ddd', // Horizontal grid line between rows
+              },
+            },
+            cells: {
+              style: {
+                
+                borderRight: '1px solid #ddd', // Vertical grid line between cells
+              },
+            },
+          }}
+        />
         </div>
       
 
       {/* Modal */}
       {isModalOpen && (
+         
+        <Modal isOpen={true} toggle={() => toggleModal("close-icon")} fade={false}>
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
-          <button
-        onClick={() => setIsModalOpen(false)}
-        className="absolute top-4 right-4 text-xl text-gray-600 hover:text-gray-800"
-      >
-        &times;
-      </button>
-            <h2 className="text-xl font-semibold mb-3">Edit Contact</h2>
-            
+          <ModalHeader
+          toggle={() => toggleModal("close-icon")}
+          
+        >
+          Edit Contact
+        </ModalHeader>
+        <ModalBody>
             <form onSubmit={handleUpdateSubmit}>
               
                 <div className="w-full">
@@ -315,18 +334,7 @@ const ContactList = () => {
                     className="border rounded py-1 px-2 w-full mt-1 text-sm"
                   />
                 </div>
-                <div className="w-full">
-                  <label className="font-medium text-gray-700 text-sm">Area Name</label>
-                  <input 
-                    id="areaName" 
-                    name="areaName" 
-                    value={contactForm.areaName || ""} 
-                    onChange={handleFormChange} 
-                    className="border rounded py-1 px-2 w-full mt-1 text-sm"
-                  />
-                </div>
-              
-              
+
                 <div className="w-full ">
                   <label className="font-medium text-gray-700 text-sm">Phone Number</label>
                   <input 
@@ -349,6 +357,16 @@ const ContactList = () => {
                     className="mt-1 border rounded py-1 px-2 w-full text-sm "
                   />
                 </div>
+                <div className="w-full">
+                  <label className="font-medium text-gray-700 text-sm">Area Name</label>
+                  <input 
+                    id="areaName" 
+                    name="areaName" 
+                    value={contactForm.areaName || ""} 
+                    onChange={handleFormChange} 
+                    className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                  />
+                </div>
               
               <div className="mt-4 w-full flex justify-end">
                 <button 
@@ -360,8 +378,10 @@ const ContactList = () => {
                 
               </div>
             </form>
+            </ModalBody>
           </div>
         </div>
+        </Modal>
       )}
       {CreateModalOPen &&(
         <ContactForm 
@@ -370,6 +390,13 @@ const ContactList = () => {
         onsuccess={refreshContactList}
         />
       )}
+      {BulkUploadModal &&(
+        <BulkUpload
+      isVisible={true}
+      onClose={handleCancelBulk}
+      onsuccess={refreshContactList} />
+      )}
+      
     </App>
   );
 };

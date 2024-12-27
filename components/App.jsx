@@ -34,7 +34,7 @@ const App = (props) => {
             <div className="pcoded-overlay-box"></div>
             <div className="pcoded-container navbar-wrapper">
                 <Head>
-                    <title>Babji whatsapp</title>
+                    <title>BCT WhatsApp</title>
                     {/* <title>{props.title}</title> */}
                 </Head>
 
