@@ -6,7 +6,7 @@ import 'select2/dist/js/select2.min.js';
 import { fetchSendernames, clearSendernameState } from "@/slices/sendernameSlice";
 import { FormGroup, Label, FormFeedback } from 'reactstrap';
 
-const SendernameDropdown = ({ name, value, onChange, error }) => {
+const SendernameDropdown = ({ name, value, onChange, error ,disabled}) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
   const { sendernames, loading, error: fetchError } = useSelector((state) => state.sendernames);
@@ -61,6 +61,7 @@ const SendernameDropdown = ({ name, value, onChange, error }) => {
         name={name}
         className="border rounded py-1 px-2 w-full text-sm"
         required
+        disabled={disabled}
       >
         <option value="0">Select</option>
         {sendernames && sendernames.length > 0 ? (

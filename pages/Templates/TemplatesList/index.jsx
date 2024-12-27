@@ -1,16 +1,38 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { Card, CardBody, CardHeader, Col, Input, Label, Alert, Button, Modal, ModalBody, ModalHeader, Form, FormGroup, Row } from "reactstrap";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Col,
+  Input,
+  Label,
+  Alert,
+  Button,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  Form,
+  FormGroup,
+  Row,
+} from "reactstrap";
 import { useRouter } from "next/navigation";
 import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchTemplates, clearTemplateState, deleteTemplates, syncTemplates, updateTemplates, fetchTemplatesById } from "@/slices/TemplateSlice";
+import {
+  fetchTemplates,
+  clearTemplateState,
+  deleteTemplates,
+  syncTemplates,
+  updateTemplates,
+  fetchTemplatesById,
+} from "@/slices/TemplateSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import UpdateTemplate from "../UpdateTemplate";
-import App from '@/components/App';
-import { HiPencilAlt, HiTrash ,HiRefresh  } from "react-icons/hi";
-import { useSetRecoilState } from 'recoil';
-import { TemplateState } from '@/components/recoil';
+import App from "@/components/App";
+import { HiPencilAlt, HiTrash, HiRefresh } from "react-icons/hi";
+import { useSetRecoilState } from "recoil";
+import { TemplateState } from "@/components/recoil";
 import Loading from "@/components/Loader";
 const TemplateList = () => {
   const router = useRouter();
@@ -20,42 +42,57 @@ const TemplateList = () => {
   //const [templateId, settemplateId] = useState(0);
   const [filterText, setFilterText] = useState("");
   const [transactonType, setTransactonType] = useState(0);
-   const settemplateId = useSetRecoilState(TemplateState);
+  const settemplateId = useSetRecoilState(TemplateState);
   const templateColumns = [
-    
-    { name: "Template Name", selector: (row) => row.templateName, sortable: true },
-    { name: " Sender Name ", selector: (row) => row.senderName, sortable: true },
-   // { name: t("Template Language"), selector: (row) => row.language, sortable: true },
+    {
+      name: "Template Name",
+      selector: (row) => row.templateName,
+      sortable: true,
+    },
+    {
+      name: " Sender Name ",
+      selector: (row) => row.senderName,
+      sortable: true,
+    },
+    // { name: t("Template Language"), selector: (row) => row.language, sortable: true },
     { name: "Status ", selector: (row) => row.status, sortable: true },
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
+    {
+      name: "Created Date",
+      selector: (row) => row.createdDate,
+      sortable: true,
+    },
     {
       name: "Action",
       cell: (row) => (
         <center>
-        <div className="flex gap-2">
-           <button className="uniform_icon_btn" onClick={() => handleDetailClick(row.id)}>
-              <HiPencilAlt style={{fontSize: "15px"}}/>
-             </button> 
-          <button className="uniform_icon_btn" onClick={() => handleDeleteClick(row.id)}>
-              <HiTrash style={{fontSize: "15px"}}/>
-              </button>          
-        </div>
+          <div className="flex gap-2">
+            <button
+              className="uniform_icon_btn"
+              onClick={() => handleDetailClick(row.id)}
+            >
+              <HiPencilAlt style={{ fontSize: "15px" }} />
+            </button>
+            <button
+              className="uniform_icon_btn"
+              onClick={() => handleDeleteClick(row.id)}
+            >
+              <HiTrash style={{ fontSize: "15px" }} />
+            </button>
+          </div>
         </center>
       ),
     },
   ];
 
-  const handleDetailClick =  (templates_Id) => {
+  const handleDetailClick = (templates_Id) => {
     try {
-     settemplateId(templates_Id);
-    router.push("/Templates/UpdateTemplate");
-      
+      settemplateId(templates_Id);
+      router.push("/Templates/UpdateTemplate");
     } catch (error) {
       alert(t("Failed to fetch Template details: ") + error.message);
     }
   };
 
-  
   const handleDeleteClick = (templateId) => {
     SweetAlert.fire({
       title: "Are you sure?",
@@ -65,29 +102,41 @@ const TemplateList = () => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
-      cancelButtonText:"Cancel"
+      cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          dispatch(deleteTemplates({ templateId })).then(()=>{
-            showSweetAlert({ title: "Deleted Successfully", text: "", icon: "success" });
+          dispatch(deleteTemplates({ templateId })).then(() => {
+            showSweetAlert({
+              title: "Deleted Successfully",
+              text: "",
+              icon: "success",
+            });
             refreshTemplateList();
           });
-         
         } catch (error) {
-          alert("An unexpected error occurred: "+ error.message);
+          alert("An unexpected error occurred: " + error.message);
         }
       }
     });
   };
 
-
   const refreshTemplateList = () => {
-    dispatch(fetchTemplates({clientId: localStorage.getItem("clientId"),TransactonType:transactonType}));
+    dispatch(
+      fetchTemplates({
+        clientId: localStorage.getItem("clientId"),
+        TransactonType: transactonType,
+      })
+    );
   };
 
   useEffect(() => {
-    dispatch(fetchTemplates({clientId: localStorage.getItem("clientId") ,TransactonType:transactonType}));
+    dispatch(
+      fetchTemplates({
+        clientId: localStorage.getItem("clientId"),
+        TransactonType: transactonType,
+      })
+    );
     return () => {
       dispatch(clearTemplateState());
     };
@@ -100,20 +149,19 @@ const TemplateList = () => {
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className="w-full">
-      <div className='grid grid-cols-5 gap-4'>
-        <div className="flex flex-col text-start mb-1">
-        <label className="font-medium text-gray-700 text-sm">Search</label>
-        <input
-          type="search"
-          value={filterText}
-          onChange={(e) => setFilterText(e.target.value)} 
-          className="border rounded"
-          placeholder=""
-        />
+        <div className="grid grid-cols-5 gap-4">
+          <div className="flex flex-col text-start mb-1">
+            <label className="font-medium text-gray-700 text-sm">Search</label>
+            <input
+              type="search"
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              className="border rounded"
+              placeholder=""
+            />
+          </div>
         </div>
-        </div>
-   </div>
-        
+      </div>
     );
   }, [filterText]);
 
@@ -124,74 +172,66 @@ const TemplateList = () => {
   return (
     <App>
       <div className="flex items-center">
-  {loading && <Loading />}
-  <div className='mb-1'>
-  <h4 className="font-bold mb-2">Templates List</h4>
-  </div>
-  <div className="ml-auto mb-2">
-    <button className="uniform_btn" onClick={() => router.push("/Templates/CreateTemplate")}>
-      Create Template
-     </button>
-  </div>
-</div>
-    
-    
-          <div className="overflow-auto">
-            <DataTable
-              data={filteredSendernames}
-              columns={templateColumns}
-              highlightOnHover
-              striped
-              pagination
-              subHeader
-              subHeaderComponent={subHeaderComponentMemo}
-              className="w-full border"
-              customStyles={{
-                table: {
-                  style: {
-                    width: '100%',
-                    borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
-                  },
-                },
-                headRow: {
-                  style: {
-                    borderBottom: '1px solid #ddd',  padding: '0px',
-                    padding: '0px', // Grid line at the bottom of the header
-                  },
-                },
-                headCells: {
-                  style: {
-                   
-                    borderRight: '1px solid #ddd', // Grid line between columns
-                    fontWeight: 'bold',
-                  },
-                },
-                rows: {
-                  style: {
-                    borderBottom: '1px solid #ddd', // Horizontal grid line between rows
-                  },
-                },
-                cells: {
-                  style: {
-                    
-                    borderRight: '1px solid #ddd', // Vertical grid line between cells
-                  },
-                },
-              }}
-            />
-          </div>
-    
-      
-      {isModalOpen && (
-    <UpdateTemplate
-    Template_Id={templateId}
-       
-    />
-)}
+        {loading && <Loading />}
+        <div className="mb-1">
+          <h4 className="font-bold mb-2">Templates List</h4>
+        </div>
+        <div className="ml-auto mb-2">
+          <button
+            className="uniform_btn"
+            onClick={() => router.push("/Templates/CreateTemplate")}
+          >
+            Create Template
+          </button>
+        </div>
+      </div>
 
-   
+      <div className="overflow-auto">
+        <DataTable
+          data={filteredSendernames}
+          columns={templateColumns}
+          highlightOnHover
+          striped
+          pagination
+          subHeader
+          subHeaderComponent={subHeaderComponentMemo}
+          className="w-full border"
+          customStyles={{
+            table: {
+              style: {
+                width: "100%",
+                borderCollapse: "collapse", // Ensures borders collapse for proper grid appearance
+              },
+            },
+            headRow: {
+              style: {
+                borderBottom: "1px solid #ddd",
+                padding: "0px",
+                padding: "0px", // Grid line at the bottom of the header
+              },
+            },
+            headCells: {
+              style: {
+                borderRight: "1px solid #ddd", // Grid line between columns
+                fontWeight: "bold",
+              },
+            },
+            rows: {
+              style: {
+                borderBottom: "1px solid #ddd", // Horizontal grid line between rows
+              },
+            },
+            cells: {
+              style: {
+                borderRight: "1px solid #ddd", // Vertical grid line between cells
+              },
+            },
+          }}
+        />
+      </div>
+
+      {isModalOpen && <UpdateTemplate Template_Id={templateId} />}
     </App>
-   
   );
 };
 

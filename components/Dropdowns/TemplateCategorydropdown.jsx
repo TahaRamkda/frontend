@@ -6,7 +6,7 @@ import 'select2/dist/js/select2.min.js';
 import { fetchtemplatecategory, cleaTemplateCategoryState } from '@/slices/MasterSlice'; 
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
-const TemplateCategoryDropdown = ({ name, value, onChange }) => {
+const TemplateCategoryDropdown = ({ name, value, onChange ,disabled }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null); 
   const { templatecategory, loading, error } = useSelector((state) => state.Master);
@@ -54,6 +54,7 @@ const TemplateCategoryDropdown = ({ name, value, onChange }) => {
         value={value}
         onChange={onChange}
         required
+        disabled = {disabled}
       >
         <option value="0">Select</option>
         {templatecategory && templatecategory.length > 0 ? (

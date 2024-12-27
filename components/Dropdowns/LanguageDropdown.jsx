@@ -6,7 +6,7 @@ import 'select2/dist/js/select2.min.js';
 import { fetchlanguage, clearLanguageState } from '@/slices/MasterSlice'; 
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
-const LanguageDropdown = ({ name, value, onChange }) => {
+const LanguageDropdown = ({ name, value, onChange ,disabled}) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null); 
   const { languages, loading, error } = useSelector((state) => state.Master);
@@ -53,6 +53,7 @@ const LanguageDropdown = ({ name, value, onChange }) => {
         value={value}
         onChange={onChange}
         required
+        disabled={disabled}
       >
         <option value="0">Select</option>
         {languages && languages.length > 0 ? (
