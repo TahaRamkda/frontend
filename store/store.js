@@ -13,6 +13,7 @@ import permissionSlice from "@/slices/PermissionSlice";
 import reportSlice from "@/slices/ReportSlice";
 import agentSlice from "@/slices/AgentSlice";
 import conversationSlice from "@/slices/ConversationSlice";
+import MasterSlice from "@/slices/MasterSlice";
 import { configureStore } from "@reduxjs/toolkit";
 
 export const store = configureStore({
@@ -32,6 +33,7 @@ export const store = configureStore({
     reports:reportSlice,
     agents:agentSlice,
     conversations:conversationSlice,
+    Master:MasterSlice,
 
     }
 })

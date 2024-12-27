@@ -18,7 +18,7 @@ const ContactList = () => {
   const { client } = useSelector((state) => state.clients);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [contactForm, setcontactForm] = useState({});
-  const [filterText, setFilterText] = useState("");
+  const [filterText, setFilterText] = useState('');
   const [GroupId,setGroupId] = useState(0);
   const [SearchStr , setSearchStr]= useState("")
   const [CreateModalOPen, setCreateModalOpen] = useState(false);
@@ -133,7 +133,7 @@ const ContactList = () => {
           dispatch(setPageSize(newSize));
           dispatch(setCurrentPage(1)); // Reset to first page
           // Fetch data with updated page size and reset to page 1
-          await dispatch(fetchContact({ clientId: localStorage.getItem("clientId"),groupId: GroupId,searchStr: SearchStr , pageSize : newSize, pageNo:1 }));
+          await dispatch(fetchContact({ clientId: localStorage.getItem("clientId"),groupId: GroupId,searchStr: filterText , pageSize : newSize, pageNo:1 }));
         };
 
   const handlePageChange = async (page) => {
@@ -141,18 +141,18 @@ const ContactList = () => {
         dispatch(setCurrentPage(page));
       
         // Fetch clients for the new page
-        await dispatch(fetchContact({ clientId: localStorage.getItem("clientId"),groupId: GroupId,searchStr: SearchStr,pageNo: page, pageSize,}));
+        await dispatch(fetchContact({ clientId: localStorage.getItem("clientId"),groupId: GroupId,searchStr: filterText,pageNo: page, pageSize,}));
       };
   const refreshContactList = () => {
-    dispatch(fetchContact({clientId: localStorage.getItem("clientId"), groupId: GroupId,searchStr: SearchStr,pageNo: currentPage, pageSize}));
+    dispatch(fetchContact({clientId: localStorage.getItem("clientId"), groupId: GroupId,searchStr: filterText,pageNo: currentPage, pageSize}));
   };
 
   useEffect(() => {
-    dispatch(fetchContact({ clientId: localStorage.getItem("clientId"), groupId: GroupId,searchStr: SearchStr,pageNo: currentPage, pageSize}));
+    dispatch(fetchContact({ clientId: localStorage.getItem("clientId"), groupId: GroupId,searchStr: filterText,pageNo: currentPage, pageSize}));
     return () => {
       dispatch(clearContactState());
     };
-  }, [dispatch]);
+  }, [dispatch,filterText]);
 
   const filteredClients = contacts.filter((contact) =>
     contact.firstName.toLowerCase().includes(filterText.toLowerCase())
@@ -220,7 +220,7 @@ const ContactList = () => {
 </div>
         <div className="overflow-auto">
         <DataTable
-              data={filteredClients}
+              data={contacts}
               columns={clientColumns}
               highlightOnHover
             striped

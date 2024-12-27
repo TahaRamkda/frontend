@@ -8,6 +8,8 @@ import AgentDropdown from '@/components/Dropdowns/AgentDropdown';
 import AgentsDropdown from '@/components/MultiSelect/AgentDropdown';
 import GroupDropdown from '@/components/Dropdowns/GroupDropdown';
 import GroupsDropdown from '@/components/MultiSelect/GroupDropdown';
+import TemplateCategoryDropdown from '@/components/Dropdowns/TemplateCategorydropdown';
+import LanguageDropdown from '@/components/Dropdowns/LanguageDropdown';
 import App from "@/components/App";
 import { useRouter } from 'next/router';  // Correct import
 
@@ -64,6 +66,16 @@ const DropDowns = () => {
         <GroupsDropdown />
       </div>
   
+      <div className="flex items-center">
+        <label htmlFor="">Template</label>
+        <TemplateCategoryDropdown onChange={handleChange1}/>
+      </div><br />
+  
+      <div className="flex items-center">
+        <label htmlFor="">Language</label>
+        <LanguageDropdown onChange={handleChange1}/>
+      </div><br />
+
 
     </App>
   );

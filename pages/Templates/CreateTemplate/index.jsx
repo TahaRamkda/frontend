@@ -22,7 +22,8 @@ import ClientDropdown from "@/components/Dropdowns/ClientDropdown";
 import { set } from "date-fns";
 import Loader from "@/components/Loader";
 import MonitorFormikContext from "@/components/monitorformikcontext";
-// import CustomEditor from "@/components/CustomEditor/CustomEditor";
+import TemplateCategoryDropdown from "@/components/Dropdowns/TemplateCategorydropdown";
+import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
 const CustomEditor = dynamic(() => import('../../../components/CustomEditor/CustomEditor'), { ssr: false });
 const TemplateCreationPage = () => {
   const router = useRouter();
@@ -79,30 +80,7 @@ const TemplateCreationPage = () => {
   const replaceClosingPTagsWithNewline = (content) => {
     return content?.replace(/<\/p>/gi, '\n ').replace(/<p.*?>/gi, '').replace(/\n /g, '\n  ');
   };
-  // const MonitorFormikContext = () => {
-  //   const { values } = useFormikContext(); 
-  //   useEffect(() => {
-  //     const footer = values.footer || "";
-  //     let media = null;
-  
-  //     if (["4", "2", "3"].includes(values.headerType)) {
-  //        const headerText = "";
-  //       media = values.headerMedia || defaultimage.src;
-  //       setMessagePreview((prev) => ({
-  //         ...prev,
-  //         header: headerText,
-  //       }));
-  //     }
-  
-  //     setMessagePreview((prev) => ({
-  //       ...prev,
-  //       footer: footer,
-  //       media: media,
-  //     }));
-  //   }, [values]);  // Use 'values' as the dependency
-  
-  //   return null;
-  // };
+ 
   const togglePopup = () => setshowaction(!showaction);
 
   //console.log("!@#$%^&", bodyFinalContent)
