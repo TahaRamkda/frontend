@@ -85,6 +85,29 @@ const AgentsForm = ({onClose, isVisible ,onsuccess}) => {
           <SendernameDropdown name="senderIds" value={selectedSenderId} />
         </div>
         <div>
+          <label className="font-medium text-gray-700 text-sm">First Name</label>
+          <input
+          required
+            type="text"
+            name="agentFName"
+            value={formData.agentFName}
+            onChange={handleChange}
+            className="border rounded py-1 px-2 w-full mt-1 text-sm"
+          />
+        </div>
+
+        <div>
+          <label className="font-medium text-gray-700 text-sm">Last Name</label>
+          <input
+          required
+            type="text"
+            name="agentLName"
+            value={formData.agentLName}
+            onChange={handleChange}
+            className="border rounded py-1 px-2 w-full mt-1 text-sm"
+          />
+        </div>
+        <div>
           <label className="font-medium text-gray-700 text-sm">User Name</label>
           <input
           required
@@ -108,29 +131,7 @@ const AgentsForm = ({onClose, isVisible ,onsuccess}) => {
           />
         </div>
 
-        <div>
-          <label className="font-medium text-gray-700 text-sm">First Name</label>
-          <input
-          required
-            type="text"
-            name="agentFName"
-            value={formData.agentFName}
-            onChange={handleChange}
-            className="border rounded py-1 px-2 w-full mt-1 text-sm"
-          />
-        </div>
-
-        <div>
-          <label className="font-medium text-gray-700 text-sm">Last Name</label>
-          <input
-          required
-            type="text"
-            name="agentLName"
-            value={formData.agentLName}
-            onChange={handleChange}
-            className="border rounded py-1 px-2 w-full mt-1 text-sm"
-          />
-        </div>
+       
         <div className="flex space-x-4 justify-end">
          
           

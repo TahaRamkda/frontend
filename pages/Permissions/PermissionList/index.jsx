@@ -181,7 +181,7 @@ const PermissionList = () => {
       <div className="w-full">
       <div className='grid grid-cols-5 gap-4'>
         <div className="flex flex-col text-start mb-1">
-        <label className="font-medium text-gray-700 text-sm">Roles</label>
+        <label className="font-medium text-gray-700 text-sm">Role</label>
         <RoleDropdown 
         name="role_Id" 
         value={selectedRole} 
