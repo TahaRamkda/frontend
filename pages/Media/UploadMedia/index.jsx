@@ -23,24 +23,24 @@ const UploadMediaPage = ({ setIsModalOpen, onUploadSuccess }) => {
         dispatch(clearMediaUploadState());
         setSubmitting(false);
         showSweetAlert({
-          title: "Media Uploaded",
-          text: response.result.message || "The Media has been successfully uploaded.",
+          title: "Uploaded Successfully",
+          text: "",
           icon: "success",
         });
         onUploadSuccess();
         // window.location.reload();
       } else {
         showSweetAlert({
-          title: "Upload Failed",
-          text: response.result.message || "Failed to upload media. Please try again.",
+          title: "Failed",
+          text: response.result.message || "",
           icon: "error",
         });
       }
     } catch (err) {
-      console.error("Failed to Upload Media", err);
+      console.error("Failed to Upload", err);
       showSweetAlert({
-        title: "Upload Failed",
-        text: response.result.message || "Failed to upload media. Please try again.",
+        title: "Failed",
+        text: response.result.message || "",
         icon: "error",
       });
     }
@@ -51,19 +51,24 @@ const UploadMediaPage = ({ setIsModalOpen, onUploadSuccess }) => {
   };
 
   return (
-    <Container fluid className="d-flex">
-      <Row className="w-100">
-        <Col className="rounded">
-          <h4 className="mb-2">Upload New Media</h4>
-          <label className="block mb-1 mt-1">Sender Names</label>
-          <Sendernames name="senderId" value={selectedSenderId} onChange={handleSenderChange} />
+    <div>
+        <h4 className="font-bold">Upload New Media</h4>
+       <div className="w-full bg-white p-3 rounded mb-5">
+        
+        <div className="grid grid-cols-5 gap-4">
+          <div className="flex flex-col  mt-2 text-start">
+            <label className="font-medium text-gray-700 text-sm">Sender Names</label>
+            <Sendernames name="senderId" value={selectedSenderId} onChange={handleSenderChange} />
+          </div>
+<div className="col-span-4">
           <Formik
             initialValues={{ MediaFile: null }}
             onSubmit={handleSubmit}
           >
             {({ setFieldValue, isSubmitting }) => (
               <Form>
-                <FormGroup className="d-flex align-items-center gap-2">
+                <div className="grid grid-cols-3 gap-4 mt-11 w-full">
+                  <div className="flex flex-col mb-1 text-start">
                   <Input
                     type="file"
                     className="form-control"
@@ -74,16 +79,22 @@ const UploadMediaPage = ({ setIsModalOpen, onUploadSuccess }) => {
                       setFieldValue("MediaFile", file || null);
                     }}
                   />
-                  <Button className="uniform_btn" type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? "Uploading..." : "Upload"}
+                  </div>
+                  <div className=" flex justify-end col-span-2 mt-2">
+                   <Button className="uniform_btn" type="submit" disabled={isSubmitting}>
+                    Upload Media
                   </Button>
-                </FormGroup>
+                  </div>
+                </div>
               </Form>
             )}
           </Formik>
-        </Col>
-      </Row>
-    </Container>
+          </div>
+         
+         
+          </div>
+          </div>
+          </div>
   );
 };
 

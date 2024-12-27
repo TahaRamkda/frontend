@@ -83,18 +83,18 @@ const AgentTimingList = ({ agentId, isVisible, onClose }) => {
       const response = await dispatch(createAgentTiming(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({
-          title: "Data Added",
-          text: response.message || "The Agent Timing Data has been successfully added.",
+          title: "Added Successfully",
+          text:  "",
           icon: "success",
         });
         dispatch(fetchAgentsTimingList({ clientId: localStorage.getItem("clientId"), agentId: agentId }));
       } else {
-        throw new Error(response.message || "Addition failed");
+        throw new Error(response.message || "Failed");
       }
     } catch (err) {
       showSweetAlert({
-        title: "Addition Failed",
-        text: err.message || "Failed to add agent timing data. Please try again.",
+        title: "Failed",
+        text: err.message || "",
         icon: "error",
       });
     } finally {
@@ -103,7 +103,7 @@ const AgentTimingList = ({ agentId, isVisible, onClose }) => {
   };
 
   return (
-    <Modal isOpen={isVisible} toggle={onClose} >
+    <Modal isOpen={isVisible} toggle={onClose} fade={false} >
       <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white p-6 rounded shadow-lg w-2/5  relative">
       
@@ -119,7 +119,7 @@ const AgentTimingList = ({ agentId, isVisible, onClose }) => {
           <Table bordered>
             <thead>
               <tr>
-                <th>Week Days</th>
+                <th>Weekday</th>
                 <th>Start Time</th>
                 <th>End Time</th>
                 <th>Action</th>

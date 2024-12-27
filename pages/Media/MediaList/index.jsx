@@ -40,7 +40,7 @@ const MediaList = ({ isPopup, onSelectMedia,contentTypeStr }) => {
   const handleDeleteClick = (mediaId) => {
     SweetAlert.fire({
       title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      text: "",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",

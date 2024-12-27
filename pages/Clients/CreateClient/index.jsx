@@ -45,19 +45,19 @@ const ClientForm = () => {
       const response = await dispatch(createClient(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({
-          title: "Client Created",
-          text: response.message || "The client has been successfully created.",
+          title: "Created Successfully",
+          text: response.message || "",
           icon: "success",
         });
         router.push("/Clients/ClientsList");
       } else {
-        throw new Error(response.message || "Creation failed");
+        throw new Error(response.message || "Failed");
       }
     } catch (err) {
       console.error("Failed to create client:", err);
       showSweetAlert({
-        title: "Creation Failed",
-        text: err.message || "Failed to create client. Please try again.",
+        title: "Failed",
+        text: err.message || "",
         icon: "error",
       });
     } finally {

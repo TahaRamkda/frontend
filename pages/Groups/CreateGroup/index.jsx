@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { createGroup,clearGroupCreateState,fetchGroup,setPageSize, setCurrentPage } from "@/slices/GroupSlice"; // Assuming this action exists
+import { createGroup,clearGroupCreateState,fetchGroup,setPageSize, setCurrentPage } from "@/slices/Groupslice"; // Assuming this action exists
 import showSweetAlert from "@/components/Sweetalert"; // Import your SweetAlert utility
 import { useRouter } from "next/navigation";
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
@@ -38,8 +38,8 @@ const GroupForm = ({onClose, isVisible, onsuccess}) => {
       const response = await dispatch(createGroup(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({
-          title: "Group Created",
-          text: response.message || "The Group has been successfully created.",
+          title: "Created Successfully",
+          text: "",
           icon: "success",
         });
         clearGroupCreateState();
@@ -52,8 +52,8 @@ const GroupForm = ({onClose, isVisible, onsuccess}) => {
     } catch (err) {
       console.error("Failed to create Group:", err);
       showSweetAlert({
-        title: "Creation Failed",
-        text: err.message || "Failed to create Group. Please try again.",
+        title: "Failed",
+        text: response.message,
         icon: "error",
       });
     } finally {
@@ -70,14 +70,14 @@ const GroupForm = ({onClose, isVisible, onsuccess}) => {
         <ModalBody>
       <form onSubmit={handleSubmit} >
         <div>
-          <label className="block mb-1 mt-1">Group Name</label>
+          <label className="font-medium text-gray-700 text-sm">Group Name</label>
           <input
           required
             type="text"
             name="groupName"
             value={formData.groupName}
             onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+            className="border rounded py-1 px-2 w-full mt-1 text-sm"
           />
         </div>
        

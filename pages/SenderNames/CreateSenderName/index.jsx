@@ -3,6 +3,7 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useDispatch } from "react-redux";
 import { createSendername, clearSendernameCreateState } from "@/slices/SenderNameSlice"; // Assuming this action exists
 import * as Yup from "yup"; // For validation schema
+import { Row, Modal, ModalBody, ModalHeader } from "reactstrap";
 import { useRouter } from "next/navigation";
 import showSweetAlert from "@/components/Sweetalert"; // Import your SweetAlert utility
 import ClientDropdown from "@/components/Dropdowns/ClientDropdown";
@@ -12,13 +13,10 @@ const validationSchema = Yup.object({
   client_Id: Yup.string().required("Client is required"), // client_Id from dropdown
   sender_Name: Yup.string().required("Sender Name is required"),
   phone_Number: Yup.string().required("Phone Number is required"),
-  phone_Id: Yup.string().required("Phone ID is required"),
-  app_Id: Yup.string().required("App ID is required"),
-  limit: Yup.number().required("Limit is required"),
-  quality: Yup.number().required("Quality is required"),
+
 });
 
-const FormValidationsPage = () => {
+const SenderNameForm = ({onClose,onsuccess,isVisible}) => {
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -43,10 +41,12 @@ const FormValidationsPage = () => {
       const response = await dispatch(createSendername(requestBody)).unwrap();
       if (response.success) {
         clearSendernameCreateState();
+        onClose()
+        onsuccess()
         setSubmitting(false);
         showSweetAlert({
-          title: "Sender Created",
-          text: response.message || "The Sender has been successfully created.",
+          title: "Created Successfully",
+          text: "",
           icon: "success",
         });
         router.push("/SenderNames/SenderNamelist");
@@ -54,17 +54,17 @@ const FormValidationsPage = () => {
         setSubmitting(false);
         showSweetAlert({
           title: "Creation Failed",
-          text: response.message || "Failed to create Sender. Please try again.",
+          text: response.message || "",
           icon: "error",
         });
         window.location.reload();
       }
     } catch (err) {
-      console.error("Failed to create Sender", err);
+      console.error("Failed to create", err);
       setSubmitting(false);
       showSweetAlert({
         title: "Creation Failed",
-        text: err.message || "Failed to create Sender. Please try again.",
+        text: err.message || "",
         icon: "error",
       });
       window.location.reload();
@@ -73,7 +73,11 @@ const FormValidationsPage = () => {
 
   return (
     <App>
-    <div className="p-6">
+      <Modal isOpen={isVisible} toggle={onClose} fade={false}>
+    <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded shadow-lg w-2/5  relative">
+              <ModalHeader toggle={onClose}>Create Sender Name </ModalHeader>
+              <ModalBody>
       <Formik
         initialValues={{
           client_Id: "",
@@ -122,28 +126,6 @@ const FormValidationsPage = () => {
               <ErrorMessage name="phone_Number" component="span" className="text-red-500 text-sm" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Phone ID</label>
-              <Field
-                name="phone_Id"
-                type="text"
-                className={`block w-full border ${
-                  errors.phone_Id && touched.phone_Id ? "border-red-500" : "border-gray-300"
-                } rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              />
-              <ErrorMessage name="phone_Id" component="span" className="text-red-500 text-sm" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">AppID</label>
-              <Field
-                name="app_Id"
-                type="text"
-                className={`block w-full border ${
-                  errors.app_Id && touched.app_Id ? "border-red-500" : "border-gray-300"
-                } rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              />
-              <ErrorMessage name="app_Id" component="span" className="text-red-500 text-sm" />
-            </div>
-            <div>
               <label className="block text-sm font-medium text-gray-700">Limit</label>
               <Field
                 name="limit"
@@ -165,18 +147,10 @@ const FormValidationsPage = () => {
               />
               <ErrorMessage name="quality" component="span" className="text-red-500 text-sm" />
             </div>
-            <div className="flex justify-end space-x-4">
-              <button
-                type="button"
-                onClick={HandleCancel}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
-                disabled={isSubmitting}
-              >
-                Cancel
-              </button>
+            <div className="flex justify-end w-full">
               <button
                 type="submit"
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                className="uniform_btn"
                 disabled={isSubmitting}
               >
                 Create
@@ -185,9 +159,14 @@ const FormValidationsPage = () => {
           </Form>
         )}
       </Formik>
-    </div>
+      </ModalBody>
+          </div>
+      </div>
+      
+    
+    </Modal>
     </App>
   );
 };
 
-export default FormValidationsPage;
+export default SenderNameForm;

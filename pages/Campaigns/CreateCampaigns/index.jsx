@@ -206,15 +206,15 @@ const CampaignCreate = () => {
       if (response.success) {
         clearCampaignCreeateState(); 
         showSweetAlert({
-          title: "Campaign Created",
-          text: response.message || "Campaign has been reated successfully",
+          title: "Created Successfully",
+          text: "",
           icon: "success",
         });
         await router.push('/Campaigns/CampaignsList');
       } else {
         showSweetAlert({
-          title: "Creation Failed",
-          text: response.message || "Failed to create Campaigin.Please try again.",
+          title: "Failed",
+          text: response.message || "",
           icon: "error",
         });
        
@@ -223,8 +223,8 @@ const CampaignCreate = () => {
     } catch (err) {
       console.error("Failed to create Template", err);
       showSweetAlert({
-        title: "Creation Failed",
-        text: err.message || "Failed to create Template. Please try again.",
+        title: "Failed",
+        text: err.message || "",
         icon: "error",
       });
       //window.location.reload();

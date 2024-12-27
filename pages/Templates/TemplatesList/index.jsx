@@ -19,6 +19,7 @@ const TemplateList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   //const [templateId, settemplateId] = useState(0);
   const [filterText, setFilterText] = useState("");
+  const [transactonType, setTransactonType] = useState(0);
    const settemplateId = useSetRecoilState(TemplateState);
   const templateColumns = [
     
@@ -66,15 +67,15 @@ const TemplateList = () => {
       const response = await dispatch(syncTemplates(requestBody)).unwrap();
       if (response) {
         showSweetAlert({
-          title: "Template Sync",
+          title: "Sync Successfully",
           text: response.result.message,
           icon: "success",
         });
       } else {
-        showSweetAlert({ title: "Error", text: "Failed to fetch sender details", icon: "error" });
+        showSweetAlert({ title: "Error", text: "", icon: "error" });
       }
     } catch (error) {
-      alert("Failed to fetch sender details: " + error.message);
+      alert("Failed to fetch details: " + error.message);
     }
   };
 
@@ -91,9 +92,11 @@ const TemplateList = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          dispatch(deleteTemplates({ templateId })).unwrap();
-          showSweetAlert({ title: "Template Deleted", text: "The Template has been deleted successfully", icon: "success" });
-          refreshTemplateList();
+          dispatch(deleteTemplates({ templateId })).then(()=>{
+            showSweetAlert({ title: "Deleted Successfully", text: "", icon: "success" });
+            refreshTemplateList();
+          });
+         
         } catch (error) {
           alert("An unexpected error occurred: "+ error.message);
         }
@@ -103,11 +106,11 @@ const TemplateList = () => {
 
 
   const refreshTemplateList = () => {
-    dispatch(fetchTemplates({clientId: localStorage.getItem("clientId")}));
+    dispatch(fetchTemplates({clientId: localStorage.getItem("clientId"),TransactonType:transactonType}));
   };
 
   useEffect(() => {
-    dispatch(fetchTemplates({clientId: localStorage.getItem("clientId")}));
+    dispatch(fetchTemplates({clientId: localStorage.getItem("clientId") ,TransactonType:transactonType}));
     return () => {
       dispatch(clearTemplateState());
     };
@@ -119,9 +122,10 @@ const TemplateList = () => {
 
   const subHeaderComponentMemo = useMemo(() => {
     return (
-      <div className="flex justify-between w-full">
-        <div className="justify-start ">
-        <label className="mr-1">Search </label>
+      <div className="w-full">
+      <div className='grid grid-cols-5 gap-4'>
+        <div className="flex flex-col text-start mb-1">
+        <label className="font-medium text-gray-700 text-sm">Search</label>
         <input
           type="search"
           value={filterText}
@@ -130,9 +134,6 @@ const TemplateList = () => {
           placeholder=""
         />
         </div>
-        <div className="mt-2">
-     
-    
         </div>
    </div>
         

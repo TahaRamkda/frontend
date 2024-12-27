@@ -8381,7 +8381,7 @@ table tbody .border-bottom-info td {
 .pcoded-main-container {
   display: block;
   position: relative;
-  background: #eff5f7;
+  /* background: #eff5f7; */
   min-height: calc(100vh - 56px);
 }
 

@@ -3,10 +3,10 @@ import { useRouter } from "next/navigation";
 import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchContact, clearContactState, deleteContact, fetchContactById, updateContact } from "@/slices/ContactSlice";
+import { fetchContact, clearContactState, deleteContact, fetchContactById, updateContact, setPageSize,setCurrentPage } from "@/slices/ContactSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import { Row, Modal, ModalBody, ModalHeader } from "reactstrap";
-import GroupDropdown from '@/components/Dropdowns/GroupsDropdown'; 
+import GroupDropdown from '@/components/Dropdowns/GroupDropdown'; 
 import ContactForm from "../CreateContact";
 import Loading from "@/components/Loader";
 import { HiPencilAlt, HiTrash ,HiRefresh  } from "react-icons/hi";
@@ -14,12 +14,14 @@ import App from '@/components/App';
 const ContactList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { contacts, loading, error } = useSelector((state) => state.contacts);
+  const { contacts, loading, error,pageSize, totalRecords, currentPage } = useSelector((state) => state.contacts);
   const { client } = useSelector((state) => state.clients);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [contactForm, setcontactForm] = useState({});
   const [filterText, setFilterText] = useState("");
-  const [CreateModalOPen, setCreateModalOpen] = useState(false)
+  const [GroupId,setGroupId] = useState(0);
+  const [SearchStr , setSearchStr]= useState("")
+  const [CreateModalOPen, setCreateModalOpen] = useState(false);
   const clientColumns = [
     { name: "Group Name", selector: (row) => row.groupName, sortable: true },
     { name: "First name", selector: (row) => row.firstName, sortable: true },
@@ -60,14 +62,14 @@ const ContactList = () => {
         showSweetAlert({ title: "Error", text: response.message, icon: "error" });
       }
     } catch (error) {
-      alert("Failed to fetch client details: " + error.message);
+      alert("Failed to fetch details" + error.message);
     }
   };
 
   const handleDeleteClick = (contactId) => {
     SweetAlert.fire({
       title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      text: "",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -76,16 +78,23 @@ const ContactList = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          dispatch(deleteContact({ contactId })).unwrap();
-          showSweetAlert({ title: "Client Deleted", text: "The client has been deleted successfully", icon: "success" });
-          refreshClientList();
+          dispatch(deleteContact({ contactId })).then(()=>{
+            showSweetAlert({ title: " Deleted Successfully", text: "", icon: "success" });
+            refreshContactList();
+          });
         } catch (error) {
-          alert("An unexpected error occurred: " + error.message);
+          alert("An unexpected error occurred" + error.message);
         }
       }
     });
   };
 
+  const handleChange = (e) => {
+    const groupId = e.target.value;
+    setGroupId(groupId)
+    dispatch(fetchContact({clientId: localStorage.getItem("clientId"),groupId: groupId,searchStr: SearchStr,pageNo: currentPage, pageSize,}))
+  };
+  
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setcontactForm({ ...contactForm, [name]: value });
@@ -108,23 +117,38 @@ const ContactList = () => {
 
       const response = await dispatch(updateContact(requestBody)).unwrap();
       if (response.success) {
-        showSweetAlert({ title: "Contact Updated", text: "", icon: "success" });
+        showSweetAlert({ title: "Updated Successfully", text: "", icon: "success" });
         setIsModalOpen(false);
-        refreshClientList();
+        refreshContactList();
       } else {
         showSweetAlert({ title: "Error", text: response.message, icon: "error" });
       }
     } catch (error) {
-      alert("Failed to update client: " + error.message);
+      alert("Failed to update" + error.message);
     }
   };
 
-  const refreshClientList = () => {
-    dispatch(fetchContact({clientId: localStorage.getItem("clientId")}));
+  const handlePageSizeChange = async (newSize) => {
+          // Update page size and reset to the first page
+          dispatch(setPageSize(newSize));
+          dispatch(setCurrentPage(1)); // Reset to first page
+          // Fetch data with updated page size and reset to page 1
+          await dispatch(fetchContact({ clientId: localStorage.getItem("clientId"),groupId: GroupId,searchStr: SearchStr , pageSize : newSize, pageNo:1 }));
+        };
+
+  const handlePageChange = async (page) => {
+        // Update current page state in Redux
+        dispatch(setCurrentPage(page));
+      
+        // Fetch clients for the new page
+        await dispatch(fetchContact({ clientId: localStorage.getItem("clientId"),groupId: GroupId,searchStr: SearchStr,pageNo: page, pageSize,}));
+      };
+  const refreshContactList = () => {
+    dispatch(fetchContact({clientId: localStorage.getItem("clientId"), groupId: GroupId,searchStr: SearchStr,pageNo: currentPage, pageSize}));
   };
 
   useEffect(() => {
-    dispatch(fetchContact({ clientId: localStorage.getItem("clientId") }));
+    dispatch(fetchContact({ clientId: localStorage.getItem("clientId"), groupId: GroupId,searchStr: SearchStr,pageNo: currentPage, pageSize}));
     return () => {
       dispatch(clearContactState());
     };
@@ -140,6 +164,7 @@ const ContactList = () => {
   const handleCreate = () => {
     setCreateModalOpen(true)
   };
+  
 
   const subHeaderComponentMemo = useMemo(() => {
     return (
@@ -148,8 +173,8 @@ const ContactList = () => {
       <div className="grid grid-cols-5 gap-4  ">
   {/* Search Section */}
 
-  <div className="flex flex-col text-start">
-    <label className="block mb-1 mt-1">Search</label>
+  <div className="flex flex-col  mb-1 text-start">
+    <label className="font-medium text-gray-700 text-sm">Search</label>
     <input
       type="search"
       value={filterText}
@@ -160,11 +185,12 @@ const ContactList = () => {
   </div>
 
   {/* Group Dropdown Section */}
-  <div className="flex flex-col text-start">
-    <label className="block mb-1 mt-1">Group</label>
+  <div className="flex flex-col mb-1  text-start">
+    <label className="font-medium text-gray-700 text-sm">Group</label>
     <GroupDropdown
-      name="groupId"
-      onChange={(e) => setFieldValue("groupId", e.target.value)}
+      name="Group"
+      value={GroupId}
+      onChange={handleChange}
       className="border rounded w-full"
     />
   </div>
@@ -183,10 +209,10 @@ const ContactList = () => {
     <App>
      <div className="flex items-center">
   {loading && <Loading />}
-  <div className='mb-1'>
-  <h4 className="font-bold mb-2">Contact List</h4>
+  <div >
+  <h4 className="font-bold ">Contact List</h4>
   </div>
-  <div className="ml-auto mb-2">
+  <div className="ml-auto mb-1">
   <button className="uniform_btn" onClick={handleCreate}>
           Create Contact
         </button>
@@ -197,8 +223,12 @@ const ContactList = () => {
               data={filteredClients}
               columns={clientColumns}
               highlightOnHover
-              striped
-              pagination
+            striped
+             pagination
+              paginationServer
+              paginationTotalRows={totalRecords}
+              onChangePage={handlePageChange}
+              onChangeRowsPerPage={handlePageSizeChange}
               subHeader
               subHeaderComponent={subHeaderComponentMemo}
               className="w-full border"
@@ -240,7 +270,7 @@ const ContactList = () => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded shadow-lg w-3/4 max-w-lg relative">
+          <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
           <button
         onClick={() => setIsModalOpen(false)}
         className="absolute top-4 right-4 text-xl text-gray-600 hover:text-gray-800"
@@ -252,7 +282,7 @@ const ContactList = () => {
             <form onSubmit={handleUpdateSubmit}>
               
                 <div className="w-full">
-                  <label className="block mb-1 mt-1"> Group </label>
+                  <label className="font-medium text-gray-700 text-sm"> Group </label>
                   <GroupDropdown
                 name="groupId"
                 value={contactForm.groupId || ""} 
@@ -262,7 +292,7 @@ const ContactList = () => {
     
                 </div>
                 <div className="w-full ">
-                  <label  className="block mb-1 mt-1">First Name</label>
+                  <label  className="font-medium text-gray-700 text-sm">First Name</label>
                   <input 
                     type="text" 
                     id="firstName" 
@@ -275,7 +305,7 @@ const ContactList = () => {
               
               
                 <div className="w-full ">
-                  <label className="block mb-1 mt-1">Last Name</label>
+                  <label className="font-medium text-gray-700 text-sm">Last Name</label>
                   <input 
                     type="text" 
                     id="lastName" 
@@ -286,19 +316,19 @@ const ContactList = () => {
                   />
                 </div>
                 <div className="w-full">
-                  <label className="block mb-1 mt-1">Area Name</label>
-                  <textarea 
+                  <label className="font-medium text-gray-700 text-sm">Area Name</label>
+                  <input 
                     id="areaName" 
                     name="areaName" 
                     value={contactForm.areaName || ""} 
                     onChange={handleFormChange} 
-                    className="border rounded py-1 px-2 w-full text-sm mt-1"
+                    className="border rounded py-1 px-2 w-full mt-1 text-sm"
                   />
                 </div>
               
               
                 <div className="w-full ">
-                  <label className="block mb-1 mt-1">Phone Number</label>
+                  <label className="font-medium text-gray-700 text-sm">Phone Number</label>
                   <input 
                     type="text" 
                     id="phoneNumber" 
@@ -309,7 +339,7 @@ const ContactList = () => {
                   />
                 </div>
                 <div className="w-full ">
-                  <label  className="block mb-1 mt-1">Email Address</label>
+                  <label  className="font-medium text-gray-700 text-sm">Email Address</label>
                   <input 
                     type="text" 
                     id="emailAddress" 
@@ -337,6 +367,7 @@ const ContactList = () => {
         <ContactForm 
         isVisible={true}
         onClose={handleCancel}
+        onsuccess={refreshContactList}
         />
       )}
     </App>

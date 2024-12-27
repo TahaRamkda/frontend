@@ -1,20 +1,20 @@
-import React, { useEffect, useRef } from 'react';
+import React, {useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
-import { fetchClients, clearClientState } from "@/slices/ClientSlice";
+import { fetchClientsDrop, clearClientDropState } from "@/slices/ClientSlice";
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
 const ClientDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null); 
-  const { clients, loading, error } = useSelector((state) => state.clients);
-
+  const { clientsDrop, loading, error } = useSelector((state) => state.clients);
+ const [searchString, setsearchString] = useState("")
   useEffect(() => {
-    dispatch(fetchClients({pageSize, pageNo: currentPage}));
+    dispatch(fetchClientsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString }));
     return () => {
-      dispatch(clearClientState());
+      dispatch(clearClientDropState());
     };
   }, [dispatch]);
 
@@ -39,7 +39,7 @@ const ClientDropdown = ({ name, value, onChange }) => {
         $(selectRef.current).off('change');
       }
     };
-  }, [clients, onChange]);
+  }, [clientsDrop, onChange]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
@@ -54,11 +54,11 @@ const ClientDropdown = ({ name, value, onChange }) => {
         onChange={onChange}
         required
       >
-        <option value="">Select</option>
-        {clients && clients.length > 0 ? (
-          clients.map((client) => (
-            <option key={client.clientId} value={client.clientId}>
-              {client.clientName}
+        <option value="0">Select</option>
+        {clientsDrop && clientsDrop.length > 0 ? (
+          clientsDrop.map((client) => (
+            <option key={client.id} value={client.id}>
+              {client.name}
             </option>
           ))
         ) : (

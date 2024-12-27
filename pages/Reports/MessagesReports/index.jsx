@@ -1,137 +1,183 @@
-import React, { useMemo, useEffect, useState } from 'react';
+"use client";
+import React, { useMemo,useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMessageReport, clearMessageReportState, setPageSize, setCurrentPage } from "@/slices/ReportSlice";
-import { Input, Label, Button } from 'reactstrap';
+import { fetchMessageReportSummary, clearMessageReportSummaryState, setPageSize, setCurrentPage } from "@/slices/ReportSlice";
+import { Container, Row, Col, Table, input, Button,  Pagination, List, label, PaginationItem, PaginationLink, CardBody, Card } from 'reactstrap';
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
+import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import DataTable from "react-data-table-component";
+import Loading from '@/components/Loader';
 import App from '@/components/App';
-import Loading from "@/components/Loader";
 
-const Messagereports = () => {
+
+
+const MessageSummary = () => {
   const dispatch = useDispatch();
-  const [templateId, setTemplateId] = useState(0);
-  const [status, setStatus] = useState(0);
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-  const [srcStr, setSrcStr] = useState('');
-  const [sendernameId, setSendernameId] = useState(null);
+  const [senderid, setsenderid] = useState(0);
+  const [status, setstatus] = useState(0);
+  const [fromDate, setfromDate] = useState("");
+  const [toDate, settoDate] = useState("");
+  const [srcStr, setsrcStr] = useState('');
+  const [sendernameId, setsendernameId] = useState(null);
+  const [isfilteropen, setisfilteropen] = useState(false);
+ const [showfilterbutton, setshowfilterbutton] = useState(true);
+  const { messagereportsummary, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.reports);
   const [clientId, setClientId] = useState(null);
 
-  const { messagereports, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.reports);
+  const SummaryColumns = [
+    { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
+    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
+    { name: "Status", selector: (row) => row.currentStatusName, sortable: true },
+    { name: "Category", selector: (row) => row.category, sortable: true },
+    { name: "Sent Time", selector: (row) => row.sentDate, sortable: true },
+    { name: "Delivered Time", selector: (row) => row.deliveredDate, sortable: true },
+    { name: "Read Time", selector: (row) => row.readDate, sortable: true },
 
+  ];
+  useEffect(() => {
+    if (clientId) {
+      dispatch(
+        fetchMessageReportSummary({
+          clientId: clientId,
+          fromDate: fromDate,
+          toDate: toDate,
+          status: status,
+          senderid: senderid,
+          srcStr: srcStr,
+          sendernameId: sendernameId,
+          pageSize: pageSize,
+          pageNo: currentPage,
+        })
+      );
+    }
+  }, [clientId, fromDate, toDate, status, senderid, srcStr, sendernameId]);
+  
+  
+  const handleSearchString = (e) => {
+    setsrcStr(e.target.value);
+  };
+
+  const handleSenderChange = (e) => {
+    const senderId = e.target.value;
+    setsenderid(senderId);
+  };
+
+ 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setClientId(localStorage.getItem('clientId'));
     }
   }, []);
 
+  
+  
   useEffect(() => {
     if (clientId) {
+      dispatch(fetchMessageReportSummary({ clientId: clientId, fromDate: fromDate , toDate:toDate, status:status, senderid:senderid, srcStr:srcStr, pageSize,pageNo:currentPage}));
       
-      dispatch(fetchMessageReport({ clientId: clientId, fromDate: fromDate, toDate: toDate, status: status, templateId: templateId, srcStr: srcStr, pageSize, pageNo: currentPage }));
     }
     return () => {
-      dispatch(clearMessageReportState());
+      dispatch(clearMessageReportSummaryState());
     };
   }, [dispatch, clientId]);
 
-
-  const handleTemplateChange = (e) => {
-    setTemplateId(e.target.value);
+  const handleFiltershow = () => {
+    setisfilteropen(prevState => !prevState);  // Toggle isfilteropen
+    setshowfilterbutton(prevState => !prevState);  // Toggle showfilterbutton
+    
   };
 
-  const handleSrcStrChange = (e) => {
-    setSrcStr(e.target.value);
-  };
 
-  const handleFromDateChange = (e) => {
-    setFromDate(e.target.value);
-  };
+ 
+  
+   const handlePageSizeChange = async (newSize) => {
+            // Update page size and reset to the first page
+            dispatch(setPageSize(newSize));
+            dispatch(setCurrentPage(1)); // Reset to first page
+            // Fetch data with updated page size and reset to page 1
+            await  dispatch(fetchMessageReportSummary({ 
+              clientId: clientId, 
+              fromDate: fromDate, 
+              toDate: toDate, 
+              status: status, 
+              sendernameId: sendernameId, 
+              senderid: senderid, 
+              srcStr: srcStr, 
+              pageSize: newSize, pageNo:1 }));
+          };
+  
+    const handlePageChange = async (page) => {
+          // Update current page state in Redux
+          dispatch(setCurrentPage(page));
+        
+          // Fetch clients for the new page
+          await dispatch(fetchMessageReportSummary({ clientId: clientId, fromDate: fromDate , toDate:toDate, status:status, sendernameId:sendernameId, senderid:senderid, srcStr:srcStr, pageSize ,pageNo: page}));
+        };
+   const subHeaderComponentMemo = useMemo(() => {
+      return (
+        <div className="w-full">
+          <div className='grid grid-cols-5 gap-4'>
+            <div className='flex flex-col text-start mb-1'>
+              <label className="font-medium text-gray-700 text-sm">Sender Names</label>
+              <SendernameDropdown
+                name="senderId"
+                onChange={handleSenderChange}
+                className="border rounded  w-100"
+              />
+            </div>
+            <div className='flex flex-col text-start mb-1'>
+              <label className="font-medium text-gray-700 text-sm">Search</label>
+              <input
+                type="text"
+                placeholder="Search"
+                value={srcStr}
+                onChange={handleSearchString}
+                className="border rounded  w-100"
+              />
+            </div>
 
-  const handleToDateChange = (e) => {
-    setToDate(e.target.value);
-  };
-
-  const handlePageSizeChange = async (newSize) => {
-    dispatch(setPageSize(newSize));
-    dispatch(setCurrentPage(1)); // Reset to the first page
-    await dispatch(fetchMessageReport({
-      clientId, fromDate, toDate, status, templateId, srcStr, pageSize: newSize, pageNo: 1
-    }));
-  };
-
-  const handlePageChange = async (page) => {
-    dispatch(setCurrentPage(page));
-    await dispatch(fetchMessageReport({
-      clientId, fromDate, toDate, status, templateId, srcStr, pageSize, pageNo: page
-    }));
-  };
-
-  const reportColumns = [
-    { name: "Total Items", selector: (row) => row.totalItems, sortable: true },
-    { name: "Transaction Type", selector: (row) => row.trxType, sortable: true },
-    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
-    { name: "Schedule Time", selector: (row) => row.scheduleTime, sortable: true },
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
-  ];
-
-  const subHeaderComponentMemo = useMemo(() => {
-    return (
-      <div className="flex gap-5 w-full">
-        <div className="text-start">
-          <Label className="font-medium text-sm mb-0">Select Templates:</Label>
-          <TemplateDropdown
-            name="role_Id"
-            onChange={handleTemplateChange}
-            className="border rounded m-0 mb-0 w-100"
-          />
+            <div className='flex flex-col text-start mb-1'>
+              <label className="font-medium text-gray-700 text-sm">From Date</label>
+              <input
+                type="date"
+                id="fromDate"
+                value={fromDate}
+                onChange={(e) => setfromDate(e.target.value)}
+                className="border rounded  w-100"
+              />
+            </div>
+            <div className='flex flex-col text-start mb-1'>
+              <label className="font-medium text-gray-700 text-sm">To Date</label>
+              <input
+                type="date"
+                id="toDate"
+                value={toDate}
+                onChange={(e) => settoDate(e.target.value)}
+                className="border rounded  w-100"
+              />
+        
+            </div>
+          </div>
+                  
+                  
         </div>
-        <div className="text-start ">
-          <Label className="font-medium text-sm mb-0">Search:</Label>
-          <Input
-            type="text"
-            placeholder="Search"
-            value={srcStr}
-            onChange={handleSrcStrChange}
-            className="border rounded m-0 w-100"
-          />
-        </div>
-        <div className="text-start ">
-          <Label className="font-medium text-sm mb-0">From Date:</Label>
-          <Input
-            type="date"
-            id="fromDate"
-            value={fromDate}
-            onChange={handleFromDateChange}
-            className="border rounded m-0 w-100"
-          />
-        </div>
-        <div className="text-start  ">
-          <Label className="font-medium text-sm mb-0">To Date:</Label>
-          <Input
-            type="date"
-            id="toDate"
-            value={toDate}
-            onChange={handleToDateChange}
-            className="border rounded m-0 w-100"
-          />
-        </div>
-      </div>
-    );
-  }, [srcStr, fromDate, toDate, templateId]);
-
+                          
+      )
+    
+    })
+  // Pagination calculations
+  
   return (
     <App>
-     
-
-      <div className="flex">
-          {loading && <Loading />}
-        <h4 className=" font-bold ">Message Report List</h4>
-      </div>
-      <div className="table-responsive categories_table ">
+       <div className="flex items-center">
+  {loading && <Loading />}
+  <div >
+  <h4 className="font-bold ">Message Reports</h4>
+  </div>
+</div>
         <DataTable
-          data={messagereports}
-          columns={reportColumns}
+          data={messagereportsummary}
+          columns={SummaryColumns}
           highlightOnHover
           striped
           pagination
@@ -156,7 +202,7 @@ const Messagereports = () => {
             },
             headCells: {
               style: {
-               
+              
                 borderRight: '1px solid #ddd', // Grid line between columns
                 fontWeight: 'bold',
               },
@@ -174,9 +220,10 @@ const Messagereports = () => {
             },
           }}
         />
-      </div>
+      
     </App>
+ 
   );
 };
 
-export default Messagereports;
+export default MessageSummary;

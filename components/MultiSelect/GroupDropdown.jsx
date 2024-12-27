@@ -4,21 +4,22 @@ import { Input } from "reactstrap";
 import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
-import { fetchGroup, clearGroupState } from "@/slices/GroupSlice";
+import { fetchGroupsDrop, clearGroupDropState } from "@/slices/Groupslice";
 
-export const GroupDropdown = ({ onChange }) => {
+export const GroupsDropdown = ({ onChange }) => {
   const dispatch = useDispatch();
-  const { groups, loading, error } = useSelector((state) => state.groups);
+   const { groupDrop, loading, error } = useSelector((state) => state.groups);
   const [selectedGroupId, setSelectedGroupId] = useState([]);
   const selectRef = useRef(null);
-
+  const [SearchStr, setSearchStr] = useState("")
   // Fetch groups when the component mounts
   useEffect(() => {
-    dispatch(fetchGroup({ clientId: localStorage.getItem("clientId"), pageSize : 100000, pageNo: 1 }));
-    return () => {
-      dispatch(clearGroupState());
-    };
-  }, [dispatch]);
+     dispatch(fetchGroupsDrop({ clientId: localStorage.getItem("clientId") , SearchStr:SearchStr}));
+     return () => {
+       dispatch(clearGroupDropState());
+     };
+   }, [dispatch]);
+ 
 
   // Notify parent of selected group changes
   useEffect(() => {
@@ -47,33 +48,32 @@ export const GroupDropdown = ({ onChange }) => {
         $(selectRef.current).off("change");
       }
     };
-  }, [groups]);
+  }, [groupDrop]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
 
   // Filter out the selected groups from the available options
-  const availableGroups = groups.filter(
-    (group) => !selectedGroupId.includes(group.groupId)
+  const availableGroup = groupDrop.filter(
+    (groupDrop) => !selectedGroupId.includes(groupDrop.clientId)
   );
-
   return (
     <>
-      <div className="mb-4">
+      <div>
         <select
           ref={selectRef}
           id="groupSelect"
-          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          innerRef={selectRef}
           value={selectedGroupId}
           onChange={(e) => setSelectedGroupId(Array.from(e.target.selectedOptions, option => option.value))}
           multiple
           required
         >
           <option value="">Select</option>
-          {availableGroups && availableGroups.length > 0 ? (
-            availableGroups.map((group) => (
-              <option key={group.groupId} value={group.groupId}>
-                {group.groupName}
+          {availableGroup && availableGroup.length > 0 ? (
+            availableGroup.map((group) => (
+              <option key={group.id} value={group.id}>
+                {group.name}
               </option>
             ))
           ) : (
@@ -85,4 +85,4 @@ export const GroupDropdown = ({ onChange }) => {
   );
 };
 
-export default GroupDropdown;
+export default GroupsDropdown;

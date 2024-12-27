@@ -15,7 +15,7 @@ export const fetchCampaign = createAsyncThunk(
           totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
         };
       } else {
-        throw new Error('Failed to fetch medias');
+        throw new Error('Failed to fetch details');
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -35,7 +35,7 @@ export const fetchCampaignDetail = createAsyncThunk(
 
         };
       } else {
-        throw new Error('Failed to fetch campaign detail');
+        throw new Error('Failed to fetch details');
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -151,7 +151,7 @@ export const fetchCampaignDetail = createAsyncThunk(
         .addCase( createCampaign.fulfilled, (state, action) => {
           state.loading = false;
           state.success = true;
-          state.message = action.payload.message || 'Client created successfully';
+          state.message = action.payload.message || 'Created Successfully';
         })
         .addCase( createCampaign.rejected, (state, action) => {
           state.loading = false;
@@ -166,7 +166,7 @@ export const fetchCampaignDetail = createAsyncThunk(
         .addCase( UpdateCampaign.fulfilled, (state, action) => {
           state.loading = false;
           state.success = true;
-          state.message = action.payload.message || 'Campaign Updated successfully';
+          state.message = action.payload.message || 'Updated Successfully';
         })
         .addCase( UpdateCampaign.rejected, (state, action) => {
           state.loading = false;
@@ -182,7 +182,7 @@ export const fetchCampaignDetail = createAsyncThunk(
           state.campaigns = action.payload.campaigns ;
           state.loading = false;
           state.success = true;
-          state.message = action.payload.message || 'Client created successfully';
+          state.message = action.payload.message || 'Created Successfully';
           state.totalRecords = action.payload.totalRecords;
           state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
           state.message = action.payload.message || '';
@@ -202,7 +202,7 @@ export const fetchCampaignDetail = createAsyncThunk(
           state.campaigndetail = action.payload.campaigndetail ;
           state.loading = false;
           state.success = true;
-          state.message = action.payload.message || 'Client created successfully';
+          state.message = action.payload.message || 'Created Successfully';
         })
         .addCase( fetchCampaignDetail.rejected, (state, action) => {
           state.campaigndetail ="";
@@ -218,7 +218,7 @@ export const fetchCampaignDetail = createAsyncThunk(
         .addCase( activateCampaign.fulfilled, (state, action) => {
           state.loading = false;
           state.success = true;
-          state.message = action.payload.message || 'Client created successfully';
+          state.message = action.payload.message || 'Created Successfully';
         })
         .addCase( activateCampaign.rejected, (state, action) => {
           state.loading = false;

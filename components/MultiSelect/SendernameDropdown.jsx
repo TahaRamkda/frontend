@@ -4,7 +4,7 @@ import { Input } from "reactstrap";
 import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
-import { fetchSendernames, clearSendernameState } from "@/slices/SenderNameSlice";
+import { fetchSendernames, clearSendernameState } from "@/slices/sendernameSlice";
 
 
 const SendernameDropdown = ({ name, value, onChange, error }) => {
@@ -49,14 +49,14 @@ const SendernameDropdown = ({ name, value, onChange, error }) => {
         $(selectRef.current).off("change");
       }
     };
-  }, [groups]);
+  }, [sendernames]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-danger">Error loading  {error}</p>;
 
   // Filter out the selected groups from the available options
-  const availableGroups = groups.filter(
-    (group) => !selectedSenderId.includes(group.senderId)
+  const availableSenders = sendernames.filter(
+    (sendernames) => !selectedSenderId.includes(sendernames.senderId)
   );
 
   return (
@@ -66,20 +66,20 @@ const SendernameDropdown = ({ name, value, onChange, error }) => {
           ref={selectRef}
           id="senderSelect"
           className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          value={selectedGroupId}
+          value={selectedSenderId}
           onChange={(e) => setSelectedSenderId(Array.from(e.target.selectedOptions, option => option.value))}
           multiple
           required
         >
-          <option value="">Select SenderName</option>
-          {availableGroups && availableGroups.length > 0 ? (
-            availableGroups.map((group) => (
+          <option value="">Select</option>
+          {availableSenders && availableSenders.length > 0 ? (
+            availableSenders.map((sender) => (
               <option key={sender.senderId} value={sender.senderId}>
                 {sender.senderName}
               </option>
             ))
           ) : (
-            <option disabled>No Groups available</option>
+            <option disabled>No records found</option>
           )}
         </select>
       </div>

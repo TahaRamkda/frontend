@@ -8,7 +8,7 @@ import DataTable from "react-data-table-component";
 import Loading from "@/components/Loader";
 import dynamic from "next/dynamic";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAgents, cleaAgentState, deleteAgent, fetchAgentsById, updateAgent } from "@/slices/AgentSlice";
+import { fetchAgents, cleaAgentState, deleteAgent, fetchAgentsById, updateAgent, setCurrentPage, setPageSize } from "@/slices/AgentSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import { HiPencilAlt, HiTrash, HiLightningBolt, HiClock  } from "react-icons/hi";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
@@ -20,11 +20,12 @@ const AgentsList = () => {
   
   const router = useRouter();
   const dispatch = useDispatch();
-  const { agents = [], loading, error } = useSelector((state) => state.agents);
+  const { agents = [], loading, error,pageSize, totalRecords, currentPage  } = useSelector((state) => state.agents);
   const { agent = [], loading:DetailLoading, error:DetailError } = useSelector((state) => state.agents);
   const [timeModalOpen, setTimeModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [agentForm, setagentForm] = useState();
+  const [SenderId, setSenderId] = useState(0);
   const [AgentId, setAgentId] = useState(null);
   const [filterText, setFilterText] = useState("");
   const [showagenttiming, setshowagenttiming] = useState("");
@@ -35,11 +36,12 @@ const AgentsList = () => {
     
     { name: "First Name", selector: (row) => row.agentFName, sortable: true },
     { name: "Last Name", selector: (row) => row.agentLName, sortable: true },
+    { name: "Status", selector: (row) => row.statusName, sortable: true },
     {
       name: "Action",
       cell: (row) => (
         <>
-           <div className="flex gap-3">
+           <div className="flex gap-2">
       <button onClick={() => handleDetailClick(row.id)} className="uniform_icon_btn ">
       <HiPencilAlt style={{fontSize: "15px"}} />
       </button>
@@ -73,7 +75,7 @@ const AgentsList = () => {
       } 
       
     catch (error) {
-      showSweetAlert("Failed to fetch agent details: " + error.message);
+      showSweetAlert("Failed to fetch details: " + error.message);
     }
   };
   
@@ -84,7 +86,7 @@ const AgentsList = () => {
   const handleDeleteClick = (agentId) => {
     SweetAlert.fire({
       title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      text: "",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -93,12 +95,10 @@ const AgentsList = () => {
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
-        dispatch(deleteAgent({ agentId:agentId }))
-          .unwrap()
-          .then(() => {
+        dispatch(deleteAgent({ agentId:agentId })).then(() => {
             showSweetAlert({
-              title: "Agent Deleted",
-              text: "The agent has been deleted successfully",
+              title: "Deleted Successfully",
+              text: "",
               icon: "success",
             });
             refreshAgentList();
@@ -121,7 +121,11 @@ const AgentsList = () => {
     setagentForm({ ...agentForm, [name]: value });
   };
 
-
+ const handleChange = (e) => {
+    const senderId = e.target.value;
+    setSenderId(senderId)
+    dispatch(fetchAgents({clientId: localStorage.getItem("clientId"),senderId: senderId,pageNo: currentPage, pageSize,}))
+  };
   const handleClose = () => {
     setshowagenttiming(false);
     
@@ -136,33 +140,34 @@ const AgentsList = () => {
         userName: agentForm.userName || "",
         password: agentForm.password || "",
         agentFName: agentForm.agentFname || "",    
-        agentLName: agentForm.agentLname || "",    
+        agentLName: agentForm.agentLname || "", 
+        senderIds:  agentForm.senderIds || "",
         actionBy: localStorage.getItem('userId'),
       };
 
       const response = await dispatch(updateAgent(requestBody)).unwrap();
       if (response) {
         showSweetAlert({
-          title: "Agent Updated",
-          text: "Agent details have been updated successfully.",
+          title: "Updated Successfully",
+          text: "",
           icon: "success",
         });
         setIsModalOpen(false);
         refreshAgentList();
       } else {
-        showSweetAlert({ title: "Error", text: response.message, icon: "error" });
+        showSweetAlert({ title: "Failed", text: response.message, icon: "error" });
       }
     } catch (error) {
-      alert("Failed to update agent: " + error.message);
+      alert("Failed to update: " + error.message);
     }
   };
 
   const refreshAgentList = () => {
-    dispatch(fetchAgents({ clientId: localStorage.getItem("clientId") }));
+    dispatch(fetchAgents({ clientId: localStorage.getItem("clientId"),senderId: SenderId, pageNo: currentPage, pageSize }));
   };
 
   useEffect(() => {
-    dispatch(fetchAgents({ clientId: localStorage.getItem("clientId") }));
+    dispatch(fetchAgents({ clientId: localStorage.getItem("clientId"),senderId: SenderId, pageNo: currentPage, pageSize  }));
     return () => {
       dispatch(cleaAgentState());
     };
@@ -182,19 +187,19 @@ const AgentsList = () => {
     () => (
       <div className="w-full">
         <div className="grid grid-cols-5 gap-4">
-         <div className="flex flex-col  text-start ">
-         <label className="block mb-1 mt-1">Search</label>
+         <div className="flex flex-col mb-1  text-start ">
+         <label className="font-medium text-gray-700 text-sm">Search</label>
          <input
           type="search"
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
           placeholder=""
-          className="border rounded py-1 px-2 w-full text-sm"
+          className="border rounded py-1 px-2 w-full mt-1 text-sm"
         />
         </div>
-        <div className="flex flex-col text-start">
-        <label className="block mb-1 mt-1">Sender Names</label>
-        <Sendernames name="senderId"  onChange={(e) => setFieldValue("groupId", e.target.value)} />
+        <div className="flex flex-col mb-1 text-start">
+        <label className="font-medium text-gray-700 text-sm">Sender Names</label>
+        <Sendernames name="senderId"  onChange={handleChange} />
         </div>
         </div>
         
@@ -211,10 +216,10 @@ const AgentsList = () => {
 
 <div className="flex items-center">
   {loading && <Loading />}
-  <div className='mb-1'>
-  <h4 className="font-bold mb-2">Agents List</h4>
+  <div className=''>
+  <h4 className="font-bold ">Agents List</h4>
   </div>
-  <div className="ml-auto mb-2">
+  <div className="ml-auto mb-1">
   <button className="uniform_btn"  onClick={() => setCreateModalOpen(true)}>
        Create Agent
      </button>
@@ -278,32 +283,41 @@ const AgentsList = () => {
     <form  onSubmit={handleUpdateSubmit}>
      
         <div>
-            <label className="block mb-1 mt-1">First Name</label>
+            <label className="font-medium text-gray-700 text-sm">Sender Name</label>
+            <Sendernames
+              name="senderIds"
+              value={agentForm.senderIds || ""} // Bind value from agentForm
+              onChange={handleFormChange}
+              className="border rounded py-1 px-2 w-full text-sm"
+            />
+        </div>
+        <div>
+            <label className="font-medium text-gray-700 text-sm">First Name</label>
             <input
               type="text"
               id="agentFname"
               name="agentFname"
               value={agentForm.agentFname || ""} // Bind value from agentForm
               onChange={handleFormChange}
-              className="border rounded py-1 px-2 w-full text-sm"
+              className="border rounded py-1 px-2 w-full mt-1 text-sm"
             />
         </div>
         <div md={6}>
           
-            <label className="block mb-1 mt-1">Last Name</label>
+            <label className="font-medium text-gray-700 text-sm">Last Name</label>
             <input
               type="text"
               id="agentLname"
               name="agentLname"
               value={agentForm.agentLname || ""} // Bind value from agentForm
               onChange={handleFormChange}
-              className="border rounded py-1 px-2 w-full text-sm"
+              className="border rounded py-1 px-2 w-full mt-1 text-sm"
             />
          
         </div>
         <div className="flex mt-6 justify-end">
       <button className="uniform_btn" type="submit">
-        Update Agent
+        Save
       </button>
       </div>
       
@@ -325,6 +339,7 @@ const AgentsList = () => {
 
 {CreateModalOpen &&(
   <AgentsForm 
+      onsuccess={refreshAgentList}
       isVisible={true}
       onClose={handleCancel}
   />

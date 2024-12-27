@@ -7,6 +7,7 @@ import {
   clearPermissionState,
   createPermission,
 } from "@/slices/PermissionSlice";
+import Loading from "@/components/Loader";
 import showSweetAlert from "@/components/Sweetalert";
 import App from '@/components/App';
 import Loader from "@/components/Loader"
@@ -129,23 +130,23 @@ const PermissionList = () => {
       const response = await dispatch(createPermission(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({
-          title: "Saved",
-          text: "All permissions have been successfully saved.",
+          title: "Saved Successfully",
+          text: "",
           icon: "success",
         });
         refreshPermissionList(selectedRole); // Refresh the list after saving
       } else {
         showSweetAlert({
-          title: "Save Failed",
-          text: response.message || "Failed to save the permissions. Please try again.",
+          title: "Failed",
+          text: response.message || "",
           icon: "error",
         });
       }
     } catch (error) {
       console.log("Failed to save permissions", error);
       showSweetAlert({
-        title: "Save Failed",
-        text: "An error occurred while saving the permissions.",
+        title: "Failed",
+        text: "",
         icon: "error",
       });
     }
@@ -177,13 +178,17 @@ const PermissionList = () => {
 
   const subHeaderComponentMemo = useMemo(
     () => (
-      <div className="flex items-center mb-4 p-2">
-        <label className="mr-3 mb-4">Select Roles:</label>
+      <div className="w-full">
+      <div className='grid grid-cols-5 gap-4'>
+        <div className="flex flex-col text-start mb-1">
+        <label className="font-medium text-gray-700 text-sm">Roles</label>
         <RoleDropdown 
         name="role_Id" 
         value={selectedRole} 
         onChange={handleRoleChange} 
-        className="border px-3 py-2 rounded" />
+        className="border rounded py-1 px-2 w-full text-sm" />
+      </div>
+      </div>
       </div>
     ),
     [selectedRole]
@@ -191,25 +196,61 @@ const PermissionList = () => {
 
   return (
    <App>
-      <div className="p-6">
-        <div className="mb-4">
-        {loading && <div className="text-center text-blue-500"><Loader /></div>}
-      <div className="flex justify-between items-center mb-4">
-        <h4 className="text-lg font-bold mb-2">Permission List</h4>
-        <button className="uniform_icon_btn" onClick={handleSave}>
-          Create New Client
+
+
+      <div className="flex items-center">
+  {loading && <Loading />}
+  <div >
+  <h4 className="font-bold ">Permission List</h4>
+  </div>
+  <div className="ml-auto mb-1">
+  <button className="uniform_btn" onClick={handleSave}>
+          Save
         </button>
-        </div>
-      </div>
+  </div>
+</div>
         <DataTable
           data={Data}
           columns={permissionColumns}
+          highlightOnHover
+          striped
           pagination
+          className="w-full border"
           subHeader
           subHeaderComponent={subHeaderComponentMemo}
-          className="w-full border"
+          customStyles={{
+            table: {
+              style: {
+                width: '100%',
+                borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
+              },
+            },
+            headRow: {
+              style: {
+                borderBottom: '1px solid #ddd', // Grid line at the bottom of the header
+              },
+            },
+            headCells: {
+              style: {
+                
+                borderRight: '1px solid #ddd', // Grid line between columns
+                fontWeight: 'bold',
+              },
+            },
+            rows: {
+              style: {
+                borderBottom: '1px solid #ddd', // Horizontal grid line between rows
+              },
+            },
+            cells: {
+              style: {
+                
+                borderRight: '1px solid #ddd', // Vertical grid line between cells
+              },
+            },
+          }}
         />
-      </div>
+      
       </App>
   );
 };

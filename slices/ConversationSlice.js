@@ -17,7 +17,7 @@ export const fetchConversationList = createAsyncThunk(
           totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
         };
       } else {
-        throw new Error('Failed to fetch conversations');
+        throw new Error('Failed to fetch details');
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -37,7 +37,7 @@ export const fetchConversationMessage = createAsyncThunk(
             totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
           };
         } else {
-          throw new Error('Failed to fetch conversations');
+          throw new Error('Failed to fetch details');
         }
       } catch (err) {
         const handledError = handleError(err);

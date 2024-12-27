@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { CLIENTLIST, CLIENTDETAIL, CREATECLIENT, DELETECLIENT, CLIENTUPDATE } from '@/utils/apiConstants';
+import { CLIENTLIST, CLIENTDETAIL, CREATECLIENT, DELETECLIENT, CLIENTUPDATE, CLIENTDROPDOWN } from '@/utils/apiConstants';
 
 // Thunks
 
@@ -17,7 +17,27 @@ export const fetchClients = createAsyncThunk(
           totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
         };
       } else {
-        throw new Error('Failed to fetch clients');
+        throw new Error('Failed to fetch details');
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
+export const fetchClientsDrop = createAsyncThunk(
+  'client/fetchClientsDrop',
+  async ({clientId,searchStr}, { rejectWithValue }) => {
+    try {
+      const response = await API.get(`${CLIENTDROPDOWN}?clientId=${0}&searchStr=${searchStr}`);
+      if (response?.status === 200 && response.data?.result) {
+        return {
+          clientsDrop: response.data.result,
+          totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
+        };
+      } else {
+        throw new Error('Failed to fetch details');
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -88,6 +108,7 @@ const clientSlice = createSlice({
   name: 'client',
   initialState: {
     clients: [],
+    clientsDrop:[],
     client: null,
     loading: false,
     error: null,
@@ -116,6 +137,13 @@ const clientSlice = createSlice({
       state.currentPage = 1;
       state.totalPages = 1;
       state.pageSize = 10;
+      state.totalRecords = 0;
+    },
+    clearClientDropState: (state) => {
+      state.clientsDrop = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
       state.totalRecords = 0;
     },
     clearClientDetailState: (state) => {
@@ -155,6 +183,24 @@ const clientSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
+      // Clients Dropdown
+      .addCase(fetchClientsDrop.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchClientsDrop.fulfilled, (state, action) => {
+        state.loading = false;
+        state.clientsDrop = action.payload.clientsDrop;
+        state.totalRecords = action.payload.totalRecords;
+        state.message = action.payload.message || '';
+      })
+      .addCase(fetchClientsDrop.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+
+
       // Fetch Client by ID
       .addCase(fetchClientById.pending, (state) => {
         state.loading = true;
@@ -180,7 +226,7 @@ const clientSlice = createSlice({
       .addCase(createClient.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Client created successfully';
+        state.message = action.payload.message || 'Created Successfully';
       })
       .addCase(createClient.rejected, (state, action) => {
         state.loading = false;
@@ -197,7 +243,7 @@ const clientSlice = createSlice({
       .addCase(updateClient.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Client updated successfully';
+        state.message = action.payload.message || 'Updated Successfully';
       })
       .addCase(updateClient.rejected, (state, action) => {
         state.loading = false;
@@ -214,7 +260,7 @@ const clientSlice = createSlice({
       .addCase(deleteClient.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Client deleted successfully';
+        state.message = action.payload.message || 'Deleted Successfully';
       })
       .addCase(deleteClient.rejected, (state, action) => {
         state.loading = false;
@@ -230,6 +276,7 @@ export const {
   setCurrentPage,
   clearClientState,
   clearClientDetailState,
+  clearClientDropState,
   clearClientCreateState,
   clearClientDeleteState,
 } = clientSlice.actions;
