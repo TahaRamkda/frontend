@@ -79,12 +79,12 @@ export function Header({ toggleSidebar }) {
   };
 
   return (
-    <nav className="bg-[#820000]  text-white dark:bg-gray-900 fixed top-0 left-0 right-0 z-50 shadow-md">
+    <nav className="text-white dark:bg-gray-900 fixed top-0 left-0 right-0 z-50 shadow-md">
       <div className="flex justify-between items-center py-3 px-2">
         {/* Logo Section on the Left Side */}
         <div className="flex items-center space-x-3">
           <Link href="/Dashboard" className="flex items-center space-x-3">
-            <img className="h-8 w-auto" src="/images/logo.png" alt="Logo" />
+            <img className="h-8 w-auto" src="\images\logo\logo.png" alt="Logo" />
           </Link>
         </div>
 

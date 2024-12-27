@@ -21,7 +21,7 @@ const Sidebar = ({ isSidebarOpen }) => {
 
   return (
     <aside
-      className={`bg-[#820000]  text-white dark:bg-gray-900 fixed left-0 top-16 z-40 h-screen transition-all transform ${
+      className={`  text-white dark:bg-gray-900 fixed left-0 top-16 z-40 h-screen transition-all transform ${
         isSidebarOpen ? 'translate-x-0 w-64' : 'translate-x-0 w-20'
       }`}
       aria-label="Sidebar"

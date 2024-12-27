@@ -69,12 +69,13 @@ import { sidebarItems } from '@/utils/sidebarItems';
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
         <div className="mb-6">
-          <Link href={"/"  }>
-            <img className="h-16 mx-auto" src={imageOne.src} alt="logo" />
-          </Link>
+          
         </div>
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
           <form onSubmit={handleLogin} className="space-y-6">
+          <Link href={"/"  }>
+            <img className="h-20 mx-auto" src="\images\logo\logo.png" alt="logo" />
+          </Link>
           <h2 class="text-center text-2xl font-bold">Sign In</h2>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">

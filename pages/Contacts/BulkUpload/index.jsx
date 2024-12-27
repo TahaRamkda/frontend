@@ -1,37 +1,36 @@
 import { useState } from "react";
 import { Formik, Form } from "formik";
-import { FormGroup, Input, Container, Row, Col, Button } from "reactstrap";
+import { FormGroup, Input, Container, Row, Col, Button, Modal, ModalBody,ModalHeader} from "reactstrap";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
-import { uploadMedia, clearMediaUploadState } from "@/slices/MediaSlice";
+import { bulkUpload,clearBulkUploadState } from "@/slices/ContactSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
-const UploadMediaPage = ({ setIsModalOpen, onUploadSuccess }) => {
+const BulkUpload = ({ onClose, onsuccess,isVisible }) => {
   const dispatch = useDispatch();
   const [selectedSenderId, setSelectedSenderId] = useState(null);
 
   const handleSubmit = async (values, { setSubmitting }) => {
     const formData = new FormData();
     formData.append("ClientId", localStorage.getItem("clientId"));
-    formData.append("SenderNameId", selectedSenderId);
-    formData.append("File", values.MediaFile);
+    formData.append("File", values.UploadFile);
     formData.append("ActionBy", localStorage.getItem("userId"));
-
     try {
-      const response = await dispatch(uploadMedia(formData)).unwrap();
-      if (response.success) {
-        dispatch(clearMediaUploadState());
+      const response = await dispatch(bulkUpload(formData)).unwrap();
+      if (response.success ) {
+        dispatch(clearBulkUploadState());
         setSubmitting(false);
         showSweetAlert({
           title: "Uploaded Successfully",
           text: "",
           icon: "success",
         });
-        onUploadSuccess();
+        onClose
+        onsuccess();
         // window.location.reload();
       } else {
         showSweetAlert({
-          title: "Failed",
+          title: "F",
           text: response.result.message || "",
           icon: "error",
         });
@@ -51,37 +50,37 @@ const UploadMediaPage = ({ setIsModalOpen, onUploadSuccess }) => {
   };
 
   return (
-    <Modal>
-    <div>
-        <h4 className="font-bold">Upload Media</h4>
-       <div className="w-full bg-white p-3 rounded mb-5">
+    <Modal  isOpen={isVisible} toggle={onClose} fade={false}>
+    <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center ">
+        <div className="bg-white p-6 rounded shadow-lg w-2/5  relative">
         
-        <div className="grid grid-cols-5 gap-4">
-          <div className="flex flex-col  mt-2 text-start">
-            <label className="font-medium text-gray-700 text-sm">Sender Names</label>
-            <Sendernames name="senderId" value={selectedSenderId} onChange={handleSenderChange} />
-          </div>
-          <div className="col-span-4">
+        <ModalHeader toggle={onClose}>Bulk Upload</ModalHeader>
+     <ModalBody>
+       
+      
+        
+        <div >
+<div className="col-span-4">
           <Formik
-            initialValues={{ MediaFile: null }}
+            initialValues={{ UploadFile: null }}
             onSubmit={handleSubmit}
           >
             {({ setFieldValue, isSubmitting }) => (
               <Form>
-                <div className="grid grid-cols-3 gap-4 mt-11 w-full">
-                  <div className="flex flex-col mb-1 text-start">
+                <div className="">
+                  <div className="">
                   <Input
                     type="file"
                     className="form-control"
-                    accept="image/*,video/*,audio/*,.pdf"
+                    accept=".xls,.xlsx,image/*,video/*,audio/*,.pdf"
                     required
                     onChange={(event) => {
                       const file = event.currentTarget.files[0];
-                      setFieldValue("MediaFile", file || null);
+                      setFieldValue("UploadFile", file || null);
                     }}
                   />
                   </div>
-                  <div className=" flex justify-end col-span-2 mt-2">
+                  <div className=" flex justify-end mt-2">
                    <Button className="uniform_btn" type="submit" disabled={isSubmitting}>
                     Upload Media
                   </Button>
@@ -91,11 +90,15 @@ const UploadMediaPage = ({ setIsModalOpen, onUploadSuccess }) => {
             )}
           </Formik>
           </div>
+         
           </div>
-          </div>
-          </div>
-          </Modal>
+          </ModalBody>
+      </div>
+      </div>
+      </Modal>
+         
+          
   );
 };
 
-export default UploadMediaPage;
+export default BulkUpload;

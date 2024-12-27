@@ -109,7 +109,7 @@ function MyApp({ Component, pageProps }) {
 
     return (
         <Suspense fallback={<h1>Loading...</h1>}>
-            <title>Babji Whatsapp Integration</title>
+            <title>BCT WhatsApp</title>
             <ErrorBoundary>
                 <RecoilRoot>
                     <Provider store={store}>

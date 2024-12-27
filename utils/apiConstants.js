@@ -22,6 +22,7 @@ export const CONTACTDETAILS="/Contacts/getcontactbyid";
 export const CREATECONTACT="/Contacts/addContact";
 export const DELETECONTACT="/Contacts/deletecontact"; 
 export const UPDATECONTACT="/Contacts/updatecontact";
+export const BULKUPLOAD = "/Contacts/importcontacts"
 
 export const GROUPLIST = "/Groups/getgroupslist";
 export const CREATEGROUP = "/Groups/addGroup" ;
@@ -89,4 +90,6 @@ export const AGENTMESSAGE = "/Message/sendagentmessage";
 //MasterSlice Endpoints
 export const TEMPLATECATEGORY = "/Templates/gettemplatecategories";
 export const TEMPLATELANGUAGE = "/Templates/getlanguages";
+
+
 

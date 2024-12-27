@@ -13,6 +13,7 @@ import { HiPencilAlt, HiTrash, HiLightningBolt  } from "react-icons/hi";
 
 import { useSetRecoilState } from 'recoil';
 import { CampaignState } from '@/components/recoil';
+import LastContactedList from '../Contacted';
 
 const CampaignsList = () => {
   const dispatch = useDispatch();
@@ -27,6 +28,7 @@ const CampaignsList = () => {
   const [isfilteropen, setisfilteropen] = useState(false);
   const [showfilterbutton, setshowfilterbutton] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [ContactedModal, setContactedModaL] = useState(false);
   const [CampaignId, setCampaignId] = useState(null);
   const [CampaignForm, setCampaignForm] = useState({});
 
@@ -36,6 +38,20 @@ const CampaignsList = () => {
   const handleSearchString = (e) => {
     setKeyword(e.target.value);
   };
+  const refreshCampaignList = () =>{
+    dispatch(
+      fetchCampaign({
+        ClientId: clientId,
+        FromDate: FromDate,
+        ToDate: ToDate,
+        status,
+        templateId,
+        srcStr,
+        pageSize,
+        PageNo: currentPage,
+      })
+    );
+  }
 
   const handleTemplateChange = (e) => {
     const template = e.target.value;
@@ -94,7 +110,12 @@ const CampaignsList = () => {
      window.location.href ="/Campaigns/CreateCampaigns";
   }
 
-  
+  const handelClick = () =>{
+    setContactedModaL(true)
+  }
+  const handelCancelClick = () =>{
+    setContactedModaL(false)
+  }
 
 
 
@@ -163,11 +184,11 @@ const CampaignsList = () => {
       <button className="uniform_icon_btn" onClick={() => HandleUpdateCampaign(row.campaignId)}>
         <HiPencilAlt style={{fontSize: "15px"}} />
       </button>
+      <button className="uniform_icon_btn" onClick={handelClick}></button>
       </div>
       
     )},
     
-   
   ];
   const subHeaderComponentMemo = useMemo(() => {
     return (
@@ -301,6 +322,12 @@ const CampaignsList = () => {
           )}
         </ModalBody>
       </Modal>
+      {ContactedModal &&(
+        <LastContactedList
+        isVisible={true}
+        onClose={handelCancelClick}
+        onsuccess={refreshCampaignList}/>
+      )}
     </App>
   );
 };
