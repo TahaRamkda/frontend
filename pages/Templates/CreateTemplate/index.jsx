@@ -46,7 +46,7 @@ const TemplateCreationPage = () => {
   const [buttonType, setButtonType] = useState(null);
   const [buttonText, setButtonText] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [countryCode, setCountryCode] = useState("US +1");
+  const [countryCode, setCountryCode] = useState("");
   const [websiteUrl, setwebsiteUrl] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [marketingOptOutAdded, setMarketingOptOutAdded] = useState(false);
@@ -75,6 +75,8 @@ const TemplateCreationPage = () => {
   const [bodyPayloadDatawithVar, setBodyPayloadDatawithVar] = useState("");
   const [removeHeaderButtonEnabled, setRemoveHeaderButtonEnabled] = useState(false);
   const [updatedvercontent, setupdatedvercontent] = useState("");
+  const [Templatetype, setTemplatetype] = useState("");
+  const [language, setlanguage] = useState("");
   const [typingTimeout, setTypingTimeout] = useState(null);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const replaceClosingPTagsWithNewline = (content) => {
@@ -152,11 +154,11 @@ const TemplateCreationPage = () => {
       clientId: localStorage.getItem("clientId"),
       name: values.templateName,
       transactionType: 1,
-      category: "marketing",
-      language: "en",
+      category: Templatetype,
+      language: language,
       senderNameId: selectedSenderId,
-      status: "Pending",
-      subCategory: "marketing",
+      status: "PENDING",
+      subCategory: Templatetype,
       isApproved: false,
       mediaId: selectedMediaId,
       templateType: 1,
@@ -188,15 +190,15 @@ const TemplateCreationPage = () => {
       buttons: messagePreview.buttons.map((button, index) => ({
         type: button.type,
         text: button.text,
-        phoneNumber: button.phoneNumber,
+        phoneNumber: `${button.countryCode}${button.phoneNumber}`,
         textCount: button.textCount,
         index: index,
         url: button.websiteUrl,
-        values: urlvariables.map((value, index) => ({
-          value: value,
-          defaultValue: value,
-          index: index + 1,
-        })),
+        values: {
+          value: button.urlveriablevalue,
+          defaultValue: button.urlveriablevalue,
+          index: button.urlverindex,
+        },
         actionId: button.actionId,
         actionType: button.actiontype,
         buttonId: button.buttonValue,
@@ -277,26 +279,58 @@ const TemplateCreationPage = () => {
 
 
  
+  const addURLVariable = (index) => {
+    debugger
+    const newIndex = 1;
 
-
-  const addURLVariable = () => {
-    const newIndex = urlvariables.length + 1;
-    if (!websiteUrl.includes(`{{${newIndex}}}`)) {
-      const html = websiteUrl
+    const updatedButtons = [...messagePreview.buttons];
+   
+    if (! updatedButtons[index].websiteUrl.includes(`{{1}}`)) {
+      const html =  updatedButtons[index].websiteUrl
       //.replace(/<p[^>]*>/g, '') // Remove opening <p> tags
       // .replace(/<\/p>/g, '<br />'); // Replace closing </p> tags with <br />
       //.replace(/<br\s*\/?>/g, ''); // Remove existing <br /> tag
       var a = `${html}{{${newIndex}}}`;
       var value = bodyTextCount;
       //setbodyTextCount(value+1);
-      setwebsiteUrl(a);
+      updatedButtons[index].websiteUrl = a;
+      updatedButtons[index].urlveriable = "";
+      updatedButtons[index].urlveriablevalue = "";
+      updatedButtons[index].urlverindex = newIndex;
+      //setwebsiteUrl(e.target.value)
+      setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+      //setwebsiteUrl(a);
       // alert(websiteUrl);
-      seturlvariables((prev) => [...prev, ""]);
+      //seturlvariables((prev) => [...prev, ""]);
       setErrorMessage("");
     } else {
       setErrorMessage(`Variable {${newIndex}} already exists in the body.`);
     }
   };
+
+  const removeWebsiteVariable = (index) => {
+    const updatedButtons = [...messagePreview.buttons];
+  
+    // Check if the variable exists in the URL
+    if (updatedButtons[index].websiteUrl.includes(`{{${updatedButtons[index].urlverindex}}}`)) {
+      // Remove the variable from the website URL
+      updatedButtons[index].websiteUrl = updatedButtons[index].websiteUrl.replace(
+        `{{${updatedButtons[index].urlverindex}}}`,
+        ""
+      );
+      delete updatedButtons[index].urlveriable;
+      delete updatedButtons[index].urlveriablevalue;
+      delete updatedButtons[index].urlverind
+  
+      // Update the state
+      setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+      setErrorMessage(""); // Clear any existing error messages
+    } else {
+      setErrorMessage(`Variable {${updatedButtons[index].urlverindex}} does not exist in the URL.`);
+    }
+  };
+  
+  
   useEffect(() => {
     setMessagePreview((prev) => ({
       ...prev,
@@ -404,7 +438,6 @@ const TemplateCreationPage = () => {
 
 
 
-
   const handleBodyChange = (value) => {
     // Allow typing without interruptions
     setBodyContent(value);
@@ -465,19 +498,15 @@ const TemplateCreationPage = () => {
   };
 
   const handleurlVariableChange = (index, value) => {
-    seturlvariables((prev) => {
-      const newurlVariable = [...prev];
-      newurlVariable[index] = value;
-      return newurlVariable;
-    });
+    const updatedButtons = [...messagePreview.buttons];
+  updatedButtons[index].urlveriablevalue = value; // Update the variable value
+  setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+   
   };
 
   const handleButtonSelect = (type) => {
     if (type === "2" && callPhoneNumberButtonCount >= 1) {
       setButtonType(null);
-      setPhoneNumber("");
-      setCountryCode("KW +965");
-      setwebsiteUrl("");
     } else if (type === "3" && messagePreview.buttons.filter((button) => button.type === "3").length >= 2) {
       setButtonType(null);
       setButtonText("");
@@ -487,7 +516,7 @@ const TemplateCreationPage = () => {
       setButtonType(type);
       setButtonText("");
       setPhoneNumber("");
-      setCountryCode("KWD +965");
+      setCountryCode("+965");
       setwebsiteUrl("");
       setActionId(0);
       setActionType(0);
@@ -546,6 +575,7 @@ const TemplateCreationPage = () => {
       setRemoveHeaderButtonEnabled(false); // Disable the remove button
     }
   };
+ 
 
   const removeButtonFromPreview = (index) => {
     var totalcount = TotalButtonCount;
@@ -619,7 +649,15 @@ const TemplateCreationPage = () => {
   }, [bodyFinalContent, variables]);
 
   //console.log("BodyFinalContent12", bodyContent, finalContent)
-   
+   const HandleTemplatetypechange=(e) => {
+    const templatetype = e.target.value;
+    setTemplatetype(templatetype);
+     }
+
+     const HandleTemplateLanguagechange=(e) => {
+      const Language = e.target.value;
+      setlanguage(Language);
+       }
   
   return (
     <App>
@@ -630,10 +668,16 @@ const TemplateCreationPage = () => {
             <h4 className="mb-4">Create Template</h4>
             <label className="block mb-1 mt-1">Sender Names</label>
             <Sendernames name="senderId" value={selectedSenderId} onChange={handleSenderChange} />
+
+            <label className="block mb-1 mt-1">Template type</label>
+            <TemplateCategoryDropdown name="templatetype" value={Templatetype} onChange={HandleTemplatetypechange} />
+
+            <label className="block mb-1 mt-1">Language</label>
+            <LanguageDropdown name="language" value={language} onChange={HandleTemplateLanguagechange} />
             <Formik
               initialValues={{
                 templateName: "",
-                headerType: "none",
+                headerType: "0",
                 headerContent: "",
                 headerMedia: null,
                 body: "",
@@ -653,10 +697,27 @@ const TemplateCreationPage = () => {
                   <Form  >
                     
                     <div  className="">
-                      <FormGroup>
-                        <Label for="templateName" className="font-semibold text-sm mb-0">Template Name</Label>
-                        <Field as={Input} type="text" name="templateName" id="templateName" />
-                      </FormGroup>
+                    <FormGroup>
+  <Label for="templateName" className="font-semibold text-sm mb-0">
+    Template Name
+  </Label>
+  <Field
+  as={Input}
+  type="text"
+  name="templateName"
+  id="templateName"
+  onChange={(e) => {
+    const value = e.target.value
+      .replace(/\s+/g, '_')
+      .replace(/[^a-zA-Z0-9_]/g, '')
+      .toLowerCase();
+    setFieldValue('templateName', value); // Update Formik's state
+  }}
+/>
+
+</FormGroup>
+
+
                     </div>
                     <div  className="mt-3 ">
                       <FormGroup>
@@ -791,117 +852,138 @@ const TemplateCreationPage = () => {
 
 
                     {messagePreview.buttons.map((button, index) => (
-                      <div key={index} className="d-flex align-items-center my-3">
-                        <Input
-                          type="text"
-                          value={button.text}
-                          placeholder="Button Text"
-                          onChange={(e) => {
-                            const updatedButtons = [...messagePreview.buttons];
-                            updatedButtons[index].text = e.target.value;
-                            setMessagePreview({ ...messagePreview, buttons: updatedButtons });
-                          }}
+  <div key={index} className="d-flex align-items-center my-3">
+    {/* Button Text Input */}
+    <Input
+      type="text"
+      value={button.text}
+      placeholder="Button Text"
+      onChange={(e) => {
+        const updatedButtons = [...messagePreview.buttons];
+        updatedButtons[index].text = e.target.value;
+        setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+      }}
+      className="me-2"
+    />
 
-                          className="me-2"
-                        />
-                        {button.type === "1" && (
-                          <Button
-                            style={{ backgroundColor: "grey", borderColor: "green", color: "white" }}
-                            className="me-2"
-                            onClick={() => handlebuttonaction(index)}
-                          >
-                            <i className="fa fa-bolt"></i>
-                          </Button>
-                        )}
+    {/* Type 1 Action Button */}
+    {button.type === "1" && (
+      <Button
+        style={{ backgroundColor: "grey", borderColor: "green", color: "white" }}
+        className="me-2"
+        onClick={() => handlebuttonaction(index)}
+      >
+        <i className="fa fa-bolt"></i>
+      </Button>
+    )}
 
-                        {button.type === "2" && (
-                          <div className="d-flex me-2">
-                            <Input
-                              type="select"
-                              value={button.countryCode}
-                              onChange={(e) => {
-                                const updatedButtons = [...messagePreview.buttons];
-                                updatedButtons[index].countryCode = e.target.value;
-                                setMessagePreview({ ...messagePreview, buttons: updatedButtons });
-                              }}
-                              className="mr-2"
-                              style={{ minWidth: "120px" }}
-                            >
-                              <option value="KW +965">KW +965</option>
-                              <option value="US +1">US +1</option>
-                              <option value="IN +91">IN +91</option>
-                            </Input>
-                            <Input
-                              type="text"
-                              value={button.phoneNumber}
-                              placeholder="Phone Number"
-                              onChange={(e) => {
-                                const updatedButtons = [...messagePreview.buttons];
-                                updatedButtons[index].phoneNumber = e.target.value;
-                                setMessagePreview({ ...messagePreview, buttons: updatedButtons });
-                              }}
-                              className="me-2"
-                              style={{ minWidth: "220px" }}
-                            />
+    {/* Type 2: Phone Number Input */}
+    {button.type === "2" && (
+      <div className="d-flex me-2">
+        <Input
+          type="select"
+          value={button.countryCode}
+          onChange={(e) => {
+            const updatedButtons = [...messagePreview.buttons];
+            updatedButtons[index].countryCode = e.target.value;
+            setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+            setCountryCode(e.target.value);
+          }}
+          className="me-2"
+          style={{ minWidth: "120px" }}
+        >
+          <option value="+965">KW +965</option>
+          <option value="+1">US +1</option>
+          <option value="+91">IN +91</option>
+        </Input>
+        <Input
+          type="text"
+          value={button.phoneNumber}
+          placeholder="Phone Number"
+          onChange={(e) => {
+            const updatedButtons = [...messagePreview.buttons];
+            updatedButtons[index].phoneNumber = e.target.value;
+            setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+          }}
+          className="me-2"
+          style={{ minWidth: "220px" }}
+        />
+      </div>
+    )}
 
-                          </div>
-                        )}
+    {/* Type 3: Website URL Input */}
+    {button.type === "3" && (
+      <>
+      <div className="d-flex flex-column me-2">
+        {/* Website URL Input */}
+        <div className="d-flex">
+          <Input
+            type="text"
+            value={button.websiteUrl}
+            placeholder="Website URL"
+            onChange={(e) => {
+              const updatedButtons = [...messagePreview.buttons];
+              updatedButtons[index].websiteUrl = e.target.value;
+              setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+            }}
+            className="me-2"
+          />
+          <Button
+            onClick={() => addURLVariable(index)}
+            className="mt-0 mr-2 bg-transparent border-0"
+            style={{ minWidth: "max-content" }}
+          >
+            <span className="text-primary">+ Add Variable</span>
+          </Button>
+        </div>
 
-                        {button.type === "3" && (
-                          <>
+        {/* URL Variable Input */}
+        {button.urlveriablevalue != null && (
+          <div className="mt-3">
+            <Row>
+              <Col>
+                <Input
+                  className="w-100"
+                  type="text"
+                  value={button.urlveriablevalue}
+                  onChange={(e) => handleurlVariableChange(index, e.target.value)}
+                  placeholder={`Enter Sample value for {${index + 1}}`}
+                />
+              </Col>
+              <Col xs="auto">
+                <div
+                  className="border-1 d-flex align-items-center justify-content-center rounded"
+                  style={{ height: "46px", width: "38px", background: "#e1e1e1" }}
+                >
+                  <FaTimes
+                    key={index}
+                    onClick={() => {
+                      removeWebsiteVariable(index);
+                     
+                    }}
+                    style={{ cursor: "pointer", color: "red" }}
+                  />
+                </div>
+              </Col>
+            </Row>
+          </div>
+        )}
+      </div>
+      </>
+      
+    )}
 
-                            <Input
-                              type="text"
-                              value={websiteUrl}
-                              placeholder="Website URL"
-                              onChange={(e) => {
-                                const updatedButtons = [...messagePreview.buttons];
-                                updatedButtons[index].websiteUrl = e.target.value;
-                                setwebsiteUrl(e.target.value)
-                                setMessagePreview({ ...messagePreview, buttons: updatedButtons });
-                              }}
-                              className="me-2"
-                            />
-                            <Button onClick={addURLVariable} disabled={urlvariables?.length === 1} className="mt-0 mr-2 bg-transparent border-0" style={{ minWidth: "max-content" }}>
-                              <span className="text-primary">+ Add Variable</span>
-                            </Button>
+    {/* Remove Button */}
+    <Button
+      onClick={() => removeButtonFromPreview(index)}
+      color="danger"
+      className="h-10 w-10"
+    >
+      <FaRegTrashCan />
+    </Button>
+  </div>
+))}
 
-                          </>
-                        )}
-                        <Button onClick={() => removeButtonFromPreview(index)} color="danger" className="h-10 w-10">
-                          <FaRegTrashCan />
-                        </Button>
-                      </div>
-                    ))}
-                    {urlvariables.map((variable, index) => (
-                      <FormGroup key={index}>
-                        <Label>{`Sample Value for {${index + 1}}`}</Label>
-                        <Row>
-                          <Col>
-                            <Input
-                              className="w-90"
-                              type="text"
-                              value={variable}
-                              onChange={(e) => handleurlVariableChange(index, e.target.value)}
-                              placeholder={`Enter Sample  value for {${index + 1}}`}
-                              required
-                            />
-                          </Col>
-                          <Col>
-                            <div className="border-1 flex items-center justify-center rounded" style={{ height: "46px", width: "38px", background: "#e1e1e1" }}>
-                              <FaTimes
-                                key={index}
-                                onClick={() => {
-                                  removeHeaderVariable(index);
-                                  setHeaderVariable(headerVariable.filter((_, i) => i !== index));
-                                }}
-                                style={{ cursor: "pointer", color: "red" }}
-                              />
-                            </div>
-                          </Col>
-                        </Row>
-                      </FormGroup>
-                    ))}
                     <div className="w-full text-end">
                     <Button className="uniform_btn mt-4" onClick={() => handleSubmit(values)}>
                       Create

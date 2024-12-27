@@ -721,10 +721,25 @@ const TemplateUpdatePage = () => {
                 return (
                   <Form  >
                     <div style={{ background: "#fff" }} className="p-2 px-3 rounded border-1 shadow-sm">
-                      <FormGroup>
-                        <Label for="templateName" className="font-semibold text-sm mb-0">Template Name</Label>
-                        <Field as={Input} type="text" name="templateName" id="templateName" />
-                      </FormGroup>
+                    <FormGroup>
+  <Label for="templateName" className="font-semibold text-sm mb-0">
+    Template Name
+  </Label>
+  <Field
+  as={Input}
+  type="text"
+  name="templateName"
+  id="templateName"
+  onChange={(e) => {
+    const value = e.target.value
+      .replace(/\s+/g, '_')
+      .replace(/[^a-zA-Z0-9_]/g, '')
+      .toLowerCase();
+    setFieldValue('templateName', value); // Update Formik's state
+  }}
+/>
+
+</FormGroup>
                     </div>
                     <div style={{ background: "#fff" }} className="mt-3 p-2 px-3 rounded border-1 shadow-sm">
                       <FormGroup>

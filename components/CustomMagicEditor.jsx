@@ -263,11 +263,12 @@ const CustomMagicEditor = ({
               border: "1px solid #ccc",
             }}
             placeholder="Start typing here..."
+            required
           />
 
           <div className="flex justify-end">
             <Button
-              className="mt-3 text-underline  cursor-pointer bg-transparent border-0"
+              className="mt-3 text-underline  cursor-pointer  border-0"
               disabled={headerVariable?.length === 1}
               onClick={() => {
                 const variableIndex = headerVariable?.length + 1;
@@ -332,7 +333,7 @@ const CustomMagicEditor = ({
       placeholder="Start typing here..."
     />
           <div className="flex justify-end">
-            <Button onClick={() => { const variableIndex = variables?.length + 1; addVariable(variableIndex); addVariableAtCursor(`{{${variableIndex}}}`) }} className="mt-3  cursor-pointer bg-transparent border-0" style={{color: 'black'}}>
+            <Button onClick={() => { const variableIndex = variables?.length + 1; addVariable(variableIndex); addVariableAtCursor(`{{${variableIndex}}}`) }} className="mt-3  cursor-pointer  border-0" style={{color: 'white'}}>
               + Add Variable
             </Button>
           </div>
