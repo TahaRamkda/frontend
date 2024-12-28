@@ -47,6 +47,7 @@ import { TemplateState } from "@/components/recoil";
 import MonitorFormikContext from "@/components/monitorformikcontext";
 import TemplateCategoryDropdown from "@/components/Dropdowns/TemplateCategorydropdown";
 import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
+import { set } from "date-fns";
 const CustomEditor = dynamic(
   () => import("../../../components/CustomEditor/CustomEditor"),
   { ssr: false }
@@ -189,7 +190,14 @@ const TemplateUpdatePage = () => {
         }
       });
     }
-
+ if(template.buttonValues){
+  const updatedButtons = [...updatedMessagePreview.buttons];
+  updatedButtons.websiteUrl = template.buttonValues.url;
+  updatedButtons.urlveriable = template.buttonValues;
+  updatedButtons.urlveriablevalue = template.buttonValues;
+  updatedButtons.urlverindex = template.buttonValues;
+  setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+ }
     setSelectedSenderId(template.senderId);
     setTemplatetype(template.category);
     setlanguage(template.language);
@@ -582,14 +590,13 @@ const TemplateUpdatePage = () => {
 
   const handleButtonSelect = (type) => {
     if (type === "2" && callPhoneNumberButtonCount >= 1) {
+      toast.error("You can only add one call phone number button.");
       setButtonType(null);
-      setPhoneNumber("");
-      setCountryCode("KW +965");
-      setwebsiteUrl("");
     } else if (
       type === "3" &&
       messagePreview.buttons.filter((button) => button.type === "3").length >= 2
     ) {
+      toast.error("You can only add two visit website buttons.");
       setButtonType(null);
       setButtonText("");
       setwebsiteUrl("");
@@ -597,54 +604,65 @@ const TemplateUpdatePage = () => {
       setButtonType(type);
       setButtonText("");
       setPhoneNumber("");
-      setCountryCode("KWD +965");
+      setCountryCode("+965");
       setwebsiteUrl("");
-      setActionId(" ");
-      setActionType(" ");
+      setActionId(0);
+      setActionType(0);
       if (type === "1") {
         setButtonText(" ");
         setMarketingOptOutAdded(true);
-        var totalcount = TotalButtonCount;
-        setTotalButtonCount(totalcount + 1);
+        setTotalButtonCount((prev) => prev + 1);
       } else if (type === "2") {
         setButtonText("Call Phone Number");
-        setCallPhoneNumberButtonCount(callPhoneNumberButtonCount + 1);
-        var totalcount = TotalButtonCount;
-        setTotalButtonCount(totalcount + 1);
+        setCallPhoneNumberButtonCount((prev) => prev + 1);
+        setTotalButtonCount((prev) => prev + 1);
       } else if (type === "3") {
         setButtonText("Visit Website");
         setVisitWebsiteButtonCount(
-          messagePreview.buttons.filter((button) => button.type === "3")
-            .length + 1
+          messagePreview.buttons.filter((button) => button.type === "3").length + 1
         );
-        var totalcount = TotalButtonCount;
-        setTotalButtonCount(totalcount + 1);
+        setTotalButtonCount((prev) => prev + 1);
       } else {
         setButtonText("");
       }
     }
   };
-
+  
   useEffect(() => {
     if (buttonType) {
       const newButton = {
         type: buttonType,
         text: buttonText || buttonType,
-        phoneNumber: buttonType === "2" ? phoneNumber : null,
-        countryCode: buttonType === "2" ? countryCode : null,
+        phoneNumber: buttonType === "2" ? phoneNumber : "",
+        countryCode: buttonType === "2" ? countryCode : "",
         websiteUrl: buttonType === "3" ? websiteUrl : null,
       };
-
-      setMessagePreview((prev) => ({
-        ...prev,
-        buttons: [...prev.buttons, newButton],
-      }));
-
+  
+      setMessagePreview((prev) => {
+        const buttons = [...prev.buttons];
+  
+        if (newButton.type === "1") {
+          // Find the index of the last type `1` button
+          const lastType1Index = buttons.reduce(
+            (lastIndex, button, index) => (button.type === "1" ? index : lastIndex),
+            -1
+          );
+  
+          // Insert the new type `1` button right after the last type `1` button
+          buttons.splice(lastType1Index + 1, 0, newButton);
+        } else {
+          // Add type `2` or `3` buttons at the end
+          buttons.push(newButton);
+        }
+  
+        return { ...prev, buttons };
+      });
+  
       // Reset button details
       setButtonType(null);
       setButtonText("");
       setPhoneNumber("");
-      setCountryCode("KW +965");
+      setCountryCode("+965");
       setwebsiteUrl("");
     }
   }, [buttonType, buttonText]);
@@ -1013,6 +1031,7 @@ const TemplateUpdatePage = () => {
                           name="footer"
                           placeholder="Add footer text"
                           className="form-control"
+                          maxLength="50"
                         />
                       </FormGroup>
                       {/* Button dropdown */}

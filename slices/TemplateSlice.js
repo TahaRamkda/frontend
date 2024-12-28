@@ -10,7 +10,7 @@ export const fetchTemplates = createAsyncThunk(
   'template/fetchTemplates',
   async ({clientId,TransactonType}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${TEMPLATELIST}?ClientId=${clientId}&TransactionType=${TransactonType ? TransactonType : 0}`);
+      const response = await API.get(`${TEMPLATELIST}?ClientId=${clientId}&TransactionType=${TransactonType ? TransactonType : 1}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           templates: response.data.result,
@@ -26,10 +26,13 @@ export const fetchTemplates = createAsyncThunk(
   }
 );
 export const fetchTemplatesDrop = createAsyncThunk(
+  
   'template/fetchTemplatesDrop',
-  async ({clientId,TransactonType}, { rejectWithValue }) => {
+  
+  async ({clientId,TransactionType}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${TEMPLATEDROPDOWN}?ClientId=${clientId}&TransactionType=${TransactonType}`);
+      
+      const response = await API.get(`${TEMPLATEDROPDOWN}?ClientId=${clientId}&transactionType=${TransactionType ?  TransactionType: 0}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           templateDrop: response.data.result,

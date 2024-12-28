@@ -5,36 +5,34 @@ import SweetAlert from "sweetalert2";
 import App from '@/components/App';
 import UploadMedia from "../UploadMedia";
 import Loader from "@/components/Loader";
-import {BASE_URL} from "@/utils/apiConstants";
+import { BASE_URL } from "@/utils/apiConstants";
 
-const MediaList = ({ isPopup, onSelectMedia,contentTypeStr }) => {
+const MediaList = ({ isPopup, onSelectMedia, contentTypeStr }) => {
   const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMediaId, setSelectedMediaId] = useState(null);
   const { medias, loading, error } = useSelector((state) => state.media);
-  const [contenttype, setcontenttype] = useState('');
-  useEffect(() => {
-    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId") ,contentTypeStr: contenttype}));
-    clearMediaState();
-  }, [dispatch,contenttype]);
 
   useEffect(() => {
-    if (isPopup === true) {
+    // Send contentTypeStr only when isPopup is true, otherwise send an empty string
+    const contentType = isPopup ? contentTypeStr : "";
+    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType }));
+    return () => clearMediaState();
+  }, [dispatch, isPopup, contentTypeStr]);
+
+  useEffect(() => {
+    if (isPopup) {
       setIsModalOpen(true);
     }
   }, [isPopup]);
-  useEffect(() => {
-    
-    if (contentTypeStr) {
-      setcontenttype(contentTypeStr);
-    }
-  }, [contentTypeStr]);
+
   const toggleModal = () => {
-    setIsModalOpen(false)
-  }
+    setIsModalOpen(false);
+  };
 
   const refreshList = () => {
-    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId") ,contentTypeStr: contenttype}));
+    const contentType = isPopup ? contentTypeStr : "";
+    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType }));
   };
 
   const handleDeleteClick = (mediaId) => {
@@ -95,7 +93,7 @@ const MediaList = ({ isPopup, onSelectMedia,contentTypeStr }) => {
     } else if (mimeType === "application/pdf") {
       return (
         <iframe
-          src={mediaPath}
+          src={`${BASE_URL}${mediaPath}`}
           title="PDF Preview"
           className={`${previewStyle} h-full border-none`}
         />
@@ -167,7 +165,7 @@ const MediaList = ({ isPopup, onSelectMedia,contentTypeStr }) => {
       </div>
     </div>
   );
-  
+
   return (
     <>
       {
@@ -190,13 +188,11 @@ const MediaList = ({ isPopup, onSelectMedia,contentTypeStr }) => {
             </div>
           </div>
         ) : (
-          // Only include <App> if isPopup is false
           <App>
             {renderContent()}
           </App>
         )
       }
-
     </>
   );
 };

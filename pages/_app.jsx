@@ -74,15 +74,18 @@ function MyApp({ Component, pageProps }) {
         fetchPermissionDetail();
     }, []);
 
+
+    const basePath = router.pathname.split('/')[1]?.toLowerCase().replace(' ', ''); // Extract base module (e.g., 'clients')
+    const currentAction = router.pathname.split('/')[2]?.toLowerCase().replace(' ', ''); // Extract subpath (e.g., 'createclient', 'list')
+
     useEffect(() => {
+      
         // Skip permission check for auth/login page
         if (router.pathname === '/auth/login') {
             return; // Do not check permissions for the login page
         }
 
-        const basePath = router.pathname.split('/')[1]?.toLowerCase().replace(' ', ''); // Extract base module (e.g., 'clients')
-        const currentAction = router.pathname.split('/')[2]?.toLowerCase().replace(' ', ''); // Extract subpath (e.g., 'createclient', 'list')
-
+        
         const isCreateAction = currentAction?.includes('create'); // Check if the subpath includes 'create'
 
         const hasPermission = permissions.some((perm) => {

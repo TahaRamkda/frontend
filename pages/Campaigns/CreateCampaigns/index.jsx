@@ -111,11 +111,11 @@ const CampaignCreate = () => {
   
       if (template.headerValue) {
         setHeaderVariable([template.headerValue]);
-        template.headerValue.forEach((variable, i) => {
-          if (variable?.defaultValue !== undefined) {
-            handleheaderVariableChange(i, variable.defaultValue);
+        
+          if (template.headerValue?.defaultValue !== undefined) {
+            handleheaderVariableChange(0, template.headerValue.defaultValue);
           }
-        });
+        
       }
     } else {
       //alert(template.mediaURL);
@@ -386,6 +386,7 @@ const CampaignCreate = () => {
                   value={selectedTemplateId}
                    onChange={handleTemplateChange}
                    className="mb-3"
+                   TransactionType={1}
                  />
                 </FormGroup>
                      

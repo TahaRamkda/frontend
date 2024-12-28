@@ -66,7 +66,7 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index }) => {
             <TemplateDropdown
               id="templateDropdown"
               onChange={handleTemplateChange}
-              transactiontype={2}
+              TransactionType="2"
             />
           </FormGroup>
         )}

@@ -11,7 +11,7 @@ import {
   deleteSendername,
   fetchSendernameById,
   updateSendername,
-} from "@/slices/سendernameSlice";
+} from "@/slices/sendernameSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import App from "@/components/App";
 import SenderNameForm from "../CreateSenderName";

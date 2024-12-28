@@ -41,6 +41,7 @@ import Loader from "@/components/Loader";
 import MonitorFormikContext from "@/components/monitorformikcontext";
 import TemplateCategoryDropdown from "@/components/Dropdowns/TemplateCategorydropdown";
 import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
+import { toast } from "react-toastify";
 const CustomEditor = dynamic(
   () => import("../../../components/CustomEditor/CustomEditor"),
   { ssr: false }
@@ -97,6 +98,7 @@ const TemplateCreationPage = () => {
   const [removeHeaderButtonEnabled, setRemoveHeaderButtonEnabled] =
     useState(false);
   const [updatedvercontent, setupdatedvercontent] = useState("");
+  const [updatedheadvercontent, setupdatedheadvercontent] = useState("");
   const [Templatetype, setTemplatetype] = useState("");
   const [language, setlanguage] = useState("");
   const [typingTimeout, setTypingTimeout] = useState(null);
@@ -252,7 +254,7 @@ const TemplateCreationPage = () => {
         showSweetAlert({
           title: "Template Created",
           text:
-            response.message || "The Template has been successfully created.",
+            response.result.message || "The Template has been successfully created.",
           icon: "success",
         });
         await router.push("/Templates/TemplatesList");
@@ -375,6 +377,20 @@ const TemplateCreationPage = () => {
     setupdatedvercontent(updatedBodyContent);
   };
 
+
+  const removeHeaderVariable = (index) => {
+    debugger
+    //alert(bodyPayloadDatawithVar)
+    const updatedVariables = headerVariable.filter((_, i) => i !== index);
+    const updatedHeadContent = headerPayloadDatawithVar
+      .replace(`{{${index + 1}}}`, "")
+      .replace(/\s\s+/g, " ");
+    var value = headerTextCount;
+    setheaderTextCount(value - 1);
+    setHeaderVariable(updatedVariables);
+    setupdatedheadvercontent(updatedHeadContent);
+  };
+
   const handleVariableChange = (index, value) => {
     setVariables((prev) => {
       const newVariables = [...prev];
@@ -424,6 +440,7 @@ const TemplateCreationPage = () => {
       if (!headContent.includes(`{{${newIndex}}}`)) {
         setHeadContent((prev) => {
           const newHeadContent = prev + `{{${newIndex}}}`;
+          setheaderTextCount(headerTextCount + 1);
           return newHeadContent;
         });
 
@@ -534,11 +551,13 @@ const TemplateCreationPage = () => {
 
   const handleButtonSelect = (type) => {
     if (type === "2" && callPhoneNumberButtonCount >= 1) {
+      toast.error("You can only add one call phone number button.");
       setButtonType(null);
     } else if (
       type === "3" &&
       messagePreview.buttons.filter((button) => button.type === "3").length >= 2
     ) {
+      toast.error("You can only add two visit website buttons.");
       setButtonType(null);
       setButtonText("");
       setwebsiteUrl("");
@@ -553,60 +572,63 @@ const TemplateCreationPage = () => {
       if (type === "1") {
         setButtonText(" ");
         setMarketingOptOutAdded(true);
-        var totalcount = TotalButtonCount;
-        setTotalButtonCount(totalcount + 1);
+        setTotalButtonCount((prev) => prev + 1);
       } else if (type === "2") {
         setButtonText("Call Phone Number");
-        setCallPhoneNumberButtonCount(callPhoneNumberButtonCount + 1);
-        var totalcount = TotalButtonCount;
-        setTotalButtonCount(totalcount + 1);
+        setCallPhoneNumberButtonCount((prev) => prev + 1);
+        setTotalButtonCount((prev) => prev + 1);
       } else if (type === "3") {
         setButtonText("Visit Website");
         setVisitWebsiteButtonCount(
-          messagePreview.buttons.filter((button) => button.type === "3")
-            .length + 1
+          messagePreview.buttons.filter((button) => button.type === "3").length + 1
         );
-        var totalcount = TotalButtonCount;
-        setTotalButtonCount(totalcount + 1);
+        setTotalButtonCount((prev) => prev + 1);
       } else {
         setButtonText("");
       }
     }
   };
-
+  
   useEffect(() => {
     if (buttonType) {
       const newButton = {
         type: buttonType,
         text: buttonText || buttonType,
-        phoneNumber: buttonType === "2" ? phoneNumber : null,
-        countryCode: buttonType === "2" ? countryCode : null,
+        phoneNumber: buttonType === "2" ? phoneNumber : "",
+        countryCode: buttonType === "2" ? countryCode : "",
         websiteUrl: buttonType === "3" ? websiteUrl : null,
       };
-
-      setMessagePreview((prev) => ({
-        ...prev,
-        buttons: [...prev.buttons, newButton],
-      }));
-
+  
+      setMessagePreview((prev) => {
+        const buttons = [...prev.buttons];
+  
+        if (newButton.type === "1") {
+          // Find the index of the last type `1` button
+          const lastType1Index = buttons.reduce(
+            (lastIndex, button, index) => (button.type === "1" ? index : lastIndex),
+            -1
+          );
+  
+          // Insert the new type `1` button right after the last type `1` button
+          buttons.splice(lastType1Index + 1, 0, newButton);
+        } else {
+          // Add type `2` or `3` buttons at the end
+          buttons.push(newButton);
+        }
+  
+        return { ...prev, buttons };
+      });
+  
       // Reset button details
       setButtonType(null);
       setButtonText("");
       setPhoneNumber("");
-      setCountryCode("KW +965");
+      setCountryCode("+965");
       setwebsiteUrl("");
     }
   }, [buttonType, buttonText]);
-  const removeHeaderVariable = (index) => {
-    if (headerVariable.length > 1) {
-      setHeaderVariable((prev) => prev.filter((_, i) => i !== index));
-      setRemoveHeaderButtonEnabled(true); // Enable the remove button
-      var value = headerTextCount;
-      setheaderTextCount(value - 1);
-    } else {
-      setRemoveHeaderButtonEnabled(false); // Disable the remove button
-    }
-  };
+  
+  
 
   const removeButtonFromPreview = (index) => {
     var totalcount = TotalButtonCount;
@@ -758,6 +780,7 @@ const TemplateCreationPage = () => {
                           type="text"
                           name="templateName"
                           id="templateName"
+                          maxLength="50" 
                           onChange={(e) => {
                             const value = e.target.value
                               .replace(/\s+/g, "_")
@@ -819,6 +842,7 @@ const TemplateCreationPage = () => {
                               setHeaderVariable={setHeaderVariable}
                               headContent={headContent}
                               setFinalContent={setFinalContent}
+                              existingContent={updatedheadvercontent}
                               body={false}
                             />
                             {/* <ReactQuill
@@ -851,11 +875,12 @@ const TemplateCreationPage = () => {
                                   ? "image"
                                   : values.headerType === "3"
                                   ? "video"
-                                  : "document"
+                                  : "application"
                               }
                               onSelectMedia={(mediaId, mediaPath, mimeType) => {
                                 setSelectedMediaId(mediaId);
                                 setSelectedMediaPath(mediaPath);
+                                alert(mediaPath);
                                 setSelectedMediaType(mimeType);
                               }}
                             />
@@ -941,6 +966,7 @@ const TemplateCreationPage = () => {
                           name="footer"
                           placeholder="Add footer text"
                           className="form-control"
+                          maxLength="50"
                         />
                       </FormGroup>
                       {/* Button dropdown */}
@@ -1266,6 +1292,8 @@ const TemplateCreationPage = () => {
                       }}
                     />
                   )}
+
+
 
                 {messagePreview.header && (
                   <h6
