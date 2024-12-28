@@ -34,7 +34,6 @@ export const fetchClientsDrop = createAsyncThunk(
       if (response?.status === 200 && response.data?.result) {
         return {
           clientsDrop: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -144,7 +143,6 @@ const clientSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.success = false;
-      state.totalRecords = 0;
     },
     clearClientDetailState: (state) => {
       state.client = null;
@@ -191,7 +189,6 @@ const clientSlice = createSlice({
       .addCase(fetchClientsDrop.fulfilled, (state, action) => {
         state.loading = false;
         state.clientsDrop = action.payload.clientsDrop;
-        state.totalRecords = action.payload.totalRecords;
         state.message = action.payload.message || '';
       })
       .addCase(fetchClientsDrop.rejected, (state, action) => {

@@ -4,6 +4,7 @@ import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchRoles, clearRoleState, deleteRole, fetchRoleById, updateRole } from "@/slices/RoleSlice";
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input } from "reactstrap";
 import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Loader";
 import CreateRole from "../CreateRoles";
@@ -88,7 +89,10 @@ const RoleList = () => {
       }
     });
   };
-
+  const toggleModal = () => {
+   
+    setIsModalOpen(false);
+  };
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setRoleForm({ ...roleForm, [name]: value });
@@ -220,18 +224,13 @@ const RoleList = () => {
           />
         </div>
       {isModalOpen && (
+<Modal isOpen={true} toggle={() => toggleModal()} fade={false}>
   <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
       {/* Close button */}
-      <button
-        onClick={() => setIsModalOpen(false)}
-        className="absolute top-4 right-4 text-xl text-gray-600 hover:text-gray-800"
-      >
-        &times;
-      </button>
-      <h4 className="text-xl mb-4">Edit Role</h4>
+     <ModalHeader toggle={() => toggleModal()}> Edit Role</ModalHeader>
+     <ModalBody>
       <form onSubmit={handleUpdateSubmit}>
-        
           <div>
             <label className="font-medium text-gray-700 text-sm" htmlFor="roleName">
               Role Name
@@ -254,8 +253,10 @@ const RoleList = () => {
           </button>
         </div>
       </form>
+      </ModalBody>
     </div>
   </div>
+  </Modal>
 )}
 {CreateModalOpen &&(
         <CreateRole 

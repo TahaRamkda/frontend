@@ -74,6 +74,13 @@ export const sidebarItems = [
     },
     
     {
+      href: '/SenderNamesAdmin/SenderNamelist',
+      icon: 'ti-id-badge', // ID badge icon for Sender Names
+      text: 'Sender Names Admin',
+      module: 1,
+      submenu: [],
+    },
+    {
       href: '/Media/MediaList',
       icon: 'ti-cloud-up', // Cloud upload icon for Media Upload
       text: 'Media',
@@ -112,6 +119,14 @@ export const sidebarItems = [
       module: 1,
       submenu: [],
     },
+    {
+      href: '/Users/UsersList',
+      icon: 'ti-user', // Settings icon for Roles
+      text: 'Users',
+      module: 1,
+      submenu: [],
+    },
+
     {
       href: '/Permissions/PermissionList',
       icon: 'ti-lock', // Lock icon for Permissions

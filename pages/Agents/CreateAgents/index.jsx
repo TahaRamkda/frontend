@@ -8,7 +8,7 @@ import App from '@/components/App';
 import SendernameDropdown from "@/components/MultiSelect/SendernameDropdown";
 
 const AgentsForm = ({onClose, isVisible ,onsuccess}) => {
-  const [selectedSenderId, setSelectedSenderId] = useState(null);
+  const [selectedSenderId, setSelectedSenderId] = useState("");
   const [formData, setFormData] = useState({
     userName: "",
     password: "",
@@ -28,10 +28,13 @@ const AgentsForm = ({onClose, isVisible ,onsuccess}) => {
     }));
   };
 
-  const handleSenderChange = (e) => {
-    setSelectedSenderId(e.target.value);
+  const handleSenderChange = (value) => {
+    if (Array.isArray(value)) {
+      setSelectedSenderId(value.join(",")); // Join the array into a comma-separated string
+    } else {
+      setSelectedSenderId(value);
+    }
   };
-
   const handleSubmit = async (e) => {
    
     e.preventDefault();
@@ -82,7 +85,7 @@ const AgentsForm = ({onClose, isVisible ,onsuccess}) => {
        
         <div>
         <label className="font-medium text-gray-700 text-sm">Sender Name</label>
-          <SendernameDropdown name="senderIds" value={selectedSenderId} />
+          <SendernameDropdown name="senderIds" value={formData.senderIds} onChange={handleSenderChange} />
         </div>
         <div>
           <label className="font-medium text-gray-700 text-sm">First Name</label>

@@ -1,19 +1,23 @@
 import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Input } from 'reactstrap';
 import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
-import { fetchRoles, clearRoleState } from "@/slices/RoleSlice";
+import { fetchRolesDrop, clearRoleDropState } from "@/slices/RoleSlice";
 
 const RoleDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null); 
-  const { roles, loading, error } = useSelector((state) => state.roles);
-
+  const { roleDrop, loading, error } = useSelector((state) => state.roles);
+ const refreshDropdown = () =>{
+  dispatch(fetchRolesDrop({clientId: localStorage.getItem("clientId") }));
+ }
   useEffect(() => {
-    dispatch(fetchRoles({clientId: localStorage.getItem("clientId") }));
+    dispatch(fetchRolesDrop({clientId: localStorage.getItem("clientId") }));
     return () => {
-      dispatch(clearRoleState());
+       dispatch(clearRoleDropState());
+       refreshDropdown()
     };
   }, [dispatch]);
 
@@ -38,7 +42,7 @@ const RoleDropdown = ({ name, value, onChange }) => {
         $(selectRef.current).off('change');
       }
     };
-  }, [roles, onChange]);
+  }, [roleDrop, onChange]);
 
   if (loading) return <p className="text-gray-500">Loading...</p>;
   if (error) return <p className="text-red-500">Error loading: {error}</p>;
@@ -56,10 +60,10 @@ const RoleDropdown = ({ name, value, onChange }) => {
         required
       >
         <option value="0">Select</option>
-        {roles && roles.length > 0 ? (
-          roles.map((role) => (
-            <option key={role.roleId} value={role.roleId}>
-              {role.roleName}
+        {roleDrop && roleDrop.length > 0 ? (
+          roleDrop.map((role) => (
+            <option key={role.id} value={role.id}>
+              {role.name}
             </option>
           ))
         ) : (

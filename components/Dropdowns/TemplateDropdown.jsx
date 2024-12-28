@@ -12,7 +12,9 @@ const TemplateDropdown = ({ name, value, onChange , transactiontype }) => {
   const { templateDrop, loading, error } = useSelector((state) => state.templates);
   const [transactionType, settransactionType] =useState(0)
 
-
+const refreshDropdown = () =>{
+  dispatch(fetchTemplatesDrop({ clientId: localStorage.getItem("clientId"), TransactonType: transactionType }));
+  }
 
   useEffect(() => {
   if(transactiontype){
@@ -24,6 +26,7 @@ const TemplateDropdown = ({ name, value, onChange , transactiontype }) => {
     dispatch(fetchTemplatesDrop({ clientId: localStorage.getItem("clientId"), TransactonType: transactionType }));
     return () => {
       dispatch(clearTemplateDropState());
+      refreshDropdown()
     };
   }, [dispatch]);
 

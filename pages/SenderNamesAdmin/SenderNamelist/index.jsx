@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input } from "reactstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
 import Loading from "@/components/Loader";
@@ -11,11 +12,10 @@ import {
   deleteSendername,
   fetchSendernameById,
   updateSendername,
-} from "@/slices/SenderNameSlice";
+} from "@/slices/sendernameSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import App from "@/components/App"
 import SenderNameForm from "../CreateSenderName";
-import { BASE_URL } from "@/utils/apiConstants";
 
 const SendernameList = () => {
   const router = useRouter();
@@ -27,25 +27,31 @@ const SendernameList = () => {
   const [CreateModalOPen, setCreateModalOpen] = useState(false);
 
   const sendernameColumns = [   
-    {
-      name: "",
-      selector: (row) => row.mediaPath, // Assuming mediaPath is the field in your data
-      cell: (row) => (
-        <img
-        src={`${BASE_URL}${row.mediaPath}`}
-          alt="Image"
-          className="w-12 h-12 object-cover rounded-lg"
-          
-        />
-      ),
-      sortable: false, // Disable sorting for images if not needed
-    },,
     { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
     { name: "Client Name", selector: (row) => row.clientName, sortable: true },
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
     { name: "Limit", selector: (row) => row.limit, sortable: true },
     { name: "Quality", selector: (row) => row.quality, sortable: true },
-    
+    {
+      name: "Action",
+      cell: (row) => (
+        <div className="flex gap-2">
+          <button
+            className="uniform_icon_btn"
+            title="Edit"
+            onClick={() => handleDetailClick(row.senderId)}
+          >
+            <HiPencilAlt style={{fontSize: "15px"}}/>
+          </button>
+          <button
+            className="uniform_icon_btn"
+            onClick={() => handleDeleteClick(row.senderId)}
+          >
+            <HiTrash style={{fontSize: "15px"}}/>
+          </button>
+        </div>
+      ),
+    },
   ];
 
   const handleDetailClick = async (senderId) => {
@@ -96,6 +102,9 @@ const SendernameList = () => {
         }
       }
     });
+  };
+  const toggleModal = () => {
+    setIsModalOpen(false);
   };
 
   const handleFormChange = (e) => {
@@ -182,7 +191,9 @@ const SendernameList = () => {
   <h4 className="font-bold ">Sender Name List</h4>
   </div>
   <div className="ml-auto mb-1">
- 
+  <button className="uniform_btn" onClick={handleCreate}>
+          Create Sender Name
+        </button>
   </div>
 </div>
 
@@ -232,18 +243,12 @@ const SendernameList = () => {
         
        
         {isModalOpen && (
+          <Modal isOpen={true} toggle={() => toggleModal()} fade={false}>
           <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
-             {/* Close button */}
-             <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 text-xl text-gray-600 hover:text-gray-800"
-            >
-              &times;
-            </button>
-              <h4 className="text-xl mb-4">Edit Sender</h4>
+            <ModalHeader toggle={() => toggleModal()}> Edit Sender</ModalHeader>
+              <ModalBody>
               <form onSubmit={handleUpdateSubmit} className="space-y-4">
-               
                   <div>
                     <label className="font-medium text-gray-700 text-sm">
                       Sender Name
@@ -310,8 +315,10 @@ const SendernameList = () => {
                   </div>
                 
               </form>
+              </ModalBody>
             </div>
           </div>
+          </Modal>
         )}
         {CreateModalOPen &&(
         <SenderNameForm 

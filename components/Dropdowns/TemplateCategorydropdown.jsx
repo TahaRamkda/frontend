@@ -11,11 +11,14 @@ const TemplateCategoryDropdown = ({ name, value, onChange }) => {
   const selectRef = useRef(null); 
   const { templatecategory, loading, error } = useSelector((state) => state.Master);
  const [searchString, setsearchString] = useState("")
- 
+ const refreshDropdown = () =>{
+  dispatch(fetchtemplatecategory({}));
+  }
   useEffect(() => {
     dispatch(fetchtemplatecategory({}));
     return () => {
       dispatch(cleaTemplateCategoryState());
+      refreshDropdown()
     };
   }, [dispatch]);
 

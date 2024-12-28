@@ -17,7 +17,7 @@ const GroupList = () => {
   const { groups, loading, error, pageSize, totalRecords, currentPage  } = useSelector((state) => state.groups);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [groupForm, setGroupForm] = useState({});
-  const [filterText, setFilterText] = useState("");
+  const [filterText, setFilterText] = useState('');
   const [CreateModalOpen, setCreateModalOpen] = useState(false)
 
   const groupColumns = [
@@ -91,30 +91,13 @@ const GroupList = () => {
       }
     });
   };
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
    const handlePageChange = async (page) => {
       // Update current page state in Redux
       dispatch(setCurrentPage(page));
     
       // Fetch clients for the new page
-      await dispatch(fetchGroup({ clientId: localStorage.getItem("clientId"), pageSize, pageNo: page, SearchStr: filterText }));
+      await dispatch(fetchGroup({ clientId: localStorage.getItem("clientId"), pageSize, pageNo: page }));
     };
 
     const handlePageSizeChange = async (newSize) => {
@@ -129,6 +112,10 @@ const GroupList = () => {
     const { name, value } = e.target;
     setGroupForm({ ...groupForm, [name]: value });
   };
+  const toggleModal = () => {
+   
+    setIsModalOpen(false);
+  };
 
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
@@ -140,7 +127,7 @@ const GroupList = () => {
         actionBy: localStorage.getItem("userId"),
         clientId: localStorage.getItem("clientId"),
       };
-
+      
       const response = await dispatch(updateGroup(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({
@@ -166,7 +153,7 @@ const GroupList = () => {
     return () => {
       dispatch(clearGroupState());
     };
-  }, [dispatch]);
+  }, [dispatch,filterText]);
 
   const handleCreate = () => {
     setCreateModalOpen(true)
@@ -270,18 +257,13 @@ const GroupList = () => {
       
 
       {isModalOpen && (
-        
+        <Modal isOpen={true} toggle={() => toggleModal()} fade={false}>
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
-            {/* Close button */}
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 text-xl text-gray-600 hover:text-gray-800"
-            >
-              &times;
-            </button>
-            <h4 className="text-xl mb-4">Edit Group </h4>
-            {groupForm && (
+           <ModalHeader toggle={() => toggleModal()}>Edit Group</ModalHeader>
+            
+           <ModalBody>
+
             <form onSubmit={handleUpdateSubmit}>
             <div className="flex flex-col">
                     <label htmlFor="groupName" className="font-medium text-gray-700 text-sm">
@@ -305,9 +287,11 @@ const GroupList = () => {
                       Save
                     </button>
                   </div>
-            </form> )}
+            </form> 
+            </ModalBody>
           </div>
         </div>
+        </Modal>
       )}
 
       {CreateModalOpen &&(

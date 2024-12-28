@@ -9,7 +9,8 @@ import App from "@/components/App";
 import { useRouter } from 'next/router';  // Correct import
 import DataTable from 'react-data-table-component';
 import Loading from "@/components/Loader";
-import { HiPencilAlt, HiTrash, HiLightningBolt, HiClock  } from "react-icons/hi";
+import { HiPencilAlt, HiTrash, HiLightningBolt, HiClock, } from "react-icons/hi";
+import { MdGroupRemove } from "react-icons/md";
 
 import { useSetRecoilState } from 'recoil';
 import { CampaignState } from '@/components/recoil';
@@ -35,10 +36,8 @@ const CampaignsList = () => {
   const { campaigns, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.campaigns);
   const [clientId, setClientId] = useState(null);
   const setCampaignsId = useSetRecoilState(CampaignState);
-  const handleSearchString = (e) => {
-    setKeyword(e.target.value);
-  };
-  const refreshCampaignList = () =>{
+
+  const refreshCampaignList = () => {
     dispatch(
       fetchCampaign({
         ClientId: clientId,
@@ -46,16 +45,21 @@ const CampaignsList = () => {
         ToDate: ToDate,
         status,
         templateId,
-        srcStr,
+        srcStr: keyword,
         pageSize,
         PageNo: currentPage,
       })
     );
   }
 
+
   const handleTemplateChange = (e) => {
     const template = e.target.value;
     settemplateId(template);
+    dispatch(
+      fetchCampaign({
+        ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status, templateId: template, srcStr: keyword, pageSize, PageNo: currentPage,
+      }));
   };
 
   const HandleUpdateCampaign = (CampaignId) => {
@@ -78,7 +82,7 @@ const CampaignsList = () => {
           ToDate: ToDate,
           status,
           templateId,
-          srcStr,
+          srcStr: keyword,
           pageSize,
           PageNo: currentPage,
         })
@@ -87,48 +91,48 @@ const CampaignsList = () => {
     return () => {
       dispatch(clearCampaignListState());
     };
-  }, [clientId, FromDate, ToDate, srcStr]);
+  }, [clientId, FromDate, ToDate, keyword, status, templateId, pageSize, currentPage]);
 
-   useEffect(() => {
-      if (clientId) {
-        
-        dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate , ToDate:ToDate, status:status, templateId:templateId, srcStr:srcStr, pageSize,PageNo:currentPage}));
-      }
-      return () => {
-        dispatch(clearCampaignListState());
-      };
-    }, [dispatch, clientId]);
-  
+  useEffect(() => {
+    if (clientId) {
 
-  
+      dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
+    }
+    return () => {
+      dispatch(clearCampaignListState());
+    };
+  }, [dispatch, clientId, keyword]);
+
+
+
 
   const handlefilter = (e) => {
-    dispatch(fetchCampaign({ clientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, sendernameId: sendernameId, templateId: templateId, srcStr: srcStr, pageSize, PageNo: currentPage }));
+    dispatch(fetchCampaign({ clientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, sendernameId: sendernameId, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
   };
 
   const handleCreate = () => {
-     window.location.href ="/Campaigns/CreateCampaigns";
+    window.location.href = "/Campaigns/CreateCampaigns";
   }
 
-  const handelClick = () =>{
+  const handelClick = () => {
     setContactedModaL(true)
   }
-  const handelCancelClick = () =>{
+  const handelCancelClick = () => {
     setContactedModaL(false)
   }
 
 
 
 
-    const handlePageSizeChange = async (newSize) => {
-       dispatch(setPageSize(newSize));
-       dispatch(setCurrentPage(1)); // Reset to the first page
-       await dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate , ToDate:ToDate, status:status, templateId:templateId, srcStr:srcStr, pageSize:newSize , PageNo:1 }));
-     };
+  const handlePageSizeChange = async (newSize) => {
+    dispatch(setPageSize(newSize));
+    dispatch(setCurrentPage(1)); // Reset to the first page
+    await dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize: newSize, PageNo: 1 }));
+  };
 
   const handlePageChange = async (page) => {
     dispatch(setCurrentPage(page));
-    await dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: srcStr, pageSize, PageNo: page }));
+    await dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: page }));
   };
 
   const handleActivateClick = async (campaignId) => {
@@ -176,161 +180,166 @@ const CampaignsList = () => {
     { name: "Delivered Count", selector: (row) => row.deliveredCount, sortable: true },
     { name: "Undelivered Count", selector: (row) => row.undeliveredCount, sortable: true },
     { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
-    { name: "Action", cell: (row) => (
-      <div className='flex gap-2'>
-      <button className="uniform_icon_btn" onClick={() => handleActivateClick(row.campaignId)}>
-        <HiLightningBolt style={{fontSize: "15px"}} />
-      </button>
-      <button className="uniform_icon_btn" onClick={handelClick}>
-      <HiClock style={{fontSize: "15px"}} />
-      </button>
-      <button className="uniform_icon_btn" onClick={() => HandleUpdateCampaign(row.campaignId)}>
-        <HiPencilAlt style={{fontSize: "15px"}} />
-      </button>
-     
-      </div>
-      
-    )},
-    
+    {
+      name: "Action", cell: (row) => (
+        <div className='flex gap-2'>
+          <button className="uniform_icon_btn" onClick={() => handleActivateClick(row.campaignId)}>
+            <HiLightningBolt style={{ fontSize: "15px" }} />
+          </button>
+          <button className="uniform_icon_btn" onClick={handelClick}>
+            <MdGroupRemove style={{ fontSize: "15px" }} />
+          </button>
+          <button className="uniform_icon_btn" onClick={() => HandleUpdateCampaign(row.campaignId)}>
+            <HiPencilAlt style={{ fontSize: "15px" }} />
+          </button>
+
+        </div>
+
+      )
+    },
+
   ];
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className='w-full'>
-      <div className="grid grid-cols-5 gap-4 justify-start">
-        <div className="flex flex-col text-start mb-1">
-          <Label className="font-medium text-sm mb-0">Select Templates</Label>
-          <TemplateDropdown
-            name="role_Id"
-            onChange={handleTemplateChange}
-            className="border rounded w-100 MarginBOt"
-          />
+        <div className="grid grid-cols-5 gap-4 justify-start">
+          <div className="flex flex-col text-start mb-1">
+            <Label className="font-medium text-sm mb-0">Select Templates</Label>
+            <TemplateDropdown
+              name="role_Id"
+              onChange={handleTemplateChange}
+              className="border rounded w-100 MarginBOt"
+            />
+          </div>
+          <div className="flex flex-col text-start mb-1">
+            <Label className="font-medium text-sm mb-0">Search</Label>
+            <input
+              type="text"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              className="border rounded  w-100"
+            />
+          </div>
+          <div className="flex flex-col text-start mb-1">
+            <Label className="font-medium text-sm mb-0">From Date</Label>
+            <Input
+              type="date"
+              id="FromDate"
+              value={FromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="border rounded  w-100"
+            />
+          </div>
+          <div className="flex flex-col text-start mb-1">
+            <Label className="font-medium text-sm mb-0">To Date</Label>
+            <Input
+              type="date"
+              id="ToDate"
+              value={ToDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="border rounded  w-100"
+            />
+          </div>
+
         </div>
-        <div className="flex flex-col text-start mb-1">
-          <Label className="font-medium text-sm mb-0">Search</Label>
-          <Input
-            type="text"
-            placeholder=""
-            value={srcStr}
-            onChange={handleSearchString}
-            className="border rounded  w-100"
-          />
-        </div>
-        <div className="flex flex-col text-start mb-1">
-          <Label className="font-medium text-sm mb-0">From Date</Label>
-          <Input
-            type="date"
-            id="FromDate"
-            value={FromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-            className="border rounded  w-100"
-          />
-        </div>
-        <div className="flex flex-col text-start mb-1">
-          <Label className="font-medium text-sm mb-0">To Date</Label>
-          <Input
-            type="date"
-            id="ToDate"
-            value={ToDate}
-            onChange={(e) => setToDate(e.target.value)}
-            className="border rounded  w-100"
-          />
-        </div>
-       
-      </div>
       </div>
     );
-  }, [srcStr, FromDate, ToDate, templateId]);
+  }, [keyword, FromDate, ToDate, templateId]);
 
   return (
     <App>
       <div className="flex items-center">
-  {loading && <Loading />}
-  <div className='mb-1'>
-  <h4 className="font-bold mb-2">Campaign List</h4>
-  </div>
-  <div className="ml-auto mb-2">
-    <Button
-      color="primary"
-      className="uniform_btn"
-      onClick={handleCreate} // Navigate on create
-      type="button"
-    >
-      Create Campaign
-    </Button>
-  </div>
-</div>
+        {loading && <Loading />}
+        <div className='mb-1'>
+          <h4 className="font-bold mb-2">Campaign List</h4>
+        </div>
+        <div className="ml-auto mb-2">
+          <Button
+            color="primary"
+            className="uniform_btn"
+            onClick={handleCreate} // Navigate on create
+            type="button"
+          >
+            Create Campaign
+          </Button>
+        </div>
+      </div>
 
-      
+
       <div className="overflow-auto">
-            <DataTable
-              data={campaigns}
-              columns={campaignColumns}
-              highlightOnHover
-              striped
-              pagination
-              paginationServer
-              paginationTotalRows={totalRecords}
-              onChangePage={handlePageChange}
-              onChangeRowsPerPage={handlePageSizeChange}
-              subHeader
-              subHeaderComponent={subHeaderComponentMemo}
-              className="w-full border"
-              customStyles={{
-                table: {
-                  style: {
-                    width: '100%',
-                    borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
-                  },
-                },
-                headRow: {
-                  style: {
-                    borderBottom: '1px solid #ddd',  padding: '0px',
-                  },
-                },
-                headCells: {
-                  style: {
-                   
-                    borderRight: '1px solid #ddd', // Grid line between columns
-                    fontWeight: 'bold',
-                  },
-                },
-                rows: {
-                  style: {
-                    borderBottom: '1px solid #ddd', // Horizontal grid line between rows
-                  },
-                },
-                cells: {
-                  style: {
-                    
-                    borderRight: '1px solid #ddd', // Vertical grid line between cells
-                  },
-                },
-              }}
-            />
-      </div>   
-      <Modal isOpen={isModalOpen} toggle={() => setIsModalOpen(!isModalOpen)} style={{ maxWidth: '800px', width: '90%' }}>
-        <ModalHeader toggle={() => setIsModalOpen(!isModalOpen)}>Schedule Campaign</ModalHeader>
-        <ModalBody>
-          {CampaignForm && (
-            <Form onSubmit={handleUpdateSubmit}>
-             <div className='w-1/2'>
-              <Label for="scheduleDate">Schedule Date </Label>
-              <Input type="datetime-local"  id="scheduleDate" name="scheduleDate" value={CampaignForm.scheduleDate || ""} onChange={ handleFormChange } />
-              </div>
-              <div className='mt-4 text-end w-full' >
-              <Button color="secondary" className='uniform_btn ' type="submit">Save</Button>
-              </div>
+        <DataTable
+          data={campaigns}
+          columns={campaignColumns}
+          highlightOnHover
+          striped
+          pagination
+          paginationServer
+          paginationTotalRows={totalRecords}
+          onChangePage={handlePageChange}
+          onChangeRowsPerPage={handlePageSizeChange}
+          subHeader
+          subHeaderComponent={subHeaderComponentMemo}
+          className="w-full border"
+          customStyles={{
+            table: {
+              style: {
+                width: '100%',
+                borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
+              },
+            },
+            headRow: {
+              style: {
+                borderBottom: '1px solid #ddd', padding: '0px',
+              },
+            },
+            headCells: {
+              style: {
+
+                borderRight: '1px solid #ddd', // Grid line between columns
+                fontWeight: 'bold',
+              },
+            },
+            rows: {
+              style: {
+                borderBottom: '1px solid #ddd', // Horizontal grid line between rows
+              },
+            },
+            cells: {
+              style: {
+
+                borderRight: '1px solid #ddd', // Vertical grid line between cells
+              },
+            },
+          }}
+        />
+      </div>
+      <Modal isOpen={isModalOpen} toggle={() => setIsModalOpen(!isModalOpen)} fade={false}>
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
+            <ModalHeader toggle={() => setIsModalOpen(!isModalOpen)}>Schedule Campaign</ModalHeader>
+            <ModalBody>
+              {CampaignForm && (
+                <Form onSubmit={handleUpdateSubmit}>
+                  <div className='w-1/2'>
+                    <Label for="scheduleDate">Schedule Date </Label>
+                    <Input type="datetime-local" id="scheduleDate" name="scheduleDate" value={CampaignForm.scheduleDate || ""} onChange={handleFormChange} />
+                  </div>
+                  <div className='mt-4 text-end w-full' >
+                    <Button color="secondary" className='uniform_btn ' type="submit">Save</Button>
+                  </div>
 
 
-            </Form>
-          )}
-        </ModalBody>
+                </Form>
+              )}
+            </ModalBody>
+          </div>
+        </div>
       </Modal>
-      {ContactedModal &&(
+      {ContactedModal && (
         <LastContactedList
-        isVisible={true}
-        onClose={handelCancelClick}
-        onsuccess={refreshCampaignList}/>
+          isVisible={true}
+          onClose={handelCancelClick}
+          onsuccess={refreshCampaignList} />
       )}
     </App>
   );
