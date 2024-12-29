@@ -6,15 +6,17 @@ import { useRouter } from "next/navigation";
 import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
-import RoleDropdown from '@/components/Dropdowns/RoleDropdown';
+import RolesDropdown from "@/components/MultiSelect/RoleDropdown";
 import { fetchUser, clearUserState, deleteUser, fetchUserById, updateUser } from "@/slices/UserSlice";
 import showSweetAlert from "@/components/Sweetalert";
+import App from '@/components/App';
 
 const UserList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { users, loading, error } = useSelector((state) => state.users);
   const [isModalOpen, setIsModalOpen] = useState(false);
+   const [CreateModalOpen, setCreateModalOpen] = useState(false)
   const [userForm, setUserForm] = useState({});
   const [filterText, setFilterText] = useState("");
 
@@ -32,7 +34,9 @@ const UserList = () => {
       ),
     },
   ];
-
+  const handleCancel = () =>{
+    setCreateModalOpen(false)
+  }
   const handleDetailClick = async (userId) => {
     try {
       const response = await dispatch(fetchUserById(userId)).unwrap();
@@ -40,10 +44,10 @@ const UserList = () => {
         setUserForm(response.result);
         setIsModalOpen(true);
       } else {
-        showSweetAlert({ title: "Error", text: "Failed to fetch user details", icon: "error" });
+        showSweetAlert({ title: "Error", text: "", icon: "error" });
       }
     } catch (error) {
-        showSweetAlert("Failed to fetch user details: " + error.message);
+        showSweetAlert("Failed to fetch details: " + error.message);
     }
   };
 
@@ -62,7 +66,7 @@ const UserList = () => {
         dispatch(deleteUser({ userId }))
           .unwrap()
           .then(() => {
-            showSweetAlert({ title: "User Deleted", text: "The user has been deleted successfully", icon: "success" });
+            showSweetAlert({ title: "Deleted Successfully", text: "", icon: "success" });
             refreshUserList();
           })
           .catch((error) => {
@@ -71,7 +75,9 @@ const UserList = () => {
       }
     });
   };
-
+  const handleCreate = () => {
+    setCreateModalOpen(true)
+  };
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setUserForm({ ...userForm, [name]: value });
@@ -93,8 +99,8 @@ const UserList = () => {
       const response = await dispatch(updateUser(requestBody)).unwrap();
       if (response) {
         showSweetAlert({
-          title: "User Updated",
-          text: "User details have been updated successfully.",
+          title: "Updated Successfully",
+          text: "",
           icon: "success",
         });
         setIsModalOpen(false);
@@ -103,14 +109,16 @@ const UserList = () => {
         showSweetAlert({ title: "Error", text: response.message, icon: "error" });
       }
     } catch (error) {
-      alert("Failed to update user: " + error.message);
+      alert("Failed to update : " + error.message);
     }
   };
 
   const refreshUserList = () => {
     dispatch(fetchUser({ clientId: localStorage.getItem("clientId") }));
   };
-
+  const handleDropdownChange = (value) => {
+    setUserForm((prev) => ({ ...prev, userRoles: value }));
+  };
   
   useEffect(() => {
     dispatch(fetchUser({ clientId: localStorage.getItem("clientId") }));
@@ -125,9 +133,13 @@ const UserList = () => {
   );
 
   const subHeaderComponentMemo = useMemo(() => (
-    <div id="sender_filter" className="dataTables_filter d-flex align-items-center">
-      <Label className="me-1">Search Users</Label>
-      <Input type="search" value={filterText} onChange={(e) => setFilterText(e.target.value)} placeholder={"Enter Text"} />
+    <div className="w-full">
+    <div className="grid grid-cols-5 gap-4">
+     <div className="flex flex-col space-y-1 text-start mb-1 ">
+      <label className="font-medium text-gray-700 text-sm">Search Users</label>
+      <input type="search" className="border rounded py-1 px-2 w-full text-sm" value={filterText} onChange={(e) => setFilterText(e.target.value)} placeholder={"Enter Text"} />
+    </div>
+    </div>
     </div>
   ), [filterText]);
 
@@ -140,16 +152,22 @@ const UserList = () => {
   }
 
   return (
-    <Col sm="12">
-      <Card>
-        <CardHeader className="pb-0 card-no-border">
-          <h4 className="mb-2">User list</h4>
-        </CardHeader>
-        <CardBody>
-          <Button color="primary" onClick={() => router.push("/user/NewUser")}>
-            Create User
-          </Button>
-          <div className="table-responsive" id="sender_table">
+    <App>
+   <div className="flex items-center">
+  {loading && <Loading />}
+  <div className=''>
+  <h4 className="font-bold">Users List</h4>
+  </div>
+  <div className="ml-auto mb-1">
+  <button
+            className="uniform_btn"
+            onClick={handleCreate}
+          >
+             Create User
+          </button>
+  </div>
+</div>
+          
             <DataTable
               data={filteredUsers}
               columns={userColumns}
@@ -160,12 +178,10 @@ const UserList = () => {
               subHeader
               subHeaderComponent={subHeaderComponentMemo}
             />
-          </div>
-        </CardBody>
-      </Card>
-
+          
+       
       <Modal isOpen={isModalOpen} toggle={() => setIsModalOpen(!isModalOpen)} style={{ maxWidth: "800px", width: "90%" }}>
-        <ModalHeader toggle={() => setIsModalOpen(!isModalOpen)}>EditSenderDetails</ModalHeader>
+        <ModalHeader toggle={() => setIsModalOpen(!isModalOpen)}>Edit User</ModalHeader>
         <ModalBody>
           {userForm && (
             <Form onSubmit={handleUpdateSubmit}>
@@ -184,7 +200,7 @@ const UserList = () => {
                 </Col>
                 <Col md={7}>
                   <FormGroup>
-                    <Label for="fullName">full name</Label>
+                    <Label for="fullName">Full name</Label>
                     <Input
                       type="text"
                       id="fullName"
@@ -196,12 +212,12 @@ const UserList = () => {
                 </Col>
                 <Col md={7}>
                   <FormGroup>
-                    <Label for="userRoles">Role</Label>
-                    <RoleDropdown
-                      name="role_Id" // Capture client_Id instead of client_Name
-                      value={userForm.userRoles}
+                    <Label for="userRoles">User Roles</Label>
+                    <RolesDropdown
+                      name="userRoles" 
+                      value={userForm.userRoles || ""}
                      
-                      onChange={(e) => setUserForm({ ...userForm, userRoles: e.target.value })}
+                      onChange={(value) => handleDropdownChange(value)}
                     />
                   </FormGroup>
                 </Col>
@@ -225,7 +241,8 @@ const UserList = () => {
           )}
         </ModalBody>
       </Modal>
-    </Col>
+   
+    </App>
   );
 };
 

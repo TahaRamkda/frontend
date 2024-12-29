@@ -9,7 +9,8 @@ import { fetchAgents, cleaAgentState, deleteAgent, fetchAgentsById, updateAgent,
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input } from "reactstrap";
 import showSweetAlert from "@/components/Sweetalert";
 import { HiPencilAlt, HiTrash, HiLightningBolt, HiClock  } from "react-icons/hi";
-import Sendernames from "@/components/Dropdowns/SendernameDropdown";
+import SendernamesDropdown from "@/components/MultiSelect/SendernameDropdown";
+import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 import AgentsForm from "../CreateAgents";
 import App from '@/components/App';
 //import AgentTiming from "../AgentsTiming/index";
@@ -128,6 +129,9 @@ const AgentsList = () => {
     setshowagenttiming(false);
     
   };
+  const handleDropdownChange = (value) => {
+    setSenderId((prev) => ({ ...prev, senderIds: value }));
+  };
   const handlePageChange = async (page) => {
         // Update current page state in Redux
         dispatch(setCurrentPage(page));
@@ -216,7 +220,7 @@ const AgentsList = () => {
         </div>
         <div className="flex flex-col mb-1 text-start">
         <label className="font-medium text-gray-700 text-sm">Sender Names</label>
-        <Sendernames name="senderId"  onChange={handleChange} />
+        <SendernameDropdown     name="senderId"  onChange={handleChange} />
         </div>
         </div>
         
@@ -299,10 +303,10 @@ const AgentsList = () => {
     <form  onSubmit={handleUpdateSubmit}>
         <div>
             <label className="font-medium text-gray-700 text-sm">Sender Name</label>
-            <Sendernames
+            <SendernamesDropdown
               name="senderIds"
               value={agentForm.senderIds || ""} // Bind value from agentForm
-              onChange={handleFormChange}
+              onChange={(value) => handleDropdownChange(value)}
               className="border rounded py-1 px-2 w-full text-sm"
             />
         </div>
