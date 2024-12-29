@@ -12,18 +12,31 @@ import {
   Legend,
 } from "chart.js";
 import App from "@/components/App";
-import { fetchTemplateInsight, clearTemplateInsightState } from "@/slices/ReportSlice";
+import {
+  fetchTemplateInsight,
+  clearTemplateInsightState,
+} from "@/slices/ReportSlice";
 import TemplateDropdown from "@/components/Dropdowns/TemplateDropdown";
 
 // Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const TemplateInsight = () => {
   const dispatch = useDispatch();
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [TemplateId, setTemplateId] = useState('');
-  const { templateInsight, loading, error } = useSelector((state) => state.reports);
+  const [TemplateId, setTemplateId] = useState("");
+  const { templateInsight, loading, error } = useSelector(
+    (state) => state.reports
+  );
 
   useEffect(() => {
     const today = new Date();
@@ -38,37 +51,53 @@ const TemplateInsight = () => {
     if (fromDate && toDate && TemplateId) {
       localStorage.setItem("activeModule", "0");
       const clientId = localStorage.getItem("clientId");
-      dispatch(fetchTemplateInsight({ clientId, fromDate, toDate, TemplateId: TemplateId }));
+      dispatch(
+        fetchTemplateInsight({
+          clientId,
+          fromDate,
+          toDate,
+          TemplateId: TemplateId,
+        })
+      );
     }
     return () => {
       clearTemplateInsightState();
     };
-  }, [dispatch, fromDate, toDate,TemplateId]);
+  }, [dispatch, fromDate, toDate, TemplateId]);
 
   const handleDateChange = (setter) => (e) => {
     setter(e.target.value);
   };
 
   const lineChartData = {
-    labels: templateInsight?.TotalMessagesChart?.map((item) => item.CreatedDate) || [],
+    labels:
+      templateInsight?.TotalMessagesChart?.map((item) => item.CreatedDate) ||
+      [],
     datasets: [
       {
         label: "Total Messages Sent",
-        data: templateInsight?.TotalMessagesChart?.map((item) => item.SentCount) || [],
+        data:
+          templateInsight?.TotalMessagesChart?.map((item) => item.SentCount) ||
+          [],
         borderColor: "#7e3af2",
         backgroundColor: "rgba(126, 58, 242, 0.2)",
         fill: true,
       },
       {
         label: "Total Delivered",
-        data: templateInsight?.TotalMessagesChart?.map((item) => item.DeliveredCount) || [],
+        data:
+          templateInsight?.TotalMessagesChart?.map(
+            (item) => item.DeliveredCount
+          ) || [],
         borderColor: "#ffc107",
         backgroundColor: "rgba(40, 167, 69, 0.2)",
         fill: true,
       },
       {
         label: "Total Read",
-        data: templateInsight?.TotalMessagesChart?.map((item) => item.ReadCount) || [],
+        data:
+          templateInsight?.TotalMessagesChart?.map((item) => item.ReadCount) ||
+          [],
         borderColor: "#28a745",
         backgroundColor: "rgba(255, 193, 7, 0.2)",
         fill: true,
@@ -104,17 +133,22 @@ const TemplateInsight = () => {
           </div>
           <div>
             <label className="block text-sm font-semibold"> Template</label>
-          <TemplateDropdown
-            name="role_Id"
-            onChange={handleTemplateChange}
-            className="border rounded m-0 mb-0 w-100"
-          />
+            <TemplateDropdown
+              name="role_Id"
+              onChange={handleTemplateChange}
+              className="border rounded m-0 mb-0 w-100"
+            />
           </div>
         </div>
         <div className="mt-8 bg-white p-4 rounded shadow-md">
-          <h3 className="text-xl font-semibold text-center mb-4">Total Messages Chart</h3>
+          <h3 className="text-xl font-semibold text-center mb-4">
+            Total Messages Chart
+          </h3>
           <div style={{ height: "400px" }}>
-            <Line data={lineChartData} options={{ maintainAspectRatio: false }} />
+            <Line
+              data={lineChartData}
+              options={{ maintainAspectRatio: false }}
+            />
           </div>
         </div>
         {/* Tiles */}
@@ -127,7 +161,9 @@ const TemplateInsight = () => {
             >
               <h3 className="text-lg font-semibold">{tile.Title}</h3>
               <p className="text-lg font-semibold">Sent: {tile.ResponseText}</p>
-              <p className="text-lg font-semibold">Delivered: {tile.DeliveredCount}</p>
+              <p className="text-lg font-semibold">
+                Delivered: {tile.DeliveredCount}
+              </p>
               <p className="text-lg font-semibold">Read: {tile.ReadCount}</p>
             </div>
           ))}
@@ -140,7 +176,9 @@ const TemplateInsight = () => {
             >
               <h3 className="text-lg font-semibold">{tile.Title}</h3>
               <p className="text-lg font-semibold">Sent: {tile.SentCount}</p>
-              <p className="text-lg font-semibold">Delivered: {tile.DeliveredCount}</p>
+              <p className="text-lg font-semibold">
+                Delivered: {tile.DeliveredCount}
+              </p>
               <p className="text-lg font-semibold">Read: {tile.ReadCount}</p>
             </div>
           ))}
@@ -152,14 +190,17 @@ const TemplateInsight = () => {
               style={{ borderTop: `4px solid ${tile.Color}` }}
             >
               <h3 className="text-lg font-semibold">{tile.Title}</h3>
-              <p className="text-lg font-semibold">Conversations: {tile.TotalConversation}</p>
-              <p className="text-lg font-semibold">Total Messages: {tile.TotalMessages}</p>
+              <p className="text-lg font-semibold">
+                Conversations: {tile.TotalConversation}
+              </p>
+              <p className="text-lg font-semibold">
+                Total Messages: {tile.TotalMessages}
+              </p>
             </div>
           ))}
         </div>
 
         {/* Line Chart */}
-       
       </div>
     </App>
   );

@@ -17,11 +17,10 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index }) => {
     { label: "ORDER", value: 6 },
   ];
 
-  const handleTemplateChange =  (e) => {
+  const handleTemplateChange = (e) => {
     const templateId = e.target.value;
     setSelectedTemplateId(templateId);
   };
-  
 
   const handleSubmit = () => {
     const data = {
@@ -67,7 +66,7 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index }) => {
             <TemplateDropdown
               id="templateDropdown"
               onChange={handleTemplateChange}
-              transactiontype={2}
+              TransactionType="2"
             />
           </FormGroup>
         )}
@@ -91,6 +90,5 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index }) => {
     </Modal>
   );
 };
-
 
 export default SimplePopup;

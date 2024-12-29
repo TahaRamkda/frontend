@@ -6,7 +6,7 @@ import 'select2/dist/js/select2.min.js';
 import { fetchTemplatesDrop, clearTemplateDropState } from "@/slices/TemplateSlice";
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
-const TemplateDropdown = ({ name, value, onChange , transactiontype }) => {
+const TemplateDropdown = ({ name, value, onChange , TransactionType }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null); 
   const { templateDrop, loading, error } = useSelector((state) => state.templates);
@@ -17,18 +17,19 @@ const refreshDropdown = () =>{
   }
 
   useEffect(() => {
-  if(transactiontype){
-    settransactionType(transactiontype)
+    
+  if(TransactionType){
+    settransactionType(TransactionType)
   }
-  }, [transactiontype]);
+  }, [TransactionType]);
 
   useEffect(() => {
-    dispatch(fetchTemplatesDrop({ clientId: localStorage.getItem("clientId"), TransactonType: transactionType }));
+    dispatch(fetchTemplatesDrop({ clientId: localStorage.getItem("clientId"), TransactionType: transactionType }));
     return () => {
       dispatch(clearTemplateDropState());
       refreshDropdown()
     };
-  }, [dispatch]);
+  }, [dispatch,transactionType]);
 
 
  

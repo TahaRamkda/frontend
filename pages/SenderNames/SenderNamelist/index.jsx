@@ -11,16 +11,18 @@ import {
   deleteSendername,
   fetchSendernameById,
   updateSendername,
-} from "@/slices/SenderNameSlice";
+} from "@/slices/sendernameSlice";
 import showSweetAlert from "@/components/Sweetalert";
-import App from "@/components/App"
+import App from "@/components/App";
 import SenderNameForm from "../CreateSenderName";
 import { BASE_URL } from "@/utils/apiConstants";
 
 const SendernameList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { sendernames, loading, error } = useSelector((state) => state.sendernames);
+  const { sendernames, loading, error } = useSelector(
+    (state) => state.sendernames
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sendernameForm, setSendernameForm] = useState({});
   const [filterText, setFilterText] = useState("");
@@ -42,7 +44,11 @@ const SendernameList = () => {
     },,
     { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
     { name: "Client Name", selector: (row) => row.clientName, sortable: true },
-    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
+    {
+      name: "Phone Number",
+      selector: (row) => row.phoneNumber,
+      sortable: true,
+    },
     { name: "Limit", selector: (row) => row.limit, sortable: true },
     { name: "Quality", selector: (row) => row.quality, sortable: true },
     
@@ -55,20 +61,24 @@ const SendernameList = () => {
         setSendernameForm(response.result);
         setIsModalOpen(true);
       } else {
-        showSweetAlert({ title: "Error", text: "Failed to fetch sender details", icon: "error" });
+        showSweetAlert({
+          title: "Error",
+          text: "Failed to fetch sender details",
+          icon: "error",
+        });
       }
     } catch (error) {
       alert("Failed to fetch sender details: " + error.message);
     }
   };
   const handleCancel = () => {
-    setCreateModalOpen(false)
+    setCreateModalOpen(false);
   };
 
   const handleCreate = () => {
-    setCreateModalOpen(true)
+    setCreateModalOpen(true);
   };
-  
+
   const handleDeleteClick = (senderId) => {
     SweetAlert.fire({
       title: "Are you sure?",
@@ -82,7 +92,7 @@ const SendernameList = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          dispatch(deleteSendername({ senderId })).then(()=>{
+          dispatch(deleteSendername({ senderId })).then(() => {
             showSweetAlert({
               title: "Deleted Successfully",
               text: "",
@@ -90,7 +100,6 @@ const SendernameList = () => {
             });
             refreshSendernameList();
           });
-          
         } catch (error) {
           alert("An unexpected error occurred: " + error.message);
         }
@@ -128,7 +137,11 @@ const SendernameList = () => {
         setIsModalOpen(false);
         refreshSendernameList();
       } else {
-        showSweetAlert({ title: "Error", text: response.message, icon: "error" });
+        showSweetAlert({
+          title: "Error",
+          text: response.message,
+          icon: "error",
+        });
       }
     } catch (error) {
       showSweetAlert({ title: "Error", text: error.message, icon: "error" });
@@ -153,19 +166,21 @@ const SendernameList = () => {
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className="w-full">
-      <div className="grid grid-cols-5 gap-4">
-      <div className="flex flex-col space-y-1 text-start mb-1">
-      <label className="font-medium text-gray-700 text-sm ">Search </label>
-      <input 
-       type="search" 
-       value={filterText} 
-       onChange={(e) => setFilterText(e.target.value)} 
-       className="border rounded"
-      //  placeholder=" "
-     />
-     </div>
-   </div>
-   </div>
+        <div className="grid grid-cols-5 gap-4">
+          <div className="flex flex-col space-y-1 text-start mb-1">
+            <label className="font-medium text-gray-700 text-sm ">
+              Search{" "}
+            </label>
+            <input
+              type="search"
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              className="border rounded"
+              //  placeholder=" "
+            />
+          </div>
+        </div>
+      </div>
     );
   }, [filterText]);
 
@@ -175,7 +190,6 @@ const SendernameList = () => {
 
   return (
     <App>
-      
       <div className="flex items-center">
   {loading && <Loading />}
   <div className=''>
@@ -186,141 +200,131 @@ const SendernameList = () => {
   </div>
 </div>
 
-          <div className="overflow-auto">
-            <DataTable
-              data={filteredSendernames}
-              columns={sendernameColumns}
-              highlightOnHover
-              striped
-              pagination
-              subHeader
-              subHeaderComponent={subHeaderComponentMemo}
-              className="w-full border"
-              customStyles={{
-                table: {
-                  style: {
-                    width: '100%',
-                    borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
-                  },
-                },
-                headRow: {
-                  style: {
-                    borderBottom: '1px solid #ddd',  padding: '0px',
-                  },
-                },
-                headCells: {
-                  style: {
-                    
-                    borderRight: '1px solid #ddd', // Grid line between columns
-                    fontWeight: 'bold',
-                  },
-                },
-                rows: {
-                  style: {
-                    borderBottom: '1px solid #ddd', // Horizontal grid line between rows
-                  },
-                },
-                cells: {
-                  style: {
-                    
-                    borderRight: '1px solid #ddd', // Vertical grid line between cells
-                  },
-                },
-              }}
-            />
-          </div>
-        
-       
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
-             {/* Close button */}
-             <button
+      <div className="overflow-auto">
+        <DataTable
+          data={filteredSendernames}
+          columns={sendernameColumns}
+          highlightOnHover
+          striped
+          pagination
+          subHeader
+          subHeaderComponent={subHeaderComponentMemo}
+          className="w-full border"
+          customStyles={{
+            table: {
+              style: {
+                width: "100%",
+                borderCollapse: "collapse", // Ensures borders collapse for proper grid appearance
+              },
+            },
+            headRow: {
+              style: {
+                borderBottom: "1px solid #ddd",
+                padding: "0px",
+              },
+            },
+            headCells: {
+              style: {
+                borderRight: "1px solid #ddd", // Grid line between columns
+                fontWeight: "bold",
+              },
+            },
+            rows: {
+              style: {
+                borderBottom: "1px solid #ddd", // Horizontal grid line between rows
+              },
+            },
+            cells: {
+              style: {
+                borderRight: "1px solid #ddd", // Vertical grid line between cells
+              },
+            },
+          }}
+        />
+      </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
+            {/* Close button */}
+            <button
               onClick={() => setIsModalOpen(false)}
               className="absolute top-4 right-4 text-xl text-gray-600 hover:text-gray-800"
             >
               &times;
             </button>
-              <h4 className="text-xl mb-4">Edit Sender</h4>
-              <form onSubmit={handleUpdateSubmit} className="space-y-4">
-               
-                  <div>
-                    <label className="font-medium text-gray-700 text-sm">
-                      Sender Name
-                    </label>
-                    <input
-                      type="text"
-                      id="senderName"
-                      name="senderName"
-                      value={sendernameForm.senderName || ""}
-                      onChange={handleFormChange}
-                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label  className="font-medium text-gray-700 text-sm">
-                      Phone Number
-                    </label>
-                    <input
-                      type="text"
-                      id="phoneNumber"
-                      name="phoneNumber"
-                      value={sendernameForm.phoneNumber || ""}
-                      onChange={handleFormChange}
-                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
-                    />
-                  </div>
-                
-                
-                  <div>
-                    <label className="font-medium text-gray-700 text-sm">
-                      Limit
-                    </label>
-                    <input
-                      type="number"
-                      id="limit"
-                      name="limit"
-                      value={sendernameForm.limit || ""}
-                      onChange={handleFormChange}
-                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-medium text-gray-700 text-sm">
-                      Quality
-                    </label>
-                    <input
-                      type="text"
-                      id="quality"
-                      name="quality"
-                      value={sendernameForm.quality || ""}
-                      onChange={handleFormChange}
-                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
-                    />
-                  </div>
-                
-                
-                 <div className="flex w-full justify-end">
-                  <button
-                    type="submit"
-                    className="uniform_btn"
-                  >
-                    Save
-                  </button>
-                  </div>
-                
-              </form>
-            </div>
+            <h4 className="text-xl mb-4">Edit Sender</h4>
+            <form onSubmit={handleUpdateSubmit} className="space-y-4">
+              <div>
+                <label className="font-medium text-gray-700 text-sm">
+                  Sender Name
+                </label>
+                <input
+                  type="text"
+                  id="senderName"
+                  name="senderName"
+                  value={sendernameForm.senderName || ""}
+                  onChange={handleFormChange}
+                  className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                />
+              </div>
+              <div>
+                <label className="font-medium text-gray-700 text-sm">
+                  Phone Number
+                </label>
+                <input
+                  type="text"
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  value={sendernameForm.phoneNumber || ""}
+                  onChange={handleFormChange}
+                  className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="font-medium text-gray-700 text-sm">
+                  Limit
+                </label>
+                <input
+                  type="number"
+                  id="limit"
+                  name="limit"
+                  value={sendernameForm.limit || ""}
+                  onChange={handleFormChange}
+                  className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                />
+              </div>
+              <div>
+                <label className="font-medium text-gray-700 text-sm">
+                  Quality
+                </label>
+                <input
+                  type="text"
+                  id="quality"
+                  name="quality"
+                  value={sendernameForm.quality || ""}
+                  onChange={handleFormChange}
+                  className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                />
+              </div>
+
+              <div className="flex w-full justify-end">
+                <button type="submit" className="uniform_btn">
+                  Save
+                </button>
+              </div>
+            </form>
           </div>
-        )}
-        {CreateModalOPen &&(
-        <SenderNameForm 
-        isVisible={true}
-        onClose={handleCancel}
-        onsuccess={refreshSendernameList}
+        </div>
+      )}
+      {CreateModalOPen && (
+        <SenderNameForm
+          isVisible={true}
+          onClose={handleCancel}
+          onsuccess={refreshSendernameList}
         />
       )}
-      
     </App>
   );
 };

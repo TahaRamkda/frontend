@@ -149,6 +149,7 @@ const CampaignsList = () => {
     e.preventDefault();
     try {
       const requestBody = {
+        clientId:localStorage.getItem('clientId'),
         campaignId: CampaignId,
         scheduleDate: CampaignForm.scheduleDate,
       };
