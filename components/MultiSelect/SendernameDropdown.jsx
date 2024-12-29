@@ -7,7 +7,7 @@ import 'select2/dist/js/select2.min.js';
 import { fetchSendernamesDrop, clearSendernameDropState } from "@/slices/sendernameSlice";
 
 
-const SendernameDropdown = ({ name, value, onChange, error }) => {
+const SendernamesDropdown = ({ name, value, onChange, error }) => {
   const dispatch = useDispatch();   
   const { sendernameDrop, loading, error: fetchError } = useSelector((state) => state.sendernames);
   const selectRef = useRef(null);
@@ -84,4 +84,4 @@ const SendernameDropdown = ({ name, value, onChange, error }) => {
   );
 };
 
-export default SendernameDropdown;
+export default SendernamesDropdown;

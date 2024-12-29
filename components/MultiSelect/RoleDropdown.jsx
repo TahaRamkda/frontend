@@ -6,17 +6,17 @@ import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
 import { fetchRolesDrop, clearRoleDropState} from "@/slices/RoleSlice";
 
-export const GroupsDropdown = ({ onChange }) => {
+export const RolesDropdown = ({  onChange, error }) => {
   const dispatch = useDispatch();
-   const { roleDrop, loading, error } = useSelector((state) => state.roles);
-  const [selectedRoleId, setselectedRoleId] = useState([]);
+   const { roleDrop, loading, error: fetchError } = useSelector((state) => state.roles);
   const selectRef = useRef(null);
-  const [SearchStr, setSearchStr] = useState("")
+  const [selectedRoleId, setselectedRoleId] = useState([]);
+ 
 
  
   // Fetch groups when the component mounts
   useEffect(() => {
-     dispatch(fetchRolesDrop({ clientId: localStorage.getItem("clientId") , SearchStr:SearchStr}));
+     dispatch(fetchRolesDrop({ clientId: localStorage.getItem("clientId") }));
     
    }, [dispatch]);
  
@@ -39,7 +39,7 @@ export const GroupsDropdown = ({ onChange }) => {
 
       $(selectRef.current).on("change", (e) => {
         const selectedValues = $(selectRef.current).val() || [];
-        setselectedRoleId(selectedValues);
+        selectedRoleId(selectedValues);
       });
     }
 
@@ -60,16 +60,15 @@ export const GroupsDropdown = ({ onChange }) => {
   return (
     <>
       <div>
-        <Input
-          ref={selectRef}
-          id="groupSelect"
-          innerRef={selectRef}
-          value={selectedRoleId}
-          onChange={(e) => setselectedRoleId(Array.from(e.target.selectedOptions, option => option.value))}
-          multiple
-          required
+        <select
+           ref={selectRef}
+           id="Select"
+           value={selectedRoleId}
+           onChange={(e) => setselectedRoleId(Array.from(e.target.selectedOptions, option => option.value))}
+           multiple
+           required
         >
-          <option value="">Select</option>
+          <option value="0">Select</option>
           {availableRole && availableRole.length > 0 ? (
             availableRole.map((group) => (
               <option key={group.id} value={group.id}>
@@ -79,10 +78,10 @@ export const GroupsDropdown = ({ onChange }) => {
           ) : (
             <option disabled>No records found</option>
           )}
-        </Input>
+        </select>
       </div>
     </>
   );
 };
 
-export default GroupsDropdown;
+export default RolesDropdown;
