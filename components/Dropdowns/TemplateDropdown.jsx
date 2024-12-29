@@ -30,10 +30,7 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
         TransactionType: transactionType,
       })
     );
-    return () => {
-      dispatch(clearTemplateDropState());
-      refreshDropdown()
-    };
+    
   }, [dispatch, transactionType]);
 
   useEffect(() => {

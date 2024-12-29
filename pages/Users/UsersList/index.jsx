@@ -21,15 +21,17 @@ const UserList = () => {
   const [filterText, setFilterText] = useState("");
 
   const userColumns = [
+    { name: "User ID", selector: (row) => row.userId, sortable: true },
+    { name: "Client ID", selector: (row) => row.clientId, sortable: true },
     { name: "User Name", selector: (row) => row.userName, sortable: true },
     { name: "Full Name", selector: (row) => row.fullName, sortable: true},
-    { name: "Is Active?", selector: (row) => row.isActive ? "Yes" : "No", sortable: true },
+    { name: "Is Active?", selector: (row) => (row.isActive ? "Yes" : "No"), sortable: true },
     {
       name: "Action",
       cell: (row) => (
         <>
-          <button onClick={() => handleDetailClick(row.userId)}>Edit</button>
-          <button onClick={() => handleDeleteClick(row.userId)}>Delete</button>
+          <button onClick={() => handleDetailClick(row.userId)}>{Edit}</button>
+          <button onClick={() => handleDeleteClick(row.userId)}>{Delete}</button>
         </>
       ),
     },
@@ -144,7 +146,7 @@ const UserList = () => {
   ), [filterText]);
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <p>{t("Loading...")}</p>;
   }
 
   if (error) {
@@ -235,7 +237,7 @@ const UserList = () => {
                 </Col>
               </Row>
               <Button color="primary" type="submit">
-                UpdateSender
+                {t(UpdateSender)}
               </Button>
             </Form>
           )}
