@@ -1,7 +1,4 @@
 import React, { useMemo, useState, useEffect} from "react";
-import {
-  Card, CardBody, CardHeader, Col, Input, Label, Alert, Button, Modal, ModalBody, ModalHeader, Form, FormGroup, Row,
-} from "reactstrap";
 import { useRouter } from "next/navigation";
 import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
@@ -9,6 +6,7 @@ import Loading from "@/components/Loader";
 import dynamic from "next/dynamic";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAgents, cleaAgentState, deleteAgent, fetchAgentsById, updateAgent, setCurrentPage, setPageSize } from "@/slices/AgentSlice";
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input } from "reactstrap";
 import showSweetAlert from "@/components/Sweetalert";
 import { HiPencilAlt, HiTrash, HiLightningBolt, HiClock  } from "react-icons/hi";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
@@ -24,10 +22,10 @@ const AgentsList = () => {
   const { agent = [], loading:DetailLoading, error:DetailError } = useSelector((state) => state.agents);
   const [timeModalOpen, setTimeModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [agentForm, setagentForm] = useState();
+  const [agentForm, setagentForm] = useState({});
   const [SenderId, setSenderId] = useState(0);
   const [AgentId, setAgentId] = useState(null);
-  const [filterText, setFilterText] = useState("");
+  const [filterText, setFilterText] = useState('');
   const [showagenttiming, setshowagenttiming] = useState("");
   const [CreateModalOpen, setCreateModalOpen] = useState("")
 
@@ -67,7 +65,7 @@ const AgentsList = () => {
     
     try {
       // Dispatch the action to fetch agent by ID
-       await dispatch(fetchAgentsById(agentId)).unwrap();
+       await dispatch(fetchAgentsById({clientId:localStorage.getItem('clientId'),agentId})).unwrap();
        
         setAgentId(agentId);
         setIsModalOpen(true); // Open the modal
@@ -81,7 +79,7 @@ const AgentsList = () => {
   
   const handleCancel = () => {
     setCreateModalOpen(false);
-    
+   
   };
   const handleDeleteClick = (agentId) => {
     SweetAlert.fire({
@@ -124,12 +122,27 @@ const AgentsList = () => {
  const handleChange = (e) => {
     const senderId = e.target.value;
     setSenderId(senderId)
-    dispatch(fetchAgents({clientId: localStorage.getItem("clientId"),senderId: senderId,pageNo: currentPage, pageSize,}))
+    dispatch(fetchAgents({clientId: localStorage.getItem("clientId"),senderId: senderId, searchStr: filterText,pageNo: currentPage, pageSize,}))
   };
   const handleClose = () => {
     setshowagenttiming(false);
     
   };
+  const handlePageChange = async (page) => {
+        // Update current page state in Redux
+        dispatch(setCurrentPage(page));
+      
+        // Fetch clients for the new page
+        await dispatch(fetchAgents({ clientId: localStorage.getItem("clientId"),senderId: SenderId,searchStr: filterText, pageNo: page, pageSize  }));
+      };
+
+       const handlePageSizeChange = async (newSize) => {
+              // Update page size and reset to the first page
+              dispatch(setPageSize(newSize));
+              dispatch(setCurrentPage(1)); // Reset to first page
+              // Fetch data with updated page size and reset to page 1
+              await dispatch(fetchAgents({ clientId: localStorage.getItem("clientId"),senderId: SenderId,searchStr: filterText, pageNo: currentPage, pageSize  }));
+            };
 
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
@@ -139,8 +152,8 @@ const AgentsList = () => {
         client_Id: localStorage.getItem('clientId')|| 0,
         userName: agentForm.userName || "",
         password: agentForm.password || "",
-        agentFName: agentForm.agentFname || "",    
-        agentLName: agentForm.agentLname || "", 
+        agentFName: agentForm.agentFName || "",    
+        agentLName: agentForm.agentLName || "", 
         senderIds:  agentForm.senderIds || "",
         actionBy: localStorage.getItem('userId'),
       };
@@ -161,17 +174,21 @@ const AgentsList = () => {
       alert("Failed to update: " + error.message);
     }
   };
+  const toggleModal = () => {
+   
+    setIsModalOpen(false);
+  };
 
   const refreshAgentList = () => {
-    dispatch(fetchAgents({ clientId: localStorage.getItem("clientId"),senderId: SenderId, pageNo: currentPage, pageSize }));
+    dispatch(fetchAgents({ clientId: localStorage.getItem("clientId"),senderId: SenderId,searchStr: filterText, pageNo: currentPage, pageSize }));
   };
 
   useEffect(() => {
-    dispatch(fetchAgents({ clientId: localStorage.getItem("clientId"),senderId: SenderId, pageNo: currentPage, pageSize  }));
+    dispatch(fetchAgents({ clientId: localStorage.getItem("clientId"),senderId: SenderId,searchStr: filterText, pageNo: currentPage, pageSize  }));
     return () => {
       dispatch(cleaAgentState());
     };
-  }, [dispatch]);
+  }, [dispatch,filterText]);
 
   const filteredAgents = useMemo(
     () =>
@@ -233,6 +250,10 @@ const AgentsList = () => {
               highlightOnHover
               striped
               pagination
+              paginationServer
+              paginationTotalRows={totalRecords}
+              onChangePage={handlePageChange}
+              onChangeRowsPerPage={handlePageSizeChange}
               subHeader
               subHeaderComponent={subHeaderComponentMemo}
               className="w-full border"
@@ -270,18 +291,12 @@ const AgentsList = () => {
             
           </div>
      {isModalOpen &&(
+      <Modal isOpen={true} toggle={() => toggleModal()} fade={false}>
       <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
-        {/* Close button */}
-          <button
-            onClick={() => setIsModalOpen(false)}
-            className="absolute top-4 right-4 text-xl text-gray-600 hover:text-gray-800"
-          >
-          &times;
-          </button>
-      <h4 className="text-xl mb-4"> Edit Agents </h4>
+        <ModalHeader toggle={() => toggleModal()}>Edit Agents</ModalHeader>
+     <ModalBody>
     <form  onSubmit={handleUpdateSubmit}>
-     
         <div>
             <label className="font-medium text-gray-700 text-sm">Sender Name</label>
             <Sendernames
@@ -295,9 +310,9 @@ const AgentsList = () => {
             <label className="font-medium text-gray-700 text-sm">First Name</label>
             <input
               type="text"
-              id="agentFname"
-              name="agentFname"
-              value={agentForm.agentFname || ""} // Bind value from agentForm
+              id="agentFName"
+              name="agentFName"
+              value={agentForm.agentFName || ""} // Bind value from agentForm
               onChange={handleFormChange}
               className="border rounded py-1 px-2 w-full mt-1 text-sm"
             />
@@ -307,9 +322,9 @@ const AgentsList = () => {
             <label className="font-medium text-gray-700 text-sm">Last Name</label>
             <input
               type="text"
-              id="agentLname"
-              name="agentLname"
-              value={agentForm.agentLname || ""} // Bind value from agentForm
+              id="agentLName"
+              name="agentLName"
+              value={agentForm.agentLName || ""} // Bind value from agentForm
               onChange={handleFormChange}
               className="border rounded py-1 px-2 w-full mt-1 text-sm"
             />
@@ -322,9 +337,10 @@ const AgentsList = () => {
       </div>
       
       </form>
+      </ModalBody>
     </div>
   </div>
- 
+  </Modal>
  
 
 )}

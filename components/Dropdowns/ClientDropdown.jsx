@@ -10,11 +10,15 @@ const ClientDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null); 
   const { clientsDrop, loading, error } = useSelector((state) => state.clients);
- const [searchString, setsearchString] = useState("")
+ const [searchString, setsearchString] = useState("");
+ const refreshDropdown = () =>{
+    dispatch(fetchClientsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString }));
+ }
   useEffect(() => {
     dispatch(fetchClientsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString }));
     return () => {
-      dispatch(clearClientDropState());
+       dispatch(clearClientDropState());
+       refreshDropdown()
     };
   }, [dispatch]);
 

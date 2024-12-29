@@ -4,17 +4,21 @@ import $ from 'jquery';
 import { Input } from 'reactstrap';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
-import { fetchGroupsDrop, clearGroupDropState} from "@/slices/groupSlice";
+import { fetchGroupsDrop, clearGroupDropState} from "@/slices/Groupslice";
+
 const GroupDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null); 
   const { groupDrop, loading, error } = useSelector((state) => state.groups);
   const [SearchStr, setSearchStr] = useState("")
-
+const refreshDropdown = () =>{
+  dispatch(fetchGroupsDrop({ clientId: localStorage.getItem("clientId") , SearchStr:SearchStr}));
+}
   useEffect(() => {
     dispatch(fetchGroupsDrop({ clientId: localStorage.getItem("clientId") , SearchStr:SearchStr}));
     return () => {
       dispatch(clearGroupDropState());
+      refreshDropdown()
     };
   }, [dispatch]);
 

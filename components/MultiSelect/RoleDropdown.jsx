@@ -4,24 +4,24 @@ import { Input } from "reactstrap";
 import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
-import { fetchGroupsDrop, clearGroupDropState } from "@/slices/Groupslice";
+import { fetchRolesDrop, clearRoleDropState} from "@/slices/RoleSlice";
 
 export const GroupsDropdown = ({ onChange }) => {
   const dispatch = useDispatch();
-   const { groupDrop, loading, error } = useSelector((state) => state.groups);
-  const [selectedGroupId, setSelectedGroupId] = useState([]);
+   const { roleDrop, loading, error } = useSelector((state) => state.roles);
+  const [selectedRoleId, setselectedRoleId] = useState([]);
   const selectRef = useRef(null);
   const [SearchStr, setSearchStr] = useState("")
-  // Fetch groups when the component mounts
+
   const refreshDropdown = () =>{
-    dispatch(fetchGroupsDrop({ clientId: localStorage.getItem("clientId") , SearchStr:SearchStr}));
-    }
-  
+    dispatch(fetchRolesDrop({ clientId: localStorage.getItem("clientId") , SearchStr:SearchStr}));
+      }
+  // Fetch groups when the component mounts
   useEffect(() => {
-     dispatch(fetchGroupsDrop({ clientId: localStorage.getItem("clientId") , SearchStr:SearchStr}));
+     dispatch(fetchRolesDrop({ clientId: localStorage.getItem("clientId") , SearchStr:SearchStr}));
      return () => {
-        dispatch(clearGroupDropState());
-        refreshDropdown()
+    dispatch(clearRoleDropState());
+    refreshDropdown()
      };
    }, [dispatch]);
  
@@ -29,9 +29,9 @@ export const GroupsDropdown = ({ onChange }) => {
   // Notify parent of selected group changes
   useEffect(() => {
     if (onChange) {
-      onChange(selectedGroupId);
+      onChange(selectedRoleId);
     }
-  }, [selectedGroupId, onChange]);
+  }, [selectedRoleId, onChange]);
 
   // Handle select/deselect groups (via select2)
   useEffect(() => {
@@ -44,7 +44,7 @@ export const GroupsDropdown = ({ onChange }) => {
 
       $(selectRef.current).on("change", (e) => {
         const selectedValues = $(selectRef.current).val() || [];
-        setSelectedGroupId(selectedValues);
+        setselectedRoleId(selectedValues);
       });
     }
 
@@ -53,14 +53,14 @@ export const GroupsDropdown = ({ onChange }) => {
         $(selectRef.current).off("change");
       }
     };
-  }, [groupDrop]);
+  }, [roleDrop]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
 
   // Filter out the selected groups from the available options
-  const availableGroup = groupDrop.filter(
-    (groupDrop) => !selectedGroupId.includes(groupDrop.clientId)
+  const availableRole = roleDrop.filter(
+    (roleDrop) => !selectedRoleId.includes(roleDrop.clientId)
   );
   return (
     <>
@@ -69,14 +69,14 @@ export const GroupsDropdown = ({ onChange }) => {
           ref={selectRef}
           id="groupSelect"
           innerRef={selectRef}
-          value={selectedGroupId}
-          onChange={(e) => setSelectedGroupId(Array.from(e.target.selectedOptions, option => option.value))}
+          value={selectedRoleId}
+          onChange={(e) => setselectedRoleId(Array.from(e.target.selectedOptions, option => option.value))}
           multiple
           required
         >
           <option value="">Select</option>
-          {availableGroup && availableGroup.length > 0 ? (
-            availableGroup.map((group) => (
+          {availableRole && availableRole.length > 0 ? (
+            availableRole.map((group) => (
               <option key={group.id} value={group.id}>
                 {group.name}
               </option>

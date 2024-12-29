@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { SENDERNAMELIST, SENDERNAMEDETAIL, CREATESENDERNAME, DELETESENDERNAME, UPDATESENDERNAME } from '@/utils/apiConstants';
+import { SENDERNAMELIST, SENDERNAMEDETAIL, CREATESENDERNAME, DELETESENDERNAME, UPDATESENDERNAME, SENDERNAMEDROP } from '@/utils/apiConstants';
 
 // Thunks
 
@@ -15,6 +15,24 @@ export const fetchSendernames = createAsyncThunk(
         return {
           sendernames: response.data.result,
           totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
+        };
+      } else {
+        throw new Error('Failed to fetch details');
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+export const fetchSendernamesDrop = createAsyncThunk(
+  'sendername/fetchSendernamesDrop',
+  async ({clientId}, { rejectWithValue }) => {
+    try {
+      const response = await API.get(`${SENDERNAMEDROP}?ClientId=${clientId}`);
+      if (response?.status === 200 && response.data?.result) {
+        return {
+          sendernameDrop: response.data.result,
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -88,6 +106,7 @@ const sendernameSlice = createSlice({
   name: 'sendername',
   initialState: {
     sendernames: [],
+    sendernameDrop:[],
     sendername: null,
     loading: false,
     error: null,
@@ -117,6 +136,12 @@ const sendernameSlice = createSlice({
       state.totalPages = 1;
       state.pageSize = 10;
       state.totalRecords = 0;
+    },
+    clearSendernameDropState: (state) => {
+      state.sendernameDrop = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
     },
     
     clearSendernameDetailState: (state) => {
@@ -156,7 +181,22 @@ const sendernameSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      // Fetch Client by ID
+      .addCase(fetchSendernamesDrop.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSendernamesDrop.fulfilled, (state, action) => {
+        state.loading = false;
+        state.sendernameDrop = action.payload.sendernameDrop;
+        state.message = action.payload.message || '';
+      })
+      .addCase(fetchSendernamesDrop.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+
+      
       .addCase(fetchSendernameById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -172,7 +212,7 @@ const sendernameSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      // Create Client
+      
       .addCase(createSendername.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -189,7 +229,7 @@ const sendernameSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      // Update Client
+      
       .addCase(updateSendername.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -206,7 +246,7 @@ const sendernameSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      // Delete Client
+      
       .addCase(deleteSendername.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -231,6 +271,7 @@ export const {
   setCurrentPage,
   clearSendernameState,
   clearSendernameDetailState,
+  clearSendernameDropState,
   clearSendernameCreateState,
   clearSendernameDeleteState,
 } = sendernameSlice.actions;

@@ -8,7 +8,7 @@ export const fetchCampaign = createAsyncThunk(
   'campaign/fetchCampaign',
   async ({ClientId, FromDate, ToDate, srcStr, PageNo, pageSize}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${CAMPAIGNLIST}?ClientId=${ClientId}&FromDate=${FromDate}&ToDate=${ToDate}&PageNo=${PageNo}&PageSize=${pageSize}`);
+      const response = await API.get(`${CAMPAIGNLIST}?ClientId=${ClientId}${srcStr? `&SearchStr=${srcStr}`: ''}&FromDate=${FromDate}&ToDate=${ToDate}&PageNo=${PageNo}&PageSize=${pageSize}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           campaigns: response.data.result,

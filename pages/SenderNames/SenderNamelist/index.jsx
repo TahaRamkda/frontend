@@ -15,6 +15,7 @@ import {
 import showSweetAlert from "@/components/Sweetalert";
 import App from "@/components/App";
 import SenderNameForm from "../CreateSenderName";
+import { BASE_URL } from "@/utils/apiConstants";
 
 const SendernameList = () => {
   const router = useRouter();
@@ -27,7 +28,20 @@ const SendernameList = () => {
   const [filterText, setFilterText] = useState("");
   const [CreateModalOPen, setCreateModalOpen] = useState(false);
 
-  const sendernameColumns = [
+  const sendernameColumns = [   
+    {
+      name: "",
+      selector: (row) => row.mediaPath, // Assuming mediaPath is the field in your data
+      cell: (row) => (
+        <img
+        src={`${BASE_URL}${row.mediaPath}`}
+          alt="Image"
+          className="w-12 h-12 object-cover rounded-lg"
+          
+        />
+      ),
+      sortable: false, // Disable sorting for images if not needed
+    },,
     { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
     { name: "Client Name", selector: (row) => row.clientName, sortable: true },
     {
@@ -37,26 +51,7 @@ const SendernameList = () => {
     },
     { name: "Limit", selector: (row) => row.limit, sortable: true },
     { name: "Quality", selector: (row) => row.quality, sortable: true },
-    {
-      name: "Action",
-      cell: (row) => (
-        <div className="flex gap-2">
-          <button
-            className="uniform_icon_btn"
-            title="Edit"
-            onClick={() => handleDetailClick(row.senderId)}
-          >
-            <HiPencilAlt style={{ fontSize: "15px" }} />
-          </button>
-          <button
-            className="uniform_icon_btn"
-            onClick={() => handleDeleteClick(row.senderId)}
-          >
-            <HiTrash style={{ fontSize: "15px" }} />
-          </button>
-        </div>
-      ),
-    },
+    
   ];
 
   const handleDetailClick = async (senderId) => {
@@ -196,16 +191,14 @@ const SendernameList = () => {
   return (
     <App>
       <div className="flex items-center">
-        {loading && <Loading />}
-        <div className="">
-          <h4 className="font-bold ">Sender Name List</h4>
-        </div>
-        <div className="ml-auto mb-1">
-          <button className="uniform_btn" onClick={handleCreate}>
-            Create Sender Name
-          </button>
-        </div>
-      </div>
+  {loading && <Loading />}
+  <div className=''>
+  <h4 className="font-bold ">Sender Name List</h4>
+  </div>
+  <div className="ml-auto mb-1">
+ 
+  </div>
+</div>
 
       <div className="overflow-auto">
         <DataTable

@@ -9,7 +9,7 @@ export const fetchGroup = createAsyncThunk(
     'group/fetchGroup',
     async ({clientId, pageNo, pageSize, SearchStr}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${GROUPLIST}?ClientId=${clientId}&PageNo=${pageNo}&PageSize=${pageSize}`);
+        const response = await API.get(`${GROUPLIST}?ClientId=${clientId}${ SearchStr? `&SearchStr=${SearchStr}`:''}&PageNo=${pageNo}&PageSize=${pageSize}`);
         if (response?.status === 200 && response.data?.result) {
           return {
             groups: response.data.result,
@@ -32,7 +32,6 @@ export const fetchGroupsDrop = createAsyncThunk(
         if (response?.status === 200 && response.data?.result) {
           return {
             groupDrop: response.data.result,
-            totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -142,7 +141,6 @@ const GroupSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.success = false;
-      state.totalRecords = 0;
     },
     
     clearGroupDetailState: (state) => {
@@ -189,7 +187,6 @@ const GroupSlice = createSlice({
       .addCase(fetchGroupsDrop.fulfilled, (state, action) => {
         state.loading = false;
         state.groupDrop = action.payload.groupDrop;
-        state.totalRecords = action.payload.totalRecords;
         state.message = action.payload.message || '';
       })
       .addCase(fetchGroupsDrop.rejected, (state, action) => {

@@ -11,12 +11,15 @@ const BulkUpload = ({ onClose, onsuccess,isVisible }) => {
   const [selectedSenderId, setSelectedSenderId] = useState(null);
 
   const handleSubmit = async (values, { setSubmitting }) => {
+    
     const formData = new FormData();
     formData.append("ClientId", localStorage.getItem("clientId"));
     formData.append("File", values.UploadFile);
     formData.append("ActionBy", localStorage.getItem("userId"));
     try {
       const response = await dispatch(bulkUpload(formData)).unwrap();
+      onClose()
+      onsuccess();
       if (response.success ) {
         dispatch(clearBulkUploadState());
         setSubmitting(false);
@@ -25,12 +28,11 @@ const BulkUpload = ({ onClose, onsuccess,isVisible }) => {
           text: "",
           icon: "success",
         });
-        onClose
-        onsuccess();
+       
         // window.location.reload();
       } else {
         showSweetAlert({
-          title: "F",
+          title: "Failed",
           text: response.result.message || "",
           icon: "error",
         });
@@ -82,7 +84,7 @@ const BulkUpload = ({ onClose, onsuccess,isVisible }) => {
                   </div>
                   <div className=" flex justify-end mt-2">
                    <Button className="uniform_btn" type="submit" disabled={isSubmitting}>
-                    Upload Media
+                    Upload
                   </Button>
                   </div>
                 </div>

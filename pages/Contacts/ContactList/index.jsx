@@ -178,25 +178,20 @@ const ContactList = () => {
   const handleBulkUpload = () => {
     setBulkUploadModal(true)
   };
-  
-
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className="w-full">
-      
-      <div className="grid grid-cols-5 gap-4  ">
-  {/* Search Section */}
-
-  <div className="flex flex-col  mb-1 text-start">
-    <label className="font-medium text-gray-700 text-sm">Search</label>
-    <input
-      type="search"
-      value={filterText}
-      onChange={(e) => setFilterText(e.target.value)}
-      className="border rounded py-1 px-2 w-full text-sm"
-      // placeholder="Search"
-    />
-  </div>
+        <div className="grid grid-cols-5 gap-4">
+          <div className="flex flex-col  mb-1 text-start">
+            <label className="font-medium text-gray-700 text-sm">Search</label>
+              <input
+                type="search"
+                value={filterText}
+                onChange={(e) => setFilterText(e.target.value)}
+                className="border rounded py-1 px-2 w-full text-sm"
+                // placeholder="Search"
+              />
+            </div>
 
   {/* Group Dropdown Section */}
   <div className="flex flex-col mb-1  text-start">

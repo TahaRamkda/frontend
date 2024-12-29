@@ -130,7 +130,7 @@ const MessageSummary = () => {
               <label className="font-medium text-gray-700 text-sm">Search</label>
               <input
                 type="text"
-                placeholder="Search"
+                placeholder=""
                 value={srcStr}
                 onChange={handleSearchString}
                 className="border rounded  w-100"

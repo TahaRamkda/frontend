@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Formik, Form } from "formik";
-import { FormGroup, Input, Container, Row, Col, Button ,Modal, ModalBody,ModalHeader} from "reactstrap";
+import { FormGroup, Input, Container, Row, Col, Button, Modal } from "reactstrap";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { uploadMedia, clearMediaUploadState } from "@/slices/MediaSlice";
@@ -51,7 +51,7 @@ const UploadMediaPage = ({ setIsModalOpen, onUploadSuccess }) => {
   };
 
   return (
-   
+    
     <div>
         <h4 className="font-bold">Upload Media</h4>
        <div className="w-full bg-white p-3 rounded mb-5">
@@ -94,7 +94,7 @@ const UploadMediaPage = ({ setIsModalOpen, onUploadSuccess }) => {
           </div>
           </div>
           </div>
-         
+        
   );
 };
 

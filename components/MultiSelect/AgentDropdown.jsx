@@ -14,11 +14,15 @@ const AgentsDropdown = ({ name, value, onChange }) => {
  const [searchString, setsearchString] = useState("")
  const [SenderId,setSenderId] = useState(0)
 
-
+const refreshDropdown = () =>{
+  dispatch(fetchAgentsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString, senderId:SenderId }));
+  }
   useEffect(() => {
     dispatch(fetchAgentsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString, senderId:SenderId }));
     return () => {
-      dispatch(cleaAgenDroptState());
+       dispatch(cleaAgenDroptState());
+       refreshDropdown()
+       
     };
   }, [dispatch]);
 
@@ -59,7 +63,7 @@ const AgentsDropdown = ({ name, value, onChange }) => {
   );
   return (
     <div>
-      <select
+      <Input
         ref={selectRef}
         id="agentSelect"
         innerRef={selectRef}
@@ -79,7 +83,7 @@ const AgentsDropdown = ({ name, value, onChange }) => {
         ) : (
           <option disabled>No records found</option>
         )}
-      </select>
+      </Input>
     </div>
   );
 };

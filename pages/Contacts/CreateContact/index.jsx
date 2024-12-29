@@ -5,20 +5,20 @@ import * as Yup from "yup";
 import { useRouter } from "next/navigation";
 import { Row, Modal, ModalBody, ModalHeader } from "reactstrap";
 import showSweetAlert from "@/components/Sweetalert";
-import GroupDropdown from '@/components/Dropdowns/GroupDropdown'; 
+import GroupDropdown from '@/components/Dropdowns/GroupDropdown';
 import App from '@/components/App';
 const validationSchema = Yup.object({
   groupId: Yup.string().required("Group is required"), // groupId from dropdown
   firstName: Yup.string().required("First Name is required"),
   lastName: Yup.string().required("Last Name is required"),
   phoneNumber: Yup.string().required("Phone Number is required"),
- 
+
 });
 
-const ContactForm = ({isVisible,onClose,onsuccess}) => {
+const ContactForm = ({ isVisible, onClose, onsuccess }) => {
   const router = useRouter();
   const dispatch = useDispatch();
-  
+
 
   const handleSubmit = async (values, { setSubmitting }) => {
     const requestBody = {
@@ -45,7 +45,7 @@ const ContactForm = ({isVisible,onClose,onsuccess}) => {
           text: "",
           icon: "success",
         });
-        
+
       } else {
         setSubmitting(false);
         showSweetAlert({
@@ -70,135 +70,129 @@ const ContactForm = ({isVisible,onClose,onsuccess}) => {
   return (
     <App>
       <Modal isOpen={isVisible} toggle={onClose} fade={false}>
-      
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white p-6 rounded shadow-lg w-2/5  relative">
-              <ModalHeader toggle={onClose}>Create Contact </ModalHeader>
-              <ModalBody>
-              <Formik
-  initialValues={{
-    groupId: "",
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
-    emailAddress: "",
-    areaName: "",
-  }}
-  validationSchema={validationSchema}
-  onSubmit={handleSubmit}
->
-  {({ errors, touched, values, setFieldValue, isSubmitting }) => (
-    <Form className="space-y-6">
-      <div>
-        <label className="font-medium text-gray-700 text-sm">Group</label>
-        <GroupDropdown
-          name="groupId"
-          value={values.groupId}
-          onChange={(e) => setFieldValue("groupId", e.target.value)}
-          className={`border rounded py-1 px-2 w-full text-sm ${
-            errors.groupId && touched.groupId ? "border-red-500" : ""
-          }`}
-        />
-        <ErrorMessage
-          name="groupId"
-          component="div"
-          className="text-red-500 text-xs mt-1"
-        />
-      </div>
-      <div>
-        <label htmlFor="firstName" className="font-medium text-gray-700 text-sm">First Name</label>
-        <Field
-          name="firstName"
-          type="text"
-          className={`border rounded py-1 px-2 w-full text-sm ${
-            errors.firstName && touched.firstName ? "border-red-500" : ""
-          }`}
-        />
-        <ErrorMessage
-          name="firstName"
-          component="div"
-          className="text-red-500 text-xs mt-1"
-        />
-      </div>
-      <div>
-        <label htmlFor="lastName" className="font-medium text-gray-700 text-sm">Last Name</label>
-        <Field
-          name="lastName"
-          type="text"
-          className={`border rounded py-1 px-2 w-full text-sm ${
-            errors.lastName && touched.lastName ? "border-red-500" : ""
-          }`}
-        />
-        <ErrorMessage
-          name="lastName"
-          component="div"
-          className="text-red-500 text-xs mt-1"
-        />
-      </div>
-      <div>
-        <label htmlFor="phoneNumber" className="font-medium text-gray-700 text-sm">Phone Number</label>
-        <Field
-          name="phoneNumber"
-          type="text"
-          className={`border rounded py-1 px-2 w-full text-sm ${
-            errors.phoneNumber && touched.phoneNumber ? "border-red-500" : ""
-          }`}
-        />
-        <ErrorMessage
-          name="phoneNumber"
-          component="div"
-          className="text-red-500 text-xs mt-1"
-        />
-      </div>
-      <div>
-        <label htmlFor="emailAddress" className="font-medium text-gray-700 text-sm">Email Address</label>
-        <Field
-          name="emailAddress"
-          type="email"
-          className={`border rounded py-1 px-2 w-full text-sm ${
-            errors.emailAddress && touched.emailAddress ? "border-red-500" : ""
-          }`}
-        />
-        <ErrorMessage
-          name="emailAddress"
-          component="div"
-          className="text-red-500 text-xs mt-1"
-        />
-      </div>
-      <div>
-        <label htmlFor="areaName" className="font-medium text-gray-700 text-sm">Area Name</label>
-        <Field
-          name="areaName"
-          type="text"
-          className={`border rounded py-1 px-2 w-full text-sm ${
-            errors.areaName && touched.areaName ? "border-red-500" : ""
-          }`}
-        />
-        <ErrorMessage
-          name="areaName"
-          component="div"
-          className="text-red-500 text-xs mt-1"
-        />
-      </div>
-      <div className="flex justify-end gap-2">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="uniform_btn"
-        >
-          Create
-        </button>
-      </div>
-    </Form>
-  )}
-</Formik>
 
-      </ModalBody>
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-2/5  relative">
+            <ModalHeader toggle={onClose}>Create Contact </ModalHeader>
+            <ModalBody>
+              <Formik
+                initialValues={{
+                  groupId: "",
+                  firstName: "",
+                  lastName: "",
+                  phoneNumber: "",
+                  emailAddress: "",
+                  areaName: "",
+                }}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
+              >
+                {({ errors, touched, values, setFieldValue, isSubmitting }) => (
+                  <Form className="space-y-6">
+                    <div>
+                      <label className="font-medium text-gray-700 text-sm">Group</label>
+                      <GroupDropdown
+                        name="groupId"
+                        value={values.groupId}
+                        onChange={(e) => setFieldValue("groupId", e.target.value)}
+                        className={`border rounded py-1 px-2 w-full text-sm ${errors.groupId && touched.groupId ? "border-red-500" : ""
+                          }`}
+                      />
+                      <ErrorMessage
+                        name="groupId"
+                        component="div"
+                        className="text-red-500 text-xs mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="firstName" className="font-medium text-gray-700 text-sm">First Name</label>
+                      <Field
+                        name="firstName"
+                        type="text"
+                        className={`border rounded py-1 px-2 w-full text-sm ${errors.firstName && touched.firstName ? "border-red-500" : ""
+                          }`}
+                      />
+                      <ErrorMessage
+                        name="firstName"
+                        component="div"
+                        className="text-red-500 text-xs mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="lastName" className="font-medium text-gray-700 text-sm">Last Name</label>
+                      <Field
+                        name="lastName"
+                        type="text"
+                        className={`border rounded py-1 px-2 w-full text-sm ${errors.lastName && touched.lastName ? "border-red-500" : ""
+                          }`}
+                      />
+                      <ErrorMessage
+                        name="lastName"
+                        component="div"
+                        className="text-red-500 text-xs mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="phoneNumber" className="font-medium text-gray-700 text-sm">Phone Number</label>
+                      <Field
+                        name="phoneNumber"
+                        type="text"
+                        className={`border rounded py-1 px-2 w-full text-sm ${errors.phoneNumber && touched.phoneNumber ? "border-red-500" : ""
+                          }`}
+                      />
+                      <ErrorMessage
+                        name="phoneNumber"
+                        component="div"
+                        className="text-red-500 text-xs mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="emailAddress" className="font-medium text-gray-700 text-sm">Email Address</label>
+                      <Field
+                        name="emailAddress"
+                        type="email"
+                        className={`border rounded py-1 px-2 w-full text-sm ${errors.emailAddress && touched.emailAddress ? "border-red-500" : ""
+                          }`}
+                      />
+                      <ErrorMessage
+                        name="emailAddress"
+                        component="div"
+                        className="text-red-500 text-xs mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="areaName" className="font-medium text-gray-700 text-sm">Area Name</label>
+                      <Field
+                        name="areaName"
+                        type="text"
+                        className={`border rounded py-1 px-2 w-full text-sm ${errors.areaName && touched.areaName ? "border-red-500" : ""
+                          }`}
+                      />
+                      <ErrorMessage
+                        name="areaName"
+                        component="div"
+                        className="text-red-500 text-xs mt-1"
+                      />
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="uniform_btn"
+                      >
+                        Create
+                      </button>
+                    </div>
+                  </Form>
+                )}
+              </Formik>
+
+            </ModalBody>
           </div>
-      </div>
-      
-    
-    </Modal>
+        </div>
+
+
+      </Modal>
     </App>
   );
 };

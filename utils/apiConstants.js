@@ -16,6 +16,7 @@ export const CREATESENDERNAME = "/SenderNames/addSenderName";
 export const SENDERNAMEDETAIL = "/SenderNames/getsenderNamebyid";
 export const UPDATESENDERNAME = "/SenderNames/updatesenderName";
 export const DELETESENDERNAME = "/SenderNames/deletesenderName";
+export const SENDERNAMEDROP = "/SenderNames/getsendernames"
 
 export const CONTACTLIST="/Contacts/getcontactslist"; 
 export const CONTACTDETAILS="/Contacts/getcontactbyid"; 
@@ -44,6 +45,7 @@ export const ROLEDETAILS = "/Role/getRolebyid";
 export const CREATEROLES = "/Role/addRole";
 export const UPDATEROLES = "/Role/updateRole";
 export const DELETEROLES = "/Role/deleteRole";
+export const ROLEDROP = "/Role/getroles"
 
 export const CREATECAMPAIGN = "/Campaigns/addcampaign";
 export const CAMPAIGNLIST = "/Campaigns/getcampaignlist";

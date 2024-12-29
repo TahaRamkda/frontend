@@ -9,9 +9,9 @@ import { AGENTLIST, AGENTDETAILS, CREATEAGENT, DELETEAGENT, UPDATEAGENT, AGENTST
 // Fetch Clients
 export const fetchAgents = createAsyncThunk(
   'agent/fetchAgents',
-  async ({clientId}, { rejectWithValue }) => {
+  async ({clientId, searchStr,senderId,pageSize,pageNo}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${AGENTLIST}?ClientId=${clientId}`);
+      const response = await API.get(`${AGENTLIST}?ClientId=${clientId}${searchStr?`&searchStr=${searchStr}`:''}&senderId=${senderId}&pageNo=${pageNo}&pageSize=${pageSize}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           agents: response.data.result,
@@ -28,13 +28,13 @@ export const fetchAgents = createAsyncThunk(
 );
 export const fetchAgentsDrop = createAsyncThunk(
   'agent/fetchAgentsDrop',
-  async ({clientId,senderId,pageNo,pageSize}, { rejectWithValue }) => {
+  async ({clientId,senderId,pageNo,pageSize,searchStr}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${AGENTDROPDOWN}?ClientId=${clientId}&senderId=${senderId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+      const response = await API.get(`${AGENTDROPDOWN}?ClientId=${clientId}&senderId=${senderId}${searchStr?`&searchStr=${searchStr}`: ''}&pageNo=${pageNo}&pageSize=${pageSize}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           agentDrop: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
+         
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -80,9 +80,9 @@ export const createAgentTiming = createAsyncThunk(
 // Fetch Client by ID
 export const fetchAgentsById = createAsyncThunk(
   'agent/fetchAgentsById',
-  async (agentId, { rejectWithValue }) => {
+  async ({agentId,clientId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${AGENTDETAILS}?Id=${agentId}`);
+      const response = await API.get(`${AGENTDETAILS}?clientId=${clientId}&agentId=${agentId}`);
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -177,7 +177,7 @@ const agentSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.success = false;
-      state.totalRecords = 0;
+      
     },
     clearAgentsTimingListState: (state) => {
       state.agentsTiming = [];
@@ -235,7 +235,6 @@ const agentSlice = createSlice({
       .addCase(fetchAgentsDrop.fulfilled, (state, action) => {
         state.loading = false;
         state.agentDrop = action.payload.agentDrop;
-        state.totalRecords = action.payload.totalRecords;
         state.message = action.payload.message || '';
       })
       .addCase(fetchAgentsDrop.rejected, (state, action) => {

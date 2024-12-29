@@ -32,6 +32,7 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
     );
     return () => {
       dispatch(clearTemplateDropState());
+      refreshDropdown()
     };
   }, [dispatch, transactionType]);
 

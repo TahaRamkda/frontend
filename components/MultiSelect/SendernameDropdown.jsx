@@ -4,20 +4,23 @@ import { Input } from "reactstrap";
 import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
-import { fetchSendernames, clearSendernameState } from "@/slices/sendernameSlice";
+import { fetchSendernamesDrop, clearSendernameDropState } from "@/slices/sendernameSlice";
 
 
 const SendernameDropdown = ({ name, value, onChange, error }) => {
   const dispatch = useDispatch();   
-  const { sendernames, loading, error: fetchError } = useSelector((state) => state.sendernames);
+  const { sendernameDrop, loading, error: fetchError } = useSelector((state) => state.sendernames);
   const selectRef = useRef(null);
   const [selectedSenderId, setSelectedSenderId] = useState([]);
-
+const refreshDropdown = () =>{
+  dispatch(fetchSendernamesDrop({ clientId: localStorage.getItem("clientId") }));
+      }
   useEffect(() => {
-    dispatch(fetchSendernames({ client_Id: localStorage.getItem("clientId") }));
+    dispatch(fetchSendernamesDrop({ clientId: localStorage.getItem("clientId") }));
     return () => {
       // Clean up the select2 instance when the component unmounts
-      dispatch(clearSendernameState());
+       dispatch(clearSendernameDropState());
+       refreshDropdown()
     };
   }, [dispatch]);
 
@@ -49,14 +52,14 @@ const SendernameDropdown = ({ name, value, onChange, error }) => {
         $(selectRef.current).off("change");
       }
     };
-  }, [sendernames]);
+  }, [sendernameDrop]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-danger">Error loading  {error}</p>;
 
   // Filter out the selected groups from the available options
-  const availableSenders = sendernames.filter(
-    (sendernames) => !selectedSenderId.includes(sendernames.senderId)
+  const availableSenders = sendernameDrop.filter(
+    (sendernameDrop) => !selectedSenderId.includes(sendernameDrop.senderId)
   );
 
   return (
@@ -74,8 +77,8 @@ const SendernameDropdown = ({ name, value, onChange, error }) => {
           <option value="">Select</option>
           {availableSenders && availableSenders.length > 0 ? (
             availableSenders.map((sender) => (
-              <option key={sender.senderId} value={sender.senderId}>
-                {sender.senderName}
+              <option key={sender.id} value={sender.id}>
+                {sender.name}
               </option>
             ))
           ) : (

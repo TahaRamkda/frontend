@@ -12,12 +12,15 @@ export const ClientsDropdown = ({ onChange }) => {
   const [selectedClientId, setSelectedClientId] = useState([]);
   const [searchString, setsearchString] = useState("")
   const selectRef = useRef(null);
-
+const refreshDropdown = () =>{
+  dispatch(fetchClientsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString }));
+  }
   // Fetch clients when the component mounts
   useEffect(() => {
     dispatch(fetchClientsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString }));
     return () => {
-      dispatch(clearClientDropState());
+       dispatch(clearClientDropState());
+       refreshDropdown()
     };
   }, [dispatch]);
 
@@ -61,7 +64,7 @@ export const ClientsDropdown = ({ onChange }) => {
   return (
     <>
       <div className="mb-4">
-        <select
+        <Input
           ref={selectRef}
           id="clientSelect"
           className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -80,7 +83,7 @@ export const ClientsDropdown = ({ onChange }) => {
           ) : (
             <option disabled>No records found</option>
           )}
-        </select>
+        </Input>
       </div>
     </>
   );

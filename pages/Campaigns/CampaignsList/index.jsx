@@ -1,41 +1,16 @@
-import React, { useMemo, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchCampaign,
-  clearCampaignListState,
-  activateCampaign,
-  clearCampaignActivateState,
-  setPageSize,
-  setCurrentPage,
-} from "@/slices/CampaignSlice";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Col,
-  Input,
-  Label,
-  Alert,
-  Button,
-  Modal,
-  ModalBody,
-  ModalHeader,
-  Form,
-  FormGroup,
-  Row,
-  Table,
-  Pagination,
-  PaginationItem,
-  PaginationLink,
-} from "reactstrap";
-import TemplateDropdown from "@/components/Dropdowns/TemplateDropdown";
-import Loader from "@/components/Loader";
+import React, { useMemo, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCampaign, clearCampaignListState, activateCampaign, clearCampaignActivateState, setPageSize, setCurrentPage } from "@/slices/CampaignSlice";
+import { Card, CardBody, CardHeader, Col, Input, Label, Alert, Button, Modal, ModalBody, ModalHeader, Form, FormGroup, Row, Table, Pagination, PaginationItem, PaginationLink } from "reactstrap";
+import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
+import Loader from '@/components/Loader';
 import showSweetAlert from "@/components/Sweetalert";
 import App from "@/components/App";
 import { useRouter } from "next/router"; // Correct import
 import DataTable from "react-data-table-component";
 import Loading from "@/components/Loader";
-import { HiPencilAlt, HiTrash, HiLightningBolt, HiClock } from "react-icons/hi";
+import { HiPencilAlt, HiTrash, HiLightningBolt, HiClock, } from "react-icons/hi";
+import { MdGroupRemove } from "react-icons/md";
 
 import { useSetRecoilState } from "recoil";
 import { CampaignState } from "@/components/recoil";
@@ -62,9 +37,7 @@ const CampaignsList = () => {
     useSelector((state) => state.campaigns);
   const [clientId, setClientId] = useState(null);
   const setCampaignsId = useSetRecoilState(CampaignState);
-  const handleSearchString = (e) => {
-    setKeyword(e.target.value);
-  };
+
   const refreshCampaignList = () => {
     dispatch(
       fetchCampaign({
@@ -73,16 +46,21 @@ const CampaignsList = () => {
         ToDate: ToDate,
         status,
         templateId,
-        srcStr,
+        srcStr: keyword,
         pageSize,
         PageNo: currentPage,
       })
     );
   };
 
+
   const handleTemplateChange = (e) => {
     const template = e.target.value;
     settemplateId(template);
+    dispatch(
+      fetchCampaign({
+        ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status, templateId: template, srcStr: keyword, pageSize, PageNo: currentPage,
+      }));
   };
 
   const HandleUpdateCampaign = (CampaignId) => {
@@ -105,7 +83,7 @@ const CampaignsList = () => {
           ToDate: ToDate,
           status,
           templateId,
-          srcStr,
+          srcStr: keyword,
           pageSize,
           PageNo: currentPage,
         })
@@ -114,86 +92,48 @@ const CampaignsList = () => {
     return () => {
       dispatch(clearCampaignListState());
     };
-  }, [clientId, FromDate, ToDate, srcStr]);
+  }, [clientId, FromDate, ToDate, keyword, status, templateId, pageSize, currentPage]);
 
   useEffect(() => {
     if (clientId) {
-      dispatch(
-        fetchCampaign({
-          ClientId: clientId,
-          FromDate: FromDate,
-          ToDate: ToDate,
-          status: status,
-          templateId: templateId,
-          srcStr: srcStr,
-          pageSize,
-          PageNo: currentPage,
-        })
-      );
+
+      dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
     }
     return () => {
       dispatch(clearCampaignListState());
     };
-  }, [dispatch, clientId]);
+  }, [dispatch, clientId, keyword]);
+
+
+
 
   const handlefilter = (e) => {
-    dispatch(
-      fetchCampaign({
-        clientId: clientId,
-        FromDate: FromDate,
-        ToDate: ToDate,
-        status: status,
-        sendernameId: sendernameId,
-        templateId: templateId,
-        srcStr: srcStr,
-        pageSize,
-        PageNo: currentPage,
-      })
-    );
+    dispatch(fetchCampaign({ clientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, sendernameId: sendernameId, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
   };
 
   const handleCreate = () => {
     window.location.href = "/Campaigns/CreateCampaigns";
-  };
+  }
 
   const handelClick = () => {
-    setContactedModaL(true);
-  };
+    setContactedModaL(true)
+  }
   const handelCancelClick = () => {
-    setContactedModaL(false);
-  };
+    setContactedModaL(false)
+  }
+
+
+
 
   const handlePageSizeChange = async (newSize) => {
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to the first page
-    await dispatch(
-      fetchCampaign({
-        ClientId: clientId,
-        FromDate: FromDate,
-        ToDate: ToDate,
-        status: status,
-        templateId: templateId,
-        srcStr: srcStr,
-        pageSize: newSize,
-        PageNo: 1,
-      })
-    );
+    await dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize: newSize, PageNo: 1 }));
   };
 
   const handlePageChange = async (page) => {
     dispatch(setCurrentPage(page));
-    await dispatch(
-      fetchCampaign({
-        ClientId: clientId,
-        FromDate: FromDate,
-        ToDate: ToDate,
-        status: status,
-        templateId: templateId,
-        srcStr: srcStr,
-        pageSize,
-        PageNo: page,
-      })
-    );
+    await dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: page }));
   };
 
   const handleActivateClick = async (campaignId) => {
@@ -258,52 +198,32 @@ const CampaignsList = () => {
       sortable: true,
     },
     { name: "Sent Count", selector: (row) => row.sentCount, sortable: true },
+    { name: "Failed Count", selector: (row) => row.failedCount, sortable: true },
+    { name: "Delivered Count", selector: (row) => row.deliveredCount, sortable: true },
+    { name: "Undelivered Count", selector: (row) => row.undeliveredCount, sortable: true },
+    { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
     {
-      name: "Failed Count",
-      selector: (row) => row.failedCount,
-      sortable: true,
-    },
-    {
-      name: "Delivered Count",
-      selector: (row) => row.deliveredCount,
-      sortable: true,
-    },
-    {
-      name: "Undelivered Count",
-      selector: (row) => row.undeliveredCount,
-      sortable: true,
-    },
-    {
-      name: "Created Date",
-      selector: (row) => row.createdDate,
-      sortable: true,
-    },
-    {
-      name: "Action",
-      cell: (row) => (
-        <div className="flex gap-2">
-          <button
-            className="uniform_icon_btn"
-            onClick={() => handleActivateClick(row.campaignId)}
-          >
+      name: "Action", cell: (row) => (
+        <div className='flex gap-2'>
+          <button className="uniform_icon_btn" onClick={() => handleActivateClick(row.campaignId)}>
             <HiLightningBolt style={{ fontSize: "15px" }} />
           </button>
           <button className="uniform_icon_btn" onClick={handelClick}>
-            <HiClock style={{ fontSize: "15px" }} />
+            <MdGroupRemove style={{ fontSize: "15px" }} />
           </button>
-          <button
-            className="uniform_icon_btn"
-            onClick={() => HandleUpdateCampaign(row.campaignId)}
-          >
+          <button className="uniform_icon_btn" onClick={() => HandleUpdateCampaign(row.campaignId)}>
             <HiPencilAlt style={{ fontSize: "15px" }} />
           </button>
+
         </div>
-      ),
+
+      )
     },
+
   ];
   const subHeaderComponentMemo = useMemo(() => {
     return (
-      <div className="w-full">
+      <div className='w-full'>
         <div className="grid grid-cols-5 gap-4 justify-start">
           <div className="flex flex-col text-start mb-1">
             <Label className="font-medium text-sm mb-0">Select Templates</Label>
@@ -315,11 +235,10 @@ const CampaignsList = () => {
           </div>
           <div className="flex flex-col text-start mb-1">
             <Label className="font-medium text-sm mb-0">Search</Label>
-            <Input
+            <input
               type="text"
-              placeholder=""
-              value={srcStr}
-              onChange={handleSearchString}
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
               className="border rounded  w-100"
             />
           </div>
@@ -343,16 +262,17 @@ const CampaignsList = () => {
               className="border rounded  w-100"
             />
           </div>
+
         </div>
       </div>
     );
-  }, [srcStr, FromDate, ToDate, templateId]);
+  }, [keyword, FromDate, ToDate, templateId]);
 
   return (
     <App>
       <div className="flex items-center">
         {loading && <Loading />}
-        <div className="mb-1">
+        <div className='mb-1'>
           <h4 className="font-bold mb-2">Campaign List</h4>
         </div>
         <div className="ml-auto mb-2">
@@ -366,6 +286,7 @@ const CampaignsList = () => {
           </Button>
         </div>
       </div>
+
 
       <div className="overflow-auto">
         <DataTable
@@ -384,75 +305,63 @@ const CampaignsList = () => {
           customStyles={{
             table: {
               style: {
-                width: "100%",
-                borderCollapse: "collapse", // Ensures borders collapse for proper grid appearance
+                width: '100%',
+                borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
               },
             },
             headRow: {
               style: {
-                borderBottom: "1px solid #ddd",
-                padding: "0px",
+                borderBottom: '1px solid #ddd', padding: '0px',
               },
             },
             headCells: {
               style: {
-                borderRight: "1px solid #ddd", // Grid line between columns
-                fontWeight: "bold",
+
+                borderRight: '1px solid #ddd', // Grid line between columns
+                fontWeight: 'bold',
               },
             },
             rows: {
               style: {
-                borderBottom: "1px solid #ddd", // Horizontal grid line between rows
+                borderBottom: '1px solid #ddd', // Horizontal grid line between rows
               },
             },
             cells: {
               style: {
-                borderRight: "1px solid #ddd", // Vertical grid line between cells
+
+                borderRight: '1px solid #ddd', // Vertical grid line between cells
               },
             },
           }}
         />
       </div>
-      <Modal
-        isOpen={isModalOpen}
-        toggle={() => setIsModalOpen(!isModalOpen)}
-        style={{ maxWidth: "800px", width: "90%" }}
-      >
-        <ModalHeader toggle={() => setIsModalOpen(!isModalOpen)}>
-          Schedule Campaign
-        </ModalHeader>
-        <ModalBody>
-          {CampaignForm && (
-            <Form onSubmit={handleUpdateSubmit}>
-              <div className="w-1/2">
-                <Label for="scheduleDate">Schedule Date </Label>
-                <Input
-                  type="datetime-local"
-                  id="scheduleDate"
-                  name="scheduleDate"
-                  value={CampaignForm.scheduleDate || ""}
-                  onChange={handleFormChange}
-                />
-              </div>
-              <div className="mt-4 text-end w-full">
-                <Button
-                  color="secondary"
-                  className="uniform_btn "
-                  type="submit"
-                >
-                  Save
-                </Button>
-              </div>
-            </Form>
-          )}
-        </ModalBody>
+      <Modal isOpen={isModalOpen} toggle={() => setIsModalOpen(!isModalOpen)} fade={false}>
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
+            <ModalHeader toggle={() => setIsModalOpen(!isModalOpen)}>Schedule Campaign</ModalHeader>
+            <ModalBody>
+              {CampaignForm && (
+                <Form onSubmit={handleUpdateSubmit}>
+                  <div className='w-1/2'>
+                    <Label for="scheduleDate">Schedule Date </Label>
+                    <Input type="datetime-local" id="scheduleDate" name="scheduleDate" value={CampaignForm.scheduleDate || ""} onChange={handleFormChange} />
+                  </div>
+                  <div className='mt-4 text-end w-full' >
+                    <Button color="secondary" className='uniform_btn ' type="submit">Save</Button>
+                  </div>
+
+
+                </Form>
+              )}
+            </ModalBody>
+          </div>
+        </div>
       </Modal>
       {ContactedModal && (
         <LastContactedList
           isVisible={true}
           onClose={handelCancelClick}
-          onsuccess={refreshCampaignList}
-        />
+          onsuccess={refreshCampaignList} />
       )}
     </App>
   );
