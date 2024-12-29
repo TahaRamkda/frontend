@@ -231,9 +231,9 @@ const TemplateUpdatePage = () => {
       };
     });
   };
-  const handelCancel = ()=>{
-    router.push("/Templates/TemplatesList")
-   }
+  const handelCancel = () => {
+    router.push("/Templates/TemplatesList");
+  };
   const handleSubmit = async (values) => {
     // let trimmedBodyContent = APIbodyContent.replace(/\*\*/g, "*").trimEnd();
     // let APIbodyContent = "**Latest**<sub>Text</sub>*Example*   "; // Example content
@@ -773,7 +773,7 @@ const TemplateUpdatePage = () => {
             className="border-end overflow-auto shadow-lg"
             style={{ padding: "20px", background: "#fff" }}
           >
-            <h4 className="mb-4">Update WhatsApp Template</h4>
+            <h4 className="mb-4">Update Template</h4>
             {/* <CustomEditor /> */}
             <label className="block mb-1 mt-1">Sender Names</label>
             <Sendernames
@@ -1255,11 +1255,14 @@ const TemplateUpdatePage = () => {
                         </Button>
                       </div>
                     ))}
-                   
+
                     <div className="w-full flex justify-end gap-3">
-                    <Button className="uniform_btn_Cancel " onClick={handelCancel}>
-                      Cancel
-                    </Button>
+                      <Button
+                        className="uniform_btn_Cancel "
+                        onClick={handelCancel}
+                      >
+                        Cancel
+                      </Button>
                       <Button
                         className="uniform_btn  "
                         onClick={() => handleSubmit(values)}
@@ -1277,9 +1280,28 @@ const TemplateUpdatePage = () => {
               }}
             </Formik>
           </Col>
-
-          <Col md={5} className="overflow-auto" style={{ padding: "20px" }}>
-            <div>
+          <Col
+            md={4}
+           className="overflow-hidden h-screen fixed right-10"
+            // style={{
+            //   position: "fixed", // Fix the position
+            //   top: "-50", // Adjust to your layout
+            //   right: "0", // Align to the right side of the screen
+            //   height: "100vh", // Full viewport height to ensure scrollability
+            //   overflowY: "auto", // Enable vertical scrolling
+            //   backgroundColor: "#f8f9fa", // Optional: background color for contrast
+            //   boxShadow: "0 0 10px rgba(0,0,0,0.1)", // Optional: Add shadow for emphasis
+            // }}
+          >
+            <div
+              style={{
+                position: "sticky",
+                top: "0",
+                zIndex: "10",
+                backgroundColor: "white", // Ensure the background color covers the content behind it
+                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+              }}
+            >
               <h4
                 className="mb-1 bg-light p-3 shadow-sm"
                 style={{ maxWidth: "600px", margin: "auto" }}
@@ -1306,7 +1328,7 @@ const TemplateUpdatePage = () => {
                 className="chat_bubble"
                 style={{
                   position: "relative",
-                  backgroundColor: "#f7f7f7",
+                  backgroundColor: "#ffff",
                   borderRadius: "5px",
                   padding: "20px 10px",
                   wordWrap: "break-word",
@@ -1320,7 +1342,6 @@ const TemplateUpdatePage = () => {
                 </span>
                 {messagePreview.media &&
                   selectedMediaType.startsWith("image/") && (
-                    //alert(selectedMediaPath),
                     <img
                       src={`${BASE_URL}${selectedMediaPath}`}
                       alt="Media"
@@ -1365,7 +1386,6 @@ const TemplateUpdatePage = () => {
                       }}
                     />
                   )}
-
                 {messagePreview.header && (
                   <h6
                     style={{ marginBottom: "5px" }}
@@ -1380,7 +1400,6 @@ const TemplateUpdatePage = () => {
                     {messagePreview.footer}
                   </p>
                 )}
-
                 {(Showallbutton || TotalButtonCount <= 3) &&
                   messagePreview.buttons.map((button, index) => (
                     <Button
@@ -1400,7 +1419,6 @@ const TemplateUpdatePage = () => {
                       {button.type == 1 && (
                         <span style={{ color: "#00a9ee" }}>
                           <i className="fa fa-share fa-flip-horizontal me-2"></i>
-
                           {button.text || "Button"}
                         </span>
                       )}
@@ -1418,7 +1436,7 @@ const TemplateUpdatePage = () => {
                       )}
                     </Button>
                   ))}
-                {TotalButtonCount > 3 && (
+                {TotalButtonCount > 3 && !Showallbutton && (
                   <Button
                     className="w-100 mb-2"
                     style={{
@@ -1433,9 +1451,29 @@ const TemplateUpdatePage = () => {
                     }}
                     onClick={() => setShowallbutton(!Showallbutton)}
                   >
-                    {" "}
                     <i className="fa fa-list"></i>
                     <span style={{ color: "#00a9ee" }}>See all options</span>
+                  </Button>
+                )}
+                {TotalButtonCount > 3 && Showallbutton && (
+                  <Button
+                    className="w-100 mb-2"
+                    style={{
+                      color: "#00a9ee",
+                      backgroundColor: "#ffffff",
+                      borderColor: "#ffffff",
+                      borderStyle: "solid",
+                      borderWidth: "1px 1px 1px 1px",
+                      borderTopWidth: "0.5px",
+                      borderTopStyle: "solid",
+                      borderTopColor: "#e1e1e1",
+                    }}
+                    onClick={() => setShowallbutton(false)}
+                  >
+                    <span style={{ color: "#00a9ee" }}>
+                      <i className="fa fa-bars me-2"></i>
+                      Hide All
+                    </span>
                   </Button>
                 )}
               </div>

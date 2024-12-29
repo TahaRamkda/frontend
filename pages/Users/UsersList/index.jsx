@@ -28,8 +28,8 @@ const UserList = () => {
       name: "Action",
       cell: (row) => (
         <>
-          <button onClick={() => handleDetailClick(row.userId)}>{Edit}</button>
-          <button onClick={() => handleDeleteClick(row.userId)}>{Delete}</button>
+          <button onClick={() => handleDetailClick(row.userId)}>Edit</button>
+          <button onClick={() => handleDeleteClick(row.userId)}>Delete</button>
         </>
       ),
     },
@@ -134,7 +134,7 @@ const UserList = () => {
   ), [filterText]);
 
   if (loading) {
-    return <p>{t("Loading...")}</p>;
+    return <p>Loading...</p>;
   }
 
   if (error) {
@@ -167,7 +167,7 @@ const UserList = () => {
       </Card>
 
       <Modal isOpen={isModalOpen} toggle={() => setIsModalOpen(!isModalOpen)} style={{ maxWidth: "800px", width: "90%" }}>
-        <ModalHeader toggle={() => setIsModalOpen(!isModalOpen)}>{t(EditSenderDetails)}</ModalHeader>
+        <ModalHeader toggle={() => setIsModalOpen(!isModalOpen)}>EditSenderDetails</ModalHeader>
         <ModalBody>
           {userForm && (
             <Form onSubmit={handleUpdateSubmit}>
@@ -221,7 +221,7 @@ const UserList = () => {
                 </Col>
               </Row>
               <Button color="primary" type="submit">
-                {t(UpdateSender)}
+                UpdateSender
               </Button>
             </Form>
           )}

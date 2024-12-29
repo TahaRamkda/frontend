@@ -254,7 +254,8 @@ const TemplateCreationPage = () => {
         showSweetAlert({
           title: "Template Created",
           text:
-            response.result.message || "The Template has been successfully created.",
+            response.result.message ||
+            "The Template has been successfully created.",
           icon: "success",
         });
         await router.push("/Templates/TemplatesList");
@@ -365,18 +366,34 @@ const TemplateCreationPage = () => {
     }));
   }, [headContent, headerVariable]);
 
-  const removeVariable = (index) => {
-    //alert(bodyPayloadDatawithVar)
-    const updatedVariables = variables.filter((_, i) => i !== index);
-    const updatedBodyContent = bodyPayloadDatawithVar
-      .replace(`{{${index + 1}}}`, "")
-      .replace(/\s\s+/g, " ");
-    var value = bodyTextCount;
-    setbodyTextCount(value - 1);
-    setVariables(updatedVariables);
-    setupdatedvercontent(updatedBodyContent);
-  };
+  const removeVariable = (indexToRemove) => {
+    // Remove the variable at the specified index
+    const updatedVariables = variables.filter((_, i) => i !== indexToRemove);
 
+    // Update the body content by renumbering the remaining variables
+    let updatedBodyContent = bodyPayloadDatawithVar;
+
+    // Replace each old variable index with its new index in the body content
+    updatedVariables.forEach((variable, i) => {
+      const oldIndex = parseInt(variable.match(/\d+/)[0], 10); // Extract old index
+      const newVariable = `{{${i + 1}}}`;
+      updatedBodyContent = updatedBodyContent.replace(
+        `{{${oldIndex}}}`,
+        newVariable
+      );
+    });
+
+    // Remove the variable being deleted from the body content
+    const variableToRemove = `{{${indexToRemove + 1}}}`;
+    updatedBodyContent = updatedBodyContent
+      .replace(variableToRemove, "")
+      .replace(/\s\s+/g, " ");
+
+    // Update state
+    setVariables(updatedVariables.map((_, i) => `{{${i + 1}}}`)); // Adjust indices in variables
+    setupdatedvercontent(updatedBodyContent.trim());
+    setbodyTextCount(updatedVariables.length); // Update text count
+  };
 
   const removeHeaderVariable = (index) => {
     //alert(bodyPayloadDatawithVar)
@@ -579,7 +596,8 @@ const TemplateCreationPage = () => {
       } else if (type === "3") {
         setButtonText("Visit Website");
         setVisitWebsiteButtonCount(
-          messagePreview.buttons.filter((button) => button.type === "3").length + 1
+          messagePreview.buttons.filter((button) => button.type === "3")
+            .length + 1
         );
         setTotalButtonCount((prev) => prev + 1);
       } else {
@@ -587,10 +605,10 @@ const TemplateCreationPage = () => {
       }
     }
   };
-  const handelCancel = ()=>{
-    router.push("/Templates/TemplatesList")
-   }
-  
+  const handelCancel = () => {
+    router.push("/Templates/TemplatesList");
+  };
+
   useEffect(() => {
     if (buttonType) {
       const newButton = {
@@ -600,27 +618,28 @@ const TemplateCreationPage = () => {
         countryCode: buttonType === "2" ? countryCode : "",
         websiteUrl: buttonType === "3" ? websiteUrl : null,
       };
-  
+
       setMessagePreview((prev) => {
         const buttons = [...prev.buttons];
-  
+
         if (newButton.type === "1") {
           // Find the index of the last type `1` button
           const lastType1Index = buttons.reduce(
-            (lastIndex, button, index) => (button.type === "1" ? index : lastIndex),
+            (lastIndex, button, index) =>
+              button.type === "1" ? index : lastIndex,
             -1
           );
-  
+
           // Insert the new type `1` button right after the last type `1` button
           buttons.splice(lastType1Index + 1, 0, newButton);
         } else {
           // Add type `2` or `3` buttons at the end
           buttons.push(newButton);
         }
-  
+
         return { ...prev, buttons };
       });
-  
+
       // Reset button details
       setButtonType(null);
       setButtonText("");
@@ -629,8 +648,6 @@ const TemplateCreationPage = () => {
       setwebsiteUrl("");
     }
   }, [buttonType, buttonText]);
-  
-  
 
   const removeButtonFromPreview = (index) => {
     var totalcount = TotalButtonCount;
@@ -782,7 +799,7 @@ const TemplateCreationPage = () => {
                           type="text"
                           name="templateName"
                           id="templateName"
-                          maxLength="50" 
+                          maxLength="50"
                           onChange={(e) => {
                             const value = e.target.value
                               .replace(/\s+/g, "_")
@@ -1191,9 +1208,12 @@ const TemplateCreationPage = () => {
                     ))}
 
                     <div className="w-full flex justify-end gap-3">
-                    <Button className="uniform_btn_Cancel " onClick={handelCancel}>
-                      Cancel
-                    </Button>
+                      <Button
+                        className="uniform_btn_Cancel "
+                        onClick={handelCancel}
+                      >
+                        Cancel
+                      </Button>
                       <Button
                         className="uniform_btn "
                         onClick={() => handleSubmit(values)}
@@ -1211,8 +1231,28 @@ const TemplateCreationPage = () => {
             </Formik>
           </Col>
 
-          <Col md={5} className="overflow-auto">
-            <div>
+          <Col
+            md={4}
+            className="overflow-hidden h-screen fixed right-10"
+            // style={{
+            //   position: "fixed", // Fix the position
+            //   top: "-20", // Adjust to your layout
+            //   right: "0", // Align to the right side of the screen
+            //   height: "100vh", // Full viewport height to ensure scrollability
+            //   overflowY: "auto", // Enable vertical scrolling
+            //   backgroundColor: "#f8f9fa", // Optional: background color for contrast
+            //   boxShadow: "0 0 10px rgba(0,0,0,0.1)", // Optional: Add shadow for emphasis
+            // }}
+          >
+            <div
+              style={{
+                position: "sticky",
+                top: "0",
+                zIndex: "10",
+                backgroundColor: "white", // Ensure the background color covers the content behind it
+                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+              }}
+            >
               <h4
                 className="mb-1 bg-light p-3 shadow-sm"
                 style={{ maxWidth: "600px", margin: "auto" }}
@@ -1297,9 +1337,6 @@ const TemplateCreationPage = () => {
                       }}
                     />
                   )}
-
-
-
                 {messagePreview.header && (
                   <h6
                     style={{ marginBottom: "5px" }}
@@ -1314,7 +1351,6 @@ const TemplateCreationPage = () => {
                     {messagePreview.footer}
                   </p>
                 )}
-
                 {(Showallbutton || TotalButtonCount <= 3) &&
                   messagePreview.buttons.map((button, index) => (
                     <Button
@@ -1334,7 +1370,6 @@ const TemplateCreationPage = () => {
                       {button.type == 1 && (
                         <span style={{ color: "#00a9ee" }}>
                           <i className="fa fa-share fa-flip-horizontal me-2"></i>
-
                           {button.text || "Button"}
                         </span>
                       )}
