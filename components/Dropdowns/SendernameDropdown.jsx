@@ -17,7 +17,7 @@ const refreshDropdown = () =>{
     dispatch(fetchSendernamesDrop({ clientId: localStorage.getItem("clientId") }));
     return () => {
        dispatch(clearSendernameDropState());
-       refreshDropdown()
+       //refreshDropdown()
     };
   }, [dispatch]);
 

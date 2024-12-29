@@ -19,29 +19,30 @@ import { sidebarItems } from '@/utils/sidebarItems';
 function MyApp({ Component, pageProps }) {
     const [permissions, setPermissions] = useState([]);
     const router = useRouter();
-
-
-
     const isAuthenticated =
     typeof window !== "undefined" &&
     localStorage.getItem("accessToken") &&
     localStorage.getItem("tokenexpiry") &&
     new Date() < new Date(localStorage.getItem("tokenexpiry"));
 
+
+   //------------------------------------//----permission logic to be disscussed------------------------------//--------------------------------
+  
   useEffect(() => {
     if (!isAuthenticated) {
+      debugger
       if (router.pathname !== "/auth/login") {
         router.push("/auth/login");
       }
     } else {
       if (router.pathname === "/" || router.pathname === "/auth/login" || router.pathname === "/Dashboard") {
-        const permissionData = localStorage.getItem("permission");
+        const permissionData =  localStorage.getItem("permission");
         const permissionJson = permissionData ? JSON.parse(permissionData) : [];
   
-       if (permissionJson.length > 0) {
+       if (permissions.length > 0) {
                  // Find the first matching permission task name in sidebarItems
                  const matchingItem = sidebarItems.find((item) =>
-                   permissionJson.some(
+                  permissions.some(
                      (permission) =>
                        permission.permissionTaskName.toLowerCase() === item.text.toLowerCase() &&
                        permission.canView // Ensure the permission allows viewing
@@ -78,37 +79,39 @@ function MyApp({ Component, pageProps }) {
     const basePath = router.pathname.split('/')[1]?.toLowerCase().replace(' ', ''); // Extract base module (e.g., 'clients')
     const currentAction = router.pathname.split('/')[2]?.toLowerCase().replace(' ', ''); // Extract subpath (e.g., 'createclient', 'list')
 
-    useEffect(() => {
+
+    //------------------------------------//----permission logic to be disscussed------------------------------//--------------------------------
+    // useEffect(() => {
       
-        // Skip permission check for auth/login page
-        if (router.pathname === '/auth/login') {
-            return; // Do not check permissions for the login page
-        }
+    //     // Skip permission check for auth/login page
+    //     if (router.pathname === '/auth/login') {
+    //         return; // Do not check permissions for the login page
+    //     }
 
         
-        const isCreateAction = currentAction?.includes('create'); // Check if the subpath includes 'create'
+    //     const isCreateAction = currentAction?.includes('create'); // Check if the subpath includes 'create'
 
-        const hasPermission = permissions.some((perm) => {
-            if (isCreateAction) {
-                return (
-                    perm.permissionTaskName.toLowerCase().replace(' ', '') === basePath &&
-                    perm.canCreate
-                );
-            } else {
-                return (
-                    perm.permissionTaskName.toLowerCase().replace(' ', '') === basePath &&
-                    perm.canView
-                );
-            }
-        });
-        if (router.pathname.toLowerCase().indexOf("test")>-1 || router.pathname.toLowerCase().indexOf("flows")>-1) 
-          {
+    //     const hasPermission = permissions.some((perm) => {
+    //         if (isCreateAction) {
+    //             return (
+    //                 perm.permissionTaskName.toLowerCase().replace(' ', '') === basePath &&
+    //                 perm.canCreate
+    //             );
+    //         } else {
+    //             return (
+    //                 perm.permissionTaskName.toLowerCase().replace(' ', '') === basePath &&
+    //                 perm.canView
+    //             );
+    //         }
+    //     });
+    //     if (router.pathname.toLowerCase().indexOf("test")>-1 || router.pathname.toLowerCase().indexOf("flows")>-1) 
+    //       {
 
-          }
-        else if (!hasPermission && permissions.length > 0) {
-            router.push('/NotPermitted');
-        }
-    }, [permissions, router.pathname]);
+    //       }
+    //     else if (!hasPermission && permissions.length > 0) {
+    //         router.push('/NotPermitted');
+    //     }
+    // }, [permissions, router.pathname]);
 
     return (
         <Suspense fallback={<h1>Loading...</h1>}>

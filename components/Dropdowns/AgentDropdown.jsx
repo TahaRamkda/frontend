@@ -19,9 +19,8 @@ const AgentDropdown = ({ name, value, onChange }) => {
     dispatch(fetchAgentsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString, senderId:SenderId }));
     return () => {
       dispatch(cleaAgenDroptState());
-      refreshDropdown()
     };
-  }, [dispatch]);
+  }, [dispatch,searchString,SenderId]);
 
   useEffect(() => {
     if (selectRef.current) {

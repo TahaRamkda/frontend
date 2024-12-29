@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import RoleDropdown from '@/components/Dropdowns/RoleDropdown';
 import { fetchUser, clearUserState, deleteUser, fetchUserById, updateUser } from "@/slices/UserSlice";
 import showSweetAlert from "@/components/Sweetalert";
-
+import App from "@/components/App";
 const UserList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -23,13 +23,13 @@ const UserList = () => {
     { name: "Client ID", selector: (row) => row.clientId, sortable: true },
     { name: "User Name", selector: (row) => row.userName, sortable: true },
     { name: "Full Name", selector: (row) => row.fullName, sortable: true},
-    { name: "Is Active?", selector: (row) => (row.isActive ? t("Yes") : t("No")), sortable: true },
+    { name: "Is Active?", selector: (row) => (row.isActive ? "Yes" : "No"), sortable: true },
     {
       name: "Action",
       cell: (row) => (
         <>
-          <button onClick={() => handleDetailClick(row.userId)}>{Edit}</button>
-          <button onClick={() => handleDeleteClick(row.userId)}>{Delete}</button>
+          <button onClick={() => handleDetailClick(row.userId)}>Edit</button>
+          <button onClick={() => handleDeleteClick(row.userId)}>Delete</button>
         </>
       ),
     },
@@ -134,7 +134,7 @@ const UserList = () => {
   ), [filterText]);
 
   if (loading) {
-    return <p>{t("Loading...")}</p>;
+    return <p>Loading...</p>;
   }
 
   if (error) {
@@ -142,6 +142,7 @@ const UserList = () => {
   }
 
   return (
+    <App>
     <Col sm="12">
       <Card>
         <CardHeader className="pb-0 card-no-border">
@@ -167,7 +168,7 @@ const UserList = () => {
       </Card>
 
       <Modal isOpen={isModalOpen} toggle={() => setIsModalOpen(!isModalOpen)} style={{ maxWidth: "800px", width: "90%" }}>
-        <ModalHeader toggle={() => setIsModalOpen(!isModalOpen)}>{t(EditSenderDetails)}</ModalHeader>
+        <ModalHeader toggle={() => setIsModalOpen(!isModalOpen)}>EditSenderDetails</ModalHeader>
         <ModalBody>
           {userForm && (
             <Form onSubmit={handleUpdateSubmit}>
@@ -221,13 +222,14 @@ const UserList = () => {
                 </Col>
               </Row>
               <Button color="primary" type="submit">
-                {t(UpdateSender)}
+                UpdateSender
               </Button>
             </Form>
           )}
         </ModalBody>
       </Modal>
     </Col>
+    </App>
   );
 };
 

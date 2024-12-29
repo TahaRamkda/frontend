@@ -17,8 +17,8 @@ const refreshDropdown = () =>{
   useEffect(() => {
     dispatch(fetchGroupsDrop({ clientId: localStorage.getItem("clientId") , SearchStr:SearchStr}));
     return () => {
-      dispatch(clearGroupDropState());
-      refreshDropdown()
+      //dispatch(clearGroupDropState());
+      //refreshDropdown()
     };
   }, [dispatch]);
 
