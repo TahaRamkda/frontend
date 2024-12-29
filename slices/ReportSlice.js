@@ -1,16 +1,16 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { MESSAGEREPORT, MESSAGEREPORTSUMMARY, ACTIVECONVOLIST, AGENTSSTATUSLIST,DASHBOARDSUMMERY,TEMPLATEINSIGHT} from '@/utils/apiConstants';
+import { MESSAGEREPORT2, MESSAGEREPORT, ACTIVECONVOLIST, AGENTSSTATUSLIST,DASHBOARDSUMMARY,TEMPLATEINSIGHT} from '@/utils/apiConstants';
 
 // Thunks
 
 // Fetch Clients
-export const fetchMessageReport = createAsyncThunk(
-  'messagereport /fetchMessageReport',
+export const fetchMessageReport2 = createAsyncThunk(
+  'messagereport /fetchMessageReport2',
   async ({clientId, fromDate, toDate, status, templateId, srcStr, pageSize,pageNo}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${MESSAGEREPORT}?ClientId=${clientId}&FromDate=${fromDate}&ToDate=${toDate}&Status=${status}&templateId=${templateId}&PageSize=${pageSize}&PageNo=${pageNo}&SearchStr=${srcStr}`);
+      const response = await API.get(`${MESSAGEREPORT2}?ClientId=${clientId}&FromDate=${fromDate}&ToDate=${toDate}&Status=${status}&templateId=${templateId}&PageSize=${pageSize}&PageNo=${pageNo}&SearchStr=${srcStr}`);
       if (response?.status === 200 && response.data?.result) {
         return {
         messagereports: response.data.result,
@@ -28,17 +28,17 @@ export const fetchMessageReport = createAsyncThunk(
 );
 
 
-export const fetchMessageReportSummary = createAsyncThunk(
-    'messagereport /fetchMessageReportSummary',
-    async ({clientId, fromDate, toDate, status, senderid, srcStr, pageNo, pageSize}, { rejectWithValue }) => {
+export const fetchMessageReport = createAsyncThunk(
+    'messagereport /fetchMessageReport',
+    async ({clientId, fromDate, toDate,moduleId, status, senderid, srcStr, pageNo, pageSize}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${MESSAGEREPORTSUMMARY}?ClientId=${clientId}&SenderId=${senderid}&FromDate=${fromDate}&ToDate=${toDate}&CurrentStatus=${status}&SearchStr=${srcStr}&PageNo=${pageNo}&PageSize=${pageSize}`);  
+        const response = await API.get(`${MESSAGEREPORT}?ModuleId=${moduleId}&ClientId=${clientId}&SenderId=${senderid}&FromDate=${fromDate}&ToDate=${toDate}&CurrentStatus=${status}&SearchStr=${srcStr}&PageNo=${pageNo}&PageSize=${pageSize}`);  
         if (response?.status === 200 && response.data?.result) {
           const obj= JSON.stringify(response.data, 2);
          
           return {
             
-            messagereportsummary: response.data.result,
+            messagereport: response.data.result,
             totalRecords: response.data.result.length > 0 ? response.data.result[0].totalItems : 0,
           };
         } else {
@@ -57,7 +57,7 @@ export const fetchDashboardSummary = createAsyncThunk(
   async ({clientId, fromDate, toDate, senderid}, { rejectWithValue }) => {
     try {
      
-      const response = await API.get(`${DASHBOARDSUMMERY}?ClientId=${clientId}&SenderId=${senderid}&FromDate=${fromDate}&ToDate=${toDate}`);  
+      const response = await API.get(`${DASHBOARDSUMMARY}?ClientId=${clientId}&SenderId=${senderid}&FromDate=${fromDate}&ToDate=${toDate}`);  
       if (response?.status === 200 && response.data?.result) {
        // const parseddata= JSON.parse(response.data, 2);
        
@@ -153,8 +153,8 @@ export const fetchAgentStatus = createAsyncThunk(
 const MessageReportSlice = createSlice({
   name: 'messagereport',
   initialState: {
-    messagereports: [],
-    messagereportsummary: [],
+    messagereports2: [],
+    messagereport: [],
     templateInsight: [],
     activeconvo: [],
     agentstatus:[],
@@ -177,7 +177,7 @@ const MessageReportSlice = createSlice({
       state.currentPage = action.payload;
     },
     clearMessageReportState: (state) => {
-      state.messagereports = [];
+      state.messagereport = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -201,8 +201,8 @@ const MessageReportSlice = createSlice({
       state.success = false;
      
     },
-    clearMessageReportState: (state) => {
-      state.messagereports = [];
+    clearMessageReport2State: (state) => {
+      state.messagereports2 = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -212,8 +212,8 @@ const MessageReportSlice = createSlice({
       state.totalRecords = 0;
     },
     
-    clearMessageReportSummaryState: (state) => {
-        state.messagereportsummary = [];
+    clearMessageReportState: (state) => {
+        state.messagereport = [];
         state.loading = false;
         state.error = null;
         state.success = false;
@@ -246,7 +246,7 @@ const MessageReportSlice = createSlice({
       })
       .addCase(fetchMessageReport.fulfilled, (state, action) => {
         state.loading = false;
-        state.messagereports = action.payload.messagereports;
+        state.messagereport = action.payload.messagereport;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || '';
@@ -258,25 +258,25 @@ const MessageReportSlice = createSlice({
       })
 
       // Fetch Message Report Summary
-      .addCase(fetchMessageReportSummary.pending, (state) => {
+      .addCase(fetchMessageReport2.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchMessageReportSummary.fulfilled, (state, action) => {
+      .addCase(fetchMessageReport2.fulfilled, (state, action) => {
         state.loading = false;
-        state.messagereportsummary = action.payload.messagereportsummary;
+        state.messagereport2 = action.payload.messagereport2;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || '';
       })
-      .addCase(fetchMessageReportSummary.rejected, (state, action) => {
+      .addCase(fetchMessageReport2.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
     
 
-      //dashboard summery
+      //dashboard summary
 
       .addCase(fetchDashboardSummary.pending, (state) => {
         state.loading = true;
@@ -355,8 +355,8 @@ export const {
   clearDashboardReportState,
   clearTemplateInsightState,
   clearAgentStatuState,
+  clearMessageReport2State,
   clearMessageReportState,
-  clearMessageReportSummaryState,
 } = MessageReportSlice.actions;
 
 export default MessageReportSlice.reducer;

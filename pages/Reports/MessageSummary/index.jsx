@@ -30,7 +30,7 @@ const Messagereports = () => {
   useEffect(() => {
     if (clientId) {
       
-      dispatch(fetchMessageReport({ clientId: clientId, fromDate: fromDate, toDate: toDate, status: status, templateId: templateId, srcStr: srcStr, pageSize, pageNo: currentPage }));
+      dispatch(fetchMessageReport2({ clientId: clientId, fromDate: fromDate, toDate: toDate, status: status, templateId: templateId, srcStr: srcStr, pageSize, pageNo: currentPage }));
     }
     return () => {
       dispatch(clearMessageReportState());
@@ -57,19 +57,19 @@ const Messagereports = () => {
   const handlePageSizeChange = async (newSize) => {
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to the first page
-    await dispatch(fetchMessageReport({
+    await dispatch(fetchMessageReport2({
       clientId, fromDate, toDate, status, templateId, srcStr, pageSize: newSize, pageNo: 1
     }));
   };
 
   const handlePageChange = async (page) => {
     dispatch(setCurrentPage(page));
-    await dispatch(fetchMessageReport({
+    await dispatch(fetchMessageReport2({
       clientId, fromDate, toDate, status, templateId, srcStr, pageSize, pageNo: page
     }));
   };
 
-  const reportColumns = [
+  const report2Columns = [
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
     { name: "Schedule Time", selector: (row) => row.scheduleTime, sortable: true },
   ];
@@ -131,8 +131,8 @@ const Messagereports = () => {
       </div>
       <div className="table-responsive categories_table ">
         <DataTable
-          data={messagereports}
-          columns={reportColumns}
+          data={messagereports2}
+          columns={report2Columns}
           highlightOnHover
           striped
           pagination
