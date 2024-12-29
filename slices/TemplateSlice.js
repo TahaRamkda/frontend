@@ -1,7 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import API from '../utils/api.axios';
-import handleError from '../utils/handleError';
-import { TEMPLATELIST, TEMPLATEDETAILS, CREATETEMPLATE, UPDATETEMPLATE, DELETETEMPLATE,SYNCTEMPLATE,TEMPLATEDROPDOWN } from '@/utils/apiConstants';
+import API from "../utils/api.axios";
+import handleError from "../utils/handleError";
+import {
+  TEMPLATELIST,
+  TEMPLATEDETAILS,
+  CREATETEMPLATE,
+  UPDATETEMPLATE,
+  DELETETEMPLATE,
+  SYNCTEMPLATE,
+  TEMPLATEDROPDOWN,
+} from "@/utils/apiConstants";
 
 // Thunks
 
@@ -14,10 +22,11 @@ export const fetchTemplates = createAsyncThunk(
       if (response?.status === 200 && response.data?.result) {
         return {
           templates: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
+          totalRecords:
+            response.data.result.length > 0 ? response.data.result[0].total : 0,
         };
       } else {
-        throw new Error('Failed to fetch details');
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -26,20 +35,23 @@ export const fetchTemplates = createAsyncThunk(
   }
 );
 export const fetchTemplatesDrop = createAsyncThunk(
-  
-  'template/fetchTemplatesDrop',
-  
-  async ({clientId,TransactionType}, { rejectWithValue }) => {
+  "template/fetchTemplatesDrop",
+
+  async ({ clientId, TransactionType }, { rejectWithValue }) => {
     try {
-      
-      const response = await API.get(`${TEMPLATEDROPDOWN}?ClientId=${clientId}&transactionType=${TransactionType ?  TransactionType: 0}`);
+      const response = await API.get(
+        `${TEMPLATEDROPDOWN}?ClientId=${clientId}&transactionType=${
+          TransactionType ? TransactionType : 0
+        }`
+      );
       if (response?.status === 200 && response.data?.result) {
         return {
           templateDrop: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
+          totalRecords:
+            response.data.result.length > 0 ? response.data.result[0].total : 0,
         };
       } else {
-        throw new Error('Failed to fetch details');
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -49,11 +61,13 @@ export const fetchTemplatesDrop = createAsyncThunk(
 );
 
 // Fetch Template by ID
-export const  fetchTemplatesById = createAsyncThunk(
-  'template/fetchTemplatesById',
-  async ({templateId,ClientId}, { rejectWithValue }) => {
+export const fetchTemplatesById = createAsyncThunk(
+  "template/fetchTemplatesById",
+  async ({ templateId, ClientId }, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${TEMPLATEDETAILS}?Id=${templateId}&ClientId=${ClientId}`);
+      const response = await API.get(
+        `${TEMPLATEDETAILS}?Id=${templateId}&ClientId=${ClientId}`
+      );
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -64,7 +78,7 @@ export const  fetchTemplatesById = createAsyncThunk(
 
 // Create Template
 export const createTemplates = createAsyncThunk(
-  'template/createTemplates',
+  "template/createTemplates",
   async (templateData, { rejectWithValue }) => {
     try {
       const response = await API.post(CREATETEMPLATE, templateData);
@@ -78,7 +92,7 @@ export const createTemplates = createAsyncThunk(
 
 // Create Template
 export const syncTemplates = createAsyncThunk(
-  'template/syncTemplates',
+  "template/syncTemplates",
   async (templateData, { rejectWithValue }) => {
     try {
       const response = await API.post(SYNCTEMPLATE, templateData);
@@ -90,10 +104,9 @@ export const syncTemplates = createAsyncThunk(
   }
 );
 
-
 // Update Template
 export const updateTemplates = createAsyncThunk(
-  'template/updateTemplates',
+  "template/updateTemplates",
   async (templateData, { rejectWithValue }) => {
     try {
       const response = await API.put(UPDATETEMPLATE, templateData);
@@ -107,7 +120,7 @@ export const updateTemplates = createAsyncThunk(
 
 // Delete Template
 export const deleteTemplates = createAsyncThunk(
-  'template/deleteTemplate',
+  "template/deleteTemplate",
   async ({ templateId }, { rejectWithValue }) => {
     try {
       const response = await API.delete(`${DELETETEMPLATE}?Id=${templateId}`);
@@ -121,15 +134,15 @@ export const deleteTemplates = createAsyncThunk(
 
 // Slice
 const templateSlice = createSlice({
-  name: 'template',
+  name: "template",
   initialState: {
     templates: [],
-    templateDrop:[],
+    templateDrop: [],
     template: null,
     loading: false,
     error: null,
     success: false,
-    message: '',
+    message: "",
     currentPage: 1,
     totalPages: 1,
     pageSize: 10,
@@ -190,7 +203,7 @@ const templateSlice = createSlice({
         state.templates = action.payload.templates;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
-        state.message = action.payload.message || '';
+        state.message = action.payload.message || "";
       })
       .addCase(fetchTemplates.rejected, (state, action) => {
         state.loading = false;
@@ -206,14 +219,14 @@ const templateSlice = createSlice({
         state.loading = false;
         state.templateDrop = action.payload.templateDrop;
         state.totalRecords = action.payload.totalRecords;
-        state.message = action.payload.message || '';
+        state.message = action.payload.message || "";
       })
       .addCase(fetchTemplatesDrop.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
-      
+
       // Fetch Template by ID
       .addCase(fetchTemplatesById.pending, (state) => {
         state.loading = true;
@@ -222,7 +235,7 @@ const templateSlice = createSlice({
       .addCase(fetchTemplatesById.fulfilled, (state, action) => {
         state.loading = false;
         state.template = action.payload.result;
-        state.message = action.payload?.message || '';
+        state.message = action.payload?.message || "";
       })
       .addCase(fetchTemplatesById.rejected, (state, action) => {
         state.loading = false;
@@ -239,7 +252,7 @@ const templateSlice = createSlice({
       .addCase(createTemplates.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Created Successfully';
+        state.message = action.payload.message || "Created Successfully";
       })
       .addCase(createTemplates.rejected, (state, action) => {
         state.loading = false;
@@ -256,7 +269,7 @@ const templateSlice = createSlice({
       .addCase(updateTemplates.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Updated Successfully';
+        state.message = action.payload.message || "Updated Successfully";
       })
       .addCase(updateTemplates.rejected, (state, action) => {
         state.loading = false;
@@ -273,7 +286,7 @@ const templateSlice = createSlice({
       .addCase(deleteTemplates.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Deleted Successfully';
+        state.message = action.payload.message || "Deleted Successfully";
       })
       .addCase(deleteTemplates.rejected, (state, action) => {
         state.loading = false;

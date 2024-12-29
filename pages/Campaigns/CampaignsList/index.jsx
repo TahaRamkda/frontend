@@ -6,15 +6,15 @@ import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import Loader from '@/components/Loader';
 import showSweetAlert from "@/components/Sweetalert";
 import App from "@/components/App";
-import { useRouter } from 'next/router';  // Correct import
-import DataTable from 'react-data-table-component';
+import { useRouter } from "next/router"; // Correct import
+import DataTable from "react-data-table-component";
 import Loading from "@/components/Loader";
 import { HiPencilAlt, HiTrash, HiLightningBolt, HiClock, } from "react-icons/hi";
 import { MdGroupRemove } from "react-icons/md";
 
-import { useSetRecoilState } from 'recoil';
-import { CampaignState } from '@/components/recoil';
-import LastContactedList from '../Contacted';
+import { useSetRecoilState } from "recoil";
+import { CampaignState } from "@/components/recoil";
+import LastContactedList from "../Contacted";
 
 const CampaignsList = () => {
   const dispatch = useDispatch();
@@ -33,7 +33,8 @@ const CampaignsList = () => {
   const [CampaignId, setCampaignId] = useState(null);
   const [CampaignForm, setCampaignForm] = useState({});
 
-  const { campaigns, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.campaigns);
+  const { campaigns, loading, error, currentPage, pageSize, totalRecords } =
+    useSelector((state) => state.campaigns);
   const [clientId, setClientId] = useState(null);
   const setCampaignsId = useSetRecoilState(CampaignState);
 
@@ -50,7 +51,7 @@ const CampaignsList = () => {
         PageNo: currentPage,
       })
     );
-  }
+  };
 
 
   const handleTemplateChange = (e) => {
@@ -64,12 +65,12 @@ const CampaignsList = () => {
 
   const HandleUpdateCampaign = (CampaignId) => {
     setCampaignsId(CampaignId);
-    router.push('/Campaigns/UpdateCampaign');
+    router.push("/Campaigns/UpdateCampaign");
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setClientId(localStorage.getItem('clientId'));
+    if (typeof window !== "undefined") {
+      setClientId(localStorage.getItem("clientId"));
     }
   }, []);
 
@@ -149,17 +150,25 @@ const CampaignsList = () => {
     e.preventDefault();
     try {
       const requestBody = {
-        clientId:localStorage.getItem('clientId'),
+        clientId: localStorage.getItem("clientId"),
         campaignId: CampaignId,
         scheduleDate: CampaignForm.scheduleDate,
       };
 
       const response = await dispatch(activateCampaign(requestBody)).unwrap();
       if (response.success) {
-        showSweetAlert({ title: "Updated Successfully", text: "", icon: "success" });
+        showSweetAlert({
+          title: "Updated Successfully",
+          text: "",
+          icon: "success",
+        });
         setIsModalOpen(false);
       } else {
-        showSweetAlert({ title: "Error", text: response.message, icon: "error" });
+        showSweetAlert({
+          title: "Error",
+          text: response.message,
+          icon: "error",
+        });
       }
     } catch (error) {
       showSweetAlert({ title: "Failed", text: error.message, icon: "error" });
@@ -168,14 +177,26 @@ const CampaignsList = () => {
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US');
+    return date.toLocaleDateString("en-US");
   };
 
   const campaignColumns = [
-    { name: "Campaign Name", selector: (row) => row.campaignName, sortable: true },
-    { name: "Schedule Date", selector: (row) => row.scheduleDate, sortable: true },
+    {
+      name: "Campaign Name",
+      selector: (row) => row.campaignName,
+      sortable: true,
+    },
+    {
+      name: "Schedule Date",
+      selector: (row) => row.scheduleDate,
+      sortable: true,
+    },
     { name: "Status", selector: (row) => row.statusName, sortable: true },
-    { name: "Total Contacts", selector: (row) => row.totalContacts, sortable: true },
+    {
+      name: "Total Contacts",
+      selector: (row) => row.totalContacts,
+      sortable: true,
+    },
     { name: "Sent Count", selector: (row) => row.sentCount, sortable: true },
     { name: "Failed Count", selector: (row) => row.failedCount, sortable: true },
     { name: "Delivered Count", selector: (row) => row.deliveredCount, sortable: true },
