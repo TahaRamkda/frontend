@@ -12,16 +12,10 @@ const SendernameDropdown = ({ name, value, onChange, error }) => {
   const { sendernameDrop, loading, error: fetchError } = useSelector((state) => state.sendernames);
   const selectRef = useRef(null);
   const [selectedSenderId, setSelectedSenderId] = useState([]);
-const refreshDropdown = () =>{
-  dispatch(fetchSendernamesDrop({ clientId: localStorage.getItem("clientId") }));
-      }
+
   useEffect(() => {
     dispatch(fetchSendernamesDrop({ clientId: localStorage.getItem("clientId") }));
-    return () => {
-      // Clean up the select2 instance when the component unmounts
-       dispatch(clearSendernameDropState());
-       refreshDropdown()
-    };
+    
   }, [dispatch]);
 
   // Notify parent of selected group changes

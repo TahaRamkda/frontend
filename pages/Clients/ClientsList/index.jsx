@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input } from "reactstrap";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
 import {
   fetchClients,
@@ -161,7 +162,10 @@ const ClientList = () => {
     client.clientName.toLowerCase().includes(filterText.toLowerCase())
   );
   const totalPages = Math.ceil(totalRecords / pageSize);
-
+  const toggleModal = () => {
+   
+    setIsModalOpen(false);
+  };
   
 
   const handleCreate = () => {
@@ -170,8 +174,9 @@ const ClientList = () => {
 
   const subHeaderComponentMemo = useMemo(() => {
     return (
-      <div className="flex justify-between w-full ">
-         <div className="justify-start ">
+      <div className="w-full">
+        <div className="grid grid-cols-5 gap-4">
+         <div className="flex flex-col space-y-1 text-start mb-1 ">
          <label className="mr-1">Search Clients</label>
          <input
           type="search"
@@ -181,11 +186,6 @@ const ClientList = () => {
           placeholder="Search Client Name"
         />
         </div>
-        <div className="mt-2">
-        
-        <button className="uniform_btn" onClick={handleCreate}>
-          Create Client
-        </button>
         </div>
         
       </div>
@@ -201,11 +201,17 @@ const ClientList = () => {
   return (
     <App>
     <div className="">
-      
-      <div className="flex">
-          {loading && <Loading />}
-        <h4 className=" font-bold ">Clients List</h4>
-      </div>
+    <div className="flex items-center">
+  {loading && <Loading />}
+  <div className=''>
+  <h4 className="font-bold">Groups List</h4>
+  </div>
+  <div className="ml-auto mb-1">
+  <button className="uniform_btn" onClick={handleCreate}>
+          Create Client
+        </button>
+  </div>
+</div>
 
       <div className="overflow-auto">
             <DataTable

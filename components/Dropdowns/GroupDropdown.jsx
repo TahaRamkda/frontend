@@ -11,15 +11,10 @@ const GroupDropdown = ({ name, value, onChange }) => {
   const selectRef = useRef(null); 
   const { groupDrop, loading, error } = useSelector((state) => state.groups);
   const [SearchStr, setSearchStr] = useState("")
-const refreshDropdown = () =>{
-  dispatch(fetchGroupsDrop({ clientId: localStorage.getItem("clientId") , SearchStr:SearchStr}));
-}
+
   useEffect(() => {
     dispatch(fetchGroupsDrop({ clientId: localStorage.getItem("clientId") , SearchStr:SearchStr}));
-    return () => {
-      //dispatch(clearGroupDropState());
-      //refreshDropdown()
-    };
+    
   }, [dispatch]);
 
   useEffect(() => {

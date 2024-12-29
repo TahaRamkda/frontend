@@ -13,16 +13,11 @@ export const GroupsDropdown = ({ onChange }) => {
   const selectRef = useRef(null);
   const [SearchStr, setSearchStr] = useState("")
 
-  const refreshDropdown = () =>{
-    dispatch(fetchRolesDrop({ clientId: localStorage.getItem("clientId") , SearchStr:SearchStr}));
-      }
+ 
   // Fetch groups when the component mounts
   useEffect(() => {
      dispatch(fetchRolesDrop({ clientId: localStorage.getItem("clientId") , SearchStr:SearchStr}));
-     return () => {
-    dispatch(clearRoleDropState());
-    refreshDropdown()
-     };
+    
    }, [dispatch]);
  
 

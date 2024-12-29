@@ -30,19 +30,23 @@ const SendernameList = () => {
 
   const sendernameColumns = [   
     {
-      name: "",
+      name: "Sender Name",
       selector: (row) => row.mediaPath, // Assuming mediaPath is the field in your data
       cell: (row) => (
+        <div className="flex flex-row items-center gap-2 text-center">
         <img
-        src={`${BASE_URL}${row.mediaPath}`}
+          src={`${BASE_URL}${row.mediaPath}`}
           alt="Image"
           className="w-12 h-12 object-cover rounded-lg"
-          
         />
+        <div className="flex items-center">
+          <span>{row.senderName}</span>
+        </div>
+      </div>
+      
       ),
       sortable: false, // Disable sorting for images if not needed
-    },,
-    { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
+    },
     { name: "Client Name", selector: (row) => row.clientName, sortable: true },
     {
       name: "Phone Number",

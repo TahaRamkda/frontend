@@ -12,15 +12,11 @@ const AgentDropdown = ({ name, value, onChange }) => {
   const { agentDrop, loading, error } = useSelector((state) => state.agents);
  const [searchString, setsearchString] = useState("")
  const [SenderId,setSenderId] = useState(0)
- const refreshDropdown = () =>{
-  dispatch(fetchAgentsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString, senderId:SenderId }));
- }
+ 
   useEffect(() => {
     dispatch(fetchAgentsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString, senderId:SenderId }));
-    return () => {
-      dispatch(cleaAgenDroptState());
-    };
-  }, [dispatch,searchString,SenderId]);
+    
+  }, [dispatch]);
 
   useEffect(() => {
     if (selectRef.current) {

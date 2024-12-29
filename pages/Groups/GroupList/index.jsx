@@ -4,7 +4,7 @@ import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input } from "reactstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchGroup, clearGroupState, deleteGroup, fetchGroupById, updateGroup,setPageSize, setCurrentPage } from "@/slices/GroupSlice";
+import { fetchGroup, clearGroupState, deleteGroup, fetchGroupById, updateGroup,setPageSize, setCurrentPage } from "@/slices/Groupslice";
 import showSweetAlert from "@/components/Sweetalert"; 
 import Loading from "@/components/Loader";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";

@@ -14,16 +14,9 @@ const AgentsDropdown = ({ name, value, onChange }) => {
  const [searchString, setsearchString] = useState("")
  const [SenderId,setSenderId] = useState(0)
 
-const refreshDropdown = () =>{
-  dispatch(fetchAgentsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString, senderId:SenderId }));
-  }
   useEffect(() => {
     dispatch(fetchAgentsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString, senderId:SenderId }));
-    return () => {
-       dispatch(cleaAgenDroptState());
-       refreshDropdown()
-       
-    };
+    
   }, [dispatch]);
 
    // Notify parent of selected client changes

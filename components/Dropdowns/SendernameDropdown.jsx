@@ -10,15 +10,10 @@ const SendernameDropdown = ({ name, value, onChange, error ,disabled}) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
   const { sendernameDrop, loading, error: fetchError } = useSelector((state) => state.sendernames);
-const refreshDropdown = () =>{
-  dispatch(fetchSendernamesDrop({ clientId: localStorage.getItem("clientId") }));
- }
+
   useEffect(() => {
     dispatch(fetchSendernamesDrop({ clientId: localStorage.getItem("clientId") }));
-    return () => {
-       dispatch(clearSendernameDropState());
-       //refreshDropdown()
-    };
+   
   }, [dispatch]);
 
   useEffect(() => {

@@ -10,15 +10,10 @@ const RoleDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null); 
   const { roleDrop, loading, error } = useSelector((state) => state.roles);
- const refreshDropdown = () =>{
-  dispatch(fetchRolesDrop({clientId: localStorage.getItem("clientId") }));
- }
+ 
   useEffect(() => {
     dispatch(fetchRolesDrop({clientId: localStorage.getItem("clientId") }));
-    return () => {
-       dispatch(clearRoleDropState());
-       refreshDropdown()
-    };
+   
   }, [dispatch]);
 
   useEffect(() => {
