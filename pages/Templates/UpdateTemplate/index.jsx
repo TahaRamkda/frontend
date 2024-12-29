@@ -190,14 +190,14 @@ const TemplateUpdatePage = () => {
         }
       });
     }
- if(template.buttonValues){
-  const updatedButtons = [...updatedMessagePreview.buttons];
-  updatedButtons.websiteUrl = template.buttonValues.url;
-  updatedButtons.urlveriable = template.buttonValues;
-  updatedButtons.urlveriablevalue = template.buttonValues;
-  updatedButtons.urlverindex = template.buttonValues;
-  setMessagePreview({ ...messagePreview, buttons: updatedButtons });
- }
+    if (template.buttonValues) {
+      const updatedButtons = [...updatedMessagePreview.buttons];
+      updatedButtons.websiteUrl = template.buttonValues.url;
+      updatedButtons.urlveriable = template.buttonValues;
+      updatedButtons.urlveriablevalue = template.buttonValues;
+      updatedButtons.urlverindex = template.buttonValues;
+      setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+    }
     setSelectedSenderId(template.senderId);
     setTemplatetype(template.category);
     setlanguage(template.language);
@@ -619,7 +619,8 @@ const TemplateUpdatePage = () => {
       } else if (type === "3") {
         setButtonText("Visit Website");
         setVisitWebsiteButtonCount(
-          messagePreview.buttons.filter((button) => button.type === "3").length + 1
+          messagePreview.buttons.filter((button) => button.type === "3")
+            .length + 1
         );
         setTotalButtonCount((prev) => prev + 1);
       } else {
@@ -627,7 +628,7 @@ const TemplateUpdatePage = () => {
       }
     }
   };
-  
+
   useEffect(() => {
     if (buttonType) {
       const newButton = {
@@ -637,27 +638,28 @@ const TemplateUpdatePage = () => {
         countryCode: buttonType === "2" ? countryCode : "",
         websiteUrl: buttonType === "3" ? websiteUrl : null,
       };
-  
+
       setMessagePreview((prev) => {
         const buttons = [...prev.buttons];
-  
+
         if (newButton.type === "1") {
           // Find the index of the last type `1` button
           const lastType1Index = buttons.reduce(
-            (lastIndex, button, index) => (button.type === "1" ? index : lastIndex),
+            (lastIndex, button, index) =>
+              button.type === "1" ? index : lastIndex,
             -1
           );
-  
+
           // Insert the new type `1` button right after the last type `1` button
           buttons.splice(lastType1Index + 1, 0, newButton);
         } else {
           // Add type `2` or `3` buttons at the end
           buttons.push(newButton);
         }
-  
+
         return { ...prev, buttons };
       });
-  
+
       // Reset button details
       setButtonType(null);
       setButtonText("");
@@ -1251,7 +1253,7 @@ const TemplateUpdatePage = () => {
                         </Button>
                       </div>
                     ))}
-                   
+
                     <div className="w-full text-end">
                       <Button
                         className="uniform_btn mt-4 "

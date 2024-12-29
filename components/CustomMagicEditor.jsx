@@ -34,7 +34,7 @@ const CustomMagicEditor = ({
 
   useEffect(() => {
     if (existingContent !== content && existingContent !== undefined) {
-     alert(existingContent)
+      //alert(existingContent)
       setContent(existingContent); // Set header content for editing
     }
     if (
@@ -188,26 +188,26 @@ const CustomMagicEditor = ({
 
   const handleBodyChange = (e) => {
     const newValue = e.target.value;
-  
+
     // Extract all variable placeholders like {{1}}, {{2}}, etc.
     const existingPlaceholders = bodyContent.match(/\{\{\d+\}\}/g) || [];
     const newPlaceholders = newValue.match(/\{\{\d+\}\}/g) || [];
-  
+
     // Check for removed placeholders
     const removedPlaceholders = existingPlaceholders.filter(
       (placeholder) => !newPlaceholders.includes(placeholder)
     );
-  
+
     if (removedPlaceholders.length > 0) {
       toast.error("You cannot remove existing variable placeholders.");
       return; // Prevent state update
     }
-  
+
     // Check for duplicates in the new content
     const duplicates = newPlaceholders.filter(
       (placeholder, index) => newPlaceholders.indexOf(placeholder) !== index
     );
-  
+
     // Check if the user has moved an existing placeholder to a position where it already exists
     const hasInvalidChange = newPlaceholders.some((placeholder) => {
       return (
@@ -216,37 +216,37 @@ const CustomMagicEditor = ({
           existingPlaceholders.indexOf(placeholder)
       );
     });
-  
+
     if (duplicates.length > 0 || hasInvalidChange) {
       toast.error("You cannot change the variable placeholders in the body.");
       return; // Do not update the state
     }
-  
+
     // Update the body content if validation passes
     setBodyContent(newValue);
   };
   const handleHeadChange = (e) => {
     const newValue = e.target.value;
-  
+
     // Extract all variable placeholders like {{1}}, {{2}}, etc.
     const existingPlaceholders = content.match(/\{\{\d+\}\}/g) || [];
     const newPlaceholders = newValue.match(/\{\{\d+\}\}/g) || [];
-  
+
     // Check for removed placeholders
     const removedPlaceholders = existingPlaceholders.filter(
       (placeholder) => !newPlaceholders.includes(placeholder)
     );
-  
+
     if (removedPlaceholders.length > 0) {
       toast.error("You cannot remove existing variable placeholders.");
       return; // Prevent state update
     }
-  
+
     // Check for duplicates in the new content
     const duplicates = newPlaceholders.filter(
       (placeholder, index) => newPlaceholders.indexOf(placeholder) !== index
     );
-  
+
     // Check if the user has moved an existing placeholder to a position where it already exists
     const hasInvalidChange = newPlaceholders.some((placeholder) => {
       return (
@@ -255,12 +255,12 @@ const CustomMagicEditor = ({
           existingPlaceholders.indexOf(placeholder)
       );
     });
-  
+
     if (duplicates.length > 0 || hasInvalidChange) {
       toast.error("You cannot change the variable placeholders in the body.");
       return; // Do not update the state
     }
-  
+
     // Update the body content if validation passes
     setContent(newValue);
   };
@@ -395,7 +395,7 @@ const CustomMagicEditor = ({
                     }}
                   >
                     <FaTimes
-                       onClick={() => removeHeaderVariable(index)} // Handle variable removal
+                      onClick={() => removeHeaderVariable(index)} // Handle variable removal
                       style={{
                         cursor: "pointer",
                         color: "red",

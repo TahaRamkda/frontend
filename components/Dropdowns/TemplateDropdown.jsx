@@ -1,44 +1,48 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import $ from 'jquery';
-import 'select2/dist/css/select2.min.css';
-import 'select2/dist/js/select2.min.js';
-import { fetchTemplatesDrop, clearTemplateDropState } from "@/slices/TemplateSlice";
-import { FormGroup, Label, Input, FormText } from 'reactstrap';
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import $ from "jquery";
+import "select2/dist/css/select2.min.css";
+import "select2/dist/js/select2.min.js";
+import {
+  fetchTemplatesDrop,
+  clearTemplateDropState,
+} from "@/slices/TemplateSlice";
+import { FormGroup, Label, Input, FormText } from "reactstrap";
 
-const TemplateDropdown = ({ name, value, onChange , TransactionType }) => {
+const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
   const dispatch = useDispatch();
-  const selectRef = useRef(null); 
-  const { templateDrop, loading, error } = useSelector((state) => state.templates);
-  const [transactionType, settransactionType] =useState(0)
-
-
+  const selectRef = useRef(null);
+  const { templateDrop, loading, error } = useSelector(
+    (state) => state.templates
+  );
+  const [transactionType, settransactionType] = useState(0);
 
   useEffect(() => {
-    
-  if(TransactionType){
-    settransactionType(TransactionType)
-  }
+    if (TransactionType) {
+      settransactionType(TransactionType);
+    }
   }, [TransactionType]);
 
   useEffect(() => {
-    dispatch(fetchTemplatesDrop({ clientId: localStorage.getItem("clientId"), TransactionType: transactionType }));
+    dispatch(
+      fetchTemplatesDrop({
+        clientId: localStorage.getItem("clientId"),
+        TransactionType: transactionType,
+      })
+    );
     return () => {
       dispatch(clearTemplateDropState());
     };
-  }, [dispatch,transactionType]);
-
-
- 
+  }, [dispatch, transactionType]);
 
   useEffect(() => {
     if (selectRef.current) {
       $(selectRef.current).select2({
-        placeholder: 'Select',
+        placeholder: "Select",
         allowClear: true,
       });
 
-      $(selectRef.current).on('change', (e) => {
+      $(selectRef.current).on("change", (e) => {
         let selectedValue = e.target.value;
         if (!selectedValue) {
           selectedValue = "0";
@@ -49,10 +53,10 @@ const TemplateDropdown = ({ name, value, onChange , TransactionType }) => {
 
     return () => {
       if (selectRef.current) {
-        $(selectRef.current).off('change');
+        $(selectRef.current).off("change");
       }
     };
-  }, [ templateDrop, onChange]);
+  }, [templateDrop, onChange]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
@@ -64,7 +68,7 @@ const TemplateDropdown = ({ name, value, onChange , TransactionType }) => {
         innerRef={selectRef}
         name={name}
         value={value}
-        onChange={onChange}      
+        onChange={onChange}
         required
       >
         <option value="0">Select</option>

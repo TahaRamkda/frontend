@@ -379,7 +379,6 @@ const TemplateCreationPage = () => {
 
 
   const removeHeaderVariable = (index) => {
-    debugger
     //alert(bodyPayloadDatawithVar)
     const updatedVariables = headerVariable.filter((_, i) => i !== index);
     const updatedHeadContent = headerPayloadDatawithVar
