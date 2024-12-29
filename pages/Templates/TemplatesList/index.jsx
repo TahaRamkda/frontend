@@ -1,32 +1,10 @@
 import React, { useMemo, useState, useEffect } from "react";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Col,
-  Input,
-  Label,
-  Alert,
-  Button,
-  Modal,
-  ModalBody,
-  ModalHeader,
-  Form,
-  FormGroup,
-  Row,
-} from "reactstrap";
+import { Card, CardBody, CardHeader, Col, Input, Label, Alert, Button, Modal, ModalBody, ModalHeader, Form, FormGroup, Row, } from "reactstrap";
 import { useRouter } from "next/navigation";
 import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchTemplates,
-  clearTemplateState,
-  deleteTemplates,
-  syncTemplates,
-  updateTemplates,
-  fetchTemplatesById,
-} from "@/slices/TemplateSlice";
+import {fetchTemplates,clearTemplateState,deleteTemplates,syncTemplates,updateTemplates,fetchTemplatesById,setCurrentPage,setPageSize} from "@/slices/TemplateSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import UpdateTemplate from "../UpdateTemplate";
 import App from "@/components/App";
@@ -37,10 +15,10 @@ import Loading from "@/components/Loader";
 const TemplateList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { templates, loading, error } = useSelector((state) => state.templates);
+  const { templates, loading, error,pageSize, totalRecords, currentPage } = useSelector((state) => state.templates);
   const [isModalOpen, setIsModalOpen] = useState(false);
   //const [templateId, settemplateId] = useState(0);
-  const [filterText, setFilterText] = useState("");
+  const [filterText, setFilterText] = useState('');
   const [transactonType, setTransactonType] = useState(0);
   const settemplateId = useSetRecoilState(TemplateState);
   const templateColumns = [
@@ -120,12 +98,38 @@ const TemplateList = () => {
       }
     });
   };
+ const handlePageSizeChange = async (newSize) => {
+          // Update page size and reset to the first page
+          dispatch(setPageSize(newSize));
+          dispatch(setCurrentPage(1)); // Reset to first page
+          // Fetch data with updated page size and reset to page 1
+          await dispatch( fetchTemplates({
+        clientId: localStorage.getItem("clientId"),
+        TransactonType: transactonType,
+        searchStr: filterText,
+        pageNo:1, pageSize :newSize
+      }));
+        };
 
+  const handlePageChange = async (page) => {
+        // Update current page state in Redux
+        dispatch(setCurrentPage(page));
+      
+        // Fetch clients for the new page
+        await dispatch( fetchTemplates({
+          clientId: localStorage.getItem("clientId"),
+          TransactonType: transactonType,
+          searchStr: filterText,
+          pageNo: page, pageSize
+        }));
+      };
   const refreshTemplateList = () => {
     dispatch(
       fetchTemplates({
         clientId: localStorage.getItem("clientId"),
         TransactonType: transactonType,
+        searchStr: filterText,
+        pageNo: currentPage, pageSize
       })
     );
   };
@@ -135,12 +139,14 @@ const TemplateList = () => {
       fetchTemplates({
         clientId: localStorage.getItem("clientId"),
         TransactonType: transactonType,
+        searchStr: filterText,
+        pageNo: currentPage, pageSize
       })
     );
     return () => {
       dispatch(clearTemplateState());
     };
-  }, [dispatch]);
+  }, [dispatch, filterText]);
 
   const filteredSendernames = templates.filter((template) =>
     template.templateName.toLowerCase().includes(filterText.toLowerCase())
@@ -193,6 +199,10 @@ const TemplateList = () => {
           highlightOnHover
           striped
           pagination
+          paginationServer
+          paginationTotalRows={totalRecords}
+          onChangePage={handlePageChange}
+          onChangeRowsPerPage={handlePageSizeChange}
           subHeader
           subHeaderComponent={subHeaderComponentMemo}
           className="w-full border"

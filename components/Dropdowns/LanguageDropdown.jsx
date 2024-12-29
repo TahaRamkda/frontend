@@ -10,15 +10,10 @@ const LanguageDropdown = ({ name, value, onChange ,disabled}) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null); 
   const { languages, loading, error } = useSelector((state) => state.Master);
- const refreshDropdown = () =>{
-  dispatch(fetchlanguage({}));
- }
+
   useEffect(() => {
     dispatch(fetchlanguage({}));
-    return () => {
-      dispatch(clearLanguageState());
-      refreshDropdown()
-    };
+    
   }, [dispatch]);
 
   useEffect(() => {

@@ -13,16 +13,11 @@ export const TemplatesDropdown = ({ onChange }) => {
   const [searchString, setsearchString] = useState("")
     const [transactionType, settransactionType] =useState(0)
   const selectRef = useRef(null);
-const refreshDropdown = () =>{
-  dispatch(fetchTemplatesDrop({ clientId: localStorage.getItem("clientId"), TransactonType: transactionType }));
-      }
+
   // Fetch templates when the component mounts
   useEffect(() => {
     dispatch(fetchTemplatesDrop({ clientId: localStorage.getItem("clientId"), TransactonType: transactionType }));
-    return () => {
-      dispatch(clearTemplateDropState());
-      refreshDropdown()
-    };
+   
   }, [dispatch]);
 
   // Notify parent of selected template changes

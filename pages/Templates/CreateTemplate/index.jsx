@@ -588,6 +588,9 @@ const TemplateCreationPage = () => {
       }
     }
   };
+  const handelCancel = ()=>{
+    router.push("/Templates/TemplatesList")
+   }
   
   useEffect(() => {
     if (buttonType) {
@@ -1188,9 +1191,12 @@ const TemplateCreationPage = () => {
                       </div>
                     ))}
 
-                    <div className="w-full text-end">
+                    <div className="w-full flex justify-end gap-3">
+                    <Button className="uniform_btn_Cancel " onClick={handelCancel}>
+                      Cancel
+                    </Button>
                       <Button
-                        className="uniform_btn mt-4"
+                        className="uniform_btn "
                         onClick={() => handleSubmit(values)}
                       >
                         Create

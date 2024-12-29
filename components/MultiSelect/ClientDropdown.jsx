@@ -12,16 +12,11 @@ export const ClientsDropdown = ({ onChange }) => {
   const [selectedClientId, setSelectedClientId] = useState([]);
   const [searchString, setsearchString] = useState("")
   const selectRef = useRef(null);
-const refreshDropdown = () =>{
-  dispatch(fetchClientsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString }));
-  }
+
   // Fetch clients when the component mounts
   useEffect(() => {
     dispatch(fetchClientsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString }));
-    return () => {
-       dispatch(clearClientDropState());
-       refreshDropdown()
-    };
+   
   }, [dispatch]);
 
   // Notify parent of selected client changes

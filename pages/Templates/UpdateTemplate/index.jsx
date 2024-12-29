@@ -231,7 +231,9 @@ const TemplateUpdatePage = () => {
       };
     });
   };
-
+  const handelCancel = ()=>{
+    router.push("/Templates/TemplatesList")
+   }
   const handleSubmit = async (values) => {
     // let trimmedBodyContent = APIbodyContent.replace(/\*\*/g, "*").trimEnd();
     // let APIbodyContent = "**Latest**<sub>Text</sub>*Example*   "; // Example content
@@ -1252,9 +1254,12 @@ const TemplateUpdatePage = () => {
                       </div>
                     ))}
                    
-                    <div className="w-full text-end">
+                    <div className="w-full flex justify-end gap-3">
+                    <Button className="uniform_btn_Cancel " onClick={handelCancel}>
+                      Cancel
+                    </Button>
                       <Button
-                        className="uniform_btn mt-4 "
+                        className="uniform_btn  "
                         onClick={() => handleSubmit(values)}
                       >
                         Submit
