@@ -28,7 +28,10 @@ function MyApp({ Component, pageProps }) {
       localStorage.getItem("accessToken") &&
       localStorage.getItem("tokenexpiry") &&
       new Date() < new Date(localStorage.getItem("tokenexpiry"));
-    })
+      if(authorise){
+        setIsAuthenticated(true);
+      }
+    },[]);
 
 
    //------------------------------------//----permission logic to be disscussed------------------------------//--------------------------------

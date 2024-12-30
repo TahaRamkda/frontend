@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
   import { useState, useEffect } from "react";
   import { useDispatch, useSelector } from "react-redux";
   import imageOne from "@/public/images/logo.png";
-  import { fetchLogin } from "@/slices/AuthSlice";
+  import { fetchLogin ,blankAuthState } from "@/slices/AuthSlice";
 import { sidebarItems } from '@/utils/sidebarItems';
   const Login = () => {
     const dispatch = useDispatch();
@@ -17,37 +17,51 @@ import { sidebarItems } from '@/utils/sidebarItems';
     const { authData, loading, error } = useSelector((state) => state.authData);
   
     // Handler for form submission
-    const handleLogin = (event) => {
+    const handleLogin = async (event) => {
       event.preventDefault();
   
       // Dispatch the fetchLogin action with email and password
-      dispatch(fetchLogin({ email, password }));
+      await dispatch(fetchLogin({ email, password })).then(() => {
+        if (authData) {
+          // Set login cookie
+          blankAuthState();
+          // Redirect to dashboard
+          router.push("/Dashboard");
+        }
+        else{
+          SweetAlert.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Incorrect Username or Password!",
+           
+          });
+        }
+      });
     };
     
 
    
-    useEffect(() => {
+    // useEffect(() => {
       
-      if (authData) {
-        
-        // Set login cookie
-        Cookies.set("edmin_login", JSON.stringify(true));
-        const permissionData =  localStorage.getItem("permission");
-        const permissionJson = permissionData ? JSON.parse(permissionData) : [];
-        // Redirect to dashboard
-        router.push("/");
-      }
+    //   if (authData) {
+    //     debugger
+    //     // Set login cookie
+    //     blankAuthState();
+    //     // Redirect to dashboard
+    //     router.push("/Dashboard");
+       
+    //   }
   
-      if (error) {
-        // Display an error if login fails
-        SweetAlert.fire({
-          icon: "error",
-          title: "Oops...",
-          text: "Incorrect Username or Password!",
+    //   if (error) {
+    //     // Display an error if login fails
+    //     SweetAlert.fire({
+    //       icon: "error",
+    //       title: "Oops...",
+    //       text: "Incorrect Username or Password!",
          
-        });
-      }
-    }, [authData, error, router]);
+    //     });
+    //   }
+    // }, [ error, router]);
   
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
