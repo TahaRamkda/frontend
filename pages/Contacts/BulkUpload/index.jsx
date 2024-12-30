@@ -89,7 +89,7 @@ const BulkUpload = ({ onClose, onsuccess,isVisible }) => {
   {/* Link aligned to the start */}
   <div>
     <a href="/assets/Sample_File.xlsx" download className="text-blue-500 hover:underline">
-      Sample
+      Download Sample File 
     </a>
   </div>
   {/* Button aligned to the end */}
