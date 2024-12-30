@@ -23,12 +23,13 @@ import { sidebarItems } from '@/utils/sidebarItems';
       // Dispatch the fetchLogin action with email and password
       await dispatch(fetchLogin({ email, password })).then(() => {
         if (authData) {
+          console.log("auth data",authData);
           // Set login cookie
-          blankAuthState();
+         
           // Redirect to dashboard
-          router.push("/Dashboard");
+          router.push("/");
         }
-        else{
+        else if (error) {
           SweetAlert.fire({
             icon: "error",
             title: "Oops...",
