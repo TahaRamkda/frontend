@@ -1,12 +1,22 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, Label } from "reactstrap";
 import showSweetAlert from "@/components/Sweetalert";
-// import { fetchCampaign, clear } from "@/slices/CampaignSlice";
+ import { sendCampaign, clearCampaignSendState } from "@/slices/CampaignSlice";
 
-const CampaignTest = ({ isVisible, onClose, onsuccess }) => {
+const CampaignTest = ({ isVisible, onClose, onsuccess,CampaignId }) => {
+  const dispatch = useDispatch();
   const [phoneNumber, setPhoneNumber] = useState("");
- 
+ const[activatecampaignId, setactivatecampaignId] = useState(0);
 
+
+
+ useEffect(() => {
+   if(CampaignId)
+   {
+    setactivatecampaignId(CampaignId)
+   }
+ },[CampaignId])
   //  useEffect(() => {
   //     if (clientId) {
   
@@ -17,31 +27,31 @@ const CampaignTest = ({ isVisible, onClose, onsuccess }) => {
   //     };
   //   }, [dispatch, clientId]);
   // Handle save button click
-  const handleSave = () => {
-    if (!phoneNumber) {
-
-      showSweetAlert({
-        title: "Error",
-        text: "Please enter a valid phone number.",
-        icon: "error",
-      });
-      return;
-    }
-
-    try {
-      onsuccess(); // Trigger success callback
-      onClose(); // Close the modal
-      showSweetAlert({
-        title: "Phone Number Saved Successfully",
-        text: `Phone Number: ${phoneNumber}`,
-        icon: "success",
-      });
-    } catch (err) {
-      showSweetAlert({
-        title: "Failed",
-        text: err.message || "An error occurred while saving the phone number.",
-        icon: "error",
-      });
+  const handleSave = async () => {
+    if (phoneNumber !== "") {
+      const Requestbody = {
+        campaignId : activatecampaignId,
+        phoneNumbers: [
+          phoneNumber
+  ]
+}
+  const response = await dispatch(sendCampaign(Requestbody)).unwrap();
+      if (response) {
+        showSweetAlert({
+          title: "Message Sent Successfully",
+          text: `Phone Number: ${phoneNumber}`,
+          icon: "success",
+        });
+        onClose();
+      } else {
+        showSweetAlert({
+          title: "Error",
+          text: "Failed to Send Message.",
+          icon: "error",
+        });
+      }
+      
+     
     }
   };
 
@@ -59,7 +69,7 @@ const CampaignTest = ({ isVisible, onClose, onsuccess }) => {
               className="mb-4"
             />
             <div className="w-full mt-4 text-end">
-              <Button color="primary" onClick={handleSave} className="uniform_btn">
+              <Button color="primary" onClick={() => handleSave()} className="uniform_btn">
                    Send
                   </Button>
               </div>

@@ -32,6 +32,7 @@ const CampaignsList = () => {
   const [ContactedModal, setContactedModaL] = useState(false);
   const [CampaignTestModal, setCampaignTestModal] = useState(false)
   const [CampaignId, setCampaignId] = useState(null);
+  const [activateCampaignId, setactivateCampaignId] = useState(null);
   const [CampaignForm, setCampaignForm] = useState({});
 
   const { campaigns, loading, error, currentPage, pageSize, totalRecords } =
@@ -69,7 +70,7 @@ const CampaignsList = () => {
     router.push("/Campaigns/UpdateCampaign");
   };
   const handleTestCampaign = (CampaignId) => {
-    setCampaignId(CampaignId)
+    setactivateCampaignId(CampaignId)
     setCampaignTestModal(true)
   }
 
@@ -126,6 +127,11 @@ const CampaignsList = () => {
   }
   const handelCancelClick = () => {
     setContactedModaL(false)
+    setCampaignTestModal(false)
+  }
+
+  const handelCloseClick = () => {
+    //setContactedModaL(false)
     setCampaignTestModal(false)
   }
 
@@ -380,8 +386,10 @@ const CampaignsList = () => {
       {CampaignTestModal && (
         <CampaignTest
           isVisible={true}
-          onClose={handelCancelClick}
-          onsuccess={refreshCampaignList} />
+          onClose={handelCloseClick}
+          onsuccess={refreshCampaignList} 
+          CampaignId={activateCampaignId}
+          />
       )}
     </App>
   );

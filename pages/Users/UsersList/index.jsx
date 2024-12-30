@@ -12,7 +12,7 @@ import showSweetAlert from "@/components/Sweetalert";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";    
 import UserForm from "../CreateUsers";
 import App from '@/components/App';
-
+import Loading from "@/components/Loader";
 const UserList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -35,8 +35,6 @@ const UserList = () => {
           <button className="uniform_icon_btn"onClick={() => handleDetailClick(row.userId)}><HiPencilAlt style={{fontSize: "15px"}}/></button>
           <button  className="uniform_icon_btn" onClick={() => handleDeleteClick(row.userId)}><HiTrash style={{fontSize: "15px"}}/></button>
           </div>
-          <button onClick={() => handleDetailClick(row.userId)}>Edit</button>
-          <button onClick={() => handleDeleteClick(row.userId)}>Delete</button>
         </>
       ),
     },

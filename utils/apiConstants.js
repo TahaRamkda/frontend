@@ -54,6 +54,7 @@ export const UPDATECAMPAIGN = "/Campaigns/updatecampaign";
 export const CAMPAIGNDETAIL = "/Campaigns/getcampaigndetail";
 export const CAMPAIGNCONTACTFREQUENTSTATE="/Campaigns/getcampaigncontactstats";
 export const CAMPAIGNCONTACTFREQUENTREMOVE="/Campaigns/deletefrequentlycontactedcontacts";
+export const SENDCAMPAIGN="/Campaigns/sendcampaign";
 
 
 export const UPLOADMEDIA = "/Media/uploadmedia"

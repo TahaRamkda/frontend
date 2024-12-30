@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { CREATECAMPAIGN, CAMPAIGNLIST, ACTIVATECAMPAIGN ,CAMPAIGNDETAIL,UPDATECAMPAIGN, CAMPAIGNCONTACTFREQUENTREMOVE , CAMPAIGNCONTACTFREQUENTSTATE} from '@/utils/apiConstants';
+import { CREATECAMPAIGN, CAMPAIGNLIST, ACTIVATECAMPAIGN ,CAMPAIGNDETAIL,UPDATECAMPAIGN, CAMPAIGNCONTACTFREQUENTREMOVE , CAMPAIGNCONTACTFREQUENTSTATE,SENDCAMPAIGN} from '@/utils/apiConstants';
 
 // Thunks
 export const fetchCampaign = createAsyncThunk(
@@ -43,6 +43,7 @@ export const fetchCampaignContactState = createAsyncThunk(
     }
   }
 );
+
 export const fetchCampaignFrequentDelete = createAsyncThunk(
   'campaign/fetchCampaignFrequentDelete',
   async ({ClientId,CampaignId,Removedays}, { rejectWithValue }) => {
@@ -123,6 +124,19 @@ export const fetchCampaignDetail = createAsyncThunk(
       }
     }
   );
+
+  export const  sendCampaign = createAsyncThunk(
+    'campaign/sendCampaign',
+    async ( sendData, { rejectWithValue }) => {
+      try {
+        const response = await API.post(SENDCAMPAIGN,  sendData);
+        return response.data;
+      } catch (error) {
+        const handledError = handleError(error);
+        return rejectWithValue(handledError);
+      }
+    }
+  );
   // Slice
   const campaignSlice = createSlice({
     name: 'campaign',
@@ -191,6 +205,12 @@ export const fetchCampaignDetail = createAsyncThunk(
         state.error = null;
         state.success = false;
       },
+      clearCampaignSendState: (state) => {
+        state.loading = false;
+        state.error = null;
+        state.success = false;
+        
+      }
     },
     extraReducers: (builder) => {
       builder
@@ -310,6 +330,21 @@ export const fetchCampaignDetail = createAsyncThunk(
           state.error = action.payload || action.error.message;
           state.message = action.payload?.message || action.error.message;
         })
+        .addCase( sendCampaign.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+          state.success = false;
+        })
+        .addCase( sendCampaign.fulfilled, (state, action) => {
+          state.loading = false;
+          state.success = true;
+          state.message = action.payload.message;
+        })
+        .addCase( sendCampaign.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload || action.error.message;
+          state.message = action.payload?.message || action.error.message;
+        })
     },
   });
   
@@ -323,6 +358,7 @@ export const fetchCampaignDetail = createAsyncThunk(
     clearCampaignListState,
     clearCampaignContactState,
     clearCampaignFreqDeleteState,
+    clearCampaignSendState,
     clearCampaignActivateState,
   } = campaignSlice.actions;
   
