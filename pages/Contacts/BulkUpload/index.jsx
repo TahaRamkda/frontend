@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 import { bulkUpload,clearBulkUploadState } from "@/slices/ContactSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
+//import samplefile from '@/public/assets/Sample_File.xlsx'
 const BulkUpload = ({ onClose, onsuccess,isVisible }) => {
   const dispatch = useDispatch();
   const [selectedSenderId, setSelectedSenderId] = useState(null);
+  const [FieldValue, setFieldValue] = useState(null); // Track uploaded file URL
 
   const handleSubmit = async (values, { setSubmitting }) => {
     
@@ -23,6 +25,7 @@ const BulkUpload = ({ onClose, onsuccess,isVisible }) => {
       if (response.success ) {
         dispatch(clearBulkUploadState());
         setSubmitting(false);
+        
         showSweetAlert({
           title: "Uploaded Successfully",
           text: "",
@@ -67,7 +70,7 @@ const BulkUpload = ({ onClose, onsuccess,isVisible }) => {
             initialValues={{ UploadFile: null }}
             onSubmit={handleSubmit}
           >
-            {({ setFieldValue, isSubmitting }) => (
+            {({  isSubmitting }) => (
               <Form>
                 <div className="">
                   <div className="">
@@ -82,15 +85,31 @@ const BulkUpload = ({ onClose, onsuccess,isVisible }) => {
                     }}
                   />
                   </div>
-                  <div className=" flex justify-end mt-2">
+                  <div className=" flex justify-end mt-2 gap-4">
                    <Button className="uniform_btn" type="submit" disabled={isSubmitting}>
                     Upload
                   </Button>
+                  <button className="uniform_btn">
+                  <a
+                    href="/assets/Sample_File.xlsx" // Correct relative path
+                    download
+                    className="text-decoration-none text-white"
+                  >
+                    Sample 
+                  </a>
+                  </button>
                   </div>
                 </div>
               </Form>
             )}
           </Formik>
+           {/* Download File Button */}
+        
+           <div className="mt-4 flex justify-end">
+
+</div>
+
+              
           </div>
          
           </div>

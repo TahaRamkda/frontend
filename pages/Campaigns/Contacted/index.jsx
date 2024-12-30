@@ -1,24 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { HiTrash } from "react-icons/hi";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Table } from "reactstrap";
+import { fetchCampaignContactState, clearCampaignContactState, fetchCampaignFrequentDelete,clearCampaignFreqDeleteState } from "@/slices/campaignSlice";
 import { useDispatch, useSelector } from "react-redux";
 import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Loader";
 
 const LastContactedList = ({ isVisible, onClose, onsuccess }) => {
   // Hardcoded data for "Last Contacted"
-  const [rows, setRows] = useState([
-    { days: "7 Days", timesContacted: 3 },
-    { days: "14 Days", timesContacted: 5 },
-    { days: "30 Days", timesContacted: 8 },
-    { days: "70 Days", timesContacted: 10 },
-  ]);
+  
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useDispatch();
+  const [Form, setForm] = useState({})
+const [CampaignId, setCampaignId] = useState(0);
+  const { campaignContactState,campaignFreqDelete,loading } = useSelector((state) => state.campaigns);
+  const ClientId=localStorage.getItem('ClientId')
+  const [rows, setRows] = useState([
+    { days: "7 Days", timesContacted: 0},
+    { days: "14 Days", timesContacted: 0 },
+    { days: "30 Days", timesContacted: 0 },
+    { days: "70 Days", timesContacted: 0 },
+  ]);
 
-  const { loading } = useSelector((state) => state.agents);
 
+ 
+   
   // Handle row removal
   const removeRow = (index) => {
     setRows(rows.filter((_, i) => i !== index));
@@ -59,26 +66,29 @@ const LastContactedList = ({ isVisible, onClose, onsuccess }) => {
             {loading && <Loading />}
             <div>
               <Table bordered>
-                <thead>
-                  <tr>
-                    <th>Days</th>
-                    <th>No. of Times Person Contacted</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row, index) => (
-                    <tr key={index}>
-                      <td>{row.days}</td>
-                      <td>{row.timesContacted}</td>
+                
+                   
+                    <div>
+                      <tr>
+                        <th>Days</th>
+                        <th>No. of customer contacted</th>
+                        <th>remove</th>
+                      </tr>
+                    
+                    
+                   
+                    <tr >
+                      <td>90 Days</td>
+                      <td>{Form.contactedIn7days}</td>
                       <td className="text-center">
                         <Button color="danger" onClick={() => removeRow(index)}>
                           <HiTrash />
                         </Button>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
+                    </div>
+            
+               
               </Table>
             </div>
           </ModalBody>

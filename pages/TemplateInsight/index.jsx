@@ -110,11 +110,11 @@ const TemplateInsight = () => {
 
   return (
     <App>
-      <div className="container p-4">
+      <div className="w-full">
         {/* Date Filters */}
-        <div className="flex gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-semibold">From Date:</label>
+        <div className="grid grid-cols-5 mb-4 gap-4">
+          <div className="flex flex-col space-y-1 text-start mb-1 ">
+            <label className="font-medium text-gray-700 text-sm">From Date</label>
             <input
               type="date"
               value={fromDate}
@@ -122,8 +122,8 @@ const TemplateInsight = () => {
               className="border rounded p-1"
             />
           </div>
-          <div>
-            <label className="block text-sm font-semibold">To Date:</label>
+          <div className="flex flex-col space-y-1 text-start mb-1 ">
+            <label className="font-medium text-gray-700 text-sm">To Date</label>
             <input
               type="date"
               value={toDate}
@@ -131,8 +131,8 @@ const TemplateInsight = () => {
               className="border rounded p-1"
             />
           </div>
-          <div>
-            <label className="block text-sm font-semibold"> Template</label>
+          <div className="flex flex-col space-y-1 text-start mb-1 ">
+            <label className="font-medium text-gray-700 text-sm"> Template</label>
             <TemplateDropdown
               name="role_Id"
               onChange={handleTemplateChange}
@@ -152,7 +152,12 @@ const TemplateInsight = () => {
           </div>
         </div>
         {/* Tiles */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="mt-5">
+        <h3 className="font-bold mb-4">Total Responses</h3>
+        <div >
+        <div className="grid grid-cols-5 gap-4">
+          
+         
           {templateInsight?.TemplateResponses?.map((tile, index) => (
             <div
               key={index}
@@ -160,11 +165,7 @@ const TemplateInsight = () => {
               style={{ borderTop: `4px solid ${tile.Color}` }}
             >
               <h3 className="text-lg font-semibold">{tile.Title}</h3>
-              <p className="text-lg font-semibold">Sent: {tile.ResponseText}</p>
-              <p className="text-lg font-semibold">
-                Delivered: {tile.DeliveredCount}
-              </p>
-              <p className="text-lg font-semibold">Read: {tile.ReadCount}</p>
+              <p className="text-lg font-semibold">{tile.ResponseText}</p>
             </div>
           ))}
 
@@ -182,7 +183,7 @@ const TemplateInsight = () => {
               <p className="text-lg font-semibold">Read: {tile.ReadCount}</p>
             </div>
           ))}
-
+          </div>
           {templateInsight?.TotalConversations?.map((tile, index) => (
             <div
               key={index}
@@ -198,9 +199,8 @@ const TemplateInsight = () => {
               </p>
             </div>
           ))}
-        </div>
-
-        {/* Line Chart */}
+          </div>
+          </div>
       </div>
     </App>
   );

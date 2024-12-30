@@ -51,7 +51,9 @@ export const CREATECAMPAIGN = "/Campaigns/addcampaign";
 export const CAMPAIGNLIST = "/Campaigns/getcampaignlist";
 export const ACTIVATECAMPAIGN = "/Campaigns/activatecampaign";
 export const UPDATECAMPAIGN = "/Campaigns/updatecampaign";
-export const CAMPAIGNDETAIL = "/Campaigns/getcampaigndetail";
+export const CAMPAIGNDETAIL = "/Campaigns/getcampaignbyid";
+export const CAMPAIGNCONTACTFREQUENTSTATE="/Campaigns/getcampaigncontactstats";
+export const CAMPAIGNCONTACTFREQUENTREMOVE="/Campaigns/deletefrequentlycontactedcontacts";
 
 
 export const UPLOADMEDIA = "/Media/uploadmedia"
@@ -92,6 +94,9 @@ export const AGENTMESSAGE = "/Message/sendagentmessage";
 //MasterSlice Endpoints
 export const TEMPLATECATEGORY = "/Templates/gettemplatecategories";
 export const TEMPLATELANGUAGE = "/Templates/getlanguages";
+
+export const CHATSMONITOR ="/Conversation/getconversationreportlist"
+export const AGENTSMONITOR ="#"
 
 
 

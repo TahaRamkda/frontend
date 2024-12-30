@@ -27,7 +27,6 @@ const ClientList = () => {
   const [filterText, setFilterText] = useState("");
 
   const clientColumns = [
-    { name: "Client Id", selector: (row) => row.clientId, sortable: true },
     { name: "Client name", selector: (row) => row.clientName, sortable: true },
     { name: "Client Language", selector: (row) => row.clientLanguage, sortable: true },
     { name: "Client Address", selector: (row) => row.clientAddress, sortable: true },
@@ -177,13 +176,13 @@ const ClientList = () => {
       <div className="w-full">
         <div className="grid grid-cols-5 gap-4">
          <div className="flex flex-col space-y-1 text-start mb-1 ">
-         <label className="mr-1">Search Clients</label>
+         <label className="mr-1">Search</label>
          <input
           type="search"
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
           className="border rounded"
-          placeholder="Search Client Name"
+          placeholder=""
         />
         </div>
         </div>
@@ -204,7 +203,7 @@ const ClientList = () => {
     <div className="flex items-center">
   {loading && <Loading />}
   <div className=''>
-  <h4 className="font-bold">Groups List</h4>
+  <h4 className="font-bold">Client List</h4>
   </div>
   <div className="ml-auto mb-1">
   <button className="uniform_btn" onClick={handleCreate}>
@@ -262,7 +261,7 @@ const ClientList = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg  max-w-3xl w-full">
+          <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
             <h3 className="text-lg font-semibold">Edit Client Details</h3>
             <form onSubmit={handleUpdateSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">

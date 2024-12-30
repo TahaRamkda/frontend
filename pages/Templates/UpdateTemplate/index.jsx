@@ -1110,7 +1110,7 @@ const TemplateUpdatePage = () => {
                               borderColor: "green",
                               color: "white",
                             }}
-                            className="me-2"
+                            className=""
                             onClick={() => handlebuttonaction(index)}
                           >
                             <i className="fa fa-bolt"></i>

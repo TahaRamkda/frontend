@@ -37,7 +37,7 @@ const CampaignsList = () => {
   const [clientId, setClientId] = useState(null);
   const setCampaignsId = useSetRecoilState(CampaignState);
 
-  const refreshCampaignList = () => {
+  const c = () => {
     dispatch(
       fetchCampaign({
         ClientId: clientId,
@@ -122,7 +122,9 @@ const CampaignsList = () => {
   }
 
 
-
+ const refreshCampaignList = () =>{
+  dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
+ }
 
   const handlePageSizeChange = async (newSize) => {
     dispatch(setPageSize(newSize));
@@ -153,7 +155,7 @@ const CampaignsList = () => {
         campaignId: CampaignId,
         scheduleDate: CampaignForm.scheduleDate,
       };
-
+      refreshCampaignList()
       const response = await dispatch(activateCampaign(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({

@@ -396,6 +396,7 @@ const TemplateCreationPage = () => {
   };
 
   const removeHeaderVariable = (index) => {
+    debugger
     //alert(bodyPayloadDatawithVar)
     const updatedVariables = headerVariable.filter((_, i) => i !== index);
     const updatedHeadContent = headerPayloadDatawithVar
@@ -1217,7 +1218,7 @@ const TemplateCreationPage = () => {
                         Cancel
                       </Button>
                       <Button
-                        className="uniform_btn "
+                        className="uniform_btn mt-4"
                         onClick={() => handleSubmit(values)}
                       >
                         Create

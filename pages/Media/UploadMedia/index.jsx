@@ -51,25 +51,23 @@ const UploadMediaPage = ({ setIsModalOpen, onUploadSuccess }) => {
   };
 
   return (
-    
-    <div>
-        <h4 className="font-bold">Upload Media</h4>
-       <div className="w-full bg-white p-3 rounded mb-5">
-        
-        <div className="grid grid-cols-5 gap-4">
-          <div className="flex flex-col  mt-2 text-start">
+    <Container fluid className="d-flex">
+      <Row className="w-100">
+      <Col className="rounded">
+   
+         
             <label className="font-medium text-gray-700 text-sm">Sender Names</label>
             <Sendernames name="senderId" value={selectedSenderId} onChange={handleSenderChange} />
-          </div>
-          <div className="col-span-4">
           <Formik
             initialValues={{ MediaFile: null }}
             onSubmit={handleSubmit}
           >
+            
             {({ setFieldValue, isSubmitting }) => (
+             
               <Form>
-                <div className="grid grid-cols-3 gap-4 mt-11 w-full">
-                  <div className="flex flex-col mb-1 text-start">
+                <FormGroup className="d-flex align-items-center gap-2">
+                
                   <Input
                     type="file"
                     className="form-control"
@@ -80,21 +78,19 @@ const UploadMediaPage = ({ setIsModalOpen, onUploadSuccess }) => {
                       setFieldValue("MediaFile", file || null);
                     }}
                   />
-                  </div>
-                  <div className=" flex justify-end col-span-2 mt-2">
                    <Button className="uniform_btn" type="submit" disabled={isSubmitting}>
-                    Upload Media
+                    Upload 
                   </Button>
-                  </div>
-                </div>
+                  
+                  </FormGroup>
               </Form>
+              
             )}
           </Formik>
-          </div>
-          </div>
-          </div>
-          </div>
-        
+         
+          </Col>
+          </Row>
+          </Container>
   );
 };
 

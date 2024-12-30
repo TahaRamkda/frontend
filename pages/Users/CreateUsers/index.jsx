@@ -7,7 +7,7 @@ import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import RolesDropdown from "@/components/MultiSelect/RoleDropdown";
 import App from '@/components/App';
 
-const GroupForm = ({onClose, isVisible, onsuccess}) => {
+const UserForm = ({onClose, isVisible, onsuccess}) => {
   const [formData, setFormData] = useState({
     userName: "",
     isActive: true,
@@ -40,6 +40,7 @@ const GroupForm = ({onClose, isVisible, onsuccess}) => {
     };
 
     try {
+      
       const response = await dispatch(createUser(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({
@@ -142,4 +143,4 @@ const GroupForm = ({onClose, isVisible, onsuccess}) => {
   );
 };
 
-export default GroupForm;
+export default UserForm;
