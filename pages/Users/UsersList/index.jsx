@@ -35,6 +35,8 @@ const UserList = () => {
           <button className="uniform_icon_btn"onClick={() => handleDetailClick(row.userId)}><HiPencilAlt style={{fontSize: "15px"}}/></button>
           <button  className="uniform_icon_btn" onClick={() => handleDeleteClick(row.userId)}><HiTrash style={{fontSize: "15px"}}/></button>
           </div>
+          <button onClick={() => handleDetailClick(row.userId)}>Edit</button>
+          <button onClick={() => handleDeleteClick(row.userId)}>Delete</button>
         </>
       ),
     },
@@ -278,6 +280,7 @@ const UserList = () => {
               </Row>
               <Button color="primary" type="submit">
                 Save
+                UpdateSender
               </Button>
             </Form>
           )}

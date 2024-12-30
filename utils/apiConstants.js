@@ -1,7 +1,7 @@
 export const BASE_URL = "https://whatsappapi.consulttechies.com"
 export const LOGINAPI = "/User/Login";
 export const REFRESHTOKENAPI = "/Token/Refresh";
-export const DASHBOARDSUMMERY = "/Dashboard/getdashboardsummary";
+export const DASHBOARDSUMMARY = "/Dashboard/getdashboardsummary";
 export const DASHBOARDREPORT="/Dashboard/getdashboardreportsummary";
 // Clients
 export const CREATECLIENT = "/Clients/addClient";
@@ -70,8 +70,8 @@ export const UPDATEUSER = "/User/updateuser"
 export const DELETEUSER = "/User/deleteuser"
 
 // Report end points
-export const MESSAGEREPORT = "/ApiMessage/getapimessagelist"
-export const MESSAGEREPORTSUMMARY = "/MessageSentLog/getmessagesentloglist"
+export const MESSAGEREPORT2 = "/ApiMessage/getapimessagelist"
+export const MESSAGEREPORT = "/MessageSentLog/getmessagesentloglist"
 export const ACTIVECONVOLIST = "#"
 export const AGENTSSTATUSLIST = "#"
 export const TEMPLATEINSIGHT = "/Dashboard/gettemplateinsight"
