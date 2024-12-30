@@ -110,11 +110,11 @@ const TemplateInsight = () => {
 
   return (
     <App>
-      <div className="container p-4">
+      <div className="w-full">
         {/* Date Filters */}
-        <div className="flex gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-semibold">From Date:</label>
+        <div className="grid grid-cols-5 mb-4 gap-4">
+          <div className="flex flex-col space-y-1 text-start mb-1 ">
+            <label className="font-medium text-gray-700 text-sm">From Date</label>
             <input
               type="date"
               value={fromDate}
@@ -122,8 +122,8 @@ const TemplateInsight = () => {
               className="border rounded p-1"
             />
           </div>
-          <div>
-            <label className="block text-sm font-semibold">To Date:</label>
+          <div className="flex flex-col space-y-1 text-start mb-1 ">
+            <label className="font-medium text-gray-700 text-sm">To Date</label>
             <input
               type="date"
               value={toDate}
@@ -131,8 +131,8 @@ const TemplateInsight = () => {
               className="border rounded p-1"
             />
           </div>
-          <div>
-            <label className="block text-sm font-semibold"> Template</label>
+          <div className="flex flex-col space-y-1 text-start mb-1 ">
+            <label className="font-medium text-gray-700 text-sm"> Template</label>
             <TemplateDropdown
               name="role_Id"
               onChange={handleTemplateChange}
