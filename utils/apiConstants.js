@@ -70,7 +70,7 @@ export const UPDATEUSER = "/User/updateuser"
 export const DELETEUSER = "/User/deleteuser"
 
 // Report end points
-export const MESSAGEREPORT2 = "/ApiMessage/getapimessagelist"
+export const MESSAGESUMMARY = "/ApiMessage/getapimessagelist"
 export const MESSAGEREPORT = "/MessageSentLog/getmessagesentloglist"
 export const ACTIVECONVOLIST = "#"
 export const AGENTSSTATUSLIST = "#"

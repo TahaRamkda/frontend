@@ -2,7 +2,7 @@
 
 import React, { useMemo, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMessageReport, clearMessageReportState, setPageSize, setCurrentPage } from "@/slices/ReportSlice";
+import { fetchMessageSummary,clearMessageSummaryState, setPageSize, setCurrentPage } from "@/slices/ReportSlice";
 import { Input, label, Button } from 'reactstrap';
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import DataTable from "react-data-table-component";
@@ -19,7 +19,7 @@ const Messagereports = () => {
   const [sendernameId, setSendernameId] = useState(null);
   const [clientId, setClientId] = useState(null);
 
-  const { messagereports, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.reports);
+  const { messageSummary, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.reports);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -30,10 +30,10 @@ const Messagereports = () => {
   useEffect(() => {
     if (clientId) {
       
-      dispatch(fetchMessageReport2({ clientId: clientId, fromDate: fromDate, toDate: toDate, status: status, templateId: templateId, srcStr: srcStr, pageSize, pageNo: currentPage }));
+      dispatch(fetchMessageSummary({ clientId: clientId, fromDate: fromDate, toDate: toDate, status: status, templateId: templateId, srcStr: srcStr, pageSize, pageNo: currentPage }));
     }
     return () => {
-      dispatch(clearMessageReportState());
+      dispatch(clearMessageSummaryState());
     };
   }, [dispatch, clientId]);
 
@@ -57,14 +57,14 @@ const Messagereports = () => {
   const handlePageSizeChange = async (newSize) => {
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to the first page
-    await dispatch(fetchMessageReport2({
+    await dispatch(fetchMessageSummary({
       clientId, fromDate, toDate, status, templateId, srcStr, pageSize: newSize, pageNo: 1
     }));
   };
 
   const handlePageChange = async (page) => {
     dispatch(setCurrentPage(page));
-    await dispatch(fetchMessageReport2({
+    await dispatch(fetchMessageSummary({
       clientId, fromDate, toDate, status, templateId, srcStr, pageSize, pageNo: page
     }));
   };
@@ -131,7 +131,7 @@ const Messagereports = () => {
       </div>
       <div className="table-responsive categories_table ">
         <DataTable
-          data={messagereports2}
+          data={messageSummary}
           columns={report2Columns}
           highlightOnHover
           striped

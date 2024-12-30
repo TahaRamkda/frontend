@@ -1,19 +1,19 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { MESSAGEREPORT2, MESSAGEREPORT, ACTIVECONVOLIST, AGENTSSTATUSLIST,DASHBOARDSUMMARY,TEMPLATEINSIGHT} from '@/utils/apiConstants';
+import { MESSAGESUMMARY, MESSAGEREPORT, ACTIVECONVOLIST, AGENTSSTATUSLIST,DASHBOARDSUMMARY,TEMPLATEINSIGHT} from '@/utils/apiConstants';
 
 // Thunks
 
 // Fetch Clients
-export const fetchMessageReport2 = createAsyncThunk(
-  'messagereport /fetchMessageReport2',
+export const fetchMessageSummary = createAsyncThunk(
+  'messagereport /fetchMessageSummary',
   async ({clientId, fromDate, toDate, status, templateId, srcStr, pageSize,pageNo}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${MESSAGEREPORT2}?ClientId=${clientId}&FromDate=${fromDate}&ToDate=${toDate}&Status=${status}&templateId=${templateId}&PageSize=${pageSize}&PageNo=${pageNo}&SearchStr=${srcStr}`);
+      const response = await API.get(`${MESSAGESUMMARY}?ClientId=${clientId}&FromDate=${fromDate}&ToDate=${toDate}&Status=${status}&templateId=${templateId}&PageSize=${pageSize}&PageNo=${pageNo}&SearchStr=${srcStr}`);
       if (response?.status === 200 && response.data?.result) {
         return {
-        messagereports: response.data.result,
+        messageSummary: response.data.result,
         totalRecords: response.data.result.length > 0 ? response.data.result[0].totalItems : 0,
         };
       } else {
@@ -150,10 +150,10 @@ export const fetchAgentStatus = createAsyncThunk(
 
 
 // Slice
-const MessageReportSlice = createSlice({
+const reportSlice = createSlice({
   name: 'messagereport',
   initialState: {
-    messagereports2: [],
+    messageSummary: [],
     messagereport: [],
     templateInsight: [],
     activeconvo: [],
@@ -201,8 +201,8 @@ const MessageReportSlice = createSlice({
       state.success = false;
      
     },
-    clearMessageReport2State: (state) => {
-      state.messagereports2 = [];
+    clearMessageSummaryState: (state) => {
+      state.messageSummary = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -258,18 +258,18 @@ const MessageReportSlice = createSlice({
       })
 
       // Fetch Message Report Summary
-      .addCase(fetchMessageReport2.pending, (state) => {
+      .addCase(fetchMessageSummary.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchMessageReport2.fulfilled, (state, action) => {
+      .addCase(fetchMessageSummary.fulfilled, (state, action) => {
         state.loading = false;
-        state.messagereport2 = action.payload.messagereport2;
+        state.messageSummary = action.payload.messageSummary;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || '';
       })
-      .addCase(fetchMessageReport2.rejected, (state, action) => {
+      .addCase(fetchMessageSummary.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
@@ -355,8 +355,8 @@ export const {
   clearDashboardReportState,
   clearTemplateInsightState,
   clearAgentStatuState,
-  clearMessageReport2State,
+  clearMessageSummaryState,
   clearMessageReportState,
-} = MessageReportSlice.actions;
+} = reportSlice.actions;
 
-export default MessageReportSlice.reducer;
+export default reportSlice.reducer;

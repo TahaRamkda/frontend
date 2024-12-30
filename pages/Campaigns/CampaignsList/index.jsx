@@ -29,6 +29,7 @@ const CampaignsList = () => {
   const [showfilterbutton, setshowfilterbutton] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ContactedModal, setContactedModaL] = useState(false);
+  const [CampaignTestModal, setCampaignTestModal] = useState()
   const [CampaignId, setCampaignId] = useState(null);
   const [CampaignForm, setCampaignForm] = useState({});
 
@@ -66,6 +67,9 @@ const CampaignsList = () => {
     setCampaignsId(CampaignId);
     router.push("/Campaigns/UpdateCampaign");
   };
+  const handleTestCampaign = (CampaignId) =>{
+    setCampaignId(CampaignId)
+  }
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -213,6 +217,9 @@ const CampaignsList = () => {
             <MdGroupRemove style={{ fontSize: "15px" }} />
           </button>
           <button className="uniform_icon_btn" onClick={() => HandleUpdateCampaign(row.campaignId)}>
+            <HiPencilAlt style={{ fontSize: "15px" }} />
+          </button>
+          <button className="uniform_icon_btn" onClick={() => handleTestCampaign(row.campaignId)}>
             <HiPencilAlt style={{ fontSize: "15px" }} />
           </button>
 
