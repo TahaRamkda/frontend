@@ -13,7 +13,7 @@ import { sidebarItems } from '@/utils/sidebarItems';
     const [show, setShow] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    
+    const[authuserData, setauthuserData] = useState(null);
     const { authData, loading, error } = useSelector((state) => state.authData);
   
     // Handler for form submission

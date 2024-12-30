@@ -10,7 +10,7 @@ import DataTable from "react-data-table-component";
 import { HiPencilAlt, HiTrash, HiRefresh } from "react-icons/hi";
 import Loading from '@/components/Loader';
 import App from '@/components/App';
-
+import Chatview from '@/pages/Chats/ChatView/indexPop-up';
 
 
 const ChatsReport = () => {
@@ -19,7 +19,8 @@ const ChatsReport = () => {
    const [DetailModal, setDetailModal]= useState(false);
   const { chatsMonitor, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.Supervisor);
   const [clientId, setClientId] = useState(null);
-
+ const [showchat, setshowchat] = useState(false);
+ const [activeChat, setActiveChat] = useState(0);
   const ChatsReportColumn = [
     { name: "Full Name", selector: (row) => row.fullName, sortable: true },
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
@@ -53,15 +54,8 @@ const ChatsReport = () => {
   };
 
   const handleDetailClick = async (id) => {
-     setActiveChat(id); // Update Activechat state
-     const ClientId = localStorage.getItem("clientId");
-     if (ClientId && id) {
-      await dispatch(fetchConversationMessage({ clientId: ClientId, ChatId: id }));
-      setDetailModal(true)
-     }
-     return () => {
-       dispatch(clearConversationMessageState());
-     }
+    setActiveChat(id); // Update Activechat state
+   setshowchat(true);
    };
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -174,7 +168,13 @@ const ChatsReport = () => {
             },
           }}
         />
-      
+      {
+        showchat && (
+          <Chatview
+          ChatId={activeChat}
+            />
+        )
+      }
     </App>
  
   );

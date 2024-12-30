@@ -120,7 +120,8 @@ const CampaignsList = () => {
     window.location.href = "/Campaigns/CreateCampaigns";
   }
 
-  const handelClick = () => {
+  const handelClick = (campaignId) => {
+    setCampaignId(campaignId)
     setContactedModaL(true)
   }
   const handelCancelClick = () => {
@@ -216,7 +217,7 @@ const CampaignsList = () => {
           <button className="uniform_icon_btn" onClick={() => handleActivateClick(row.campaignId)}>
             <HiLightningBolt style={{ fontSize: "15px" }} />
           </button>
-          <button className="uniform_icon_btn" onClick={handelClick}>
+          <button className="uniform_icon_btn" onClick={() => handelClick(row.campaignId)}>
             <MdGroupRemove style={{ fontSize: "15px" }} />
           </button>
           <button className="uniform_icon_btn" onClick={() => HandleUpdateCampaign(row.campaignId)}>
@@ -372,7 +373,9 @@ const CampaignsList = () => {
         <LastContactedList
           isVisible={true}
           onClose={handelCancelClick}
-          onsuccess={refreshCampaignList} />
+          onsuccess={refreshCampaignList} 
+          campaignId={CampaignId}
+          />
       )}
       {CampaignTestModal && (
         <CampaignTest
