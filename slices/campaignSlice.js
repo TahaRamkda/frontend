@@ -27,9 +27,9 @@ export const fetchCampaign = createAsyncThunk(
 
 export const fetchCampaignContactState = createAsyncThunk(
   'campaign/fetchCampaignContactState',
-  async ({ClientId}, { rejectWithValue }) => {
+  async ({ClientId , CampaignId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${CAMPAIGNCONTACTFREQUENTSTATE}?ClientId=${ClientId}`);
+      const response = await API.get(`${CAMPAIGNCONTACTFREQUENTSTATE}?ClientId=${ClientId}&CampaignId=${CampaignId}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           campaignContactState: response.data.result,
@@ -45,9 +45,9 @@ export const fetchCampaignContactState = createAsyncThunk(
 );
 export const fetchCampaignFrequentDelete = createAsyncThunk(
   'campaign/fetchCampaignFrequentDelete',
-  async ({ClientId}, { rejectWithValue }) => {
+  async ({ClientId,CampaignId,Removedays}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${CAMPAIGNCONTACTFREQUENTREMOVE}?ClientId=${ClientId}`);
+      const response = await API.get(`${CAMPAIGNCONTACTFREQUENTREMOVE}?ClientId=${ClientId}&CampaignId=${CampaignId}&LastContactedInDays=${Removedays}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           campaignFreqDelete: response.data.result,
