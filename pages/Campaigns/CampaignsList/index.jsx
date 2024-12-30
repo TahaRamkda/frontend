@@ -9,11 +9,12 @@ import App from "@/components/App";
 import { useRouter } from "next/router"; // Correct import
 import DataTable from "react-data-table-component";
 import Loading from "@/components/Loader";
-import { HiPencilAlt, HiTrash, HiLightningBolt, HiClock, } from "react-icons/hi";
+import { HiPencilAlt, HiTrash, HiLightningBolt, HiClock, HiBeaker } from "react-icons/hi";
 import { MdGroupRemove } from "react-icons/md";
 import { useSetRecoilState } from "recoil";
 import { CampaignState } from "@/components/recoil";
-import LastContactedList from "../Contacted";
+import CampaignTest from '../CampaignTest';
+import LastContactedList from '../Contacted';
 
 const CampaignsList = () => {
   const dispatch = useDispatch();
@@ -29,7 +30,7 @@ const CampaignsList = () => {
   const [showfilterbutton, setshowfilterbutton] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ContactedModal, setContactedModaL] = useState(false);
-  const [CampaignTestModal, setCampaignTestModal] = useState()
+  const [CampaignTestModal, setCampaignTestModal] = useState(false)
   const [CampaignId, setCampaignId] = useState(null);
   const [CampaignForm, setCampaignForm] = useState({});
 
@@ -67,8 +68,9 @@ const CampaignsList = () => {
     setCampaignsId(CampaignId);
     router.push("/Campaigns/UpdateCampaign");
   };
-  const handleTestCampaign = (CampaignId) =>{
+  const handleTestCampaign = (CampaignId) => {
     setCampaignId(CampaignId)
+    setCampaignTestModal(true)
   }
 
   useEffect(() => {
@@ -113,7 +115,7 @@ const CampaignsList = () => {
   const handlefilter = (e) => {
     dispatch(fetchCampaign({ clientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, sendernameId: sendernameId, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
   };
-
+ 
   const handleCreate = () => {
     window.location.href = "/Campaigns/CreateCampaigns";
   }
@@ -124,12 +126,13 @@ const CampaignsList = () => {
   }
   const handelCancelClick = () => {
     setContactedModaL(false)
+    setCampaignTestModal(false)
   }
 
 
- const refreshCampaignList = () =>{
-  dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
- }
+  const refreshCampaignList = () => {
+    dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
+  }
 
   const handlePageSizeChange = async (newSize) => {
     dispatch(setPageSize(newSize));
@@ -221,7 +224,7 @@ const CampaignsList = () => {
             <HiPencilAlt style={{ fontSize: "15px" }} />
           </button>
           <button className="uniform_icon_btn" onClick={() => handleTestCampaign(row.campaignId)}>
-            <HiPencilAlt style={{ fontSize: "15px" }} />
+            <HiBeaker style={{ fontSize: "15px" }} />
           </button>
 
         </div>
@@ -373,6 +376,12 @@ const CampaignsList = () => {
           onsuccess={refreshCampaignList} 
           campaignId={CampaignId}
           />
+      )}
+      {CampaignTestModal && (
+        <CampaignTest
+          isVisible={true}
+          onClose={handelCancelClick}
+          onsuccess={refreshCampaignList} />
       )}
     </App>
   );

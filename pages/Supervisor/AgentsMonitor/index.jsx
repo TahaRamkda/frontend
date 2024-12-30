@@ -113,7 +113,7 @@ const MessageSummary = () => {
        <div className="flex items-center">
   {loading && <Loading />}
   <div >
-  <h4 className="font-bold ">Chats Report</h4>
+  <h4 className="font-bold ">Agents Report</h4>
   </div>
 </div>
         <DataTable

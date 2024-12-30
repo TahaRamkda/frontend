@@ -85,30 +85,28 @@ const BulkUpload = ({ onClose, onsuccess,isVisible }) => {
                     }}
                   />
                   </div>
-                  <div className=" flex justify-end mt-2 gap-4">
-                   <Button className="uniform_btn" type="submit" disabled={isSubmitting}>
-                    Upload
-                  </Button>
-                  <button className="uniform_btn">
-                  <a
-                    href="/assets/Sample_File.xlsx" // Correct relative path
-                    download
-                    className="text-decoration-none text-white"
-                  >
-                    Sample 
-                  </a>
-                  </button>
-                  </div>
+                 <div className="flex justify-between items-center w-full mt-4">
+  {/* Link aligned to the start */}
+  <div>
+    <a href="/assets/Sample_File.xlsx" download className="text-blue-500 hover:underline">
+      Sample
+    </a>
+  </div>
+  {/* Button aligned to the end */}
+  <div>
+    <Button className="uniform_btn" type="submit" disabled={isSubmitting}>
+      Upload
+    </Button>
+  </div>
+</div>
+
                 </div>
               </Form>
             )}
           </Formik>
            {/* Download File Button */}
         
-           <div className="mt-4 flex justify-end">
-
-</div>
-
+          
               
           </div>
          

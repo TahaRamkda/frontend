@@ -113,6 +113,24 @@ export const sidebarItems = [
       ],
     },
     {
+      href: '#',
+      icon: 'ti-user', // Chart icon for Reports
+      text: 'Supervisor',
+      module: 2,
+      submenu: [
+        {
+          href: '/Supervisor/ChatsMonitor',
+          text: 'Chats Monitor',
+          icon: 'ti-clipboard', // Clipboard icon for Message Reports
+        },
+        {
+          href: '/Supervisor/AgentsMonitor',
+          text: 'Agents Monitor',
+          icon: 'ti-clipboard', // Pie chart icon for Message Summary
+        },
+      ],
+    },
+    {
       href: '/Roles/RolesList',
       icon: 'ti-settings', // Settings icon for Roles
       text: 'Roles',
