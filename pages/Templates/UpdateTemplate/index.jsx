@@ -315,7 +315,7 @@ const TemplateUpdatePage = () => {
     try {
       const response = await dispatch(updateTemplates(requestBody)).unwrap();
       if (response.success) {
-        debugger;
+        
         clearTemplateCreateState();
         showSweetAlert({
           title: "Updated Successfully",
@@ -387,7 +387,7 @@ const TemplateUpdatePage = () => {
   };
 
   const addURLVariable = (index) => {
-    debugger;
+   
     const newIndex = 1;
 
     const updatedButtons = [...messagePreview.buttons];

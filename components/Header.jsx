@@ -70,6 +70,7 @@ export function Header({ toggleSidebar }) {
     const confirmed = window.confirm("Are you sure you want to log out?");
     if (confirmed) {
       localStorage.clear();
+      localStorage.setItem("isLoggedout", "0");
       router.push("/auth/login")
     }
   };

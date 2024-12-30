@@ -152,7 +152,7 @@ const TemplateCreationPage = () => {
   // }, [headerPayloadDatawithVar]);
 
   const handleSubmit = async (values) => {
-    debugger;
+    
     // let trimmedBodyContent = APIbodyContent.replace(/\*\*/g, "*").trimEnd();
     // let APIbodyContent = "**Latest**<sub>Text</sub>*Example*   "; // Example content
 
@@ -302,7 +302,7 @@ const TemplateCreationPage = () => {
   }, [bodyFinalContent, variables]);
 
   const addURLVariable = (index) => {
-    debugger;
+   
     const newIndex = 1;
 
     const updatedButtons = [...messagePreview.buttons];
@@ -899,7 +899,6 @@ const TemplateCreationPage = () => {
                               onSelectMedia={(mediaId, mediaPath, mimeType) => {
                                 setSelectedMediaId(mediaId);
                                 setSelectedMediaPath(mediaPath);
-                                alert(mediaPath);
                                 setSelectedMediaType(mimeType);
                               }}
                             />
@@ -1035,7 +1034,7 @@ const TemplateCreationPage = () => {
                     {messagePreview.buttons.map((button, index) => (
                       <div
                         key={index}
-                        className="d-flex align-items-center my-3"
+                        className="d-flex align-items-center my-3 border-b-2 pb-3" 
                       >
                         {/* Button Text Input */}
                         <Input
@@ -1202,9 +1201,12 @@ const TemplateCreationPage = () => {
                           color="danger"
                           className="h-10 w-10"
                         >
+                          
                           <FaRegTrashCan />
                         </Button>
+                        
                       </div>
+                      
                     ))}
 
                     <div className="w-full flex justify-end gap-3">

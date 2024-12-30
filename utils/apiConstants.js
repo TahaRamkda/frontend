@@ -51,7 +51,7 @@ export const CREATECAMPAIGN = "/Campaigns/addcampaign";
 export const CAMPAIGNLIST = "/Campaigns/getcampaignlist";
 export const ACTIVATECAMPAIGN = "/Campaigns/activatecampaign";
 export const UPDATECAMPAIGN = "/Campaigns/updatecampaign";
-export const CAMPAIGNDETAIL = "/Campaigns/getcampaignbyid";
+export const CAMPAIGNDETAIL = "/Campaigns/getcampaigndetail";
 
 
 export const UPLOADMEDIA = "/Media/uploadmedia"

@@ -26,9 +26,9 @@ export const fetchCampaign = createAsyncThunk(
 
 export const fetchCampaignDetail = createAsyncThunk(
   'campaign/fetchCampaignDetail',
-  async ({CampaignId}, { rejectWithValue }) => {
+  async ({CampaignId ,ClientId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${CAMPAIGNDETAIL}?Id=${CampaignId}`);
+      const response = await API.get(`${CAMPAIGNDETAIL}?ClientId=${ClientId ? ClientId : localStorage.getItem('clientId')}&CampaignId=${CampaignId}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           campaigndetail: response.data.result,
