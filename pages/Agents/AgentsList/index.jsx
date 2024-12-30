@@ -32,7 +32,7 @@ const AgentsList = () => {
 
   const agentColumn = [
     
-    
+    { name: "User Name", selector: (row) => row.userName, sortable: true },
     { name: "First Name", selector: (row) => row.agentFName, sortable: true },
     { name: "Last Name", selector: (row) => row.agentLName, sortable: true },
     { name: "Status", selector: (row) => row.statusName, sortable: true },
