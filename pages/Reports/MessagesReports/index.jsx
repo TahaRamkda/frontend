@@ -1,7 +1,7 @@
 "use client";
 import React, { useMemo,useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMessageReportSummary, clearMessageReportSummaryState, setPageSize, setCurrentPage } from "@/slices/ReportSlice";
+import { fetchMessageReport, clearMessageReportState, setPageSize, setCurrentPage } from "@/slices/ReportSlice";
 import { Container, Row, Col, Table, input, Button,  Pagination, List, label, PaginationItem, PaginationLink, CardBody, Card } from 'reactstrap';
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
@@ -12,20 +12,21 @@ import App from '@/components/App';
 
 
 
-const MessageSummary = () => {
+const MessageReport = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
   const [status, setstatus] = useState(0);
   const [fromDate, setfromDate] = useState("");
   const [toDate, settoDate] = useState("");
+  const [moduleId,setmoduleId ] = useState(0);
   const [srcStr, setsrcStr] = useState('');
   const [sendernameId, setsendernameId] = useState(null);
   const [isfilteropen, setisfilteropen] = useState(false);
  const [showfilterbutton, setshowfilterbutton] = useState(true);
-  const { messagereportsummary, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.reports);
+  const { messagereport, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.reports);
   const [clientId, setClientId] = useState(null);
 
-  const SummaryColumns = [
+  const ReportColumns = [
     { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
     { name: "Status", selector: (row) => row.currentStatusName, sortable: true },
@@ -38,11 +39,12 @@ const MessageSummary = () => {
   useEffect(() => {
     if (clientId) {
       dispatch(
-        fetchMessageReportSummary({
+        fetchMessageReport({
           clientId: clientId,
           fromDate: fromDate,
           toDate: toDate,
           status: status,
+          moduleId:moduleId,
           senderid: senderid,
           srcStr: srcStr,
           sendernameId: sendernameId,
@@ -74,13 +76,13 @@ const MessageSummary = () => {
   
   useEffect(() => {
     if (clientId) {
-      dispatch(fetchMessageReportSummary({ clientId: clientId, fromDate: fromDate , toDate:toDate, status:status, senderid:senderid, srcStr:srcStr, pageSize,pageNo:currentPage}));
+      dispatch(fetchMessageReport({ clientId: clientId, fromDate: fromDate , toDate:toDate,moduleId:moduleId, status:status, senderid:senderid, srcStr:srcStr, pageSize,pageNo:currentPage}));
       
     }
     return () => {
-      dispatch(clearMessageReportSummaryState());
+      dispatch(clearMessageReportState());
     };
-  }, [dispatch, clientId]);
+  }, [dispatch, clientId,moduleId]);
 
   const handleFiltershow = () => {
     setisfilteropen(prevState => !prevState);  // Toggle isfilteropen
@@ -96,7 +98,7 @@ const MessageSummary = () => {
             dispatch(setPageSize(newSize));
             dispatch(setCurrentPage(1)); // Reset to first page
             // Fetch data with updated page size and reset to page 1
-            await  dispatch(fetchMessageReportSummary({ 
+            await  dispatch(fetchMessageReport({ 
               clientId: clientId, 
               fromDate: fromDate, 
               toDate: toDate, 
@@ -112,7 +114,7 @@ const MessageSummary = () => {
           dispatch(setCurrentPage(page));
         
           // Fetch clients for the new page
-          await dispatch(fetchMessageReportSummary({ clientId: clientId, fromDate: fromDate , toDate:toDate, status:status, sendernameId:sendernameId, senderid:senderid, srcStr:srcStr, pageSize ,pageNo: page}));
+          await dispatch(fetchMessageReport({ clientId: clientId, fromDate: fromDate , toDate:toDate,moduleId:moduleId, status:status, sendernameId:sendernameId, senderid:senderid, srcStr:srcStr, pageSize ,pageNo: page}));
         };
    const subHeaderComponentMemo = useMemo(() => {
       return (
@@ -158,6 +160,20 @@ const MessageSummary = () => {
               />
         
             </div>
+            <div className='flex flex-col text-start mb-1'>
+              <label className="font-medium text-gray-700 text-sm">Message Type</label>
+              <select
+              
+                id="ModuleId"
+                value={moduleId}
+                onChange={(e) => setmoduleId(e.target.value)}
+                className="border rounded  w-100"
+              >  <option value={0}>Select</option>
+                <option value={1}>Campaings</option>
+                <option value={2}>API</option>
+                </select>
+        
+            </div>
           </div>
                   
                   
@@ -177,8 +193,8 @@ const MessageSummary = () => {
   </div>
 </div>
         <DataTable
-          data={messagereportsummary}
-          columns={SummaryColumns}
+          data={messagereport}
+          columns={ReportColumns}
           highlightOnHover
           striped
           pagination
@@ -227,4 +243,4 @@ const MessageSummary = () => {
   );
 };
 
-export default MessageSummary;
+export default MessageReport;
