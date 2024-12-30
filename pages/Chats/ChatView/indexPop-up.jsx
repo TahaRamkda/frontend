@@ -4,8 +4,8 @@ import { Container, Row, Col, Table, input, Button,  Pagination, List, label, Pa
 import Loading from '@/components/Loader';
 import App from '@/components/App';
 import { fetchConversationList, fetchConversationMessage, clearconversationstate, clearConversationMessageState, NewAgentMessage } from "@/slices/ConversationSlice";
-
-const Chatview = ({ChatId}) => {
+import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+const Chatview = ({ChatId,onClose, isVisible}) => {
     const dispatch = useDispatch();
      const [Activechat, setActiveChat] = useState(0);
      const { conversationMessage, loading, error } = useSelector((state) => state.conversations);
@@ -35,11 +35,15 @@ const Chatview = ({ChatId}) => {
         
     return (
       <App>
-        
-        <Col xxl="3" xl="4" md="5" className="box-col-5 p-0" style={{ height: '100vh' }}>
-        <Card className="right-sidebar-chat h-100">
-        <div className="right-sidebar-chat p-4 w-full height-chat-box overflow-y-auto chat-background h-100">
-          <div className="msger flex flex-col h-full">
+        <Modal isOpen={isVisible} toggle={onClose} fade={false}>
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50 ">
+        <div className="bg-white p-6 rounded shadow-lg w-2/5 relative h-2/3">
+        <ModalHeader toggle={onClose}></ModalHeader>
+        <ModalBody>
+       
+        <div className="right-sidebar-chat ">
+        <div className="right-sidebar-chat p-4 w-full height-chat-box overflow-y-auto chat-background " style={{height:'569px'}} >
+          <div className="msger flex flex-col ">
             <div className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2">
               {loading && (
                 <div className='text-center'>Please wait while we load your messages..!!</div>
@@ -95,9 +99,12 @@ const Chatview = ({ChatId}) => {
           
           </div>
         </div>
-      </Card>
-          </Col>
-      
+      </div>
+         
+          </ModalBody>
+          </div>
+          </div>
+          </Modal>
       </App>
    
     );

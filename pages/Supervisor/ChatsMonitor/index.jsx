@@ -6,6 +6,7 @@ import { fetchConversationMessage, clearConversationMessageState } from '@/slice
 import { Container, Row, Col, Table, input, Button,  Pagination, List, label, PaginationItem, PaginationLink, CardBody, Card } from 'reactstrap';
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
+import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import DataTable from "react-data-table-component";
 import { HiPencilAlt, HiTrash, HiRefresh } from "react-icons/hi";
 import Loading from '@/components/Loader';
@@ -45,7 +46,9 @@ const ChatsReport = () => {
 
   ];
   
-  
+  const handleCancel = () =>{
+    setshowchat(false)
+  }
 
 
   const handleSenderChange = (e) => {
@@ -172,6 +175,8 @@ const ChatsReport = () => {
         showchat && (
           <Chatview
           ChatId={activeChat}
+          isVisible={true}
+        onClose={handleCancel}
             />
         )
       }

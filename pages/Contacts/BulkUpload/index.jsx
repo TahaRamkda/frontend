@@ -85,15 +85,21 @@ const BulkUpload = ({ onClose, onsuccess,isVisible }) => {
                     }}
                   />
                   </div>
-                  <div className=" flex gap-4 w-full">
-                  <div className="mt-4 flex justify-start"><a href="/assets/Sample_File.xlsx" download className="">Sample </a></div>
-                  <div className="mt-4 flex text-end">
-                   <Button className="uniform_btn" type="submit" disabled={isSubmitting}>
-                    Upload
-                  </Button>
-                  </div>
-                  </div>
-                  
+                 <div className="flex justify-between items-center w-full mt-4">
+  {/* Link aligned to the start */}
+  <div>
+    <a href="/assets/Sample_File.xlsx" download className="text-blue-500 hover:underline">
+      Sample
+    </a>
+  </div>
+  {/* Button aligned to the end */}
+  <div>
+    <Button className="uniform_btn" type="submit" disabled={isSubmitting}>
+      Upload
+    </Button>
+  </div>
+</div>
+
                 </div>
               </Form>
             )}
