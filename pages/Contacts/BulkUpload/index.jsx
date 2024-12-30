@@ -13,10 +13,10 @@ const BulkUpload = ({ onClose, onsuccess,isVisible }) => {
   const [FieldValue, setFieldValue] = useState(null); // Track uploaded file URL
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    
+    debugger
     const formData = new FormData();
     formData.append("ClientId", localStorage.getItem("clientId"));
-    formData.append("File", values.UploadFile);
+    formData.append("File", FieldValue);
     formData.append("ActionBy", localStorage.getItem("userId"));
     try {
       const response = await dispatch(bulkUpload(formData)).unwrap();
@@ -77,11 +77,11 @@ const BulkUpload = ({ onClose, onsuccess,isVisible }) => {
                   <Input
                     type="file"
                     className="form-control"
-                    accept=".xls,.xlsx,image/*,video/*,audio/*,.pdf"
+                    accept=".xls,.xlsx"
                     required
                     onChange={(event) => {
                       const file = event.currentTarget.files[0];
-                      setFieldValue("UploadFile", file || null);
+                      setFieldValue(file);
                     }}
                   />
                   </div>

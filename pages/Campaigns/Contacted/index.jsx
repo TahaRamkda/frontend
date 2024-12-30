@@ -66,31 +66,7 @@ const LastContactedList = ({ isVisible, onClose, onsuccess, campaignId }) => {
     );
   };
 
-  // Handle save (simulating an API call)
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    onsuccess();
-    onClose();
-
-    // Simulating a save operation (API call)
-    try {
-      // You can replace this with the actual API call when you fetch/save the data
-      showSweetAlert({
-        title: "Data Saved Successfully",
-        text: "",
-        icon: "success",
-      });
-    } catch (err) {
-      showSweetAlert({
-        title: "Failed",
-        text: err.message || "",
-        icon: "error",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  
 
   return (
     <Modal isOpen={isVisible} toggle={onClose} fade={false}>
@@ -158,13 +134,7 @@ const LastContactedList = ({ isVisible, onClose, onsuccess, campaignId }) => {
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button
-              color="primary"
-              onClick={handleSubmit}
-              className="uniform_btn"
-            >
-              Save
-            </Button>
+          
           </ModalFooter>
         </div>
       </div>
