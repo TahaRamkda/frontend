@@ -20,18 +20,12 @@ import { Await } from 'react-router-dom';
 function MyApp({ Component, pageProps }) {
     const [permissions, setPermissions] = useState([]);
     const router = useRouter();
-    const[isAuthenticated, setIsAuthenticated] = useState(false);
-   
-    useState(() => {
-      const authorise =
-      typeof window !== "undefined" &&
-      localStorage.getItem("accessToken") &&
-      localStorage.getItem("tokenexpiry") &&
-      new Date() < new Date(localStorage.getItem("tokenexpiry"));
-      if(authorise){
-        setIsAuthenticated(true);
-      }
-    },[]);
+    const isAuthenticated =
+    typeof window !== "undefined" &&
+    localStorage.getItem("accessToken") &&
+    localStorage.getItem("tokenexpiry") &&
+    new Date() < new Date(localStorage.getItem("tokenexpiry"));
+    
 
 
    //------------------------------------//----permission logic to be disscussed------------------------------//--------------------------------
