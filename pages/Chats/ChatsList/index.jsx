@@ -394,15 +394,16 @@ const ChatPage = () => {
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
-              marginBottom: '2px', // Further reduced margin for spacing between fullName and phoneNumber
+              paddingTop: '3px',
+              lineHeight: '13px' // Further reduced margin for spacing between fullName and phoneNumber
             }}
           >
             {conversation.fullName}
           </span>
           <span
-            className="block text-sm text-gray-600"
+            className="block text-xs text-gray-600"
             style={{
-              marginBottom: '2px', // Further reduced margin for spacing between phoneNumber and lastMessageText
+              lineHeight: '30px' // Further reduced margin for spacing between phoneNumber and lastMessageText
             }}
           >
             {conversation.phoneNumber}
@@ -410,7 +411,7 @@ const ChatPage = () => {
 
           {conversation.lastMessageText !== '' ? (
             <p
-              className="block text-sm text-gray-500 mt-0"
+              className="block text-xs text-gray-500 mt-0"
               style={{
                 width: '220px', // Adjusted width for better tile look
                 overflow: 'hidden',
@@ -424,7 +425,7 @@ const ChatPage = () => {
           ) : (
             <div className="flex items-center mt-0">
               <i className="fa fa-photo mr-2 text-gray-500"></i>
-              <p className="block text-sm text-gray-500">Media</p>
+              <p className="block text-xs text-gray-500">Media</p>
             </div>
           )}
         </div>
@@ -506,6 +507,11 @@ const ChatPage = () => {
         type="text"
         value={messageInput}
         onChange={(e) => setMessageInput(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            HandleSendMessage();
+          }
+        }}
         placeholder="Type a message..."
         className="rounded-lg border-0 shadow-sm"
       />
