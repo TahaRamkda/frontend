@@ -8,7 +8,7 @@ import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import DataTable from "react-data-table-component";
-import { HiPencilAlt, HiTrash, HiRefresh } from "react-icons/hi";
+import { HiPencilAlt, HiTrash, HiRefresh,HiEye } from "react-icons/hi";
 import Loading from '@/components/Loader';
 import App from '@/components/App';
 import Chatview from '@/pages/Chats/ChatView/indexPop-up';
@@ -37,7 +37,13 @@ const ChatsReport = () => {
                   className="uniform_icon_btn"
                   onClick={() => handleDetailClick(row.id)}
                 >
-                  <HiPencilAlt style={{ fontSize: "15px" }} />
+                  <HiEye style={{ fontSize: "15px" }} />
+                </button>
+                <button
+                  className="uniform_icon_btn"
+                  onClick={() => handleDetailClick(row.id)}
+                >
+                  <HiRefresh style={{ fontSize: "15px" }} />
                 </button>
               </div>
             </center>
