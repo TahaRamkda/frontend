@@ -1212,7 +1212,7 @@ const TemplateCreationPage = () => {
 
                     <div className="w-full flex justify-end gap-3">
                       <Button
-                        className="uniform_btn_Cancel "
+                        className="uniform_btn_Cancel mt-4"
                         onClick={handelCancel}
                       >
                         Cancel
