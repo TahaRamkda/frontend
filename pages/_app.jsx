@@ -16,33 +16,40 @@ import { store } from '@/store/store';
 import { PermissionsProvider } from '@/context/PermissionsContext';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { sidebarItems } from '@/utils/sidebarItems';
+import { Await } from 'react-router-dom';
 function MyApp({ Component, pageProps }) {
     const [permissions, setPermissions] = useState([]);
     const router = useRouter();
-    const isAuthenticated =
-    typeof window !== "undefined" &&
-    localStorage.getItem("accessToken") &&
-    localStorage.getItem("tokenexpiry") &&
-    new Date() < new Date(localStorage.getItem("tokenexpiry"));
+    const[isAuthenticated, setIsAuthenticated] = useState(false);
+   
+    useState(() => {
+      const authorise =
+      typeof window !== "undefined" &&
+      localStorage.getItem("accessToken") &&
+      localStorage.getItem("tokenexpiry") &&
+      new Date() < new Date(localStorage.getItem("tokenexpiry"));
+    })
 
 
    //------------------------------------//----permission logic to be disscussed------------------------------//--------------------------------
   
   useEffect(() => {
+    
     if (!isAuthenticated) {
-      debugger
+      
       if (router.pathname !== "/auth/login") {
         router.push("/auth/login");
       }
     } else {
-      if (router.pathname === "/" || router.pathname === "/auth/login" || router.pathname === "/Dashboard") {
+      if (router.pathname === "/" || router.pathname === "/auth/login" || router.pathname.toLowerCase() === "/dashboard") {
         const permissionData =  localStorage.getItem("permission");
         const permissionJson = permissionData ? JSON.parse(permissionData) : [];
   
-       if (permissions.length > 0) {
+       if (permissionJson.length > 0) {
+        
                  // Find the first matching permission task name in sidebarItems
                  const matchingItem = sidebarItems.find((item) =>
-                  permissions.some(
+                  permissionJson.some(
                      (permission) =>
                        permission.permissionTaskName.toLowerCase() === item.text.toLowerCase() &&
                        permission.canView // Ensure the permission allows viewing
@@ -51,6 +58,7 @@ function MyApp({ Component, pageProps }) {
          
                  // Redirect to the href of the matching item or to a default route
                  if (matchingItem) {
+                  debugger
                    router.push(matchingItem.href);
                  } else {
                    SweetAlert.fire({
@@ -66,14 +74,19 @@ function MyApp({ Component, pageProps }) {
     }
   }, [isAuthenticated, router.pathname]);
 
-    useEffect(() => {
-        const fetchPermissionDetail = async () => {
+  useEffect(() => {
+    const fetchPermissionDetail =  () => {
+        try {
             const permissionData = localStorage.getItem("permission");
             const permissionJson = permissionData ? JSON.parse(permissionData) : [];
             setPermissions(permissionJson);
-        };
-        fetchPermissionDetail();
-    }, []);
+        } catch (error) {
+            console.error("Error fetching permission details:", error);
+        }
+    };
+
+    fetchPermissionDetail();
+}, []);
 
 
     const basePath = router.pathname.split('/')[1]?.toLowerCase().replace(' ', ''); // Extract base module (e.g., 'clients')

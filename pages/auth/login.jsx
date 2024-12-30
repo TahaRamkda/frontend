@@ -23,36 +23,19 @@ import { sidebarItems } from '@/utils/sidebarItems';
       // Dispatch the fetchLogin action with email and password
       dispatch(fetchLogin({ email, password }));
     };
-  
+    
+
+   
     useEffect(() => {
+      
       if (authData) {
         
         // Set login cookie
         Cookies.set("edmin_login", JSON.stringify(true));
-  
-        // Get permission data from local storage
-        const permissionData = localStorage.getItem("permission");
+        const permissionData =  localStorage.getItem("permission");
         const permissionJson = permissionData ? JSON.parse(permissionData) : [];
-  
-        if (permissionJson.length > 0) {
-          // Find the first matching permission task name in sidebarItems
-          const matchingItem = sidebarItems.find((item) =>
-            permissionJson.some(
-              (permission) =>
-                permission.permissionTaskName === item.text &&
-                permission.canView // Ensure the permission allows viewing
-            )
-          );
-  
-          // Redirect to the href of the matching item or to a default route
-          if (matchingItem) {
-            router.push(matchingItem.href);
-          } else {
-           
-          }
-        } else {
-          router.push("/auth/login");
-        }
+        // Redirect to dashboard
+        router.push("/");
       }
   
       if (error) {

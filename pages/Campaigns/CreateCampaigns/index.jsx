@@ -61,6 +61,7 @@ const CampaignCreate = () => {
   const [campaignName, setcampaignName] = useState("");
   const [variables, setVariables] = useState([]);
   const [urlvariables, seturlvariables] = useState([]);
+  const [senturlvariables, setsenturlvariables] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [headContent, setHeadContent] = useState("");
   const [APIheadContent, setAPIheadContent] = useState("");
@@ -163,6 +164,14 @@ const CampaignCreate = () => {
         }
       });
     }
+    if (template.buttonValues.some(item => item.value !== null)) {
+      const filteredButtonValues = template.buttonValues.filter(
+        item => item["isDynamic"] && item.value !== null
+      );
+      setsenturlvariables(filteredButtonValues);
+      console.log("urlvariables", filteredButtonValues);
+    }
+    
     setSelectedSenderId(template.senderId);
     // Update Buttons
     setTotalButtonCount(updatedMessagePreview.buttons.length);
@@ -186,7 +195,9 @@ const CampaignCreate = () => {
   }, [bodyFinalContent]);
 
   const handleSubmit = async (values) => {
+    
     let trimmedBodyContent = APIbodyContent.trimEnd();
+    
     const requestBody = {
       templateId: selectedTemplateId,
       clientId: localStorage.getItem("clientId"),
@@ -196,14 +207,16 @@ const CampaignCreate = () => {
       senderId: template.senderId,
       groupIds: selectedGroups.join(","),
       actionBy: localStorage.getItem("userId"),
+
       campaignParameters: [
+        
         ...headerVariable.map((value, index) => ({
           sequence: index + 1,
           paramName: `${index + 1}`, // Dynamic name for header variables
           paramText: value,
           paramType: 1,
           paramDefaultValue: value,
-          isDynamic: false,
+          isDynamic: true,
           status: 0,
         })),
         ...variables.map((value, index) => ({
@@ -212,7 +225,17 @@ const CampaignCreate = () => {
           paramText: value, // Use value from headerVariable
           paramType: 2, // Static type
           paramDefaultValue: value, // Default value same as value
-          isDynamic: false, // Static boolean
+          isDynamic: true, // Static boolean
+          status: 0, // Static status
+        })),
+        ...senturlvariables.map((value, index) => 
+          ({
+          sequence: value.values.index,
+          paramName: `${index + 1}`, // Dynamic name for header variables
+          paramText: value.values.value, // Use value from headerVariable
+          paramType: 3, // Static type
+          paramDefaultValue: value.values.value, // Default value same as value
+          isDynamic: true, // Static boolean
           status: 0, // Static status
         })),
       ],
@@ -316,9 +339,14 @@ const CampaignCreate = () => {
   };
 
   const handleurlVariableChange = (index, value) => {
-    seturlvariables((prev) => {
+    setsenturlvariables((prev) => {
       const newurlVariable = [...prev];
-      newurlVariable[index] = value;
+      // Create a new object for the `values` property
+      const updatedButton = {
+        ...newurlVariable[index], 
+        values: { ...newurlVariable[index].values, value } // Create a new `values` object
+      };
+      newurlVariable[index] = updatedButton; // Replace the button at index with the updated button
       return newurlVariable;
     });
   };
@@ -420,9 +448,12 @@ const CampaignCreate = () => {
                         />
                       </FormGroup>
                     </div>
+                    {headerVariable.length > 0 && (
+                      <h5>Header Variables</h5>
+                    )}
                     {headerVariable.map((variable, index) => (
                       <FormGroup key={index}>
-                        <h5>Header Variables</h5>
+                        
                         <Label>{`Value for {${index + 1}}`}</Label>
                         <Input
                           type="text"
@@ -436,9 +467,12 @@ const CampaignCreate = () => {
                         />
                       </FormGroup>
                     ))}
-
+                    {variables.length > 0 && (
+                      <h5>Body Variables</h5>
+                    )}
                     {variables.map((variable, index) => (
                       <FormGroup key={index}>
+                        
                         <Label>{`Body Value for {${index + 1}}`}</Label>
                         <Input
                           type="text"
@@ -452,44 +486,29 @@ const CampaignCreate = () => {
                         />
                       </FormGroup>
                     ))}
-                    {urlvariables.map((variable, index) => (
-                      <FormGroup key={index}>
-                        <Label>{`Sample Value for {${index + 1}}`}</Label>
+                     {senturlvariables.length > 0 && (
+                       <h5>URL Variables</h5>
+                    )}
+                    {senturlvariables.map((variable) => (
+                      <FormGroup key={variable.index}>
+                       
+                        <Label>{`Url Value for {${1}}`}</Label>
                         <Row>
                           <Col>
                             <Input
                               className="w-90"
                               type="text"
-                              value={variable}
+                              value={variable.values.value}
+                              //data-id={variable.index}
                               onChange={(e) =>
-                                handleurlVariableChange(index, e.target.value)
+                                handleurlVariableChange(0, e.target.value)
                               }
                               placeholder={`Enter Sample  value for {${
-                                index + 1
+                                variable.index + 1
                               }}`}
                             />
                           </Col>
-                          <Col>
-                            <div
-                              className="border-1 flex items-center justify-center rounded"
-                              style={{
-                                height: "46px",
-                                width: "38px",
-                                background: "#e1e1e1",
-                              }}
-                            >
-                              <FaTimes
-                                key={index}
-                                onClick={() => {
-                                  removeHeaderVariable(index);
-                                  setHeaderVariable(
-                                    headerVariable.filter((_, i) => i !== index)
-                                  );
-                                }}
-                                style={{ cursor: "pointer", color: "red" }}
-                              />
-                            </div>
-                          </Col>
+                         
                         </Row>
                       </FormGroup>
                     ))}
@@ -514,8 +533,28 @@ const CampaignCreate = () => {
               }}
             </Formik>
           </Col>
-          <Col md={5} className="overflow-auto">
-            <div>
+          <Col
+            md={4}
+            className="overflow-hidden h-screen fixed right-10"
+            // style={{
+            //   position: "fixed", // Fix the position
+            //   top: "-50", // Adjust to your layout
+            //   right: "0", // Align to the right side of the screen
+            //   height: "100vh", // Full viewport height to ensure scrollability
+            //   overflowY: "auto", // Enable vertical scrolling
+            //   backgroundColor: "#f8f9fa", // Optional: background color for contrast
+            //   boxShadow: "0 0 10px rgba(0,0,0,0.1)", // Optional: Add shadow for emphasis
+            // }}
+          >
+            <div
+              style={{
+                position: "sticky",
+                top: "0",
+                zIndex: "10",
+                backgroundColor: "white", // Ensure the background color covers the content behind it
+                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+              }}
+            >
               <h4
                 className="mb-1 bg-light p-3 shadow-sm"
                 style={{ maxWidth: "600px", margin: "auto" }}
@@ -556,7 +595,6 @@ const CampaignCreate = () => {
                 </span>
                 {messagePreview.media &&
                   selectedMediaType.startsWith("image/") && (
-                    //alert(selectedMediaPath),
                     <img
                       src={`${BASE_URL}${selectedMediaPath}`}
                       alt="Media"
@@ -601,22 +639,22 @@ const CampaignCreate = () => {
                       }}
                     />
                   )}
-
                 {messagePreview.header && (
                   <h6
-                    style={{ marginBottom: "5px" }}
+                    style={{ marginBottom: "" }}
                     dangerouslySetInnerHTML={{ __html: messagePreview.header }}
                   />
                 )}
                 <div
                   dangerouslySetInnerHTML={{ __html: messagePreview.body }}
+                  
                 />
+                
                 {messagePreview.footer && (
-                  <p style={{ marginTop: "5px", fontSize: "0.9em" }}>
+                  <p style={{ marginTop: "", fontSize: "0.9em" }}>
                     {messagePreview.footer}
                   </p>
                 )}
-
                 {(Showallbutton || TotalButtonCount <= 3) &&
                   messagePreview.buttons.map((button, index) => (
                     <Button
@@ -636,7 +674,6 @@ const CampaignCreate = () => {
                       {button.type == 1 && (
                         <span style={{ color: "#00a9ee" }}>
                           <i className="fa fa-share fa-flip-horizontal me-2"></i>
-
                           {button.text || "Button"}
                         </span>
                       )}
@@ -654,7 +691,7 @@ const CampaignCreate = () => {
                       )}
                     </Button>
                   ))}
-                {TotalButtonCount > 3 && (
+                {TotalButtonCount > 3 && !Showallbutton && (
                   <Button
                     className="w-100 mb-2"
                     style={{
@@ -669,9 +706,29 @@ const CampaignCreate = () => {
                     }}
                     onClick={() => setShowallbutton(!Showallbutton)}
                   >
-                    {" "}
                     <i className="fa fa-list"></i>
                     <span style={{ color: "#00a9ee" }}>See all options</span>
+                  </Button>
+                )}
+                {TotalButtonCount > 3 && Showallbutton && (
+                  <Button
+                    className="w-100 mb-2"
+                    style={{
+                      color: "#00a9ee",
+                      backgroundColor: "#ffffff",
+                      borderColor: "#ffffff",
+                      borderStyle: "solid",
+                      borderWidth: "1px 1px 1px 1px",
+                      borderTopWidth: "0.5px",
+                      borderTopStyle: "solid",
+                      borderTopColor: "#e1e1e1",
+                    }}
+                    onClick={() => setShowallbutton(false)}
+                  >
+                    <span style={{ color: "#00a9ee" }}>
+                      <i className="fa fa-bars me-2"></i>
+                      Hide All
+                    </span>
                   </Button>
                 )}
               </div>
