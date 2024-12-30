@@ -60,7 +60,7 @@ export const GroupsDropdown = ({ onChange }) => {
   return (
     <>
       <div>
-        <Input
+        <select
           ref={selectRef}
           id="groupSelect"
           innerRef={selectRef}
@@ -79,7 +79,7 @@ export const GroupsDropdown = ({ onChange }) => {
           ) : (
             <option disabled>No records found</option>
           )}
-        </Input>
+        </select>
       </div>
     </>
   );

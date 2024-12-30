@@ -5,7 +5,7 @@ import clientSlice from "@/slices/ClientSlice";
 import sendernameSlice from "@/slices/sendernameSlice";
 import GroupSlice from "@/slices/Groupslice";
 import templateSlice from "@/slices/TemplateSlice";
-import CampaignSlice from "@/slices/campaignSlice"
+import CampaignSlice from "@/slices/CampaignSlice"
 import mediaSlice from "@/slices/MediaSlice";
 import roleSlice from "@/slices/RoleSlice";
 import userSlice from "@/slices/UserSlice";
@@ -14,6 +14,7 @@ import reportSlice from "@/slices/ReportSlice";
 import agentSlice from "@/slices/AgentSlice";
 import conversationSlice from "@/slices/ConversationSlice";
 import MasterSlice from "@/slices/MasterSlice";
+import SuperwiserSlice from "@/slices/SuperwiseSlice"
 import { configureStore } from "@reduxjs/toolkit";
 
 export const store = configureStore({
@@ -34,6 +35,7 @@ export const store = configureStore({
     agents:agentSlice,
     conversations:conversationSlice,
     Master:MasterSlice,
+    Supervisor:SuperwiserSlice,
 
     }
 })

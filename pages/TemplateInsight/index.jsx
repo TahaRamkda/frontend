@@ -152,7 +152,12 @@ const TemplateInsight = () => {
           </div>
         </div>
         {/* Tiles */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="mt-5">
+        <h3 className="font-bold mb-4">Total Responses</h3>
+        <div >
+        <div className="grid grid-cols-5 gap-4">
+          
+         
           {templateInsight?.TemplateResponses?.map((tile, index) => (
             <div
               key={index}
@@ -160,11 +165,7 @@ const TemplateInsight = () => {
               style={{ borderTop: `4px solid ${tile.Color}` }}
             >
               <h3 className="text-lg font-semibold">{tile.Title}</h3>
-              <p className="text-lg font-semibold">Sent: {tile.ResponseText}</p>
-              <p className="text-lg font-semibold">
-                Delivered: {tile.DeliveredCount}
-              </p>
-              <p className="text-lg font-semibold">Read: {tile.ReadCount}</p>
+              <p className="text-lg font-semibold">{tile.ResponseText}</p>
             </div>
           ))}
 
@@ -182,7 +183,7 @@ const TemplateInsight = () => {
               <p className="text-lg font-semibold">Read: {tile.ReadCount}</p>
             </div>
           ))}
-
+          </div>
           {templateInsight?.TotalConversations?.map((tile, index) => (
             <div
               key={index}
@@ -198,9 +199,8 @@ const TemplateInsight = () => {
               </p>
             </div>
           ))}
-        </div>
-
-        {/* Line Chart */}
+          </div>
+          </div>
       </div>
     </App>
   );

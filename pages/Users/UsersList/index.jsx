@@ -9,6 +9,8 @@ import { useDispatch, useSelector } from "react-redux";
 import RolesDropdown from "@/components/MultiSelect/RoleDropdown";
 import { fetchUser, clearUserState, deleteUser, fetchUserById, updateUser } from "@/slices/UserSlice";
 import showSweetAlert from "@/components/Sweetalert";
+import { HiPencilAlt, HiTrash } from "react-icons/hi";    
+import UserForm from "../CreateUsers";
 import App from '@/components/App';
 
 const UserList = () => {
@@ -21,8 +23,7 @@ const UserList = () => {
   const [filterText, setFilterText] = useState("");
 
   const userColumns = [
-    { name: "User ID", selector: (row) => row.userId, sortable: true },
-    { name: "Client ID", selector: (row) => row.clientId, sortable: true },
+   
     { name: "User Name", selector: (row) => row.userName, sortable: true },
     { name: "Full Name", selector: (row) => row.fullName, sortable: true},
     { name: "Is Active?", selector: (row) => (row.isActive ? "Yes" : "No"), sortable: true },
@@ -30,8 +31,10 @@ const UserList = () => {
       name: "Action",
       cell: (row) => (
         <>
-          <button onClick={() => handleDetailClick(row.userId)}>{Edit}</button>
-          <button onClick={() => handleDeleteClick(row.userId)}>{Delete}</button>
+        <div className="flex gap-2">
+          <button className="uniform_icon_btn"onClick={() => handleDetailClick(row.userId)}><HiPencilAlt style={{fontSize: "15px"}}/></button>
+          <button  className="uniform_icon_btn" onClick={() => handleDeleteClick(row.userId)}><HiTrash style={{fontSize: "15px"}}/></button>
+          </div>
         </>
       ),
     },
@@ -121,6 +124,9 @@ const UserList = () => {
   const handleDropdownChange = (value) => {
     setUserForm((prev) => ({ ...prev, userRoles: value }));
   };
+  const handleCheckboxChange = (value) => {
+    setUserForm((prev) => ({ ...prev, isActive: value }));
+  };
   
   useEffect(() => {
     dispatch(fetchUser({ clientId: localStorage.getItem("clientId") }));
@@ -138,7 +144,7 @@ const UserList = () => {
     <div className="w-full">
     <div className="grid grid-cols-5 gap-4">
      <div className="flex flex-col space-y-1 text-start mb-1 ">
-      <label className="font-medium text-gray-700 text-sm">Search Users</label>
+      <label className="font-medium text-gray-700 text-sm">Search </label>
       <input type="search" className="border rounded py-1 px-2 w-full text-sm" value={filterText} onChange={(e) => setFilterText(e.target.value)} placeholder={"Enter Text"} />
     </div>
     </div>
@@ -146,7 +152,7 @@ const UserList = () => {
   ), [filterText]);
 
   if (loading) {
-    return <p>{t("Loading...")}</p>;
+    return <p>Loading...</p>;
   }
 
   if (error) {
@@ -176,13 +182,47 @@ const UserList = () => {
               highlightOnHover
               striped
               pagination
-              className="display dataTable custom-scrollbar"
+              paginationServer
               subHeader
               subHeaderComponent={subHeaderComponentMemo}
+              className="w-full border"
+              customStyles={{
+                table: {
+                  style: {
+                    width: '100%',
+                    borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
+                  },
+                },
+                headRow: {
+                  style: {
+                    borderBottom: '1px solid #ddd',  padding: '0px',
+                  },
+                },
+                headCells: {
+                  style: {
+                    
+                    borderRight: '1px solid #ddd', // Grid line between columns
+                    fontWeight: 'bold',
+                  },
+                },
+                rows: {
+                  style: {
+                    borderBottom: '1px solid #ddd', // Horizontal grid line between rows
+                  },
+                },
+                cells: {
+                  style: {
+                    
+                    borderRight: '1px solid #ddd', // Vertical grid line between cells
+                  },
+                },
+              }}
             />
           
        
-      <Modal isOpen={isModalOpen} toggle={() => setIsModalOpen(!isModalOpen)} style={{ maxWidth: "800px", width: "90%" }}>
+      <Modal isOpen={isModalOpen} toggle={() => setIsModalOpen(!isModalOpen)} fade={false} >
+      <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
         <ModalHeader toggle={() => setIsModalOpen(!isModalOpen)}>Edit User</ModalHeader>
         <ModalBody>
           {userForm && (
@@ -225,25 +265,32 @@ const UserList = () => {
                 </Col>
                 <Col md={6}>
                   <FormGroup>
-                    <Label for="isActive">{"Is Active?"}</Label>
+                    <Label for="isActive">Is Active? </Label>
                     <Input
                       type="checkbox"
                       id="isActive"
                       name="isActive"
-                      checked={userForm.isActive}
-                      onChange={(e) => setUserForm({ ...userForm, isActive: e.target.checked })}
+                      checked={userForm.isActive || false}
+                      onChange={(e) => handleCheckboxChange(e.target.checked)}
                     />
                   </FormGroup>
                 </Col>
               </Row>
               <Button color="primary" type="submit">
-                {t(UpdateSender)}
+                Save
               </Button>
             </Form>
           )}
         </ModalBody>
+        </div>
+        </div>
       </Modal>
-   
+   {CreateModalOpen&&(
+    <UserForm 
+    isVisible={true}
+    onClose={handleCancel}
+    onsuccess={refreshUserList}/>
+   )}
     </App>
   );
 };

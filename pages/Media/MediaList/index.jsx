@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMedia, clearMediaState, deleteMedia } from "@/slices/MediaSlice";
+import { ModalHeader } from "reactstrap";
 import SweetAlert from "sweetalert2";
 import App from '@/components/App';
 import UploadMedia from "../UploadMedia";
@@ -170,6 +171,7 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr }) => {
     <>
       {
         isPopup ? (
+         
           <div
             className={`fixed inset-0 z-10 bg-gray-600 bg-opacity-50 flex justify-center items-center ${isModalOpen ? "block" : "hidden"}`}
           >
@@ -187,6 +189,7 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr }) => {
               {renderContent()}
             </div>
           </div>
+         
         ) : (
           <App>
             {renderContent()}

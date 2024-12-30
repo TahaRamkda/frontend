@@ -37,7 +37,7 @@ const SendernameList = () => {
         <img
           src={`${BASE_URL}${row.mediaPath}`}
           alt="Image"
-          className="w-12 h-12 object-cover rounded-lg"
+          className="w-8 h-8 object-cover rounded-lg"
         />
         <div className="flex items-center">
           <span>{row.senderName}</span>

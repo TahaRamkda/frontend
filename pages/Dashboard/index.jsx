@@ -12,7 +12,9 @@ import {
   Legend,
 } from "chart.js";
 import App from "@/components/App";
+import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 import { fetchDashboardSummary, clearDashboardReportState } from "@/slices/ReportSlice";
+
 import Loader from "@/components/Loader";
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -21,8 +23,9 @@ const Dashboard = () => {
   const dispatch = useDispatch();
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [SenderId, setSenderId] = useState(0);
   const { dashboardsummary, loading, error } = useSelector((state) => state.reports);
-
+  const clientId = localStorage.getItem("clientId");
   useEffect(() => {
     const today = new Date();
     const lastWeek = new Date(today);
@@ -42,19 +45,23 @@ const Dashboard = () => {
   useEffect(() => {
     if (fromDate && toDate) {
       localStorage.setItem("activeModule", "0");
-      const clientId = localStorage.getItem("clientId");
+      
       const senderId = localStorage.getItem("userId");
-      dispatch(fetchDashboardSummary({ clientId, fromDate, toDate, senderid: senderId }));
+      dispatch(fetchDashboardSummary({ clientId, fromDate, toDate, senderid: SenderId }));
     }
     return () => {
       clearDashboardReportState();
     };
-  }, [dispatch, fromDate, toDate]);
+  }, [dispatch, fromDate, toDate,SenderId]);
 
   const handleDateChange = (setter) => (e) => {
     setter(e.target.value);
   };
-
+const handleChange = (e) => {
+    const senderId = e.target.value;
+    setSenderId(senderId)
+    dispatch(fetchDashboardSummary({ clientId, fromDate, toDate, senderid: SenderId }));
+  };
   const lineChartData = {
     labels: dashboardsummary?.TotalMessagesChart?.map((item) => item.CreatedDate) || [],
     datasets: [
@@ -106,6 +113,10 @@ const Dashboard = () => {
               className="border rounded py-1 px-2 w-full text-sm"
             />
           </div>
+          <div className="flex flex-col mb-1 text-start">
+        <label className="font-medium text-gray-700 text-sm">Sender Names</label>
+        <SendernameDropdown     name="senderId"  onChange={handleChange} />
+        </div>
         </div>
         {/* Tiles */}
         <div className="grid grid-cols-5 gap-4">
@@ -167,7 +178,7 @@ const Dashboard = () => {
               <p className="text-lg font-semibold">Messages: {tile.TotalMessages}</p>
             </div>
           ))}
-            {dashboardsummary?.TotalConversationsInitiated?.map((tile, index) => (
+            {dashboardsummary?.ActiveConversations.map((tile, index) => (
             <div
               key={index}
               className="bg-white shadow-md rounded-lg p-4 text-left"
@@ -177,7 +188,9 @@ const Dashboard = () => {
               <hr className="h-1" />
 
               <p className="text-lg font-semibold">Count: {tile.TotalConversation}</p>
-              <p className="text-lg font-semibold">Messages: {tile.TotalMessages}</p>
+              <p className="text-lg font-semibold">Not Assigned: {tile.NotAssigned}</p>
+              <p className="text-lg font-semibold">Assigned: {tile.Assigned}</p>
+
             </div>
           ))}
         </div>

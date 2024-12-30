@@ -379,6 +379,7 @@ const TemplateCreationPage = () => {
 
 
   const removeHeaderVariable = (index) => {
+    debugger
     //alert(bodyPayloadDatawithVar)
     const updatedVariables = headerVariable.filter((_, i) => i !== index);
     const updatedHeadContent = headerPayloadDatawithVar
@@ -587,9 +588,6 @@ const TemplateCreationPage = () => {
       }
     }
   };
-  const handelCancel = ()=>{
-    router.push("/Templates/TemplatesList")
-   }
   
   useEffect(() => {
     if (buttonType) {
@@ -1190,12 +1188,9 @@ const TemplateCreationPage = () => {
                       </div>
                     ))}
 
-                    <div className="w-full flex justify-end gap-3">
-                    <Button className="uniform_btn_Cancel " onClick={handelCancel}>
-                      Cancel
-                    </Button>
+                    <div className="w-full text-end">
                       <Button
-                        className="uniform_btn "
+                        className="uniform_btn mt-4"
                         onClick={() => handleSubmit(values)}
                       >
                         Create

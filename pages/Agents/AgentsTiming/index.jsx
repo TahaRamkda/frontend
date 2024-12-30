@@ -8,23 +8,25 @@ import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Loader";
 
 const weekDayMapping = {
-  Monday: 1,
-  Tuesday: 2,
-  Wednesday: 3,
-  Thursday: 4,
-  Friday: 5,
-  Saturday: 6,
-  Sunday: 7,
+  Sunday: 1,
+  Monday: 2,
+  Tuesday: 3,
+  Wednesday: 4,
+  Thursday: 5,
+  Friday: 6,
+  Saturday: 7,
+ 
 };
 
 const weekDays = [
+  { name: "Sunday" },
   { name: "Monday" },
   { name: "Tuesday" },
   { name: "Wednesday" },
   { name: "Thursday" },
   { name: "Friday" },
   { name: "Saturday" },
-  { name: "Sunday" },
+ 
 ];
 
 const AgentTimingList = ({ agentId, isVisible, onClose }) => {
@@ -134,7 +136,7 @@ const AgentTimingList = ({ agentId, isVisible, onClose }) => {
                       value={row.weekDayName}
                       onChange={(e) => handleInputChange(index, "weekDayName", e.target.value)}
                     >
-                      <option value="">Select Week Day</option>
+                      <option value="">Select</option>
                       {weekDays.map((day) => (
                         <option key={day.name} value={day.name}>
                           {day.name}

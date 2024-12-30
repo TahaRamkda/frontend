@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
-import {fetchTemplates,clearTemplateState,deleteTemplates,syncTemplates,updateTemplates,fetchTemplatesById,setCurrentPage,setPageSize} from "@/slices/TemplateSlice";
+import { fetchTemplates, clearTemplateState, deleteTemplates, syncTemplates, updateTemplates, fetchTemplatesById, setCurrentPage, setPageSize } from "@/slices/TemplateSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import UpdateTemplate from "../UpdateTemplate";
 import App from "@/components/App";
@@ -15,7 +15,7 @@ import Loading from "@/components/Loader";
 const TemplateList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { templates, loading, error,pageSize, totalRecords, currentPage } = useSelector((state) => state.templates);
+  const { templates, loading, error, pageSize, totalRecords, currentPage } = useSelector((state) => state.templates);
   const [isModalOpen, setIsModalOpen] = useState(false);
   //const [templateId, settemplateId] = useState(0);
   const [filterText, setFilterText] = useState('');
@@ -25,6 +25,21 @@ const TemplateList = () => {
     {
       name: "Template Name",
       selector: (row) => row.templateName,
+      sortable: true,
+    },
+    {
+      name: "Category",
+      selector: (row) => row.category,
+      sortable: true,
+    },
+    {
+      name: "Whatsapp Id",
+      selector: (row) => row.templateId,
+      sortable: true,
+    },
+    {
+      name: "Language",
+      selector: (row) => row.language,
       sortable: true,
     },
     {
@@ -98,31 +113,31 @@ const TemplateList = () => {
       }
     });
   };
- const handlePageSizeChange = async (newSize) => {
-          // Update page size and reset to the first page
-          dispatch(setPageSize(newSize));
-          dispatch(setCurrentPage(1)); // Reset to first page
-          // Fetch data with updated page size and reset to page 1
-          await dispatch( fetchTemplates({
-        clientId: localStorage.getItem("clientId"),
-        TransactonType: transactonType,
-        searchStr: filterText,
-        pageNo:1, pageSize :newSize
-      }));
-        };
+  const handlePageSizeChange = async (newSize) => {
+    // Update page size and reset to the first page
+    dispatch(setPageSize(newSize));
+    dispatch(setCurrentPage(1)); // Reset to first page
+    // Fetch data with updated page size and reset to page 1
+    await dispatch(fetchTemplates({
+      clientId: localStorage.getItem("clientId"),
+      TransactonType: transactonType,
+      searchStr: filterText,
+      pageNo: 1, pageSize: newSize
+    }));
+  };
 
   const handlePageChange = async (page) => {
-        // Update current page state in Redux
-        dispatch(setCurrentPage(page));
-      
-        // Fetch clients for the new page
-        await dispatch( fetchTemplates({
-          clientId: localStorage.getItem("clientId"),
-          TransactonType: transactonType,
-          searchStr: filterText,
-          pageNo: page, pageSize
-        }));
-      };
+    // Update current page state in Redux
+    dispatch(setCurrentPage(page));
+
+    // Fetch clients for the new page
+    await dispatch(fetchTemplates({
+      clientId: localStorage.getItem("clientId"),
+      TransactonType: transactonType,
+      searchStr: filterText,
+      pageNo: page, pageSize
+    }));
+  };
   const refreshTemplateList = () => {
     dispatch(
       fetchTemplates({
