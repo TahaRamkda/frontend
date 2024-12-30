@@ -33,7 +33,9 @@ const GroupForm = ({onClose, isVisible, onsuccess}) => {
       actionBy: localStorage.getItem("userId"),
       clientId: localStorage.getItem("clientId"),
     };
-
+    if(formData.groupName === ''){
+      alert("Group Name Cannot be empty")
+    }
     try {
       const response = await dispatch(createGroup(requestBody)).unwrap();
       if (response.success) {
@@ -45,7 +47,6 @@ const GroupForm = ({onClose, isVisible, onsuccess}) => {
         clearGroupCreateState();
         onsuccess();
         onClose();
-        
       } else {
         throw new Error(response.message || "Creation failed");
       }
@@ -53,7 +54,7 @@ const GroupForm = ({onClose, isVisible, onsuccess}) => {
       console.error("Failed to create Group:", err);
       showSweetAlert({
         title: "Failed",
-        text: response.message,
+        text: err.message,
         icon: "error",
       });
     } finally {
