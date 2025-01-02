@@ -77,17 +77,17 @@ import { sidebarItems } from '@/utils/sidebarItems';
           <h2 class="text-center text-2xl font-bold">Sign In</h2>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email Address
+                User Name
               </label>
               <input
                 id="email"
                 type="text"
                 required
-                placeholder="Email Address"
+                placeholder="User Name"
                 value={email}
                 name="email"
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="border rounded py-1 px-2 w-full mt-1 text-sm"
               />
             </div>
             <div>
@@ -102,7 +102,7 @@ import { sidebarItems } from '@/utils/sidebarItems';
                   onChange={(e) => setPassword(e.target.value)}
                   value={password}
                   name="password"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="border rounded py-1 px-2 w-full mt-1 text-sm"
                 />
                 <span
                   className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer text-gray-500"
