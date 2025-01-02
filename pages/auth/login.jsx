@@ -19,29 +19,24 @@ import { sidebarItems } from '@/utils/sidebarItems';
     // Handler for form submission
     const handleLogin = async (event) => {
       event.preventDefault();
-  
-      // Dispatch the fetchLogin action with email and password
-      await dispatch(fetchLogin({ email, password })).then(() => {
-        if (authData) {
-          console.log("auth data",authData);
-          // Set login cookie
-         
-          // Redirect to dashboard
-          router.push("/");
-        }
-        else if (error) {
-          SweetAlert.fire({
-            icon: "error",
-            title: "Oops...",
-            text: "Incorrect Username or Password!",
-           
-          });
-        }
-      });
+    
+      try {
+        
+        const response = await dispatch(fetchLogin({ email, password })).unwrap();
+        console.log("Auth data:", response);
+        blankAuthState();
+        router.push("/");
+      } catch (err) {
+        console.error("Login error:", err);
+        // Handle errors (e.g., invalid credentials)
+        SweetAlert.fire({
+          icon: "error",
+          title: "Oops...",
+          text: err.message || "Incorrect Username or Password!",
+        });
+      }
     };
     
-
-   
     // useEffect(() => {
       
     //   if (authData) {
