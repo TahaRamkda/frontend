@@ -15,8 +15,8 @@ export const ClientsDropdown = ({ onChange }) => {
 
   // Fetch clients when the component mounts
   useEffect(() => {
-    dispatch(fetchClientsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString }));
-   
+    dispatch(fetchClientsDrop({ clientId: localStorage.getItem("clientId"), searchStr: searchString }));
+
   }, [dispatch]);
 
   // Notify parent of selected client changes

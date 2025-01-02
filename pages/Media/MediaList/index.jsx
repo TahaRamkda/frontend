@@ -131,11 +131,11 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr }) => {
       <div>
         {loading && <div className="text-center text-blue-500"><Loader /></div>}
         {error && <div className="text-center text-red-500">{error}</div>}
-  
-        <UploadMedia 
+
+        <UploadMedia
           onUploadSuccess={refreshList}
         />
-      
+
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 lg:grid-cols-5 gap-4">
           {medias.map((media) => (
             <div key={media.mediaId} className="flex flex-col items-center space-y-2">
@@ -171,7 +171,7 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr }) => {
     <>
       {
         isPopup ? (
-         
+
           <div
             className={`fixed inset-0 z-10 bg-gray-600 bg-opacity-50 flex justify-center items-center ${isModalOpen ? "block" : "hidden"}`}
           >
@@ -189,7 +189,7 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr }) => {
               {renderContent()}
             </div>
           </div>
-         
+
         ) : (
           <App>
             {renderContent()}

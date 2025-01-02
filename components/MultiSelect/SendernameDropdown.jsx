@@ -1,4 +1,4 @@
-import React, { useEffect,useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Input } from "reactstrap";
 import $ from 'jquery';
@@ -8,14 +8,14 @@ import { fetchSendernamesDrop, clearSendernameDropState } from "@/slices/sendern
 
 
 const SendernamesDropdown = ({ name, value, onChange, error }) => {
-  const dispatch = useDispatch();   
+  const dispatch = useDispatch();
   const { sendernameDrop, loading, error: fetchError } = useSelector((state) => state.sendernames);
   const selectRef = useRef(null);
   const [selectedSenderId, setSelectedSenderId] = useState([]);
 
   useEffect(() => {
     dispatch(fetchSendernamesDrop({ clientId: localStorage.getItem("clientId") }));
-    
+
   }, [dispatch]);
 
   // Notify parent of selected group changes
@@ -26,8 +26,8 @@ const SendernamesDropdown = ({ name, value, onChange, error }) => {
   }, [selectedSenderId, onChange]);
 
 
-   // Handle select/deselect seder (via select2)
-   useEffect(() => {
+  // Handle select/deselect seder (via select2)
+  useEffect(() => {
     if (selectRef.current) {
       $(selectRef.current).select2({
         placeholder: "Select",

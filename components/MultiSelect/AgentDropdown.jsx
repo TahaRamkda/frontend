@@ -1,37 +1,37 @@
-import React, {useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
-import { fetchAgentsDrop, cleaAgenDroptState } from '@/slices/AgentSlice'; 
+import { fetchAgentsDrop, cleaAgenDroptState } from '@/slices/AgentSlice';
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
 const AgentsDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
-  const selectRef = useRef(null); 
+  const selectRef = useRef(null);
   const { agentDrop, loading, error } = useSelector((state) => state.agents);
   const [SelectedAgentId, setSelectedAgentId] = useState([]);
- const [searchString, setsearchString] = useState("")
- const [SenderId,setSenderId] = useState(0)
+  const [searchString, setsearchString] = useState("")
+  const [SenderId, setSenderId] = useState(0)
 
   useEffect(() => {
-    dispatch(fetchAgentsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString, senderId:SenderId }));
-    
+    dispatch(fetchAgentsDrop({ clientId: localStorage.getItem("clientId"), searchStr: searchString, senderId: SenderId }));
+
   }, [dispatch]);
 
-   // Notify parent of selected client changes
-    useEffect(() => {
-      if (onChange) {
-        onChange(SelectedAgentId);
-      }
-    }, [SelectedAgentId, onChange]);
+  // Notify parent of selected client changes
+  useEffect(() => {
+    if (onChange) {
+      onChange(SelectedAgentId);
+    }
+  }, [SelectedAgentId, onChange]);
 
   useEffect(() => {
     if (selectRef.current) {
       $(selectRef.current).select2({
         placeholder: "Select",
         allowClear: true,
-        multiple:true,
+        multiple: true,
       });
 
       $(selectRef.current).on("change", (e) => {
@@ -47,7 +47,7 @@ const AgentsDropdown = ({ name, value, onChange }) => {
     };
   }, [agentDrop]);
 
- 
+
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-danger">Error loading: {error}</p>;

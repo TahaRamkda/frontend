@@ -8,6 +8,7 @@ import { toastState } from '../atoms';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/globals.css';
 import '../styles/style.css';
+import showSweetAlert from "@/components/Sweetalert"; // Import your showSweetAlert utility
 import '../styles/icon/font-awesome/css/font-awesome.min.css';
 import '../styles/icon/themify-icons/themify-icons.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -18,132 +19,132 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { sidebarItems } from '@/utils/sidebarItems';
 import { Await } from 'react-router-dom';
 function MyApp({ Component, pageProps }) {
-    const [permissions, setPermissions] = useState([]);
-    const router = useRouter();
-    const isAuthenticated =
+  const [permissions, setPermissions] = useState([]);
+  const router = useRouter();
+  const isAuthenticated =
     typeof window !== "undefined" &&
     localStorage.getItem("accessToken") &&
     localStorage.getItem("tokenexpiry") &&
     new Date() < new Date(localStorage.getItem("tokenexpiry"));
-    
 
 
-   //------------------------------------//----permission logic to be disscussed------------------------------//--------------------------------
-  
+
+  //------------------------------------//----permission logic to be disscussed------------------------------//--------------------------------
+
   useEffect(() => {
-    
+
     if (!isAuthenticated) {
-      
+
       if (router.pathname !== "/auth/login") {
         router.push("/auth/login");
       }
     } else {
       if (router.pathname === "/" || router.pathname === "/auth/login" || router.pathname.toLowerCase() === "/dashboard") {
-        const permissionData =  localStorage.getItem("permission");
+        const permissionData = localStorage.getItem("permission");
         const permissionJson = permissionData ? JSON.parse(permissionData) : [];
-  
-       if (permissionJson.length > 0) {
-        
-                 // Find the first matching permission task name in sidebarItems
-                 const matchingItem = sidebarItems.find((item) =>
-                  permissionJson.some(
-                     (permission) =>
-                       permission.permissionTaskName.toLowerCase() === item.text.toLowerCase() &&
-                       permission.canView // Ensure the permission allows viewing
-                   )
-                 );
-         
-                 // Redirect to the href of the matching item or to a default route
-                 if (matchingItem) {
-                  debugger
-                   router.push(matchingItem.href);
-                 } else {
-                   SweetAlert.fire({
-                     icon: "error",
-                     title: "Permission Error",
-                     text: "No valid permissions found for accessible pages.",
-                   });
-                 }
-               } else {
-                 
-               }
+
+        if (permissionJson.length > 0) {
+
+          // Find the first matching permission task name in sidebarItems
+          const matchingItem = sidebarItems.find((item) =>
+            permissionJson.some(
+              (permission) =>
+                permission.permissionTaskName.toLowerCase() === item.text.toLowerCase() &&
+                permission.canView // Ensure the permission allows viewing
+            )
+          );
+
+          // Redirect to the href of the matching item or to a default route
+          if (matchingItem) {
+            debugger
+            router.push(matchingItem.href);
+          } else {
+            // showSweetAlert.fire({
+            //   icon: "error",
+            //   title: "Permission Error",
+            //   text: "No valid permissions found for accessible pages.",
+            // });
+          }
+        } else {
+
+        }
       }
     }
   }, [isAuthenticated, router.pathname]);
 
   useEffect(() => {
-    const fetchPermissionDetail =  () => {
-        try {
-            const permissionData = localStorage.getItem("permission");
-            const permissionJson = permissionData ? JSON.parse(permissionData) : [];
-            setPermissions(permissionJson);
-        } catch (error) {
-            console.error("Error fetching permission details:", error);
-        }
+    const fetchPermissionDetail = () => {
+      try {
+        const permissionData = localStorage.getItem("permission");
+        const permissionJson = permissionData ? JSON.parse(permissionData) : [];
+        setPermissions(permissionJson);
+      } catch (error) {
+        console.error("Error fetching permission details:", error);
+      }
     };
 
     fetchPermissionDetail();
-}, []);
+  }, []);
 
 
-    const basePath = router.pathname.split('/')[1]?.toLowerCase().replace(' ', ''); // Extract base module (e.g., 'clients')
-    const currentAction = router.pathname.split('/')[2]?.toLowerCase().replace(' ', ''); // Extract subpath (e.g., 'createclient', 'list')
+  const basePath = router.pathname.split('/')[1]?.toLowerCase().replace(' ', ''); // Extract base module (e.g., 'clients')
+  const currentAction = router.pathname.split('/')[2]?.toLowerCase().replace(' ', ''); // Extract subpath (e.g., 'createclient', 'list')
 
 
-    //------------------------------------//----permission logic to be disscussed------------------------------//--------------------------------
-    // useEffect(() => {
-      
-    //     // Skip permission check for auth/login page
-    //     if (router.pathname === '/auth/login') {
-    //         return; // Do not check permissions for the login page
-    //     }
+  //------------------------------------//----permission logic to be disscussed------------------------------//--------------------------------
+  // useEffect(() => {
 
-        
-    //     const isCreateAction = currentAction?.includes('create'); // Check if the subpath includes 'create'
+  //     // Skip permission check for auth/login page
+  //     if (router.pathname === '/auth/login') {
+  //         return; // Do not check permissions for the login page
+  //     }
 
-    //     const hasPermission = permissions.some((perm) => {
-    //         if (isCreateAction) {
-    //             return (
-    //                 perm.permissionTaskName.toLowerCase().replace(' ', '') === basePath &&
-    //                 perm.canCreate
-    //             );
-    //         } else {
-    //             return (
-    //                 perm.permissionTaskName.toLowerCase().replace(' ', '') === basePath &&
-    //                 perm.canView
-    //             );
-    //         }
-    //     });
-    //     if (router.pathname.toLowerCase().indexOf("test")>-1 || router.pathname.toLowerCase().indexOf("flows")>-1) 
-    //       {
 
-    //       }
-    //     else if (!hasPermission && permissions.length > 0) {
-    //         router.push('/NotPermitted');
-    //     }
-    // }, [permissions, router.pathname]);
+  //     const isCreateAction = currentAction?.includes('create'); // Check if the subpath includes 'create'
 
-    return (
-        <Suspense fallback={<h1>Loading...</h1>}>
-            <title>BCT WhatsApp</title>
-            <ErrorBoundary>
-                <RecoilRoot>
-                    <Provider store={store}>
-                        <PermissionsProvider permissions={permissions}>
-                            <Component {...pageProps} />
-                        </PermissionsProvider>
-                    </Provider>
-                    <ToastContainer autoClose={3000} />
-                    <ErrorComponent />
-                </RecoilRoot>
-            </ErrorBoundary>
-        </Suspense>
-    );
+  //     const hasPermission = permissions.some((perm) => {
+  //         if (isCreateAction) {
+  //             return (
+  //                 perm.permissionTaskName.toLowerCase().replace(' ', '') === basePath &&
+  //                 perm.canCreate
+  //             );
+  //         } else {
+  //             return (
+  //                 perm.permissionTaskName.toLowerCase().replace(' ', '') === basePath &&
+  //                 perm.canView
+  //             );
+  //         }
+  //     });
+  //     if (router.pathname.toLowerCase().indexOf("test")>-1 || router.pathname.toLowerCase().indexOf("flows")>-1) 
+  //       {
+
+  //       }
+  //     else if (!hasPermission && permissions.length > 0) {
+  //         router.push('/NotPermitted');
+  //     }
+  // }, [permissions, router.pathname]);
+
+  return (
+    <Suspense fallback={<h1>Loading...</h1>}>
+      <title>BCT WhatsApp</title>
+      <ErrorBoundary>
+        <RecoilRoot>
+          <Provider store={store}>
+            <PermissionsProvider permissions={permissions}>
+              <Component {...pageProps} />
+            </PermissionsProvider>
+          </Provider>
+          <ToastContainer autoClose={3000} />
+          <ErrorComponent />
+        </RecoilRoot>
+      </ErrorBoundary>
+    </Suspense>
+  );
 }
 
 const ErrorComponent = () => {
-    const [toast] = useRecoilState(toastState);
-    return toast && <Toast />;
+  const [toast] = useRecoilState(toastState);
+  return toast && <Toast />;
 };
 
 export default MyApp;

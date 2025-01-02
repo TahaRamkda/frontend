@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
@@ -8,13 +8,13 @@ import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
 const ClientDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
-  const selectRef = useRef(null); 
+  const selectRef = useRef(null);
   const { clientsDrop, loading, error } = useSelector((state) => state.clients);
- const [searchString, setsearchString] = useState("");
- 
+  const [searchString, setsearchString] = useState("");
+
   useEffect(() => {
-    dispatch(fetchClientsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString }));
-   
+    dispatch(fetchClientsDrop({ clientId: localStorage.getItem("clientId"), searchStr: searchString }));
+
   }, [dispatch]);
 
   useEffect(() => {

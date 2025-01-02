@@ -40,20 +40,6 @@ const CampaignsList = () => {
   const [clientId, setClientId] = useState(null);
   const setCampaignsId = useSetRecoilState(CampaignState);
 
-  const c = () => {
-    dispatch(
-      fetchCampaign({
-        ClientId: clientId,
-        FromDate: FromDate,
-        ToDate: ToDate,
-        status,
-        templateId,
-        srcStr: keyword,
-        pageSize,
-        PageNo: currentPage,
-      })
-    );
-  };
 
 
   const handleTemplateChange = (e) => {
@@ -98,7 +84,7 @@ const CampaignsList = () => {
     return () => {
       dispatch(clearCampaignListState());
     };
-  }, [clientId, FromDate, ToDate, keyword, status, templateId, pageSize, currentPage]);
+  }, [clientId]);
 
   useEffect(() => {
     if (clientId) {
@@ -116,7 +102,7 @@ const CampaignsList = () => {
   const handlefilter = (e) => {
     dispatch(fetchCampaign({ clientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, sendernameId: sendernameId, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
   };
- 
+
   const handleCreate = () => {
     window.location.href = "/Campaigns/CreateCampaigns";
   }
@@ -379,17 +365,17 @@ const CampaignsList = () => {
         <LastContactedList
           isVisible={true}
           onClose={handelCancelClick}
-          onsuccess={refreshCampaignList} 
+          onsuccess={refreshCampaignList}
           campaignId={CampaignId}
-          />
+        />
       )}
       {CampaignTestModal && (
         <CampaignTest
           isVisible={true}
           onClose={handelCloseClick}
-          onsuccess={refreshCampaignList} 
+          onsuccess={refreshCampaignList}
           CampaignId={activateCampaignId}
-          />
+        />
       )}
     </App>
   );

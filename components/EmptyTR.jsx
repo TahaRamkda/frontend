@@ -15,9 +15,8 @@ function EmptyTR({ keys, rows, blur = false, empty = false }) {
                                     return (
                                         <td key={index}>
                                             <div
-                                                className={`${
-                                                    !blur && 'animate-pulse'
-                                                }  w-full h-4 bg-gray-300 rounded-full`}
+                                                className={`${!blur && 'animate-pulse'
+                                                    }  w-full h-4 bg-gray-300 rounded-full`}
                                             ></div>
                                         </td>
                                     )

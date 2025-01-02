@@ -6,14 +6,14 @@ import 'select2/dist/js/select2.min.js';
 import { fetchSendernamesDrop, clearSendernameDropState } from "@/slices/sendernameSlice";
 import { FormGroup, Label, FormFeedback, Input } from 'reactstrap';
 
-const SendernameDropdown = ({ name, value, onChange, error ,disabled}) => {
+const SendernameDropdown = ({ name, value, onChange, error, disabled }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
   const { sendernameDrop, loading, error: fetchError } = useSelector((state) => state.sendernames);
 
   useEffect(() => {
     dispatch(fetchSendernamesDrop({ clientId: localStorage.getItem("clientId") }));
-   
+
   }, [dispatch]);
 
   useEffect(() => {
@@ -45,14 +45,14 @@ const SendernameDropdown = ({ name, value, onChange, error ,disabled}) => {
 
   return (
     <div>
-       
+
       <Input
-       type="select"
-       innerRef={selectRef}
-       name={name}
-       value={value}
-       onChange={onChange}
-       required
+        type="select"
+        innerRef={selectRef}
+        name={name}
+        value={value}
+        onChange={onChange}
+        required
       >
         <option value="0">Select</option>
         {sendernameDrop && sendernameDrop.length > 0 ? (

@@ -53,21 +53,21 @@ const UploadMediaPage = ({ setIsModalOpen, onUploadSuccess }) => {
   return (
     <Container fluid className="d-flex">
       <Row className="w-100">
-      <Col className="rounded">
-   
-         
-            <label className="font-medium text-gray-700 text-sm">Sender Names</label>
-            <Sendernames name="senderId" value={selectedSenderId} onChange={handleSenderChange} />
+        <Col className="rounded">
+
+
+          <label className="font-medium text-gray-700 text-sm">Sender Names</label>
+          <Sendernames name="senderId" value={selectedSenderId} onChange={handleSenderChange} />
           <Formik
             initialValues={{ MediaFile: null }}
             onSubmit={handleSubmit}
           >
-            
+
             {({ setFieldValue, isSubmitting }) => (
-             
+
               <Form>
                 <FormGroup className="d-flex align-items-center gap-2">
-                
+
                   <Input
                     type="file"
                     className="form-control"
@@ -78,19 +78,19 @@ const UploadMediaPage = ({ setIsModalOpen, onUploadSuccess }) => {
                       setFieldValue("MediaFile", file || null);
                     }}
                   />
-                   <Button className="uniform_btn" type="submit" disabled={isSubmitting}>
-                    Upload 
+                  <Button className="uniform_btn" type="submit" disabled={isSubmitting}>
+                    Upload
                   </Button>
-                  
-                  </FormGroup>
+
+                </FormGroup>
               </Form>
-              
+
             )}
           </Formik>
-         
-          </Col>
-          </Row>
-          </Container>
+
+        </Col>
+      </Row>
+    </Container>
   );
 };
 

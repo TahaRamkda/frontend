@@ -119,11 +119,10 @@ const SenderNameForm = ({ onClose, onsuccess, isVisible }) => {
                       <Field
                         name="sender_Name"
                         type="text"
-                        className={`block w-full border ${
-                          errors.sender_Name && touched.sender_Name
+                        className={`block w-full border ${errors.sender_Name && touched.sender_Name
                             ? "border-red-500"
                             : "border-gray-300"
-                        } rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                          } rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                       />
                       <ErrorMessage
                         name="sender_Name"
@@ -138,11 +137,10 @@ const SenderNameForm = ({ onClose, onsuccess, isVisible }) => {
                       <Field
                         name="phone_Number"
                         type="text"
-                        className={`block w-full border ${
-                          errors.phone_Number && touched.phone_Number
+                        className={`block w-full border ${errors.phone_Number && touched.phone_Number
                             ? "border-red-500"
                             : "border-gray-300"
-                        } rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                          } rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                       />
                       <ErrorMessage
                         name="phone_Number"
@@ -157,11 +155,10 @@ const SenderNameForm = ({ onClose, onsuccess, isVisible }) => {
                       <Field
                         name="limit"
                         type="number"
-                        className={`block w-full border ${
-                          errors.limit && touched.limit
+                        className={`block w-full border ${errors.limit && touched.limit
                             ? "border-red-500"
                             : "border-gray-300"
-                        } rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                          } rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                       />
                       <ErrorMessage
                         name="limit"
@@ -176,11 +173,10 @@ const SenderNameForm = ({ onClose, onsuccess, isVisible }) => {
                       <Field
                         name="quality"
                         type="number"
-                        className={`block w-full border ${
-                          errors.quality && touched.quality
+                        className={`block w-full border ${errors.quality && touched.quality
                             ? "border-red-500"
                             : "border-gray-300"
-                        } rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                          } rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                       />
                       <ErrorMessage
                         name="quality"

@@ -8,18 +8,18 @@ import { fetchGroupsDrop, clearGroupDropState } from "@/slices/Groupslice";
 
 export const GroupsDropdown = ({ onChange }) => {
   const dispatch = useDispatch();
-   const { groupDrop, loading, error } = useSelector((state) => state.groups);
+  const { groupDrop, loading, error } = useSelector((state) => state.groups);
   const [selectedGroupId, setSelectedGroupId] = useState([]);
   const selectRef = useRef(null);
   const [SearchStr, setSearchStr] = useState("")
   // Fetch groups when the component mounts
- 
-  
+
+
   useEffect(() => {
-     dispatch(fetchGroupsDrop({ clientId: localStorage.getItem("clientId") , SearchStr:SearchStr}));
-    
-   }, [dispatch]);
- 
+    dispatch(fetchGroupsDrop({ clientId: localStorage.getItem("clientId"), SearchStr: SearchStr }));
+
+  }, [dispatch]);
+
 
   // Notify parent of selected group changes
   useEffect(() => {

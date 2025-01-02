@@ -28,26 +28,25 @@ const SendernameList = () => {
   const [filterText, setFilterText] = useState("");
   const [CreateModalOPen, setCreateModalOpen] = useState(false);
 
-  const sendernameColumns = [   
+  const sendernameColumns = [
     {
       name: "Sender Name",
       selector: (row) => row.mediaPath, // Assuming mediaPath is the field in your data
       cell: (row) => (
         <div className="flex flex-row items-center gap-2 text-center">
-        <img
-          src={`${BASE_URL}${row.mediaPath}`}
-          alt="Image"
-          className="w-8 h-8 object-cover rounded-lg"
-        />
-        <div className="flex items-center">
-          <span>{row.senderName}</span>
+          <img
+            src={`${BASE_URL}${row.mediaPath}`}
+            alt="Image"
+            className="w-8 h-8 object-cover rounded-lg"
+          />
+          <div className="flex items-center">
+            <span>{row.senderName}</span>
+          </div>
         </div>
-      </div>
-      
+
       ),
       sortable: false, // Disable sorting for images if not needed
     },
-    { name: "Client Name", selector: (row) => row.clientName, sortable: true },
     {
       name: "Phone Number",
       selector: (row) => row.phoneNumber,
@@ -55,7 +54,7 @@ const SendernameList = () => {
     },
     { name: "Limit", selector: (row) => row.limit, sortable: true },
     { name: "Quality", selector: (row) => row.quality, sortable: true },
-    
+
   ];
 
   const handleDetailClick = async (senderId) => {
@@ -180,7 +179,7 @@ const SendernameList = () => {
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
               className="border rounded"
-              //  placeholder=" "
+            //  placeholder=" "
             />
           </div>
         </div>
@@ -195,14 +194,14 @@ const SendernameList = () => {
   return (
     <App>
       <div className="flex items-center">
-  {loading && <Loading />}
-  <div className=''>
-  <h4 className="font-bold ">Sender Name List</h4>
-  </div>
-  <div className="ml-auto mb-1">
- 
-  </div>
-</div>
+        {loading && <Loading />}
+        <div className=''>
+          <h4 className="font-bold ">Sender Name List</h4>
+        </div>
+        <div className="ml-auto mb-1">
+
+        </div>
+      </div>
 
       <div className="overflow-auto">
         <DataTable

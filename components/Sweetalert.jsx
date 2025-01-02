@@ -4,7 +4,7 @@ const showSweetAlert = ({ title, text, icon, footer }) => {
   SweetAlert.fire({
     icon: icon || "error",  // Default to "error" if no icon is provided
     title: title || "Oops!",  // Default title
-    text: text ,
+    text: text,
     footer: footer || ''  // Default footer
   });
 };

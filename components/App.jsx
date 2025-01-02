@@ -61,7 +61,7 @@ const App = (props) => {
                             left: 0,
                             height: `calc(100vh - ${headerHeight}px)`,
                             width: isSidebarOpen ? `${sidebarWidth}px` : `${collapsedSidebarWidth}px`, // Handle collapsed state
-                            
+
                             transition: 'width 0.3s ease',
                         }}
                     >

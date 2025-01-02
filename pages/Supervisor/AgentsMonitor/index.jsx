@@ -1,8 +1,8 @@
 "use client";
-import React, { useMemo,useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchChatsMonitor, clearChatsMonitorState, setPageSize, setCurrentPage } from "@/slices/SuperwiseSlice";
-import { Container, Row, Col, Table, input, Button,  Pagination, List, label, PaginationItem, PaginationLink, CardBody, Card } from 'reactstrap';
+import { Container, Row, Col, Table, input, Button, Pagination, List, label, PaginationItem, PaginationLink, CardBody, Card } from 'reactstrap';
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import DataTable from "react-data-table-component";
@@ -15,11 +15,11 @@ import App from '@/components/App';
 const MessageSummary = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
-  
-  
- 
+
+
+
   const [isfilteropen, setisfilteropen] = useState(false);
- const [showfilterbutton, setshowfilterbutton] = useState(true);
+  const [showfilterbutton, setshowfilterbutton] = useState(true);
   const { chatsMonitor, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.Supervisor);
   const [clientId, setClientId] = useState(null);
 
@@ -30,8 +30,8 @@ const MessageSummary = () => {
     { name: "Agent Name", selector: (row) => row.agentName, sortable: true },
     { name: "Unread Count", selector: (row) => row.unreadCount, sortable: true },
   ];
-  
-  
+
+
 
 
   const handleSenderChange = (e) => {
@@ -39,131 +39,132 @@ const MessageSummary = () => {
     setsenderid(senderId);
   };
 
- 
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setClientId(localStorage.getItem('clientId'));
     }
   }, []);
 
-  
-  
+
+
   useEffect(() => {
     if (clientId) {
-      dispatch(fetchChatsMonitor({ clientId: clientId,senderId:senderid, pageSize,pageNo:currentPage}));
-      
+      dispatch(fetchChatsMonitor({ clientId: clientId, senderId: senderid, pageSize, pageNo: currentPage }));
+
     }
     return () => {
       dispatch(clearChatsMonitorState());
     };
-  }, [dispatch, clientId,senderid]);
+  }, [dispatch, clientId, senderid]);
 
   const handleFiltershow = () => {
     setisfilteropen(prevState => !prevState);  // Toggle isfilteropen
     setshowfilterbutton(prevState => !prevState);  // Toggle showfilterbutton
-    
+
   };
 
 
- 
-  
-   const handlePageSizeChange = async (newSize) => {
-            // Update page size and reset to the first page
-            dispatch(setPageSize(newSize));
-            dispatch(setCurrentPage(1)); // Reset to first page
-            // Fetch data with updated page size and reset to page 1
-            await  dispatch(fetchChatsMonitor({ 
-              clientId: clientId, 
-              senderId: senderid, 
-              srcStr: srcStr, 
-              pageSize: newSize, pageNo:1 }));
-          };
-  
-    const handlePageChange = async (page) => {
-          // Update current page state in Redux
-          dispatch(setCurrentPage(page));
-        
-          // Fetch clients for the new page
-          await dispatch(fetchChatsMonitor({ clientId: clientId, fromDate: fromDate , toDate:toDate, status:status, sendernameId:sendernameId, senderId:senderid, srcStr:srcStr, pageSize ,pageNo: page}));
-        };
-   const subHeaderComponentMemo = useMemo(() => {
-      return (
-        <div className="w-full">
-          <div className='grid grid-cols-5 gap-4'>
-            <div className='flex flex-col text-start mb-1'>
-              <label className="font-medium text-gray-700 text-sm">Sender Names</label>
-              <SendernameDropdown
-                name="senderId"
-                onChange={handleSenderChange}
-                className="border rounded  w-100"
-              />
-            </div>
+
+
+  const handlePageSizeChange = async (newSize) => {
+    // Update page size and reset to the first page
+    dispatch(setPageSize(newSize));
+    dispatch(setCurrentPage(1)); // Reset to first page
+    // Fetch data with updated page size and reset to page 1
+    await dispatch(fetchChatsMonitor({
+      clientId: clientId,
+      senderId: senderid,
+      srcStr: srcStr,
+      pageSize: newSize, pageNo: 1
+    }));
+  };
+
+  const handlePageChange = async (page) => {
+    // Update current page state in Redux
+    dispatch(setCurrentPage(page));
+
+    // Fetch clients for the new page
+    await dispatch(fetchChatsMonitor({ clientId: clientId, fromDate: fromDate, toDate: toDate, status: status, sendernameId: sendernameId, senderId: senderid, srcStr: srcStr, pageSize, pageNo: page }));
+  };
+  const subHeaderComponentMemo = useMemo(() => {
+    return (
+      <div className="w-full">
+        <div className='grid grid-cols-5 gap-4'>
+          <div className='flex flex-col text-start mb-1'>
+            <label className="font-medium text-gray-700 text-sm">Sender Names</label>
+            <SendernameDropdown
+              name="senderId"
+              onChange={handleSenderChange}
+              className="border rounded  w-100"
+            />
           </div>
-                  
-                  
         </div>
-                          
-      )
-    
-    })
+
+
+      </div>
+
+    )
+
+  })
   // Pagination calculations
-  
+
   return (
     <App>
-       <div className="flex items-center">
-  {loading && <Loading />}
-  <div >
-  <h4 className="font-bold ">Agents Report</h4>
-  </div>
-</div>
-        <DataTable
-          data={chatsMonitor}
-          columns={ChatsReportColumn}
-          highlightOnHover
-          striped
-          pagination
-          paginationServer
-          paginationTotalRows={totalRecords}
-          onChangePage={handlePageChange}
-          onChangeRowsPerPage={handlePageSizeChange}
-          subHeader
-          subHeaderComponent={subHeaderComponentMemo}
-          className="w-full border"
-          customStyles={{
-            table: {
-              style: {
-                width: '100%',
-                borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
-              },
+      <div className="flex items-center">
+        {loading && <Loading />}
+        <div >
+          <h4 className="font-bold ">Agents Report</h4>
+        </div>
+      </div>
+      <DataTable
+        data={chatsMonitor}
+        columns={ChatsReportColumn}
+        highlightOnHover
+        striped
+        pagination
+        paginationServer
+        paginationTotalRows={totalRecords}
+        onChangePage={handlePageChange}
+        onChangeRowsPerPage={handlePageSizeChange}
+        subHeader
+        subHeaderComponent={subHeaderComponentMemo}
+        className="w-full border"
+        customStyles={{
+          table: {
+            style: {
+              width: '100%',
+              borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
             },
-            headRow: {
-              style: {
-                borderBottom: '1px solid #ddd',  padding: '0px',
-              },
+          },
+          headRow: {
+            style: {
+              borderBottom: '1px solid #ddd', padding: '0px',
             },
-            headCells: {
-              style: {
-              
-                borderRight: '1px solid #ddd', // Grid line between columns
-                fontWeight: 'bold',
-              },
+          },
+          headCells: {
+            style: {
+
+              borderRight: '1px solid #ddd', // Grid line between columns
+              fontWeight: 'bold',
             },
-            rows: {
-              style: {
-                borderBottom: '1px solid #ddd', // Horizontal grid line between rows
-              },
+          },
+          rows: {
+            style: {
+              borderBottom: '1px solid #ddd', // Horizontal grid line between rows
             },
-            cells: {
-              style: {
-                
-                borderRight: '1px solid #ddd', // Vertical grid line between cells
-              },
+          },
+          cells: {
+            style: {
+
+              borderRight: '1px solid #ddd', // Vertical grid line between cells
             },
-          }}
-        />
-      
+          },
+        }}
+      />
+
     </App>
- 
+
   );
 };
 

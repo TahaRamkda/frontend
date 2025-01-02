@@ -1,19 +1,19 @@
-import React, {useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
-import { fetchlanguage, clearLanguageState } from '@/slices/MasterSlice'; 
+import { fetchlanguage, clearLanguageState } from '@/slices/MasterSlice';
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
-const LanguageDropdown = ({ name, value, onChange ,disabled}) => {
+const LanguageDropdown = ({ name, value, onChange, disabled }) => {
   const dispatch = useDispatch();
-  const selectRef = useRef(null); 
+  const selectRef = useRef(null);
   const { languages, loading, error } = useSelector((state) => state.Master);
 
   useEffect(() => {
     dispatch(fetchlanguage({}));
-    
+
   }, [dispatch]);
 
   useEffect(() => {

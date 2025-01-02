@@ -4,22 +4,22 @@ import { Input } from "reactstrap";
 import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
-import { fetchRolesDrop, clearRoleDropState} from "@/slices/RoleSlice";
+import { fetchRolesDrop, clearRoleDropState } from "@/slices/RoleSlice";
 
-export const RolesDropdown = ({  onChange, error }) => {
+export const RolesDropdown = ({ onChange, error }) => {
   const dispatch = useDispatch();
-   const { roleDrop, loading, error: fetchError } = useSelector((state) => state.roles);
+  const { roleDrop, loading, error: fetchError } = useSelector((state) => state.roles);
   const selectRef = useRef(null);
   const [selectedRoleId, setselectedRoleId] = useState([]);
- 
 
- 
+
+
   // Fetch groups when the component mounts
   useEffect(() => {
-     dispatch(fetchRolesDrop({ clientId: localStorage.getItem("clientId") }));
-    
-   }, [dispatch]);
- 
+    dispatch(fetchRolesDrop({ clientId: localStorage.getItem("clientId") }));
+
+  }, [dispatch]);
+
 
   // Notify parent of selected group changes
   useEffect(() => {
@@ -61,12 +61,12 @@ export const RolesDropdown = ({  onChange, error }) => {
     <>
       <div>
         <select
-           ref={selectRef}
-           id="Select"
-           value={selectedRoleId}
-           onChange={(e) => setselectedRoleId(Array.from(e.target.selectedOptions, option => option.value))}
-           multiple
-           required
+          ref={selectRef}
+          id="Select"
+          value={selectedRoleId}
+          onChange={(e) => setselectedRoleId(Array.from(e.target.selectedOptions, option => option.value))}
+          multiple
+          required
         >
           <option value="0">Select</option>
           {availableRole && availableRole.length > 0 ? (

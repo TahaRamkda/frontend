@@ -13,7 +13,7 @@ import {
   clearCampaignContactState,
   fetchCampaignFrequentDelete,
   clearCampaignFreqDeleteState,
-} from "@/slices/campaignSlice";
+} from "@/slices/CampaignSlice";
 import { useDispatch, useSelector } from "react-redux";
 import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Loader";
@@ -66,7 +66,7 @@ const LastContactedList = ({ isVisible, onClose, onsuccess, campaignId }) => {
     );
   };
 
-  
+
 
   return (
     <Modal isOpen={isVisible} toggle={onClose} fade={false}>
@@ -76,67 +76,67 @@ const LastContactedList = ({ isVisible, onClose, onsuccess, campaignId }) => {
           <ModalBody className="overflow-y-auto max-h-[75vh]">
             {loading && <Loading />}
             <div className="mt-4 w-full">
-  <Table bordered responsive className="w-full text-center">
-    <thead>
-      <tr>
-        <th>Days</th>
-        <th>No. of customer contacted</th>
-        <th>Remove</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>7 Days</td>
-        <td>{campaignContactState.contactedIn7days}</td>
-        <td className="text-center">
-          <Button color="danger" onClick={() => removeRow(7)}>
-            <HiTrash />
-          </Button>
-        </td>
-      </tr>
-      <tr>
-        <td>14 Days</td>
-        <td>{campaignContactState.contactedIn14days}</td>
-        <td className="text-center">
-          <Button color="danger" onClick={() => removeRow(14)}>
-            <HiTrash />
-          </Button>
-        </td>
-      </tr>
-      <tr>
-        <td>30 Days</td>
-        <td>{campaignContactState.contactedIn30days}</td>
-        <td className="text-center">
-          <Button color="danger" onClick={() => removeRow(30)}>
-            <HiTrash />
-          </Button>
-        </td>
-      </tr>
-      <tr>
-        <td>60 Days</td>
-        <td>{campaignContactState.contactedIn60days}</td>
-        <td className="text-center">
-          <Button color="danger" onClick={() => removeRow(60)}>
-            <HiTrash />
-          </Button>
-        </td>
-      </tr>
-      <tr>
-        <td>90 Days</td>
-        <td>{campaignContactState.contactedIn90days}</td>
-        <td className="text-center">
-          <Button color="danger" onClick={() => removeRow(90)}>
-            <HiTrash />
-          </Button>
-        </td>
-      </tr>
-    </tbody>
-  </Table>
-</div>
+              <Table bordered responsive className="w-full text-center">
+                <thead>
+                  <tr>
+                    <th>Days</th>
+                    <th>No. of customer contacted</th>
+                    <th>Remove</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>7 Days</td>
+                    <td>{campaignContactState.contactedIn7days}</td>
+                    <td className="text-center">
+                      <Button color="danger" onClick={() => removeRow(7)}>
+                        <HiTrash />
+                      </Button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>14 Days</td>
+                    <td>{campaignContactState.contactedIn14days}</td>
+                    <td className="text-center">
+                      <Button color="danger" onClick={() => removeRow(14)}>
+                        <HiTrash />
+                      </Button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>30 Days</td>
+                    <td>{campaignContactState.contactedIn30days}</td>
+                    <td className="text-center">
+                      <Button color="danger" onClick={() => removeRow(30)}>
+                        <HiTrash />
+                      </Button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>60 Days</td>
+                    <td>{campaignContactState.contactedIn60days}</td>
+                    <td className="text-center">
+                      <Button color="danger" onClick={() => removeRow(60)}>
+                        <HiTrash />
+                      </Button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>90 Days</td>
+                    <td>{campaignContactState.contactedIn90days}</td>
+                    <td className="text-center">
+                      <Button color="danger" onClick={() => removeRow(90)}>
+                        <HiTrash />
+                      </Button>
+                    </td>
+                  </tr>
+                </tbody>
+              </Table>
+            </div>
 
           </ModalBody>
           <ModalFooter>
-          
+
           </ModalFooter>
         </div>
       </div>
