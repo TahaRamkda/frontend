@@ -24,8 +24,9 @@ const Dashboard = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [SenderId, setSenderId] = useState(0);
+  const [clientId, setclientId] = useState(0);
   const { dashboardsummary, loading, error } = useSelector((state) => state.reports);
-  const clientId = localStorage.getItem("clientId");
+  //const clientId = localStorage.getItem("clientId");
   useEffect(() => {
     const today = new Date();
     const lastWeek = new Date(today);
@@ -35,19 +36,21 @@ const Dashboard = () => {
     setFromDate(lastWeek.toISOString().split("T")[0]);
   }, []);
 
-  useEffect(() => {
-    if (dashboardsummary) {
-      debugger
+  useEffect(()=>{
+    if(dashboardsummary){
+      
       console.log(dashboardsummary)
     }
-  }, [dashboardsummary]
-  )
+  },[dashboardsummary]
+
+
+  
+)
   useEffect(() => {
     if (fromDate && toDate) {
-      localStorage.setItem("activeModule", "0");
-
-      const senderId = localStorage.getItem("userId");
-      dispatch(fetchDashboardSummary({ clientId, fromDate, toDate, senderid: SenderId }));
+      const clientId = localStorage.getItem("clientId");
+     
+      dispatch(fetchDashboardSummary({ clientId:clientId, fromDate, toDate, senderid: SenderId }));
     }
     return () => {
       clearDashboardReportState();
@@ -60,7 +63,9 @@ const Dashboard = () => {
   const handleChange = (e) => {
     const senderId = e.target.value;
     setSenderId(senderId)
-    dispatch(fetchDashboardSummary({ clientId, fromDate, toDate, senderid: SenderId }));
+    const clientId = localStorage.getItem("clientId");
+     
+    dispatch(fetchDashboardSummary({ clientId : clientId, fromDate, toDate, senderid: SenderId }));
   };
   const lineChartData = {
     labels: dashboardsummary?.TotalMessagesChart?.map((item) => item.CreatedDate) || [],

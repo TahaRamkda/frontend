@@ -45,7 +45,7 @@ const DropDowns = () => {
       </div><br />
       <div className="flex items-center">
         <label htmlFor="">MultiClients</label>
-        <ClientsDropdown />
+        {/* <ClientsDropdown /> */}
       </div><br />
       <div className="flex items-center">
         <label htmlFor="">Agent</label>
@@ -53,7 +53,7 @@ const DropDowns = () => {
       </div><br />
       <div className="flex items-center">
         <label htmlFor="">MultiAgents</label>
-        <AgentsDropdown />
+        {/* <AgentsDropdown /> */}
       </div><br />
   
       <div className="flex items-center">

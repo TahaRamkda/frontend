@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HiZoomIn, HiZoomOut, HiLogout, HiMoon, HiSun, HiMenu } from "react-icons/hi";
 import { useRouter } from 'next/router';
 
+import SweetAlert from "sweetalert2";
 export function Header({ toggleSidebar }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -67,12 +68,22 @@ export function Header({ toggleSidebar }) {
   }, []);
 
   const handleLogout = () => {
-    const confirmed = window.confirm("Are you sure you want to log out?");
-    if (confirmed) {
-      localStorage.clear();
-      localStorage.setItem("isLoggedout", "0");
-      router.push("/auth/login")
-    }
+    SweetAlert.fire({
+      title: "Are you sure you want to logout?",
+      text: "",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Logout",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+       localStorage.clear();
+       router.push('/auth/login');
+         
+      }
+    });
   };
 
   const handleSidebarToggle = () => {

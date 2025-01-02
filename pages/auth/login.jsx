@@ -7,71 +7,66 @@ import { useDispatch, useSelector } from "react-redux";
 import imageOne from "@/public/images/logo.png";
 import { fetchLogin, blankAuthState } from "@/slices/AuthSlice";
 import { sidebarItems } from '@/utils/sidebarItems';
-const Login = () => {
-  const dispatch = useDispatch();
-  const router = useRouter();
-  const [show, setShow] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [authuserData, setauthuserData] = useState(null);
-  const { authData, loading, error } = useSelector((state) => state.authData);
-
-  // Handler for form submission
-  const handleLogin = async (event) => {
-    event.preventDefault();
-
-    // Dispatch the fetchLogin action with email and password
-    await dispatch(fetchLogin({ email, password })).then(() => {
-      if (authData) {
-        console.log("auth data", authData);
-        // Set login cookie
-
-        // Redirect to dashboard
+  const Login = () => {
+    const dispatch = useDispatch();
+    const router = useRouter();
+    const [show, setShow] = useState(false);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const[authuserData, setauthuserData] = useState(null);
+    const { authData, loading, error } = useSelector((state) => state.authData);
+  
+    // Handler for form submission
+    const handleLogin = async (event) => {
+      event.preventDefault();
+    
+      try {
+        
+        const response = await dispatch(fetchLogin({ email, password })).unwrap();
+        console.log("Auth data:", response);
+        blankAuthState();
         router.push("/");
-      }
-      else if (error) {
+      } catch (err) {
+        console.error("Login error:", err);
+        // Handle errors (e.g., invalid credentials)
         SweetAlert.fire({
           icon: "error",
           title: "Oops...",
-          text: "Incorrect Username or Password!",
-
+          text: err.message || "Incorrect Username or Password!",
         });
       }
-    });
-  };
-
-
-
-  // useEffect(() => {
-
-  //   if (authData) {
-  //     debugger
-  //     // Set login cookie
-  //     blankAuthState();
-  //     // Redirect to dashboard
-  //     router.push("/Dashboard");
-
-  //   }
-
-  //   if (error) {
-  //     // Display an error if login fails
-  //     SweetAlert.fire({
-  //       icon: "error",
-  //       title: "Oops...",
-  //       text: "Incorrect Username or Password!",
-
-  //     });
-  //   }
-  // }, [ error, router]);
-
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      <div className="mb-6">
-
-      </div>
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
-        <form onSubmit={handleLogin} className="space-y-6">
-          <Link href={"/"}>
+    };
+    
+    // useEffect(() => {
+      
+    //   if (authData) {
+    //     debugger
+    //     // Set login cookie
+    //     blankAuthState();
+    //     // Redirect to dashboard
+    //     router.push("/Dashboard");
+       
+    //   }
+  
+    //   if (error) {
+    //     // Display an error if login fails
+    //     SweetAlert.fire({
+    //       icon: "error",
+    //       title: "Oops...",
+    //       text: "Incorrect Username or Password!",
+         
+    //     });
+    //   }
+    // }, [ error, router]);
+  
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+        <div className="mb-6">
+          
+        </div>
+        <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+          <form onSubmit={handleLogin} className="space-y-6">
+          <Link href={"/"  }>
             <img className="h-20 mx-auto" src="\images\logo\logo.png" alt="logo" />
           </Link>
           <h2 class="text-center text-2xl font-bold">Sign In</h2>

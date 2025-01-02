@@ -5,7 +5,7 @@ const NotPermitted = () => {
   const router = useRouter();
 
   const handleGoBack = () => {
-    router.push('/Dashboard');
+    router.push('/'); 
   };
 
   return (
