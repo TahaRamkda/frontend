@@ -39,7 +39,7 @@ export const RolesDropdown = ({  onChange, error }) => {
 
       $(selectRef.current).on("change", (e) => {
         const selectedValues = $(selectRef.current).val() || [];
-        selectedRoleId(selectedValues);
+        setselectedRoleId(selectedValues);
       });
     }
 

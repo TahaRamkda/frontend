@@ -8,18 +8,26 @@ import RolesDropdown from "@/components/MultiSelect/RoleDropdown";
 import App from '@/components/App';
 
 const UserForm = ({onClose, isVisible, onsuccess}) => {
+  const [SelectedRoleId, setSelectedRoleId] = useState("")
   const [formData, setFormData] = useState({
     userName: "",
     isActive: true,
     fullName:"",
     password:"",
-    userRoles:"",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+ 
 
   const dispatch = useDispatch();
   const router = useRouter();
 
+  const handleRoleChange = (value) => {
+    if (Array.isArray(value)) {
+      setSelectedRoleId(value.join(",")); // Join the array into a comma-separated string
+    } else {
+      setSelectedRoleId(value);
+    }
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -37,6 +45,7 @@ const UserForm = ({onClose, isVisible, onsuccess}) => {
       ...formData,
       actionBy: localStorage.getItem("userId"),
       clientId: localStorage.getItem("clientId"),
+      userRoles:SelectedRoleId,
     };
 
     try {
@@ -82,7 +91,7 @@ const UserForm = ({onClose, isVisible, onsuccess}) => {
           required
             name="userRoles"
             value={formData.userRoles}
-            onChange={handleChange}
+            onChange={handleRoleChange}
             className="border rounded py-1 px-2 w-full mt-1 text-sm"
           />
           <label className="font-medium text-gray-700 text-sm">Full Name</label>

@@ -2,7 +2,7 @@ import { ToastContainer } from 'react-toastify';
 import Toast from '../components/Toast';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { RecoilRoot, useRecoilState } from 'recoil';
-import { useEffect, Suspense, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { toastState } from '../atoms';
 import 'react-toastify/dist/ReactToastify.css';
@@ -13,137 +13,119 @@ import '../styles/icon/themify-icons/themify-icons.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Provider } from 'react-redux';
 import { store } from '@/store/store';
-import { PermissionsProvider } from '@/context/PermissionsContext';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import SweetAlert from 'sweetalert2';
 import { sidebarItems } from '@/utils/sidebarItems';
-import { Await } from 'react-router-dom';
+import Loader from '@/components/Loader';
+
 function MyApp({ Component, pageProps }) {
-    const [permissions, setPermissions] = useState([]);
-    const router = useRouter();
-    const isAuthenticated =
-    typeof window !== "undefined" &&
-    localStorage.getItem("accessToken") &&
-    localStorage.getItem("tokenexpiry") &&
-    new Date() < new Date(localStorage.getItem("tokenexpiry"));
-    
+  const router = useRouter();
+  const [permissions, setPermissions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // Tracks permission check completion
 
+  const isAuthenticated =
+    typeof window !== 'undefined' &&
+    localStorage.getItem('accessToken') &&
+    localStorage.getItem('tokenexpiry') &&
+    new Date() < new Date(localStorage.getItem('tokenexpiry'));
 
-   //------------------------------------//----permission logic to be disscussed------------------------------//--------------------------------
-  
-  useEffect(() => {
-    
-    if (!isAuthenticated) {
-      
-      if (router.pathname !== "/auth/login") {
-        router.push("/auth/login");
+  const normalizeString = (str) => str?.toLowerCase().replace(/\s/g, '') || '';
+
+  const fetchPermissions = () => {
+    const permissionData = localStorage.getItem('permission');
+    return permissionData ? JSON.parse(permissionData) : [];
+  };
+
+  const hasPermission = (path, action = 'view') => {
+    const permissions = fetchPermissions();
+    const basePath = normalizeString(path.split('/')[1]);
+    const isCreateAction = action.toLowerCase().includes('create');
+   if(basePath.toLowerCase() ==="test"){
+    return true
+   }
+    return permissions.some((perm) => {
+      const taskName = normalizeString(perm.permissionTaskName);
+      if (isCreateAction) {
+        return taskName === basePath && perm.canCreate;
       }
-    } else {
-      if (router.pathname === "/" || router.pathname === "/auth/login" || router.pathname.toLowerCase() === "/dashboard") {
-        const permissionData =  localStorage.getItem("permission");
-        const permissionJson = permissionData ? JSON.parse(permissionData) : [];
-  
-       if (permissionJson.length > 0) {
-        
-                 // Find the first matching permission task name in sidebarItems
-                 const matchingItem = sidebarItems.find((item) =>
-                  permissionJson.some(
-                     (permission) =>
-                       permission.permissionTaskName.toLowerCase() === item.text.toLowerCase() &&
-                       permission.canView // Ensure the permission allows viewing
-                   )
-                 );
-         
-                 // Redirect to the href of the matching item or to a default route
-                 if (matchingItem) {
-                  debugger
-                   router.push(matchingItem.href);
-                 } else {
-                   SweetAlert.fire({
-                     icon: "error",
-                     title: "Permission Error",
-                     text: "No valid permissions found for accessible pages.",
-                   });
-                 }
-               } else {
-                 
-               }
-      }
-    }
-  }, [isAuthenticated, router.pathname]);
+      return taskName === basePath && perm.canView;
+    });
+  };
 
   useEffect(() => {
-    const fetchPermissionDetail =  () => {
-        try {
-            const permissionData = localStorage.getItem("permission");
-            const permissionJson = permissionData ? JSON.parse(permissionData) : [];
-            setPermissions(permissionJson);
-        } catch (error) {
-            console.error("Error fetching permission details:", error);
+    const handleRouteChange = async () => {
+      setIsLoading(true);
+
+      if (!isAuthenticated) {
+        if (router.pathname !== '/auth/login') {
+          router.push('/auth/login');
         }
+      } else if (router.pathname === '/') {
+        const permissionJson = fetchPermissions();
+
+        if (permissionJson.length > 0) {
+          const matchingItem = sidebarItems.find((item) =>
+            permissionJson.some(
+              (permission) =>
+                normalizeString(permission.permissionTaskName) ===
+                  normalizeString(item.text) && permission.canView
+            )
+          );
+
+          if (matchingItem) {
+            router.push(matchingItem.href);
+          } else {
+            SweetAlert.fire({
+              icon: 'error',
+              title: 'Permission Error',
+              text: 'No valid permissions found for accessible pages.',
+            });
+          }
+        } else {
+          SweetAlert.fire({
+            icon: 'error',
+            title: 'Permission Error',
+            text: 'No permissions found. Please contact your administrator.',
+          });
+        }
+      } else {
+        const basePath = normalizeString(router.pathname.split('/')[1]);
+        const currentAction =
+          normalizeString(router.pathname.split('/')[2]) || 'view';
+
+        const permissionExists = hasPermission(router.pathname, currentAction);
+
+        if (!permissionExists) {
+          router.push('/NotPermitted');
+        }
+      }
+
+      setIsLoading(false);
     };
 
-    fetchPermissionDetail();
-}, []);
+    handleRouteChange();
+  }, [router.pathname]);
 
+  // Display a loading state until permissions are validated
+  if (isLoading) {
+    return <div><Loader/></div>; // Replace with a loading spinner if needed
+  }
 
-    const basePath = router.pathname.split('/')[1]?.toLowerCase().replace(' ', ''); // Extract base module (e.g., 'clients')
-    const currentAction = router.pathname.split('/')[2]?.toLowerCase().replace(' ', ''); // Extract subpath (e.g., 'createclient', 'list')
-
-
-    //------------------------------------//----permission logic to be disscussed------------------------------//--------------------------------
-    // useEffect(() => {
-      
-    //     // Skip permission check for auth/login page
-    //     if (router.pathname === '/auth/login') {
-    //         return; // Do not check permissions for the login page
-    //     }
-
-        
-    //     const isCreateAction = currentAction?.includes('create'); // Check if the subpath includes 'create'
-
-    //     const hasPermission = permissions.some((perm) => {
-    //         if (isCreateAction) {
-    //             return (
-    //                 perm.permissionTaskName.toLowerCase().replace(' ', '') === basePath &&
-    //                 perm.canCreate
-    //             );
-    //         } else {
-    //             return (
-    //                 perm.permissionTaskName.toLowerCase().replace(' ', '') === basePath &&
-    //                 perm.canView
-    //             );
-    //         }
-    //     });
-    //     if (router.pathname.toLowerCase().indexOf("test")>-1 || router.pathname.toLowerCase().indexOf("flows")>-1) 
-    //       {
-
-    //       }
-    //     else if (!hasPermission && permissions.length > 0) {
-    //         router.push('/NotPermitted');
-    //     }
-    // }, [permissions, router.pathname]);
-
-    return (
-        <Suspense fallback={<h1>Loading...</h1>}>
-            <title>BCT WhatsApp</title>
-            <ErrorBoundary>
-                <RecoilRoot>
-                    <Provider store={store}>
-                        <PermissionsProvider permissions={permissions}>
-                            <Component {...pageProps} />
-                        </PermissionsProvider>
-                    </Provider>
-                    <ToastContainer autoClose={3000} />
-                    <ErrorComponent />
-                </RecoilRoot>
-            </ErrorBoundary>
-        </Suspense>
-    );
+  return (
+    <ErrorBoundary>
+      <RecoilRoot>
+        <Provider store={store}>
+          <Component {...pageProps} />
+        </Provider>
+        <ToastContainer autoClose={3000} />
+        <ErrorComponent />
+      </RecoilRoot>
+    </ErrorBoundary>
+  );
 }
 
 const ErrorComponent = () => {
-    const [toast] = useRecoilState(toastState);
-    return toast && <Toast />;
+  const [toast] = useRecoilState(toastState);
+  return toast && <Toast />;
 };
 
 export default MyApp;

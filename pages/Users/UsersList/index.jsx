@@ -259,7 +259,7 @@ const UserList = () => {
                       name="userRoles" 
                       value={userForm.userRoles || ""}
                      
-                      onChange={(value) => handleDropdownChange(value)}
+                      onChange={(value) =>  (value)}
                     />
                   </FormGroup>
                 </Col>

@@ -63,6 +63,7 @@ const LastContactedList = ({ isVisible, onClose, onsuccess, campaignId }) => {
         CampaignId: CampaignId,
         Removedays: days,
       })
+      //call the contact campaign again 
     );
   };
 
