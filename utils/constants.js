@@ -14,4 +14,19 @@
   };
   
 
+  export const extractTime = (datetimeString) => {
+    const date = new Date(datetimeString);
+  
+    if (isNaN(date.getTime())) {
+      throw new Error("Invalid datetime string");
+    }
+  
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const period = hours >= 12 ? "PM" : "AM";
+  
+    hours = hours % 12 || 12; // Convert to 12-hour format; '0' becomes '12'
+  
+    return `${String(hours).padStart(2, "0")}:${minutes} ${period}`;
+  };
   

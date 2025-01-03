@@ -15,7 +15,7 @@ import { useSetRecoilState } from "recoil";
 import { CampaignState } from "@/components/recoil";
 import CampaignTest from '../CampaignTest';
 import LastContactedList from '../Contacted';
-
+import {Tooltip} from 'reactstrap';
 const CampaignsList = () => {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -187,28 +187,34 @@ const CampaignsList = () => {
       name: "Campaign Name",
       selector: (row) => row.campaignName,
       sortable: true,
+      width: '15%',
     },
     {
       name: "Schedule Date",
       selector: (row) => row.scheduleDate,
       sortable: true,
+      width: '15%',
     },
     { name: "Status", selector: (row) => row.statusName, sortable: true },
     {
       name: "Total Contacts",
       selector: (row) => row.totalContacts,
       sortable: true,
+      
     },
     { name: "Sent Count", selector: (row) => row.sentCount, sortable: true },
-    { name: "Failed Count", selector: (row) => row.failedCount, sortable: true },
+    { name: "Failed Count", selector: (row) => row.failedCount, sortable: true  },
     { name: "Delivered Count", selector: (row) => row.deliveredCount, sortable: true },
     { name: "Undelivered Count", selector: (row) => row.undeliveredCount, sortable: true },
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
+    { name: "Created Date", selector: (row) => row.createdDate, sortable: true ,width:'15%'},
     {
       name: "Action", cell: (row) => (
-        <div className='flex gap-2'>
+        <div className='flex gap-2' id='InfoIcon'>
           <button className="uniform_icon_btn" onClick={() => handleActivateClick(row.campaignId)}>
             <HiLightningBolt style={{ fontSize: "15px" }} />
+            <Tooltip target="InfoIcon" placement="top">
+        This is an info button
+      </Tooltip>
           </button>
           <button className="uniform_icon_btn" onClick={() => handelClick(row.campaignId)}>
             <MdGroupRemove style={{ fontSize: "15px" }} />
@@ -221,7 +227,8 @@ const CampaignsList = () => {
           </button>
         </div>
 
-      )
+      ),
+      width:'10%'
     },
 
   ];

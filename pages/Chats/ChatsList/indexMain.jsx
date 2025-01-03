@@ -1,14 +1,37 @@
-import React, { use } from 'react'
-import App from '@/components/App';
-import { useState } from 'react';
-import classnames from 'classnames';
-import { Card, Col, Input, InputGroup, InputGroupText, Nav, NavItem, NavLink, TabContent, TabPane, CardHeader, Container, Row, Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import React, { use } from "react";
+import App from "@/components/App";
+import { useState } from "react";
+import classnames from "classnames";
+import {
+  Card,
+  Col,
+  Input,
+  InputGroup,
+  InputGroupText,
+  Nav,
+  NavItem,
+  NavLink,
+  TabContent,
+  TabPane,
+  CardHeader,
+  Container,
+  Row,
+  Button,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "reactstrap";
 const ChatPage = () => {
   const [modalOpen, setModalOpen] = useState(false); // View Details Modal
   const [transferModalOpen, setTransferModalOpen] = useState(false); // Transfer Chat Modal
   const [queueModalOpen, setQueueModalOpen] = useState(false); // Add to Queue Modal
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('1');
+  const [activeTab, setActiveTab] = useState("1");
   const [showIcons, setShowIcons] = useState(false); // State for showing icons
 
   // Toggle the visibility of the icons
@@ -16,50 +39,154 @@ const ChatPage = () => {
 
   // Toggle Functions
   const toggleModal = () => setModalOpen((prevState) => !prevState);
-  const toggleTransferModal = () => setTransferModalOpen((prevState) => !prevState);
+  const toggleTransferModal = () =>
+    setTransferModalOpen((prevState) => !prevState);
   const toggleQueueModal = () => setQueueModalOpen((prevState) => !prevState);
   const toggleDropdown = () => setDropdownOpen((prevState) => !prevState);
 
   const [searchQuery, setSearchQuery] = useState(""); // State to track search query
 
-
   // Hardcoded chat and contacts data
   const contacts = [
-    { id: 1, name: 'John Doe', lastMessage: 'Hey! How are you?', status: 'online' },
-    { id: 1, name: 'John Doe', lastMessage: 'Hey! How are you?', status: 'online' },
-    { id: 1, name: 'John Doe', lastMessage: 'Hey! How are you?', status: 'online' },
-    { id: 1, name: 'John Doe', lastMessage: 'Hey! How are you?', status: 'online' },
-    { id: 1, name: 'John Doe', lastMessage: 'Hey! How are you?', status: 'online' },
-    { id: 1, name: 'John Doe', lastMessage: 'Hey! How are you?', status: 'online' },
-    { id: 1, name: 'John Doe', lastMessage: 'Hey! How are you?', status: 'online' },
-    { id: 1, name: 'John Doe', lastMessage: 'Hey! How are you?', status: 'online' },
-    { id: 1, name: 'John Doe', lastMessage: 'Hey! How are you?', status: 'online' },
-    { id: 2, name: 'Jane Smith', lastMessage: 'Let\'s catch up soon!', status: 'offline' },
-    { id: 3, name: 'Michael Johnson', lastMessage: 'I\'ll call you later', status: 'online' },
-    { id: 3, name: 'Michael Johnson', lastMessage: 'I\'ll call you later', status: 'online' },
-    { id: 3, name: 'Michael Johnson', lastMessage: 'I\'ll call you later', status: 'online' },
-    { id: 3, name: 'Michael Johnson', lastMessage: 'I\'ll call you later', status: 'online' },
+    {
+      id: 1,
+      name: "John Doe",
+      lastMessage: "Hey! How are you?",
+      status: "online",
+    },
+    {
+      id: 1,
+      name: "John Doe",
+      lastMessage: "Hey! How are you?",
+      status: "online",
+    },
+    {
+      id: 1,
+      name: "John Doe",
+      lastMessage: "Hey! How are you?",
+      status: "online",
+    },
+    {
+      id: 1,
+      name: "John Doe",
+      lastMessage: "Hey! How are you?",
+      status: "online",
+    },
+    {
+      id: 1,
+      name: "John Doe",
+      lastMessage: "Hey! How are you?",
+      status: "online",
+    },
+    {
+      id: 1,
+      name: "John Doe",
+      lastMessage: "Hey! How are you?",
+      status: "online",
+    },
+    {
+      id: 1,
+      name: "John Doe",
+      lastMessage: "Hey! How are you?",
+      status: "online",
+    },
+    {
+      id: 1,
+      name: "John Doe",
+      lastMessage: "Hey! How are you?",
+      status: "online",
+    },
+    {
+      id: 1,
+      name: "John Doe",
+      lastMessage: "Hey! How are you?",
+      status: "online",
+    },
+    {
+      id: 2,
+      name: "Jane Smith",
+      lastMessage: "Let's catch up soon!",
+      status: "offline",
+    },
+    {
+      id: 3,
+      name: "Michael Johnson",
+      lastMessage: "I'll call you later",
+      status: "online",
+    },
+    {
+      id: 3,
+      name: "Michael Johnson",
+      lastMessage: "I'll call you later",
+      status: "online",
+    },
+    {
+      id: 3,
+      name: "Michael Johnson",
+      lastMessage: "I'll call you later",
+      status: "online",
+    },
+    {
+      id: 3,
+      name: "Michael Johnson",
+      lastMessage: "I'll call you later",
+      status: "online",
+    },
 
-    { id: 3, name: 'Michael Johnson', lastMessage: 'I\'ll call you later', status: 'online' },
-    { id: 3, name: 'Michael Johnson', lastMessage: 'I\'ll call you later', status: 'online' },
-    { id: 3, name: 'Michael Johnson', lastMessage: 'I\'ll call you later', status: 'online' },
-    { id: 3, name: 'Michael Johnson', lastMessage: 'I\'ll call you later', status: 'online' },
-    { id: 3, name: 'Michael Johnson', lastMessage: 'I\'ll call you later', status: 'online' },
+    {
+      id: 3,
+      name: "Michael Johnson",
+      lastMessage: "I'll call you later",
+      status: "online",
+    },
+    {
+      id: 3,
+      name: "Michael Johnson",
+      lastMessage: "I'll call you later",
+      status: "online",
+    },
+    {
+      id: 3,
+      name: "Michael Johnson",
+      lastMessage: "I'll call you later",
+      status: "online",
+    },
+    {
+      id: 3,
+      name: "Michael Johnson",
+      lastMessage: "I'll call you later",
+      status: "online",
+    },
+    {
+      id: 3,
+      name: "Michael Johnson",
+      lastMessage: "I'll call you later",
+      status: "online",
+    },
   ];
   // Hardcoded data for the user
   const user = {
-    name: 'John Doe',
-    email: 'johndoe@example.com',
-    phone: '+123456789',
-    lastSeen: '2024-12-02 10:45 AM',
+    name: "John Doe",
+    email: "johndoe@example.com",
+    phone: "+123456789",
+    lastSeen: "2024-12-02 10:45 AM",
     isOnline: true,
   };
 
-
   const chatMessages = [
-    { id: 1, from: 'John', message: 'Hey! How are you?', time: '10:10 AM' },
-    { id: 2, from: 'You', message: 'I\'m good, thanks! And you?', time: '10:12 AM' },
-    { id: 3, from: 'John', message: 'I\'m doing great, thanks for asking!', time: '10:13 AM' },
+    { id: 1, from: "John", message: "Hey! How are you?", time: "10:10 AM" },
+    {
+      id: 2,
+      from: "You",
+      message: "I'm good, thanks! And you?",
+      time: "10:12 AM",
+    },
+    {
+      id: 3,
+      from: "John",
+      message: "I'm doing great, thanks for asking!",
+      time: "10:13 AM",
+    },
   ];
 
   const filteredContacts = contacts.filter((contact) =>
@@ -73,7 +200,7 @@ const ChatPage = () => {
             <Card className="left-sidebar-wrapper ">
               <div className="left-sidebar-chat">
                 <InputGroup>
-                  <InputGroupText className='w-full'>
+                  <InputGroupText className="w-full">
                     <i class="fa fa-search mr-2" aria-hidden="true"></i>
                     <Input
                       type="text"
@@ -85,10 +212,15 @@ const ChatPage = () => {
                 </InputGroup>
               </div>
               <div className="advance-options">
-                <Nav tabs className="border-tab  bg-white border-b border-gray-200 shadow-sm" id="chat-options-tab">
-                  <NavItem className="flex justify-content-center w-full text-xl font-bold text-gray-900">Chats</NavItem>
+                <Nav
+                  tabs
+                  className="border-tab  bg-white border-b border-gray-200 shadow-sm"
+                  id="chat-options-tab"
+                >
+                  <NavItem className="flex justify-content-center w-full text-xl font-bold text-gray-900">
+                    Chats
+                  </NavItem>
                 </Nav>
-
 
                 <TabContent id="chat-options-tabContent">
                   <TabPane id="chats" className="text-center">
@@ -113,15 +245,22 @@ const ChatPage = () => {
                               </svg>
                               {/* Status Indicator */}
                               <div
-                                className={`absolute bottom-0 right-0 w-3 h-3 rounded-full ${contact.status === "online" ? "bg-green-500" : "bg-red-500"
-                                  }`}
+                                className={`absolute bottom-0 right-0 w-3 h-3 rounded-full ${
+                                  contact.status === "online"
+                                    ? "bg-green-500"
+                                    : "bg-red-500"
+                                }`}
                               />
                             </div>
 
                             {/* Name and Message Section */}
                             <div className="flex flex-col  flex-grow text-left">
-                              <span className="block font-medium  text-gray-800">{contact.name}</span>
-                              <p className="  text-gray-500">{contact.lastMessage}</p>
+                              <span className="block font-medium  text-gray-800">
+                                {contact.name}
+                              </span>
+                              <p className="  text-gray-500">
+                                {contact.lastMessage}
+                              </p>
                             </div>
 
                             {/* Time and Badge Section */}
@@ -134,11 +273,9 @@ const ChatPage = () => {
                           </div>
 
                           {/* Time and Additional Info */}
-
                         </li>
                       ))}
                     </ul>
-
                   </TabPane>
                 </TabContent>
               </div>
@@ -156,48 +293,62 @@ const ChatPage = () => {
                     </div>
                   </div>
 
-                  <div >
+                  <div>
                     <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
                       <DropdownToggle color="">
-
                         <i className="fa fa-bars text-gray-600 text-xl"></i>
                       </DropdownToggle>
-                      <DropdownMenu >
-                        <DropdownItem onClick={toggleModal}>View Details</DropdownItem>
-                        <DropdownItem onClick={toggleTransferModal}>Transfer Chat to Agent</DropdownItem>
-                        <DropdownItem onClick={toggleQueueModal}>Add to Queue</DropdownItem>
+                      <DropdownMenu>
+                        <DropdownItem onClick={toggleModal}>
+                          View Details
+                        </DropdownItem>
+                        <DropdownItem onClick={toggleTransferModal}>
+                          Transfer Chat to Agent
+                        </DropdownItem>
+                        <DropdownItem onClick={toggleQueueModal}>
+                          Add to Queue
+                        </DropdownItem>
                         <DropdownItem>Close Chat</DropdownItem>
                       </DropdownMenu>
                     </Dropdown>
                     {/* View Details Modal */}
-                    <Modal isOpen={modalOpen} toggle={toggleModal} className="modal-xl">
-
+                    <Modal
+                      isOpen={modalOpen}
+                      toggle={toggleModal}
+                      className="modal-xl"
+                    >
                       <ModalHeader toggle={toggleModal}>Details</ModalHeader>
                       <ModalBody>
                         <Nav tabs>
                           <NavItem>
                             <NavLink
-                              className={classnames({ active: activeTab === '1' })}
-                              onClick={() => setActiveTab('1')}
-                              style={{ cursor: 'pointer' }}
+                              className={classnames({
+                                active: activeTab === "1",
+                              })}
+                              onClick={() => setActiveTab("1")}
+                              style={{ cursor: "pointer" }}
                             >
                               Contact Info
                             </NavLink>
                           </NavItem>
                           <NavItem>
                             <NavLink
-                              className={classnames({ active: activeTab === '2' })}
-                              onClick={() => setActiveTab('2')}
-                              style={{ cursor: 'pointer' }}
+                              className={classnames({
+                                active: activeTab === "2",
+                              })}
+                              onClick={() => setActiveTab("2")}
+                              style={{ cursor: "pointer" }}
                             >
                               Logs
                             </NavLink>
                           </NavItem>
                           <NavItem>
                             <NavLink
-                              className={classnames({ active: activeTab === '3' })}
-                              onClick={() => setActiveTab('3')}
-                              style={{ cursor: 'pointer' }}
+                              className={classnames({
+                                active: activeTab === "3",
+                              })}
+                              onClick={() => setActiveTab("3")}
+                              style={{ cursor: "pointer" }}
                             >
                               user
                             </NavLink>
@@ -219,14 +370,16 @@ const ChatPage = () => {
                           <TabPane tabId="2">
                             <h5 className="mt-3">Logs</h5>
                             <p>
-                              <strong>Last Seen:</strong> {user.lastSeen || 'Not available'}
+                              <strong>Last Seen:</strong>{" "}
+                              {user.lastSeen || "Not available"}
                             </p>
                             <p>
-                              <strong>Online:</strong> {user.isOnline ? 'Yes' : 'No'}
+                              <strong>Online:</strong>{" "}
+                              {user.isOnline ? "Yes" : "No"}
                             </p>
                           </TabPane>
                           <TabPane tabId="3">
-                            <h5 className='mt-3'>User</h5>
+                            <h5 className="mt-3">User</h5>
                             <p>user is active</p>
                           </TabPane>
                         </TabContent>
@@ -239,8 +392,13 @@ const ChatPage = () => {
                     </Modal>
 
                     {/* Transfer Chat Modal */}
-                    <Modal isOpen={transferModalOpen} toggle={toggleTransferModal}>
-                      <ModalHeader toggle={toggleTransferModal}>Transfer Chat to Agent</ModalHeader>
+                    <Modal
+                      isOpen={transferModalOpen}
+                      toggle={toggleTransferModal}
+                    >
+                      <ModalHeader toggle={toggleTransferModal}>
+                        Transfer Chat to Agent
+                      </ModalHeader>
                       <ModalBody>
                         <p>Select an agent to transfer the chat to:</p>
                         {/* Example Dropdown for Agent Selection */}
@@ -263,9 +421,13 @@ const ChatPage = () => {
 
                     {/* Add to Queue Modal */}
                     <Modal isOpen={queueModalOpen} toggle={toggleQueueModal}>
-                      <ModalHeader toggle={toggleQueueModal}>Add to Queue</ModalHeader>
+                      <ModalHeader toggle={toggleQueueModal}>
+                        Add to Queue
+                      </ModalHeader>
                       <ModalBody>
-                        <p>Are you sure you want to add this chat to the queue?</p>
+                        <p>
+                          Are you sure you want to add this chat to the queue?
+                        </p>
                       </ModalBody>
                       <ModalFooter>
                         <Button color="primary" onClick={toggleQueueModal}>
@@ -277,7 +439,6 @@ const ChatPage = () => {
                       </ModalFooter>
                     </Modal>
                   </div>
-
                 </div>
               </div>
 
@@ -289,16 +450,23 @@ const ChatPage = () => {
                     {chatMessages.map((message) => (
                       <div
                         key={message.id}
-                        className={`flex ${message.from === 'You' ? 'justify-end' : 'justify-start'}`}
+                        className={`flex ${
+                          message.from === "You"
+                            ? "justify-end"
+                            : "justify-start"
+                        }`}
                       >
                         <div
-                          className={`max-w-xs p-2 rounded-2xl shadow-sm ${message.from === 'You'
-                              ? 'bg-green-500 text-white rounded-br-none'
-                              : 'bg-gray-200 text-black rounded-bl-none'
-                            }`}
+                          className={`max-w-xs p-2 rounded-2xl shadow-sm ${
+                            message.from === "You"
+                              ? "bg-green-500 text-white rounded-br-none"
+                              : "bg-gray-200 text-black rounded-bl-none"
+                          }`}
                         >
                           <p className="text-sm">{message.message}</p>
-                          <span className="text-xs text-gray-400 block mt-1">{message.time}</span>
+                          <span className="text-xs text-gray-400 block mt-1">
+                            {message.time}
+                          </span>
                         </div>
                       </div>
                     ))}
@@ -316,20 +484,29 @@ const ChatPage = () => {
 
                       {/* Additional Icons */}
                       <div
-                        className={`absolute -top-24 left-1/2  -translate-x-1/2 flex flex-col items-center space-y-2 duration-300 ease-in-out ${showIcons ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
-                          }`}
+                        className={`absolute -top-24 left-1/2  -translate-x-1/2 flex flex-col items-center space-y-2 duration-300 ease-in-out ${
+                          showIcons
+                            ? "opacity-100 translate-y-0"
+                            : "opacity-0 -translate-y-4 pointer-events-none"
+                        }`}
                       >
                         <Button
                           color="dark"
                           className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center"
                         >
-                          <i className="fa fa-camera text-white" aria-hidden="true"></i>
+                          <i
+                            className="fa fa-camera text-white"
+                            aria-hidden="true"
+                          ></i>
                         </Button>
                         <Button
                           color="dark"
                           className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center"
                         >
-                          <i className="fa fa-paperclip text-white" aria-hidden="true"></i>
+                          <i
+                            className="fa fa-paperclip text-white"
+                            aria-hidden="true"
+                          ></i>
                         </Button>
                       </div>
                     </div>
@@ -348,20 +525,16 @@ const ChatPage = () => {
                       Send
                     </button>
                   </div>
-
                 </div>
               </div>
-
-
             </Card>
           </Col>
-
         </Row>
       </Container>
     </App>
   );
 };
 
-<Col ></Col>
+<Col></Col>;
 
 export default ChatPage;
