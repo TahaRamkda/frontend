@@ -27,24 +27,27 @@ export const fetchConversationList = createAsyncThunk(
 );
 
 export const fetchConversationMessage = createAsyncThunk(
-    'conversation/fetchConversationMessage',
-    async ({clientId,ChatId}, { rejectWithValue }) => {
-      try {
-        const response = await API.get(`${CONVERSATIONMESSAGE}?clientId=${clientId}&id=${ChatId}`);
-        if (response?.status === 200 && response.data?.result) {
-          return {
-            conversationMessage: response.data.result,
-            totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
-          };
-        } else {
-          throw new Error('Failed to fetch details');
-        }
-      } catch (err) {
-        const handledError = handleError(err);
-        return rejectWithValue(handledError);
+  'conversation/fetchConversationMessage',
+  async ({ clientId, ChatId, pageNo = 1 }, { rejectWithValue }) => {
+    try {
+      const response = await API.get(
+        `${CONVERSATIONMESSAGE}?clientId=${clientId}&id=${ChatId}&pageNo=${pageNo}&pageSize=15`
+      );
+      if (response?.status === 200 && response.data?.result) {
+        return {
+          conversationMessage: response.data.result,
+          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+          pageNo,
+        };
+      } else {
+        throw new Error('Failed to fetch details');
       }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
     }
-  );
+  }
+);
   
   export const NewAgentMessage = createAsyncThunk(
     'conversation/NewAgentMessage',
@@ -67,7 +70,7 @@ const conversationslice = createSlice({
   name: 'conversation',
   initialState: {
     conversations: [],
-    conversationMessage: [],
+    messages: [],
     loading: false,
     error: null,
     success: false,
@@ -95,6 +98,11 @@ const conversationslice = createSlice({
       state.totalPages = 1;
       state.pageSize = 10;
       state.totalRecords = 0;
+    },
+    resetMessages: (state) => {
+      state.messages = [];
+      state.currentPage = 1;
+      state.hasMore = true;
     },
     clearConversationMessageState: (state) => {
         state.conversationMessage = [];
@@ -132,20 +140,27 @@ const conversationslice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      
       .addCase(fetchConversationMessage.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
-      .addCase(fetchConversationMessage.fulfilled, (state, action) => {
+      .addCase(fetchConversationMessage.fulfilled, (state, { payload }) => {
+        
+        const { conversationMessage, totalRecords, pageNo } = payload;
+
+        // Append or prepend messages based on page number
+        if (pageNo >= state.currentPage) {
+          state.messages = [...state.messages, ...conversationMessage];
+        } else if (pageNo < state.currentPage) {
+          state.messages = [...conversationMessage, ...state.messages];
+        }
+
+        state.totalRecords = totalRecords;
+        state.currentPage = pageNo;
+        state.hasMore = state.messages.length < totalRecords;
         state.loading = false;
-        state.conversationMessage = action.payload.conversationMessage;
-        state.message = action.payload?.message || '';
       })
-      .addCase(fetchConversationMessage.rejected, (state, action) => {
+      .addCase(fetchConversationMessage.rejected, (state) => {
         state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
       })
        .addCase(NewAgentMessage.pending, (state) => {
         state.loading = true;
@@ -168,6 +183,7 @@ const conversationslice = createSlice({
 // Export actions
 export const {
   setPageSize,
+  resetMessages ,
   setCurrentPage,
   clearConversationMessageState,
   clearconversationstate,
