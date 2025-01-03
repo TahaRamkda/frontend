@@ -37,7 +37,7 @@ const Dashboard = () => {
 
   useEffect(()=>{
     if(dashboardsummary){
-      debugger
+      
       console.log(dashboardsummary)
     }
   },[dashboardsummary]
@@ -45,8 +45,6 @@ const Dashboard = () => {
   useEffect(() => {
     if (fromDate && toDate) {
       localStorage.setItem("activeModule", "0");
-      
-      const senderId = localStorage.getItem("userId");
       dispatch(fetchDashboardSummary({ clientId, fromDate, toDate, senderid: SenderId }));
     }
     return () => {
@@ -60,7 +58,6 @@ const Dashboard = () => {
 const handleChange = (e) => {
     const senderId = e.target.value;
     setSenderId(senderId)
-    dispatch(fetchDashboardSummary({ clientId, fromDate, toDate, senderid: SenderId }));
   };
   const lineChartData = {
     labels: dashboardsummary?.TotalMessagesChart?.map((item) => item.CreatedDate) || [],
