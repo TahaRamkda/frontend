@@ -18,9 +18,10 @@ import { useDispatch, useSelector } from "react-redux";
 import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Loader";
 
+
 const LastContactedList = ({ isVisible, onClose, onsuccess, campaignId }) => {
   // Hardcoded data for "Last Contacted"
-
+  const ClientId = localStorage.getItem("clientId");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useDispatch();
   const [Form, setForm] = useState({});
@@ -28,7 +29,7 @@ const LastContactedList = ({ isVisible, onClose, onsuccess, campaignId }) => {
   const { campaignContactState, campaignFreqDelete, loading } = useSelector(
     (state) => state.campaigns
   );
-
+  
   const [rows, setRows] = useState([
     { days: "7 Days", timesContacted: 0 },
     { days: "14 Days", timesContacted: 0 },
@@ -43,7 +44,7 @@ const LastContactedList = ({ isVisible, onClose, onsuccess, campaignId }) => {
   }, [campaignId]);
 
   useEffect(() => {
-    const ClientId = localStorage.getItem("clientId");
+    
     if (CampaignId) {
       dispatch(
         fetchCampaignContactState({
@@ -63,10 +64,16 @@ const LastContactedList = ({ isVisible, onClose, onsuccess, campaignId }) => {
         CampaignId: CampaignId,
         Removedays: days,
       })
-      //call the contact campaign again 
-    );
+    ).then(() => {
+      dispatch(
+        fetchCampaignContactState({
+          ClientId: ClientId,
+          CampaignId: CampaignId,
+        })
+      );
+    });
   };
-
+  
 
 
   return (

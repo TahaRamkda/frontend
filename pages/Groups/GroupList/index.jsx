@@ -196,7 +196,7 @@ const GroupList = () => {
       <div className="flex items-center">
         {loading && <Loading />}
         <div className=''>
-          <h4 className="font-bold">Groups List</h4>
+          <h4 className="font-bold">Groups </h4>
         </div>
         <div className="ml-auto mb-1">
           <button

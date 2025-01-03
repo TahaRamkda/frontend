@@ -67,7 +67,7 @@ import { sidebarItems } from '@/utils/sidebarItems';
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
           <form onSubmit={handleLogin} className="space-y-6">
           <Link href={"/"  }>
-            <img className="h-20 mx-auto" src="\images\logo\logo.png" alt="logo" />
+            <img className="h-20 mx-auto" src="\images\logo\Loader.svg" alt="logo" />
           </Link>
           <h2 class="text-center text-2xl font-bold">Sign In</h2>
           <div>

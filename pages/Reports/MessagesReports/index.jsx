@@ -18,7 +18,7 @@ const MessageReport = () => {
   const [status, setstatus] = useState(0);
   const [fromDate, setfromDate] = useState("");
   const [toDate, settoDate] = useState("");
-  const [moduleId, setmoduleId] = useState(0);
+  const [ModuleId, setmoduleId] = useState(0);
   const [srcStr, setsrcStr] = useState('');
   const [sendernameId, setsendernameId] = useState(null);
   const [isfilteropen, setisfilteropen] = useState(false);
@@ -44,7 +44,7 @@ const MessageReport = () => {
           fromDate: fromDate,
           toDate: toDate,
           status: status,
-          moduleId: moduleId,
+          moduleId: ModuleId,
           senderid: senderid,
           srcStr: srcStr,
           sendernameId: sendernameId,
@@ -53,7 +53,7 @@ const MessageReport = () => {
         })
       );
     }
-  }, [clientId, fromDate, toDate, status, senderid, srcStr, sendernameId]);
+  }, [clientId, fromDate, toDate, status, senderid, srcStr, sendernameId,ModuleId]);
 
 
   const handleSearchString = (e) => {
@@ -74,15 +74,6 @@ const MessageReport = () => {
 
 
 
-  useEffect(() => {
-    if (clientId) {
-      dispatch(fetchMessageReport({ clientId: clientId, fromDate: fromDate, toDate: toDate, moduleId: moduleId, status: status, senderid: senderid, srcStr: srcStr, pageSize, pageNo: currentPage }));
-
-    }
-    return () => {
-      dispatch(clearMessageReportState());
-    };
-  }, [dispatch, clientId, moduleId]);
 
   const handleFiltershow = () => {
     setisfilteropen(prevState => !prevState);  // Toggle isfilteropen
@@ -99,14 +90,7 @@ const MessageReport = () => {
     dispatch(setCurrentPage(1)); // Reset to first page
     // Fetch data with updated page size and reset to page 1
     await dispatch(fetchMessageReport({
-      clientId: clientId,
-      fromDate: fromDate,
-      toDate: toDate,
-      status: status,
-      sendernameId: sendernameId,
-      senderid: senderid,
-      srcStr: srcStr,
-      pageSize: newSize, pageNo: 1
+      clientId: clientId, fromDate: fromDate, toDate: toDate, moduleId: ModuleId, status: status, sendernameId: sendernameId, senderid: senderid, srcStr: srcStr, pageSize : newSize, pageNo: 1 
     }));
   };
 
@@ -115,7 +99,7 @@ const MessageReport = () => {
     dispatch(setCurrentPage(page));
 
     // Fetch clients for the new page
-    await dispatch(fetchMessageReport({ clientId: clientId, fromDate: fromDate, toDate: toDate, moduleId: moduleId, status: status, sendernameId: sendernameId, senderid: senderid, srcStr: srcStr, pageSize, pageNo: page }));
+    await dispatch(fetchMessageReport({ clientId: clientId, fromDate: fromDate, toDate: toDate, moduleId: ModuleId, status: status, sendernameId: sendernameId, senderid: senderid, srcStr: srcStr, pageSize, pageNo: page }));
   };
   const subHeaderComponentMemo = useMemo(() => {
     return (
@@ -166,7 +150,7 @@ const MessageReport = () => {
             <select
 
               id="ModuleId"
-              value={moduleId}
+              value={ModuleId}
               onChange={(e) => setmoduleId(e.target.value)}
               className="border rounded  w-100"
             >  <option value={0}>Select</option>

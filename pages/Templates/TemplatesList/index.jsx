@@ -195,7 +195,7 @@ const TemplateList = () => {
       <div className="flex items-center">
         {loading && <Loading />}
         <div className="mb-1">
-          <h4 className="font-bold mb-2">Templates List</h4>
+          <h4 className="font-bold mb-2">Templates </h4>
         </div>
         <div className="ml-auto mb-2">
           <button

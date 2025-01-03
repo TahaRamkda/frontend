@@ -151,20 +151,13 @@ const UserList = () => {
     </div>
   ), [filterText]);
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
-  if (error) {
-    return <Alert color="danger">{error}</Alert>;
-  }
 
   return (
     <App>
       <div className="flex items-center">
         {loading && <Loading />}
         <div className=''>
-          <h4 className="font-bold">Users List</h4>
+          <h4 className="font-bold">Users </h4>
         </div>
         <div className="ml-auto mb-1">
           <button

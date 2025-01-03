@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCampaign, clearCampaignListState, activateCampaign, clearCampaignActivateState, setPageSize, setCurrentPage } from "@/slices/campaignSlice";
+import { fetchCampaign, clearCampaignListState, activateCampaign, clearCampaignActivateState, setPageSize, setCurrentPage } from "@/slices/CampaignSlice";
 import { Card, CardBody, CardHeader, Col, Input, Label, Alert, Button, Modal, ModalBody, ModalHeader, Form, FormGroup, Row, Table, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import Loader from '@/components/Loader';
@@ -155,11 +155,12 @@ const CampaignsList = () => {
         campaignId: CampaignId,
         scheduleDate: CampaignForm.scheduleDate,
       };
+      setIsModalOpen(false)
       refreshCampaignList()
       const response = await dispatch(activateCampaign(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({
-          title: "Updated Successfully",
+          title: "Schedule Successfully",
           text: "",
           icon: "success",
         });
@@ -218,7 +219,6 @@ const CampaignsList = () => {
           <button className="uniform_icon_btn" onClick={() => handleTestCampaign(row.campaignId)}>
             <HiBeaker style={{ fontSize: "15px" }} />
           </button>
-
         </div>
 
       )
@@ -277,7 +277,7 @@ const CampaignsList = () => {
       <div className="flex items-center">
         {loading && <Loading />}
         <div className='mb-1'>
-          <h4 className="font-bold mb-2">Campaign List</h4>
+          <h4 className="font-bold mb-2">Campaign</h4>
         </div>
         <div className="ml-auto mb-2">
           <Button

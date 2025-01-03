@@ -51,46 +51,52 @@ const UploadMediaPage = ({ setIsModalOpen, onUploadSuccess }) => {
   };
 
   return (
-    <Container fluid className="d-flex">
-      <Row className="w-100">
-        <Col className="rounded">
-
-
-          <label className="font-medium text-gray-700 text-sm">Sender Names</label>
-          <Sendernames name="senderId" value={selectedSenderId} onChange={handleSenderChange} />
-          <Formik
-            initialValues={{ MediaFile: null }}
-            onSubmit={handleSubmit}
+    
+<div className="grid grid-cols-3 gap-3 mb-3">
+  <div className="col-span-1">
+  <label className="font-medium text-gray-700 text-sm">Sender Names</label>
+  <Sendernames name="senderId" value={selectedSenderId} onChange={handleSenderChange} />
+  </div>
+  <div className="col-span-2">
+  <Formik
+    initialValues={{ MediaFile: null }}
+    onSubmit={handleSubmit}
+  >
+    {({ setFieldValue, isSubmitting }) => (
+      <Form>
+       <div className="grid grid-cols-4 mt-9">
+        <div className="col-span-3">
+          <input
+            type="file"
+            className="form-control border rounded py-1 px-2"
+            accept="image/*,video/*,audio/*,.pdf"
+            required
+            onChange={(event) => {
+              const file = event.currentTarget.files[0];
+              setFieldValue("MediaFile", file || null);
+            }}
+          />
+          </div>
+         
+          
+          <div className="flex justify-end mr-1">
+          <button
+            type="submit"
+            className="uniform_btn px-4 py-2"
+            disabled={isSubmitting}
           >
+            Upload
+          </button>
+          </div>
+          </div>
+    
+      </Form>
+    )}
+  </Formik>
+  </div>
+</div>
 
-            {({ setFieldValue, isSubmitting }) => (
-
-              <Form>
-                <FormGroup className="d-flex align-items-center gap-2">
-
-                  <Input
-                    type="file"
-                    className="form-control"
-                    accept="image/*,video/*,audio/*,.pdf"
-                    required
-                    onChange={(event) => {
-                      const file = event.currentTarget.files[0];
-                      setFieldValue("MediaFile", file || null);
-                    }}
-                  />
-                  <Button className="uniform_btn" type="submit" disabled={isSubmitting}>
-                    Upload
-                  </Button>
-
-                </FormGroup>
-              </Form>
-
-            )}
-          </Formik>
-
-        </Col>
-      </Row>
-    </Container>
+      
   );
 };
 

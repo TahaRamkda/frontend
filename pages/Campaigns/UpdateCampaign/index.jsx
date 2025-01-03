@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { FaTimes } from 'react-icons/fa';
 import { FaRegTrashCan } from "react-icons/fa6";
 import { fetchTemplatesById, clearTemplateDetailState } from "@/slices/TemplateSlice";
-import { UpdateCampaign, clearCampaignUpdateState, fetchCampaignDetail, clearCampaignDetailState } from "@/slices/campaignSlice";
+import { UpdateCampaign, clearCampaignUpdateState, fetchCampaignDetail, clearCampaignDetailState } from "@/slices/CampaignSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Groups from "@/components/MultiSelect/GroupDropdown";
 import Templates from "@/components/Dropdowns/TemplateDropdown";

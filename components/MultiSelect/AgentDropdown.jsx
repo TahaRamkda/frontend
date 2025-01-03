@@ -1,82 +1,57 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import $ from 'jquery';
-import 'select2/dist/css/select2.min.css';
-import 'select2/dist/js/select2.min.js';
-import { fetchAgentsDrop, cleaAgenDroptState } from '@/slices/AgentSlice';
+import Select from 'react-select';
+import { fetchAgentsDrop } from '@/slices/AgentSlice';
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
 const AgentsDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
-  const selectRef = useRef(null);
   const { agentDrop, loading, error } = useSelector((state) => state.agents);
-  const [SelectedAgentId, setSelectedAgentId] = useState([]);
-  const [searchString, setsearchString] = useState("")
-  const [SenderId, setSenderId] = useState(0)
+  const [selectedAgentId, setSelectedAgentId] = useState([]);
+  const [searchString, setSearchString] = useState('');
+  const [senderId, setSenderId] = useState(0);
 
+  // Effect to fetch agents when search string or senderId changes
   useEffect(() => {
-    dispatch(fetchAgentsDrop({ clientId: localStorage.getItem("clientId"), searchStr: searchString, senderId: SenderId }));
+    dispatch(fetchAgentsDrop({ clientId: localStorage.getItem("clientId"), searchStr: searchString, senderId: senderId }));
+  }, [dispatch, searchString, senderId]);
 
-  }, [dispatch]);
-
-  // Notify parent of selected client changes
+  // Effect to notify parent component when selected agent changes
   useEffect(() => {
     if (onChange) {
-      onChange(SelectedAgentId);
+      onChange(selectedAgentId);
     }
-  }, [SelectedAgentId, onChange]);
+  }, [selectedAgentId, onChange]);
 
-  useEffect(() => {
-    if (selectRef.current) {
-      $(selectRef.current).select2({
-        placeholder: "Select",
-        allowClear: true,
-        multiple: true,
-      });
+  // Mapping the fetched agent data into the format that react-select expects
+  const Options = agentDrop.map(agent => ({
+    value: agent.id,
+    label: agent.name
+  }));
 
-      $(selectRef.current).on("change", (e) => {
-        const selectedValues = $(selectRef.current).val() || [];
-        setSelectedAgentId(selectedValues);
-      });
-    }
-
-    return () => {
-      if (selectRef.current) {
-        $(selectRef.current).off('change');
-      }
-    };
-  }, [agentDrop]);
-
-
+  // Handle when selection changes
+  const handleSelectChange = (selectedOptions) => {
+    const selectedIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
+    setSelectedAgentId(selectedIds);
+  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
-  const availableAgents = agentDrop.filter(
-    (agentDrop) => !SelectedAgentId.includes(agentDrop.clientId)
-  );
+
   return (
     <div>
-      <Input
-        ref={selectRef}
+      <Select
         id="agentSelect"
-        innerRef={selectRef}
         name={name}
-        value={SelectedAgentId}
-        onChange={(e) => setSelectedAgentId(Array.from(e.target.selectedOptions, option => option.value))}
-        multiple
+        value={Options.filter(option => selectedAgentId.includes(option.value))}
+        onChange={handleSelectChange}
+        options={Options}
+        isMulti
+        className="border border-gray-300 rounded-lg"
+        isSearchable
+        placeholder="Select"
         required
-      >
-        <option value="">Select</option>
-        {availableAgents && availableAgents.length > 0 ? (
-          availableAgents.map((agents) => (
-            <option key={agents.id} value={agents.id}>
-              {agents.name}
-            </option>
-          ))
-        ) : (
-          <option disabled>No records found</option>
-        )}
-      </Input>
+      />
     </div>
   );
 };

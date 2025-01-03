@@ -64,7 +64,7 @@ const ActiveConversations = () => {
                 <div className="col-xl-12 col-md-12">
                   <div>
                     <section className="general-section">
-                      <h1 className="font-semibold pb-3">Message Reports List</h1>
+                      <h1 className="font-semibold pb-3">Message Reports </h1>
                       <div className="card bg-white shadow-md rounded-lg pt-0 p-4">
                         <div className="table-responsive categories_table rounded-lg">
                           <table className="table-auto w-full border-collapse border border-gray-300 rounded-lg shadow-sm">

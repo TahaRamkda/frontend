@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Container, Row, Col, Table, input, Button, Pagination, List, label, PaginationItem, PaginationLink, CardBody, Card } from 'reactstrap';
 import Loading from '@/components/Loader';
 import App from '@/components/App';
+import { BASE_URL } from '@/utils/apiConstants';
 import { fetchConversationList, fetchConversationMessage, clearconversationstate, clearConversationMessageState, NewAgentMessage } from "@/slices/ConversationSlice";
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 const Chatview = ({ ChatId, onClose, isVisible }) => {

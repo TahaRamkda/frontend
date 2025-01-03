@@ -68,7 +68,7 @@ const UserForm = ({ onClose, isVisible, onsuccess }) => {
       console.error("Failed to create:", err);
       showSweetAlert({
         title: "Failed",
-        text: response.message,
+        text: err.message,
         icon: "error",
       });
     } finally {

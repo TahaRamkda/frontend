@@ -1,9 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Input } from "reactstrap";
-import $ from 'jquery';
-import 'select2/dist/css/select2.min.css';
-import 'select2/dist/js/select2.min.js';
+import Select from 'react-select';
 import { fetchSendernamesDrop, clearSendernameDropState } from "@/slices/sendernameSlice";
 
 
@@ -15,39 +12,26 @@ const SendernamesDropdown = ({ name, value, onChange, error }) => {
 
   useEffect(() => {
     dispatch(fetchSendernamesDrop({ clientId: localStorage.getItem("clientId") }));
-
   }, [dispatch]);
 
-  // Notify parent of selected group changes
+  // Effect to notify parent component when selected agent changes
   useEffect(() => {
     if (onChange) {
       onChange(selectedSenderId);
     }
   }, [selectedSenderId, onChange]);
 
+  const handleSelectChange = (selectedOptions) => {
+    const selectedIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
+    setSelectedSenderId(selectedIds);
+  };
+ const Options = sendernameDrop.map(sendername => ({
+    value: sendername.id,
+    label: sendername.name
+  }));
 
   // Handle select/deselect seder (via select2)
-  useEffect(() => {
-    if (selectRef.current) {
-      $(selectRef.current).select2({
-        placeholder: "Select",
-        allowClear: true,
-        multiple: true,
-      });
-
-      $(selectRef.current).on("change", (e) => {
-        const selectedValues = $(selectRef.current).val() || [];
-        setSelectedSenderId(selectedValues);
-      });
-    }
-
-    return () => {
-      if (selectRef.current) {
-        $(selectRef.current).off("change");
-      }
-    };
-  }, [sendernameDrop]);
-
+ 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-danger">Error loading  {error}</p>;
 
@@ -59,26 +43,18 @@ const SendernamesDropdown = ({ name, value, onChange, error }) => {
   return (
     <>
       <div className="mb-4">
-        <select
-          ref={selectRef}
-          id="senderSelect"
-          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          value={selectedSenderId}
-          onChange={(e) => setSelectedSenderId(Array.from(e.target.selectedOptions, option => option.value))}
-          multiple
-          required
-        >
-          <option value="">Select</option>
-          {availableSenders && availableSenders.length > 0 ? (
-            availableSenders.map((sender) => (
-              <option key={sender.id} value={sender.id}>
-                {sender.name}
-              </option>
-            ))
-          ) : (
-            <option disabled>No records found</option>
-          )}
-        </select>
+      <Select
+        id="agentSelect"
+        name={name}
+        value={Options.filter(option => selectedSenderId.includes(option.value))}
+        onChange={handleSelectChange}
+        options={Options}
+        isMulti
+        isSearchable
+        placeholder="Select"
+        className="border border-gray-300 rounded-lg text-sm"
+        required
+      />
       </div>
     </>
   );

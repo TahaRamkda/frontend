@@ -30,7 +30,7 @@ export const fetchAgentsDrop = createAsyncThunk(
   'agent/fetchAgentsDrop',
   async ({clientId,senderId,pageNo,pageSize,searchStr}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${AGENTDROPDOWN}?ClientId=${clientId}&senderId=${senderId}${searchStr?`&searchStr=${searchStr}`: ''}&pageNo=${pageNo}&pageSize=${pageSize}`);
+      const response = await API.get(`${AGENTDROPDOWN}?ClientId=${clientId}&senderId=${senderId}${searchStr?`&searchStr=${searchStr}`: ''}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           agentDrop: response.data.result,

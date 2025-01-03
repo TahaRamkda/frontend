@@ -237,7 +237,7 @@ const AgentsList = () => {
       <div className="flex items-center">
         {loading && <Loading />}
         <div className=''>
-          <h4 className="font-bold ">Agents List</h4>
+          <h4 className="font-bold ">Agents</h4>
         </div>
         <div className="ml-auto mb-1">
           <button className="uniform_btn" onClick={() => setCreateModalOpen(true)}>

@@ -91,7 +91,6 @@ const ChatsReport = () => {
     await dispatch(fetchChatsMonitor({
       clientId: clientId,
       senderId: senderid,
-      srcStr: srcStr,
       pageSize: newSize, pageNo: 1
     }));
   };
@@ -101,7 +100,7 @@ const ChatsReport = () => {
     dispatch(setCurrentPage(page));
 
     // Fetch clients for the new page
-    await dispatch(fetchChatsMonitor({ clientId: clientId, fromDate: fromDate, toDate: toDate, status: status, sendernameId: sendernameId, senderId: senderid, srcStr: srcStr, pageSize, pageNo: page }));
+    await dispatch(fetchChatsMonitor({ clientId: clientId, fromDate: fromDate, toDate: toDate, senderId: senderid, pageSize, pageNo: page }));
   };
   const subHeaderComponentMemo = useMemo(() => {
     return (

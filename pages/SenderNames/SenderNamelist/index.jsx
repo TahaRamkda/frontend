@@ -16,6 +16,7 @@ import showSweetAlert from "@/components/Sweetalert";
 import App from "@/components/App";
 import SenderNameForm from "../CreateSenderName";
 import { BASE_URL } from "@/utils/apiConstants";
+import { selector } from "recoil";
 
 const SendernameList = () => {
   const router = useRouter();
@@ -34,16 +35,24 @@ const SendernameList = () => {
       selector: (row) => row.mediaPath, // Assuming mediaPath is the field in your data
       cell: (row) => (
         <div className="flex flex-row items-center gap-2 text-center">
+          
           <img
             src={`${BASE_URL}${row.mediaPath}`}
             alt="Image"
             className="w-8 h-8 object-cover rounded-lg"
           />
           <div className="flex items-center">
-            <span>{row.senderName}</span>
+            <span className="m-1">{row.senderName}</span>
+            <span>{row.verified && ( // Check if verified is true and render the image
+            <img
+              src="\images\W-Varified.png"
+              alt="Verified"
+              className="w-4 h-4 object-contain mt-1" // Adjust size as needed
+            />
+          )}</span>
           </div>
+          
         </div>
-
       ),
       sortable: false, // Disable sorting for images if not needed
     },
@@ -196,7 +205,7 @@ const SendernameList = () => {
       <div className="flex items-center">
         {loading && <Loading />}
         <div className=''>
-          <h4 className="font-bold ">Sender Name List</h4>
+          <h4 className="font-bold ">Sender Name </h4>
         </div>
         <div className="ml-auto mb-1">
 

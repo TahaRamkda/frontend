@@ -169,7 +169,7 @@ const RoleList = () => {
       <div className="flex items-center">
         {loading && <Loading />}
         <div >
-          <h4 className="font-bold ">Roles List</h4>
+          <h4 className="font-bold ">Roles </h4>
         </div>
         <div className="ml-auto mb-1">
           <button className="uniform_btn" onClick={handleCreate}>

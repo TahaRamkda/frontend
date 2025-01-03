@@ -187,7 +187,7 @@ const SendernameList = () => {
       <div className="flex items-center">
         {loading && <Loading />}
         <div className=''>
-          <h4 className="font-bold ">Sender Name List</h4>
+          <h4 className="font-bold ">Sender Name </h4>
         </div>
         <div className="ml-auto mb-1">
           <button className="uniform_btn" onClick={handleCreate}>

@@ -31,7 +31,6 @@ const ContactList = () => {
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
     { name: "Email", selector: (row) => row.emailAddress, sortable: true },
     { name: "Area Name", selector: (row) => row.areaName, sortable: true },
-
     {
       name: "Action",
       cell: (row) => (
@@ -53,7 +52,6 @@ const ContactList = () => {
       ),
     },
   ];
-
   const handleDetailClick = async (contactId) => {
     try {
       const response = await dispatch(fetchContactById(contactId)).unwrap();
@@ -134,7 +132,6 @@ const ContactList = () => {
     console.log("Modal closed due to:", reason);
     setIsModalOpen(false);
   };
-
   const handlePageSizeChange = async (newSize) => {
     // Update page size and reset to the first page
     dispatch(setPageSize(newSize));
@@ -142,7 +139,6 @@ const ContactList = () => {
     // Fetch data with updated page size and reset to page 1
     await dispatch(fetchContact({ clientId: localStorage.getItem("clientId"), groupId: GroupId, searchStr: filterText, pageSize: newSize, pageNo: 1 }));
   };
-
   const handlePageChange = async (page) => {
     // Update current page state in Redux
     dispatch(setCurrentPage(page));
@@ -213,13 +209,12 @@ const ContactList = () => {
   if (error) {
     return <div className="bg-red-500 text-white p-4 rounded">{error}</div>;
   }
-
   return (
     <App>
       <div className="flex items-center">
         {loading && <Loading />}
         <div >
-          <h4 className="font-bold ">Contact List</h4>
+          <h4 className="font-bold ">Contact</h4>
         </div>
         <div className=" flex ml-auto mb-1 gap-4">
           <button className="uniform_btn" onClick={handleBulkUpload}>
@@ -278,23 +273,18 @@ const ContactList = () => {
           }}
         />
       </div>
-
-
       {/* Modal */}
       {isModalOpen && (
-
         <Modal isOpen={true} toggle={() => toggleModal("close-icon")} fade={false}>
           <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
               <ModalHeader
                 toggle={() => toggleModal("close-icon")}
-
               >
                 Edit Contact
               </ModalHeader>
               <ModalBody>
                 <form onSubmit={handleUpdateSubmit}>
-
                   <div className="w-full">
                     <label className="font-medium text-gray-700 text-sm"> Group </label>
                     <GroupDropdown
@@ -303,7 +293,6 @@ const ContactList = () => {
                       onChange={handleFormChange}
                       className="border rounded py-1 px-2 w-full mt-1 text-sm"
                     />
-
                   </div>
                   <div className="w-full ">
                     <label className="font-medium text-gray-700 text-sm">First Name</label>
@@ -316,8 +305,6 @@ const ContactList = () => {
                       className="border rounded py-1 px-2 w-full mt-1 text-sm"
                     />
                   </div>
-
-
                   <div className="w-full ">
                     <label className="font-medium text-gray-700 text-sm">Last Name</label>
                     <input
