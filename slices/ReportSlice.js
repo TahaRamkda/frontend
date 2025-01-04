@@ -14,7 +14,7 @@ export const fetchMessageSummary = createAsyncThunk(
       if (response?.status === 200 && response.data?.result) {
         return {
         messageSummary: response.data.result,
-        totalRecords: response.data.result.length > 0 ? response.data.result[0].totalItems : 0,
+        totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -39,7 +39,7 @@ export const fetchMessageReport = createAsyncThunk(
           return {
             
             messagereport: response.data.result,
-            totalRecords: response.data.result.length > 0 ? response.data.result[0].totalItems : 0,
+            totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
           };
         } else {
           throw new Error('Failed to fetch details');

@@ -1,19 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  Card,
-  Col,
-  Input,
-  InputGroup,
-  InputGroupText,
-  Nav,
-  NavItem,
-  TabContent,
-  TabPane,
-  Container,
-  Row,
-  Button,
-} from "reactstrap";
+import { Card, Col, Input, InputGroup, InputGroupText, Nav, NavItem, TabContent, TabPane, Container, Row, Button, CardHeader } from "reactstrap";
 import {
   fetchConversationList,
   fetchConversationMessage,
@@ -44,6 +31,7 @@ const ChatPage = () => {
     loading: messageLoading,
   } = useSelector((state) => state.conversations);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const inputRef = useRef(null);
   const [activeTab, setActiveTab] = useState("1");
   const [chatMessages, setChatMessages] = useState([]);
   const [AgentConversaton, setAgentConversaton] = useState([]);
@@ -55,6 +43,7 @@ const ChatPage = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [Errordisconect, setErrordisconect] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const toggleModal = () => setModalOpen((prevState) => !prevState);
   const toggle = () => setDropdownOpen((prevState) => !prevState);
   const activeChatRef = useRef(Activechat);
@@ -152,13 +141,27 @@ const ChatPage = () => {
           pageNo: currentPage + 1,
         })
       ).then(() => {
-        // Adjust scroll position slightly to avoid triggering again immediately
-        container.scrollTop = 10;
-        isManualScroll.current = false; // Reset manual scroll flag
+        // Optionally adjust scroll position after older messages are loaded
+        container.scrollTop = 1; // Prevent continuous triggering at the top
       });
     }
-  };
 
+    // // Check if the user has scrolled to the bottom
+    // if (
+    //   container.scrollHeight - container.scrollTop === container.clientHeight &&
+    //   hasMore &&
+    //   !loading
+    // ) {
+    //   dispatch(fetchConversationMessage({ clientId: ClientId, ChatId: Activechat, pageNo: currentPage + 1 }))
+    //     .then(() => {
+    //       // Optionally adjust scroll position if needed
+    //     });
+    // }
+  };
+  {/* Add Emoji Function */}
+const addEmoji = (emoji) => {
+  setMessageInput((prevMessage) => prevMessage + emoji);
+};
   useEffect(() => {
     const container = containerRef.current;
 
@@ -495,11 +498,10 @@ const ChatPage = () => {
                     {AgentConversaton?.map((conversation) => (
                       <li
                         key={conversation.id}
-                        className={`flex  justify-between  hover:bg-gray-100 cursor-pointer  ${
-                          Activechat === conversation.id
-                            ? "bg-gray-200"
-                            : "hover:bg-gray-100"
-                        }`}
+                        className={`flex  justify-between  hover:bg-gray-100 cursor-pointer  ${Activechat === conversation.id
+                          ? "bg-gray-200"
+                          : "hover:bg-gray-100"
+                          }`}
                         onClick={() => {
                           HandleConversationDetail(conversation.id);
                         }}
@@ -588,6 +590,29 @@ const ChatPage = () => {
             style={{ height: "100vh" }}
           >
             <Card className="right-sidebar-chat h-100">
+            {conversations.filter((conversation) => conversation.id === Activechat).map((conversation) => (
+                <div className="flex items-center justify-between text-black px-4 py-3 shadow-md">
+                  {/* Left Section */}
+                  <div
+                    key={conversation.id}
+                    className="flex items-center space-x-3"
+                  >
+                     <img
+                        src={`${BASE_URL}${conversation.logo}`}
+                        alt="User Logo"
+                        className="w-10 h-10 rounded-full"
+                      />
+                    
+                    <div>{conversation.fullName}</div>
+                  </div>
+
+                  {/* Right Section */}
+                  <div className="flex items-center space-x-4">
+                    {/* Search Input */}
+                    
+                  </div>
+                </div>
+              ))}
               <div className="right-sidebar-chat p-4 w-full height-chat-box overflow-y-auto chat-background h-100">
                 <div className="msger flex flex-col h-full">
                   <div
@@ -689,13 +714,43 @@ const ChatPage = () => {
                     </div>
                   )}
                   <div className="msger-inputs px-4 py-3 flex items-center">
+                  
                     <Button
                       onClick={openFileManager}
                       className="text-xl text-gray-500 hover:text-gray-700 mr-2"
                     >
                       <i className="fa fa-paperclip"></i>
                     </Button>
+                    {/* Emoji Picker Button */}
+      <button
+        className="mr-2 p-2 hover:bg-gray-200 rounded-full"
+        onClick={() => setShowEmojiPicker((prev) => !prev)}
+      >
+        <i className="fa fa-smile-o text-gray-600"></i>
+      </button>
 
+      {/* Emoji Picker */}
+      {showEmojiPicker && (
+  <div
+    className="absolute bottom-16 left-0 bg-white border rounded-lg shadow-lg p-2 z-50"
+    style={{ width: "auto" }}
+  >
+    <div className="flex justify-between items-center mb-2">
+      <span className="text-gray-700 font-semibold">Select Emoji</span>
+      <button
+        className="text-red-500 hover:text-red-700"
+        onClick={() => setShowEmojiPicker(false)}
+      >
+        <i className="fa fa-times"></i>
+      </button>
+    </div>
+    <EmojiPicker
+      onEmojiClick={(emojiData) => {
+        addEmoji(emojiData.emoji); // Pass emoji value
+      }}
+    />
+  </div>
+)}
                     <Input
                       type="text"
                       value={messageInput}
@@ -708,18 +763,16 @@ const ChatPage = () => {
                       placeholder="Type a message..."
                       className="rounded-lg border-0 shadow-sm"
                     />
-
+                    
                     {/* Recording Button */}
                     <button
-                      className={`border rounded-full p-2 mr-2 ${
-                        isRecording ? "bg-red-500" : "bg-green-500"
-                      }`}
+                      className={`border rounded-full p-2 mr-2 ${isRecording ? "bg-red-500" : "bg-green-500"
+                        }`}
                       onClick={isRecording ? stopRecording : startRecording}
                     >
                       <i
-                        className={`fa fa-${
-                          isRecording ? "stop" : "microphone"
-                        }`}
+                        className={`fa fa-${isRecording ? "stop" : "microphone"
+                          }`}
                         aria-hidden="true"
                       ></i>
                     </button>

@@ -54,6 +54,7 @@ const AgentsList = () => {
       ),
     },
   ];
+
   useEffect(() => {
     if (agent) {
       setagentForm(agent)
@@ -68,6 +69,7 @@ const AgentsList = () => {
       await dispatch(fetchAgentsById({ clientId: localStorage.getItem('clientId'), agentId })).unwrap();
 
       setAgentId(agentId);
+      
       setIsModalOpen(true); // Open the modal
 
     }
@@ -128,8 +130,8 @@ const AgentsList = () => {
     setshowagenttiming(false);
 
   };
-  const handleDropdownChange = (value) => {
-    setSenderId((prev) => ({ ...prev, senderIds: value }));
+  const handleDropdownChange = (selectedValues) => {
+    setagentForm({ ...agentForm, senderIds: selectedValues.join(",") });  // Join selected values back into a comma-separated string
   };
   const handlePageChange = async (page) => {
     // Update current page state in Redux
@@ -303,11 +305,12 @@ const AgentsList = () => {
                   <div>
                     <label className="font-medium text-gray-700 text-sm">Sender Name</label>
                     <SendernamesDropdown
-                      name="senderIds"
-                      value={agentForm.senderIds || ""} // Bind value from agentForm
-                      onChange={(value) => handleDropdownChange(value)}
-                      className="border rounded py-1 px-2 w-full text-sm"
-                    />
+              name="senderIds"
+              // Ensure senderIds is split into an array for multi-select
+              value={agentForm.senderIds || []}  // Split string to array
+              onChange={(value) => handleDropdownChange(value)}  // Handle value change
+              className="border rounded py-1 px-2 w-full text-sm"
+            />
                   </div>
                   <div>
                     <label className="font-medium text-gray-700 text-sm">First Name</label>
