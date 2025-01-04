@@ -149,7 +149,7 @@ const conversationslice = createSlice({
 
         // Append or prepend messages based on page number
         if (pageNo >= state.currentPage) {
-          state.messages = [...state.messages, ...conversationMessage];
+          state.messages = [...conversationMessage,...state.messages];
         } else if (pageNo < state.currentPage) {
           state.messages = [...conversationMessage, ...state.messages];
         }

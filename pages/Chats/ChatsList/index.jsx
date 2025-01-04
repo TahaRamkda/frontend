@@ -22,7 +22,12 @@ const ChatPage = () => {
   const { conversations, loading, error } = useSelector(
     (state) => state.conversations
   );
-  const { messages, currentPage, hasMore, loading: messageLoading } = useSelector((state) => state.conversations);
+  const {
+    messages,
+    currentPage,
+    hasMore,
+    loading: messageLoading,
+  } = useSelector((state) => state.conversations);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("1");
   const [chatMessages, setChatMessages] = useState([]);
@@ -100,7 +105,6 @@ const ChatPage = () => {
 
   //triggered each time when messages changes and assign to local state
   useEffect(() => {
-
     if (messages && messages.length > 0) {
       setChatMessages(messages);
       console.log("Messages changed:", messages);
@@ -114,25 +118,30 @@ const ChatPage = () => {
     if (!container || loading) return;
 
     // Check if the user has scrolled to the top
-    if (container.scrollTop === 0 && currentPage > 1 && !loading) {
-      dispatch(fetchConversationMessage({ clientId: ClientId, ChatId: Activechat, pageNo: currentPage - 1 }))
-        .then(() => {
-          // Optionally adjust scroll position after older messages are loaded
-          container.scrollTop = 1; // Prevent continuous triggering at the top
-        });
+    if (container.scrollTop === 0 && currentPage >= 1 && !loading && hasMore) {
+      dispatch(
+        fetchConversationMessage({
+          clientId: ClientId,
+          ChatId: Activechat,
+          pageNo: currentPage + 1,
+        })
+      ).then(() => {
+        // Optionally adjust scroll position after older messages are loaded
+        container.scrollTop = 1; // Prevent continuous triggering at the top
+      });
     }
 
-    // Check if the user has scrolled to the bottom
-    if (
-      container.scrollHeight - container.scrollTop === container.clientHeight &&
-      hasMore &&
-      !loading
-    ) {
-      dispatch(fetchConversationMessage({ clientId: ClientId, ChatId: Activechat, pageNo: currentPage + 1 }))
-        .then(() => {
-          // Optionally adjust scroll position if needed
-        });
-    }
+    // // Check if the user has scrolled to the bottom
+    // if (
+    //   container.scrollHeight - container.scrollTop === container.clientHeight &&
+    //   hasMore &&
+    //   !loading
+    // ) {
+    //   dispatch(fetchConversationMessage({ clientId: ClientId, ChatId: Activechat, pageNo: currentPage + 1 }))
+    //     .then(() => {
+    //       // Optionally adjust scroll position if needed
+    //     });
+    // }
   };
 
   useEffect(() => {
@@ -148,9 +157,6 @@ const ChatPage = () => {
       }
     };
   }, [handleScroll]);
-
-
-
 
   //called each time to send message
   const HandleSendMessage = async () => {
@@ -520,18 +526,17 @@ const ChatPage = () => {
                                 </p>
                               </div>
                             )}
-
                           </div>
                         </div>
                         <div className="flex flex-col items-end justify-end space-y-1">
-                          <p className="text-xs text-gray-400">{extractTime(conversation.updatedDate)}</p>
+                          <p className="text-xs text-gray-400">
+                            {extractTime(conversation.updatedDate)}
+                          </p>
                           {conversation.unreadCount > 0 && (
                             <span className="inline-block bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">
                               @{conversation.unreadCount || 2}
                             </span>
                           )}
-
-
                         </div>
                       </li>
                     ))}
@@ -595,54 +600,60 @@ const ChatPage = () => {
                     {chatMessages.map((message) => (
                       <div
                         key={message.messageId}
-                        className={`flex ${message.typeId === 1 ? "justify-end" : "justify-start"
-                          }`}
+                        className={`flex ${
+                          message.typeId === 1 ? "justify-end" : "justify-start"
+                        }`}
                       >
                         <div
-                          className={`max-w-xs p-2 rounded-2xl shadow-sm ${message.typeId === 1
-                            ? "bg-[#ddffd9] text-black rounded-br-none"
-                            : "bg-[#ffffff] text-black rounded-bl-none"
-                            }`}
+                          className={`max-w-xs p-2 rounded-2xl shadow-sm ${
+                            message.typeId === 1
+                              ? "bg-[#ddffd9] text-black rounded-br-none"
+                              : "bg-[#ffffff] text-black rounded-bl-none"
+                          }`}
                         >
-                          {message.contentType && message.contentType !== "" && (
-                            <>
-                              {message.contentType.startsWith("image/") && (
-                                <img
-                                  src={`${BASE_URL}${message.mediaPath}`}
-                                  alt="Image"
-                                  className="max-w-full rounded"
-                                />
-                              )}
-                              {message.contentType.startsWith("video/") && (
-                                <video
-                                  controls
-                                  src={`${BASE_URL}${message.mediaPath}`}
-                                  className="max-w-full rounded"
-                                />
-                              )}
-                              {message.contentType.startsWith("audio/") && (
-                                <audio
-                                  controls
-                                  src={`${BASE_URL}${message.mediaPath}`}
-                                  className="max-w-full rounded"
-                                />
-                              )}
-                            </>
-                          )}
+                          {message.contentType &&
+                            message.contentType !== "" && (
+                              <>
+                                {message.contentType.startsWith("image/") && (
+                                  <img
+                                    src={`${BASE_URL}${message.mediaPath}`}
+                                    alt="Image"
+                                    className="max-w-full rounded"
+                                  />
+                                )}
+                                {message.contentType.startsWith("video/") && (
+                                  <video
+                                    controls
+                                    src={`${BASE_URL}${message.mediaPath}`}
+                                    className="max-w-full rounded"
+                                  />
+                                )}
+                                {message.contentType.startsWith("audio/") && (
+                                  <audio
+                                    controls
+                                    src={`${BASE_URL}${message.mediaPath}`}
+                                    className="max-w-full rounded"
+                                  />
+                                )}
+                              </>
+                            )}
                           <p className="text-left text-sm">
-                            {message.messageContent.split("\n").map((line, index) => (
-                              <span key={index}>
-                                {line}
-                                <br />
-                              </span>
-                            ))}
+                            {message.messageContent
+                              .split("\n")
+                              .map((line, index) => (
+                                <span key={index}>
+                                  {line}
+                                  <br />
+                                </span>
+                              ))}
                           </p>
-                          <p className="text-xs text-gray-500 mt-2">
+                          {/* <p className="text-xs text-gray-500 mt-2">
                             {extractTime(message.createdDate)}
-                          </p>
+                          </p> */}
                         </div>
                       </div>
                     ))}
+                    <div ref={messagesEndRef} /> 
                   </div>
 
                   <div className="msger-inputs px-4 py-3 flex items-center">
