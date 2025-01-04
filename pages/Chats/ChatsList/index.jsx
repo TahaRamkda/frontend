@@ -1,23 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  Card,
-  Col,
-  Input,
-  InputGroup,
-  InputGroupText,
-  Nav,
-  NavItem,
-  TabContent,
-  TabPane,
-  Container,
-  Row,
-  Button,
-} from "reactstrap";
+import { Card, Col, Input, InputGroup, InputGroupText, Nav, NavItem, TabContent, TabPane, Container, Row, Button, CardHeader } from "reactstrap";
 import {
   fetchConversationList,
-  fetchConversationMessage, 
-  resetMessages ,
+  fetchConversationMessage,
+  resetMessages,
   clearconversationstate,
   NewAgentMessage,
 } from "@/slices/ConversationSlice";
@@ -35,7 +22,7 @@ const ChatPage = () => {
   const { conversations, loading, error } = useSelector(
     (state) => state.conversations
   );
-  const { messages, currentPage, hasMore, loading : messageLoading } = useSelector((state) => state.conversations);
+  const { messages, currentPage, hasMore, loading: messageLoading } = useSelector((state) => state.conversations);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("1");
   const [chatMessages, setChatMessages] = useState([]);
@@ -66,7 +53,7 @@ const ChatPage = () => {
       messagesEndRef.current.scrollIntoView({ behavior: "auto" }); // Use "auto" to skip animation
     }
   }, [chatMessages]);
-  
+
   //call the fetchConversationList action to fetch agents conversations
   useEffect(() => {
     const ClientId = localStorage.getItem("clientId");
@@ -98,7 +85,7 @@ const ChatPage = () => {
       );
     }
     return () => {
-       dispatch(resetMessages());
+      dispatch(resetMessages());
     };
   };
 
@@ -113,7 +100,7 @@ const ChatPage = () => {
 
   //triggered each time when messages changes and assign to local state
   useEffect(() => {
-    
+
     if (messages && messages.length > 0) {
       setChatMessages(messages);
       console.log("Messages changed:", messages);
@@ -123,9 +110,9 @@ const ChatPage = () => {
   const handleScroll = () => {
     const container = containerRef.current;
     const ClientId = localStorage.getItem("clientId");
-  
+
     if (!container || loading) return;
-  
+
     // Check if the user has scrolled to the top
     if (container.scrollTop === 0 && currentPage > 1 && !loading) {
       dispatch(fetchConversationMessage({ clientId: ClientId, ChatId: Activechat, pageNo: currentPage - 1 }))
@@ -134,7 +121,7 @@ const ChatPage = () => {
           container.scrollTop = 1; // Prevent continuous triggering at the top
         });
     }
-  
+
     // Check if the user has scrolled to the bottom
     if (
       container.scrollHeight - container.scrollTop === container.clientHeight &&
@@ -147,14 +134,14 @@ const ChatPage = () => {
         });
     }
   };
-  
+
   useEffect(() => {
     const container = containerRef.current;
-  
+
     if (container) {
       container.addEventListener("scroll", handleScroll);
     }
-  
+
     return () => {
       if (container) {
         container.removeEventListener("scroll", handleScroll);
@@ -162,8 +149,8 @@ const ChatPage = () => {
     };
   }, [handleScroll]);
 
-  
-  
+
+
 
   //called each time to send message
   const HandleSendMessage = async () => {
@@ -459,7 +446,7 @@ const ChatPage = () => {
                 </NavItem>
               </Nav>
               <TabContent id="chat-options-tabContent">
-                <TabPane   id="chats" className="text-center">
+                <TabPane id="chats" className="text-center">
                   <ul className="divide-y divide-gray-200  chats-user overflow-y-auto">
                     {loading && (
                       <div className="text-center">
@@ -469,11 +456,10 @@ const ChatPage = () => {
                     {AgentConversaton?.map((conversation) => (
                       <li
                         key={conversation.id}
-                        className={`flex  justify-between  hover:bg-gray-100 cursor-pointer  ${
-                          Activechat === conversation.id
-                            ? "bg-gray-200"
-                            : "hover:bg-gray-100"
-                        }`}
+                        className={`flex  justify-between  hover:bg-gray-100 cursor-pointer  ${Activechat === conversation.id
+                          ? "bg-gray-200"
+                          : "hover:bg-gray-100"
+                          }`}
                         onClick={() => {
                           HandleConversationDetail(conversation.id);
                         }}
@@ -534,19 +520,19 @@ const ChatPage = () => {
                                 </p>
                               </div>
                             )}
-                           
+
                           </div>
                         </div>
                         <div className="flex flex-col items-end justify-end space-y-1">
-                             <p className="text-xs text-gray-400">{extractTime(conversation.updatedDate)}</p>
-                             {conversation.unreadCount >0 && (
-                              <span className="inline-block bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">
-                               @{conversation.unreadCount || 2}
-                              </span>
-                            )}
-                              
-                              
-                            </div>
+                          <p className="text-xs text-gray-400">{extractTime(conversation.updatedDate)}</p>
+                          {conversation.unreadCount > 0 && (
+                            <span className="inline-block bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">
+                              @{conversation.unreadCount || 2}
+                            </span>
+                          )}
+
+
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -563,70 +549,101 @@ const ChatPage = () => {
             style={{ height: "100vh" }}
           >
             <Card className="right-sidebar-chat h-100">
+              {conversations.map((conversation) => (
+                <div className="flex items-center justify-between text-white px-4 py-3 shadow-md">
+                  {/* Left Section */}
+                  <div
+                    key={conversation.id}
+                    className="flex items-center space-x-3"
+                  >
+                    <img
+                      src="\images\logo\Loader.svg" // Replace with your logo path
+                      alt="Logo"
+                      className="w-8 h-8 rounded-full"
+                    />
+                    <div>{conversation.fullName}</div>
+                  </div>
+
+                  {/* Right Section */}
+                  <div className="flex items-center space-x-4">
+                    {/* Search Input */}
+                    <div className="relative">
+
+                      <i className="fa fa-search absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500"></i>
+                    </div>
+
+                    {/* Action Icons */}
+                    <button className="p-2 hover:bg-blue-600 rounded-full">
+                      <i className="fa fa-cog"></i>
+                    </button>
+                    <button className="p-2 hover:bg-blue-600 rounded-full">
+                      <i className="fa fa-user-circle"></i>
+                    </button>
+                  </div>
+                </div>
+              ))}
               <div className="right-sidebar-chat p-4 w-full height-chat-box overflow-y-auto chat-background h-100">
                 <div className="msger flex flex-col h-full">
-                 <div
-      ref={containerRef}
-      //onScroll={handleScroll}
-      className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2"
-    >
-      {loading && (
-        <div className="text-center">Loading messages...</div>
-      )}
-      {chatMessages.map((message) => (
-        <div
-          key={message.messageId}
-          className={`flex ${
-            message.typeId === 1 ? "justify-end" : "justify-start"
-          }`}
-        >
-          <div
-            className={`max-w-xs p-2 rounded-2xl shadow-sm ${
-              message.typeId === 1
-                ? "bg-[#ddffd9] text-black rounded-br-none"
-                : "bg-[#ffffff] text-black rounded-bl-none"
-            }`}
-          >
-            {message.contentType && message.contentType !== "" && (
-              <>
-                {message.contentType.startsWith("image/") && (
-                  <img
-                    src={`${BASE_URL}${message.mediaPath}`}
-                    alt="Image"
-                    className="max-w-full rounded"
-                  />
-                )}
-                {message.contentType.startsWith("video/") && (
-                  <video
-                    controls
-                    src={`${BASE_URL}${message.mediaPath}`}
-                    className="max-w-full rounded"
-                  />
-                )}
-                {message.contentType.startsWith("audio/") && (
-                  <audio
-                    controls
-                    src={`${BASE_URL}${message.mediaPath}`}
-                    className="max-w-full rounded"
-                  />
-                )}
-              </>
-            )}
-            <p className="text-left text-sm">
-              {message.messageContent.split("\n").map((line, index) => (
-                <span key={index}>
-                  {line}
-                  <br />
-                </span>
-              ))}
-            </p>
-            <p className="text-xs text-gray-500 mt-2">
+                  <div
+                    ref={containerRef}
+                    //onScroll={handleScroll}
+                    className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2"
+                  >
+                    {loading && (
+                      <div className="text-center">Loading messages...</div>
+                    )}
+                    {chatMessages.map((message) => (
+                      <div
+                        key={message.messageId}
+                        className={`flex ${message.typeId === 1 ? "justify-end" : "justify-start"
+                          }`}
+                      >
+                        <div
+                          className={`max-w-xs p-2 rounded-2xl shadow-sm ${message.typeId === 1
+                            ? "bg-[#ddffd9] text-black rounded-br-none"
+                            : "bg-[#ffffff] text-black rounded-bl-none"
+                            }`}
+                        >
+                          {message.contentType && message.contentType !== "" && (
+                            <>
+                              {message.contentType.startsWith("image/") && (
+                                <img
+                                  src={`${BASE_URL}${message.mediaPath}`}
+                                  alt="Image"
+                                  className="max-w-full rounded"
+                                />
+                              )}
+                              {message.contentType.startsWith("video/") && (
+                                <video
+                                  controls
+                                  src={`${BASE_URL}${message.mediaPath}`}
+                                  className="max-w-full rounded"
+                                />
+                              )}
+                              {message.contentType.startsWith("audio/") && (
+                                <audio
+                                  controls
+                                  src={`${BASE_URL}${message.mediaPath}`}
+                                  className="max-w-full rounded"
+                                />
+                              )}
+                            </>
+                          )}
+                          <p className="text-left text-sm">
+                            {message.messageContent.split("\n").map((line, index) => (
+                              <span key={index}>
+                                {line}
+                                <br />
+                              </span>
+                            ))}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-2">
                             {extractTime(message.createdDate)}
                           </p>
-          </div>
-        </div>
-      ))}
-    </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
 
                   <div className="msger-inputs px-4 py-3 flex items-center">
                     <Button
@@ -650,15 +667,13 @@ const ChatPage = () => {
 
                     {/* Recording Button */}
                     <button
-                      className={`border rounded-full p-2 mr-2 ${
-                        isRecording ? "bg-red-500" : "bg-green-500"
-                      }`}
+                      className={`border rounded-full p-2 mr-2 ${isRecording ? "bg-red-500" : "bg-green-500"
+                        }`}
                       onClick={isRecording ? stopRecording : startRecording}
                     >
                       <i
-                        className={`fa fa-${
-                          isRecording ? "stop" : "microphone"
-                        }`}
+                        className={`fa fa-${isRecording ? "stop" : "microphone"
+                          }`}
                         aria-hidden="true"
                       ></i>
                     </button>
