@@ -23,7 +23,7 @@ export const fetchTemplates = createAsyncThunk(
         return {
           templates: response.data.result,
           totalRecords:
-            response.data.result.length > 0 ? response.data.result[0].total : 0,
+            response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -48,7 +48,7 @@ export const fetchTemplatesDrop = createAsyncThunk(
         return {
           templateDrop: response.data.result,
           totalRecords:
-            response.data.result.length > 0 ? response.data.result[0].total : 0,
+            response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
         };
       } else {
         throw new Error("Failed to fetch details");

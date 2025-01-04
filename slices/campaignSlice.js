@@ -5,15 +5,20 @@ import { CREATECAMPAIGN, CAMPAIGNLIST, ACTIVATECAMPAIGN ,CAMPAIGNDETAIL,UPDATECA
 
 // Thunks
 export const fetchCampaign = createAsyncThunk(
+  
   'campaign/fetchCampaign',
   async ({ClientId, FromDate, ToDate, srcStr, PageNo, pageSize}, { rejectWithValue }) => {
     try {
+      
       const response = await API.get(`${CAMPAIGNLIST}?ClientId=${ClientId}${srcStr? `&SearchStr=${srcStr}`: ''}&FromDate=${FromDate}&ToDate=${ToDate}&PageNo=${PageNo}&PageSize=${pageSize}`);
       if (response?.status === 200 && response.data?.result) {
+        console.log("Total Recordsssssss:",response.data.result[0].totalRecords);
         return {
           campaigns: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalItems : 0,
+          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
+          
         };
+        
       } else {
         throw new Error('Failed to fetch details');
       }
@@ -153,7 +158,9 @@ export const fetchCampaignDetail = createAsyncThunk(
       totalPages: 1,
       pageSize: 10,
       totalRecords: 0,
+      
     },
+    
     reducers: {
       setPageSize: (state, action) => {
         state.pageSize = action.payload;

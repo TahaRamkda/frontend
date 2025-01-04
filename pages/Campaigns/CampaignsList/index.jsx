@@ -88,9 +88,9 @@ const CampaignsList = () => {
 
   useEffect(() => {
     if (clientId) {
-
       dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
     }
+
     return () => {
       dispatch(clearCampaignListState());
     };
@@ -127,6 +127,7 @@ const CampaignsList = () => {
   }
 
   const handlePageSizeChange = async (newSize) => {
+    
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to the first page
     await dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize: newSize, PageNo: 1 }));

@@ -14,7 +14,7 @@ export const fetchMedia = createAsyncThunk(
       if (response?.status === 200 && response.data?.result) {
         return {
           medias: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
+          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
         };
       } else {
         throw new Error('Failed to fetch details');
