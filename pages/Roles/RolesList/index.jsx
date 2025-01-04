@@ -18,12 +18,12 @@ const RoleList = () => {
   const [roleForm, setRoleForm] = useState({});
   const [filterText, setFilterText] = useState("");
   const [CreateModalOpen, setCreateModalOpen] = useState(false)
-  
+
   const roleColumns = [
-   
+
     { name: "Role Name", selector: (row) => row.roleName, sortable: true },
     { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
-   
+
     {
       name: "Action",
       cell: (row) => (
@@ -32,13 +32,13 @@ const RoleList = () => {
             className="uniform_icon_btn"
             onClick={() => handleDetailClick(row.roleId)}
           >
-           <HiPencilAlt style={{fontSize: "15px"}}/>
+            <HiPencilAlt style={{ fontSize: "15px" }} />
           </button>
           <button
             className="uniform_icon_btn"
             onClick={() => handleDeleteClick(row.roleId)}
           >
-            <HiTrash style={{fontSize: "15px"}}/>
+            <HiTrash style={{ fontSize: "15px" }} />
           </button>
         </div>
       ),
@@ -52,16 +52,16 @@ const RoleList = () => {
         setRoleForm(response.result);
         setIsModalOpen(true);
       } else {
-        showSweetAlert({ title: "Error", text:"", icon: "error" });
+        showSweetAlert({ title: "Error", text: "", icon: "error" });
       }
     } catch (error) {
       alert(t("Failed to fetch role details: ") + error.message);
     }
   };
-  const handleCreate = () =>{
+  const handleCreate = () => {
     setCreateModalOpen(true)
   }
-  const handleCancel = () =>{
+  const handleCancel = () => {
     setCreateModalOpen(false)
   }
 
@@ -78,11 +78,11 @@ const RoleList = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          dispatch(deleteRole({ roleId })).then(()=>{
+          dispatch(deleteRole({ roleId })).then(() => {
             showSweetAlert({ title: "Deleted Successfully", text: "", icon: "success" });
             refreshRoleList();
           });
-          
+
         } catch (error) {
           alert(t("An unexpected error occurred: ") + error.message);
         }
@@ -90,7 +90,7 @@ const RoleList = () => {
     });
   };
   const toggleModal = () => {
-   
+
     setIsModalOpen(false);
   };
   const handleFormChange = (e) => {
@@ -126,11 +126,11 @@ const RoleList = () => {
   };
 
   const refreshRoleList = () => {
-    dispatch(fetchRoles({clientId: localStorage.getItem("clientId")}));
+    dispatch(fetchRoles({ clientId: localStorage.getItem("clientId") }));
   };
 
   useEffect(() => {
-    dispatch(fetchRoles({clientId: localStorage.getItem("clientId")}));
+    dispatch(fetchRoles({ clientId: localStorage.getItem("clientId") }));
     return () => {
       dispatch(clearRoleState());
     };
@@ -143,17 +143,17 @@ const RoleList = () => {
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className="w-full">
-          <div className='grid grid-cols-5 gap-4'>
-            <div className="flex flex-col text-start mb-1">
-        <label className="font-medium text-gray-700 text-sm">Search Roles</label>
-        <input
-          type="search"
-          value={filterText}
-          onChange={(e) => setFilterText(e.target.value)}
-          placeholder="Search by role name"
-          className="border px-3 py-2 rounded"
-        />
-        </div>
+        <div className='grid grid-cols-5 gap-4'>
+          <div className="flex flex-col text-start mb-1">
+            <label className="font-medium text-gray-700 text-sm">Search Roles</label>
+            <input
+              type="search"
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              placeholder="Search by role name"
+              className="border px-3 py-2 rounded"
+            />
+          </div>
         </div>
       </div>
     );
@@ -165,109 +165,109 @@ const RoleList = () => {
 
   return (
     <App>
-    
+
       <div className="flex items-center">
-  {loading && <Loading />}
-  <div >
-  <h4 className="font-bold ">Roles List</h4>
-  </div>
-  <div className="ml-auto mb-1">
-  <button className="uniform_btn" onClick={handleCreate}>
-          Create Roles
-        </button>
-  </div>
-</div>
-        
-      
-      <div className="overflow-x-auto">
-     
-          <DataTable
-            data={filteredRoles}
-            columns={roleColumns}
-            highlightOnHover
-            striped
-            pagination
-            className="w-full border"
-            subHeader
-            subHeaderComponent={subHeaderComponentMemo}
-            customStyles={{
-              table: {
-                style: {
-                  width: '100%',
-                  borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
-                },
-              },
-              headRow: {
-                style: {
-                  borderBottom: '1px solid #ddd',  padding: '0px',
-                },
-              },
-              headCells: {
-                style: {
-                  
-                  borderRight: '1px solid #ddd', // Grid line between columns
-                  fontWeight: 'bold',
-                },
-              },
-              rows: {
-                style: {
-                  borderBottom: '1px solid #ddd', // Horizontal grid line between rows
-                },
-              },
-              cells: {
-                style: {
-                  
-                  borderRight: '1px solid #ddd', // Vertical grid line between cells
-                },
-              },
-            }}
-          />
+        {loading && <Loading />}
+        <div >
+          <h4 className="font-bold ">Roles </h4>
         </div>
-      {isModalOpen && (
-<Modal isOpen={true} toggle={() => toggleModal()} fade={false}>
-  <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
-      {/* Close button */}
-     <ModalHeader toggle={() => toggleModal()}> Edit Role</ModalHeader>
-     <ModalBody>
-      <form onSubmit={handleUpdateSubmit}>
-          <div>
-            <label className="font-medium text-gray-700 text-sm" htmlFor="roleName">
-              Role Name
-            </label>
-            <input
-              type="text"
-              id="roleName"
-              name="roleName"
-              value={roleForm.roleName || ""}
-              onChange={handleFormChange}
-              className="border rounded py-1 px-2 w-full text-sm"
-            />
-          </div>
-        <div className="flex mt-6 justify-end">
-          <button
-            type="submit"
-            className="uniform_btn"
-          >
-           Save
+        <div className="ml-auto mb-1">
+          <button className="uniform_btn" onClick={handleCreate}>
+            Create Roles
           </button>
         </div>
-      </form>
-      </ModalBody>
-    </div>
-  </div>
-  </Modal>
-)}
-{CreateModalOpen &&(
-        <CreateRole 
-        isVisible={true}
-        onClose={handleCancel}
-        onsuccess={refreshRoleList}
-    />
-        
+      </div>
+
+
+      <div className="overflow-x-auto">
+
+        <DataTable
+          data={filteredRoles}
+          columns={roleColumns}
+          highlightOnHover
+          striped
+          pagination
+          className="w-full border"
+          subHeader
+          subHeaderComponent={subHeaderComponentMemo}
+          customStyles={{
+            table: {
+              style: {
+                width: '100%',
+                borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
+              },
+            },
+            headRow: {
+              style: {
+                borderBottom: '1px solid #ddd', padding: '0px',
+              },
+            },
+            headCells: {
+              style: {
+
+                borderRight: '1px solid #ddd', // Grid line between columns
+                fontWeight: 'bold',
+              },
+            },
+            rows: {
+              style: {
+                borderBottom: '1px solid #ddd', // Horizontal grid line between rows
+              },
+            },
+            cells: {
+              style: {
+
+                borderRight: '1px solid #ddd', // Vertical grid line between cells
+              },
+            },
+          }}
+        />
+      </div>
+      {isModalOpen && (
+        <Modal isOpen={true} toggle={() => toggleModal()} fade={false}>
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
+              {/* Close button */}
+              <ModalHeader toggle={() => toggleModal()}> Edit Role</ModalHeader>
+              <ModalBody>
+                <form onSubmit={handleUpdateSubmit}>
+                  <div>
+                    <label className="font-medium text-gray-700 text-sm" htmlFor="roleName">
+                      Role Name
+                    </label>
+                    <input
+                      type="text"
+                      id="roleName"
+                      name="roleName"
+                      value={roleForm.roleName || ""}
+                      onChange={handleFormChange}
+                      className="border rounded py-1 px-2 w-full text-sm"
+                    />
+                  </div>
+                  <div className="flex mt-6 justify-end">
+                    <button
+                      type="submit"
+                      className="uniform_btn"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </form>
+              </ModalBody>
+            </div>
+          </div>
+        </Modal>
+      )}
+      {CreateModalOpen && (
+        <CreateRole
+          isVisible={true}
+          onClose={handleCancel}
+          onsuccess={refreshRoleList}
+        />
+
       )}
 
-</App>
+    </App>
   );
 };
 

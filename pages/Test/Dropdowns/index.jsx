@@ -10,6 +10,7 @@ import GroupDropdown from '@/components/Dropdowns/GroupDropdown';
 import GroupsDropdown from '@/components/MultiSelect/GroupDropdown';
 import TemplateCategoryDropdown from '@/components/Dropdowns/TemplateCategorydropdown';
 import LanguageDropdown from '@/components/Dropdowns/LanguageDropdown';
+import RolesDropdown from '@/components/MultiSelect/RoleDropdown';
 import App from "@/components/App";
 import { useRouter } from 'next/router';  // Correct import
 
@@ -33,7 +34,7 @@ const DropDowns = () => {
     <App>
       <div className="flex items-center">
         <label htmlFor="">Template</label>
-        <TemplateDropdown onChange={handleChange}/>
+        <TemplateDropdown onChange={handleChange} />
       </div><br />
       <div className="flex items-center">
         <label htmlFor="">MultiTemplate</label>
@@ -41,39 +42,44 @@ const DropDowns = () => {
       </div><br />
       <div className="flex items-center">
         <label htmlFor="">Clients</label>
-        <ClientDropdown onChange={handleChange1}/>
+        <ClientDropdown onChange={handleChange1} />
       </div><br />
       <div className="flex items-center">
         <label htmlFor="">MultiClients</label>
-        {/* <ClientsDropdown /> */}
+        <ClientsDropdown />
       </div><br />
       <div className="flex items-center">
         <label htmlFor="">Agent</label>
-        <AgentDropdown onChange={handleChange1}/>
+        <AgentDropdown onChange={handleChange1} />
       </div><br />
       <div className="flex items-center">
         <label htmlFor="">MultiAgents</label>
-        {/* <AgentsDropdown /> */}
+        <AgentsDropdown />
       </div><br />
-  
+
       <div className="flex items-center">
         <label htmlFor="">Group</label>
-        <GroupDropdown onChange={handleChange1}/>
+        <GroupDropdown onChange={handleChange1} />
       </div><br />
 
       <div className="flex items-center">
         <label htmlFor="">MultiGroup</label>
         <GroupsDropdown />
       </div>
-  
+
       <div className="flex items-center">
         <label htmlFor="">Template</label>
-        <TemplateCategoryDropdown onChange={handleChange1}/>
+        <TemplateCategoryDropdown onChange={handleChange1} />
       </div><br />
-  
+
       <div className="flex items-center">
         <label htmlFor="">Language</label>
-        <LanguageDropdown onChange={handleChange1}/>
+        <LanguageDropdown onChange={handleChange1} />
+      </div><br />
+
+      <div className="flex items-center">
+        <label htmlFor="">Roles</label>
+        <RolesDropdown  />
       </div><br />
 
 

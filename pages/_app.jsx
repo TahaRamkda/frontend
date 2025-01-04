@@ -8,6 +8,7 @@ import { toastState } from '../atoms';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/globals.css';
 import '../styles/style.css';
+import showSweetAlert from "@/components/Sweetalert"; // Import your showSweetAlert utility
 import '../styles/icon/font-awesome/css/font-awesome.min.css';
 import '../styles/icon/themify-icons/themify-icons.css';
 import 'bootstrap/dist/css/bootstrap.min.css';

@@ -4,17 +4,17 @@ import $ from 'jquery';
 import { Input } from 'reactstrap';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
-import { fetchGroupsDrop, clearGroupDropState} from "@/slices/Groupslice";
+import { fetchGroupsDrop, clearGroupDropState } from "@/slices/Groupslice";
 
 const GroupDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
-  const selectRef = useRef(null); 
+  const selectRef = useRef(null);
   const { groupDrop, loading, error } = useSelector((state) => state.groups);
   const [SearchStr, setSearchStr] = useState("")
 
   useEffect(() => {
-    dispatch(fetchGroupsDrop({ clientId: localStorage.getItem("clientId") , SearchStr:SearchStr}));
-    
+    dispatch(fetchGroupsDrop({ clientId: localStorage.getItem("clientId"), SearchStr: SearchStr }));
+
   }, [dispatch]);
 
   useEffect(() => {
@@ -45,7 +45,7 @@ const GroupDropdown = ({ name, value, onChange }) => {
 
   return (
     <div >
-     
+
       <Input
         type="select"
         innerRef={selectRef}
@@ -65,7 +65,7 @@ const GroupDropdown = ({ name, value, onChange }) => {
           <option disabled>No records found</option>
         )}
       </Input>
-     
+
     </div>
   );
 };

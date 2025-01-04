@@ -30,7 +30,7 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
         TransactionType: transactionType,
       })
     );
-    
+
   }, [dispatch, transactionType]);
 
   useEffect(() => {

@@ -171,7 +171,7 @@ const CampaignCreate = () => {
       setsenturlvariables(filteredButtonValues);
       console.log("urlvariables", filteredButtonValues);
     }
-    
+
     setSelectedSenderId(template.senderId);
     // Update Buttons
     setTotalButtonCount(updatedMessagePreview.buttons.length);
@@ -195,9 +195,9 @@ const CampaignCreate = () => {
   }, [bodyFinalContent]);
 
   const handleSubmit = async (values) => {
-    
+
     let trimmedBodyContent = APIbodyContent.trimEnd();
-    
+
     const requestBody = {
       templateId: selectedTemplateId,
       clientId: localStorage.getItem("clientId"),
@@ -209,7 +209,7 @@ const CampaignCreate = () => {
       actionBy: localStorage.getItem("userId"),
 
       campaignParameters: [
-        
+
         ...headerVariable.map((value, index) => ({
           sequence: index + 1,
           paramName: `${index + 1}`, // Dynamic name for header variables
@@ -228,8 +228,8 @@ const CampaignCreate = () => {
           isDynamic: true, // Static boolean
           status: 0, // Static status
         })),
-        ...senturlvariables.map((value, index) => 
-          ({
+        ...senturlvariables.map((value, index) =>
+        ({
           sequence: value.values.index,
           paramName: `${index + 1}`, // Dynamic name for header variables
           paramText: value.values.value, // Use value from headerVariable
@@ -343,7 +343,7 @@ const CampaignCreate = () => {
       const newurlVariable = [...prev];
       // Create a new object for the `values` property
       const updatedButton = {
-        ...newurlVariable[index], 
+        ...newurlVariable[index],
         values: { ...newurlVariable[index].values, value } // Create a new `values` object
       };
       newurlVariable[index] = updatedButton; // Replace the button at index with the updated button
@@ -453,7 +453,7 @@ const CampaignCreate = () => {
                     )}
                     {headerVariable.map((variable, index) => (
                       <FormGroup key={index}>
-                        
+
                         <Label>{`Value for {${index + 1}}`}</Label>
                         <Input
                           type="text"
@@ -472,7 +472,7 @@ const CampaignCreate = () => {
                     )}
                     {variables.map((variable, index) => (
                       <FormGroup key={index}>
-                        
+
                         <Label>{`Body Value for {${index + 1}}`}</Label>
                         <Input
                           type="text"
@@ -486,12 +486,12 @@ const CampaignCreate = () => {
                         />
                       </FormGroup>
                     ))}
-                     {senturlvariables.length > 0 && (
-                       <h5>URL Variables</h5>
+                    {senturlvariables.length > 0 && (
+                      <h5>URL Variables</h5>
                     )}
                     {senturlvariables.map((variable) => (
                       <FormGroup key={variable.index}>
-                       
+
                         <Label>{`Url Value for {${1}}`}</Label>
                         <Row>
                           <Col>
@@ -503,12 +503,11 @@ const CampaignCreate = () => {
                               onChange={(e) =>
                                 handleurlVariableChange(0, e.target.value)
                               }
-                              placeholder={`Enter Sample  value for {${
-                                variable.index + 1
-                              }}`}
+                              placeholder={`Enter Sample  value for {${variable.index + 1
+                                }}`}
                             />
                           </Col>
-                         
+
                         </Row>
                       </FormGroup>
                     ))}
@@ -536,15 +535,15 @@ const CampaignCreate = () => {
           <Col
             md={4}
             className="overflow-hidden h-screen fixed right-10"
-            // style={{
-            //   position: "fixed", // Fix the position
-            //   top: "-50", // Adjust to your layout
-            //   right: "0", // Align to the right side of the screen
-            //   height: "100vh", // Full viewport height to ensure scrollability
-            //   overflowY: "auto", // Enable vertical scrolling
-            //   backgroundColor: "#f8f9fa", // Optional: background color for contrast
-            //   boxShadow: "0 0 10px rgba(0,0,0,0.1)", // Optional: Add shadow for emphasis
-            // }}
+          // style={{
+          //   position: "fixed", // Fix the position
+          //   top: "-50", // Adjust to your layout
+          //   right: "0", // Align to the right side of the screen
+          //   height: "100vh", // Full viewport height to ensure scrollability
+          //   overflowY: "auto", // Enable vertical scrolling
+          //   backgroundColor: "#f8f9fa", // Optional: background color for contrast
+          //   boxShadow: "0 0 10px rgba(0,0,0,0.1)", // Optional: Add shadow for emphasis
+          // }}
           >
             <div
               style={{
@@ -647,9 +646,9 @@ const CampaignCreate = () => {
                 )}
                 <div
                   dangerouslySetInnerHTML={{ __html: messagePreview.body }}
-                  
+
                 />
-                
+
                 {messagePreview.footer && (
                   <p style={{ marginTop: "", fontSize: "0.9em" }}>
                     {messagePreview.footer}

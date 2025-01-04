@@ -55,12 +55,12 @@ const Dashboard = () => {
     return () => {
       clearDashboardReportState();
     };
-  }, [dispatch, fromDate, toDate,SenderId]);
+  }, [dispatch, fromDate, toDate, SenderId]);
 
   const handleDateChange = (setter) => (e) => {
     setter(e.target.value);
   };
-const handleChange = (e) => {
+  const handleChange = (e) => {
     const senderId = e.target.value;
     setSenderId(senderId)
     const clientId = localStorage.getItem("clientId");
@@ -119,9 +119,9 @@ const handleChange = (e) => {
             />
           </div>
           <div className="flex flex-col mb-1 text-start">
-        <label className="font-medium text-gray-700 text-sm">Sender Names</label>
-        <SendernameDropdown     name="senderId"  onChange={handleChange} />
-        </div>
+            <label className="font-medium text-gray-700 text-sm">Sender Names</label>
+            <SendernameDropdown name="senderId" onChange={handleChange} />
+          </div>
         </div>
         {/* Tiles */}
         <div className="grid grid-cols-5 gap-4">
@@ -135,9 +135,9 @@ const handleChange = (e) => {
               <hr className="h-1" />
               <table border="1">
                 <tr>
-                  </tr> <tr><td>  <p className="text-lg font-semibold">Sent {tile.SentCount}</p></td>
-                  </tr> <tr> <td> <p className="text-lg font-semibold">Delivered {tile.DeliveredCount}</p></td>
-                  </tr> <tr> <td> <p className="text-lg font-semibold">Read {tile.ReadCount}</p></td>
+                </tr> <tr><td>  <p className="text-lg font-semibold">Sent {tile.SentCount}</p></td>
+                </tr> <tr> <td> <p className="text-lg font-semibold">Delivered {tile.DeliveredCount}</p></td>
+                </tr> <tr> <td> <p className="text-lg font-semibold">Read {tile.ReadCount}</p></td>
                 </tr>
               </table>
             </div>
@@ -170,7 +170,7 @@ const handleChange = (e) => {
             </div>
           ))}
 
-            {dashboardsummary?.TotalConversationsInitiated?.map((tile, index) => (
+          {dashboardsummary?.TotalConversationsInitiated?.map((tile, index) => (
             <div
               key={index}
               className="bg-white shadow-md rounded-lg p-4 text-left"
@@ -183,7 +183,7 @@ const handleChange = (e) => {
               <p className="text-lg font-semibold">Messages: {tile.TotalMessages}</p>
             </div>
           ))}
-            {dashboardsummary?.ActiveConversations.map((tile, index) => (
+          {dashboardsummary?.ActiveConversations.map((tile, index) => (
             <div
               key={index}
               className="bg-white shadow-md rounded-lg p-4 text-left"

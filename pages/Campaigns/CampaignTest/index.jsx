@@ -2,24 +2,23 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, Label } from "reactstrap";
 import showSweetAlert from "@/components/Sweetalert";
- import { sendCampaign, clearCampaignSendState } from "@/slices/CampaignSlice";
+import { sendCampaign, clearCampaignSendState } from "@/slices/CampaignSlice";
 
-const CampaignTest = ({ isVisible, onClose, onsuccess,CampaignId }) => {
+const CampaignTest = ({ isVisible, onClose, onsuccess, CampaignId }) => {
   const dispatch = useDispatch();
   const [phoneNumber, setPhoneNumber] = useState("");
- const[activatecampaignId, setactivatecampaignId] = useState(0);
+  const [activatecampaignId, setactivatecampaignId] = useState(0);
 
 
 
- useEffect(() => {
-   if(CampaignId)
-   {
-    setactivatecampaignId(CampaignId)
-   }
- },[CampaignId])
+  useEffect(() => {
+    if (CampaignId) {
+      setactivatecampaignId(CampaignId)
+    }
+  }, [CampaignId])
   //  useEffect(() => {
   //     if (clientId) {
-  
+
   //       dispatch(fetchCampaign({ ClientId: clientId}));
   //     }
   //     return () => {
@@ -30,12 +29,12 @@ const CampaignTest = ({ isVisible, onClose, onsuccess,CampaignId }) => {
   const handleSave = async () => {
     if (phoneNumber !== "") {
       const Requestbody = {
-        campaignId : activatecampaignId,
+        campaignId: activatecampaignId,
         phoneNumbers: [
           phoneNumber
-  ]
-}
-  const response = await dispatch(sendCampaign(Requestbody)).unwrap();
+        ]
+      }
+      const response = await dispatch(sendCampaign(Requestbody)).unwrap();
       if (response) {
         showSweetAlert({
           title: "Message Sent Successfully",
@@ -50,8 +49,8 @@ const CampaignTest = ({ isVisible, onClose, onsuccess,CampaignId }) => {
           icon: "error",
         });
       }
-      
-     
+
+
     }
   };
 
@@ -70,12 +69,12 @@ const CampaignTest = ({ isVisible, onClose, onsuccess,CampaignId }) => {
             />
             <div className="w-full mt-4 text-end">
               <Button color="primary" onClick={() => handleSave()} className="uniform_btn">
-                   Send
-                  </Button>
-              </div>
+                Send
+              </Button>
+            </div>
           </ModalBody>
-          
-       
+
+
         </div>
       </div>
     </Modal>

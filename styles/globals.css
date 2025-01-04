@@ -88,7 +88,7 @@ body {
 }
 
 ul {
-  padding: 12px !important;
+  padding: 10px !important;
 }
 
 .uniform_btn {
@@ -298,4 +298,24 @@ input {
 
 .bWLRyr{
   padding: 0 !important; 
+}
+
+
+
+
+.select2-container--default .select2-selection--multiple{
+  padding: 0 !important;
+  display: flex !important;
+}
+
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in 1s ease-in-out;
+  }
 }

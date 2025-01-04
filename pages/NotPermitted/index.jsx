@@ -9,19 +9,19 @@ const NotPermitted = () => {
   };
 
   return (
-   
-      <div style={styles.container}>
-        <div style={styles.messageBox}>
-          <h1 style={styles.title}>Access Denied</h1>
-          <p style={styles.message}>
-            You do not have permission to access this page. If you believe this is an error, please contact your administrator.
-          </p>
-          <button onClick={handleGoBack} style={styles.button}>
-            Go to Home
-          </button>
-        </div>
+
+    <div style={styles.container}>
+      <div style={styles.messageBox}>
+        <h1 style={styles.title}>Access Denied</h1>
+        <p style={styles.message}>
+          You do not have permission to access this page. If you believe this is an error, please contact your administrator.
+        </p>
+        <button onClick={handleGoBack} style={styles.button}>
+          Go to Home
+        </button>
       </div>
-   
+    </div>
+
   );
 };
 

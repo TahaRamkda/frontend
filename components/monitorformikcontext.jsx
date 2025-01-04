@@ -3,13 +3,13 @@ import React, { useEffect } from 'react';
 import { useFormikContext } from 'formik';
 
 const MonitorFormikContext = ({ setMessagePreview, defaultImage }) => {
-  const { values } = useFormikContext(); 
+  const { values } = useFormikContext();
 
   useEffect(() => {
     const footer = values.footer || '';
     let media = null;
 
-    if (["4", "2", "3" ,2,3,4].includes(values.headerType)) {
+    if (["4", "2", "3", 2, 3, 4].includes(values.headerType)) {
       const headerText = '';
       media = values.headerMedia || defaultImage?.src || '';
 

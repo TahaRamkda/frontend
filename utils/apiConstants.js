@@ -1,5 +1,4 @@
-export const LIVE_BASE_URL = "https://whatsappapi.consulttechies.com"
-export const BASE_URL = "https://qawhatsappapi.consulttechies.com"
+export const BASE_URL = "https://QAwhatsappapi.consulttechies.com"
 export const LOGINAPI = "/User/Login";
 export const REFRESHTOKENAPI = "/Token/Refresh";
 export const DASHBOARDSUMMARY = "/Dashboard/getdashboardsummary";

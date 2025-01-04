@@ -21,9 +21,8 @@ const Sidebar = ({ isSidebarOpen }) => {
 
   return (
     <aside
-      className={`  text-white dark:bg-gray-900 fixed left-0 top-16 z-40 h-screen transition-all transform ${
-        isSidebarOpen ? 'translate-x-0 w-64' : 'translate-x-0 w-20'
-      }`}
+      className={`  text-white dark:bg-gray-900 fixed left-0 top-16 z-40 h-screen transition-all transform ${isSidebarOpen ? 'translate-x-0 w-64' : 'translate-x-0 w-20'
+        }`}
       aria-label="Sidebar"
     >
       <div className="h-full px-3 py-4 overflow-y-auto">
@@ -36,9 +35,8 @@ const Sidebar = ({ isSidebarOpen }) => {
                 <li key={menu.text}>
                   <button
                     type="button"
-                    className={`flex items-center w-full p-2 font-semibold text-md text-gray-200 rounded-lg hover:bg-gray-700 focus:outline-none ${
-                      isExpand[menu.text] ? 'bg-gray-700' : ''
-                    }`}
+                    className={`flex items-center w-full p-2 font-semibold text-md text-gray-200 rounded-lg hover:bg-gray-700 focus:outline-none ${isExpand[menu.text] ? 'bg-gray-700' : ''
+                      }`}
                     onClick={() => handleClickMultiLevelMenu(menu.text)}
                   >
                     <i className={`mr-2 ${menu.icon || ''} ${isSidebarOpen ? '' : 'text-lg'}`}></i>
@@ -61,7 +59,7 @@ const Sidebar = ({ isSidebarOpen }) => {
                               >
                                 <i className={`mr-2 ${sm.icon || ''}`}></i>
                                 <span className='text-md font-semibold text-decoration-none'>
-                                {sm.text}
+                                  {sm.text}
                                 </span>
                               </Link>
                             </li>

@@ -213,7 +213,7 @@ const CustomMagicEditor = ({
       return (
         existingPlaceholders.includes(placeholder) &&
         newPlaceholders.indexOf(placeholder) !==
-          existingPlaceholders.indexOf(placeholder)
+        existingPlaceholders.indexOf(placeholder)
       );
     });
 
@@ -252,7 +252,7 @@ const CustomMagicEditor = ({
       return (
         existingPlaceholders.includes(placeholder) &&
         newPlaceholders.indexOf(placeholder) !==
-          existingPlaceholders.indexOf(placeholder)
+        existingPlaceholders.indexOf(placeholder)
       );
     });
 

@@ -15,7 +15,7 @@ const weekDayMapping = {
   Thursday: 5,
   Friday: 6,
   Saturday: 7,
- 
+
 };
 
 const weekDays = [
@@ -26,7 +26,7 @@ const weekDays = [
   { name: "Thursday" },
   { name: "Friday" },
   { name: "Saturday" },
- 
+
 ];
 
 const AgentTimingList = ({ agentId, isVisible, onClose }) => {
@@ -86,7 +86,7 @@ const AgentTimingList = ({ agentId, isVisible, onClose }) => {
       if (response.success) {
         showSweetAlert({
           title: "Added Successfully",
-          text:  "",
+          text: "",
           icon: "success",
         });
         dispatch(fetchAgentsTimingList({ clientId: localStorage.getItem("clientId"), agentId: agentId }));
@@ -108,74 +108,74 @@ const AgentTimingList = ({ agentId, isVisible, onClose }) => {
     <Modal isOpen={isVisible} toggle={onClose} fade={false} >
       <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white p-6 rounded shadow-lg w-2/5  relative">
-      
-      <ModalHeader toggle={onClose}>Agent Shifts</ModalHeader>
-      <ModalBody className="overflow-y-auto max-h-[75vh]">
-        {loading && <Loading />}
-        <div className=" mb-3">
-          <Button color="primary" onClick={addRow} className="uniform_btn">
-            Add Row
-          </Button>
+
+          <ModalHeader toggle={onClose}>Agent Shifts</ModalHeader>
+          <ModalBody className="overflow-y-auto max-h-[75vh]">
+            {loading && <Loading />}
+            <div className=" mb-3">
+              <Button color="primary" onClick={addRow} className="uniform_btn">
+                Add Row
+              </Button>
+            </div>
+            <div>
+              <Table bordered>
+                <thead>
+                  <tr>
+                    <th>Weekday</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row, index) => (
+                    <tr key={index}>
+                      <td>
+                        <Input
+                          type="select"
+                          value={row.weekDayName}
+                          onChange={(e) => handleInputChange(index, "weekDayName", e.target.value)}
+                        >
+                          <option value="">Select</option>
+                          {weekDays.map((day) => (
+                            <option key={day.name} value={day.name}>
+                              {day.name}
+                            </option>
+                          ))}
+                        </Input>
+                      </td>
+                      <td>
+                        <Input
+                          type="time"
+                          value={row.startTime}
+                          onChange={(e) => handleInputChange(index, "startTime", e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <Input
+                          type="time"
+                          value={row.endTime}
+                          onChange={(e) => handleInputChange(index, "endTime", e.target.value)}
+                        />
+                      </td>
+                      <td className="text-center">
+                        <Button color="danger" onClick={() => removeRow(index)}>
+                          <HiTrash />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={handleSubmit} className="uniform_btn">
+              Save
+            </Button>
+          </ModalFooter>
         </div>
-        <div>
-          <Table bordered>
-            <thead>
-              <tr>
-                <th>Weekday</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, index) => (
-                <tr key={index}>
-                  <td>
-                    <Input
-                      type="select"
-                      value={row.weekDayName}
-                      onChange={(e) => handleInputChange(index, "weekDayName", e.target.value)}
-                    >
-                      <option value="">Select</option>
-                      {weekDays.map((day) => (
-                        <option key={day.name} value={day.name}>
-                          {day.name}
-                        </option>
-                      ))}
-                    </Input>
-                  </td>
-                  <td>
-                    <Input
-                      type="time"
-                      value={row.startTime}
-                      onChange={(e) => handleInputChange(index, "startTime", e.target.value)}
-                    />
-                  </td>
-                  <td>
-                    <Input
-                      type="time"
-                      value={row.endTime}
-                      onChange={(e) => handleInputChange(index, "endTime", e.target.value)}
-                    />
-                  </td>
-                  <td className="text-center">
-                    <Button color="danger" onClick={() => removeRow(index)}>
-                      <HiTrash />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </div>
-      </ModalBody>
-      <ModalFooter>
-      <Button color="primary" onClick={handleSubmit} className="uniform_btn">
-           Save
-          </Button>
-      </ModalFooter>
       </div>
-  </div>
     </Modal>
   );
 };

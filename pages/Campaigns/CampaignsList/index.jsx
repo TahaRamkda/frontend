@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCampaign, clearCampaignListState, activateCampaign, clearCampaignActivateState, setPageSize, setCurrentPage } from "@/slices/campaignSlice";
+import { fetchCampaign, clearCampaignListState, activateCampaign, clearCampaignActivateState, setPageSize, setCurrentPage } from "@/slices/CampaignSlice";
 import { Card, CardBody, CardHeader, Col, Input, Label, Alert, Button, Modal, ModalBody, ModalHeader, Form, FormGroup, Row, Table, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import Loader from '@/components/Loader';
@@ -40,20 +40,6 @@ const CampaignsList = () => {
   const [clientId, setClientId] = useState(null);
   const setCampaignsId = useSetRecoilState(CampaignState);
 
-  const c = () => {
-    dispatch(
-      fetchCampaign({
-        ClientId: clientId,
-        FromDate: FromDate,
-        ToDate: ToDate,
-        status,
-        templateId,
-        srcStr: keyword,
-        pageSize,
-        PageNo: currentPage,
-      })
-    );
-  };
 
 
   const handleTemplateChange = (e) => {
@@ -98,7 +84,7 @@ const CampaignsList = () => {
     return () => {
       dispatch(clearCampaignListState());
     };
-  }, [clientId, FromDate, ToDate, keyword, status, templateId, pageSize, currentPage]);
+  }, [clientId]);
 
   useEffect(() => {
     if (clientId) {
@@ -116,7 +102,7 @@ const CampaignsList = () => {
   const handlefilter = (e) => {
     dispatch(fetchCampaign({ clientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, sendernameId: sendernameId, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
   };
- 
+
   const handleCreate = () => {
     window.location.href = "/Campaigns/CreateCampaigns";
   }
@@ -169,11 +155,12 @@ const CampaignsList = () => {
         campaignId: CampaignId,
         scheduleDate: CampaignForm.scheduleDate,
       };
+      setIsModalOpen(false)
       refreshCampaignList()
       const response = await dispatch(activateCampaign(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({
-          title: "Updated Successfully",
+          title: "Schedule Successfully",
           text: "",
           icon: "success",
         });
@@ -238,7 +225,6 @@ const CampaignsList = () => {
           <button className="uniform_icon_btn" onClick={() => handleTestCampaign(row.campaignId)}>
             <HiBeaker style={{ fontSize: "15px" }} />
           </button>
-
         </div>
 
       ),
@@ -298,7 +284,7 @@ const CampaignsList = () => {
       <div className="flex items-center">
         {loading && <Loading />}
         <div className='mb-1'>
-          <h4 className="font-bold mb-2">Campaign List</h4>
+          <h4 className="font-bold mb-2">Campaign</h4>
         </div>
         <div className="ml-auto mb-2">
           <Button
@@ -386,17 +372,17 @@ const CampaignsList = () => {
         <LastContactedList
           isVisible={true}
           onClose={handelCancelClick}
-          onsuccess={refreshCampaignList} 
+          onsuccess={refreshCampaignList}
           campaignId={CampaignId}
-          />
+        />
       )}
       {CampaignTestModal && (
         <CampaignTest
           isVisible={true}
           onClose={handelCloseClick}
-          onsuccess={refreshCampaignList} 
+          onsuccess={refreshCampaignList}
           CampaignId={activateCampaignId}
-          />
+        />
       )}
     </App>
   );

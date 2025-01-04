@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import App from '@/components/App';
 import SendernameDropdown from "@/components/MultiSelect/SendernameDropdown";
 
-const AgentsForm = ({onClose, isVisible ,onsuccess}) => {
+const AgentsForm = ({ onClose, isVisible, onsuccess }) => {
   const [selectedSenderId, setSelectedSenderId] = useState("");
   const [formData, setFormData] = useState({
     userName: "",
@@ -16,7 +16,7 @@ const AgentsForm = ({onClose, isVisible ,onsuccess}) => {
     agentLName: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -36,7 +36,7 @@ const AgentsForm = ({onClose, isVisible ,onsuccess}) => {
     }
   };
   const handleSubmit = async (e) => {
-   
+
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -44,7 +44,7 @@ const AgentsForm = ({onClose, isVisible ,onsuccess}) => {
       ...formData,
       actionBy: localStorage.getItem("userId"),
       clientId: localStorage.getItem("clientId"),
-      senderIds:selectedSenderId,
+      senderIds: selectedSenderId,
     };
 
     try {
@@ -75,81 +75,81 @@ const AgentsForm = ({onClose, isVisible ,onsuccess}) => {
 
   return (
     <App>
-   <Modal isOpen={isVisible} toggle={onClose} fade={false}>
-      <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center ">
-        <div className="bg-white p-6 rounded shadow-lg w-2/5  relative">
-        
-        <ModalHeader toggle={onClose}>Create Agent</ModalHeader>
-     <ModalBody>
-      <form onSubmit={handleSubmit} className="space-y-6">
-       
-        <div>
-        <label className="font-medium text-gray-700 text-sm">Sender Name</label>
-          <SendernameDropdown name="senderIds" value={formData.senderIds} onChange={handleSenderChange} />
-        </div>
-        <div>
-          <label className="font-medium text-gray-700 text-sm">First Name</label>
-          <input
-          required
-            type="text"
-            name="agentFName"
-            value={formData.agentFName}
-            onChange={handleChange}
-            className="border rounded py-1 px-2 w-full mt-1 text-sm"
-          />
-        </div>
+      <Modal isOpen={isVisible} toggle={onClose} fade={false}>
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center ">
+          <div className="bg-white p-6 rounded shadow-lg w-2/5  relative">
 
-        <div>
-          <label className="font-medium text-gray-700 text-sm">Last Name</label>
-          <input
-          required
-            type="text"
-            name="agentLName"
-            value={formData.agentLName}
-            onChange={handleChange}
-            className="border rounded py-1 px-2 w-full mt-1 text-sm"
-          />
-        </div>
-        <div>
-          <label className="font-medium text-gray-700 text-sm">User Name</label>
-          <input
-          required
-            type="text"
-            name="userName"
-            value={formData.userName}
-            onChange={handleChange}
-            className="border rounded py-1 px-2 w-full mt-1 text-sm"
-          />
-        </div>
+            <ModalHeader toggle={onClose}>Create Agent</ModalHeader>
+            <ModalBody>
+              <form onSubmit={handleSubmit} className="space-y-6">
 
-        <div>
-          <label className="font-medium text-gray-700 text-sm">Password</label>
-          <input
-          required
-            type="text"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="border rounded py-1 px-2 w-full mt-1 text-sm"
-          />
-        </div>
+                <div>
+                  <label className="font-medium text-gray-700 text-sm">Sender Name</label>
+                  <SendernameDropdown name="senderIds" value={formData.senderIds} onChange={handleSenderChange} />
+                </div>
+                <div>
+                  <label className="font-medium text-gray-700 text-sm">First Name</label>
+                  <input
+                    required
+                    type="text"
+                    name="agentFName"
+                    value={formData.agentFName}
+                    onChange={handleChange}
+                    className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                  />
+                </div>
 
-       
-        <div className="flex space-x-4 justify-end">
-         
-          
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="uniform_btn"
-          >
-            Create
-          </button>
+                <div>
+                  <label className="font-medium text-gray-700 text-sm">Last Name</label>
+                  <input
+                    required
+                    type="text"
+                    name="agentLName"
+                    value={formData.agentLName}
+                    onChange={handleChange}
+                    className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="font-medium text-gray-700 text-sm">User Name</label>
+                  <input
+                    required
+                    type="text"
+                    name="userName"
+                    value={formData.userName}
+                    onChange={handleChange}
+                    className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-medium text-gray-700 text-sm">Password</label>
+                  <input
+                    required
+                    type="text"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                  />
+                </div>
+
+
+                <div className="flex space-x-4 justify-end">
+
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="uniform_btn"
+                  >
+                    Create
+                  </button>
+                </div>
+              </form>
+            </ModalBody>
+          </div>
         </div>
-      </form>
-      </ModalBody>
-      </div>
-      </div>
       </Modal>
     </App>
   );

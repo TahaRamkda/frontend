@@ -4,8 +4,8 @@ import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input } from "reactstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchGroup, clearGroupState, deleteGroup, fetchGroupById, updateGroup,setPageSize, setCurrentPage } from "@/slices/Groupslice";
-import showSweetAlert from "@/components/Sweetalert"; 
+import { fetchGroup, clearGroupState, deleteGroup, fetchGroupById, updateGroup, setPageSize, setCurrentPage } from "@/slices/Groupslice";
+import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Loader";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
 import GroupForm from "../CreateGroup";
@@ -14,14 +14,14 @@ import App from '@/components/App';
 const GroupList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { groups, loading, error, pageSize, totalRecords, currentPage  } = useSelector((state) => state.groups);
+  const { groups, loading, error, pageSize, totalRecords, currentPage } = useSelector((state) => state.groups);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [groupForm, setGroupForm] = useState({});
   const [filterText, setFilterText] = useState('');
   const [CreateModalOpen, setCreateModalOpen] = useState(false)
 
   const groupColumns = [
-   
+
     { name: "Group Name", selector: (row) => row.groupName, sortable: true },
     { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
     { name: "Total Contacts", selector: (row) => row.totalContacts, sortable: true },
@@ -29,19 +29,19 @@ const GroupList = () => {
       name: "Action",
       cell: (row) => (
         <>
-         <div className="flex gap-2 ">
-          <button
-            className="uniform_icon_btn"
-            onClick={() => handleDetailClick(row.groupId)}
-          >
-            <HiPencilAlt style={{fontSize: "15px"}}/>
-          </button>
-          <button
-            className="uniform_icon_btn"
-            onClick={() => handleDeleteClick(row.groupId)}
-          >
-           <HiTrash style={{fontSize: "15px"}}/>
-          </button>
+          <div className="flex gap-2 ">
+            <button
+              className="uniform_icon_btn"
+              onClick={() => handleDetailClick(row.groupId)}
+            >
+              <HiPencilAlt style={{ fontSize: "15px" }} />
+            </button>
+            <button
+              className="uniform_icon_btn"
+              onClick={() => handleDeleteClick(row.groupId)}
+            >
+              <HiTrash style={{ fontSize: "15px" }} />
+            </button>
           </div>
         </>
       ),
@@ -64,7 +64,7 @@ const GroupList = () => {
       alert("Failed to fetch group details: " + error.message);
     }
   };
-  const handleCancel = () =>{
+  const handleCancel = () => {
     setCreateModalOpen(false)
   }
   const handleDeleteClick = (groupId) => {
@@ -79,12 +79,12 @@ const GroupList = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          dispatch(deleteGroup({ groupId })).then(()=>{
+          dispatch(deleteGroup({ groupId })).then(() => {
             showSweetAlert({ title: "Deleted Successfully", text: "", icon: "success" });
             refreshGroupList();
           });
-         
-         
+
+
         } catch (error) {
           alert("An unexpected error occurred: " + error.message);
         }
@@ -92,28 +92,28 @@ const GroupList = () => {
     });
   };
 
-   const handlePageChange = async (page) => {
-      // Update current page state in Redux
-      dispatch(setCurrentPage(page));
-    
-      // Fetch clients for the new page
-      await dispatch(fetchGroup({ clientId: localStorage.getItem("clientId"), pageSize, pageNo: page }));
-    };
+  const handlePageChange = async (page) => {
+    // Update current page state in Redux
+    dispatch(setCurrentPage(page));
 
-    const handlePageSizeChange = async (newSize) => {
-        // Update page size and reset to the first page
-        dispatch(setPageSize(newSize));
-        dispatch(setCurrentPage(1)); // Reset to first page
-        // Fetch data with updated page size and reset to page 1
-        await dispatch(fetchGroup({ clientId: localStorage.getItem("clientId"), pageSize : newSize, pageNo: 1,SearchStr: filterText }));
-      };
+    // Fetch clients for the new page
+    await dispatch(fetchGroup({ clientId: localStorage.getItem("clientId"), pageSize, pageNo: page }));
+  };
+
+  const handlePageSizeChange = async (newSize) => {
+    // Update page size and reset to the first page
+    dispatch(setPageSize(newSize));
+    dispatch(setCurrentPage(1)); // Reset to first page
+    // Fetch data with updated page size and reset to page 1
+    await dispatch(fetchGroup({ clientId: localStorage.getItem("clientId"), pageSize: newSize, pageNo: 1, SearchStr: filterText }));
+  };
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setGroupForm({ ...groupForm, [name]: value });
   };
   const toggleModal = () => {
-   
+
     setIsModalOpen(false);
   };
 
@@ -127,7 +127,7 @@ const GroupList = () => {
         actionBy: localStorage.getItem("userId"),
         clientId: localStorage.getItem("clientId"),
       };
-      
+
       const response = await dispatch(updateGroup(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({
@@ -145,15 +145,15 @@ const GroupList = () => {
     }
   };
   const refreshGroupList = () => {
-    dispatch(fetchGroup({ clientId: localStorage.getItem("clientId"),pageSize, pageNo: currentPage, SearchStr: filterText }));
+    dispatch(fetchGroup({ clientId: localStorage.getItem("clientId"), pageSize, pageNo: currentPage, SearchStr: filterText }));
   };
 
   useEffect(() => {
-    dispatch(fetchGroup({ clientId: localStorage.getItem("clientId"),pageSize, pageNo: currentPage, SearchStr: filterText }));
+    dispatch(fetchGroup({ clientId: localStorage.getItem("clientId"), pageSize, pageNo: currentPage, SearchStr: filterText }));
     return () => {
       dispatch(clearGroupState());
     };
-  }, [dispatch,filterText]);
+  }, [dispatch, filterText]);
 
   const handleCreate = () => {
     setCreateModalOpen(true)
@@ -169,18 +169,18 @@ const GroupList = () => {
     return (
       <div className="w-full">
         <div className="grid grid-cols-5 gap-4">
-         <div className="flex flex-col space-y-1 text-start mb-1 ">
-         <label className="font-medium text-gray-700 text-sm">Search </label>
-         <input
-          type="search"
-          value={filterText}
-          onChange={(e) => setFilterText(e.target.value)}
-          placeholder=""
-          className="border rounded py-1 px-2 w-full text-sm"
-        />
+          <div className="flex flex-col space-y-1 text-start mb-1 ">
+            <label className="font-medium text-gray-700 text-sm">Search </label>
+            <input
+              type="search"
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              placeholder=""
+              className="border rounded py-1 px-2 w-full text-sm"
+            />
+          </div>
         </div>
-        </div>
-        
+
       </div>
 
     );
@@ -192,80 +192,80 @@ const GroupList = () => {
 
   return (
     <App>
-      
+
       <div className="flex items-center">
-  {loading && <Loading />}
-  <div className=''>
-  <h4 className="font-bold">Groups List</h4>
-  </div>
-  <div className="ml-auto mb-1">
-  <button
+        {loading && <Loading />}
+        <div className=''>
+          <h4 className="font-bold">Groups </h4>
+        </div>
+        <div className="ml-auto mb-1">
+          <button
             className="uniform_btn"
             onClick={handleCreate}
           >
             Create Group
           </button>
-  </div>
-</div>
-        <div className="overflow-auto">
-          <DataTable
-            data={filteredGroup}
-            columns={groupColumns}
-            highlightOnHover
-            striped
-            pagination
-            paginationServer
-            paginationTotalRows={totalRecords}
-            onChangePage={handlePageChange}
-            onChangeRowsPerPage={handlePageSizeChange}
-            subHeader
-            subHeaderComponent={subHeaderComponentMemo}
-            className="w-full border"
-            customStyles={{
-              table: {
-                style: {
-                  width: '100%',
-                  borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
-                },
-              },
-              headRow: {
-                style: {
-                  borderBottom: '1px solid #ddd',  padding: '0px',
-                },
-              },
-              headCells: {
-                style: {
-                  
-                  borderRight: '1px solid #ddd', // Grid line between columns
-                  fontWeight: 'bold',
-                },
-              },
-              rows: {
-                style: {
-                  borderBottom: '1px solid #ddd', // Horizontal grid line between rows
-                },
-              },
-              cells: {
-                style: {
-                  
-                  borderRight: '1px solid #ddd', // Vertical grid line between cells
-                },
-              },
-            }}
-          />
         </div>
-      
+      </div>
+      <div className="overflow-auto">
+        <DataTable
+          data={filteredGroup}
+          columns={groupColumns}
+          highlightOnHover
+          striped
+          pagination
+          paginationServer
+          paginationTotalRows={totalRecords}
+          onChangePage={handlePageChange}
+          onChangeRowsPerPage={handlePageSizeChange}
+          subHeader
+          subHeaderComponent={subHeaderComponentMemo}
+          className="w-full border"
+          customStyles={{
+            table: {
+              style: {
+                width: '100%',
+                borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
+              },
+            },
+            headRow: {
+              style: {
+                borderBottom: '1px solid #ddd', padding: '0px',
+              },
+            },
+            headCells: {
+              style: {
+
+                borderRight: '1px solid #ddd', // Grid line between columns
+                fontWeight: 'bold',
+              },
+            },
+            rows: {
+              style: {
+                borderBottom: '1px solid #ddd', // Horizontal grid line between rows
+              },
+            },
+            cells: {
+              style: {
+
+                borderRight: '1px solid #ddd', // Vertical grid line between cells
+              },
+            },
+          }}
+        />
+      </div>
+
 
       {isModalOpen && (
         <Modal isOpen={true} toggle={() => toggleModal()} fade={false}>
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
-           <ModalHeader toggle={() => toggleModal()}>Edit Group</ModalHeader>
-            
-           <ModalBody>
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
+              <ModalHeader toggle={() => toggleModal()}>Edit Group</ModalHeader>
 
-            <form onSubmit={handleUpdateSubmit}>
-            <div className="flex flex-col">
+              <ModalBody>
+
+                <form onSubmit={handleUpdateSubmit}>
+                  <div className="flex flex-col">
                     <label htmlFor="groupName" className="font-medium text-gray-700 text-sm">
                       Group Name
                     </label>
@@ -278,7 +278,7 @@ const GroupList = () => {
                       className="border rounded py-1 px-2 w-full mt-1 text-sm"
                     />
                   </div>
-                
+
                   <div className="mt-4 w-full flex justify-end">
                     <button
                       type="submit"
@@ -287,20 +287,20 @@ const GroupList = () => {
                       Save
                     </button>
                   </div>
-            </form> 
-            </ModalBody>
+                </form>
+              </ModalBody>
+            </div>
           </div>
-        </div>
         </Modal>
       )}
 
-      {CreateModalOpen &&(
-        <GroupForm 
-        isVisible={true}
-        onClose={handleCancel}
-        onsuccess={refreshGroupList}
-    />
-        
+      {CreateModalOpen && (
+        <GroupForm
+          isVisible={true}
+          onClose={handleCancel}
+          onsuccess={refreshGroupList}
+        />
+
       )}
     </App>
   );

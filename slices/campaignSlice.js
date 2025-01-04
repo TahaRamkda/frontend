@@ -12,7 +12,7 @@ export const fetchCampaign = createAsyncThunk(
       if (response?.status === 200 && response.data?.result) {
         return {
           campaigns: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].total : 0,
+          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalItems : 0,
         };
       } else {
         throw new Error('Failed to fetch details');

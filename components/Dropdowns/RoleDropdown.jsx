@@ -8,12 +8,12 @@ import { fetchRolesDrop, clearRoleDropState } from "@/slices/RoleSlice";
 
 const RoleDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
-  const selectRef = useRef(null); 
+  const selectRef = useRef(null);
   const { roleDrop, loading, error } = useSelector((state) => state.roles);
- 
+
   useEffect(() => {
-    dispatch(fetchRolesDrop({clientId: localStorage.getItem("clientId") }));
-   
+    dispatch(fetchRolesDrop({ clientId: localStorage.getItem("clientId") }));
+
   }, [dispatch]);
 
   useEffect(() => {
@@ -44,7 +44,7 @@ const RoleDropdown = ({ name, value, onChange }) => {
 
   return (
     <div className="">
-     
+
       <select
         id={name}
         name={name}

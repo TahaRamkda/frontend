@@ -2,7 +2,7 @@
 
 import React, { useMemo, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMessageSummary,clearMessageSummaryState, setPageSize, setCurrentPage } from "@/slices/ReportSlice";
+import { fetchMessageSummary, clearMessageSummaryState, setPageSize, setCurrentPage } from "@/slices/ReportSlice";
 import { Input, label, Button } from 'reactstrap';
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import DataTable from "react-data-table-component";
@@ -29,7 +29,7 @@ const Messagereports = () => {
 
   useEffect(() => {
     if (clientId) {
-      
+
       dispatch(fetchMessageSummary({ clientId: clientId, fromDate: fromDate, toDate: toDate, status: status, templateId: templateId, srcStr: srcStr, pageSize, pageNo: currentPage }));
     }
     return () => {
@@ -78,44 +78,44 @@ const Messagereports = () => {
     return (
       <div className="w-full">
         <div className='grid grid-cols-5 gap-4'>
-        <div className="flex flex-col text-start mb-1">
-          <label className="font-medium text-gray-700 text-sm">Search</label>
-          <Input
-            type="text"
-            placeholder="Search"
-            value={srcStr}
-            onChange={handleSrcStrChange}
-            className="border rounded m-0 w-100"
-          />
-        </div>
-        <div className="flex flex-col text-start mb-1">
-          <label className="font-medium text-gray-700 text-sm">Select Template</label>
-          <TemplateDropdown
-            name="role_Id"
-            onChange={handleTemplateChange}
-            className="border rounded m-0 mb-0 w-100"
-          />
-        </div>
-        <div className="flex flex-col text-start mb-1">
-          <label className="font-medium text-gray-700 text-sm">From Date</label>
-          <Input
-            type="date"
-            id="fromDate"
-            value={fromDate}
-            onChange={handleFromDateChange}
-            className="border rounded m-0 w-100"
-          />
-        </div>
-        <div className="flex flex-col text-start mb-1 ">
-          <label className="font-medium text-gray-700 text-sm">To Date</label>
-          <Input
-            type="date"
-            id="toDate"
-            value={toDate}
-            onChange={handleToDateChange}
-            className="border rounded m-0 w-100"
-          />
-        </div>
+          <div className="flex flex-col text-start mb-1">
+            <label className="font-medium text-gray-700 text-sm">Search</label>
+            <Input
+              type="text"
+              placeholder="Search"
+              value={srcStr}
+              onChange={handleSrcStrChange}
+              className="border rounded m-0 w-100"
+            />
+          </div>
+          <div className="flex flex-col text-start mb-1">
+            <label className="font-medium text-gray-700 text-sm">Select Template</label>
+            <TemplateDropdown
+              name="role_Id"
+              onChange={handleTemplateChange}
+              className="border rounded m-0 mb-0 w-100"
+            />
+          </div>
+          <div className="flex flex-col text-start mb-1">
+            <label className="font-medium text-gray-700 text-sm">From Date</label>
+            <Input
+              type="date"
+              id="fromDate"
+              value={fromDate}
+              onChange={handleFromDateChange}
+              className="border rounded m-0 w-100"
+            />
+          </div>
+          <div className="flex flex-col text-start mb-1 ">
+            <label className="font-medium text-gray-700 text-sm">To Date</label>
+            <Input
+              type="date"
+              id="toDate"
+              value={toDate}
+              onChange={handleToDateChange}
+              className="border rounded m-0 w-100"
+            />
+          </div>
         </div>
       </div>
     );
@@ -123,10 +123,10 @@ const Messagereports = () => {
 
   return (
     <App>
-     
+
 
       <div className="flex">
-          {loading && <Loading />}
+        {loading && <Loading />}
         <h4 className=" font-bold ">Message Summary</h4>
       </div>
       <div className="table-responsive categories_table ">
@@ -152,12 +152,12 @@ const Messagereports = () => {
             },
             headRow: {
               style: {
-                borderBottom: '1px solid #ddd',  padding: '0px',
+                borderBottom: '1px solid #ddd', padding: '0px',
               },
             },
             headCells: {
               style: {
-               
+
                 borderRight: '1px solid #ddd', // Grid line between columns
                 fontWeight: 'bold',
               },
@@ -169,7 +169,7 @@ const Messagereports = () => {
             },
             cells: {
               style: {
-                
+
                 borderRight: '1px solid #ddd', // Vertical grid line between cells
               },
             },

@@ -1,21 +1,21 @@
-import React, {useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
-import { fetchAgentsDrop, cleaAgenDroptState } from '@/slices/AgentSlice'; 
+import { fetchAgentsDrop, cleaAgenDroptState } from '@/slices/AgentSlice';
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
 const AgentDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
-  const selectRef = useRef(null); 
+  const selectRef = useRef(null);
   const { agentDrop, loading, error } = useSelector((state) => state.agents);
- const [searchString, setsearchString] = useState("")
- const [SenderId,setSenderId] = useState(0)
- 
+  const [searchString, setsearchString] = useState("")
+  const [SenderId, setSenderId] = useState(0)
+
   useEffect(() => {
-    dispatch(fetchAgentsDrop({ clientId: localStorage.getItem("clientId"), searchStr:searchString, senderId:SenderId }));
-    
+    dispatch(fetchAgentsDrop({ clientId: localStorage.getItem("clientId"), searchStr: searchString, senderId: SenderId }));
+
   }, [dispatch]);
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import dynamic from 'next/dynamic';
-import { Formik, Field,useFormikContext } from "formik";
+import { Formik, Field, useFormikContext } from "formik";
 import { Form, FormGroup, Label, Input, Container, Row, Col, Button, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Alert } from "reactstrap";
 //import ReactQuill from 'react-quill'; 
 import 'react-quill/dist/quill.snow.css';
@@ -8,8 +8,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { FaTimes } from 'react-icons/fa';
 import { FaRegTrashCan } from "react-icons/fa6";
-import { fetchTemplatesById,clearTemplateDetailState} from "@/slices/TemplateSlice";
-import { UpdateCampaign, clearCampaignUpdateState,fetchCampaignDetail,clearCampaignDetailState} from "@/slices/campaignSlice";
+import { fetchTemplatesById, clearTemplateDetailState } from "@/slices/TemplateSlice";
+import { UpdateCampaign, clearCampaignUpdateState, fetchCampaignDetail, clearCampaignDetailState } from "@/slices/CampaignSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Groups from "@/components/MultiSelect/GroupDropdown";
 import Templates from "@/components/Dropdowns/TemplateDropdown";
@@ -26,7 +26,7 @@ const UpdateCampaigns = () => {
   //const { CampaignID } = location.state || {}; // Get CampaignID from state
   const [Loading, setLoading] = useState(true);
   const { template, loading, error } = useSelector((state) => state.templates);
- const { campaigndetail, loading: campaignloading, error:campaignerror } = useSelector((state) => state.campaigns);
+  const { campaigndetail, loading: campaignloading, error: campaignerror } = useSelector((state) => state.campaigns);
   const [messagePreview, setMessagePreview] = useState({
     header: "",
     body: "",
@@ -36,7 +36,7 @@ const UpdateCampaigns = () => {
     visitWebsiteButtonCount: 0,
   });
   const [bodyContent, setBodyContent] = useState("");
-  
+
   const [campaignName, setcampaignName] = useState("");
   const [variables, setVariables] = useState([]);
   const [urlvariables, seturlvariables] = useState([]);
@@ -81,10 +81,10 @@ const UpdateCampaigns = () => {
   };
   useEffect(() => {
     if (CampaignID) { // Run only if a template is selected
-      
+
       setSelectedCampaign(CampaignID);
     }
-  }, [ SelectedCampaign]); 
+  }, [SelectedCampaign]);
 
   useEffect(() => {
     if (SelectedCampaign) { // Run only if a template is selected
@@ -93,7 +93,7 @@ const UpdateCampaigns = () => {
         CampaignId: SelectedCampaign
       }));
     }
-  }, [dispatch, SelectedCampaign]); 
+  }, [dispatch, SelectedCampaign]);
 
   useEffect(() => {
     if (selectedTemplateId) { // Run only if a template is selected
@@ -103,20 +103,20 @@ const UpdateCampaigns = () => {
         templateId: selectedTemplateId,
       }));
     }
-  }, [dispatch, selectedTemplateId]); 
-  
+  }, [dispatch, selectedTemplateId]);
+
   useEffect(() => {
     if (campaigndetail) { // Run only if a template is selected
-      
+
       setSelectedTemplateId(campaigndetail.templateId);
-     setcampaignName(campaigndetail.campaignName);
-     setSelectedGroups(campaigndetail.groupIds);
+      setcampaignName(campaigndetail.campaignName);
+      setSelectedGroups(campaigndetail.groupIds);
     }
-  }, [dispatch, campaigndetail]); 
+  }, [dispatch, campaigndetail]);
 
   useEffect(() => {
     if (!template) return;
-  
+
     const updatedMessagePreview = {
       body: template.bodyText,
       footer: template.footerText,
@@ -125,14 +125,14 @@ const UpdateCampaigns = () => {
       templatename: template.templateName,
       visitWebsiteButtonCount: 0,
     };
-    
+
     // Update Header
     if (template.headerType === 1) {
       updatedMessagePreview.header = template.headerText;
       setHeadContent(template.headerText);
       setheaderPayloaddatawithVar(template.headerText);
       setheaderTextCount(template.headerParamCount);
-  
+
       if (template.headerValue) {
         setHeaderVariable([template.headerValue]);
         template.headerValue.forEach((variable, i) => {
@@ -143,18 +143,18 @@ const UpdateCampaigns = () => {
       }
     } else {
       //alert(template.mediaURL);
-     //alert(template.headerType);
+      //alert(template.headerType);
       setSelectedMediaId(template.mediaId);
       setSelectedMediaPath(template.mediaURL);
       setSelectedMediaType(template.contentType);
-     
+
     }
-    
+
     // Update Body
     setupdatedvercontent(template.bodyText);
     setBodyFinalContent(template.bodyText);
     setbodyTextCount(template.bodyParamCount);
-  
+
     if (template.bodyValues) {
       setVariables(template.bodyValues);
       template.bodyValues.forEach((variable, i) => {
@@ -163,21 +163,21 @@ const UpdateCampaigns = () => {
         }
       });
     }
-   setSelectedSenderId(template.senderId)
+    setSelectedSenderId(template.senderId)
     // Update Buttons
     setTotalButtonCount(updatedMessagePreview.buttons.length);
-  
+
     // Apply Message Preview Updates
     setMessagePreview(updatedMessagePreview);
-  
+
     // Finalize Template Update
     setLoading(false);
-   
-  
+
+
     // Clear State
     clearTemplateDetailState();
   }, [template]);
-  
+
 
   useEffect(() => {
     setAPIheadContent(replaceClosingPTagsWithNewline(headContent));
@@ -188,11 +188,11 @@ const UpdateCampaigns = () => {
     setAPIbodyContent(replaceClosingPTagsWithNewline(bodyFinalContent));
   }, [bodyFinalContent]);
 
- 
+
   const handleSubmit = async (values) => {
     let trimmedBodyContent = APIbodyContent.trimEnd();
     const requestBody = {
-      templateId:selectedTemplateId,
+      templateId: selectedTemplateId,
       clientId: localStorage.getItem("clientId"),
       campaignName: campaignName,
       campaignType: "1",
@@ -200,15 +200,15 @@ const UpdateCampaigns = () => {
       senderId: template.senderId,
       groupIds: selectedGroups.join(","),
       actionBy: localStorage.getItem("userId"),
-      campaignParameters:  [
+      campaignParameters: [
         ...headerVariable.map((value, index) => ({
           sequence: index + 1,
           paramName: `${index + 1}`, // Dynamic name for header variables
-          paramText: value,                    
-          paramType: 1,                        
-          paramDefaultValue: value,            
-          isDynamic: false,                     
-          status: 0                            
+          paramText: value,
+          paramType: 1,
+          paramDefaultValue: value,
+          isDynamic: false,
+          status: 0
         })),
         ...variables.map((value, index) => ({
           sequence: index + 1,
@@ -220,17 +220,17 @@ const UpdateCampaigns = () => {
           status: 0                                    // Static status
         }))
       ],
-     
-    
+
+
     };
-  
+
     try {
       const response = await dispatch(UpdateCampaign(requestBody)).unwrap();
       if (response.success) {
-        clearCampaignUpdateState(); 
+        clearCampaignUpdateState();
         showSweetAlert({
           title: "Updated Successfully",
-          text:"",
+          text: "",
           icon: "success",
         });
         //await router.push('/Campaigns/campaignList');
@@ -240,7 +240,7 @@ const UpdateCampaigns = () => {
           text: response.message || "",
           icon: "error",
         });
-       
+
         //window.location.reload();
       }
     } catch (err) {
@@ -305,10 +305,10 @@ const UpdateCampaigns = () => {
 
     setTypingTimeout(timeout);
   };
- const handelCancel = ()=>{
-  router.push("/Campaigns/CampaignsList")
- }
- 
+  const handelCancel = () => {
+    router.push("/Campaigns/CampaignsList")
+  }
+
 
   const handleheaderVariableChange = (index, value) => {
     setHeaderVariable((prev) => {
@@ -331,29 +331,29 @@ const UpdateCampaigns = () => {
     setSelectedSenderId(role);
   };
 
-    useEffect(() => {
+  useEffect(() => {
     let updatedBody = bodyFinalContent;
     variables.forEach((variable, index) => {
       updatedBody = updatedBody.replace(`{{${index + 1}}}`, variable);
     });
     updatedBody = updatedBody.replace(/\n/g, '<br/>'); // Convert newlines to <br/> tags for HTML rendering
-  
+
     // Replace <p> tags only if necessary, and ensure newlines are handled correctly
     updatedBody = updatedBody.replace(/<\/p>/gi, '<br/>').replace(/<p.*?>/gi, '');
     updatedBody = updatedBody.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  
+
     updatedBody = updatedBody.replace(/\*(.*?)\*/g, '<em>$1</em>');
-  
+
     updatedBody = updatedBody.replace(/~(.*?)~/g, '<sub>$1</sub>');
-  
-  
+
+
     // Update the message preview body content
     setMessagePreview((prev) => ({
       ...prev,
       body: updatedBody, // HTML safe body with <br/> tags and replaced variables
     }));
   }, [bodyFinalContent, variables]);
-  
+
   return (
     <App>
       <Container fluid className="mt-0">
@@ -361,11 +361,11 @@ const UpdateCampaigns = () => {
           <Col md={7} className="border-end overflow-auto shadow-lg" style={{ padding: '20px', background: "#fff" }}>
             <h4 className="mb-4">Update Campaign</h4>
             {/* <CustomEditor /> */}
-           
+
             <Formik
               initialValues={{
-               // headerType: template.headerType,
-               // headerContent:template.headerText,
+                // headerType: template.headerType,
+                // headerContent:template.headerText,
                 headerMedia: null,
                 body: "",
                 //footer: template.footerText,
@@ -379,82 +379,82 @@ const UpdateCampaigns = () => {
               onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
-              
+
 
                 return (
                   <Form  >
                     <div style={{ background: "#fff" }} className="">
-                    <FormGroup>
-              <Label for="campaignName">Campaign Name</Label>
-              <Input
-                type="text"
-                id="campaignName"
-                name="name"
-                value={campaignName}
-                onChange={(e) => setcampaignName(e.target.value)}
-                placeholder="Enter Campaign Name"
-                className="mb-3"
-                style={{ borderRadius: "8px" }}
-              />
-            </FormGroup>
+                      <FormGroup>
+                        <Label for="campaignName">Campaign Name</Label>
+                        <Input
+                          type="text"
+                          id="campaignName"
+                          name="name"
+                          value={campaignName}
+                          onChange={(e) => setcampaignName(e.target.value)}
+                          placeholder="Enter Campaign Name"
+                          className="mb-3"
+                          style={{ borderRadius: "8px" }}
+                        />
+                      </FormGroup>
 
                     </div>
                     <div style={{ background: "#fff" }} className="">
-                    <FormGroup>
-                   <Label>Select Template</Label>
-                  <Templates
-                   name="senderId"
-                  value={selectedTemplateId}
-                   onChange={handleTemplateChange}
-                   className="mb-3"
-                 />
-                </FormGroup>
-                     
+                      <FormGroup>
+                        <Label>Select Template</Label>
+                        <Templates
+                          name="senderId"
+                          value={selectedTemplateId}
+                          onChange={handleTemplateChange}
+                          className="mb-3"
+                        />
+                      </FormGroup>
+
                     </div>
 
 
                     <div className="">
-                    <FormGroup>
-              <Label>Select Groups</Label>
-              <Groups
-                name="senderId"
-                onChange={handleGroupSelection}
-                className="mb-3"
-              />
-            </FormGroup>
-                     
+                      <FormGroup>
+                        <Label>Select Groups</Label>
+                        <Groups
+                          name="senderId"
+                          onChange={handleGroupSelection}
+                          className="mb-3"
+                        />
+                      </FormGroup>
+
                     </div>
                     {headerVariable.map((variable, index) => (
-                  <FormGroup key={index}>
-                    <h5>Header Variables</h5>
-                    <Label>{`Value for {${index + 1}}`}</Label>
-                    <Input
-                      type="text"
-                      value={variable.defaultValue}
-                      onChange={(e) =>
-                        handleheaderVariableChange(index, e.target.value)
-                      }
-                      placeholder={`Enter Sample Value for {${index + 1}}`}
-                      style={{ borderRadius: "8px" }}
-                      className="mb-3"
-                    />
-                  </FormGroup>
-                ))}
+                      <FormGroup key={index}>
+                        <h5>Header Variables</h5>
+                        <Label>{`Value for {${index + 1}}`}</Label>
+                        <Input
+                          type="text"
+                          value={variable.defaultValue}
+                          onChange={(e) =>
+                            handleheaderVariableChange(index, e.target.value)
+                          }
+                          placeholder={`Enter Sample Value for {${index + 1}}`}
+                          style={{ borderRadius: "8px" }}
+                          className="mb-3"
+                        />
+                      </FormGroup>
+                    ))}
 
-                {variables.map((variable, index) => (
-                  <FormGroup key={index}>
-                    <h5>Body Variables</h5>
-                    <Label>{`Value for {${index + 1}}`}</Label>
-                    <Input
-                      type="text"
-                      value={variable}
-                      onChange={(e) => handleVariableChange(index, e.target.value)}
-                      placeholder={`Enter Sample Value for {${index + 1}}`}
-                      style={{ borderRadius: "8px" }}
-                      className="mb-3"
-                    />
-                  </FormGroup>
-                ))}
+                    {variables.map((variable, index) => (
+                      <FormGroup key={index}>
+                        <h5>Body Variables</h5>
+                        <Label>{`Value for {${index + 1}}`}</Label>
+                        <Input
+                          type="text"
+                          value={variable}
+                          onChange={(e) => handleVariableChange(index, e.target.value)}
+                          placeholder={`Enter Sample Value for {${index + 1}}`}
+                          style={{ borderRadius: "8px" }}
+                          className="mb-3"
+                        />
+                      </FormGroup>
+                    ))}
                     {urlvariables.map((variable, index) => (
                       <FormGroup key={index}>
                         <Label>{`Sample Value for {${index + 1}}`}</Label>
@@ -484,13 +484,13 @@ const UpdateCampaigns = () => {
                       </FormGroup>
                     ))}
                     <div className="w-full flex justify-end gap-3">
-                    <Button className="uniform_btn_Cancel " onClick={handelCancel}>
-                      Cancel
-                    </Button>
-                    <Button className="uniform_btn " onClick={() => handleSubmit(values)}>
-                      Submit
-                    </Button>
-                    
+                      <Button className="uniform_btn_Cancel " onClick={handelCancel}>
+                        Cancel
+                      </Button>
+                      <Button className="uniform_btn " onClick={() => handleSubmit(values)}>
+                        Submit
+                      </Button>
+
                     </div>
                   </Form>
                 );
@@ -526,7 +526,7 @@ const UpdateCampaigns = () => {
               }}>
                 <span className="time_bubble">{moment(new Date()).format('LT')}</span>
                 {messagePreview.media && selectedMediaType.startsWith("image/") && (
-                 //alert(selectedMediaPath),
+                  //alert(selectedMediaPath),
                   <img
                     src={`${BASE_URL}${selectedMediaPath}`}
                     alt="Media"
@@ -589,25 +589,25 @@ const UpdateCampaigns = () => {
                       borderTopColor: '#e1e1e1'
                     }}
                   >
-                     {button.type == 1 && (
-              <span style={{ color: '#00a9ee' }}>
-                <i className="fa fa-share fa-flip-horizontal me-2"></i>
+                    {button.type == 1 && (
+                      <span style={{ color: '#00a9ee' }}>
+                        <i className="fa fa-share fa-flip-horizontal me-2"></i>
 
-                {button.text || "Button"}
-              </span>
-            )}
-            {button.type == 2 && (
-              <span style={{ color: '#00a9ee' }}>
-                <i className="fa fa-phone me-2"></i>
-                {button.text || "Button"}
-              </span>
-            )}
-            {button.type == 3 && (
-              <span style={{ color: '#00a9ee' }}>
-                <i className="fa fa-external-link me-2"></i>
-                {button.text || "Button"}
-              </span>
-            )}
+                        {button.text || "Button"}
+                      </span>
+                    )}
+                    {button.type == 2 && (
+                      <span style={{ color: '#00a9ee' }}>
+                        <i className="fa fa-phone me-2"></i>
+                        {button.text || "Button"}
+                      </span>
+                    )}
+                    {button.type == 3 && (
+                      <span style={{ color: '#00a9ee' }}>
+                        <i className="fa fa-external-link me-2"></i>
+                        {button.text || "Button"}
+                      </span>
+                    )}
                   </Button>
                 ))}
                 {TotalButtonCount > 3 && (

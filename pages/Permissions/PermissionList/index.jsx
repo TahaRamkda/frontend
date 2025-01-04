@@ -179,79 +179,79 @@ const PermissionList = () => {
   const subHeaderComponentMemo = useMemo(
     () => (
       <div className="w-full">
-      <div className='grid grid-cols-5 gap-4'>
-        <div className="flex flex-col text-start mb-1">
-        <label className="font-medium text-gray-700 text-sm">Role</label>
-        <RoleDropdown 
-        name="role_Id" 
-        value={selectedRole} 
-        onChange={handleRoleChange} 
-        className="border rounded py-1 px-2 w-full text-sm" />
-      </div>
-      </div>
+        <div className='grid grid-cols-5 gap-4'>
+          <div className="flex flex-col text-start mb-1">
+            <label className="font-medium text-gray-700 text-sm">Role</label>
+            <RoleDropdown
+              name="role_Id"
+              value={selectedRole}
+              onChange={handleRoleChange}
+              className="border rounded py-1 px-2 w-full text-sm" />
+          </div>
+        </div>
       </div>
     ),
     [selectedRole]
   );
 
   return (
-   <App>
+    <App>
 
 
       <div className="flex items-center">
-  {loading && <Loading />}
-  <div >
-  <h4 className="font-bold ">Permission List</h4>
-  </div>
-  <div className="ml-auto mb-1">
-  <button className="uniform_btn" onClick={handleSave}>
-          Save
-        </button>
-  </div>
-</div>
-        <DataTable
-          data={Data}
-          columns={permissionColumns}
-          highlightOnHover
-          striped
-          pagination
-          className="w-full border"
-          subHeader
-          subHeaderComponent={subHeaderComponentMemo}
-          customStyles={{
-            table: {
-              style: {
-                width: '100%',
-                borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
-              },
+        {loading && <Loading />}
+        <div >
+          <h4 className="font-bold ">Permission </h4>
+        </div>
+        <div className="ml-auto mb-1">
+          <button className="uniform_btn" onClick={handleSave}>
+            Save
+          </button>
+        </div>
+      </div>
+      <DataTable
+        data={Data}
+        columns={permissionColumns}
+        highlightOnHover
+        striped
+        pagination
+        className="w-full border"
+        subHeader
+        subHeaderComponent={subHeaderComponentMemo}
+        customStyles={{
+          table: {
+            style: {
+              width: '100%',
+              borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
             },
-            headRow: {
-              style: {
-                borderBottom: '1px solid #ddd',  padding: '0px',
-              },
+          },
+          headRow: {
+            style: {
+              borderBottom: '1px solid #ddd', padding: '0px',
             },
-            headCells: {
-              style: {
-                
-                borderRight: '1px solid #ddd', // Grid line between columns
-                fontWeight: 'bold',
-              },
+          },
+          headCells: {
+            style: {
+
+              borderRight: '1px solid #ddd', // Grid line between columns
+              fontWeight: 'bold',
             },
-            rows: {
-              style: {
-                borderBottom: '1px solid #ddd', // Horizontal grid line between rows
-              },
+          },
+          rows: {
+            style: {
+              borderBottom: '1px solid #ddd', // Horizontal grid line between rows
             },
-            cells: {
-              style: {
-                
-                borderRight: '1px solid #ddd', // Vertical grid line between cells
-              },
+          },
+          cells: {
+            style: {
+
+              borderRight: '1px solid #ddd', // Vertical grid line between cells
             },
-          }}
-        />
-      
-      </App>
+          },
+        }}
+      />
+
+    </App>
   );
 };
 

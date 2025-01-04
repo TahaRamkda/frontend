@@ -62,7 +62,7 @@ export function Header({ toggleSidebar }) {
     }
   };
 
-  
+
   useEffect(() => {
     localStorage.setItem("darkMode", true);
   }, []);
@@ -96,7 +96,7 @@ export function Header({ toggleSidebar }) {
         {/* Logo Section on the Left Side */}
         <div className="flex items-center space-x-3">
           <Link href="/Dashboard" className="flex items-center space-x-3">
-            <img className="h-8 w-auto" src="\images\logo\logo.png" alt="Logo" />
+            <img className="h-8 w-auto" src="\images\logo\Loader.svg" alt="Logo" />
           </Link>
         </div>
 
