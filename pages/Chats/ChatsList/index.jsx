@@ -554,8 +554,10 @@ const ChatPage = () => {
             style={{ height: "100vh" }}
           >
             <Card className="right-sidebar-chat h-100">
-              {conversations.map((conversation) => (
-                <div className="flex items-center justify-between text-white px-4 py-3 shadow-md">
+            {conversations
+  .filter((conversation) => conversation.id === Activechat)
+  .map((conversation) => (
+                <div className="flex items-center justify-between text-black px-4 py-3 shadow-md">
                   {/* Left Section */}
                   <div
                     key={conversation.id}
