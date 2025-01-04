@@ -29,6 +29,7 @@ import App from "@/components/App";
 import EmojiPicker from "emoji-picker-react";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 import { extractTime } from "@/utils/constants";
+//import {notificatin} from "@/public/assets/Notification/chatassigned.wav";
 const ChatPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const dispatch = useDispatch();
@@ -58,7 +59,15 @@ const ChatPage = () => {
   const activeChatRef = useRef(Activechat);
   const agentChatRef = useRef([AgentConversaton]);
   const containerRef = useRef(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [fileType, setFileType] = useState(null);
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    // Initialize the audio object only once
+    audioRef.current = new Audio("/assets/Notification/chatassigned.mp3");
+  }, []);
   const toggleTab = (tab) => {
     if (activeTab !== tab) {
       setActiveTab(tab);
@@ -173,6 +182,8 @@ const ChatPage = () => {
 
   //called each time to send message
   const HandleSendMessage = async () => {
+    setPreviewUrl(null);
+    setFileType(null); 
     if (!messageInput.trim() && !mediaFile) {
       toast.error("Message cannot be empty!");
       return;
@@ -202,7 +213,8 @@ const ChatPage = () => {
       await dispatch(NewAgentMessage(formData)).unwrap();
       //toast.success("Message sent successfully!");
       setMediaFile(null); // Clear the selected file after sending the message
-
+      setPreviewUrl(null);
+      setFileType(null); //get the file type
       // Shift the active conversation to the top of the list and reset unread count
       const matchingConversationIndex = agentChatRef.current.findIndex(
         (conversation) => conversation.id === Activechat
@@ -240,7 +252,9 @@ const ChatPage = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setMediaFile(file); // Store the selected file
+      setMediaFile(file); // Store the selected fil
+      setPreviewUrl(URL.createObjectURL(file)); // Generate a temporary URL for preview
+      setFileType(file.type.split('/')[0]);
     }
   };
 
@@ -322,6 +336,9 @@ const ChatPage = () => {
 
     connection.on("ConversationAssigned", (notification) => {
       console.log("Received notification:", notification);
+      audioRef.current
+      ?.play()
+      .catch((err) => console.error("Failed to play notification sound:", err));
       toast.success("You have a new message request");
       // Find the matching conversation in the agent chat reference
       const matchingConversationIndex = agentChatRef.current.findIndex(
@@ -636,7 +653,35 @@ const ChatPage = () => {
                     ))}
                     <div ref={messagesEndRef} /> 
                   </div>
-
+                  {previewUrl && (
+        <div>
+          {fileType === 'image' && (
+            <img
+              src={previewUrl}
+              alt="Preview"
+              style={{ maxWidth: '400px', marginTop: '10px' }}
+            />
+          )}
+          {fileType === 'video' && (
+            <video
+              controls
+              src={previewUrl}
+              style={{ maxWidth: '400px', marginTop: '10px' }}
+            />
+          )}
+          {fileType === 'audio' && (
+            <audio controls src={previewUrl} style={{ marginTop: '10px' }} />
+          )}
+          {fileType === 'application' && (
+            <div style={{ marginTop: '10px' }}>
+              <a href={previewUrl} download={mediaFile.name}>
+                Download {mediaFile.name}
+              </a>
+            </div>
+          )}
+         
+        </div>
+      )}
                   <div className="msger-inputs px-4 py-3 flex items-center">
                     <Button
                       onClick={openFileManager}
@@ -644,6 +689,7 @@ const ChatPage = () => {
                     >
                       <i className="fa fa-paperclip"></i>
                     </Button>
+                    
                     <Input
                       type="text"
                       value={messageInput}
@@ -671,7 +717,7 @@ const ChatPage = () => {
                         aria-hidden="true"
                       ></i>
                     </button>
-
+                 
                     <input
                       ref={fileInputRef}
                       type="file"
