@@ -29,6 +29,7 @@ import App from "@/components/App";
 import EmojiPicker from "emoji-picker-react";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 import { extractTime } from "@/utils/constants";
+import { set } from "date-fns";
 //import {notificatin} from "@/public/assets/Notification/chatassigned.wav";
 const ChatPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -62,6 +63,7 @@ const ChatPage = () => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [fileType, setFileType] = useState(null);
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
+  const isManualScroll = useRef(false);
   const audioRef = useRef(null);
 
   useEffect(() => {
@@ -76,8 +78,8 @@ const ChatPage = () => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "auto" }); // Use "auto" to skip animation
+    if (!isManualScroll.current && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "auto" }); // Scroll to the bottom for new messages
     }
   }, [chatMessages]);
 
@@ -104,6 +106,7 @@ const ChatPage = () => {
 
   //called each time to get conversation messages
   const HandleConversationDetail = async (id) => {
+    dispatch(resetMessages());
     setActiveChat(id); // Update Activechat state
     const ClientId = localStorage.getItem("clientId");
     if (ClientId && id) {
@@ -139,8 +142,9 @@ const ChatPage = () => {
 
     if (!container || loading) return;
 
-    // Check if the user has scrolled to the top
-    if (container.scrollTop === 0 && currentPage >= 1 && !loading && hasMore) {
+    // Check if the user scrolled to the top
+    if (container.scrollTop === 0 && currentPage >= 1 && hasMore) {
+      isManualScroll.current = true; // Mark manual scroll
       dispatch(
         fetchConversationMessage({
           clientId: ClientId,
@@ -148,22 +152,11 @@ const ChatPage = () => {
           pageNo: currentPage + 1,
         })
       ).then(() => {
-        // Optionally adjust scroll position after older messages are loaded
-        container.scrollTop = 1; // Prevent continuous triggering at the top
+        // Adjust scroll position slightly to avoid triggering again immediately
+        container.scrollTop = 10;
+        isManualScroll.current = false; // Reset manual scroll flag
       });
     }
-
-    // // Check if the user has scrolled to the bottom
-    // if (
-    //   container.scrollHeight - container.scrollTop === container.clientHeight &&
-    //   hasMore &&
-    //   !loading
-    // ) {
-    //   dispatch(fetchConversationMessage({ clientId: ClientId, ChatId: Activechat, pageNo: currentPage + 1 }))
-    //     .then(() => {
-    //       // Optionally adjust scroll position if needed
-    //     });
-    // }
   };
 
   useEffect(() => {
@@ -183,7 +176,7 @@ const ChatPage = () => {
   //called each time to send message
   const HandleSendMessage = async () => {
     setPreviewUrl(null);
-    setFileType(null); 
+    setFileType(null);
     if (!messageInput.trim() && !mediaFile) {
       toast.error("Message cannot be empty!");
       return;
@@ -254,7 +247,7 @@ const ChatPage = () => {
     if (file) {
       setMediaFile(file); // Store the selected fil
       setPreviewUrl(URL.createObjectURL(file)); // Generate a temporary URL for preview
-      setFileType(file.type.split('/')[0]);
+      setFileType(file.type.split("/")[0]);
     }
   };
 
@@ -278,6 +271,12 @@ const ChatPage = () => {
     setConnection(connection);
 
     connection.on("MessageReceived", (message) => {
+      
+      audioRef.current
+        ?.play()
+        .catch((err) =>
+          console.error("Failed to play notification sound:", err)
+        );
       toast.success("You have a new message");
 
       if (message.id === activeChatRef.current) {
@@ -291,6 +290,7 @@ const ChatPage = () => {
           updatedConversations[matchingConversationIndex] = {
             ...updatedConversations[matchingConversationIndex],
             lastMessageText: message.messageContent,
+            updatedDate: message.createdDate,
             unreadCount:
               (updatedConversations[matchingConversationIndex].unreadCount ||
                 0) + 1,
@@ -319,6 +319,7 @@ const ChatPage = () => {
           updatedConversations.splice(matchingConversationIndex, 1); // Remove it from the current position
           updatedConversations.unshift({
             ...matchingConversation,
+            updatedDate: message.createdDate,
             lastMessageText: message.messageContent,
             unreadCount: (matchingConversation.unreadCount || 0) + 1,
           }); // Add it to the start of the list
@@ -337,8 +338,10 @@ const ChatPage = () => {
     connection.on("ConversationAssigned", (notification) => {
       console.log("Received notification:", notification);
       audioRef.current
-      ?.play()
-      .catch((err) => console.error("Failed to play notification sound:", err));
+        ?.play()
+        .catch((err) =>
+          console.error("Failed to play notification sound:", err)
+        );
       toast.success("You have a new message request");
       // Find the matching conversation in the agent chat reference
       const matchingConversationIndex = agentChatRef.current.findIndex(
@@ -565,7 +568,7 @@ const ChatPage = () => {
                           </p>
                           {conversation.unreadCount > 0 && (
                             <span className="inline-block bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">
-                              @{conversation.unreadCount || 2}
+                              @{conversation.unreadCount}
                             </span>
                           )}
                         </div>
@@ -645,43 +648,46 @@ const ChatPage = () => {
                                 </span>
                               ))}
                           </p>
-                          {/* <p className="text-xs text-gray-500 mt-2">
+                          <p className="text-xs text-gray-500 mt-2">
                             {extractTime(message.createdDate)}
-                          </p> */}
+                          </p>
                         </div>
                       </div>
                     ))}
-                    <div ref={messagesEndRef} /> 
+                    <div ref={messagesEndRef} />
                   </div>
                   {previewUrl && (
-        <div>
-          {fileType === 'image' && (
-            <img
-              src={previewUrl}
-              alt="Preview"
-              style={{ maxWidth: '400px', marginTop: '10px' }}
-            />
-          )}
-          {fileType === 'video' && (
-            <video
-              controls
-              src={previewUrl}
-              style={{ maxWidth: '400px', marginTop: '10px' }}
-            />
-          )}
-          {fileType === 'audio' && (
-            <audio controls src={previewUrl} style={{ marginTop: '10px' }} />
-          )}
-          {fileType === 'application' && (
-            <div style={{ marginTop: '10px' }}>
-              <a href={previewUrl} download={mediaFile.name}>
-                Download {mediaFile.name}
-              </a>
-            </div>
-          )}
-         
-        </div>
-      )}
+                    <div>
+                      {fileType === "image" && (
+                        <img
+                          src={previewUrl}
+                          alt="Preview"
+                          style={{ maxWidth: "400px", marginTop: "10px" }}
+                        />
+                      )}
+                      {fileType === "video" && (
+                        <video
+                          controls
+                          src={previewUrl}
+                          style={{ maxWidth: "400px", marginTop: "10px" }}
+                        />
+                      )}
+                      {fileType === "audio" && (
+                        <audio
+                          controls
+                          src={previewUrl}
+                          style={{ marginTop: "10px" }}
+                        />
+                      )}
+                      {fileType === "application" && (
+                        <div style={{ marginTop: "10px" }}>
+                          <a href={previewUrl} download={mediaFile.name}>
+                            Download {mediaFile.name}
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <div className="msger-inputs px-4 py-3 flex items-center">
                     <Button
                       onClick={openFileManager}
@@ -689,7 +695,7 @@ const ChatPage = () => {
                     >
                       <i className="fa fa-paperclip"></i>
                     </Button>
-                    
+
                     <Input
                       type="text"
                       value={messageInput}
@@ -717,7 +723,7 @@ const ChatPage = () => {
                         aria-hidden="true"
                       ></i>
                     </button>
-                 
+
                     <input
                       ref={fileInputRef}
                       type="file"
