@@ -1,6 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Card, Col, Input, InputGroup, InputGroupText, Nav, NavItem, TabContent, TabPane, Container, Row, Button, CardHeader } from "reactstrap";
+import {
+  Card,
+  Col,
+  Input,
+  InputGroup,
+  InputGroupText,
+  Nav,
+  NavItem,
+  TabContent,
+  TabPane,
+  Container,
+  Row,
+  Button,
+  CardHeader,
+} from "reactstrap";
 import {
   fetchConversationList,
   fetchConversationMessage,
@@ -55,6 +69,8 @@ const ChatPage = () => {
   const isManualScroll = useRef(false);
   const audioRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const timersRef = useRef({});
+  const [unrepliedChats, setUnrepliedChats] = useState([]);
   useEffect(() => {
     // Initialize the audio object only once
     audioRef.current = new Audio("/assets/Notification/chatassigned.mp3");
@@ -64,11 +80,10 @@ const ChatPage = () => {
       setActiveTab(tab);
     }
   };
- 
 
   useEffect(() => {
     if (!isManualScroll.current && messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" }); // Scroll to the bottom for new messages
+      messagesEndRef.current.scrollIntoView({ behavior: "auto" }); // Scroll to the bottom for new messages
     }
   }, [chatMessages]);
 
@@ -158,10 +173,12 @@ const ChatPage = () => {
     //     });
     // }
   };
-  {/* Add Emoji Function */}
-const addEmoji = (emoji) => {
-  setMessageInput((prevMessage) => prevMessage + emoji);
-};
+  {
+    /* Add Emoji Function */
+  }
+  const addEmoji = (emoji) => {
+    setMessageInput((prevMessage) => prevMessage + emoji);
+  };
   useEffect(() => {
     const container = containerRef.current;
 
@@ -211,6 +228,8 @@ const addEmoji = (emoji) => {
       setMediaFile(null); // Clear the selected file after sending the message
       setPreviewUrl(null);
       setFileType(null); //get the file type
+      clearTimer(Activechat);
+      removeUnrepliedMark(Activechat);
       // Shift the active conversation to the top of the list and reset unread count
       const matchingConversationIndex = agentChatRef.current.findIndex(
         (conversation) => conversation.id === Activechat
@@ -245,6 +264,22 @@ const addEmoji = (emoji) => {
     }
   };
 
+  useEffect(() => {
+    if (AgentConversaton && AgentConversaton.length > 0) {
+      // Filter messages with unread count > 0
+      const unreadMessages = AgentConversaton.filter(
+        (message) => message.unreadCount > 0
+      );
+      const unreadMessageIds = unreadMessages.map((message) => message.id);
+
+      // Assign the unread message IDs to the desired functions
+      unreadMessageIds.map((messageId) => {
+        startTimer(messageId);
+        markChatAsUnreplied(messageId);
+      });
+    }
+  }, [AgentConversaton]);
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -274,71 +309,77 @@ const addEmoji = (emoji) => {
     setConnection(connection);
 
     connection.on("MessageReceived", (message) => {
-      
+      debugger;
+
+      // Play notification sound
       audioRef.current
         ?.play()
         .catch((err) =>
           console.error("Failed to play notification sound:", err)
         );
+
+      // Show a toast notification for the new message
       toast.success("You have a new message");
 
-      if (message.id === activeChatRef.current) {
-        setChatMessages((prevMessages) => [...prevMessages, message]);
-        const matchingConversationIndex = agentChatRef.current.findIndex(
-          (conversation) => conversation.id === message.id
-        );
+      // Check if the conversation exists in agentChatRef
+      const matchingConversationIndex = agentChatRef.current.findIndex(
+        (conversation) => conversation.id === message.conversationId
+      );
 
-        if (matchingConversationIndex !== -1) {
-          const updatedConversations = [...agentChatRef.current];
-          updatedConversations[matchingConversationIndex] = {
-            ...updatedConversations[matchingConversationIndex],
-            lastMessageText: message.messageContent,
-            updatedDate: message.createdDate,
-            unreadCount:
-              (updatedConversations[matchingConversationIndex].unreadCount ||
-                0) + 1,
-          };
-          agentChatRef.current = updatedConversations;
-          setAgentConversaton(updatedConversations);
-        } else {
-          console.warn(
-            "No matching conversation found for message.id:",
-            message.id
-          );
+      if (matchingConversationIndex !== -1) {
+        const matchingConversation =
+          agentChatRef.current[matchingConversationIndex];
+
+        // Set the timer only if unreadCount is 0 or less
+        if ((matchingConversation.unreadCount || 0) <= 0) {
+          startTimer(message.conversationId);
         }
+
+        // Update conversation details
+        const updatedConversations = [...agentChatRef.current];
+        updatedConversations[matchingConversationIndex] = {
+          ...matchingConversation,
+          lastMessageText: message.messageContent,
+          updatedDate: message.createdDate,
+          unreadCount: (matchingConversation.unreadCount || 0) + 1,
+        };
+        agentChatRef.current = updatedConversations;
+        setAgentConversaton(updatedConversations);
+      } else {
+        console.warn(
+          "No matching conversation found for message.conversationId:",
+          message.conversationId
+        );
+      }
+
+      // Check if the message is from the active chat
+      if (message.conversationId === activeChatRef.current) {
+        setChatMessages((prevMessages) => [...prevMessages, message]);
       } else {
         toast.success("Check message");
-
-        const matchingConversationIndex = agentChatRef.current.findIndex(
-          (conversation) => conversation.id === message.id
-        );
 
         if (matchingConversationIndex !== -1) {
           const updatedConversations = [...agentChatRef.current];
           const matchingConversation =
             updatedConversations[matchingConversationIndex];
 
-          // Update the conversation
+          // Move the conversation to the top of the list
           updatedConversations.splice(matchingConversationIndex, 1); // Remove it from the current position
           updatedConversations.unshift({
             ...matchingConversation,
             updatedDate: message.createdDate,
             lastMessageText: message.messageContent,
             unreadCount: (matchingConversation.unreadCount || 0) + 1,
-          }); // Add it to the start of the list
+          });
 
           agentChatRef.current = updatedConversations;
           setAgentConversaton(updatedConversations);
-        } else {
-          console.warn(
-            "No matching conversation found for message.id:",
-            message.id
-          );
         }
       }
     });
 
     connection.on("ConversationAssigned", (notification) => {
+      debugger;
       console.log("Received notification:", notification);
       audioRef.current
         ?.play()
@@ -346,6 +387,10 @@ const addEmoji = (emoji) => {
           console.error("Failed to play notification sound:", err)
         );
       toast.success("You have a new message request");
+
+      // Start a 5-minute timer for the new chat
+      startTimer(notification.id);
+
       // Find the matching conversation in the agent chat reference
       const matchingConversationIndex = agentChatRef.current.findIndex(
         (conversation) => conversation.id === notification.id
@@ -377,6 +422,28 @@ const addEmoji = (emoji) => {
       }
     });
 
+    connection.on("ConversationUnAssigned", (notification) => {
+      debugger;
+      console.log("Unassigned conversation:", notification);
+
+      // Show a warning toast for the unassigned conversation
+      toast.warning("A conversation has been unassigned");
+
+      // Remove the unassigned conversation from the agent chat reference
+      const updatedConversations = agentChatRef.current.filter(
+        (conversation) => conversation.id !== notification.id
+      );
+
+      // Update the reference and state
+      agentChatRef.current = updatedConversations;
+      setAgentConversaton(updatedConversations);
+
+      console.log(
+        "Updated conversations after unassignment:",
+        updatedConversations
+      );
+    });
+
     connection
       .start()
       .then(() => {
@@ -393,65 +460,61 @@ const addEmoji = (emoji) => {
     };
   }, []);
 
-  const startRecording = () => {
-    // Check if navigator is available
-    if (typeof window !== "undefined" && navigator.mediaDevices) {
-      navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then((stream) => {
-          console.log("Microphone access granted");
-          startRecord(stream);
-        })
-        .catch((error) => {
-          console.error("Error accessing microphone: ", error);
-          toast.error(
-            "Unable to access microphone. Please check your microphone settings."
-          );
-        });
+  const startTimer = (id) => {
+    // Clear existing timer if any
+    if (timersRef.current[id]) {
+      clearTimeout(timersRef.current[id]);
+    }
+
+    // Set a new 5-minute timer
+    timersRef.current[id] = setTimeout(() => {
+      handleTimerExpiry(id);
+    }, 30 * 60 * 1000); // 30 minutes
+  };
+
+  const handleTimerExpiry = (id) => {
+    toast.error(`Time expired for chat/message ID: ${id}`);
+
+    // Play alert sound
+    audioRef.current
+      ?.play()
+      .catch((err) =>
+        console.error("Failed to play alert sound on timer expiry:", err)
+      );
+
+    // Trigger another 5-minute timer if no action is taken
+    if (!isMessageReplied(id)) {
+      console.warn(`No reply for ID: ${id}, rescheduling timer.`);
+      markChatAsUnreplied(id);
+      startTimer(id); // Restart the timer
     } else {
-      toast.error("Your browser does not support media devices.");
+      console.info(`Reply received for ID: ${id}, stopping timer.`);
+      clearTimer(id); // Stop the timer if replied
     }
   };
 
-  const startRecord = (stream) => {
-    console.log("Starting recording...");
-
-    // Initialize chunks for this recording session
-    const chunks = [];
-
-    // Check if audio/ogg is supported by the browser
-    const mimeType = "audio/m4a";
-    const isOggSupported = MediaRecorder.isTypeSupported(mimeType);
-    const recorder = new MediaRecorder(stream, {
-      mimeType: isOggSupported ? mimeType : "audio/webm",
-    });
-    setMediaRecorder(recorder);
-
-    recorder.ondataavailable = (e) => {
-      console.log("Data available", e);
-      chunks.push(e.data);
-    };
-
-    recorder.onstop = () => {
-      console.log("Recording stopped");
-      const audioBlob = new Blob(chunks, {
-        type: isOggSupported ? mimeType : "audio/mp3",
-      });
-      setMediaFile(audioBlob);
-    };
-
-    recorder.start();
-    console.log("Recording started");
-    setIsRecording(true);
+  const clearTimer = (id) => {
+    if (timersRef.current[id]) {
+      clearTimeout(timersRef.current[id]);
+      delete timersRef.current[id];
+    }
   };
 
-  const stopRecording = () => {
-    if (mediaRecorder) {
-      mediaRecorder.stop();
-      setIsRecording(false);
-    } else {
-      toast.error("No recording in progress.");
-    }
+  // Function to check if the message was replied
+  const isMessageReplied = (id) => {
+    // Example condition: Check active chat messages or a specific state
+    return (
+      activeChatRef.current === id && chatMessages.some((msg) => msg.reply)
+    );
+  };
+
+  const markChatAsUnreplied = async (id) => {
+    setUnrepliedChats((prev) => [...prev, id]);
+    console.log("Marked chat as unreplied:", unrepliedChats);
+  };
+
+  const removeUnrepliedMark = (id) => {
+    setUnrepliedChats((prev) => prev.filter((chatId) => chatId !== id));
   };
 
   const handleReload = () => {
@@ -461,14 +524,14 @@ const addEmoji = (emoji) => {
 
   return (
     <App>
-      <Container fluid className="h-100">
+      <Container fluid className="h-100 overflow-hidden">
         <Row className="g-0 h-100">
           <Col
             xxl="3"
             xl="4"
             md="5"
             className="box-col-5 p-0"
-            style={{ height: "100vh" }}
+            style={{ height: "100vh", overflow: "hidden" }}
           >
             <Card className="left-sidebar-wrapper h-100">
               <div className="left-sidebar-chat p-3">
@@ -489,7 +552,7 @@ const addEmoji = (emoji) => {
               </Nav>
               <TabContent id="chat-options-tabContent">
                 <TabPane id="chats" className="text-center">
-                  <ul className="divide-y divide-gray-200  chats-user overflow-y-auto">
+                  <ul className="list-unstyled chats-user overflow-y-auto">
                     {loading && (
                       <div className="text-center">
                         Please wait while we load your chats..!!
@@ -498,73 +561,69 @@ const addEmoji = (emoji) => {
                     {AgentConversaton?.map((conversation) => (
                       <li
                         key={conversation.id}
-                        className={`flex  justify-between  hover:bg-gray-100 cursor-pointer  ${Activechat === conversation.id
-                          ? "bg-gray-200"
-                          : "hover:bg-gray-100"
-                          }`}
+                        className={`d-flex justify-content-between align-items-center p-2 mb-1 chat-item ${
+                          Activechat === conversation.id
+                            ? "bg-gray-200"
+                            : "hover-bg-gray-100"
+                        }`}
+                        style={
+                          unrepliedChats.includes(conversation.id)
+                            ? {
+                                animation: "blink 1s infinite",
+                                backgroundColor: "#ffcccc", // Red background for blinking
+                              }
+                            : { minHeight: "60px" } // Reduced height
+                        }
                         onClick={() => {
                           HandleConversationDetail(conversation.id);
                         }}
-                        style={{ height: "100px" }} // Height adjustment for the tile-like look
                       >
-                        <div className="flex items-center space-x-4 w-full">
-                          <div className="relative">
+                        <div className="d-flex align-items-center w-75">
+                          <div className="me-2">
                             <img
                               src={`${BASE_URL}${conversation.logo}`}
                               alt="User Logo"
-                              className="w-10 h-10 bg-gray-300 rounded-full object-cover"
+                              className="rounded-circle"
+                              style={{
+                                width: "40px",
+                                height: "40px",
+                                objectFit: "cover",
+                              }}
                             />
                           </div>
-                          <div
-                            className="text-left flex-grow"
-                            style={{ minWidth: "0" }}
-                          >
+                          <div className="flex-grow-1 text-start">
                             <span
-                              className="block font-medium text-gray-800"
-                              style={{
-                                width: "200px",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                paddingTop: "3px",
-                                lineHeight: "13px", // Further reduced margin for spacing between fullName and phoneNumber
-                              }}
+                              className="d-block text-truncate fw-bold text-dark"
+                              style={{ maxWidth: "200px", fontSize: "14px" }}
                             >
                               {conversation.fullName}
                             </span>
                             <span
-                              className="block text-xs text-gray-600"
-                              style={{
-                                lineHeight: "30px", // Further reduced margin for spacing between phoneNumber and lastMessageText
-                              }}
+                              className="d-block text-truncate text-muted"
+                              style={{ maxWidth: "200px", fontSize: "12px" }}
                             >
                               {conversation.phoneNumber}
                             </span>
-
                             {conversation.lastMessageText !== "" ? (
                               <p
-                                className="block text-xs text-gray-500 mt-0"
+                                className="d-block text-truncate text-muted"
                                 style={{
-                                  width: "220px", // Adjusted width for better tile look
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                  marginBottom: "0", // Further reduced margin to avoid extra space between lastMessageText and next element
+                                  maxWidth: "220px",
+                                  fontSize: "12px",
+                                  marginBottom: "0",
                                 }}
                               >
                                 {conversation.lastMessageText}
                               </p>
                             ) : (
-                              <div className="flex items-center mt-0">
-                                <i className="fa fa-photo mr-2 text-gray-500"></i>
-                                <p className="block text-xs text-gray-500">
-                                  Media
-                                </p>
+                              <div className="d-flex align-items-center text-muted">
+                                <i className="fa fa-photo me-1"></i>
+                                <span style={{ fontSize: "12px" }}>Media</span>
                               </div>
                             )}
                           </div>
                         </div>
-                        <div className="flex flex-col items-end justify-end space-y-1">
+                        <div className="d-flex flex-column align-items-end justify-content-between">
                           <p className="text-xs text-gray-400">
                             {extractTime(conversation.updatedDate)}
                           </p>
@@ -590,29 +649,30 @@ const addEmoji = (emoji) => {
             style={{ height: "100vh" }}
           >
             <Card className="right-sidebar-chat h-100">
-            {conversations.filter((conversation) => conversation.id === Activechat).map((conversation) => (
-                <div className="flex items-center justify-between text-black px-4 py-3 shadow-md">
-                  {/* Left Section */}
-                  <div
-                    key={conversation.id}
-                    className="flex items-center space-x-3"
-                  >
-                     <img
+              {conversations
+                .filter((conversation) => conversation.id === Activechat)
+                .map((conversation) => (
+                  <div className="flex items-center justify-between text-black px-4 py-3 shadow-md">
+                    {/* Left Section */}
+                    <div
+                      key={conversation.id}
+                      className="flex items-center space-x-3"
+                    >
+                      <img
                         src={`${BASE_URL}${conversation.logo}`}
                         alt="User Logo"
                         className="w-10 h-10 rounded-full"
                       />
-                    
-                    <div>{conversation.fullName}</div>
-                  </div>
 
-                  {/* Right Section */}
-                  <div className="flex items-center space-x-4">
-                    {/* Search Input */}
-                    
+                      <div>{conversation.fullName}</div>
+                    </div>
+
+                    {/* Right Section */}
+                    <div className="flex items-center space-x-4">
+                      {/* Search Input */}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
               <div className="right-sidebar-chat p-4 w-full height-chat-box overflow-y-auto chat-background h-100">
                 <div className="msger flex flex-col h-full">
                   <div
@@ -637,6 +697,20 @@ const addEmoji = (emoji) => {
                               : "bg-[#ffffff] text-black rounded-bl-none"
                           }`}
                         >
+                          {message.parentMessageContent &&
+                            message.parentMessageContent.trim() !== "" && (
+                              <div className="mb-2 p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300">
+                                {message.parentMessageContent
+                                  .split("\n")
+                                  .map((line, index) => (
+                                    <span key={index}>
+                                      {line}
+                                      <br />
+                                    </span>
+                                  ))}
+                              </div>
+                            )}
+
                           {message.contentType &&
                             message.contentType !== "" && (
                               <>
@@ -673,7 +747,7 @@ const addEmoji = (emoji) => {
                                 </span>
                               ))}
                           </p>
-                          <p className="text-xs text-gray-500 mt-2">
+                          <p className="text-xs text-gray-500">
                             {extractTime(message.createdDate)}
                           </p>
                         </div>
@@ -714,7 +788,6 @@ const addEmoji = (emoji) => {
                     </div>
                   )}
                   <div className="msger-inputs px-4 py-3 flex items-center">
-                  
                     <Button
                       onClick={openFileManager}
                       className="text-xl text-gray-500 hover:text-gray-700 mr-2"
@@ -722,35 +795,37 @@ const addEmoji = (emoji) => {
                       <i className="fa fa-paperclip"></i>
                     </Button>
                     {/* Emoji Picker Button */}
-      <button
-        className="mr-2 p-2 hover:bg-gray-200 rounded-full"
-        onClick={() => setShowEmojiPicker((prev) => !prev)}
-      >
-        <i className="fa fa-smile-o text-gray-600"></i>
-      </button>
+                    <button
+                      className="mr-2 p-2 hover:bg-gray-200 rounded-full"
+                      onClick={() => setShowEmojiPicker((prev) => !prev)}
+                    >
+                      <i className="fa fa-smile-o text-gray-600"></i>
+                    </button>
 
-      {/* Emoji Picker */}
-      {showEmojiPicker && (
-  <div
-    className="absolute bottom-16 left-0 bg-white border rounded-lg shadow-lg p-2 z-50"
-    style={{ width: "auto" }}
-  >
-    <div className="flex justify-between items-center mb-2">
-      <span className="text-gray-700 font-semibold">Select Emoji</span>
-      <button
-        className="text-red-500 hover:text-red-700"
-        onClick={() => setShowEmojiPicker(false)}
-      >
-        <i className="fa fa-times"></i>
-      </button>
-    </div>
-    <EmojiPicker
-      onEmojiClick={(emojiData) => {
-        addEmoji(emojiData.emoji); // Pass emoji value
-      }}
-    />
-  </div>
-)}
+                    {/* Emoji Picker */}
+                    {showEmojiPicker && (
+                      <div
+                        className="absolute bottom-16 left-0 bg-white border rounded-lg shadow-lg p-2 z-50"
+                        style={{ width: "auto" }}
+                      >
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-gray-700 font-semibold">
+                            Select Emoji
+                          </span>
+                          <button
+                            className="text-red-500 hover:text-red-700"
+                            onClick={() => setShowEmojiPicker(false)}
+                          >
+                            <i className="fa fa-times"></i>
+                          </button>
+                        </div>
+                        <EmojiPicker
+                          onEmojiClick={(emojiData) => {
+                            addEmoji(emojiData.emoji); // Pass emoji value
+                          }}
+                        />
+                      </div>
+                    )}
                     <Input
                       type="text"
                       value={messageInput}
@@ -763,19 +838,6 @@ const addEmoji = (emoji) => {
                       placeholder="Type a message..."
                       className="rounded-lg border-0 shadow-sm"
                     />
-                    
-                    {/* Recording Button */}
-                    <button
-                      className={`border rounded-full p-2 mr-2 ${isRecording ? "bg-red-500" : "bg-green-500"
-                        }`}
-                      onClick={isRecording ? stopRecording : startRecording}
-                    >
-                      <i
-                        className={`fa fa-${isRecording ? "stop" : "microphone"
-                          }`}
-                        aria-hidden="true"
-                      ></i>
-                    </button>
 
                     <input
                       ref={fileInputRef}
