@@ -54,7 +54,7 @@ const ChatPage = () => {
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const isManualScroll = useRef(false);
   const audioRef = useRef(null);
-
+  const messagesEndRef = useRef(null);
   useEffect(() => {
     // Initialize the audio object only once
     audioRef.current = new Audio("/assets/Notification/chatassigned.mp3");
@@ -64,11 +64,11 @@ const ChatPage = () => {
       setActiveTab(tab);
     }
   };
-  const messagesEndRef = useRef(null);
+ 
 
   useEffect(() => {
     if (!isManualScroll.current && messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "auto" }); // Scroll to the bottom for new messages
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" }); // Scroll to the bottom for new messages
     }
   }, [chatMessages]);
 
