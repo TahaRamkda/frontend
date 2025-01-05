@@ -28,6 +28,7 @@ const DefinedTemplates = ({ isVisible, onClose }) => {
                     TransactonType: 2,
                     searchStr: debouncedSearchQuery,
                     pageNo: 1,
+                    pageSize: 100
                 })
             );
         } else {

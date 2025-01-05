@@ -86,6 +86,7 @@ export const ADDAGENTSTIMING = "/Agents/addagenttimings"
 export const UPDATEAGENT = "/Agents/updateagent"
 export const DELETEAGENT = "/Agents/deleteagent"
 export const AGENTDROPDOWN = "/Agents/getagents"
+export const GETAGENTSTATS = "/Agents/GetAgentStats"
 
 //convesration Endpoints
 export const CONVERSATIONLIST = "/Conversation/getagentconversationlist";

@@ -100,6 +100,7 @@ const conversationslice = createSlice({
       state.totalRecords = 0;
     },
     resetMessages: (state) => {
+      
       state.messages = [];
       state.currentPage = 1;
       state.hasMore = true;

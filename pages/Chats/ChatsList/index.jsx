@@ -1,6 +1,20 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef ,useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Card, Col, Input, InputGroup, InputGroupText, Nav, NavItem, TabContent, TabPane, Container, Row, Button, CardHeader } from "reactstrap";
+import {
+  Card,
+  Col,
+  Input,
+  InputGroup,
+  InputGroupText,
+  Nav,
+  NavItem,
+  TabContent,
+  TabPane,
+  Container,
+  Row,
+  Button,
+  CardHeader,
+} from "reactstrap";
 import {
   fetchConversationList,
   fetchConversationMessage,
@@ -17,6 +31,7 @@ import App from "@/components/App";
 import EmojiPicker from "emoji-picker-react";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 import { extractTime } from "@/utils/constants";
+import { set } from "date-fns";
 //import {notificatin} from "@/public/assets/Notification/chatassigned.wav";
 const ChatPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -52,26 +67,21 @@ const ChatPage = () => {
   const agentChatRef = useRef([AgentConversaton]);
   const containerRef = useRef(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [Contactsloading, setContactsloading] = useState(false);
+  const [Chatsloading, setChatsloading] = useState(false);
   const [fileType, setFileType] = useState(null);
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
+  const isManualScroll = useRef(false);
   const audioRef = useRef(null);
-
+  const messagesEndRef = useRef(null);
+  const timersRef = useRef({});
+  const [unrepliedChats, setUnrepliedChats] = useState([]);
   useEffect(() => {
     // Initialize the audio object only once
     audioRef.current = new Audio("/assets/Notification/chatassigned.mp3");
   }, []);
-  const toggleTab = (tab) => {
-    if (activeTab !== tab) {
-      setActiveTab(tab);
-    }
-  };
-  const messagesEndRef = useRef(null);
-
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "auto" }); // Use "auto" to skip animation
-    }
-  }, [chatMessages]);
+ 
+  
 
   //call the fetchConversationList action to fetch agents conversations
   useEffect(() => {
@@ -80,6 +90,7 @@ const ChatPage = () => {
 
     if (ClientId) {
       dispatch(fetchConversationList({ clientId: ClientId, AgentId: AgentId }));
+      setContactsloading(true);
     }
 
     return () => {
@@ -90,12 +101,15 @@ const ChatPage = () => {
   //triggered each time when conversations changes and assign to local state
   useEffect(() => {
     if (conversations && conversations.length > 0) {
+      setContactsloading(false);
       setAgentConversaton(conversations);
     }
   }, [conversations]);
 
   //called each time to get conversation messages
   const HandleConversationDetail = async (id) => {
+    setChatsloading(true)
+    dispatch(resetMessages());
     setActiveChat(id); // Update Activechat state
     const ClientId = localStorage.getItem("clientId");
     if (ClientId && id) {
@@ -107,12 +121,12 @@ const ChatPage = () => {
       dispatch(resetMessages());
     };
   };
-  const handleChatButton = () => {
-    setShowDetailedTemplate(true)
-  }
-  const handleCancel = () => {
-    setShowDetailedTemplate(false)
-  }
+  const handleAgentdefinetemplate = () => {
+    setShowDetailedTemplate(true);
+  };
+  const handleAgenttemplateclose = () => {
+    setShowDetailedTemplate(false);
+  };
 
   //to set the activechat
   useEffect(() => {
@@ -126,64 +140,84 @@ const ChatPage = () => {
   //triggered each time when messages changes and assign to local state
   useEffect(() => {
     if (messages && messages.length > 0) {
+      setChatsloading(false);
       setChatMessages(messages);
       console.log("Messages changed:", messages);
     }
   }, [messages]);
 
-  const handleScroll = () => {
-    const container = containerRef.current;
-    const ClientId = localStorage.getItem("clientId");
+ 
 
-    if (!container || loading) return;
-
-    // Check if the user has scrolled to the top
-    if (container.scrollTop === 0 && currentPage >= 1 && !loading && hasMore) {
-      dispatch(
-        fetchConversationMessage({
-          clientId: ClientId,
-          ChatId: Activechat,
-          pageNo: currentPage + 1,
-        })
-      ).then(() => {
-        // Optionally adjust scroll position after older messages are loaded
-        container.scrollTop = 1; // Prevent continuous triggering at the top
-      });
-    }
-
-    // // Check if the user has scrolled to the bottom
-    // if (
-    //   container.scrollHeight - container.scrollTop === container.clientHeight &&
-    //   hasMore &&
-    //   !loading
-    // ) {
-    //   dispatch(fetchConversationMessage({ clientId: ClientId, ChatId: Activechat, pageNo: currentPage + 1 }))
-    //     .then(() => {
-    //       // Optionally adjust scroll position if needed
-    //     });
-    // }
-  };
-  {/* Add Emoji Function */ }
+  //Add emoji function
   const addEmoji = (emoji) => {
     setMessageInput((prevMessage) => prevMessage + emoji);
   };
+
+  const handleScroll = () => {
+    const { current: container } = containerRef;
+    const clientId = localStorage.getItem("clientId");
+  
+    if (!container || loading || !clientId || !Activechat || !hasMore) return;
+  
+    const isCloseToTop = container.scrollTop <= 100; // Threshold for triggering fetch
+    const isScrollingUp = container.scrollTop < container.scrollHeight - container.clientHeight;
+  
+    if (isCloseToTop && isScrollingUp && !isManualScroll.current && currentPage >= 1) {
+      isManualScroll.current = true; // Prevent multiple triggers
+      const previousHeight = container.scrollHeight;
+  
+      dispatch(
+        fetchConversationMessage({
+          clientId,
+          ChatId: Activechat,
+          pageNo: currentPage + 1,
+        })
+      )
+        .unwrap()
+        .then(() => {
+          if (container) {
+            const newHeight = container.scrollHeight;
+            container.scrollTop = newHeight - previousHeight; // Maintain scroll position after loading
+          }
+          isManualScroll.current = false; // Allow new requests
+        })
+        .catch((error) => {
+          console.error("Failed to fetch older messages:", error);
+          isManualScroll.current = false;
+        });
+    }
+  };
+   
+  
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "auto" }); // Scroll to bottom on initial load
+    }
+  }, [chatMessages]);
+ 
+  
   useEffect(() => {
     const container = containerRef.current;
-
+  
     if (container) {
-      container.addEventListener("scroll", handleScroll);
+      const scrollHandler = () => handleScroll();
+  
+      container.addEventListener("scroll", scrollHandler);
+  
+      return () => {
+        container.removeEventListener("scroll", scrollHandler);
+      };
     }
-
-    return () => {
-      if (container) {
-        container.removeEventListener("scroll", handleScroll);
-      }
-    };
   }, [handleScroll]);
+  
+  
+
+  
 
   //called each time to send message
   const HandleSendMessage = async () => {
     setPreviewUrl(null);
+    setFileType(null);
     setFileType(null);
     if (!messageInput.trim() && !mediaFile) {
       toast.error("Message cannot be empty!");
@@ -216,6 +250,8 @@ const ChatPage = () => {
       setMediaFile(null); // Clear the selected file after sending the message
       setPreviewUrl(null);
       setFileType(null); //get the file type
+      clearTimer(Activechat);
+      removeUnrepliedMark(Activechat);
       // Shift the active conversation to the top of the list and reset unread count
       const matchingConversationIndex = agentChatRef.current.findIndex(
         (conversation) => conversation.id === Activechat
@@ -250,12 +286,28 @@ const ChatPage = () => {
     }
   };
 
+  useEffect(() => {
+    if (AgentConversaton && AgentConversaton.length > 0) {
+      // Filter messages with unread count > 0
+      const unreadMessages = AgentConversaton.filter(
+        (message) => message.unreadCount > 0
+      );
+      const unreadMessageIds = unreadMessages.map((message) => message.id);
+
+      // Assign the unread message IDs to the desired functions
+      unreadMessageIds.map((messageId) => {
+        startTimer(messageId);
+        markChatAsUnreplied(messageId);
+      });
+    }
+  }, [AgentConversaton]);
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setMediaFile(file); // Store the selected fil
       setPreviewUrl(URL.createObjectURL(file)); // Generate a temporary URL for preview
-      setFileType(file.type.split('/')[0]);
+      setFileType(file.type.split("/")[0]);
     }
   };
 
@@ -279,68 +331,88 @@ const ChatPage = () => {
     setConnection(connection);
 
     connection.on("MessageReceived", (message) => {
+      
+
+      // Play notification sound
+      audioRef.current
+        ?.play()
+        .catch((err) =>
+          console.error("Failed to play notification sound:", err)
+        );
+
+      // Show a toast notification for the new message
       toast.success("You have a new message");
 
-      if (message.id === activeChatRef.current) {
-        setChatMessages((prevMessages) => [...prevMessages, message]);
-        const matchingConversationIndex = agentChatRef.current.findIndex(
-          (conversation) => conversation.id === message.id
-        );
+      // Check if the conversation exists in agentChatRef
+      const matchingConversationIndex = agentChatRef.current.findIndex(
+        (conversation) => conversation.id === message.conversationId
+      );
 
-        if (matchingConversationIndex !== -1) {
-          const updatedConversations = [...agentChatRef.current];
-          updatedConversations[matchingConversationIndex] = {
-            ...updatedConversations[matchingConversationIndex],
-            lastMessageText: message.messageContent,
-            unreadCount:
-              (updatedConversations[matchingConversationIndex].unreadCount ||
-                0) + 1,
-          };
-          agentChatRef.current = updatedConversations;
-          setAgentConversaton(updatedConversations);
-        } else {
-          console.warn(
-            "No matching conversation found for message.id:",
-            message.id
-          );
+      if (matchingConversationIndex !== -1) {
+        const matchingConversation =
+          agentChatRef.current[matchingConversationIndex];
+
+        // Set the timer only if unreadCount is 0 or less
+        if ((matchingConversation.unreadCount || 0) <= 0) {
+          startTimer(message.conversationId);
         }
+
+        // Update conversation details
+        const updatedConversations = [...agentChatRef.current];
+        updatedConversations[matchingConversationIndex] = {
+          ...matchingConversation,
+          lastMessageText: message.messageContent,
+          updatedDate: message.createdDate,
+          unreadCount: (matchingConversation.unreadCount || 0) + 1,
+        };
+        agentChatRef.current = updatedConversations;
+        setAgentConversaton(updatedConversations);
+      } else {
+        console.warn(
+          "No matching conversation found for message.conversationId:",
+          message.conversationId
+        );
+      }
+
+      // Check if the message is from the active chat
+      if (message.conversationId === activeChatRef.current) {
+        setChatMessages((prevMessages) => [...prevMessages, message]);
       } else {
         toast.success("Check message");
-
-        const matchingConversationIndex = agentChatRef.current.findIndex(
-          (conversation) => conversation.id === message.id
-        );
 
         if (matchingConversationIndex !== -1) {
           const updatedConversations = [...agentChatRef.current];
           const matchingConversation =
             updatedConversations[matchingConversationIndex];
 
-          // Update the conversation
+          // Move the conversation to the top of the list
           updatedConversations.splice(matchingConversationIndex, 1); // Remove it from the current position
           updatedConversations.unshift({
             ...matchingConversation,
-            lastMessageText: message.messageContent,
-            unreadCount: (matchingConversation.unreadCount || 0) + 1,
-          }); // Add it to the start of the list
+            // updatedDate: message.createdDate,
+            // lastMessageText: message.messageContent,
+            // unreadCount: (matchingConversation.unreadCount || 0) + 1,
+          });
 
           agentChatRef.current = updatedConversations;
           setAgentConversaton(updatedConversations);
-        } else {
-          console.warn(
-            "No matching conversation found for message.id:",
-            message.id
-          );
         }
       }
     });
 
     connection.on("ConversationAssigned", (notification) => {
+      
       console.log("Received notification:", notification);
       audioRef.current
         ?.play()
-        .catch((err) => console.error("Failed to play notification sound:", err));
+        .catch((err) =>
+          console.error("Failed to play notification sound:", err)
+        );
       toast.success("You have a new message request");
+
+      // Start a 5-minute timer for the new chat
+      startTimer(notification.id);
+
       // Find the matching conversation in the agent chat reference
       const matchingConversationIndex = agentChatRef.current.findIndex(
         (conversation) => conversation.id === notification.id
@@ -372,6 +444,28 @@ const ChatPage = () => {
       }
     });
 
+    connection.on("ConversationUnAssigned", (notification) => {
+      debugger;
+      console.log("Unassigned conversation:", notification);
+
+      // Show a warning toast for the unassigned conversation
+      toast.warning("A conversation has been unassigned");
+
+      // Remove the unassigned conversation from the agent chat reference
+      const updatedConversations = agentChatRef.current.filter(
+        (conversation) => conversation.id !== notification.id
+      );
+
+      // Update the reference and state
+      agentChatRef.current = updatedConversations;
+      setAgentConversaton(updatedConversations);
+
+      console.log(
+        "Updated conversations after unassignment:",
+        updatedConversations
+      );
+    });
+
     connection
       .start()
       .then(() => {
@@ -388,65 +482,61 @@ const ChatPage = () => {
     };
   }, []);
 
-  const startRecording = () => {
-    // Check if navigator is available
-    if (typeof window !== "undefined" && navigator.mediaDevices) {
-      navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then((stream) => {
-          console.log("Microphone access granted");
-          startRecord(stream);
-        })
-        .catch((error) => {
-          console.error("Error accessing microphone: ", error);
-          toast.error(
-            "Unable to access microphone. Please check your microphone settings."
-          );
-        });
+  const startTimer = (id) => {
+    // Clear existing timer if any
+    if (timersRef.current[id]) {
+      clearTimeout(timersRef.current[id]);
+    }
+
+    // Set a new 5-minute timer
+    timersRef.current[id] = setTimeout(() => {
+      handleTimerExpiry(id);
+    }, 30 * 60 * 1000); // 30 minutes
+  };
+
+  const handleTimerExpiry = (id) => {
+    toast.error(`Time expired for chat/message ID: ${id}`);
+
+    // Play alert sound
+    audioRef.current
+      ?.play()
+      .catch((err) =>
+        console.error("Failed to play alert sound on timer expiry:", err)
+      );
+
+    // Trigger another 5-minute timer if no action is taken
+    if (!isMessageReplied(id)) {
+      console.warn(`No reply for ID: ${id}, rescheduling timer.`);
+      markChatAsUnreplied(id);
+      startTimer(id); // Restart the timer
     } else {
-      toast.error("Your browser does not support media devices.");
+      console.info(`Reply received for ID: ${id}, stopping timer.`);
+      clearTimer(id); // Stop the timer if replied
     }
   };
 
-  const startRecord = (stream) => {
-    console.log("Starting recording...");
-
-    // Initialize chunks for this recording session
-    const chunks = [];
-
-    // Check if audio/ogg is supported by the browser
-    const mimeType = "audio/m4a";
-    const isOggSupported = MediaRecorder.isTypeSupported(mimeType);
-    const recorder = new MediaRecorder(stream, {
-      mimeType: isOggSupported ? mimeType : "audio/webm",
-    });
-    setMediaRecorder(recorder);
-
-    recorder.ondataavailable = (e) => {
-      console.log("Data available", e);
-      chunks.push(e.data);
-    };
-
-    recorder.onstop = () => {
-      console.log("Recording stopped");
-      const audioBlob = new Blob(chunks, {
-        type: isOggSupported ? mimeType : "audio/mp3",
-      });
-      setMediaFile(audioBlob);
-    };
-
-    recorder.start();
-    console.log("Recording started");
-    setIsRecording(true);
+  const clearTimer = (id) => {
+    if (timersRef.current[id]) {
+      clearTimeout(timersRef.current[id]);
+      delete timersRef.current[id];
+    }
   };
 
-  const stopRecording = () => {
-    if (mediaRecorder) {
-      mediaRecorder.stop();
-      setIsRecording(false);
-    } else {
-      toast.error("No recording in progress.");
-    }
+  // Function to check if the message was replied
+  const isMessageReplied = (id) => {
+    // Example condition: Check active chat messages or a specific state
+    return (
+      activeChatRef.current === id && chatMessages.some((msg) => msg.reply)
+    );
+  };
+
+  const markChatAsUnreplied = async (id) => {
+    setUnrepliedChats((prev) => [...prev, id]);
+    console.log("Marked chat as unreplied:", unrepliedChats);
+  };
+
+  const removeUnrepliedMark = (id) => {
+    setUnrepliedChats((prev) => prev.filter((chatId) => chatId !== id));
   };
 
   const handleReload = () => {
@@ -456,14 +546,14 @@ const ChatPage = () => {
 
   return (
     <App>
-      <Container fluid className="">
+      <Container fluid className="h-100 overflow-hidden">
         <Row className="g-0 h-100">
           <Col
             xxl="3"
             xl="4"
             md="5"
             className="box-col-5 p-0"
-            style={{ height: "auto" }}
+            style={{ height: "100vh", overflow: "hidden" }}
           >
             <Card className="left-sidebar-wrapper h-100">
               <div className="left-sidebar-chat p-3">
@@ -484,8 +574,8 @@ const ChatPage = () => {
               </Nav>
               <TabContent id="chat-options-tabContent">
                 <TabPane id="chats" className="text-center">
-                  <ul className="divide-y divide-gray-200  chats-user overflow-y-auto h-100">
-                    {loading && (
+                  <ul className="list-unstyled chats-user overflow-y-auto">
+                    {Contactsloading && (
                       <div className="text-center">
                         Please wait while we load your chats..!!
                       </div>
@@ -493,79 +583,75 @@ const ChatPage = () => {
                     {AgentConversaton?.map((conversation) => (
                       <li
                         key={conversation.id}
-                        className={`flex  justify-between  hover:bg-gray-100 cursor-pointer  ${Activechat === conversation.id
-                          ? "bg-gray-200"
-                          : "hover:bg-gray-100"
-                          }`}
+                        className={`d-flex justify-content-between align-items-center p-2 mb-1 chat-item ${
+                          Activechat === conversation.id
+                            ? "bg-gray-200"
+                            : "hover-bg-gray-100"
+                        }`}
+                        style={
+                          unrepliedChats.includes(conversation.id)
+                            ? {
+                                animation: "blink 1s infinite",
+                                backgroundColor: "#ffcccc", // Red background for blinking
+                              }
+                            : { minHeight: "60px" } // Reduced height
+                        }
                         onClick={() => {
                           HandleConversationDetail(conversation.id);
                         }}
-                        style={{ height: "100px" }} // Height adjustment for the tile-like look
                       >
-                        <div className="flex items-center space-x-4 w-full">
-                          <div className="relative">
+                        <div className="d-flex align-items-center w-75">
+                          <div className="me-2">
                             <img
                               src={`${BASE_URL}${conversation.logo}`}
                               alt="User Logo"
-                              className="w-10 h-10 bg-gray-300 rounded-full object-cover"
+                              className="rounded-circle"
+                              style={{
+                                width: "40px",
+                                height: "40px",
+                                objectFit: "cover",
+                              }}
                             />
                           </div>
-                          <div
-                            className="text-left flex-grow"
-                            style={{ minWidth: "0" }}
-                          >
+                          <div className="flex-grow-1 text-start">
                             <span
-                              className="block font-medium text-gray-800"
-                              style={{
-                                width: "200px",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                paddingTop: "3px",
-                                lineHeight: "13px", // Further reduced margin for spacing between fullName and phoneNumber
-                              }}
+                              className="d-block text-truncate fw-bold text-dark"
+                              style={{ maxWidth: "200px", fontSize: "14px" }}
                             >
                               {conversation.fullName}
                             </span>
                             <span
-                              className="block text-xs text-gray-600"
-                              style={{
-                                lineHeight: "30px", // Further reduced margin for spacing between phoneNumber and lastMessageText
-                              }}
+                              className="d-block text-truncate text-muted"
+                              style={{ maxWidth: "200px", fontSize: "12px" }}
                             >
                               {conversation.phoneNumber}
                             </span>
-
                             {conversation.lastMessageText !== "" ? (
                               <p
-                                className="block text-xs text-gray-500 mt-0"
+                                className="d-block text-truncate text-muted"
                                 style={{
-                                  width: "220px", // Adjusted width for better tile look
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                  marginBottom: "0", // Further reduced margin to avoid extra space between lastMessageText and next element
+                                  maxWidth: "220px",
+                                  fontSize: "12px",
+                                  marginBottom: "0",
                                 }}
                               >
                                 {conversation.lastMessageText}
                               </p>
                             ) : (
-                              <div className="flex items-center mt-0">
-                                <i className="fa fa-photo mr-2 text-gray-500"></i>
-                                <p className="block text-xs text-gray-500">
-                                  Media
-                                </p>
+                              <div className="d-flex align-items-center text-muted">
+                                <i className="fa fa-photo me-1"></i>
+                                <span style={{ fontSize: "12px" }}>Media</span>
                               </div>
                             )}
                           </div>
                         </div>
-                        <div className="flex flex-col items-end justify-end space-y-1">
+                        <div className="d-flex flex-column align-items-end justify-content-between">
                           <p className="text-xs text-gray-400">
                             {extractTime(conversation.updatedDate)}
                           </p>
                           {conversation.unreadCount > 0 && (
                             <span className="inline-block bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">
-                              @{conversation.unreadCount || 2}
+                              @{conversation.unreadCount}
                             </span>
                           )}
                         </div>
@@ -585,126 +671,138 @@ const ChatPage = () => {
             style={{ height: "100vh" }}
           >
             <Card className="right-sidebar-chat h-100">
-              {conversations.filter((conversation) => conversation.id === Activechat).map((conversation) => (
-                <div className="flex items-center justify-between text-black px-4 py-3 shadow-md">
-                  {/* Left Section */}
-                  <div
-                    key={conversation.id}
-                    className="flex items-center space-x-3"
-                  >
-                    <img
-                      src={`${BASE_URL}${conversation.logo}`}
-                      alt="User Logo"
-                      className="w-10 h-10 rounded-full"
-                    />
+              {conversations
+                .filter((conversation) => conversation.id === Activechat)
+                .map((conversation) => (
+                  <div className="flex items-center justify-between text-black px-4 py-3 shadow-md">
+                    {/* Left Section */}
+                    <div
+                      key={conversation.id}
+                      className="flex items-center space-x-3"
+                    >
+                      <img
+                        src={`${BASE_URL}${conversation.logo}`}
+                        alt="User Logo"
+                        className="w-10 h-10 rounded-full"
+                      />
 
-                    <div>{conversation.fullName}</div>
+                      <div>{conversation.fullName}</div>
+                    </div>
+
+                    {/* Right Section */}
+                    <div className="flex items-center space-x-4">
+                      {/* Search Input */}
+                    </div>
                   </div>
-
-                  {/* Right Section */}
-                  <div className="flex items-center space-x-4">
-                    {/* Search Input */}
-
-                  </div>
-                </div>
-              ))}
+                ))}
               <div className="right-sidebar-chat p-4 w-full height-chat-box overflow-y-auto chat-background h-100">
                 <div className="msger flex flex-col h-full">
-                  <div
-                    ref={containerRef}
-                    //onScroll={handleScroll}
-                    className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2"
-                  >
-                    {loading && (
-                      <div className="text-center">Loading messages...</div>
-                    )}
-                    {chatMessages.map((message) => (
-                      <div
-                        key={message.messageId}
-                        className={`flex ${message.typeId === 1 ? "justify-end" : "justify-start"
-                          }`}
-                      >
-                        <div
-                          className={`max-w-xs p-2 rounded-2xl shadow-sm ${message.typeId === 1
-                              ? "bg-[#ddffd9] text-black rounded-br-none"
-                              : "bg-[#ffffff] text-black rounded-bl-none"
-                            }`}
-                        >
-                          {message.contentType &&
-                            message.contentType !== "" && (
-                              <>
-                                {message.contentType.startsWith("image/") && (
-                                  <img
-                                    src={`${BASE_URL}${message.mediaPath}`}
-                                    alt="Image"
-                                    className="max-w-full rounded"
-                                  />
-                                )}
-                                {message.contentType.startsWith("video/") && (
-                                  <video
-                                    controls
-                                    src={`${BASE_URL}${message.mediaPath}`}
-                                    className="max-w-full rounded"
-                                  />
-                                )}
-                                {message.contentType.startsWith("audio/") && (
-                                  <audio
-                                    controls
-                                    src={`${BASE_URL}${message.mediaPath}`}
-                                    className="max-w-full rounded"
-                                  />
-                                )}
-                              </>
-                            )}
-                          <p className="text-left text-sm">
-                            {message.messageContent
-                              .split("\n")
-                              .map((line, index) => (
-                                <span key={index}>
-                                  {line}
-                                  <br />
-                                </span>
-                              ))}
-                          </p>
-                          {/* <p className="text-xs text-gray-500 mt-2">
-                            {extractTime(message.createdDate)}
-                          </p> */}
-                        </div>
-                      </div>
-                    ))}
-                    <div ref={messagesEndRef} />
-                  </div>
+                <div
+  ref={containerRef}
+  className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2"
+>
+  {Chatsloading && <div className="text-center">Loading messages...</div>}
+  {chatMessages.map((message) => (
+    <div
+      key={message.messageId}
+      className={`flex ${message.typeId === 1 ? "justify-end" : "justify-start"}`}
+    >
+      <div
+        className={`max-w-xs p-2 rounded-2xl shadow-sm ${
+          message.typeId === 1
+            ? "bg-[#ddffd9] text-black rounded-br-none"
+            : "bg-[#ffffff] text-black rounded-bl-none"
+        }`}
+      >
+        {message.parentMessageContent &&
+          message.parentMessageContent.trim() !== "" && (
+            <div
+              className="mb-2 p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis"
+              style={{
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                whiteSpace: "normal",
+              }}
+            >
+              {message.parentMessageContent}
+            </div>
+          )}
+        {message.contentType && message.contentType !== "" && (
+          <>
+            {message.contentType.startsWith("image/") && (
+              <img
+                src={`${BASE_URL}${message.mediaPath}`}
+                alt="Image"
+                className="max-w-full rounded"
+              />
+            )}
+            {message.contentType.startsWith("video/") && (
+              <video
+                controls
+                src={`${BASE_URL}${message.mediaPath}`}
+                className="max-w-full rounded"
+              />
+            )}
+            {message.contentType.startsWith("audio/") && (
+              <audio
+                controls
+                src={`${BASE_URL}${message.mediaPath}`}
+                className="max-w-full rounded"
+              />
+            )}
+          </>
+        )}
+        <p className="text-left text-sm">
+          {message.messageContent.split("\n").map((line, index) => (
+            <span key={index}>
+              {line}
+              <br />
+            </span>
+          ))}
+        </p>
+        <p className="text-xs text-gray-500">
+          {extractTime(message.createdDate)}
+        </p>
+      </div>
+    </div>
+  ))}
+  <div ref={messagesEndRef} />
+</div>
+
                   {previewUrl && (
                     <div>
-                      {fileType === 'image' && (
+                      {fileType === "image" && (
                         <img
                           src={previewUrl}
                           alt="Preview"
-                          style={{ maxWidth: '400px', marginTop: '10px' }}
+                          style={{ maxWidth: "400px", marginTop: "10px" }}
                         />
                       )}
-                      {fileType === 'video' && (
+                      {fileType === "video" && (
                         <video
                           controls
                           src={previewUrl}
-                          style={{ maxWidth: '400px', marginTop: '10px' }}
+                          style={{ maxWidth: "400px", marginTop: "10px" }}
                         />
                       )}
-                      {fileType === 'audio' && (
-                        <audio controls src={previewUrl} style={{ marginTop: '10px' }} />
+                      {fileType === "audio" && (
+                        <audio
+                          controls
+                          src={previewUrl}
+                          style={{ marginTop: "10px" }}
+                        />
                       )}
-                      {fileType === 'application' && (
-                        <div style={{ marginTop: '10px' }}>
+                      {fileType === "application" && (
+                        <div style={{ marginTop: "10px" }}>
                           <a href={previewUrl} download={mediaFile.name}>
                             Download {mediaFile.name}
                           </a>
                         </div>
                       )}
-
                     </div>
                   )}
                   <div className="msger-inputs px-4 py-3 flex items-center">
-
                     <Button
                       onClick={openFileManager}
                       className="text-xl text-gray-500 hover:text-gray-700 mr-2"
@@ -726,7 +824,9 @@ const ChatPage = () => {
                         style={{ width: "auto" }}
                       >
                         <div className="flex justify-between items-center mb-2">
-                          <span className="text-gray-700 font-semibold">Select Emoji</span>
+                          <span className="text-gray-700 font-semibold">
+                            Select Emoji
+                          </span>
                           <button
                             className="text-red-500 hover:text-red-700"
                             onClick={() => setShowEmojiPicker(false)}
@@ -754,24 +854,27 @@ const ChatPage = () => {
                       className="rounded-lg border-0 shadow-sm"
                     />
 
- {/* Recording Button */}
-<div className="relative">
-  <button
-    onClick={handleChatButton}
-    className="bg-blue-500 text-white rounded-full p-3 ml-4 hover:bg-blue-600"
-  >
-    <i className="fa fa-wechat"></i>
-  </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <div className="relative">
+                      <button
+                        onClick={handleAgentdefinetemplate}
+                        className="  rounded-full m-3 "
+                      >
+                        <i className="fa fa-comment"></i>
+                      </button>
 
-  {ShowDetailedTemplate && (
-    
-      <DefinedTemplates isVisible={true} onClose={handleCancel} />
-    
-  )}
-</div>
-
-
-
+                      {ShowDetailedTemplate && (
+                        <DefinedTemplates
+                          isVisible={true}
+                          onClose={handleAgenttemplateclose}
+                        />
+                      )}
+                    </div>
                     <Button onClick={HandleSendMessage} color="primary">
                       <i className="fa fa-paper-plane"></i>
                     </Button>
@@ -780,7 +883,6 @@ const ChatPage = () => {
               </div>
             </Card>
           </Col>
-          
         </Row>
       </Container>
       {Errordisconect && (
