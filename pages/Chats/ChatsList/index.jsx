@@ -23,6 +23,7 @@ import {
   NewAgentMessage,
 } from "@/slices/ConversationSlice";
 import * as signalR from "@microsoft/signalr";
+import DefinedTemplates from "../AgentDefinedTemplate";
 import { toast } from "react-toastify";
 import { BASE_URL } from "@/utils/apiConstants";
 import Loader from "@/components/Loader";
@@ -38,6 +39,7 @@ const ChatPage = () => {
   const { conversations, loading, error } = useSelector(
     (state) => state.conversations
   );
+
   const {
     messages,
     currentPage,
@@ -49,6 +51,7 @@ const ChatPage = () => {
   const [activeTab, setActiveTab] = useState("1");
   const [chatMessages, setChatMessages] = useState([]);
   const [AgentConversaton, setAgentConversaton] = useState([]);
+  const [ShowDetailedTemplate, setShowDetailedTemplate] = useState(false);
   const [messageInput, setMessageInput] = useState("");
   const [mediaFile, setMediaFile] = useState(null); // To store the selected media file
   const [connection, setConnection] = useState(null);
@@ -122,6 +125,12 @@ const ChatPage = () => {
       dispatch(resetMessages());
     };
   };
+  const handleChatButton = () => {
+    setShowDetailedTemplate(true)
+  }
+  const handleCancel = () => {
+    setShowDetailedTemplate(false)
+  }
 
   //to set the activechat
   useEffect(() => {
@@ -196,6 +205,7 @@ const ChatPage = () => {
   //called each time to send message
   const HandleSendMessage = async () => {
     setPreviewUrl(null);
+    setFileType(null);
     setFileType(null);
     if (!messageInput.trim() && !mediaFile) {
       toast.error("Message cannot be empty!");
@@ -686,16 +696,14 @@ const ChatPage = () => {
                     {chatMessages.map((message) => (
                       <div
                         key={message.messageId}
-                        className={`flex ${
-                          message.typeId === 1 ? "justify-end" : "justify-start"
-                        }`}
+                        className={`flex ${message.typeId === 1 ? "justify-end" : "justify-start"
+                          }`}
                       >
                         <div
-                          className={`max-w-xs p-2 rounded-2xl shadow-sm ${
-                            message.typeId === 1
+                          className={`max-w-xs p-2 rounded-2xl shadow-sm ${message.typeId === 1
                               ? "bg-[#ddffd9] text-black rounded-br-none"
                               : "bg-[#ffffff] text-black rounded-bl-none"
-                          }`}
+                            }`}
                         >
                           {message.parentMessageContent &&
                             message.parentMessageContent.trim() !== "" && (
@@ -754,6 +762,7 @@ const ChatPage = () => {
                       </div>
                     ))}
                     <div ref={messagesEndRef} />
+                    <div ref={messagesEndRef} />
                   </div>
                   {previewUrl && (
                     <div>
@@ -795,6 +804,12 @@ const ChatPage = () => {
                       <i className="fa fa-paperclip"></i>
                     </Button>
                     {/* Emoji Picker Button */}
+                    <button
+                      className="mr-2 p-2 hover:bg-gray-200 rounded-full"
+                      onClick={() => setShowEmojiPicker((prev) => !prev)}
+                    >
+                      <i className="fa fa-smile-o text-gray-600"></i>
+                    </button>
                     <button
                       className="mr-2 p-2 hover:bg-gray-200 rounded-full"
                       onClick={() => setShowEmojiPicker((prev) => !prev)}
@@ -853,6 +868,7 @@ const ChatPage = () => {
               </div>
             </Card>
           </Col>
+          
         </Row>
       </Container>
       {Errordisconect && (
