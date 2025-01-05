@@ -9,6 +9,7 @@ import {
   NewAgentMessage,
 } from "@/slices/ConversationSlice";
 import * as signalR from "@microsoft/signalr";
+import DefinedTemplates from "../AgentDefinedTemplate";
 import { toast } from "react-toastify";
 import { BASE_URL } from "@/utils/apiConstants";
 import Loader from "@/components/Loader";
@@ -23,6 +24,7 @@ const ChatPage = () => {
   const { conversations, loading, error } = useSelector(
     (state) => state.conversations
   );
+
   const {
     messages,
     currentPage,
@@ -34,6 +36,7 @@ const ChatPage = () => {
   const [activeTab, setActiveTab] = useState("1");
   const [chatMessages, setChatMessages] = useState([]);
   const [AgentConversaton, setAgentConversaton] = useState([]);
+  const [ShowDetailedTemplate, setShowDetailedTemplate] = useState(false);
   const [messageInput, setMessageInput] = useState("");
   const [mediaFile, setMediaFile] = useState(null); // To store the selected media file
   const [connection, setConnection] = useState(null);
@@ -104,6 +107,12 @@ const ChatPage = () => {
       dispatch(resetMessages());
     };
   };
+  const handleChatButton = () => {
+    setShowDetailedTemplate(true)
+  }
+  const handleCancel = () => {
+    setShowDetailedTemplate(false)
+  }
 
   //to set the activechat
   useEffect(() => {
@@ -154,10 +163,10 @@ const ChatPage = () => {
     //     });
     // }
   };
-  {/* Add Emoji Function */}
-const addEmoji = (emoji) => {
-  setMessageInput((prevMessage) => prevMessage + emoji);
-};
+  {/* Add Emoji Function */ }
+  const addEmoji = (emoji) => {
+    setMessageInput((prevMessage) => prevMessage + emoji);
+  };
   useEffect(() => {
     const container = containerRef.current;
 
@@ -175,7 +184,7 @@ const addEmoji = (emoji) => {
   //called each time to send message
   const HandleSendMessage = async () => {
     setPreviewUrl(null);
-    setFileType(null); 
+    setFileType(null);
     if (!messageInput.trim() && !mediaFile) {
       toast.error("Message cannot be empty!");
       return;
@@ -329,8 +338,8 @@ const addEmoji = (emoji) => {
     connection.on("ConversationAssigned", (notification) => {
       console.log("Received notification:", notification);
       audioRef.current
-      ?.play()
-      .catch((err) => console.error("Failed to play notification sound:", err));
+        ?.play()
+        .catch((err) => console.error("Failed to play notification sound:", err));
       toast.success("You have a new message request");
       // Find the matching conversation in the agent chat reference
       const matchingConversationIndex = agentChatRef.current.findIndex(
@@ -576,26 +585,26 @@ const addEmoji = (emoji) => {
             style={{ height: "100vh" }}
           >
             <Card className="right-sidebar-chat h-100">
-            {conversations.filter((conversation) => conversation.id === Activechat).map((conversation) => (
+              {conversations.filter((conversation) => conversation.id === Activechat).map((conversation) => (
                 <div className="flex items-center justify-between text-black px-4 py-3 shadow-md">
                   {/* Left Section */}
                   <div
                     key={conversation.id}
                     className="flex items-center space-x-3"
                   >
-                     <img
-                        src={`${BASE_URL}${conversation.logo}`}
-                        alt="User Logo"
-                        className="w-10 h-10 rounded-full"
-                      />
-                    
+                    <img
+                      src={`${BASE_URL}${conversation.logo}`}
+                      alt="User Logo"
+                      className="w-10 h-10 rounded-full"
+                    />
+
                     <div>{conversation.fullName}</div>
                   </div>
 
                   {/* Right Section */}
                   <div className="flex items-center space-x-4">
                     {/* Search Input */}
-                    
+
                   </div>
                 </div>
               ))}
@@ -612,16 +621,14 @@ const addEmoji = (emoji) => {
                     {chatMessages.map((message) => (
                       <div
                         key={message.messageId}
-                        className={`flex ${
-                          message.typeId === 1 ? "justify-end" : "justify-start"
-                        }`}
+                        className={`flex ${message.typeId === 1 ? "justify-end" : "justify-start"
+                          }`}
                       >
                         <div
-                          className={`max-w-xs p-2 rounded-2xl shadow-sm ${
-                            message.typeId === 1
+                          className={`max-w-xs p-2 rounded-2xl shadow-sm ${message.typeId === 1
                               ? "bg-[#ddffd9] text-black rounded-br-none"
                               : "bg-[#ffffff] text-black rounded-bl-none"
-                          }`}
+                            }`}
                         >
                           {message.contentType &&
                             message.contentType !== "" && (
@@ -665,39 +672,39 @@ const addEmoji = (emoji) => {
                         </div>
                       </div>
                     ))}
-                    <div ref={messagesEndRef} /> 
+                    <div ref={messagesEndRef} />
                   </div>
                   {previewUrl && (
-        <div>
-          {fileType === 'image' && (
-            <img
-              src={previewUrl}
-              alt="Preview"
-              style={{ maxWidth: '400px', marginTop: '10px' }}
-            />
-          )}
-          {fileType === 'video' && (
-            <video
-              controls
-              src={previewUrl}
-              style={{ maxWidth: '400px', marginTop: '10px' }}
-            />
-          )}
-          {fileType === 'audio' && (
-            <audio controls src={previewUrl} style={{ marginTop: '10px' }} />
-          )}
-          {fileType === 'application' && (
-            <div style={{ marginTop: '10px' }}>
-              <a href={previewUrl} download={mediaFile.name}>
-                Download {mediaFile.name}
-              </a>
-            </div>
-          )}
-         
-        </div>
-      )}
+                    <div>
+                      {fileType === 'image' && (
+                        <img
+                          src={previewUrl}
+                          alt="Preview"
+                          style={{ maxWidth: '400px', marginTop: '10px' }}
+                        />
+                      )}
+                      {fileType === 'video' && (
+                        <video
+                          controls
+                          src={previewUrl}
+                          style={{ maxWidth: '400px', marginTop: '10px' }}
+                        />
+                      )}
+                      {fileType === 'audio' && (
+                        <audio controls src={previewUrl} style={{ marginTop: '10px' }} />
+                      )}
+                      {fileType === 'application' && (
+                        <div style={{ marginTop: '10px' }}>
+                          <a href={previewUrl} download={mediaFile.name}>
+                            Download {mediaFile.name}
+                          </a>
+                        </div>
+                      )}
+
+                    </div>
+                  )}
                   <div className="msger-inputs px-4 py-3 flex items-center">
-                  
+
                     <Button
                       onClick={openFileManager}
                       className="text-xl text-gray-500 hover:text-gray-700 mr-2"
@@ -705,35 +712,35 @@ const addEmoji = (emoji) => {
                       <i className="fa fa-paperclip"></i>
                     </Button>
                     {/* Emoji Picker Button */}
-      <button
-        className="mr-2 p-2 hover:bg-gray-200 rounded-full"
-        onClick={() => setShowEmojiPicker((prev) => !prev)}
-      >
-        <i className="fa fa-smile-o text-gray-600"></i>
-      </button>
+                    <button
+                      className="mr-2 p-2 hover:bg-gray-200 rounded-full"
+                      onClick={() => setShowEmojiPicker((prev) => !prev)}
+                    >
+                      <i className="fa fa-smile-o text-gray-600"></i>
+                    </button>
 
-      {/* Emoji Picker */}
-      {showEmojiPicker && (
-  <div
-    className="absolute bottom-16 left-0 bg-white border rounded-lg shadow-lg p-2 z-50"
-    style={{ width: "auto" }}
-  >
-    <div className="flex justify-between items-center mb-2">
-      <span className="text-gray-700 font-semibold">Select Emoji</span>
-      <button
-        className="text-red-500 hover:text-red-700"
-        onClick={() => setShowEmojiPicker(false)}
-      >
-        <i className="fa fa-times"></i>
-      </button>
-    </div>
-    <EmojiPicker
-      onEmojiClick={(emojiData) => {
-        addEmoji(emojiData.emoji); // Pass emoji value
-      }}
-    />
-  </div>
-)}
+                    {/* Emoji Picker */}
+                    {showEmojiPicker && (
+                      <div
+                        className="absolute bottom-16 left-0 bg-white border rounded-lg shadow-lg p-2 z-50"
+                        style={{ width: "auto" }}
+                      >
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-gray-700 font-semibold">Select Emoji</span>
+                          <button
+                            className="text-red-500 hover:text-red-700"
+                            onClick={() => setShowEmojiPicker(false)}
+                          >
+                            <i className="fa fa-times"></i>
+                          </button>
+                        </div>
+                        <EmojiPicker
+                          onEmojiClick={(emojiData) => {
+                            addEmoji(emojiData.emoji); // Pass emoji value
+                          }}
+                        />
+                      </div>
+                    )}
                     <Input
                       type="text"
                       value={messageInput}
@@ -746,26 +753,25 @@ const addEmoji = (emoji) => {
                       placeholder="Type a message..."
                       className="rounded-lg border-0 shadow-sm"
                     />
-                    
-                    {/* Recording Button */}
-                    <button
-                      className={`border rounded-full p-2 mr-2 ${isRecording ? "bg-red-500" : "bg-green-500"
-                        }`}
-                      onClick={isRecording ? stopRecording : startRecording}
-                    >
-                      <i
-                        className={`fa fa-${isRecording ? "stop" : "microphone"
-                          }`}
-                        aria-hidden="true"
-                      ></i>
-                    </button>
-                 
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      onChange={handleFileChange}
-                      className="hidden"
-                    />
+
+ {/* Recording Button */}
+<div className="relative">
+  <button
+    onClick={handleChatButton}
+    className="bg-blue-500 text-white rounded-full p-3 ml-4 hover:bg-blue-600"
+  >
+    <i className="fa fa-wechat"></i>
+  </button>
+
+  {ShowDetailedTemplate && (
+    
+      <DefinedTemplates isVisible={true} onClose={handleCancel} />
+    
+  )}
+</div>
+
+
+
                     <Button onClick={HandleSendMessage} color="primary">
                       <i className="fa fa-paper-plane"></i>
                     </Button>
@@ -774,6 +780,7 @@ const addEmoji = (emoji) => {
               </div>
             </Card>
           </Col>
+          
         </Row>
       </Container>
       {Errordisconect && (
