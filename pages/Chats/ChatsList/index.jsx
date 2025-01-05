@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef ,useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Card,
@@ -67,6 +67,8 @@ const ChatPage = () => {
   const agentChatRef = useRef([AgentConversaton]);
   const containerRef = useRef(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [Contactsloading, setContactsloading] = useState(false);
+  const [Chatsloading, setChatsloading] = useState(false);
   const [fileType, setFileType] = useState(null);
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const isManualScroll = useRef(false);
@@ -78,17 +80,8 @@ const ChatPage = () => {
     // Initialize the audio object only once
     audioRef.current = new Audio("/assets/Notification/chatassigned.mp3");
   }, []);
-  const toggleTab = (tab) => {
-    if (activeTab !== tab) {
-      setActiveTab(tab);
-    }
-  };
-
-  useEffect(() => {
-    if (!isManualScroll.current && messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "auto" }); // Scroll to the bottom for new messages
-    }
-  }, [chatMessages]);
+ 
+  
 
   //call the fetchConversationList action to fetch agents conversations
   useEffect(() => {
@@ -97,6 +90,7 @@ const ChatPage = () => {
 
     if (ClientId) {
       dispatch(fetchConversationList({ clientId: ClientId, AgentId: AgentId }));
+      setContactsloading(true);
     }
 
     return () => {
@@ -107,12 +101,14 @@ const ChatPage = () => {
   //triggered each time when conversations changes and assign to local state
   useEffect(() => {
     if (conversations && conversations.length > 0) {
+      setContactsloading(false);
       setAgentConversaton(conversations);
     }
   }, [conversations]);
 
   //called each time to get conversation messages
   const HandleConversationDetail = async (id) => {
+    setChatsloading(true)
     dispatch(resetMessages());
     setActiveChat(id); // Update Activechat state
     const ClientId = localStorage.getItem("clientId");
@@ -125,12 +121,12 @@ const ChatPage = () => {
       dispatch(resetMessages());
     };
   };
-  const handleChatButton = () => {
-    setShowDetailedTemplate(true)
-  }
-  const handleCancel = () => {
-    setShowDetailedTemplate(false)
-  }
+  const handleAgentdefinetemplate = () => {
+    setShowDetailedTemplate(true);
+  };
+  const handleAgenttemplateclose = () => {
+    setShowDetailedTemplate(false);
+  };
 
   //to set the activechat
   useEffect(() => {
@@ -144,63 +140,79 @@ const ChatPage = () => {
   //triggered each time when messages changes and assign to local state
   useEffect(() => {
     if (messages && messages.length > 0) {
+      setChatsloading(false);
       setChatMessages(messages);
       console.log("Messages changed:", messages);
     }
   }, [messages]);
 
-  const handleScroll = () => {
-    const container = containerRef.current;
-    const ClientId = localStorage.getItem("clientId");
+ 
 
-    if (!container || loading) return;
-
-    // Check if the user scrolled to the top
-    if (container.scrollTop === 0 && currentPage >= 1 && hasMore) {
-      isManualScroll.current = true; // Mark manual scroll
-      dispatch(
-        fetchConversationMessage({
-          clientId: ClientId,
-          ChatId: Activechat,
-          pageNo: currentPage + 1,
-        })
-      ).then(() => {
-        // Optionally adjust scroll position after older messages are loaded
-        container.scrollTop = 1; // Prevent continuous triggering at the top
-      });
-    }
-
-    // // Check if the user has scrolled to the bottom
-    // if (
-    //   container.scrollHeight - container.scrollTop === container.clientHeight &&
-    //   hasMore &&
-    //   !loading
-    // ) {
-    //   dispatch(fetchConversationMessage({ clientId: ClientId, ChatId: Activechat, pageNo: currentPage + 1 }))
-    //     .then(() => {
-    //       // Optionally adjust scroll position if needed
-    //     });
-    // }
-  };
-  {
-    /* Add Emoji Function */
-  }
+  //Add emoji function
   const addEmoji = (emoji) => {
     setMessageInput((prevMessage) => prevMessage + emoji);
   };
+
+  const handleScroll = () => {
+    const { current: container } = containerRef;
+    const clientId = localStorage.getItem("clientId");
+  
+    if (!container || loading || !clientId || !Activechat || !hasMore) return;
+  
+    const isCloseToTop = container.scrollTop <= 100; // Threshold for triggering fetch
+    const isScrollingUp = container.scrollTop < container.scrollHeight - container.clientHeight;
+  
+    if (isCloseToTop && isScrollingUp && !isManualScroll.current && currentPage >= 1) {
+      isManualScroll.current = true; // Prevent multiple triggers
+      const previousHeight = container.scrollHeight;
+  
+      dispatch(
+        fetchConversationMessage({
+          clientId,
+          ChatId: Activechat,
+          pageNo: currentPage + 1,
+        })
+      )
+        .unwrap()
+        .then(() => {
+          if (container) {
+            const newHeight = container.scrollHeight;
+            container.scrollTop = newHeight - previousHeight; // Maintain scroll position after loading
+          }
+          isManualScroll.current = false; // Allow new requests
+        })
+        .catch((error) => {
+          console.error("Failed to fetch older messages:", error);
+          isManualScroll.current = false;
+        });
+    }
+  };
+   
+  
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "auto" }); // Scroll to bottom on initial load
+    }
+  }, [chatMessages]);
+ 
+  
   useEffect(() => {
     const container = containerRef.current;
-
+  
     if (container) {
-      container.addEventListener("scroll", handleScroll);
+      const scrollHandler = () => handleScroll();
+  
+      container.addEventListener("scroll", scrollHandler);
+  
+      return () => {
+        container.removeEventListener("scroll", scrollHandler);
+      };
     }
-
-    return () => {
-      if (container) {
-        container.removeEventListener("scroll", handleScroll);
-      }
-    };
   }, [handleScroll]);
+  
+  
+
+  
 
   //called each time to send message
   const HandleSendMessage = async () => {
@@ -319,7 +331,7 @@ const ChatPage = () => {
     setConnection(connection);
 
     connection.on("MessageReceived", (message) => {
-      debugger;
+      
 
       // Play notification sound
       audioRef.current
@@ -377,9 +389,9 @@ const ChatPage = () => {
           updatedConversations.splice(matchingConversationIndex, 1); // Remove it from the current position
           updatedConversations.unshift({
             ...matchingConversation,
-            updatedDate: message.createdDate,
-            lastMessageText: message.messageContent,
-            unreadCount: (matchingConversation.unreadCount || 0) + 1,
+            // updatedDate: message.createdDate,
+            // lastMessageText: message.messageContent,
+            // unreadCount: (matchingConversation.unreadCount || 0) + 1,
           });
 
           agentChatRef.current = updatedConversations;
@@ -389,7 +401,7 @@ const ChatPage = () => {
     });
 
     connection.on("ConversationAssigned", (notification) => {
-      debugger;
+      
       console.log("Received notification:", notification);
       audioRef.current
         ?.play()
@@ -563,7 +575,7 @@ const ChatPage = () => {
               <TabContent id="chat-options-tabContent">
                 <TabPane id="chats" className="text-center">
                   <ul className="list-unstyled chats-user overflow-y-auto">
-                    {loading && (
+                    {Contactsloading && (
                       <div className="text-center">
                         Please wait while we load your chats..!!
                       </div>
@@ -685,85 +697,79 @@ const ChatPage = () => {
                 ))}
               <div className="right-sidebar-chat p-4 w-full height-chat-box overflow-y-auto chat-background h-100">
                 <div className="msger flex flex-col h-full">
-                  <div
-                    ref={containerRef}
-                    //onScroll={handleScroll}
-                    className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2"
-                  >
-                    {loading && (
-                      <div className="text-center">Loading messages...</div>
-                    )}
-                    {chatMessages.map((message) => (
-                      <div
-                        key={message.messageId}
-                        className={`flex ${message.typeId === 1 ? "justify-end" : "justify-start"
-                          }`}
-                      >
-                        <div
-                          className={`max-w-xs p-2 rounded-2xl shadow-sm ${message.typeId === 1
-                              ? "bg-[#ddffd9] text-black rounded-br-none"
-                              : "bg-[#ffffff] text-black rounded-bl-none"
-                            }`}
-                        >
-                          {message.parentMessageContent &&
-                            message.parentMessageContent.trim() !== "" && (
-                              <div className="mb-2 p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300">
-                                {message.parentMessageContent
-                                  .split("\n")
-                                  .map((line, index) => (
-                                    <span key={index}>
-                                      {line}
-                                      <br />
-                                    </span>
-                                  ))}
-                              </div>
-                            )}
+                <div
+  ref={containerRef}
+  className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2"
+>
+  {Chatsloading && <div className="text-center">Loading messages...</div>}
+  {chatMessages.map((message) => (
+    <div
+      key={message.messageId}
+      className={`flex ${message.typeId === 1 ? "justify-end" : "justify-start"}`}
+    >
+      <div
+        className={`max-w-xs p-2 rounded-2xl shadow-sm ${
+          message.typeId === 1
+            ? "bg-[#ddffd9] text-black rounded-br-none"
+            : "bg-[#ffffff] text-black rounded-bl-none"
+        }`}
+      >
+        {message.parentMessageContent &&
+          message.parentMessageContent.trim() !== "" && (
+            <div
+              className="mb-2 p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis"
+              style={{
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                whiteSpace: "normal",
+              }}
+            >
+              {message.parentMessageContent}
+            </div>
+          )}
+        {message.contentType && message.contentType !== "" && (
+          <>
+            {message.contentType.startsWith("image/") && (
+              <img
+                src={`${BASE_URL}${message.mediaPath}`}
+                alt="Image"
+                className="max-w-full rounded"
+              />
+            )}
+            {message.contentType.startsWith("video/") && (
+              <video
+                controls
+                src={`${BASE_URL}${message.mediaPath}`}
+                className="max-w-full rounded"
+              />
+            )}
+            {message.contentType.startsWith("audio/") && (
+              <audio
+                controls
+                src={`${BASE_URL}${message.mediaPath}`}
+                className="max-w-full rounded"
+              />
+            )}
+          </>
+        )}
+        <p className="text-left text-sm">
+          {message.messageContent.split("\n").map((line, index) => (
+            <span key={index}>
+              {line}
+              <br />
+            </span>
+          ))}
+        </p>
+        <p className="text-xs text-gray-500">
+          {extractTime(message.createdDate)}
+        </p>
+      </div>
+    </div>
+  ))}
+  <div ref={messagesEndRef} />
+</div>
 
-                          {message.contentType &&
-                            message.contentType !== "" && (
-                              <>
-                                {message.contentType.startsWith("image/") && (
-                                  <img
-                                    src={`${BASE_URL}${message.mediaPath}`}
-                                    alt="Image"
-                                    className="max-w-full rounded"
-                                  />
-                                )}
-                                {message.contentType.startsWith("video/") && (
-                                  <video
-                                    controls
-                                    src={`${BASE_URL}${message.mediaPath}`}
-                                    className="max-w-full rounded"
-                                  />
-                                )}
-                                {message.contentType.startsWith("audio/") && (
-                                  <audio
-                                    controls
-                                    src={`${BASE_URL}${message.mediaPath}`}
-                                    className="max-w-full rounded"
-                                  />
-                                )}
-                              </>
-                            )}
-                          <p className="text-left text-sm">
-                            {message.messageContent
-                              .split("\n")
-                              .map((line, index) => (
-                                <span key={index}>
-                                  {line}
-                                  <br />
-                                </span>
-                              ))}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {extractTime(message.createdDate)}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                    <div ref={messagesEndRef} />
-                    <div ref={messagesEndRef} />
-                  </div>
                   {previewUrl && (
                     <div>
                       {fileType === "image" && (
@@ -804,12 +810,6 @@ const ChatPage = () => {
                       <i className="fa fa-paperclip"></i>
                     </Button>
                     {/* Emoji Picker Button */}
-                    <button
-                      className="mr-2 p-2 hover:bg-gray-200 rounded-full"
-                      onClick={() => setShowEmojiPicker((prev) => !prev)}
-                    >
-                      <i className="fa fa-smile-o text-gray-600"></i>
-                    </button>
                     <button
                       className="mr-2 p-2 hover:bg-gray-200 rounded-full"
                       onClick={() => setShowEmojiPicker((prev) => !prev)}
@@ -860,6 +860,21 @@ const ChatPage = () => {
                       onChange={handleFileChange}
                       className="hidden"
                     />
+                    <div className="relative">
+                      <button
+                        onClick={handleAgentdefinetemplate}
+                        className="  rounded-full m-3 "
+                      >
+                        <i className="fa fa-comment"></i>
+                      </button>
+
+                      {ShowDetailedTemplate && (
+                        <DefinedTemplates
+                          isVisible={true}
+                          onClose={handleAgenttemplateclose}
+                        />
+                      )}
+                    </div>
                     <Button onClick={HandleSendMessage} color="primary">
                       <i className="fa fa-paper-plane"></i>
                     </Button>
@@ -868,7 +883,6 @@ const ChatPage = () => {
               </div>
             </Card>
           </Col>
-          
         </Row>
       </Container>
       {Errordisconect && (

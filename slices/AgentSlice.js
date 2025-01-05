@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { AGENTLIST, AGENTDETAILS, CREATEAGENT, DELETEAGENT, UPDATEAGENT, AGENTSTIMINGLIST, ADDAGENTSTIMING, AGENTDROPDOWN } from '@/utils/apiConstants';
+import { AGENTLIST, AGENTDETAILS, CREATEAGENT, DELETEAGENT, UPDATEAGENT, AGENTSTIMINGLIST, ADDAGENTSTIMING, AGENTDROPDOWN ,GETAGENTSTATS } from '@/utils/apiConstants';
 
 
 // Thunks
