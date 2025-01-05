@@ -456,14 +456,14 @@ const ChatPage = () => {
 
   return (
     <App>
-      <Container fluid className="h-100">
+      <Container fluid className="">
         <Row className="g-0 h-100">
           <Col
             xxl="3"
             xl="4"
             md="5"
             className="box-col-5 p-0"
-            style={{ height: "100vh" }}
+            style={{ height: "auto" }}
           >
             <Card className="left-sidebar-wrapper h-100">
               <div className="left-sidebar-chat p-3">
@@ -484,7 +484,7 @@ const ChatPage = () => {
               </Nav>
               <TabContent id="chat-options-tabContent">
                 <TabPane id="chats" className="text-center">
-                  <ul className="divide-y divide-gray-200  chats-user overflow-y-auto">
+                  <ul className="divide-y divide-gray-200  chats-user overflow-y-auto h-100">
                     {loading && (
                       <div className="text-center">
                         Please wait while we load your chats..!!

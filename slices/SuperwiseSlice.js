@@ -12,7 +12,7 @@ export const fetchChatsMonitor = createAsyncThunk(
         if (response?.status === 200 && response.data?.result) {
           return {
           chatsMonitor: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalItems : 0,
+          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -26,13 +26,13 @@ export const fetchChatsMonitor = createAsyncThunk(
   
 export const fetchAgentsMonitor = createAsyncThunk(
     'agentmonitor/fetchAgentsMonitor',
-    async ({clientId, fromDate, toDate, status, templateId, srcStr, pageSize,pageNo}, { rejectWithValue }) => {
+    async ({clientId, fromDate, toDate, senderId, srcStr, pageSize,pageNo}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${AGENTSMONITOR}?ClientId=${clientId}&FromDate=${fromDate}&ToDate=${toDate}&Status=${status}&PageSize=${pageSize}&PageNo=${pageNo}&SearchStr=${srcStr}`);
+        const response = await API.get(`${AGENTSMONITOR}?clientId=${clientId}&fromDate=${fromDate}&toDate=${toDate}&senderId=${senderId}&pageSize=${pageSize}&pageNo=${pageNo}${srcStr? `&searchStr=${srcStr}`:''}`);
         if (response?.status === 200 && response.data?.result) {
           return {
           agentsMonitor: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalItems : 0,
+          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
           };
         } else {
           throw new Error('Failed to fetch details');
