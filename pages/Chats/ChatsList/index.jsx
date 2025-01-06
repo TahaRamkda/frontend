@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef ,useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";import { FaComments, FaCheckCircle, FaTimesCircle, FaClock } from "react-icons/fa";
+import { MdOutlineTimer } from "react-icons/md";
+import { AiOutlineHourglass } from "react-icons/ai";
 import {
   Card,
   Col,
@@ -22,6 +24,11 @@ import {
   clearconversationstate,
   NewAgentMessage,
 } from "@/slices/ConversationSlice";
+
+import {
+  fetchAgentStats,
+  cleaAgentStats,
+} from "@/slices/AgentSlice";
 import * as signalR from "@microsoft/signalr";
 import DefinedTemplates from "../AgentDefinedTemplate";
 import { toast } from "react-toastify";
@@ -46,6 +53,10 @@ const ChatPage = () => {
     hasMore,
     loading: messageLoading,
   } = useSelector((state) => state.conversations);
+  const {
+    AgentStats,
+    loading: statsLoading,
+  } = useSelector((state) => state.agents);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const inputRef = useRef(null);
   const [activeTab, setActiveTab] = useState("1");
@@ -90,6 +101,7 @@ const ChatPage = () => {
 
     if (ClientId) {
       dispatch(fetchConversationList({ clientId: ClientId, AgentId: AgentId }));
+      dispatch(fetchAgentStats({ clientId: ClientId, agentId: AgentId }));
       setContactsloading(true);
     }
 
@@ -342,7 +354,7 @@ const ChatPage = () => {
 
       // Show a toast notification for the new message
       toast.success("You have a new message");
-
+      dispatch(fetchAgentStats({ clientId: localStorage.getItem("clientId"), agentId: localStorage.getItem("userId") }));
       // Check if the conversation exists in agentChatRef
       const matchingConversationIndex = agentChatRef.current.findIndex(
         (conversation) => conversation.id === message.conversationId
@@ -409,7 +421,8 @@ const ChatPage = () => {
           console.error("Failed to play notification sound:", err)
         );
       toast.success("You have a new message request");
-
+      
+      dispatch(fetchAgentStats({ clientId: localStorage.getItem("clientId"), agentId: localStorage.getItem("userId") }));
       // Start a 5-minute timer for the new chat
       startTimer(notification.id);
 
@@ -445,12 +458,13 @@ const ChatPage = () => {
     });
 
     connection.on("ConversationUnAssigned", (notification) => {
-      debugger;
+     
       console.log("Unassigned conversation:", notification);
 
       // Show a warning toast for the unassigned conversation
       toast.warning("A conversation has been unassigned");
-
+      
+      dispatch(fetchAgentStats({ clientId: localStorage.getItem("clientId"), agentId: localStorage.getItem("userId") }));
       // Remove the unassigned conversation from the agent chat reference
       const updatedConversations = agentChatRef.current.filter(
         (conversation) => conversation.id !== notification.id
@@ -546,6 +560,63 @@ const ChatPage = () => {
 
   return (
     <App>
+        <div className="flex flex-wrap items-center justify-between bg-gray-100 p-4 rounded shadow-md space-x-4">
+      {/* Assigned */}
+      <div className="flex items-center space-x-2">
+        <FaComments size={20} className="text-blue-500" />
+        <span className="font-medium text-gray-700">
+          Assigned: <span className="font-bold">{AgentStats.totalAssigned  ?? '-/-'}</span>
+        </span>
+      </div>
+
+      {/* Active */}
+      <div className="flex items-center space-x-2">
+        <FaCheckCircle size={20} className="text-green-500" />
+        <span className="font-medium text-gray-700">
+          Active: <span className="font-bold">{AgentStats.totalActive  ?? '-/-'}</span>
+        </span>
+      </div>
+
+      {/* Closed */}
+      <div className="flex items-center space-x-2">
+        <FaTimesCircle size={20} className="text-red-500" />
+        <span className="font-medium text-gray-700">
+          Closed: <span className="font-bold">{AgentStats.totalClosed  ?? '-/-' }</span>
+        </span>
+      </div>
+
+      {/* Expired */}
+      <div className="flex items-center space-x-2">
+        <AiOutlineHourglass size={20} className="text-yellow-500" />
+        <span className="font-medium text-gray-700">
+          Expired: <span className="font-bold">{AgentStats.expiredChats  ?? '-/-'}</span>
+        </span>
+      </div>
+
+      {/* Force Closed */}
+      <div className="flex items-center space-x-2">
+        <FaClock size={20} className="text-purple-500" />
+        <span className="font-medium text-gray-700">
+          Force Closed: <span className="font-bold">{AgentStats.forceClosedChats  ?? '-/-'}</span>
+        </span>
+      </div>
+
+      {/* Avg Duration */}
+      <div className="flex items-center space-x-2">
+        <MdOutlineTimer size={20} className="text-orange-500" />
+        <span className="font-medium text-gray-700">
+          Avg Duration: <span className="font-bold">{AgentStats.avgChatDuration  ?? '-/-'}</span>
+        </span>
+      </div>
+
+      {/* Response Time */}
+      <div className="flex items-center space-x-2">
+        <MdOutlineTimer size={20} className="text-gray-500" />
+        <span className="font-medium text-gray-700">
+          Response Time: <span className="font-bold">{AgentStats.responseTime  ?? '-/-'}min</span>
+        </span>
+      </div>
+    </div>
       <Container fluid className="h-100 overflow-hidden">
         <Row className="g-0 h-100">
           <Col
