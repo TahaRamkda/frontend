@@ -639,7 +639,7 @@ const ChatPage = () => {
             xl="4"
             md="5"
             className="box-col-5 p-0"
-            style={{ height: "100vh", overflow: "hidden" }}
+            style={{ height: "86vh", overflow: "hidden",margin: "0" }}
           >
             <Card className="left-sidebar-wrapper h-100">
               <div className="left-sidebar-chat p-3">
@@ -754,7 +754,7 @@ const ChatPage = () => {
             xl="8"
             md="7"
             className="box-col-7 p-0"
-            style={{ height: "100vh" }}
+            style={{ height: "86vh", margin: "0" }}
           >
             <Card className="right-sidebar-chat h-100">
               {conversations
@@ -985,7 +985,7 @@ const ChatPage = () => {
           </Col>
         </Row>
       </Container>
-      {Errordisconect && (
+      {/* {Errordisconect && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
           <div className="bg-red-500 p-8 rounded-lg shadow-md max-w-md w-full text-center">
             <div className="flex justify-center mb-4">
@@ -1021,7 +1021,7 @@ const ChatPage = () => {
             </button>
           </div>
         </div>
-      )}
+      )} */}
     </App>
   );
 };

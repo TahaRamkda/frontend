@@ -35,6 +35,7 @@ export const GROUPDROPDOWN = "/Groups/getgroups"
 export const TEMPLATELIST = "/Templates/gettemplateslist";
 export const TEMPLATEDETAILS = "/Templates/gettemplatedetails";
 export const CREATETEMPLATE = "/Templates/addTemplate";
+export const CREATEINTERACTIVETEMPLATE = "/InteractiveTemplates/addinteractivetemplate"
 export const SYNCTEMPLATE = "/Templates/templatesync";
 export const UPDATETEMPLATE = "/Templates/updatetemplate";
 export const DELETETEMPLATE = "/Templates/deletetemplate";
@@ -99,6 +100,7 @@ export const TEMPLATELANGUAGE = "/Templates/getlanguages";
 
 export const CHATSMONITOR ="/Conversation/getconversationreportlist"
 export const AGENTSMONITOR ="/Agents/getagentsupervisorreport"
+
 
 
 
