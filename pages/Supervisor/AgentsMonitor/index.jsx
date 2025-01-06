@@ -1,7 +1,7 @@
 "use client";
 import React, { useMemo, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchChatsMonitor, clearChatsMonitorState, setPageSize, setCurrentPage } from "@/slices/SuperwiseSlice";
+import {fetchAgentsMonitor,clearAgentMonitorState, setPageSize, setCurrentPage } from "@/slices/SuperwiseSlice";
 import { Container, Row, Col, Table, input, Button, Pagination, List, label, PaginationItem, PaginationLink, CardBody, Card } from 'reactstrap';
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
@@ -15,12 +15,13 @@ import App from '@/components/App';
 const MessageSummary = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
-
-
+  const [FromDate, setFromDate] = useState("");
+  const [ToDate, setToDate] = useState("");
+  const [srcStr, setsrcStr] = useState('');
 
   const [isfilteropen, setisfilteropen] = useState(false);
   const [showfilterbutton, setshowfilterbutton] = useState(true);
-  const { chatsMonitor, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.Supervisor);
+  const { agentsMonitor, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.Supervisor);
   const [clientId, setClientId] = useState(null);
 
   const ChatsReportColumn = [
@@ -34,11 +35,6 @@ const MessageSummary = () => {
 
 
 
-  const handleSenderChange = (e) => {
-    const senderId = e.target.value;
-    setsenderid(senderId);
-  };
-
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -50,20 +46,22 @@ const MessageSummary = () => {
 
   useEffect(() => {
     if (clientId) {
-      dispatch(fetchChatsMonitor({ clientId: clientId, senderId: senderid, pageSize, pageNo: currentPage }));
+      dispatch(fetchAgentsMonitor({ clientId: clientId, senderId: senderid, pageSize, pageNo: currentPage, fromDate:FromDate, toDate:ToDate}));
 
     }
     return () => {
-      dispatch(clearChatsMonitorState());
+      dispatch(clearAgentMonitorState());
     };
   }, [dispatch, clientId, senderid]);
 
-  const handleFiltershow = () => {
-    setisfilteropen(prevState => !prevState);  // Toggle isfilteropen
-    setshowfilterbutton(prevState => !prevState);  // Toggle showfilterbutton
-
+  const handleSenderChange = (e) => {
+    const senderId = e.target.value;
+    setsenderid(senderId);
   };
 
+  const handleSearchString = (e) => {
+    setsrcStr(e.target.value);
+  };
 
 
 
@@ -72,7 +70,7 @@ const MessageSummary = () => {
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to first page
     // Fetch data with updated page size and reset to page 1
-    await dispatch(fetchChatsMonitor({
+    await dispatch(fetchAgentsMonitor({
       clientId: clientId,
       senderId: senderid,
       srcStr: srcStr,
@@ -85,7 +83,7 @@ const MessageSummary = () => {
     dispatch(setCurrentPage(page));
 
     // Fetch clients for the new page
-    await dispatch(fetchChatsMonitor({ clientId: clientId, fromDate: fromDate, toDate: toDate, status: status, sendernameId: sendernameId, senderId: senderid, srcStr: srcStr, pageSize, pageNo: page }));
+    await dispatch(fetchAgentsMonitor({ clientId: clientId, fromDate: FromDate, toDate: ToDate, sendernameId: sendernameId, senderId: senderid, srcStr: srcStr, pageSize, pageNo: page }));
   };
   const subHeaderComponentMemo = useMemo(() => {
     return (
@@ -98,6 +96,38 @@ const MessageSummary = () => {
               onChange={handleSenderChange}
               className="border rounded  w-100"
             />
+          </div>
+          <div className='flex flex-col text-start mb-1'>
+            <label className="font-medium text-gray-700 text-sm">Search</label>
+            <input
+              type="text"
+              placeholder=""
+              value={srcStr}
+              onChange={handleSearchString}
+              className="border rounded  w-100"
+            />
+          </div>
+
+          <div className='flex flex-col text-start mb-1'>
+            <label className="font-medium text-gray-700 text-sm">From Date</label>
+            <input
+              type="date"
+              id="FromDate"
+              value={FromDate}
+              onChange={(e) => setfromDate(e.target.value)}
+              className="border rounded  w-100"
+            />
+          </div>
+          <div className='flex flex-col text-start mb-1'>
+            <label className="font-medium text-gray-700 text-sm">To Date</label>
+            <input
+              type="date"
+              id="ToDate"
+              value={ToDate}
+              onChange={(e) => settoDate(e.target.value)}
+              className="border rounded  w-100"
+            />
+
           </div>
         </div>
 
@@ -118,7 +148,7 @@ const MessageSummary = () => {
         </div>
       </div>
       <DataTable
-        data={chatsMonitor}
+        data={agentsMonitor}
         columns={ChatsReportColumn}
         highlightOnHover
         striped

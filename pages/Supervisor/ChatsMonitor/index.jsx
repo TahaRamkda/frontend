@@ -100,8 +100,8 @@ const ChatsReport = () => {
     dispatch(setCurrentPage(page));
 
     // Fetch clients for the new page
-    await dispatch(fetchChatsMonitor({ clientId: clientId, fromDate: fromDate, toDate: toDate, senderId: senderid, pageSize, pageNo: page }));
-  };
+    await dispatch(fetchChatsMonitor({ clientId: clientId, senderId: senderid, pageSize, pageNo: page }));
+  }
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className="w-full">

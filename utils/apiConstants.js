@@ -98,7 +98,7 @@ export const TEMPLATECATEGORY = "/Templates/gettemplatecategories";
 export const TEMPLATELANGUAGE = "/Templates/getlanguages";
 
 export const CHATSMONITOR ="/Conversation/getconversationreportlist"
-export const AGENTSMONITOR ="#"
+export const AGENTSMONITOR ="/Agents/getagentsupervisorreport"
 
 
 

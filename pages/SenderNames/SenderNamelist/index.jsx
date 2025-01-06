@@ -45,7 +45,7 @@ const SendernameList = () => {
             <span className="m-1">{row.senderName}</span>
             <span>{row.verified && ( // Check if verified is true and render the image
             <img
-              src="\images\W-Varified.png"
+              src="\images\wVarified.png"
               alt="Verified"
               className="w-4 h-4 object-contain mt-1" // Adjust size as needed
             />
@@ -205,7 +205,7 @@ const SendernameList = () => {
       <div className="flex items-center">
         {loading && <Loading />}
         <div className=''>
-          <h4 className="font-bold ">Sender Name </h4>
+          <h4 className="font-bold ">Sender Name</h4>
         </div>
         <div className="ml-auto mb-1">
 
