@@ -9,6 +9,7 @@ import {
   DELETETEMPLATE,
   SYNCTEMPLATE,
   TEMPLATEDROPDOWN,
+  CREATEINTERACTIVETEMPLATE,
 } from "@/utils/apiConstants";
 
 // Thunks
@@ -82,6 +83,18 @@ export const createTemplates = createAsyncThunk(
   async (templateData, { rejectWithValue }) => {
     try {
       const response = await API.post(CREATETEMPLATE, templateData);
+      return response.data;
+    } catch (error) {
+      const handledError = handleError(error);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+export const createInteractiveTemplates = createAsyncThunk(
+  "template/createInteractiveTemplates",
+  async (templateData, { rejectWithValue }) => {
+    try {
+      const response = await API.post(CREATEINTERACTIVETEMPLATE, templateData);
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -184,6 +197,11 @@ const templateSlice = createSlice({
       state.error = null;
       state.success = false;
     },
+    clearInteractiveTemplateCreateState: (state) => {
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    },
     clearTemplateDeleteState: (state) => {
       state.template = null;
       state.loading = false;
@@ -259,6 +277,22 @@ const templateSlice = createSlice({
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
+      // Create Interactive Template
+      .addCase(createInteractiveTemplates.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(createInteractiveTemplates.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.message = action.payload.message || "Created Successfully";
+      })
+      .addCase(createInteractiveTemplates.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
 
       // Update Template
       .addCase(updateTemplates.pending, (state) => {
@@ -302,6 +336,7 @@ export const {
   setCurrentPage,
   clearTemplateState,
   clearTemplateDropState,
+  clearInteractiveTemplateCreateState,
   clearTemplateDetailState,
   clearTemplateCreateState,
   clearTemplateDeleteState,
