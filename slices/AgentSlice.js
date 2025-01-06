@@ -26,6 +26,8 @@ export const fetchAgents = createAsyncThunk(
     }
   }
 );
+
+
 export const fetchAgentsDrop = createAsyncThunk(
   'agent/fetchAgentsDrop',
   async ({clientId,senderId,pageNo,pageSize,searchStr}, { rejectWithValue }) => {
@@ -45,6 +47,8 @@ export const fetchAgentsDrop = createAsyncThunk(
     }
   }
 );
+
+
 export const fetchAgentsTimingList = createAsyncThunk(
   'agent/fetchAgentsTimingList',
   async ({clientId, agentId, senderId, pageNo, pageSize}, { rejectWithValue }) => {
@@ -64,6 +68,29 @@ export const fetchAgentsTimingList = createAsyncThunk(
     }
   }
 );
+
+
+export const fetchAgentStats = createAsyncThunk(
+  'agent/fetchAgentStats',
+  async ({clientId = localStorage.getItem("clientId"), agentId = localStorage.getItem("userId"),senderId = 0}, { rejectWithValue }) => {
+    try {
+      const response = await API.get(`${GETAGENTSTATS}?clientId=${clientId}&senderId=${senderId}&agentId=${agentId}`);
+      if (response?.status === 200 && response.data?.result) {
+        return {
+          AgentStats: response.data.result,
+        };
+      } else {
+        throw new Error('Failed to fetch details');
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
+
+
 
 export const createAgentTiming = createAsyncThunk(
   'agent/createAgentTiming',
@@ -142,6 +169,7 @@ const agentSlice = createSlice({
     agents: [],
     agentDrop:[],
     agentsTiming: [],
+    AgentStats: [],
     agent: null,
     loading: false,
     error: null,
@@ -181,6 +209,12 @@ const agentSlice = createSlice({
     },
     clearAgentsTimingListState: (state) => {
       state.agentsTiming = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    },
+    cleaAgentStats: (state) => {
+      state.AgentStats = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -258,6 +292,25 @@ const agentSlice = createSlice({
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
+
+
+      .addCase(fetchAgentStats.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAgentStats.fulfilled, (state, action) => {
+        state.loading = false;
+        state.AgentStats = action.payload.AgentStats; // Correct payload key
+        state.message = action.payload.message || '';
+      })
+      .addCase(fetchAgentStats.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+
+
+
 
       .addCase(createAgentTiming.pending, (state) => {
         state.loading = true;
@@ -352,6 +405,7 @@ export const {
   cleaAgentState,
   clearAgentDetailState,
   clearAgentCreateState,
+  cleaAgentStats,
   clearAgentDeleteState,
   cleaAgenDroptState,
   clearAgentTimingCreateState,
