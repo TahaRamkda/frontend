@@ -17,6 +17,7 @@ const Messagereports = () => {
   const [toDate, setToDate] = useState("");
   const [srcStr, setSrcStr] = useState('');
   const [sendernameId, setSendernameId] = useState(null);
+  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [clientId, setClientId] = useState(null);
 
   const { messageSummary, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.reports);
@@ -42,9 +43,7 @@ const Messagereports = () => {
     setTemplateId(e.target.value);
   };
 
-  const handleSrcStrChange = (e) => {
-    setSrcStr(e.target.value);
-  };
+ 
 
   const handleFromDateChange = (e) => {
     setFromDate(e.target.value);
@@ -61,7 +60,25 @@ const Messagereports = () => {
       clientId, fromDate, toDate, status, templateId, srcStr, pageSize: newSize, pageNo: 1
     }));
   };
+ const handleSearchString = (e) => {
+    const searchValue = e.target.value;
+    setSrcStr(searchValue);
 
+    // Clear the previous timeout if any
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set a new timeout for 0.5 seconds
+    const timeout = setTimeout(() => {
+      dispatch(
+        fetchMessageSummary({
+          clientId, fromDate, toDate, status, templateId, srcStr:searchValue, pageSize, pageNo: currentPage
+        }));
+    }, 500);
+
+    setSearchTimeout(timeout); // Save the timeout reference
+  };
   const handlePageChange = async (page) => {
     dispatch(setCurrentPage(page));
     await dispatch(fetchMessageSummary({
@@ -84,7 +101,7 @@ const Messagereports = () => {
               type="text"
               placeholder="Search"
               value={srcStr}
-              onChange={handleSrcStrChange}
+              onChange={handleSearchString}
               className="border rounded m-0 w-100"
             />
           </div>

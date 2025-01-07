@@ -18,6 +18,7 @@ const MessageReport = () => {
   const [status, setstatus] = useState(0);
   const [fromDate, setfromDate] = useState("");
   const [toDate, settoDate] = useState("");
+  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [ModuleId, setmoduleId] = useState(0);
   const [srcStr, setsrcStr] = useState('');
   const [sendernameId, setsendernameId] = useState(null);
@@ -56,10 +57,6 @@ const MessageReport = () => {
   }, [clientId, fromDate, toDate, status, senderid, srcStr, sendernameId,ModuleId]);
 
 
-  const handleSearchString = (e) => {
-    setsrcStr(e.target.value);
-  };
-
   const handleSenderChange = (e) => {
     const senderId = e.target.value;
     setsenderid(senderId);
@@ -73,7 +70,34 @@ const MessageReport = () => {
   }, []);
 
 
+  const handleSearchString = (e) => {
+    const searchValue = e.target.value;
+    setsrcStr(searchValue);
 
+    // Clear the previous timeout if any
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set a new timeout for 0.5 seconds
+    const timeout = setTimeout(() => {
+      dispatch(
+        fetchMessageReport({
+          clientId: clientId,
+          fromDate: fromDate,
+          toDate: toDate,
+          status: status,
+          moduleId: ModuleId,
+          senderid: senderid,
+          srcStr: searchValue,
+          sendernameId: sendernameId,
+          pageSize: pageSize,
+          pageNo: currentPage,
+        }));
+    }, 500);
+
+    setSearchTimeout(timeout); // Save the timeout reference
+  };
 
   const handleFiltershow = () => {
     setisfilteropen(prevState => !prevState);  // Toggle isfilteropen
