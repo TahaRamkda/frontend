@@ -23,6 +23,7 @@ const ClientList = () => {
   const dispatch = useDispatch();
   const { clients, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.clients);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [clientForm, setClientForm] = useState({});
   const [filterText, setFilterText] = useState("");
 
@@ -54,7 +55,24 @@ const ClientList = () => {
       ),
     },
   ];
+ const handleSearchString = (e) => {
+    const searchValue = e.target.value;
+    setFilterText(searchValue);
 
+    // Clear the previous timeout if any
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set a new timeout for 0.5 seconds
+    const timeout = setTimeout(() => {
+      dispatch(
+        fetchClients({SearchStr:searchValue, pageSize, pageNo: currentPage })
+      );
+    }, 500);
+
+    setSearchTimeout(timeout); // Save the timeout reference
+  };
   const handleDetailClick = async (clientId) => {
     try {
       const response = await dispatch(fetchClientById(clientId)).unwrap();
@@ -151,6 +169,7 @@ const ClientList = () => {
   };
 
   useEffect(() => {
+  
     dispatch(fetchClients({ pageSize, pageNo: currentPage }));
     return () => {
       dispatch(clearClientState());
@@ -160,11 +179,6 @@ const ClientList = () => {
   const filteredClients = clients.filter((client) =>
     client.clientName.toLowerCase().includes(filterText.toLowerCase())
   );
-  const totalPages = Math.ceil(totalRecords / pageSize);
-  const toggleModal = () => {
-
-    setIsModalOpen(false);
-  };
 
 
   const handleCreate = () => {
@@ -180,7 +194,7 @@ const ClientList = () => {
             <input
               type="search"
               value={filterText}
-              onChange={(e) => setFilterText(e.target.value)}
+              onChange={handleSearchString}
               className="border rounded"
               placeholder=""
             />

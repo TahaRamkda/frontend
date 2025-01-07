@@ -25,6 +25,7 @@ const AgentsList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [agentForm, setagentForm] = useState({});
   const [SenderId, setSenderId] = useState(0);
+  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout  
   const [AgentId, setAgentId] = useState(null);
   const [filterText, setFilterText] = useState('');
   const [showagenttiming, setshowagenttiming] = useState("");
@@ -146,7 +147,7 @@ const AgentsList = () => {
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to first page
     // Fetch data with updated page size and reset to page 1
-    await dispatch(fetchAgents({ clientId: localStorage.getItem("clientId"), senderId: SenderId, searchStr: filterText, pageNo: currentPage, pageSize }));
+    await dispatch(fetchAgents({ clientId: localStorage.getItem("clientId"), senderId: SenderId, searchStr: filterText, pageNo: 1, pageSize:newSize }));
   };
 
   const handleUpdateSubmit = async (e) => {
@@ -183,7 +184,31 @@ const AgentsList = () => {
 
     setIsModalOpen(false);
   };
+  
+  const handleSearchString = (e) => {
+    const searchValue = e.target.value;
+    setFilterText(searchValue);
 
+    // Clear the previous timeout if any
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set a new timeout for 0.5 seconds
+    const timeout = setTimeout(() => {
+      dispatch(
+        fetchAgents({
+          clientId: localStorage.getItem("clientId"),
+          senderId: SenderId,
+          searchStr: searchValue,
+          pageNo: currentPage,
+          pageSize,
+        })
+      );
+    }, 500);
+
+    setSearchTimeout(timeout); // Save the timeout reference
+  };
   const refreshAgentList = () => {
     dispatch(fetchAgents({ clientId: localStorage.getItem("clientId"), senderId: SenderId, searchStr: filterText, pageNo: currentPage, pageSize }));
   };
@@ -193,7 +218,7 @@ const AgentsList = () => {
     return () => {
       dispatch(cleaAgentState());
     };
-  }, [dispatch, filterText]);
+  }, [dispatch]);
 
   const filteredAgents = useMemo(
     () =>
@@ -214,7 +239,7 @@ const AgentsList = () => {
             <input
               type="search"
               value={filterText}
-              onChange={(e) => setFilterText(e.target.value)}
+              onChange={handleSearchString}
               placeholder=""
               className="border rounded py-1 px-2 w-full mt-1 text-sm"
             />

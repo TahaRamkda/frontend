@@ -8,8 +8,6 @@ import Loading from "@/components/Loader";
 import {
   fetchSendernames,
   clearSendernameState,
-  deleteSendername,
-  fetchSendernameById,
   updateSendername,
 } from "@/slices/sendernameSlice";
 import showSweetAlert from "@/components/Sweetalert";
@@ -26,7 +24,7 @@ const SendernameList = () => {
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sendernameForm, setSendernameForm] = useState({});
-  const [filterText, setFilterText] = useState("");
+
   const [CreateModalOPen, setCreateModalOpen] = useState(false);
 
   const sendernameColumns = [
@@ -66,63 +64,12 @@ const SendernameList = () => {
 
   ];
 
-  const handleDetailClick = async (senderId) => {
-    try {
-      const response = await dispatch(fetchSendernameById(senderId)).unwrap();
-      if (response) {
-        setSendernameForm(response.result);
-        setIsModalOpen(true);
-      } else {
-        showSweetAlert({
-          title: "Error",
-          text: "Failed to fetch sender details",
-          icon: "error",
-        });
-      }
-    } catch (error) {
-      alert("Failed to fetch sender details: " + error.message);
-    }
-  };
-  const handleCancel = () => {
-    setCreateModalOpen(false);
-  };
-
-  const handleCreate = () => {
-    setCreateModalOpen(true);
-  };
-
-  const handleDeleteClick = (senderId) => {
-    SweetAlert.fire({
-      title: "Are you sure?",
-      text: "",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "Cancel",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        try {
-          dispatch(deleteSendername({ senderId })).then(() => {
-            showSweetAlert({
-              title: "Deleted Successfully",
-              text: "",
-              icon: "success",
-            });
-            refreshSendernameList();
-          });
-        } catch (error) {
-          alert("An unexpected error occurred: " + error.message);
-        }
-      }
-    });
-  };
-
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setSendernameForm({ ...sendernameForm, [name]: value });
   };
+
+
 
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();

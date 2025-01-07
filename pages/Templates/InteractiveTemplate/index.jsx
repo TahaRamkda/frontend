@@ -29,16 +29,6 @@ const TemplateList = () => {
             sortable: true,
         },
         {
-            name: "Category",
-            selector: (row) => row.category,
-            sortable: true,
-        },
-        {
-            name: "Whatsapp Id",
-            selector: (row) => row.templateId,
-            sortable: true,
-        },
-        {
             name: "Language",
             selector: (row) => row.language,
             sortable: true,
@@ -49,43 +39,14 @@ const TemplateList = () => {
             sortable: true,
         },
         // { name: t("Template Language"), selector: (row) => row.language, sortable: true },
-        { name: "Status ", selector: (row) => row.status, sortable: true },
+        { name: "Status ", selector: (row) => row.statusName, sortable: true },
         {
             name: "Created Date",
             selector: (row) => row.createdDate,
             sortable: true,
         },
-        {
-            name: "Action",
-            cell: (row) => (
-                <center>
-                    <div className="flex gap-2">
-                        <button
-                            className="uniform_icon_btn"
-                            onClick={() => handleDetailClick(row.id)}
-                        >
-                            <HiPencilAlt style={{ fontSize: "15px" }} />
-                        </button>
-                        <button
-                            className="uniform_icon_btn"
-                            onClick={() => handleDeleteClick(row.id)}
-                        >
-                            <HiTrash style={{ fontSize: "15px" }} />
-                        </button>
-                    </div>
-                </center>
-            ),
-        },
+        
     ];
-
-    const handleDetailClick = (templates_Id) => {
-        try {
-            settemplateId(templates_Id);
-            router.push("/Templates/UpdateTemplate");
-        } catch (error) {
-            alert(t("Failed to fetch Template details: ") + error.message);
-        }
-    };
 
     const handleDeleteClick = (templateId) => {
         SweetAlert.fire({
@@ -114,6 +75,7 @@ const TemplateList = () => {
             }
         });
     };
+    
     const handlePageSizeChange = async (newSize) => {
         // Update page size and reset to the first page
         dispatch(setPageSize(newSize));
@@ -189,7 +151,7 @@ const TemplateList = () => {
                         <input
                             type="date"
                             id="fromDate"
-                            value={fromDate}
+                            value={FromDate}
                             onChange={(e) => setfromDate(e.target.value)}
                             className="border rounded  w-100"
                         />
@@ -199,7 +161,7 @@ const TemplateList = () => {
                         <input
                             type="date"
                             id="toDate"
-                            value={toDate}
+                            value={ToDate}
                             onChange={(e) => settoDate(e.target.value)}
                             className="border rounded  w-100"
                         />
@@ -219,16 +181,9 @@ const TemplateList = () => {
             <div className="flex items-center">
                 {loading && <Loading />}
                 <div className="mb-1">
-                    <h4 className="font-bold mb-2">Templates </h4>
+                    <h4 className="font-bold mb-2">Interactive Templates </h4>
                 </div>
-                <div className="ml-auto mb-2">
-                    <button
-                        className="uniform_btn"
-                        onClick={() => router.push("/Templates/CreateTemplate")}
-                    >
-                        Create Template
-                    </button>
-                </div>
+               
             </div>
 
             <div className="overflow-auto">
@@ -278,8 +233,6 @@ const TemplateList = () => {
                     }}
                 />
             </div>
-
-            {isModalOpen && <UpdateTemplate Template_Id={templateId} />}
         </App>
     );
 };

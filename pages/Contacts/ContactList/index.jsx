@@ -20,6 +20,7 @@ const ContactList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [contactForm, setcontactForm] = useState({});
   const [filterText, setFilterText] = useState('');
+  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [GroupId, setGroupId] = useState(0);
   const [SearchStr, setSearchStr] = useState('')
   const [CreateModalOPen, setCreateModalOpen] = useState(false);
@@ -65,7 +66,24 @@ const ContactList = () => {
       alert("Failed to fetch details" + error.message);
     }
   };
+const handleSearchString = (e) => {
+    const searchValue = e.target.value;
+    setFilterText(searchValue);
 
+    // Clear the previous timeout if any
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set a new timeout for 0.5 seconds
+    const timeout = setTimeout(() => {
+      dispatch(
+        fetchContact({ clientId: localStorage.getItem("clientId"), groupId: GroupId, searchStr: searchValue, pageNo: currentPage, pageSize })
+      );
+    }, 500);
+
+    setSearchTimeout(timeout); // Save the timeout reference
+  };
   const handleDeleteClick = (contactId) => {
     SweetAlert.fire({
       title: "Are you sure?",
@@ -156,7 +174,7 @@ const ContactList = () => {
     return () => {
       dispatch(clearContactState());
     };
-  }, [dispatch, filterText]);
+  }, [dispatch]);
 
   const filteredClients = contacts.filter((contact) =>
     contact.firstName.toLowerCase().includes(filterText.toLowerCase())
@@ -183,7 +201,7 @@ const ContactList = () => {
             <input
               type="search"
               value={filterText}
-              onChange={(e) => setFilterText(e.target.value)}
+              onChange={handleSearchString}
               className="border rounded py-1 px-2 w-full text-sm"
             // placeholder="Search"
             />

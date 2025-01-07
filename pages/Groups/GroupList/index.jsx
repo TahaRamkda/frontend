@@ -16,6 +16,7 @@ const GroupList = () => {
   const dispatch = useDispatch();
   const { groups, loading, error, pageSize, totalRecords, currentPage } = useSelector((state) => state.groups);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [groupForm, setGroupForm] = useState({});
   const [filterText, setFilterText] = useState('');
   const [CreateModalOpen, setCreateModalOpen] = useState(false)
@@ -117,6 +118,24 @@ const GroupList = () => {
     setIsModalOpen(false);
   };
 
+const handleSearchString = (e) => {
+    const searchValue = e.target.value;
+    setFilterText(searchValue);
+
+    // Clear the previous timeout if any
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set a new timeout for 0.5 seconds
+    const timeout = setTimeout(() => {
+      dispatch(
+        fetchGroup({ clientId: localStorage.getItem("clientId"), pageSize, pageNo: currentPage, SearchStr: searchValue })
+      );
+    }, 500);
+
+    setSearchTimeout(timeout); // Save the timeout reference
+  };
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -153,7 +172,7 @@ const GroupList = () => {
     return () => {
       dispatch(clearGroupState());
     };
-  }, [dispatch, filterText]);
+  }, [dispatch]);
 
   const handleCreate = () => {
     setCreateModalOpen(true)
@@ -174,7 +193,7 @@ const GroupList = () => {
             <input
               type="search"
               value={filterText}
-              onChange={(e) => setFilterText(e.target.value)}
+              onChange={handleSearchString}
               placeholder=""
               className="border rounded py-1 px-2 w-full text-sm"
             />

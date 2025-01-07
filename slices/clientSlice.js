@@ -8,9 +8,9 @@ import { CLIENTLIST, CLIENTDETAIL, CREATECLIENT, DELETECLIENT, CLIENTUPDATE, CLI
 // Fetch Clients
 export const fetchClients = createAsyncThunk(
   'client/fetchClients',
-  async ({_,pageNo,pageSize}, { rejectWithValue }) => {
+  async ({_,pageNo,pageSize,SearchStr}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${CLIENTLIST}?PageNo=${0}&PageSize=${1000}`);
+      const response = await API.get(`${CLIENTLIST}?PageNo=${pageNo}&PageSize=${pageSize}${SearchStr?`&SearchStr=${SearchStr}`:''}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           clients: response.data.result,
