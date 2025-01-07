@@ -204,33 +204,50 @@ const CampaignsList = () => {
       
     },
     { name: "Sent Count", selector: (row) => row.sentCount, sortable: true },
-    { name: "Failed Count", selector: (row) => row.failedCount, sortable: true  },
+    { name: "Failed Count", selector: (row) => row.failedCount, sortable: true },
     { name: "Delivered Count", selector: (row) => row.deliveredCount, sortable: true },
     { name: "Undelivered Count", selector: (row) => row.undeliveredCount, sortable: true },
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true ,width:'15%'},
+    { name: "Created Date", selector: (row) => row.createdDate, sortable: true, width: '15%' },
     {
-      name: "Action", cell: (row) => (
-        <div className='flex gap-2' id='InfoIcon'>
-          <button className="uniform_icon_btn" onClick={() => handleActivateClick(row.campaignId)}>
-            <HiLightningBolt style={{ fontSize: "15px" }} />
-            <Tooltip target="InfoIcon" placement="top">
-        This is an info button
-      </Tooltip>
-          </button>
-          <button className="uniform_icon_btn" onClick={() => handelClick(row.campaignId)}>
-            <MdGroupRemove style={{ fontSize: "15px" }} />
-          </button>
-          <button className="uniform_icon_btn" onClick={() => HandleUpdateCampaign(row.campaignId)}>
-            <HiPencilAlt style={{ fontSize: "15px" }} />
-          </button>
-          <button className="uniform_icon_btn" onClick={() => handleTestCampaign(row.campaignId)}>
-            <HiBeaker style={{ fontSize: "15px" }} />
-          </button>
-        </div>
-
-      ),
-      width:'10%'
-    },
+      name: "Action", cell: (row) => {
+        const scheduleDate = new Date(row.scheduleDate); // Convert scheduleDate to Date object
+        const currentTime = new Date(); // Get current time
+      
+        // Check if scheduleDate is today
+        const isSameDay =
+          scheduleDate.getDate() === currentTime.getDate() &&
+          scheduleDate.getMonth() === currentTime.getMonth() &&
+          scheduleDate.getFullYear() === currentTime.getFullYear();
+      
+        const timeDifference = (scheduleDate - currentTime) / (1000 * 60 * 60); // Difference in hours
+      
+        return (
+          <div className='flex gap-2' id='InfoIcon'>
+            <button className="uniform_icon_btn" onClick={() => handleActivateClick(row.campaignId)}>
+              <HiLightningBolt style={{ fontSize: "15px" }} />
+              <Tooltip target="InfoIcon" placement="top">
+                This is an info button
+              </Tooltip>
+            </button>
+            <button className="uniform_icon_btn" onClick={() => handelClick(row.campaignId)}>
+              <MdGroupRemove style={{ fontSize: "15px" }} />
+            </button>
+            {/* Conditionally render the Edit button */}
+            {(isSameDay && timeDifference > 3) || !isSameDay ? (
+              <button className="uniform_icon_btn" onClick={() => HandleUpdateCampaign(row.campaignId)}>
+                <HiPencilAlt style={{ fontSize: "15px" }} />
+              </button>
+            ) : null}
+            <button className="uniform_icon_btn" onClick={() => handleTestCampaign(row.campaignId)}>
+              <HiBeaker style={{ fontSize: "15px" }} />
+            </button>
+          </div>
+        );
+      },
+      
+      width: '10%'
+    }
+    
 
   ];
   const subHeaderComponentMemo = useMemo(() => {

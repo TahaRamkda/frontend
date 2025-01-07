@@ -876,57 +876,129 @@ const ChatPage = () => {
                   </div>
 
                   {previewUrl && (
-                    <div>
-                      <button
-                        onClick={() => handleImageclose()}
-                        style={{
-                          position: "absolute",
-                          left: "410px", // Close to the top-right corner of the image
-                          backgroundColor: "red",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "50%",
-                          width: "20px",
-                          height: "20px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          cursor: "pointer",
-                          boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)", // Optional: add a shadow for better visibility
-                        }}
-                      >
-                        &times;
-                      </button>
-                      {fileType === "image" && (
-                        <img
-                          src={previewUrl}
-                          alt="Preview"
-                          style={{ maxWidth: "400px", marginTop: "10px" }}
-                        />
-                      )}
-                      {fileType === "video" && (
-                        <video
-                          controls
-                          src={previewUrl}
-                          style={{ maxWidth: "400px", marginTop: "10px" }}
-                        />
-                      )}
-                      {fileType === "audio" && (
-                        <audio
-                          controls
-                          src={previewUrl}
-                          style={{ marginTop: "10px" }}
-                        />
-                      )}
-                      {fileType === "application" && (
-                        <div style={{ marginTop: "10px" }}>
-                          <a href={previewUrl} download={mediaFile.name}>
-                            Download {mediaFile.name}
-                          </a>
-                        </div>
-                      )}
-                    </div>
-                  )}
+  <div
+    style={{
+      position: "relative",
+      padding: "20px",
+      borderRadius: "8px",
+      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+      maxWidth: "450px",
+      marginRight: "20px auto",
+    }}
+  >
+    <button
+      onClick={() => handleImageclose()}
+      style={{
+        position: "absolute",
+        top: "10px",
+        right: "10px",
+        backgroundColor: "red",
+        color: "white",
+        border: "none",
+        borderRadius: "50%",
+        width: "25px",
+        height: "25px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+        boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+        fontSize: "16px",
+        lineHeight: "1",
+      }}
+    >
+      &times;
+    </button>
+
+    {fileType === "image" && (
+      <img
+        src={previewUrl}
+        alt="Preview"
+        style={{
+          maxWidth: "100%",
+          marginTop: "10px",
+          borderRadius: "8px",
+        }}
+      />
+    )}
+
+    {fileType === "video" && (
+      <video
+        controls
+        src={previewUrl}
+        style={{
+          width: "100%",
+          marginTop: "10px",
+          borderRadius: "8px",
+        }}
+      />
+    )}
+
+    {fileType === "audio" && (
+      <audio
+        controls
+        src={previewUrl}
+        style={{
+          width: "100%",
+          marginTop: "10px",
+        }}
+      />
+    )}
+
+    {fileType === "application" && (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginTop: "10px",
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: "#f0f0f0",
+            borderRadius: "50%",
+            width: "50px",
+            height: "50px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginRight: "10px",
+          }}
+        >
+          <i
+            className="fa fa-file"
+            style={{
+              fontSize: "24px",
+              color: "#555",
+            }}
+          ></i>
+        </div>
+        <div>
+          <p
+            style={{
+              margin: "0 0 5px",
+              fontWeight: "bold",
+              color: "#333",
+            }}
+          >
+            {mediaFile.name}
+          </p>
+          <a
+            href={previewUrl}
+            download={mediaFile.name}
+            style={{
+              color: "#007BFF",
+              textDecoration: "none",
+            }}
+          >
+            Download
+          </a>
+        </div>
+      </div>
+    )}
+  </div>
+)}
+
                   <div className="msger-inputs px-4 py-3 flex items-center">
                     <Button
                       onClick={openFileManager}
