@@ -1,5 +1,11 @@
-import React, { useState, useEffect, useRef ,useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";import { FaComments, FaCheckCircle, FaTimesCircle, FaClock } from "react-icons/fa";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  FaComments,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaClock,
+} from "react-icons/fa";
 import { MdOutlineTimer } from "react-icons/md";
 import { AiOutlineHourglass } from "react-icons/ai";
 import {
@@ -25,10 +31,7 @@ import {
   NewAgentMessage,
 } from "@/slices/ConversationSlice";
 
-import {
-  fetchAgentStats,
-  cleaAgentStats,
-} from "@/slices/AgentSlice";
+import { fetchAgentStats, cleaAgentStats } from "@/slices/AgentSlice";
 import * as signalR from "@microsoft/signalr";
 import DefinedTemplates from "../AgentDefinedTemplate";
 import { toast } from "react-toastify";
@@ -39,7 +42,6 @@ import EmojiPicker from "emoji-picker-react";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 import { extractTime } from "@/utils/constants";
 import { set } from "date-fns";
-//import {notificatin} from "@/public/assets/Notification/chatassigned.wav";
 const ChatPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const dispatch = useDispatch();
@@ -53,13 +55,10 @@ const ChatPage = () => {
     hasMore,
     loading: messageLoading,
   } = useSelector((state) => state.conversations);
-  const {
-    AgentStats,
-    loading: statsLoading,
-  } = useSelector((state) => state.agents);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { AgentStats, loading: statsLoading } = useSelector(
+    (state) => state.agents
+  );
   const inputRef = useRef(null);
-  const [activeTab, setActiveTab] = useState("1");
   const [chatMessages, setChatMessages] = useState([]);
   const [AgentConversaton, setAgentConversaton] = useState([]);
   const [ShowDetailedTemplate, setShowDetailedTemplate] = useState(false);
@@ -68,12 +67,9 @@ const ChatPage = () => {
   const [connection, setConnection] = useState(null);
   const [Activechat, setActiveChat] = useState(0);
   const fileInputRef = useRef(null); // Reference for the file input
-  const [isRecording, setIsRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState(null);
   const [Errordisconect, setErrordisconect] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const toggleModal = () => setModalOpen((prevState) => !prevState);
-  const toggle = () => setDropdownOpen((prevState) => !prevState);
   const activeChatRef = useRef(Activechat);
   const agentChatRef = useRef([AgentConversaton]);
   const containerRef = useRef(null);
@@ -84,15 +80,16 @@ const ChatPage = () => {
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const isManualScroll = useRef(false);
   const audioRef = useRef(null);
+  const scrollContainerRef = useRef(null);
   const messagesEndRef = useRef(null);
   const timersRef = useRef({});
+  const [pageNo, setPageNo] = useState(1);
   const [unrepliedChats, setUnrepliedChats] = useState([]);
+  const lastScrollTop = useRef(0);
   useEffect(() => {
     // Initialize the audio object only once
     audioRef.current = new Audio("/assets/Notification/chatassigned.mp3");
   }, []);
- 
-  
 
   //call the fetchConversationList action to fetch agents conversations
   useEffect(() => {
@@ -120,13 +117,17 @@ const ChatPage = () => {
 
   //called each time to get conversation messages
   const HandleConversationDetail = async (id) => {
-    setChatsloading(true)
+    setChatsloading(true);
     dispatch(resetMessages());
     setActiveChat(id); // Update Activechat state
     const ClientId = localStorage.getItem("clientId");
     if (ClientId && id) {
       await dispatch(
-        fetchConversationMessage({ clientId: ClientId, ChatId: id })
+        fetchConversationMessage({
+          clientId: ClientId,
+          ChatId: id,
+          pageNo: pageNo,
+        })
       );
     }
     return () => {
@@ -158,73 +159,56 @@ const ChatPage = () => {
     }
   }, [messages]);
 
- 
-
   //Add emoji function
   const addEmoji = (emoji) => {
     setMessageInput((prevMessage) => prevMessage + emoji);
   };
 
-  const handleScroll = () => {
-    const { current: container } = containerRef;
+  const fetchMoreData = async () => {
+    if (loading || !hasMore) return;
     const clientId = localStorage.getItem("clientId");
-  
-    if (!container || loading || !clientId || !Activechat || !hasMore) return;
-  
-    const isCloseToTop = container.scrollTop <= 100; // Threshold for triggering fetch
-    const isScrollingUp = container.scrollTop < container.scrollHeight - container.clientHeight;
-  
-    if (isCloseToTop && isScrollingUp && !isManualScroll.current && currentPage >= 1) {
-      isManualScroll.current = true; // Prevent multiple triggers
-      const previousHeight = container.scrollHeight;
-  
-      dispatch(
+    if (clientId && Activechat) {
+      const response = await dispatch(
         fetchConversationMessage({
-          clientId,
+          clientId: clientId,
           ChatId: Activechat,
           pageNo: currentPage + 1,
         })
-      )
-        .unwrap()
-        .then(() => {
-          if (container) {
-            const newHeight = container.scrollHeight;
-            container.scrollTop = newHeight - previousHeight; // Maintain scroll position after loading
-          }
-          isManualScroll.current = false; // Allow new requests
-        })
-        .catch((error) => {
-          console.error("Failed to fetch older messages:", error);
-          isManualScroll.current = false;
-        });
+      ).unwrap();
     }
   };
-   
-  
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "auto" }); // Scroll to bottom on initial load
-    }
-  }, [chatMessages]);
- 
-  
-  useEffect(() => {
-    const container = containerRef.current;
-  
-    if (container) {
-      const scrollHandler = () => handleScroll();
-  
-      container.addEventListener("scroll", scrollHandler);
-  
-      return () => {
-        container.removeEventListener("scroll", scrollHandler);
-      };
-    }
-  }, [handleScroll]);
-  
-  
 
-  
+  const handleScroll = () => {
+    if (!hasMore || loading) return;
+
+    const container = scrollContainerRef.current;
+    const buffer = 200; // Trigger API call 200px before reaching the top
+
+    // Detect upward scrolling
+    const currentScrollTop = container.scrollTop;
+    if (
+      currentScrollTop < lastScrollTop.current &&
+      currentScrollTop <= buffer
+    ) {
+      // Fetch older chats when scrolling up near the top
+      dispatch(
+        fetchConversationMessage({
+          clientId: localStorage.getItem("clientId"),
+          ChatId: Activechat,
+          pageNo: currentPage + 1,
+        })
+      );
+    }
+
+    // Update last scroll position
+    lastScrollTop.current = currentScrollTop;
+  };
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [currentPage, hasMore, loading]);
 
   //called each time to send message
   const HandleSendMessage = async () => {
@@ -343,8 +327,7 @@ const ChatPage = () => {
     setConnection(connection);
 
     connection.on("MessageReceived", (message) => {
-      
-
+      debugger;
       // Play notification sound
       audioRef.current
         ?.play()
@@ -354,7 +337,12 @@ const ChatPage = () => {
 
       // Show a toast notification for the new message
       toast.success("You have a new message");
-      dispatch(fetchAgentStats({ clientId: localStorage.getItem("clientId"), agentId: localStorage.getItem("userId") }));
+      dispatch(
+        fetchAgentStats({
+          clientId: localStorage.getItem("clientId"),
+          agentId: localStorage.getItem("userId"),
+        })
+      );
       // Check if the conversation exists in agentChatRef
       const matchingConversationIndex = agentChatRef.current.findIndex(
         (conversation) => conversation.id === message.conversationId
@@ -413,7 +401,7 @@ const ChatPage = () => {
     });
 
     connection.on("ConversationAssigned", (notification) => {
-      
+      debugger;
       console.log("Received notification:", notification);
       audioRef.current
         ?.play()
@@ -421,8 +409,13 @@ const ChatPage = () => {
           console.error("Failed to play notification sound:", err)
         );
       toast.success("You have a new message request");
-      
-      dispatch(fetchAgentStats({ clientId: localStorage.getItem("clientId"), agentId: localStorage.getItem("userId") }));
+
+      dispatch(
+        fetchAgentStats({
+          clientId: localStorage.getItem("clientId"),
+          agentId: localStorage.getItem("userId"),
+        })
+      );
       // Start a 5-minute timer for the new chat
       startTimer(notification.id);
 
@@ -458,13 +451,18 @@ const ChatPage = () => {
     });
 
     connection.on("ConversationUnAssigned", (notification) => {
-     
+      debugger;
       console.log("Unassigned conversation:", notification);
 
       // Show a warning toast for the unassigned conversation
       toast.warning("A conversation has been unassigned");
-      
-      dispatch(fetchAgentStats({ clientId: localStorage.getItem("clientId"), agentId: localStorage.getItem("userId") }));
+
+      dispatch(
+        fetchAgentStats({
+          clientId: localStorage.getItem("clientId"),
+          agentId: localStorage.getItem("userId"),
+        })
+      );
       // Remove the unassigned conversation from the agent chat reference
       const updatedConversations = agentChatRef.current.filter(
         (conversation) => conversation.id !== notification.id
@@ -560,63 +558,80 @@ const ChatPage = () => {
 
   return (
     <App>
-        <div className="flex flex-wrap items-center justify-between bg-gray-100 p-4 rounded shadow-md space-x-4">
-      {/* Assigned */}
-      <div className="flex items-center space-x-2">
-        <FaComments size={20} className="text-blue-500" />
-        <span className="font-medium text-gray-700">
-          Assigned: <span className="font-bold">{AgentStats.totalAssigned  ?? '-/-'}</span>
-        </span>
-      </div>
+      <div className="flex flex-wrap items-center justify-between bg-gray-100 p-4 rounded shadow-md space-x-4">
+        {/* Assigned */}
+        <div className="flex items-center space-x-2">
+          <FaComments size={20} className="text-blue-500" />
+          <span className="font-medium text-gray-700">
+            Assigned:{" "}
+            <span className="font-bold">
+              {AgentStats.totalAssigned ?? "-/-"}
+            </span>
+          </span>
+        </div>
 
-      {/* Active */}
-      <div className="flex items-center space-x-2">
-        <FaCheckCircle size={20} className="text-green-500" />
-        <span className="font-medium text-gray-700">
-          Active: <span className="font-bold">{AgentStats.totalActive  ?? '-/-'}</span>
-        </span>
-      </div>
+        {/* Active */}
+        <div className="flex items-center space-x-2">
+          <FaCheckCircle size={20} className="text-green-500" />
+          <span className="font-medium text-gray-700">
+            Active:{" "}
+            <span className="font-bold">{AgentStats.totalActive ?? "-/-"}</span>
+          </span>
+        </div>
 
-      {/* Closed */}
-      <div className="flex items-center space-x-2">
-        <FaTimesCircle size={20} className="text-red-500" />
-        <span className="font-medium text-gray-700">
-          Closed: <span className="font-bold">{AgentStats.totalClosed  ?? '-/-' }</span>
-        </span>
-      </div>
+        {/* Closed */}
+        <div className="flex items-center space-x-2">
+          <FaTimesCircle size={20} className="text-red-500" />
+          <span className="font-medium text-gray-700">
+            Closed:{" "}
+            <span className="font-bold">{AgentStats.totalClosed ?? "-/-"}</span>
+          </span>
+        </div>
 
-      {/* Expired */}
-      <div className="flex items-center space-x-2">
-        <AiOutlineHourglass size={20} className="text-yellow-500" />
-        <span className="font-medium text-gray-700">
-          Expired: <span className="font-bold">{AgentStats.expiredChats  ?? '-/-'}</span>
-        </span>
-      </div>
+        {/* Expired */}
+        <div className="flex items-center space-x-2">
+          <AiOutlineHourglass size={20} className="text-yellow-500" />
+          <span className="font-medium text-gray-700">
+            Expired:{" "}
+            <span className="font-bold">
+              {AgentStats.expiredChats ?? "-/-"}
+            </span>
+          </span>
+        </div>
 
-      {/* Force Closed */}
-      <div className="flex items-center space-x-2">
-        <FaClock size={20} className="text-purple-500" />
-        <span className="font-medium text-gray-700">
-          Force Closed: <span className="font-bold">{AgentStats.forceClosedChats  ?? '-/-'}</span>
-        </span>
-      </div>
+        {/* Force Closed */}
+        <div className="flex items-center space-x-2">
+          <FaClock size={20} className="text-purple-500" />
+          <span className="font-medium text-gray-700">
+            Force Closed:{" "}
+            <span className="font-bold">
+              {AgentStats.forceClosedChats ?? "-/-"}
+            </span>
+          </span>
+        </div>
 
-      {/* Avg Duration */}
-      <div className="flex items-center space-x-2">
-        <MdOutlineTimer size={20} className="text-orange-500" />
-        <span className="font-medium text-gray-700">
-          Avg Duration: <span className="font-bold">{AgentStats.avgChatDuration  ?? '-/-'}</span>
-        </span>
-      </div>
+        {/* Avg Duration */}
+        <div className="flex items-center space-x-2">
+          <MdOutlineTimer size={20} className="text-orange-500" />
+          <span className="font-medium text-gray-700">
+            Avg Duration:{" "}
+            <span className="font-bold">
+              {AgentStats.avgChatDuration ?? "-/-"}
+            </span>
+          </span>
+        </div>
 
-      {/* Response Time */}
-      <div className="flex items-center space-x-2">
-        <MdOutlineTimer size={20} className="text-gray-500" />
-        <span className="font-medium text-gray-700">
-          Response Time: <span className="font-bold">{AgentStats.responseTime  ?? '-/-'}min</span>
-        </span>
+        {/* Response Time */}
+        <div className="flex items-center space-x-2">
+          <MdOutlineTimer size={20} className="text-gray-500" />
+          <span className="font-medium text-gray-700">
+            Response Time:{" "}
+            <span className="font-bold">
+              {AgentStats.responseTime ?? "-/-"}min
+            </span>
+          </span>
+        </div>
       </div>
-    </div>
       <Container fluid className="h-100 overflow-hidden">
         <Row className="g-0 h-100">
           <Col
@@ -758,6 +773,7 @@ const ChatPage = () => {
                       />
 
                       <div>{conversation.fullName}</div>
+                      <div>{conversation.phoneNumber}</div>
                     </div>
 
                     {/* Right Section */}
@@ -768,78 +784,91 @@ const ChatPage = () => {
                 ))}
               <div className="right-sidebar-chat p-4 w-full height-chat-box overflow-y-auto chat-background h-100">
                 <div className="msger flex flex-col h-full">
-                <div
-  ref={containerRef}
-  className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2"
->
-  {Chatsloading && <div className="text-center">Loading messages...</div>}
-  {chatMessages.map((message) => (
-    <div
-      key={message.messageId}
-      className={`flex ${message.typeId === 1 ? "justify-end" : "justify-start"}`}
-    >
-      <div
-        className={`max-w-xs p-2 rounded-2xl shadow-sm ${
-          message.typeId === 1
-            ? "bg-[#ddffd9] text-black rounded-br-none"
-            : "bg-[#ffffff] text-black rounded-bl-none"
-        }`}
-      >
-        {message.parentMessageContent &&
-          message.parentMessageContent.trim() !== "" && (
-            <div
-              className="mb-2 p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis"
-              style={{
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical",
-                whiteSpace: "normal",
-              }}
-            >
-              {message.parentMessageContent}
-            </div>
-          )}
-        {message.contentType && message.contentType !== "" && (
-          <>
-            {message.contentType.startsWith("image/") && (
-              <img
-                src={`${BASE_URL}${message.mediaPath}`}
-                alt="Image"
-                className="max-w-full rounded"
-              />
-            )}
-            {message.contentType.startsWith("video/") && (
-              <video
-                controls
-                src={`${BASE_URL}${message.mediaPath}`}
-                className="max-w-full rounded"
-              />
-            )}
-            {message.contentType.startsWith("audio/") && (
-              <audio
-                controls
-                src={`${BASE_URL}${message.mediaPath}`}
-                className="max-w-full rounded"
-              />
-            )}
-          </>
-        )}
-        <p className="text-left text-sm">
-          {message.messageContent.split("\n").map((line, index) => (
-            <span key={index}>
-              {line}
-              <br />
-            </span>
-          ))}
-        </p>
-        <p className="text-xs text-gray-500">
-          {extractTime(message.createdDate)}
-        </p>
-      </div>
-    </div>
-  ))}
-  <div ref={messagesEndRef} />
-</div>
+                  <div
+                    ref={scrollContainerRef}
+                    className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2"
+                    style={{
+                      height: "80vh",
+                      overflowY: "auto",
+                      display: "flex",
+                      flexDirection: "column-reverse",
+                    }}
+                  >
+                    {Chatsloading && (
+                      <div className="text-center">Loading messages...</div>
+                    )}
+                    {chatMessages.map((message) => (
+                      <div
+                        key={message.messageId}
+                        className={`flex ${
+                          message.typeId === 1 ? "justify-end" : "justify-start"
+                        }`}
+                      >
+                        <div
+                          className={`max-w-xs p-2 rounded-2xl shadow-sm ${
+                            message.typeId === 1
+                              ? "bg-[#ddffd9] text-black rounded-br-none"
+                              : "bg-[#ffffff] text-black rounded-bl-none"
+                          }`}
+                        >
+                          {message.parentMessageContent &&
+                            message.parentMessageContent.trim() !== "" && (
+                              <div
+                                className="mb-2 p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis"
+                                style={{
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: "vertical",
+                                  whiteSpace: "normal",
+                                }}
+                              >
+                                {message.parentMessageContent}
+                              </div>
+                            )}
+                          {message.contentType &&
+                            message.contentType !== "" && (
+                              <>
+                                {message.contentType.startsWith("image/") && (
+                                  <img
+                                    src={`${BASE_URL}${message.mediaPath}`}
+                                    alt="Image"
+                                    className="max-w-full rounded"
+                                  />
+                                )}
+                                {message.contentType.startsWith("video/") && (
+                                  <video
+                                    controls
+                                    src={`${BASE_URL}${message.mediaPath}`}
+                                    className="max-w-full rounded"
+                                  />
+                                )}
+                                {message.contentType.startsWith("audio/") && (
+                                  <audio
+                                    controls
+                                    src={`${BASE_URL}${message.mediaPath}`}
+                                    className="max-w-full rounded"
+                                  />
+                                )}
+                              </>
+                            )}
+                          <p className="text-left text-sm">
+                            {message.messageContent
+                              .split("\n")
+                              .map((line, index) => (
+                                <span key={index}>
+                                  {line}
+                                  <br />
+                                </span>
+                              ))}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {extractTime(message.createdDate)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    <div ref={messagesEndRef} />
+                  </div>
 
                   {previewUrl && (
                     <div>

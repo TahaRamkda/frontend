@@ -28,7 +28,7 @@ export const fetchConversationList = createAsyncThunk(
 
 export const fetchConversationMessage = createAsyncThunk(
   'conversation/fetchConversationMessage',
-  async ({ clientId, ChatId, pageNo = 1 }, { rejectWithValue }) => {
+  async ({ clientId, ChatId, pageNo }, { rejectWithValue }) => {
     try {
       const response = await API.get(
         `${CONVERSATIONMESSAGE}?clientId=${clientId}&id=${ChatId}&pageNo=${pageNo}&pageSize=15`
@@ -147,19 +147,23 @@ const conversationslice = createSlice({
       .addCase(fetchConversationMessage.fulfilled, (state, { payload }) => {
         
         const { conversationMessage, totalRecords, pageNo } = payload;
-
-        // Append or prepend messages based on page number
-        if (pageNo >= state.currentPage) {
-          state.messages = [...conversationMessage,...state.messages];
-        } else if (pageNo < state.currentPage) {
-          state.messages = [...conversationMessage, ...state.messages];
+      
+        // Append messages if loading next page
+        if (pageNo > state.currentPage) {
+          state.messages = [...state.messages, ...conversationMessage];
+        } else if (pageNo === 1) {
+          // On first page or reset, replace all messages
+          state.messages = [...conversationMessage];
         }
-
+      
         state.totalRecords = totalRecords;
         state.currentPage = pageNo;
+      
+        // Determine if more messages can be fetched
         state.hasMore = state.messages.length < totalRecords;
         state.loading = false;
       })
+      
       .addCase(fetchConversationMessage.rejected, (state) => {
         state.loading = false;
       })
