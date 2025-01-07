@@ -22,8 +22,8 @@ import { useRouter } from "next/navigation";
 import { FaTimes } from "react-icons/fa";
 import { FaRegTrashCan } from "react-icons/fa6";
 import {
-  createTemplates,
-  clearTemplateCreateState,
+  createInteractiveTemplates,
+  clearInteractiveTemplateCreateState,
 } from "@/slices/TemplateSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import defaultimage from "@/public/images/12.jpg";
@@ -35,11 +35,8 @@ import ButtonAction from "@/pages/Templates/ButtonAction";
 import moment from "moment";
 import CustomMagicEditor from "@/components/CustomMagicEditor";
 import { BASE_URL } from "@/utils/apiConstants";
-import ClientDropdown from "@/components/Dropdowns/ClientDropdown";
-import { set } from "date-fns";
 import Loader from "@/components/Loader";
 import MonitorFormikContext from "@/components/monitorformikcontext";
-import TemplateCategoryDropdown from "@/components/Dropdowns/TemplateCategorydropdown";
 import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
 import { toast } from "react-toastify";
 const CustomEditor = dynamic(
@@ -141,24 +138,7 @@ const InteractiveTemplateCreation = () => {
     });
   };
 
-  // useEffect(() => {
-  //   const result = headerPayloadDatawithVar.replace(/\*\*/g, "+");
-  //   const subresult = result.replace(/\*/g, "`");
-  //   const supresult = subresult.replace(/<sub>.*?<\/sub>/g, "~");
-  //   const replaceX = supresult.replace(/`/g, "_");
-  //   const finalHeaderReplace = replaceX.replace(/\+/g, "*");
-
-  //   console.log("UseEffectResult", finalReplace);
-  // }, [headerPayloadDatawithVar]);
-
   const handleSubmit = async (values) => {
-    
-    // let trimmedBodyContent = APIbodyContent.replace(/\*\*/g, "*").trimEnd();
-    // let APIbodyContent = "**Latest**<sub>Text</sub>*Example*   "; // Example content
-
-    // Replace ** with *, * with _, and <sub>/<sub> with ~
-    let trimmedBodyContent = APIbodyContent;
-
     //Replacing the words
     const result = headerPayloadDatawithVar.replace(/\*\*/g, "+");
     const subresult = result.replace(/\*/g, "`");
@@ -177,7 +157,7 @@ const InteractiveTemplateCreation = () => {
       name: values.templateName,
       senderNameId: selectedSenderId,
       language: language,
-      usedByAgent : true,
+      usedByAgent: true,
       mediaId: selectedMediaId,
       actionBy: localStorage.getItem("userId"),
       header: {
@@ -195,39 +175,18 @@ const InteractiveTemplateCreation = () => {
         buttonText: button.text,
         actionId: button.actionId,
         actionType: button.actiontype,
-        sequence: index,
-        phoneNumber: `${button.countryCode}${button.phoneNumber}`,
-        url: button.websiteUrl,
-        values: {
-          value: button.urlveriablevalue,
-          defaultValue: button.urlveriablevalue,
-          index: button.urlverindex,
-        },
-       
+        sequence: index + 1,
+        buttonValue: button.websiteUrl?.trim()
+          ? button.websiteUrl
+          : `${button.countryCode}${button.phoneNumber}`,
       })),
     };
     try {
-      const isValid = variables.every((value, index) => {
-        // Check both conditions for variables and headerVariable
-        if (
-          (value.includes(`{{${index + 1}}}`) && value.trim() === "") || // Check condition for variable
-          (headerVariable[index] &&
-            headerVariable[index].includes(`{{${index + 1}}}`) &&
-            headerVariable[index].trim() === "") // Check condition for headerVariable
-        ) {
-          return false; // Break validation for this item
-        }
-        return true; // Validation passed for this item
-      });
-
-      if (!isValid) {
-        alert(`Value is required for placeholder {{${index + 1}}}`);
-        return null;
-      } else {
-      }
-      const response = await dispatch(createTemplates(requestBody)).unwrap();
+      const response = await dispatch(
+        createInteractiveTemplates(requestBody)
+      ).unwrap();
       if (response.success) {
-        clearTemplateCreateState();
+        clearInteractiveTemplateCreateState();
         showSweetAlert({
           title: "Template Created",
           text:
@@ -286,8 +245,6 @@ const InteractiveTemplateCreation = () => {
         .replace(/\n/g, "<br />"),
     }));
   }, [headContent, headerVariable]);
-
-
 
   const handleBodyChange = (value) => {
     // Allow typing without interruptions
@@ -438,8 +395,6 @@ const InteractiveTemplateCreation = () => {
     }
   }, [finalContent]);
 
- 
-
   useEffect(() => {
     let updatedBody = bodyFinalContent;
 
@@ -465,12 +420,6 @@ const InteractiveTemplateCreation = () => {
     }));
   }, [bodyFinalContent, variables]);
 
-  //console.log("BodyFinalContent12", bodyContent, finalContent)
-  const HandleTemplatetypechange = (e) => {
-    const templatetype = e.target.value;
-    setTemplatetype(templatetype);
-  };
-
   const HandleTemplateLanguagechange = (e) => {
     const Language = e.target.value;
     setlanguage(Language);
@@ -486,7 +435,7 @@ const InteractiveTemplateCreation = () => {
             className="border-end overflow-auto shadow-lg"
             style={{ padding: "20px", background: "#fffff" }}
           >
-            <h4 className="mb-4">Create Template</h4>
+            <h4 className="mb-4">Create Interactive Template</h4>
             <label className="block mb-1 mt-1">Sender Names</label>
             <Sendernames
               name="senderId"
@@ -588,7 +537,7 @@ const InteractiveTemplateCreation = () => {
                               setFinalContent={setFinalContent}
                               existingContent={updatedheadvercontent}
                               body={false}
-                              showaddvarbutton=  {false}
+                              showaddvarbutton={false}
                             />
                           </FormGroup>
                         )}
@@ -624,9 +573,7 @@ const InteractiveTemplateCreation = () => {
                           Body
                         </Label>
                         <div style={{ position: "relative" }}>
-                         
                           <CustomMagicEditor
-                            errorMessage={errorMessage}
                             setBodyPayloadDatawithVar={
                               setBodyPayloadDatawithVar
                             }
@@ -634,14 +581,9 @@ const InteractiveTemplateCreation = () => {
                             handleBodyChange={handleBodyChange}
                             body={true}
                             existingBodyContent={updatedvercontent}
-                            showaddvarbutton=  {false}
+                            showaddvarbutton={false}
                           />
                         </div>
-                        {errorMessage && (
-                          <Alert color="danger" className="mt-2">
-                            {errorMessage}
-                          </Alert>
-                        )}
                       </FormGroup>
                     </div>
                     <div className="">
@@ -655,6 +597,7 @@ const InteractiveTemplateCreation = () => {
                           placeholder="Add footer text"
                           className="form-control"
                           maxLength="50"
+                          required
                         />
                       </FormGroup>
                       {/* Button dropdown */}
@@ -704,7 +647,7 @@ const InteractiveTemplateCreation = () => {
                     {messagePreview.buttons.map((button, index) => (
                       <div
                         key={index}
-                        className="d-flex align-items-center my-3 border-b-2 pb-3" 
+                        className="d-flex align-items-center my-3 border-b-2 pb-3"
                       >
                         {/* Button Text Input */}
                         <Input
@@ -806,61 +749,7 @@ const InteractiveTemplateCreation = () => {
                                   }}
                                   className="me-2"
                                 />
-                                <Button
-                                  onClick={() => addURLVariable(index)}
-                                  className="mt-0 mr-2 bg-transparent border-0"
-                                  style={{ minWidth: "max-content" }}
-                                >
-                                  <span className="text-primary">
-                                    + Add Variable
-                                  </span>
-                                </Button>
                               </div>
-
-                              {/* URL Variable Input */}
-                              {button.urlveriablevalue != null && (
-                                <div className="mt-3">
-                                  <Row>
-                                    <Col>
-                                      <Input
-                                        className="w-100"
-                                        type="text"
-                                        value={button.urlveriablevalue}
-                                        onChange={(e) =>
-                                          handleurlVariableChange(
-                                            index,
-                                            e.target.value
-                                          )
-                                        }
-                                        placeholder={`Enter Sample value for {${
-                                          index + 1
-                                        }}`}
-                                      />
-                                    </Col>
-                                    <Col xs="auto">
-                                      <div
-                                        className="border-1 d-flex align-items-center justify-content-center rounded"
-                                        style={{
-                                          height: "46px",
-                                          width: "38px",
-                                          background: "#e1e1e1",
-                                        }}
-                                      >
-                                        <FaTimes
-                                          key={index}
-                                          onClick={() => {
-                                            removeWebsiteVariable(index);
-                                          }}
-                                          style={{
-                                            cursor: "pointer",
-                                            color: "red",
-                                          }}
-                                        />
-                                      </div>
-                                    </Col>
-                                  </Row>
-                                </div>
-                              )}
                             </div>
                           </>
                         )}
@@ -873,9 +762,7 @@ const InteractiveTemplateCreation = () => {
                         >
                           <FaRegTrashCan />
                         </Button>
-                        
                       </div>
-                      
                     ))}
 
                     <div className="w-full flex justify-end gap-3">
@@ -902,10 +789,7 @@ const InteractiveTemplateCreation = () => {
             </Formik>
           </Col>
 
-          <Col
-            md={4}
-            className="overflow-hidden h-screen fixed right-10"
-          >
+          <Col md={4} className="overflow-hidden h-screen fixed right-10">
             <div
               style={{
                 position: "sticky",

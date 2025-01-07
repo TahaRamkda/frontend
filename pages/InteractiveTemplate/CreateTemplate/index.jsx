@@ -22,8 +22,8 @@ import { useRouter } from "next/navigation";
 import { FaTimes } from "react-icons/fa";
 import { FaRegTrashCan } from "react-icons/fa6";
 import {
-  createTemplates,
-  clearTemplateCreateState,
+  createInteractiveTemplates,
+  clearInteractiveTemplateCreateState,
 } from "@/slices/TemplateSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import defaultimage from "@/public/images/12.jpg";
@@ -31,15 +31,12 @@ import bagroundimage from "@/public/images/baground.jpg";
 import Media from "@/pages/Media/MediaList";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
 import App from "@/components/App";
-import ButtonAction from "../ButtonAction";
+import ButtonAction from "@/pages/Templates/ButtonAction";
 import moment from "moment";
 import CustomMagicEditor from "@/components/CustomMagicEditor";
 import { BASE_URL } from "@/utils/apiConstants";
-import ClientDropdown from "@/components/Dropdowns/ClientDropdown";
-import { set } from "date-fns";
 import Loader from "@/components/Loader";
 import MonitorFormikContext from "@/components/monitorformikcontext";
-import TemplateCategoryDropdown from "@/components/Dropdowns/TemplateCategorydropdown";
 import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
 import { toast } from "react-toastify";
 const CustomEditor = dynamic(
@@ -141,24 +138,7 @@ const InteractiveTemplateCreation = () => {
     });
   };
 
-  // useEffect(() => {
-  //   const result = headerPayloadDatawithVar.replace(/\*\*/g, "+");
-  //   const subresult = result.replace(/\*/g, "`");
-  //   const supresult = subresult.replace(/<sub>.*?<\/sub>/g, "~");
-  //   const replaceX = supresult.replace(/`/g, "_");
-  //   const finalHeaderReplace = replaceX.replace(/\+/g, "*");
-
-  //   console.log("UseEffectResult", finalReplace);
-  // }, [headerPayloadDatawithVar]);
-
   const handleSubmit = async (values) => {
-    
-    // let trimmedBodyContent = APIbodyContent.replace(/\*\*/g, "*").trimEnd();
-    // let APIbodyContent = "**Latest**<sub>Text</sub>*Example*   "; // Example content
-
-    // Replace ** with *, * with _, and <sub>/<sub> with ~
-    let trimmedBodyContent = APIbodyContent;
-
     //Replacing the words
     const result = headerPayloadDatawithVar.replace(/\*\*/g, "+");
     const subresult = result.replace(/\*/g, "`");
@@ -175,82 +155,38 @@ const InteractiveTemplateCreation = () => {
     const requestBody = {
       clientId: localStorage.getItem("clientId"),
       name: values.templateName,
-      transactionType: 1,
-      category: Templatetype,
-      language: language,
       senderNameId: selectedSenderId,
-      status: "PENDING",
-      subCategory: Templatetype,
-      isApproved: false,
+      language: language,
+      usedByAgent: true,
       mediaId: selectedMediaId,
-      templateType: 1,
       actionBy: localStorage.getItem("userId"),
       header: {
         format: values.headerType,
         text: finalHeaderReplace,
-        textCount: headerTextCount,
-        values: headerVariable.map((value, index) => ({
-          value: value,
-          defaultValue: value,
-          index: index + 1,
-        })),
       },
       body: {
-        // text: trimmedBodyContent,
         text: bodyfinalReplace,
-        textCount: bodyTextCount,
-        values: variables.map((value, index) => ({
-          value: value,
-          defaultValue: value,
-          index: index + 1,
-        })),
       },
       footer: {
-        //text: messagePreview.footer,
         text: messagePreview.footer,
       },
       buttons: messagePreview.buttons.map((button, index) => ({
-        type: button.type,
-        text: button.text,
-        phoneNumber: `${button.countryCode}${button.phoneNumber}`,
-        textCount: button.textCount,
-        index: index,
-        url: button.websiteUrl,
-        values: {
-          value: button.urlveriablevalue,
-          defaultValue: button.urlveriablevalue,
-          index: button.urlverindex,
-        },
+        buttonType: button.type,
+        buttonText: button.text,
         actionId: button.actionId,
         actionType: button.actiontype,
-        buttonId: button.buttonValue,
+        sequence: index + 1,
+        buttonValue: button.websiteUrl?.trim()
+          ? button.websiteUrl
+          : `${button.countryCode}${button.phoneNumber}`,
       })),
     };
-
-    //console.log("TimingData", requestBody)
-
     try {
-      const isValid = variables.every((value, index) => {
-        // Check both conditions for variables and headerVariable
-        if (
-          (value.includes(`{{${index + 1}}}`) && value.trim() === "") || // Check condition for variable
-          (headerVariable[index] &&
-            headerVariable[index].includes(`{{${index + 1}}}`) &&
-            headerVariable[index].trim() === "") // Check condition for headerVariable
-        ) {
-          return false; // Break validation for this item
-        }
-        return true; // Validation passed for this item
-      });
-
-      if (!isValid) {
-        alert(`Value is required for placeholder {{${index + 1}}}`);
-        return null;
-      } else {
-      }
-      const response = await dispatch(createTemplates(requestBody)).unwrap();
+      const response = await dispatch(
+        createInteractiveTemplates(requestBody)
+      ).unwrap();
       if (response.success) {
-        clearTemplateCreateState();
+        clearInteractiveTemplateCreateState();
         showSweetAlert({
           title: "Template Created",
           text:
@@ -301,62 +237,6 @@ const InteractiveTemplateCreation = () => {
     }));
   }, [bodyFinalContent, variables]);
 
-  const addURLVariable = (index) => {
-   
-    const newIndex = 1;
-
-    const updatedButtons = [...messagePreview.buttons];
-
-    if (!updatedButtons[index].websiteUrl.includes(`{{1}}`)) {
-      const html = updatedButtons[index].websiteUrl;
-      //.replace(/<p[^>]*>/g, '') // Remove opening <p> tags
-      // .replace(/<\/p>/g, '<br />'); // Replace closing </p> tags with <br />
-      //.replace(/<br\s*\/?>/g, ''); // Remove existing <br /> tag
-      var a = `${html}{{${newIndex}}}`;
-      var value = bodyTextCount;
-      //setbodyTextCount(value+1);
-      updatedButtons[index].websiteUrl = a;
-      updatedButtons[index].urlveriable = "";
-      updatedButtons[index].urlveriablevalue = "";
-      updatedButtons[index].urlverindex = newIndex;
-      //setwebsiteUrl(e.target.value)
-      setMessagePreview({ ...messagePreview, buttons: updatedButtons });
-      //setwebsiteUrl(a);
-      // alert(websiteUrl);
-      //seturlvariables((prev) => [...prev, ""]);
-      setErrorMessage("");
-    } else {
-      setErrorMessage(`Variable {${newIndex}} already exists in the body.`);
-    }
-  };
-
-  const removeWebsiteVariable = (index) => {
-    const updatedButtons = [...messagePreview.buttons];
-
-    // Check if the variable exists in the URL
-    if (
-      updatedButtons[index].websiteUrl.includes(
-        `{{${updatedButtons[index].urlverindex}}}`
-      )
-    ) {
-      // Remove the variable from the website URL
-      updatedButtons[index].websiteUrl = updatedButtons[
-        index
-      ].websiteUrl.replace(`{{${updatedButtons[index].urlverindex}}}`, "");
-      delete updatedButtons[index].urlveriable;
-      delete updatedButtons[index].urlveriablevalue;
-      delete updatedButtons[index].urlverind;
-
-      // Update the state
-      setMessagePreview({ ...messagePreview, buttons: updatedButtons });
-      setErrorMessage(""); // Clear any existing error messages
-    } else {
-      setErrorMessage(
-        `Variable {${updatedButtons[index].urlverindex}} does not exist in the URL.`
-      );
-    }
-  };
-
   useEffect(() => {
     setMessagePreview((prev) => ({
       ...prev,
@@ -365,135 +245,6 @@ const InteractiveTemplateCreation = () => {
         .replace(/\n/g, "<br />"),
     }));
   }, [headContent, headerVariable]);
-
-  const removeVariable = (indexToRemove) => {
-    // Remove the variable at the specified index
-    const updatedVariables = variables.filter((_, i) => i !== indexToRemove);
-
-    // Update the body content by renumbering the remaining variables
-    let updatedBodyContent = bodyPayloadDatawithVar;
-
-    // Replace each old variable index with its new index in the body content
-    updatedVariables.forEach((variable, i) => {
-      const oldIndex = parseInt(variable.match(/\d+/)[0], 10); // Extract old index
-      const newVariable = `{{${i + 1}}}`;
-      updatedBodyContent = updatedBodyContent.replace(
-        `{{${oldIndex}}}`,
-        newVariable
-      );
-    });
-
-    // Remove the variable being deleted from the body content
-    const variableToRemove = `{{${indexToRemove + 1}}}`;
-    updatedBodyContent = updatedBodyContent
-      .replace(variableToRemove, "")
-      .replace(/\s\s+/g, " ");
-
-    // Update state
-    setVariables(updatedVariables.map((_, i) => `{{${i + 1}}}`)); // Adjust indices in variables
-    setupdatedvercontent(updatedBodyContent.trim());
-    setbodyTextCount(updatedVariables.length); // Update text count
-  };
-
-  const removeHeaderVariable = (index) => {
-    debugger
-    //alert(bodyPayloadDatawithVar)
-    const updatedVariables = headerVariable.filter((_, i) => i !== index);
-    const updatedHeadContent = headerPayloadDatawithVar
-      .replace(`{{${index + 1}}}`, "")
-      .replace(/\s\s+/g, " ");
-    var value = headerTextCount;
-    setheaderTextCount(value - 1);
-    setHeaderVariable(updatedVariables);
-    setupdatedheadvercontent(updatedHeadContent);
-  };
-
-  const handleVariableChange = (index, value) => {
-    setVariables((prev) => {
-      const newVariables = [...prev];
-      newVariables[index] = value;
-      return newVariables;
-    });
-  };
-
-  // const addheaderVariable = () => {
-  //   if (headerVariable.length < 1) {
-  //     const newIndex = headerVariable.length + 1;
-  //     if (!headContent.includes(`{{${newIndex}}}`)) {
-  //       setHeadContent((prev) => {
-  //         const newHeadContent = prev + `{{${newIndex}}}`;
-  //         return newHeadContent;
-  //       });
-  //       var value = headerTextCount;
-  //       setheaderTextCount(value + 1);
-  //       setHeaderVariable((prev) => [...prev, ""]); // Update the state correctly
-  //       setErrorMessage("");
-  //       setRemoveHeaderButtonEnabled(true); // Enable the remove button
-  //     } else {
-  //       setErrorMessage(`Variable {${newIndex}} already exists in the header.`);
-  //     }
-  //   } else {
-  //     setErrorMessage("You can only add one header variable.");
-  //   }
-  // };
-  // const handleBodyChange = (value) => {
-  //   const placeholders = variables.map((_, index) => `{{${index + 1}}}`);
-  //   const isValid = placeholders.every((placeholder) => value.includes(placeholder));
-
-  //   if (isValid) {
-  //     setBodyContent(value.replace(/\s\s+/g, " "));
-  //     //setBodyContent(replaceClosingPTagsWithNewline(value));
-  //     setErrorMessage("");
-  //   } else {
-  //     setErrorMessage("You cannot change the variable placeholders in the body.");
-  //   }
-  // };
-
-  // Additional Sam New Change
-
-  const addheaderVariable = (position) => {
-    if (headerVariable.length < 1) {
-      const newIndex = headerVariable.length + 1;
-      if (!headContent.includes(`{{${newIndex}}}`)) {
-        setHeadContent((prev) => {
-          const newHeadContent = prev + `{{${newIndex}}}`;
-          setheaderTextCount(headerTextCount + 1);
-          return newHeadContent;
-        });
-
-        setHeaderVariable((prev) => [
-          ...prev.slice(0, position),
-          `{{${newIndex}}}`,
-          ...prev.slice(position),
-        ]);
-        setErrorMessage("");
-        setRemoveHeaderButtonEnabled(true);
-      } else {
-        setErrorMessage(`Variable {${newIndex}} already exists in the header.`);
-      }
-    } else {
-      setErrorMessage("You can only add one header variable.");
-    }
-  };
-  const addVariable = (mineIndex) => {
-    // const newIndex = variables.length + 1;
-    console.log("MineIndex", mineIndex);
-    if (!bodyFinalContent.includes(`{{${mineIndex}}}`)) {
-      const html = bodyFinalContent;
-      //.replace(/<p[^>]*>/g, '') // Remove opening <p> tags
-      // .replace(/<\/p>/g, '<br />'); // Replace closing </p> tags with <br />
-      //.replace(/<br\s*\/?>/g, ''); // Remove existing <br /> tag
-      var a = `${html}{{${mineIndex}}}`;
-      console.log(a);
-      var value = bodyTextCount;
-      setbodyTextCount(value + 1);
-      setBodyContent(a);
-      setVariables((prev) => [...prev, `{{${mineIndex}}}`]);
-      setErrorMessage("");
-    } else {
-      setErrorMessage(`Variable {${mineIndex}} already exists in the body.`);
-    }
-  };
 
   const handleBodyChange = (value) => {
     // Allow typing without interruptions
@@ -512,21 +263,6 @@ const InteractiveTemplateCreation = () => {
     setTypingTimeout(timeout);
   };
 
-  const validatePlaceholders = (value) => {
-    const placeholders = variables.map((_, index) => `{{${index + 1}}}`);
-    const isValid = placeholders.every((placeholder) =>
-      value.includes(placeholder)
-    );
-
-    if (!isValid) {
-      setErrorMessage(
-        "You cannot change the variable placeholders in the body."
-      );
-    } else {
-      setErrorMessage("");
-    }
-  };
-
   useEffect(() => {
     // Cleanup timeout on component unmount
     return () => {
@@ -535,36 +271,6 @@ const InteractiveTemplateCreation = () => {
       }
     };
   }, [typingTimeout]);
-
-  const handleHeadChange = (value) => {
-    const placeholders = headerVariable.map((_, index) => `{{${index + 1}}}`);
-    const isValid = placeholders.every((placeholder) =>
-      value.includes(placeholder)
-    );
-
-    if (isValid) {
-      setHeadContent(value.replace(/\s\s+/g, " "));
-      setErrorMessage("");
-    } else {
-      setErrorMessage(
-        "You cannot change the variable placeholders in the header."
-      );
-    }
-  };
-
-  const handleheaderVariableChange = (index, value) => {
-    setHeaderVariable((prev) => {
-      const newHeaderVariable = [...prev];
-      newHeaderVariable[index] = value;
-      return newHeaderVariable;
-    });
-  };
-
-  const handleurlVariableChange = (index, value) => {
-    const updatedButtons = [...messagePreview.buttons];
-    updatedButtons[index].urlveriablevalue = value; // Update the variable value
-    setMessagePreview({ ...messagePreview, buttons: updatedButtons });
-  };
 
   const handleButtonSelect = (type) => {
     if (type === "2" && callPhoneNumberButtonCount >= 1) {
@@ -689,18 +395,6 @@ const InteractiveTemplateCreation = () => {
     }
   }, [finalContent]);
 
-  // useEffect(() => {
-  //   if (bodyFinalContent) {
-  //     let formattedContentBody = bodyFinalContent?.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  //     formattedContentBody = formattedContentBody.replace(/\*(.*?)\*/g, '<em>$1</em>');
-  //     formattedContentBody = formattedContentBody.replace(/~(.*?)~/g, '<sub>$1</sub>');
-  //     setMessagePreview((prev) => ({
-  //       ...prev,
-  //       body: formattedContentBody,
-  //     }));
-  //   }
-  // }, [bodyFinalContent]);
-
   useEffect(() => {
     let updatedBody = bodyFinalContent;
 
@@ -726,12 +420,6 @@ const InteractiveTemplateCreation = () => {
     }));
   }, [bodyFinalContent, variables]);
 
-  //console.log("BodyFinalContent12", bodyContent, finalContent)
-  const HandleTemplatetypechange = (e) => {
-    const templatetype = e.target.value;
-    setTemplatetype(templatetype);
-  };
-
   const HandleTemplateLanguagechange = (e) => {
     const Language = e.target.value;
     setlanguage(Language);
@@ -747,19 +435,12 @@ const InteractiveTemplateCreation = () => {
             className="border-end overflow-auto shadow-lg"
             style={{ padding: "20px", background: "#fffff" }}
           >
-            <h4 className="mb-4">Create Template</h4>
+            <h4 className="mb-4">Create Interactive Template</h4>
             <label className="block mb-1 mt-1">Sender Names</label>
             <Sendernames
               name="senderId"
               value={selectedSenderId}
               onChange={handleSenderChange}
-            />
-
-            <label className="block mb-1 mt-1">Template type</label>
-            <TemplateCategoryDropdown
-              name="templatetype"
-              value={Templatetype}
-              onChange={HandleTemplatetypechange}
             />
 
             <label className="block mb-1 mt-1">Language</label>
@@ -849,37 +530,15 @@ const InteractiveTemplateCreation = () => {
                             </Label>
                             <CustomMagicEditor
                               errorMessage={errorMessage}
-                              variables={variables}
                               setheaderPayloaddatawithVar={
                                 setheaderPayloaddatawithVar
                               }
-                              onFunction={addheaderVariable}
-                              headerVariable={headerVariable}
-                              handleheaderVariableChange={
-                                handleheaderVariableChange
-                              }
-                              removeHeaderVariable={removeHeaderVariable}
-                              setHeaderVariable={setHeaderVariable}
                               headContent={headContent}
                               setFinalContent={setFinalContent}
                               existingContent={updatedheadvercontent}
                               body={false}
+                              showaddvarbutton={false}
                             />
-                            {/* <ReactQuill
-                              value={headContent}
-                              onChange={handleHeadChange}
-                              modules={{
-                                toolbar: [
-                                  ['bold', 'underline'],
-                                  ['clean'],
-                                ],
-                              }}
-                              placeholder="Message body"
-
-                            />
-                            <Button onClick={addheaderVariable} className="mt-0 uniform_btn">
-                              + Add Variable
-                            </Button> */}
                           </FormGroup>
                         )}
                         {/* {console.log("Value Mania", ["2", "3", "4"].includes(values.headerType))} */}
@@ -914,67 +573,19 @@ const InteractiveTemplateCreation = () => {
                           Body
                         </Label>
                         <div style={{ position: "relative" }}>
-                          {/* <ReactQuill
-                          value={bodyContent}
-                          onChange={handleBodyChange}
-                          modules={{
-                            toolbar: [
-                              ['bold', 'underline'],
-                              ['clean'],
-                            ],
-                          }}
-                          formats={['bold', 'underline', 'clean']} // Limit formats to avoid block tags
-                          placeholder="Message body"
-                        /> */}
                           <CustomMagicEditor
-                            errorMessage={errorMessage}
-                            variables={variables}
                             setBodyPayloadDatawithVar={
                               setBodyPayloadDatawithVar
                             }
                             setBodyFinalContent={setBodyFinalContent}
-                            handleVariableChange={handleVariableChange}
-                            addVariable={addVariable}
                             handleBodyChange={handleBodyChange}
-                            removeVariable={removeVariable}
                             body={true}
                             existingBodyContent={updatedvercontent}
+                            showaddvarbutton={false}
                           />
                         </div>
-                        {errorMessage && (
-                          <Alert color="danger" className="mt-2">
-                            {errorMessage}
-                          </Alert>
-                        )}
                       </FormGroup>
-                      {/* <Button onClick={addVariable} className="mt-0 uniform_btn">
-                      + Add Variable
-                    </Button> */}
                     </div>
-                    {/* {variables.map((variable, index) => (
-                      <FormGroup key={index}>
-                        <Label>{`Sample Value for {${index + 1}}`}</Label>
-                        <Row>
-                          <Col>
-                            <Input
-                              className="w-90"
-                              type="text"
-                              value={variable}
-                              onChange={(e) => handleVariableChange(index, e.target.value)}
-                              placeholder={`Enter sample  value for {${index + 1}}`}
-                            />
-                          </Col>
-                          <Col>
-                            <FaTimes
-                              key={index}
-                              onClick={() => removeVariable(index)} // Pass the correct index
-                              style={{ cursor: "pointer", color: "red", marginLeft: "10px" }}
-                            />
-                          </Col>
-                        </Row>
-                      </FormGroup>
-                    ))} */}
-
                     <div className="">
                       <FormGroup>
                         <Label for="footer" className="text-sm font-semibold">
@@ -986,6 +597,7 @@ const InteractiveTemplateCreation = () => {
                           placeholder="Add footer text"
                           className="form-control"
                           maxLength="50"
+                          required
                         />
                       </FormGroup>
                       {/* Button dropdown */}
@@ -1035,7 +647,7 @@ const InteractiveTemplateCreation = () => {
                     {messagePreview.buttons.map((button, index) => (
                       <div
                         key={index}
-                        className="d-flex align-items-center my-3 border-b-2 pb-3" 
+                        className="d-flex align-items-center my-3 border-b-2 pb-3"
                       >
                         {/* Button Text Input */}
                         <Input
@@ -1137,61 +749,7 @@ const InteractiveTemplateCreation = () => {
                                   }}
                                   className="me-2"
                                 />
-                                <Button
-                                  onClick={() => addURLVariable(index)}
-                                  className="mt-0 mr-2 bg-transparent border-0"
-                                  style={{ minWidth: "max-content" }}
-                                >
-                                  <span className="text-primary">
-                                    + Add Variable
-                                  </span>
-                                </Button>
                               </div>
-
-                              {/* URL Variable Input */}
-                              {button.urlveriablevalue != null && (
-                                <div className="mt-3">
-                                  <Row>
-                                    <Col>
-                                      <Input
-                                        className="w-100"
-                                        type="text"
-                                        value={button.urlveriablevalue}
-                                        onChange={(e) =>
-                                          handleurlVariableChange(
-                                            index,
-                                            e.target.value
-                                          )
-                                        }
-                                        placeholder={`Enter Sample value for {${
-                                          index + 1
-                                        }}`}
-                                      />
-                                    </Col>
-                                    <Col xs="auto">
-                                      <div
-                                        className="border-1 d-flex align-items-center justify-content-center rounded"
-                                        style={{
-                                          height: "46px",
-                                          width: "38px",
-                                          background: "#e1e1e1",
-                                        }}
-                                      >
-                                        <FaTimes
-                                          key={index}
-                                          onClick={() => {
-                                            removeWebsiteVariable(index);
-                                          }}
-                                          style={{
-                                            cursor: "pointer",
-                                            color: "red",
-                                          }}
-                                        />
-                                      </div>
-                                    </Col>
-                                  </Row>
-                                </div>
-                              )}
                             </div>
                           </>
                         )}
@@ -1202,12 +760,9 @@ const InteractiveTemplateCreation = () => {
                           color="danger"
                           className="h-10 w-10"
                         >
-                          
                           <FaRegTrashCan />
                         </Button>
-                        
                       </div>
-                      
                     ))}
 
                     <div className="w-full flex justify-end gap-3">
@@ -1234,19 +789,7 @@ const InteractiveTemplateCreation = () => {
             </Formik>
           </Col>
 
-          <Col
-            md={4}
-            className="overflow-hidden h-screen fixed right-10"
-            // style={{
-            //   position: "fixed", // Fix the position
-            //   top: "-20", // Adjust to your layout
-            //   right: "0", // Align to the right side of the screen
-            //   height: "100vh", // Full viewport height to ensure scrollability
-            //   overflowY: "auto", // Enable vertical scrolling
-            //   backgroundColor: "#f8f9fa", // Optional: background color for contrast
-            //   boxShadow: "0 0 10px rgba(0,0,0,0.1)", // Optional: Add shadow for emphasis
-            // }}
-          >
+          <Col md={4} className="overflow-hidden h-screen fixed right-10">
             <div
               style={{
                 position: "sticky",
