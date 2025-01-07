@@ -210,6 +210,11 @@ const ChatPage = () => {
     return () => container.removeEventListener("scroll", handleScroll);
   }, [currentPage, hasMore, loading]);
 
+  const handleImageclose = () => {
+    setMediaFile(null);
+    setPreviewUrl(null);
+  };
+
   //called each time to send message
   const HandleSendMessage = async () => {
     setPreviewUrl(null);
@@ -639,7 +644,7 @@ const ChatPage = () => {
             xl="4"
             md="5"
             className="box-col-5 p-0"
-            style={{ height: "86vh", overflow: "hidden",margin: "0" }}
+            style={{ height: "86vh", overflow: "hidden", margin: "0" }}
           >
             <Card className="left-sidebar-wrapper h-100">
               <div className="left-sidebar-chat ">
@@ -872,6 +877,26 @@ const ChatPage = () => {
 
                   {previewUrl && (
                     <div>
+                      <button
+                        onClick={() => handleImageclose()}
+                        style={{
+                          position: "absolute",
+                          left: "410px", // Close to the top-right corner of the image
+                          backgroundColor: "red",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "50%",
+                          width: "20px",
+                          height: "20px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                          boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)", // Optional: add a shadow for better visibility
+                        }}
+                      >
+                        &times;
+                      </button>
                       {fileType === "image" && (
                         <img
                           src={previewUrl}
