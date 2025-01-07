@@ -37,13 +37,13 @@ export const fetchTemplates = createAsyncThunk(
   }
 );
 export const fetchInteractiveTemplates = createAsyncThunk(
-  'template/interactiveTemplateArray',
+  'template/interactiveTemplateList',
   async ({clientId = localStorage.getItem("clientId"),fromDate,searchStr,toDate,pageNo,pageSize}, { rejectWithValue }) => {
     try {
       const response = await API.get(`${INRERACTIVETEMPLATELIST}?clientId=${clientId}${searchStr?`&searchStr=${searchStr}`:''}&fromDate=${fromDate}&toDate=${toDate}&pageNo=${pageNo}&pageSize=${pageSize}`);
       if (response?.status === 200 && response.data?.result) {
         return {
-          interactiveTemplateArray: response.data.result,
+          interactiveTemplateList: response.data.result,
           totalRecords:
             response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
         };
@@ -172,7 +172,7 @@ const templateSlice = createSlice({
   initialState: {
     templates: [],
     templateDrop: [],
-    interactiveTemplateArray:[],
+    interactiveTemplateList:[],
     template: null,
     loading: false,
     error: null,
@@ -210,7 +210,7 @@ const templateSlice = createSlice({
       state.totalRecords = 0;
     },
     clearInteractiveTemplateListState: ()=>{
-      state.interactiveTemplateArray = [];
+      state.interactiveTemplateList = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -267,7 +267,7 @@ const templateSlice = createSlice({
       })
       .addCase(fetchInteractiveTemplates.fulfilled, (state, action) => {
         state.loading = false;
-        state.interactiveTemplateArray = action.payload.interactiveTemplateArray;
+        state.interactiveTemplateList = action.payload.interactiveTemplateList;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || "";

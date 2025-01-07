@@ -194,7 +194,7 @@ const InteractiveTemplateCreation = () => {
             "The Template has been successfully created.",
           icon: "success",
         });
-        await router.push("/Templates/TemplatesList");
+        await router.push("/InteractiveTemplate/InteractiveList");
       } else {
         showSweetAlert({
           title: "Creation Failed",
@@ -313,7 +313,7 @@ const InteractiveTemplateCreation = () => {
     }
   };
   const handelCancel = () => {
-    router.push("/Templates/TemplatesList");
+    router.push("/InteractiveTemplate/InteractiveList");
   };
 
   useEffect(() => {
