@@ -23,7 +23,7 @@ const CampaignsList = () => {
   const [status, setstatus] = useState(0);
   const [FromDate, setFromDate] = useState("");
   const [ToDate, setToDate] = useState("");
-  const [srcStr, setsrcStr] = useState("");
+  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [sendernameId, setsendernameId] = useState(null);
   const [keyword, setKeyword] = useState(null);
   const [isfilteropen, setisfilteropen] = useState(false);
@@ -47,7 +47,7 @@ const CampaignsList = () => {
     settemplateId(template);
     dispatch(
       fetchCampaign({
-        ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status, templateId: template, srcStr: keyword, pageSize, PageNo: currentPage,
+        ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status, templateId: template, srcStr: keyword, pageSize, PageNo: currentPage,
       }));
   };
 
@@ -59,49 +59,36 @@ const CampaignsList = () => {
     setactivateCampaignId(CampaignId)
     setCampaignTestModal(true)
   }
+  const handleSearchString = (e) => {
+    const searchValue = e.target.value;
+    setKeyword(searchValue);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setClientId(localStorage.getItem("clientId"));
+    // Clear the previous timeout if any
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
     }
-  }, []);
 
-  useEffect(() => {
-    if (clientId) {
+    // Set a new timeout for 0.5 seconds
+    const timeout = setTimeout(() => {
       dispatch(
-        fetchCampaign({
-          ClientId: clientId,
-          FromDate: FromDate,
-          ToDate: ToDate,
-          status,
-          templateId,
-          srcStr: keyword,
-          pageSize,
-          PageNo: currentPage,
-        })
+        fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: searchValue, pageSize, PageNo: currentPage})
       );
-    }
-    return () => {
-      dispatch(clearCampaignListState());
-    };
-  }, [clientId]);
+    }, 500);
+
+    setSearchTimeout(timeout); // Save the timeout reference
+  };
+
+
 
   useEffect(() => {
-    if (clientId) {
-      dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
-    }
-
+   
+      dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
     return () => {
       dispatch(clearCampaignListState());
     };
-  }, [dispatch, clientId, keyword]);
+  }, [dispatch]);
 
 
-
-
-  const handlefilter = (e) => {
-    dispatch(fetchCampaign({ clientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, sendernameId: sendernameId, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
-  };
 
   const handleCreate = () => {
     window.location.href = "/Campaigns/CreateCampaigns";
@@ -123,19 +110,19 @@ const CampaignsList = () => {
 
 
   const refreshCampaignList = () => {
-    dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
+    dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
   }
 
   const handlePageSizeChange = async (newSize) => {
     
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to the first page
-    await dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize: newSize, PageNo: 1 }));
+    await dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize: newSize, PageNo: 1 }));
   };
 
   const handlePageChange = async (page) => {
     dispatch(setCurrentPage(page));
-    await dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: page }));
+    await dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: page }));
   };
 
   const handleActivateClick = async (campaignId) => {
@@ -267,7 +254,7 @@ const CampaignsList = () => {
             <input
               type="text"
               value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
+              onChange={handleSearchString}
               className="border rounded  w-100"
             />
           </div>

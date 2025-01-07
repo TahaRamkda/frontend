@@ -18,6 +18,7 @@ const TemplateList = () => {
   const { templates, loading, error, pageSize, totalRecords, currentPage } = useSelector((state) => state.templates);
   const [isModalOpen, setIsModalOpen] = useState(false);
   //const [templateId, settemplateId] = useState(0);
+  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [filterText, setFilterText] = useState('');
   const [transactonType, setTransactonType] = useState(0);
   const settemplateId = useSetRecoilState(TemplateState);
@@ -161,12 +162,34 @@ const TemplateList = () => {
     return () => {
       dispatch(clearTemplateState());
     };
-  }, [dispatch, filterText]);
+  }, [dispatch]);
 
   const filteredSendernames = templates.filter((template) =>
     template.templateName.toLowerCase().includes(filterText.toLowerCase())
   );
+  const handleSearchString = (e) => {
+    const searchValue = e.target.value;
+    setFilterText(searchValue);
 
+    // Clear the previous timeout if any
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set a new timeout for 0.5 seconds
+    const timeout = setTimeout(() => {
+      dispatch(
+        fetchTemplates({
+          clientId: localStorage.getItem("clientId"),
+          TransactonType: transactonType,
+          searchStr: searchValue,
+          pageNo: currentPage, pageSize
+        })
+      );
+    }, 500);
+
+    setSearchTimeout(timeout); // Save the timeout reference
+  };
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className="w-full">
@@ -176,7 +199,7 @@ const TemplateList = () => {
             <input
               type="search"
               value={filterText}
-              onChange={(e) => setFilterText(e.target.value)}
+              onChange={handleSearchString}
               className="border rounded"
               placeholder=""
             />

@@ -10,11 +10,6 @@ const DefinedTemplates = ({ isVisible, onClose }) => {
   const { templates, loading, error } = useSelector((state) => state.templates);
 
   // Debounce the search query to wait for 1 second after the user stops typing
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery); // Update the debounced query after 1 second
-    }, 500);
-    // Debounce the search query to wait for 1 second after the user stops typing
     useEffect(() => {
       const timer = setTimeout(() => {
         setDebouncedSearchQuery(searchQuery); // Update the debounced query after 1 second
@@ -127,7 +122,6 @@ const DefinedTemplates = ({ isVisible, onClose }) => {
         )}
       </>
     );
-  });
-}
+  }
 
   export default DefinedTemplates;
