@@ -627,7 +627,7 @@ const ChatPage = () => {
             style={{ height: "86vh", overflow: "hidden",margin: "0" }}
           >
             <Card className="left-sidebar-wrapper h-100">
-              <div className="left-sidebar-chat p-3">
+              <div className="left-sidebar-chat ">
                 <InputGroup>
                   <InputGroupText className="w-full">
                     <i className="fa fa-search mr-2" aria-hidden="true"></i>

@@ -55,23 +55,27 @@ const DefinedTemplates = ({ isVisible, onClose }) => {
         <>
             {isVisible && (
                 <div
-                    className="absolute bottom-[4.5rem] right-4 bg-gray-800 text-white shadow-lg rounded-lg z-50"
-                    style={{ minWidth: "320px" }} // Set min width for the popup
+                    className="absolute bottom-[1.5rem] bg-gray-800 text-white shadow-2xl rounded-lg z-50"
+                    style={{ minWidth: "350px", right:"-94px"}} // Set min width for the popup
                 >
-                      <div className="absolute top-2 right-2 mb-2 text-white cursor-pointer" onClick={onClose}>
+                    <div className="absolute top-2 border-b right-2 text-end w-full text-white cursor-pointer " onClick={onClose}>
                         <i className="fa fa-times"></i> {/* You can change this to an "X" or another icon */}
                     </div>
-
+                
                     {/* Search Bar */}
-                    <div className="p-2 border-b border-gray-700">
-                        <input
-                            type="text"
-                            placeholder="Search Templates"
-                            className="w-full bg-gray-700 text-sm text-gray-300 px-3 py-2 rounded-md focus:outline-none"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)} // Update search query
-                        />
-                    </div>
+                    <div className="relative p-2 mt-10">
+  <input
+    type="text"
+    placeholder="Search Templates"
+    className="w-full bg-gray-700 text-gray-300 pl-7 mb-1 py-1 rounded-md focus:outline-none"
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)} // Update search query
+  />
+  <div className="absolute top-1/2 left-2 transform -translate-y-1/2 text-gray-400">
+    <i className="fa fa-search pl-2"></i> {/* Use FontAwesome */}
+  </div>
+</div>
+
 
                     {/* Options List */}
                     <div className="max-h-60 overflow-y-auto">
@@ -90,7 +94,7 @@ const DefinedTemplates = ({ isVisible, onClose }) => {
                             ))
                         ) : (
                             <div className="px-4 py-2 text-sm text-gray-400">
-                                Search a template
+                                Search A Template
                             </div>
                         )}
                     </div>

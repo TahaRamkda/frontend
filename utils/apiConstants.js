@@ -33,6 +33,7 @@ export const DELETEGROUP = "/Groups/deletegroup";
 export const GROUPDROPDOWN = "/Groups/getgroups"
 
 export const TEMPLATELIST = "/Templates/gettemplateslist";
+export const INRERACTIVETEMPLATELIST = "/InteractiveTemplates/getinteractivetemplateslist"
 export const TEMPLATEDETAILS = "/Templates/gettemplatedetails";
 export const CREATETEMPLATE = "/Templates/addTemplate";
 export const CREATEINTERACTIVETEMPLATE = "/InteractiveTemplates/addinteractivetemplate"

@@ -10,6 +10,7 @@ import {
   SYNCTEMPLATE,
   TEMPLATEDROPDOWN,
   CREATEINTERACTIVETEMPLATE,
+  INRERACTIVETEMPLATELIST
 } from "@/utils/apiConstants";
 
 // Thunks
@@ -23,6 +24,26 @@ export const fetchTemplates = createAsyncThunk(
       if (response?.status === 200 && response.data?.result) {
         return {
           templates: response.data.result,
+          totalRecords:
+            response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+        };
+      } else {
+        throw new Error("Failed to fetch details");
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+export const fetchInteractiveTemplates = createAsyncThunk(
+  'template/interactiveTemplateArray',
+  async ({clientId = localStorage.getItem("clientId"),fromDate,searchStr,toDate,pageNo,pageSize}, { rejectWithValue }) => {
+    try {
+      const response = await API.get(`${INRERACTIVETEMPLATELIST}?clientId=${clientId}${searchStr?`&searchStr=${searchStr}`:''}&fromDate=${fromDate}&toDate=${toDate}&pageNo=${pageNo}&pageSize=${pageSize}`);
+      if (response?.status === 200 && response.data?.result) {
+        return {
+          interactiveTemplateArray: response.data.result,
           totalRecords:
             response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
         };
@@ -151,6 +172,7 @@ const templateSlice = createSlice({
   initialState: {
     templates: [],
     templateDrop: [],
+    interactiveTemplateArray:[],
     template: null,
     loading: false,
     error: null,
@@ -185,6 +207,16 @@ const templateSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.success = false;
+      state.totalRecords = 0;
+    },
+    clearInteractiveTemplateListState: ()=>{
+      state.interactiveTemplateArray = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+      state.currentPage = 1;
+      state.totalPages = 1;
+      state.pageSize = 10;
       state.totalRecords = 0;
     },
     clearTemplateDetailState: (state) => {
@@ -224,6 +256,23 @@ const templateSlice = createSlice({
         state.message = action.payload.message || "";
       })
       .addCase(fetchTemplates.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+      
+      .addCase(fetchInteractiveTemplates.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchInteractiveTemplates.fulfilled, (state, action) => {
+        state.loading = false;
+        state.interactiveTemplateArray = action.payload.interactiveTemplateArray;
+        state.totalRecords = action.payload.totalRecords;
+        state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
+        state.message = action.payload.message || "";
+      })
+      .addCase(fetchInteractiveTemplates.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
@@ -337,6 +386,7 @@ export const {
   clearTemplateState,
   clearTemplateDropState,
   clearInteractiveTemplateCreateState,
+  clearInteractiveTemplateListState,
   clearTemplateDetailState,
   clearTemplateCreateState,
   clearTemplateDeleteState,
