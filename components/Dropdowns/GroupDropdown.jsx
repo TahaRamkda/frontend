@@ -54,7 +54,7 @@ const GroupDropdown = ({ name, value, onChange }) => {
         onChange={onChange}
         required
       >
-        <option value="0">Select</option>
+        <option value="">Select</option>
         {groupDrop && groupDrop.length > 0 ? (
           groupDrop.map((group) => (
             <option key={group.id} value={group.id}>

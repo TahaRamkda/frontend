@@ -15,7 +15,7 @@ const SendernameDropdown = ({ name, value, onChange, error, disabled }) => {
     dispatch(fetchSendernamesDrop({ clientId: localStorage.getItem("clientId") }));
 
   }, [dispatch]);
-
+  
   useEffect(() => {
     if (selectRef.current) {
       $(selectRef.current).select2({
@@ -31,15 +31,12 @@ const SendernameDropdown = ({ name, value, onChange, error, disabled }) => {
         onChange({ target: { name, value: selectedValue } });
       });
     }
-
     return () => {
       if (selectRef.current) {
         $(selectRef.current).off("change");
       }
     };
   }, [sendernameDrop, onChange]);
-
-
   if (loading) return <p>Loading...</p>;
   if (fetchError) return <p className="text-danger">Error loading: {fetchError}</p>;
 
