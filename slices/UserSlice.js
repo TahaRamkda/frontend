@@ -8,9 +8,9 @@ import { USERDETAILS, CREATEUSER, UPDATEUSER, DELETEUSER, USERLIST} from '@/util
 // Fetch User
 export const fetchUser = createAsyncThunk(
     'user/fetchUser',
-    async ({clientId}, { rejectWithValue }) => {
+    async ({clientId, searchStr}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${USERLIST}?clientId=${clientId}`);
+        const response = await API.get(`${USERLIST}?clientId=${clientId}${searchStr?`&searchStr=${searchStr}`:''}`);
         if (response?.status === 200 && response.data?.result) {
           return {
             users: response.data.result,

@@ -37,6 +37,7 @@ const TemplateList = () => {
   const dispatch = useDispatch();
   const [ToDate, settoDate] = useState("");
   const [FromDate, setfromDate] = useState("");
+  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const {
     interactiveTemplateList,
     loading,
@@ -144,7 +145,30 @@ const TemplateList = () => {
       })
     );
   };
+const handleSearchString = (e) => {
+    const searchValue = e.target.value;
+    setSrcStr(searchValue);
 
+    // Clear the previous timeout if any
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set a new timeout for 0.5 seconds
+    const timeout = setTimeout(() => {
+      dispatch(
+        fetchInteractiveTemplates({
+          clientId: localStorage.getItem("clientId"),
+          toDate: ToDate,
+          fromDate: FromDate,
+          searchStr: searchValue,
+          pageNo: currentPage,
+          pageSize,
+        }));
+    }, 500);
+
+    setSearchTimeout(timeout); // Save the timeout reference
+  };
   useEffect(() => {
     dispatch(
       fetchInteractiveTemplates({
@@ -159,7 +183,7 @@ const TemplateList = () => {
     return () => {
       dispatch(clearInteractiveTemplateCreateState());
     };
-  }, [dispatch, filterText, ToDate, FromDate]);
+  }, [dispatch, ToDate, FromDate]);
 
   const subHeaderComponentMemo = useMemo(() => {
     return (
@@ -170,7 +194,7 @@ const TemplateList = () => {
             <input
               type="search"
               value={filterText}
-              onChange={(e) => setFilterText(e.target.value)}
+              onChange={handleSearchString}
               className="border rounded"
               placeholder=""
             />

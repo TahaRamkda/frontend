@@ -19,6 +19,7 @@ const UserList = () => {
   const { users, loading, error } = useSelector((state) => state.users);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [CreateModalOpen, setCreateModalOpen] = useState(false)
+  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [userForm, setUserForm] = useState({});
   const [filterText, setFilterText] = useState("");
 
@@ -88,6 +89,27 @@ const UserList = () => {
     setUserForm({ ...userForm, [name]: value });
   };
 
+
+ const handleSearchString = (e) => {
+    const searchValue = e.target.value;
+    setFilterText(searchValue);
+
+    // Clear the previous timeout if any
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set a new timeout for 0.5 seconds
+    const timeout = setTimeout(() => {
+      dispatch(
+        fetchUser({ clientId: localStorage.getItem("clientId"),searchStr:searchValue })
+      );
+    }, 500);
+
+    setSearchTimeout(timeout); // Save the timeout reference
+  };
+
+
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -119,7 +141,7 @@ const UserList = () => {
   };
 
   const refreshUserList = () => {
-    dispatch(fetchUser({ clientId: localStorage.getItem("clientId") }));
+    dispatch(fetchUser({ clientId: localStorage.getItem("clientId"),searchValue:filterText }));
   };
   const handleDropdownChange = (value) => {
     setUserForm((prev) => ({ ...prev, userRoles: value }));
@@ -129,7 +151,7 @@ const UserList = () => {
   };
 
   useEffect(() => {
-    dispatch(fetchUser({ clientId: localStorage.getItem("clientId") }));
+    dispatch(fetchUser({ clientId: localStorage.getItem("clientId"),searchValue:filterText }));
     return () => {
       dispatch(clearUserState());
     };
@@ -145,7 +167,7 @@ const UserList = () => {
       <div className="grid grid-cols-5 gap-4">
         <div className="flex flex-col space-y-1 text-start mb-1 ">
           <label className="font-medium text-gray-700 text-sm">Search </label>
-          <input type="search" className="border rounded py-1 px-2 w-full text-sm" value={filterText} onChange={(e) => setFilterText(e.target.value)} placeholder={"Enter Text"} />
+          <input type="search" className="border rounded py-1 px-2 w-full text-sm" value={filterText} onChange={handleSearchString} placeholder={"Enter Text"} />
         </div>
       </div>
     </div>

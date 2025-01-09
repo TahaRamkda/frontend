@@ -15,6 +15,7 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index }) => {
     { label: "BLOCK", value: 4 },
     { label: "CHAT", value: 5 },
     { label: "ORDER", value: 6 },
+    { label: "CLOSE CHAT", value: 7 },
   ];
 
   const handleTemplateChange = (e) => {

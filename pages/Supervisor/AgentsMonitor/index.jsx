@@ -18,7 +18,7 @@ const MessageSummary = () => {
   const [FromDate, setFromDate] = useState("");
   const [ToDate, setToDate] = useState("");
   const [srcStr, setsrcStr] = useState('');
-
+const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [isfilteropen, setisfilteropen] = useState(false);
   const [showfilterbutton, setshowfilterbutton] = useState(true);
   const { agentsMonitor, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.Supervisor);
@@ -46,7 +46,7 @@ const MessageSummary = () => {
 
   useEffect(() => {
     if (clientId) {
-      dispatch(fetchAgentsMonitor({ clientId: clientId, senderId: senderid, pageSize, pageNo: currentPage, fromDate:FromDate, toDate:ToDate}));
+      dispatch(fetchAgentsMonitor({ clientId: clientId, senderId: senderid, srcStr:srcStr,pageSize, pageNo: currentPage, fromDate:FromDate, toDate:ToDate}));
 
     }
     return () => {
@@ -59,10 +59,23 @@ const MessageSummary = () => {
     setsenderid(senderId);
   };
 
-  const handleSearchString = (e) => {
-    setsrcStr(e.target.value);
-  };
+ const handleSearchString = (e) => {
+    const searchValue = e.target.value;
+    setsrcStr(searchValue);
 
+    // Clear the previous timeout if any
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set a new timeout for 0.5 seconds
+    const timeout = setTimeout(() => {
+      dispatch(
+        fetchAgentsMonitor({ clientId: clientId, senderId: senderid,srcStr:searchValue, pageSize, pageNo: currentPage, fromDate:FromDate, toDate:ToDate}));
+    }, 500);
+
+    setSearchTimeout(timeout); // Save the timeout reference
+  };
 
 
   const handlePageSizeChange = async (newSize) => {
