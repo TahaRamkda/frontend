@@ -216,7 +216,7 @@ const TemplateList = () => {
         <div className="ml-auto mb-2">
           <button
             className="uniform_btn"
-            onClick={() => router.push("/InteractiveTemplate/CreateTemplate")}
+            onClick={() => router.push("/InteractiveTemplates/CreateTemplate")}
           >
             Create Template
           </button>

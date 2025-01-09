@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { HiZoomIn, HiZoomOut, HiLogout, HiMoon, HiSun, HiMenu } from "react-icons/hi";
+import { HiZoomIn, HiZoomOut, HiLogout, HiMoon, HiSun, HiMenu,HiShieldExclamation } from "react-icons/hi";
 import { useRouter } from 'next/router';
-
 import SweetAlert from "sweetalert2";
+import UserBadge from "@/public/images/User.jpg";
 export function Header({ toggleSidebar }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const router = useRouter();
-
+  const[dropdownOpen, setDropdownOpen] = useState(false);
   useEffect(() => {
     const checkFullScreen = () => {
       setIsFullScreen(
@@ -112,24 +112,49 @@ export function Header({ toggleSidebar }) {
             </button>
           </div>
 
-          <div className="space-x-4">
-            {/* Fullscreen Toggle Icon */}
-            <button
-              onClick={toggleFullScreen}
-              className="p-2 bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none"
-            >
-              {isFullScreen ? <HiZoomOut className="w-6 h-6" /> : <HiZoomIn className="w-6 h-6" />}
-            </button>
+          <div className="flex items-center space-x-4">
+  {/* Fullscreen Toggle Icon */}
+  <button
+    onClick={toggleFullScreen}
+    className="p-2 bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none"
+  >
+    {isFullScreen ? <HiZoomOut className="w-6 h-6" /> : <HiZoomIn className="w-6 h-6" />}
+  </button>
 
-            {/* Logout Button */}
-            <button
-              onClick={handleLogout}
-              className="p-2 bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none"
-            >
-              <HiLogout className="w-6 h-6" />
-            </button>
+  {/* User Badge with Name and Dropdown */}
+  <div className="relative">
+    <button
+      className="flex items-center space-x-2 p-2 bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none"
+      onClick={() => setDropdownOpen(!dropdownOpen)}
+    >
+      <img src={UserBadge.src} alt="User" className="w-8 h-8 rounded-full" />
+      <span>{localStorage.getItem('userName')}</span>
+    </button>
 
-          </div>
+    {/* Dropdown Menu */}
+    {dropdownOpen && (
+     <div className="absolute right-0 mt-2 w-48 dark:bg-gray-700 shadow-lg rounded-md">
+     <button
+       onClick={handleLogout}
+       className="flex items-center w-full text-left px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
+     >
+       <HiLogout className="" />
+       <span>Logout</span>
+     </button>
+
+     <button
+       onClick={handleLogout}
+       className="flex items-center w-full text-left px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
+     >
+       <HiShieldExclamation className="" />
+       <span>Change Password</span>
+     </button>
+   </div>
+    )}
+  </div>
+</div>
+
+
 
         </div>
       </div>

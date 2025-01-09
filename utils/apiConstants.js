@@ -102,6 +102,9 @@ export const TEMPLATELANGUAGE = "/Templates/getlanguages";
 export const CHATSMONITOR ="/Conversation/getconversationreportlist"
 export const AGENTSMONITOR ="/Agents/getagentsupervisorreport"
 
-
+//interactive templates
+export const AGENTINTERACTIVETEMPLATLIST =  "/InteractiveTemplates/getagentinteractivetemplates";
+export const AGENTINTERACTIVETEMPLATLISTDETAIL = "/InteractiveTemplates/getinteractivetemplatedetail";
+export const SENDAGENTINTERACTIVETEMPLATLIS = "/Message/sendagentinteractivemessage";
 
 

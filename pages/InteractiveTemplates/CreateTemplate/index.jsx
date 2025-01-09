@@ -313,7 +313,7 @@ const InteractiveTemplateCreation = () => {
     }
   };
   const handelCancel = () => {
-    router.push("/InteractiveTemplate/InteractiveList");
+    router.push("/InteractiveTemplates/InteractiveList");
   };
 
   useEffect(() => {
