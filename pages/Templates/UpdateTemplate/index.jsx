@@ -700,7 +700,7 @@ const TemplateUpdatePage = () => {
   };
 
   const handlebuttonaction = (index,actionId,actionType) => {
-    debugger
+    
     setbuttonindex(index);
     const buttonaction= {
         actionId : actionId,

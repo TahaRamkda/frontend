@@ -99,6 +99,7 @@ const InteractiveTemplateCreation = () => {
   const [Templatetype, setTemplatetype] = useState("");
   const [language, setlanguage] = useState("");
   const [typingTimeout, setTypingTimeout] = useState(null);
+  const[actionbuttonvalues ,setactionbuttonvalues] = useState([]);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const replaceClosingPTagsWithNewline = (content) => {
     return content
@@ -157,7 +158,7 @@ const InteractiveTemplateCreation = () => {
       name: values.templateName,
       senderNameId: selectedSenderId,
       language: language,
-      usedByAgent: true,
+      usedByAgent: values.usedByAgent,
       mediaId: selectedMediaId,
       actionBy: localStorage.getItem("userId"),
       header: {
@@ -293,7 +294,7 @@ const InteractiveTemplateCreation = () => {
       setActionId(0);
       setActionType(0);
       if (type === "1") {
-        setButtonText(" ");
+        setButtonText("");
         setMarketingOptOutAdded(true);
         setTotalButtonCount((prev) => prev + 1);
       } else if (type === "2") {
@@ -374,8 +375,14 @@ const InteractiveTemplateCreation = () => {
     setSelectedSenderId(role);
   };
 
-  const handlebuttonaction = (index) => {
+  const handlebuttonaction = (index,actionId,actionType) => {
+    debugger
     setbuttonindex(index);
+    const buttonaction= {
+        actionId : actionId,
+        actionType: actionType,
+    }
+    setactionbuttonvalues(buttonaction);
     setshowaction(true);
   };
 
@@ -462,6 +469,7 @@ const InteractiveTemplateCreation = () => {
                 headerVariable: [],
                 bodyValues: [],
                 buttonValues: [],
+                usedByAgent:true,
               }}
               onSubmit={handleSubmit}
             >
@@ -492,6 +500,27 @@ const InteractiveTemplateCreation = () => {
                         />
                       </FormGroup>
                     </div>
+                    <div className="mt-3">
+  <FormGroup className="d-flex align-items-center">
+    <Field name="usedByAgent">
+      {({ field, form }) => (
+        <Input
+          type="checkbox"
+          id="usedByAgent"
+          checked={field.value} // Ensure boolean value
+          onChange={(e) =>
+            form.setFieldValue("usedByAgent", e.target.checked)
+          }
+          className="me-2"
+        />
+      )}
+    </Field>
+    <Label for="usedByAgent" className="mb-0 text-sm font-semibold">
+      Used by agent?
+    </Label>
+  </FormGroup>
+</div>
+
                     <div className="mt-3 ">
                       <FormGroup>
                         <Label
@@ -674,7 +703,7 @@ const InteractiveTemplateCreation = () => {
                               color: "white",
                             }}
                             className="me-2"
-                            onClick={() => handlebuttonaction(index)}
+                            onClick={() => handlebuttonaction(index,button.actionId,button.actionType)}
                           >
                             <i className="fa fa-bolt"></i>
                           </Button>
@@ -764,6 +793,7 @@ const InteractiveTemplateCreation = () => {
                         </Button>
                       </div>
                     ))}
+                    
 
                     <div className="w-full flex justify-end gap-3">
                       <Button
@@ -984,6 +1014,7 @@ const InteractiveTemplateCreation = () => {
         toggle={togglePopup}
         onSubmit={handleSaveActionData}
         index={buttonindex}
+        existingData={actionbuttonvalues}
       />
     </App>
   );
