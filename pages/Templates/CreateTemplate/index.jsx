@@ -103,6 +103,7 @@ const TemplateCreationPage = () => {
   const [Templatetype, setTemplatetype] = useState("");
   const [language, setlanguage] = useState("");
   const [typingTimeout, setTypingTimeout] = useState(null);
+ const[actionbuttonvalues ,setactionbuttonvalues] = useState([]);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const replaceClosingPTagsWithNewline = (content) => {
     return content
@@ -708,7 +709,7 @@ const TemplateCreationPage = () => {
     if (buttonType) {
       const newButton = {
         type: buttonType,
-        text: buttonText || buttonType,
+        text: buttonText,
         phoneNumber: buttonType === "2" ? phoneNumber : "",
         countryCode: buttonType === "2" ? countryCode : "",
         websiteUrl: buttonType === "3" ? websiteUrl : null,
@@ -762,8 +763,14 @@ const TemplateCreationPage = () => {
     setSelectedSenderId(role);
   };
 
-  const handlebuttonaction = (index) => {
+  const handlebuttonaction = (index,actionId,actionType) => {
+    debugger
     setbuttonindex(index);
+    const buttonaction= {
+        actionId : actionId,
+        actionType: actionType,
+    }
+    setactionbuttonvalues(buttonaction);
     setshowaction(true);
   };
 
@@ -1313,7 +1320,7 @@ const TemplateCreationPage = () => {
                               color: "white",
                             }}
                             className="me-2"
-                            onClick={() => handlebuttonaction(index)}
+                            onClick={() => handlebuttonaction(index,button.actionId,button.actiontype)}
                           >
                             <i className="fa fa-bolt"></i>
                           </Button>
@@ -1561,6 +1568,8 @@ const TemplateCreationPage = () => {
         toggle={togglePopup}
         onSubmit={handleSaveActionData}
         index={buttonindex}
+        
+        existingData={actionbuttonvalues}
       />
     </App>
   );

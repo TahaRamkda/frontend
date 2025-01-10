@@ -58,7 +58,7 @@ const TemplateUpdatePage = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const [Loading, setLoading] = useState(true);
-
+  const[actionbuttonvalues ,setactionbuttonvalues] = useState([]);
   const { template, loading, error } = useSelector((state) => state.templates);
   const stripHtml = (input) => input.replace(/<[^>]*>/g, "");
   const [messagePreview, setMessagePreview] = useState({
@@ -699,8 +699,14 @@ const TemplateUpdatePage = () => {
     setSelectedSenderId(role);
   };
 
-  const handlebuttonaction = (index) => {
+  const handlebuttonaction = (index,actionId,actionType) => {
+    debugger
     setbuttonindex(index);
+    const buttonaction= {
+        actionId : actionId,
+        actionType: actionType,
+    }
+    setactionbuttonvalues(buttonaction);
     setshowaction(true);
   };
 
@@ -1111,7 +1117,7 @@ const TemplateUpdatePage = () => {
                               color: "white",
                             }}
                             className=""
-                            onClick={() => handlebuttonaction(index)}
+                            onClick={() => handlebuttonaction(index,button.actionId,button.actionType)}
                           >
                             <i className="fa fa-bolt"></i>
                           </Button>
@@ -1487,6 +1493,7 @@ const TemplateUpdatePage = () => {
         toggle={togglePopup}
         onSubmit={handleSaveActionData}
         index={buttonindex}
+        existingData={actionbuttonvalues}
       />
     </App>
   );

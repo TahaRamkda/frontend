@@ -146,13 +146,13 @@ const InteractiveTemplateUpdate = () => {
 
   // Handle interactivetemplatedetail updates once it has been fetched (Second useEffect)
   useEffect(() => {
-    debugger
+    
     if (Loading || !interactivetemplatedetail) return; // Wait for the data to be loaded
 
     const updatedMessagePreview = {
       body: interactivetemplatedetail.bodyText,
       footer: interactivetemplatedetail.footerText,
-      media: interactivetemplatedetail.mediaURL,
+      media: interactivetemplatedetail.mediaPath,
       buttons:interactivetemplatedetail.buttons ?? [],
       templatename: interactivetemplatedetail.templateName,
       visitWebsiteButtonCount: 0,
@@ -175,7 +175,7 @@ const InteractiveTemplateUpdate = () => {
       }
     } else {
       setSelectedMediaId(interactivetemplatedetail.mediaId);
-      setSelectedMediaPath(interactivetemplatedetail.mediaURL);
+      setSelectedMediaPath(interactivetemplatedetail.mediaPath);
       setSelectedMediaType(interactivetemplatedetail.contentType);
     }
 
@@ -256,58 +256,33 @@ const InteractiveTemplateUpdate = () => {
     const bodyfinalReplace = bodyreplaceX.replace(/\+/g, "*");
 
     const requestBody = {
-      clientId: localStorage.getItem("clientId"),
-      name: values.templateName,
       Id: Template_Id,
-      transactionType: 1,
-      category: "marketing",
-      language: "en",
+      clientId: localStorage.getItem("clientId"),
       senderNameId: selectedSenderId,
-      status: "Pending",
-      subCategory: "marketing",
-      isApproved: false,
+      name: values.templateName,
+      language: language,
+      usedByAgent:interactivetemplatedetail.usedByAgent,
       mediaId: selectedMediaId,
-      templateType: 1,
+      status: "1",
+      defaultTypeId: interactivetemplatedetail.defaultTypeId,
       actionBy: localStorage.getItem("userId"),
       header: {
         format: values.headerType,
         text: finalHeaderReplace,
-        textCount: headerTextCount,
-        values: headerVariable.map((value, index) => ({
-          value: value,
-          defaultValue: value,
-          index: index + 1,
-        })),
       },
       body: {
-        // text: trimmedBodyContent,
         text: bodyfinalReplace,
-        textCount: bodyTextCount,
-        values: variables.map((value, index) => ({
-          value: value,
-          defaultValue: value,
-          index: index + 1,
-        })),
       },
       footer: {
-        //text: messagePreview.footer,
         text: messagePreview.footer,
       },
       buttons: messagePreview.buttons.map((button, index) => ({
-        type: button.type,
-        text: button.text,
-        phoneNumber: button.phoneNumber,
-        textCount: button.textCount,
-        index: index,
-        url: button.websiteUrl,
-        values: urlvariables.map((value, index) => ({
-          value: value,
-          defaultValue: value,
-          index: index + 1,
-        })),
+        buttonType: button.buttonType,
+        buttonText: button.buttonText,
         actionId: button.actionId,
         actionType: button.actiontype,
-        buttonId: button.buttonValue,
+        index: index,
+        buttonValue: button.buttonValue,
       })),
     };
 
@@ -317,13 +292,13 @@ const InteractiveTemplateUpdate = () => {
       const response = await dispatch(updateInteractiveTemplates(requestBody)).unwrap();
       if (response.success) {
         
-        clearTemplateCreateState();
+        clearInteractiveTemplateDetailState();
         showSweetAlert({
           title: "Updated Successfully",
           text: "",
           icon: "success",
         });
-        router.push("/Templates/Templateslist");
+        router.push("/InteractiveTemplates/InteractiveList");
       } else {
         showSweetAlert({
           title: "Failed",
@@ -433,10 +408,6 @@ const InteractiveTemplateUpdate = () => {
       return newVariables;
     });
   };
-
- 
-
-  
 
   const handleBodyChange = (value) => {
     // Allow typing without interruptions
@@ -611,6 +582,7 @@ const InteractiveTemplateUpdate = () => {
   };
 
   const handlebuttonaction = (index,actionId,actionType) => {
+    debugger
     setbuttonindex(index);
     const buttonaction= {
         actionId : actionId,
