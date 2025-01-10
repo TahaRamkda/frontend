@@ -62,6 +62,7 @@ const TemplateCreationPage = () => {
   const { loading, error } = useSelector((state) => state.templates);
   const [bodyContent, setBodyContent] = useState("");
   const [variables, setVariables] = useState([]);
+  const [showMediaPopup, setShowMediaPopup] = useState(false);
   const [urlvariables, seturlvariables] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [buttonType, setButtonType] = useState(null);
@@ -912,101 +913,104 @@ const TemplateCreationPage = () => {
                       </FormGroup>
                     </div>
                     <div className="mt-3">
-                      <FormGroup>
-                        <Label
-                          for="headerType"
-                          className="font-semibold text-sm mb-0"
-                        >
-                          Header Type
-                        </Label>
-                        <Field
-                          as={Input}
-                          type="select"
-                          name="headerType"
-                          className="form-control"
-                          style={{ height: "46px" }}
-                        >
-                          {["none", "text", "image", "video", "document"].map(
-                            (type, index) => (
-                              <option
-                                key={type}
-                                value={index === 0 ? 0 : index}
-                              >
-                                {type.charAt(0).toUpperCase() + type.slice(1)}
-                              </option>
-                            )
-                          )}
-                        </Field>
-                      </FormGroup>
-                      <div>
-                        {values.headerType === "1" && (
-                          <FormGroup>
-                            <Label
-                              for="headerContent"
-                              className="font-semibold text-sm mb-0"
-                            >
-                              Header Content
-                            </Label>
-                            <CustomMagicEditor
-                              errorMessage={errorMessage}
-                              variables={variables}
-                              setheaderPayloaddatawithVar={
-                                setheaderPayloaddatawithVar
-                              }
-                              onFunction={addheaderVariable}
-                              headerVariable={headerVariable}
-                              handleheaderVariableChange={
-                                handleheaderVariableChange
-                              }
-                              removeHeaderVariable={removeHeaderVariable}
-                              setHeaderVariable={setHeaderVariable}
-                              headContent={headContent}
-                              setFinalContent={setFinalContent}
-                              existingContent={updatedheadvercontent}
-                              body={false}
-                            />
-                            {/* <ReactQuill
-                              value={headContent}
-                              onChange={handleHeadChange}
-                              modules={{
-                                toolbar: [
-                                  ['bold', 'underline'],
-                                  ['clean'],
-                                ],
-                              }}
-                              placeholder="Message body"
+  <FormGroup>
+    <Label for="headerType" className="font-semibold text-sm mb-0">
+      Header Type
+    </Label>
+    <Field
+      as={Input}
+      type="select"
+      name="headerType"
+      className="form-control"
+      style={{ height: "46px" }}
+    >
+      {["none", "text", "image", "video", "document"].map((type, index) => (
+        <option key={type} value={index === 0 ? 0 : index}>
+          {type.charAt(0).toUpperCase() + type.slice(1)}
+        </option>
+      ))}
+    </Field>
+  </FormGroup>
 
-                            />
-                            <Button onClick={addheaderVariable} className="mt-0 uniform_btn">
-                              + Add Variable
-                            </Button> */}
-                          </FormGroup>
-                        )}
-                        {/* {console.log("Value Mania", ["2", "3", "4"].includes(values.headerType))} */}
-                        {["2", "3", "4"].includes(values.headerType) && (
-                          <>
-                            <Media
-                              key={values.headerType} // This forces re-rendering when headerType changes
-                              isPopup={["2", "3", "4"].includes(
-                                values.headerType
-                              )}
-                              contentTypeStr={
-                                values.headerType === "2"
-                                  ? "image"
-                                  : values.headerType === "3"
-                                    ? "video"
-                                    : "application"
-                              }
-                              onSelectMedia={(mediaId, mediaPath, mimeType) => {
-                                setSelectedMediaId(mediaId);
-                                setSelectedMediaPath(mediaPath);
-                                setSelectedMediaType(mimeType);
-                              }}
-                            />
-                          </>
-                        )}
-                      </div>
-                    </div>
+  <div>
+    {values.headerType === "1" && (
+      <FormGroup>
+        <Label for="headerContent" className="font-semibold text-sm mb-0">
+          Header Content
+        </Label>
+        <CustomMagicEditor
+          errorMessage={errorMessage}
+          variables={variables}
+          setheaderPayloaddatawithVar={setheaderPayloaddatawithVar}
+          onFunction={addheaderVariable}
+          headerVariable={headerVariable}
+          handleheaderVariableChange={handleheaderVariableChange}
+          removeHeaderVariable={removeHeaderVariable}
+          setHeaderVariable={setHeaderVariable}
+          headContent={headContent}
+          setFinalContent={setFinalContent}
+          existingContent={updatedheadvercontent}
+          body={false}
+        />
+      </FormGroup>
+    )}
+
+    {["2", "3", "4"].includes(values.headerType) && (
+      <div>
+        <Media
+          key={values.headerType}
+          isPopup={true}
+          contentTypeStr={
+            values.headerType === "2"
+              ? "image"
+              : values.headerType === "3"
+              ? "video"
+              : "application"
+          }
+          onSelectMedia={(mediaId, mediaPath, mimeType) => {
+            setSelectedMediaId(mediaId);
+            setSelectedMediaPath(mediaPath);
+            setSelectedMediaType(mimeType);
+          }}
+        />
+
+        {/* New Button for Changing Media */}
+        <div className="mt-3">
+          <Button
+            className="uniform_btn"
+            onClick={() => {
+              // Trigger the Media component to show the pop-up
+              setShowMediaPopup(true);
+            }}
+          >
+            Change {values.headerType === "2" ? "Image" : values.headerType === "3" ? "Video" : "Document"}
+          </Button>
+
+          {showMediaPopup && (
+            <Media
+              isPopup={true}
+              contentTypeStr={
+                values.headerType === "2"
+                  ? "image"
+                  : values.headerType === "3"
+                  ? "video"
+                  : "application"
+              }
+              onSelectMedia={(mediaId, mediaPath, mimeType) => {
+                setSelectedMediaId(mediaId);
+                setSelectedMediaPath(mediaPath);
+                setSelectedMediaType(mimeType);
+                setShowMediaPopup(false); // Close the pop-up after selection
+              }}
+            />
+          )}
+        </div>
+      </div>
+    )}
+  </div>
+</div>
+
+
 
                     <div className="">
                       <FormGroup>
