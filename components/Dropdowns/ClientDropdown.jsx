@@ -53,7 +53,7 @@ const ClientDropdown = ({ name, value, onChange }) => {
         onChange={onChange}
         required
       >
-        <option value="0">Select</option>
+        <option value="">Select</option>
         {clientsDrop && clientsDrop.length > 0 ? (
           clientsDrop.map((client) => (
             <option key={client.id} value={client.id}>

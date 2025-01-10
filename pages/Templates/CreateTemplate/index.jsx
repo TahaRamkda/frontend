@@ -58,7 +58,7 @@ const TemplateCreationPage = () => {
     buttons: [],
     visitWebsiteButtonCount: 0,
   });
-
+  const [TemplateName, setTemplateName] = useState("");
   const { loading, error } = useSelector((state) => state.templates);
   const [bodyContent, setBodyContent] = useState("");
   const [variables, setVariables] = useState([]);
@@ -66,6 +66,7 @@ const TemplateCreationPage = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [buttonType, setButtonType] = useState(null);
   const [buttonText, setButtonText] = useState("");
+  const [ButtonSelected, setButtonSelected] = useState(false)
   const [phoneNumber, setPhoneNumber] = useState("");
   const [countryCode, setCountryCode] = useState("");
   const [websiteUrl, setwebsiteUrl] = useState("");
@@ -152,6 +153,94 @@ const TemplateCreationPage = () => {
   // }, [headerPayloadDatawithVar]);
 
   const handleSubmit = async (values) => {
+    
+    if (!selectedSenderId) {
+      toast.error("Please select a Sender Name before proceeding.");
+      return; // Prevent further execution if language is not selected
+    }
+    if (!Templatetype) {
+      toast.error("Please select a Template Type before proceeding.");
+      return; // Prevent further execution if language is not selected
+    }
+    if (!language) {
+      toast.error("Please select a language before proceeding.");
+      return; // Prevent further execution if language is not selected
+    }
+    if (!bodyPayloadDatawithVar) {
+      toast.error("Please Enter Body Text before proceeding.");
+      return; // Prevent further execution if language is not selected
+    }
+    
+    if (!TemplateName) {
+      toast.error("Please Enter Template Name before proceeding.");
+      return; // Prevent further execution if language is not selected
+    }
+    let isValid = true; // Flag to track validation status
+
+    messagePreview.buttons.forEach((button, index) => {
+      debugger
+      if (!ButtonSelected) {
+        toast.error(`No button selected for Button ${index + 1}.`);
+        isValid = false;
+        return;
+      }
+    
+      // Common validation for button text
+      if (!button.text || button.text.trim() === "") {
+        toast.error(`Please enter button text for Button ${index + 1}.`);
+        isValid = false;
+        return;
+      }
+    
+      // Type-specific validations
+      switch (button.type) {
+        case "1":
+        case 1:
+          // Type 1 has no additional validation
+          break;
+    
+        case "2":
+        case 2:
+          if (
+            !button.phoneNumber ||
+            button.phoneNumber.trim() === "" ||
+            !button.countryCode
+          ) {
+            toast.error(
+              `Please enter a valid phone number for Button ${
+                index + 1
+              }.`
+            );
+            isValid = false;
+            return;
+          }
+          break;
+    
+        case "3":
+        case 3:
+          if (!button.websiteUrl || button.websiteUrl.trim() === "" ) {
+            toast.error(`Please enter a valid URL for Button ${index + 1}.`);
+            isValid = false;
+            return;
+          }
+          break;
+    
+        default:
+          toast.error(`Invalid button type for Button ${index + 1}.`);
+          isValid = false;
+          return;
+      }
+    });
+    
+    // Prevent API call if validation failed
+    if (!isValid) {
+      console.log("Validation failed. Request will not be sent.");
+      return; // Stop further execution
+    }
+    
+    
+    
+
     // let trimmedBodyContent = APIbodyContent.replace(/\*\*/g, "*").trimEnd();
     // let APIbodyContent = "**Latest**<sub>Text</sub>*Example*   "; // Example content
 
@@ -225,6 +314,9 @@ const TemplateCreationPage = () => {
         buttonId: button.buttonValue,
       })),
     };
+    if (!language) {
+      alert("Please select Languaage")
+    }
 
     //console.log("TimingData", requestBody)
 
@@ -242,11 +334,7 @@ const TemplateCreationPage = () => {
         return true; // Validation passed for this item
       });
 
-      if (!isValid) {
-        alert(`Value is required for placeholder {{${index + 1}}}`);
-        return null;
-      } else {
-      }
+
       const response = await dispatch(createTemplates(requestBody)).unwrap();
       if (response.success) {
         clearTemplateCreateState();
@@ -759,6 +847,7 @@ const TemplateCreationPage = () => {
               name="senderId"
               value={selectedSenderId}
               onChange={handleSenderChange}
+              required
             />
 
             <label className="block mb-1 mt-1">Template type</label>
@@ -766,6 +855,7 @@ const TemplateCreationPage = () => {
               name="templatetype"
               value={Templatetype}
               onChange={HandleTemplatetypechange}
+              required
             />
 
             <label className="block mb-1 mt-1">Language</label>
@@ -773,6 +863,7 @@ const TemplateCreationPage = () => {
               name="language"
               value={language}
               onChange={HandleTemplateLanguagechange}
+              required
             />
             <Formik
               initialValues={{
@@ -808,12 +899,15 @@ const TemplateCreationPage = () => {
                           id="templateName"
                           maxLength="50"
                           onChange={(e) => {
+
                             const value = e.target.value
                               .replace(/\s+/g, "_")
                               .replace(/[^a-zA-Z0-9_]/g, "")
                               .toLowerCase();
                             setFieldValue("templateName", value); // Update Formik's state
+                            setTemplateName(value)
                           }}
+
                         />
                       </FormGroup>
                     </div>
@@ -900,8 +994,8 @@ const TemplateCreationPage = () => {
                                 values.headerType === "2"
                                   ? "image"
                                   : values.headerType === "3"
-                                  ? "video"
-                                  : "application"
+                                    ? "video"
+                                    : "application"
                               }
                               onSelectMedia={(mediaId, mediaPath, mimeType) => {
                                 setSelectedMediaId(mediaId);
@@ -1263,15 +1357,15 @@ const TemplateCreationPage = () => {
           <Col
             md={4}
             className="overflow-hidden h-screen fixed right-10"
-            // style={{
-            //   position: "fixed", // Fix the position
-            //   top: "-20", // Adjust to your layout
-            //   right: "0", // Align to the right side of the screen
-            //   height: "100vh", // Full viewport height to ensure scrollability
-            //   overflowY: "auto", // Enable vertical scrolling
-            //   backgroundColor: "#f8f9fa", // Optional: background color for contrast
-            //   boxShadow: "0 0 10px rgba(0,0,0,0.1)", // Optional: Add shadow for emphasis
-            // }}
+          // style={{
+          //   position: "fixed", // Fix the position
+          //   top: "-20", // Adjust to your layout
+          //   right: "0", // Align to the right side of the screen
+          //   height: "100vh", // Full viewport height to ensure scrollability
+          //   overflowY: "auto", // Enable vertical scrolling
+          //   backgroundColor: "#f8f9fa", // Optional: background color for contrast
+          //   boxShadow: "0 0 10px rgba(0,0,0,0.1)", // Optional: Add shadow for emphasis
+          // }}
           >
             <div
               style={{
