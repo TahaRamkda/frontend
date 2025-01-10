@@ -930,6 +930,7 @@ const TemplateCreationPage = () => {
                             )
                           )}
                         </Field>
+                        <Button>Change Image</Button>
                       </FormGroup>
                       <div>
                         {values.headerType === "1" && (

@@ -1,15 +1,16 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef,useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
 import { fetchSendernamesDrop, clearSendernameDropState } from "@/slices/sendernameSlice";
-import { FormGroup, Label, FormFeedback, Input } from 'reactstrap';
+import { Input } from 'reactstrap';
 
-const SendernameDropdown = ({ name, value, onChange, error, disabled }) => {
+const SendernameDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
-  const { sendernameDrop, loading, error: fetchError } = useSelector((state) => state.sendernames);
+  const { sendernameDrop, loading, error } = useSelector((state) => state.sendernames);
+    const [SearchStr, setSearchStr] = useState("")
 
   useEffect(() => {
     dispatch(fetchSendernamesDrop({ clientId: localStorage.getItem("clientId") }));
@@ -31,14 +32,16 @@ const SendernameDropdown = ({ name, value, onChange, error, disabled }) => {
         onChange({ target: { name, value: selectedValue } });
       });
     }
+
     return () => {
       if (selectRef.current) {
         $(selectRef.current).off("change");
       }
     };
   }, [sendernameDrop, onChange]);
+
   if (loading) return <p>Loading...</p>;
-  if (fetchError) return <p className="text-danger">Error loading: {fetchError}</p>;
+  if (error) return <p className="text-danger">Error loading: {fetchError}</p>;
 
   return (
     <div>
@@ -51,7 +54,7 @@ const SendernameDropdown = ({ name, value, onChange, error, disabled }) => {
         onChange={onChange}
         required
       >
-        <option value="0">Select</option>
+        <option value="">Select</option>
         {sendernameDrop && sendernameDrop.length > 0 ? (
           sendernameDrop.map((sendername) => (
             <option key={sendername.id} value={sendername.id}>
@@ -61,10 +64,7 @@ const SendernameDropdown = ({ name, value, onChange, error, disabled }) => {
         ) : (
           <option disabled>No records found</option>
         )}
-      </Input>
-      {error && value === "0" && (
-        <FormFeedback>Required!</FormFeedback>
-      )}
+      </Input>  
     </div>
   );
 };

@@ -219,15 +219,15 @@ const CampaignsList = () => {
             <button className="uniform_icon_btn" onClick={() => handelClick(row.campaignId)}>
               <MdGroupRemove style={{ fontSize: "15px" }} />
             </button>
-            {/* Conditionally render the Edit button */}
-            {(isSameDay && timeDifference > 3) || !isSameDay ? (
+            <button className="uniform_icon_btn" onClick={() => handleTestCampaign(row.campaignId)}>
+              <HiBeaker style={{ fontSize: "15px" }} />
+            </button>
+             {/* Conditionally render the Edit button */}
+             {(isSameDay && timeDifference > 3) || !isSameDay ? (
               <button className="uniform_icon_btn" onClick={() => HandleUpdateCampaign(row.campaignId)}>
                 <HiPencilAlt style={{ fontSize: "15px" }} />
               </button>
             ) : null}
-            <button className="uniform_icon_btn" onClick={() => handleTestCampaign(row.campaignId)}>
-              <HiBeaker style={{ fontSize: "15px" }} />
-            </button>
           </div>
         );
       },
