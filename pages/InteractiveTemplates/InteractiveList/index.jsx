@@ -73,7 +73,39 @@ const TemplateList = () => {
       selector: (row) => row.createdDate,
       sortable: true,
     },
+     {
+          name: "Action",
+          cell: (row) => (
+            <center>
+              <div className="flex gap-2">
+                <button
+                  className="uniform_icon_btn"
+                  onClick={() => handleDetailClick(row.interactiveTemplateId)}
+                >
+                  <HiPencilAlt style={{ fontSize: "15px" }} />
+                </button>
+                <button
+                  className="uniform_icon_btn"
+                  onClick={() => handleDeleteClick(row.interactiveTemplateId)}
+                >
+                  <HiTrash style={{ fontSize: "15px" }} />
+                </button>
+              </div>
+            </center>
+          ),
+        },
   ];
+
+
+  const handleDetailClick = (templates_Id) => {
+    try {
+      settemplateId(templates_Id);
+      router.push("/InteractiveTemplates/UpdateTemplate");
+    } catch (error) {
+      alert(t("Failed to fetch Template details: ") + error.message);
+    }
+  };
+
 
   const handleDeleteClick = (templateId) => {
     SweetAlert.fire({

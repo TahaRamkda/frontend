@@ -247,6 +247,7 @@ const CampaignsList = () => {
               name="role_Id"
               onChange={handleTemplateChange}
               className="border rounded w-100 MarginBOt"
+              TransactionType={1}
             />
           </div>
           <div className="flex flex-col text-start mb-1">

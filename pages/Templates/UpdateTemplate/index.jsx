@@ -1103,7 +1103,7 @@ const TemplateUpdatePage = () => {
                         />
 
                         {/* Type 1 Action Button */}
-                        {button.type === "1" && (
+                        {button.type === "1" || button.type === 1 && (
                           <Button
                             style={{
                               backgroundColor: "grey",
@@ -1118,7 +1118,7 @@ const TemplateUpdatePage = () => {
                         )}
 
                         {/* Type 2: Phone Number Input */}
-                        {button.type === "2" && (
+                        {button.type === "2" || button.type === 2 && (
                           <div className="d-flex me-2">
                             <Input
                               type="select"
@@ -1164,14 +1164,14 @@ const TemplateUpdatePage = () => {
                         )}
 
                         {/* Type 3: Website URL Input */}
-                        {button.type === "3" && (
+                        {button.type === "3" || button.type === 3&& (
                           <>
                             <div className="d-flex flex-column me-2">
                               {/* Website URL Input */}
                               <div className="d-flex">
                                 <Input
                                   type="text"
-                                  value={button.websiteUrl}
+                                  value={button.url}
                                   placeholder="Website URL"
                                   onChange={(e) => {
                                     const updatedButtons = [

@@ -55,7 +55,7 @@ const UploadMediaPage = ({ setIsModalOpen, onUploadSuccess }) => {
 <div className="grid grid-cols-3 gap-3 mb-3">
   <div className="col-span-1">
   <label className="font-medium text-gray-700 text-sm">Sender Names</label>
-  <Sendernames name="senderId" value={selectedSenderId} onChange={handleSenderChange} />
+  <Sendernames name="senderId" value={selectedSenderId} onChange={handleSenderChange}  required/>
   </div>
   <div className="col-span-2">
   <Formik

@@ -16,14 +16,20 @@ import {
   DropdownItem,
   Alert,
 } from "reactstrap";
+//import ReactQuill from 'react-quill';
 import "react-quill/dist/quill.snow.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { FaTimes } from "react-icons/fa";
 import { FaRegTrashCan } from "react-icons/fa6";
 import {
-  createInteractiveTemplates,
-  clearInteractiveTemplateCreateState,
+  createTemplates,
+  clearTemplateCreateState,
+} from "@/slices/TemplateSlice";
+import {
+  updateInteractiveTemplates,
+  fetchInteractiveTemplatesById,
+  clearInteractiveTemplateDetailState,
 } from "@/slices/TemplateSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import defaultimage from "@/public/images/12.jpg";
@@ -36,16 +42,24 @@ import moment from "moment";
 import CustomMagicEditor from "@/components/CustomMagicEditor";
 import { BASE_URL } from "@/utils/apiConstants";
 import Loader from "@/components/Loader";
+import { useRecoilValue } from "recoil";
+import { TemplateState } from "@/components/recoil";
 import MonitorFormikContext from "@/components/monitorformikcontext";
+import TemplateCategoryDropdown from "@/components/Dropdowns/TemplateCategorydropdown";
 import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
-import { toast } from "react-toastify";
+import { set } from "date-fns";
 const CustomEditor = dynamic(
   () => import("../../../components/CustomEditor/CustomEditor"),
   { ssr: false }
 );
-const InteractiveTemplateCreation = () => {
+const InteractiveTemplateUpdate = () => {
+  const Template_Id = useRecoilValue(TemplateState);
+  const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
   const router = useRouter();
   const dispatch = useDispatch();
+  const [Loading, setLoading] = useState(true);
+ const[actionbuttonvalues ,setactionbuttonvalues] = useState([]);
+  const { interactivetemplatedetail, loading, error } = useSelector((state) => state.templates);
   const stripHtml = (input) => input.replace(/<[^>]*>/g, "");
   const [messagePreview, setMessagePreview] = useState({
     header: "",
@@ -55,8 +69,6 @@ const InteractiveTemplateCreation = () => {
     buttons: [],
     visitWebsiteButtonCount: 0,
   });
-
-  const { loading, error } = useSelector((state) => state.templates);
   const [bodyContent, setBodyContent] = useState("");
   const [variables, setVariables] = useState([]);
   const [urlvariables, seturlvariables] = useState([]);
@@ -64,7 +76,7 @@ const InteractiveTemplateCreation = () => {
   const [buttonType, setButtonType] = useState(null);
   const [buttonText, setButtonText] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [countryCode, setCountryCode] = useState("");
+  const [countryCode, setCountryCode] = useState("US +1");
   const [websiteUrl, setwebsiteUrl] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [marketingOptOutAdded, setMarketingOptOutAdded] = useState(false);
@@ -87,18 +99,18 @@ const InteractiveTemplateCreation = () => {
   const [TotalButtonCount, setTotalButtonCount] = useState(0);
   const [Showallbutton, setShowallbutton] = useState(false);
   const [showaction, setshowaction] = useState(false);
-  const [actionType, setActionType] = useState(0);
+  const [actionType, setActionType] = useState(null);
   const [actionId, setActionId] = useState(null);
   const [buttonindex, setbuttonindex] = useState(0);
   const [headerPayloadDatawithVar, setheaderPayloaddatawithVar] = useState("");
   const [bodyPayloadDatawithVar, setBodyPayloadDatawithVar] = useState("");
   const [removeHeaderButtonEnabled, setRemoveHeaderButtonEnabled] =
     useState(false);
+  const [typingTimeout, setTypingTimeout] = useState(null);
   const [updatedvercontent, setupdatedvercontent] = useState("");
   const [updatedheadvercontent, setupdatedheadvercontent] = useState("");
   const [Templatetype, setTemplatetype] = useState("");
   const [language, setlanguage] = useState("");
-  const [typingTimeout, setTypingTimeout] = useState(null);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const replaceClosingPTagsWithNewline = (content) => {
     return content
@@ -109,7 +121,94 @@ const InteractiveTemplateCreation = () => {
 
   const togglePopup = () => setshowaction(!showaction);
 
-  //console.log("!@#$%^&", bodyFinalContent)
+  console.log("!@#$%^&", bodyFinalContent);
+
+  useEffect(() => {
+    if (Template_Id) {
+      setLoading(true);
+      dispatch(
+        fetchInteractiveTemplatesById({
+            ClientId: localStorage.getItem("clientId"),
+          templateId: Template_Id,
+        })
+      )
+        .then((response) => {
+          setTemplate(response); // Assuming response is the interactivetemplatedetail object
+        })
+        .catch((error) => {
+          console.error("Error fetching interactivetemplatedetail:", error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [dispatch, Template_Id]);
+
+  // Handle interactivetemplatedetail updates once it has been fetched (Second useEffect)
+  useEffect(() => {
+    debugger
+    if (Loading || !interactivetemplatedetail) return; // Wait for the data to be loaded
+
+    const updatedMessagePreview = {
+      body: interactivetemplatedetail.bodyText,
+      footer: interactivetemplatedetail.footerText,
+      media: interactivetemplatedetail.mediaURL,
+      buttons:interactivetemplatedetail.buttons ?? [],
+      templatename: interactivetemplatedetail.templateName,
+      visitWebsiteButtonCount: 0,
+    };
+
+    // Update Header
+    if (interactivetemplatedetail.headerType === 1) {
+      updatedMessagePreview.header = interactivetemplatedetail.headerText;
+      setHeadContent(interactivetemplatedetail.headerText);
+      setupdatedheadvercontent(interactivetemplatedetail.headerText);
+      setheaderTextCount(interactivetemplatedetail.headerParamCount);
+
+      if (interactivetemplatedetail.headerValue) {
+        setHeaderVariable([interactivetemplatedetail.headerValue]);
+        interactivetemplatedetail.headerValue.forEach((variable, i) => {
+          if (variable?.defaultValue !== undefined) {
+            handleheaderVariableChange(i, variable.defaultValue);
+          }
+        });
+      }
+    } else {
+      setSelectedMediaId(interactivetemplatedetail.mediaId);
+      setSelectedMediaPath(interactivetemplatedetail.mediaURL);
+      setSelectedMediaType(interactivetemplatedetail.contentType);
+    }
+
+    // Update Body
+    setupdatedvercontent(interactivetemplatedetail.bodyText);
+    setbodyTextCount(interactivetemplatedetail.bodyParamCount);
+
+    if (interactivetemplatedetail.bodyValues) {
+      setVariables(interactivetemplatedetail.bodyValues);
+      interactivetemplatedetail.bodyValues.forEach((variable, i) => {
+        if (variable?.defaultValue !== undefined) {
+          handleVariableChange(i, variable.defaultValue);
+        }
+      });
+    }
+    if (interactivetemplatedetail.buttonsJson) {
+      const updatedButtons = [...updatedMessagePreview.buttons];
+      updatedButtons.websiteUrl = interactivetemplatedetail.buttons.url;
+      updatedButtons.urlveriable = interactivetemplatedetail.buttons;
+      updatedButtons.urlveriablevalue = interactivetemplatedetail.buttons;
+      updatedButtons.urlverindex = interactivetemplatedetail.buttons;
+      setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+    }
+    setSelectedSenderId(interactivetemplatedetail.senderId);
+    setTemplatetype(interactivetemplatedetail.category);
+    setlanguage(interactivetemplatedetail.language);
+    setTotalButtonCount(updatedMessagePreview.buttons.length);
+
+    setMessagePreview(updatedMessagePreview);
+
+    // Clear Template Detail State
+    clearInteractiveTemplateDetailState();
+  }, [Loading, interactivetemplatedetail]);
 
   useEffect(() => {
     setAPIheadContent(replaceClosingPTagsWithNewline(headContent));
@@ -120,10 +219,6 @@ const InteractiveTemplateCreation = () => {
   }, [bodyFinalContent]);
 
   const handleSaveActionData = (data, index) => {
-    if (data.actiontype === null || data.actiontype === "") {
-      data.actiontype = 0;
-    }
-
     setMessagePreview((prev) => {
       const updatedButtons = [...prev.buttons];
       updatedButtons[index] = {
@@ -137,8 +232,16 @@ const InteractiveTemplateCreation = () => {
       };
     });
   };
-
+  const handelCancel = () => {
+    router.push("/InteractiveTemplates/InteractiveList");
+  };
   const handleSubmit = async (values) => {
+    // let trimmedBodyContent = APIbodyContent.replace(/\*\*/g, "*").trimEnd();
+    // let APIbodyContent = "**Latest**<sub>Text</sub>*Example*   "; // Example content
+
+    // Replace ** with *, * with _, and <sub>/<sub> with ~
+    let trimmedBodyContent = APIbodyContent;
+
     //Replacing the words
     const result = headerPayloadDatawithVar.replace(/\*\*/g, "+");
     const subresult = result.replace(/\*/g, "`");
@@ -155,59 +258,86 @@ const InteractiveTemplateCreation = () => {
     const requestBody = {
       clientId: localStorage.getItem("clientId"),
       name: values.templateName,
+      Id: Template_Id,
+      transactionType: 1,
+      category: "marketing",
+      language: "en",
       senderNameId: selectedSenderId,
-      language: language,
-      usedByAgent: true,
+      status: "Pending",
+      subCategory: "marketing",
+      isApproved: false,
       mediaId: selectedMediaId,
+      templateType: 1,
       actionBy: localStorage.getItem("userId"),
       header: {
         format: values.headerType,
         text: finalHeaderReplace,
+        textCount: headerTextCount,
+        values: headerVariable.map((value, index) => ({
+          value: value,
+          defaultValue: value,
+          index: index + 1,
+        })),
       },
       body: {
+        // text: trimmedBodyContent,
         text: bodyfinalReplace,
+        textCount: bodyTextCount,
+        values: variables.map((value, index) => ({
+          value: value,
+          defaultValue: value,
+          index: index + 1,
+        })),
       },
       footer: {
+        //text: messagePreview.footer,
         text: messagePreview.footer,
       },
       buttons: messagePreview.buttons.map((button, index) => ({
-        buttonType: button.type,
-        buttonText: button.text,
+        type: button.type,
+        text: button.text,
+        phoneNumber: button.phoneNumber,
+        textCount: button.textCount,
+        index: index,
+        url: button.websiteUrl,
+        values: urlvariables.map((value, index) => ({
+          value: value,
+          defaultValue: value,
+          index: index + 1,
+        })),
         actionId: button.actionId,
         actionType: button.actiontype,
-        sequence: index + 1,
-        buttonValue: button.websiteUrl?.trim()
-          ? button.websiteUrl
-          : `${button.countryCode}${button.phoneNumber}`,
+        buttonId: button.buttonValue,
       })),
     };
+
+    //console.log("TimingData", requestBody)
+
     try {
-      const response = await dispatch(
-        createInteractiveTemplates(requestBody)
-      ).unwrap();
+      const response = await dispatch(updateInteractiveTemplates(requestBody)).unwrap();
       if (response.success) {
-        clearInteractiveTemplateCreateState();
+        
+        clearTemplateCreateState();
         showSweetAlert({
-          title: "Template Created",
-          text:
-            response.result.message ||
-            "The Template has been successfully created.",
+          title: "Updated Successfully",
+          text: "",
           icon: "success",
         });
-        await router.push("/InteractiveTemplates/InteractiveList");
+        router.push("/Templates/Templateslist");
       } else {
         showSweetAlert({
-          title: "Creation Failed",
-          text:
-            response.message || "Failed to create Template. Please try again.",
+          title: "Failed",
+          text: response.message || "",
           icon: "error",
         });
+
+        //window.location.reload();
       }
     } catch (err) {
-      console.error("Failed to create Template", err);
+      console.error("Failed to update Template", err);
       showSweetAlert({
-        title: "Creation Failed",
-        text: err.message || "Failed to create Template. Please try again.",
+        title: "Failed",
+        text: err.message || "",
         icon: "error",
       });
       //window.location.reload();
@@ -237,14 +367,76 @@ const InteractiveTemplateCreation = () => {
     }));
   }, [bodyFinalContent, variables]);
 
-  useEffect(() => {
-    setMessagePreview((prev) => ({
-      ...prev,
-      header: headContent
-        .replace(/\{{(\d+)\}}/g, (match, index) => headerVariable[index - 1])
-        .replace(/\n/g, "<br />"),
-    }));
-  }, [headContent, headerVariable]);
+
+
+  const addURLVariable = (index) => {
+   
+    const newIndex = 1;
+
+    const updatedButtons = [...messagePreview.buttons];
+
+    if (!updatedButtons[index].websiteUrl.includes(`{{1}}`)) {
+      const html = updatedButtons[index].websiteUrl;
+      //.replace(/<p[^>]*>/g, '') // Remove opening <p> tags
+      // .replace(/<\/p>/g, '<br />'); // Replace closing </p> tags with <br />
+      //.replace(/<br\s*\/?>/g, ''); // Remove existing <br /> tag
+      var a = `${html}{{${newIndex}}}`;
+      var value = bodyTextCount;
+      //setbodyTextCount(value+1);
+      updatedButtons[index].websiteUrl = a;
+      updatedButtons[index].urlveriable = "";
+      updatedButtons[index].urlveriablevalue = "";
+      updatedButtons[index].urlverindex = newIndex;
+      //setwebsiteUrl(e.target.value)
+      setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+      //setwebsiteUrl(a);
+      // alert(websiteUrl);
+      //seturlvariables((prev) => [...prev, ""]);
+      setErrorMessage("");
+    } else {
+      setErrorMessage(`Variable {${newIndex}} already exists in the body.`);
+    }
+  };
+  const removeWebsiteVariable = (index) => {
+    const updatedButtons = [...messagePreview.buttons];
+
+    // Check if the variable exists in the URL
+    if (
+      updatedButtons[index].websiteUrl.includes(
+        `{{${updatedButtons[index].urlverindex}}}`
+      )
+    ) {
+      // Remove the variable from the website URL
+      updatedButtons[index].websiteUrl = updatedButtons[
+        index
+      ].websiteUrl.replace(`{{${updatedButtons[index].urlverindex}}}`, "");
+      delete updatedButtons[index].urlveriable;
+      delete updatedButtons[index].urlveriablevalue;
+      delete updatedButtons[index].urlverind;
+
+      // Update the state
+      setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+      setErrorMessage(""); // Clear any existing error messages
+    } else {
+      setErrorMessage(
+        `Variable {${updatedButtons[index].urlverindex}} does not exist in the URL.`
+      );
+    }
+  };
+
+ 
+
+  const handleVariableChange = (index, value) => {
+    setVariables((prev) => {
+      const newVariables = [...prev];
+      newVariables[index] = value;
+      return newVariables;
+    });
+  };
+
+ 
+
+  
 
   const handleBodyChange = (value) => {
     // Allow typing without interruptions
@@ -263,6 +455,21 @@ const InteractiveTemplateCreation = () => {
     setTypingTimeout(timeout);
   };
 
+  const validatePlaceholders = (value) => {
+    const placeholders = variables.map((_, index) => `{{${index + 1}}}`);
+    const isValid = placeholders.every((placeholder) =>
+      value.includes(placeholder)
+    );
+
+    if (!isValid) {
+      setErrorMessage(
+        "You cannot change the variable placeholders in the body."
+      );
+    } else {
+      setErrorMessage("");
+    }
+  };
+
   useEffect(() => {
     // Cleanup timeout on component unmount
     return () => {
@@ -271,6 +478,36 @@ const InteractiveTemplateCreation = () => {
       }
     };
   }, [typingTimeout]);
+
+  const handleHeadChange = (value) => {
+    const placeholders = headerVariable.map((_, index) => `{{${index + 1}}}`);
+    const isValid = placeholders.every((placeholder) =>
+      value.includes(placeholder)
+    );
+
+    if (isValid) {
+      setHeadContent(value.replace(/\s\s+/g, " "));
+      setErrorMessage("");
+    } else {
+      setErrorMessage(
+        "You cannot change the variable placeholders in the header."
+      );
+    }
+  };
+
+  const handleheaderVariableChange = (index, value) => {
+    setHeaderVariable((prev) => {
+      const newHeaderVariable = [...prev];
+      newHeaderVariable[index] = value;
+      return newHeaderVariable;
+    });
+  };
+
+  const handleurlVariableChange = (index, value) => {
+    const updatedButtons = [...messagePreview.buttons];
+    updatedButtons[index].urlveriablevalue = value; // Update the variable value
+    setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+  };
 
   const handleButtonSelect = (type) => {
     if (type === "2" && callPhoneNumberButtonCount >= 1) {
@@ -312,15 +549,13 @@ const InteractiveTemplateCreation = () => {
       }
     }
   };
-  const handelCancel = () => {
-    router.push("/InteractiveTemplates/InteractiveList");
-  };
 
   useEffect(() => {
     if (buttonType) {
+
       const newButton = {
-        type: buttonType,
-        text: buttonText,
+        buttonType: buttonType,
+        buttonText: buttonText,
         phoneNumber: buttonType === "2" ? phoneNumber : "",
         countryCode: buttonType === "2" ? countryCode : "",
         websiteUrl: buttonType === "3" ? websiteUrl : null,
@@ -355,6 +590,7 @@ const InteractiveTemplateCreation = () => {
       setwebsiteUrl("");
     }
   }, [buttonType, buttonText]);
+ 
 
   const removeButtonFromPreview = (index) => {
     var totalcount = TotalButtonCount;
@@ -374,8 +610,13 @@ const InteractiveTemplateCreation = () => {
     setSelectedSenderId(role);
   };
 
-  const handlebuttonaction = (index) => {
+  const handlebuttonaction = (index,actionId,actionType) => {
     setbuttonindex(index);
+    const buttonaction= {
+        actionId : actionId,
+        actionType: actionType,
+    }
+    setactionbuttonvalues(buttonaction);
     setshowaction(true);
   };
 
@@ -394,25 +635,25 @@ const InteractiveTemplateCreation = () => {
       }));
     }
   }, [finalContent]);
-
   useEffect(() => {
     let updatedBody = bodyFinalContent;
-
-    // Replace variables in the body content
     variables.forEach((variable, index) => {
       updatedBody = updatedBody.replace(`{{${index + 1}}}`, variable);
     });
-
-    // Handle newlines and preserve the flow
     updatedBody = updatedBody.replace(/\n/g, "<br/>"); // Convert newlines to <br/> tags for HTML rendering
 
     // Replace <p> tags only if necessary, and ensure newlines are handled correctly
     updatedBody = updatedBody
       .replace(/<\/p>/gi, "<br/>")
       .replace(/<p.*?>/gi, "");
-    updatedBody = updatedBody?.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    updatedBody = updatedBody
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // for **bold** text
+      .replace(/_(.*?)_/g, "<strong>$1</strong>"); // for _bold_ text
+
     updatedBody = updatedBody.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
     updatedBody = updatedBody.replace(/~(.*?)~/g, "<sub>$1</sub>");
+
     // Update the message preview body content
     setMessagePreview((prev) => ({
       ...prev,
@@ -420,43 +661,46 @@ const InteractiveTemplateCreation = () => {
     }));
   }, [bodyFinalContent, variables]);
 
-  const HandleTemplateLanguagechange = (e) => {
-    const Language = e.target.value;
-    setlanguage(Language);
-  };
-
+  console.log("BodyFinalContent12", bodyContent, finalContent);
+  if (Loading)
+    return (
+      <App>
+        <Loader />
+      </App>
+    );
   return (
     <App>
       <Container fluid className="mt-0">
-        {loading && <Loader />}
         <Row style={{ height: "100vh" }}>
           <Col
             md={7}
             className="border-end overflow-auto shadow-lg"
-            style={{ padding: "20px", background: "#fffff" }}
+            style={{ padding: "20px", background: "#fff" }}
           >
-            <h4 className="mb-4">Create Interactive Template</h4>
+            <h4 className="mb-4">Update Template</h4>
+            {/* <CustomEditor /> */}
             <label className="block mb-1 mt-1">Sender Names</label>
             <Sendernames
               name="senderId"
               value={selectedSenderId}
-              onChange={handleSenderChange}
+              disabled={true}
             />
 
             <label className="block mb-1 mt-1">Language</label>
             <LanguageDropdown
               name="language"
               value={language}
-              onChange={HandleTemplateLanguagechange}
+              disabled={true}
             />
             <Formik
               initialValues={{
-                templateName: "",
-                headerType: "0",
-                headerContent: "",
+                templateName: interactivetemplatedetail.templateName,
+                headerType: interactivetemplatedetail.headerType,
+                headerContent: interactivetemplatedetail.headerText,
                 headerMedia: null,
                 body: "",
-                footer: "",
+                footer: interactivetemplatedetail.footerText,
+                senderId: interactivetemplatedetail.senderId,
                 buttons: [],
                 variables: [],
                 headerVariable: [],
@@ -466,9 +710,13 @@ const InteractiveTemplateCreation = () => {
               onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
+
                 return (
                   <Form>
-                    <div className="">
+                    <div
+                      style={{ background: "#fff" }}
+                      className="p-2 px-3 rounded border-1 shadow-sm"
+                    >
                       <FormGroup>
                         <Label
                           for="templateName"
@@ -481,7 +729,12 @@ const InteractiveTemplateCreation = () => {
                           type="text"
                           name="templateName"
                           id="templateName"
-                          maxLength="50"
+                          value={values.templateName} // Ensure it syncs with Formik's state
+                          readOnly // Prevent direct editing
+                          onClick={(e) => {
+                            // Allow user interactions like selecting or focusing the input
+                            e.preventDefault();
+                          }}
                           onChange={(e) => {
                             const value = e.target.value
                               .replace(/\s+/g, "_")
@@ -492,7 +745,10 @@ const InteractiveTemplateCreation = () => {
                         />
                       </FormGroup>
                     </div>
-                    <div className="mt-3 ">
+                    <div
+                      style={{ background: "#fff" }}
+                      className="mt-3 p-2 px-3 rounded border-1 shadow-sm"
+                    >
                       <FormGroup>
                         <Label
                           for="headerType"
@@ -520,7 +776,8 @@ const InteractiveTemplateCreation = () => {
                         </Field>
                       </FormGroup>
                       <div>
-                        {values.headerType === "1" && (
+                        {(values.headerType === 1 ||
+                          values.headerType === "1") && (
                           <FormGroup>
                             <Label
                               for="headerContent"
@@ -535,8 +792,8 @@ const InteractiveTemplateCreation = () => {
                               }
                               headContent={headContent}
                               setFinalContent={setFinalContent}
-                              existingContent={updatedheadvercontent}
                               body={false}
+                              existingContent={updatedheadvercontent}
                               showaddvarbutton={false}
                             />
                           </FormGroup>
@@ -549,13 +806,6 @@ const InteractiveTemplateCreation = () => {
                               isPopup={["2", "3", "4"].includes(
                                 values.headerType
                               )}
-                              contentTypeStr={
-                                values.headerType === "2"
-                                  ? "image"
-                                  : values.headerType === "3"
-                                  ? "video"
-                                  : "application"
-                              }
                               onSelectMedia={(mediaId, mediaPath, mimeType) => {
                                 setSelectedMediaId(mediaId);
                                 setSelectedMediaPath(mediaPath);
@@ -567,13 +817,14 @@ const InteractiveTemplateCreation = () => {
                       </div>
                     </div>
 
-                    <div className="">
+                    <div className="border-1 rounded p-2 px-3 mt-2 shadow-sm">
                       <FormGroup>
                         <Label for="body" className="text-sm font-semibold">
                           Body
                         </Label>
                         <div style={{ position: "relative" }}>
                           <CustomMagicEditor
+                            errorMessage={errorMessage}
                             setBodyPayloadDatawithVar={
                               setBodyPayloadDatawithVar
                             }
@@ -584,9 +835,15 @@ const InteractiveTemplateCreation = () => {
                             showaddvarbutton={false}
                           />
                         </div>
+                        {errorMessage && (
+                          <Alert color="danger" className="mt-2">
+                            {errorMessage}
+                          </Alert>
+                        )}
                       </FormGroup>
                     </div>
-                    <div className="">
+                   
+                    <div className="border-1 rounded p-2 px-3 mt-3">
                       <FormGroup>
                         <Label for="footer" className="text-sm font-semibold">
                           Footer
@@ -597,7 +854,6 @@ const InteractiveTemplateCreation = () => {
                           placeholder="Add footer text"
                           className="form-control"
                           maxLength="50"
-                          required
                         />
                       </FormGroup>
                       {/* Button dropdown */}
@@ -606,7 +862,7 @@ const InteractiveTemplateCreation = () => {
                         toggle={toggleDropdown}
                         className="mt-3"
                       >
-                        <div className="flex justify-end">
+                        <div className="flex">
                           <DropdownToggle
                             caret
                             color="gray"
@@ -643,45 +899,55 @@ const InteractiveTemplateCreation = () => {
                         </DropdownMenu>
                       </Dropdown>
                     </div>
-
                     {messagePreview.buttons.map((button, index) => (
                       <div
                         key={index}
-                        className="d-flex align-items-center my-3 border-b-2 pb-3"
+                        className="d-flex align-items-center my-3"
                       >
                         {/* Button Text Input */}
                         <Input
                           type="text"
-                          value={button.text}
+                          value={button.buttonText}
                           placeholder="Button Text"
                           onChange={(e) => {
-                            const updatedButtons = [...messagePreview.buttons];
-                            updatedButtons[index].text = e.target.value;
+                            // Create a deep copy of the button being updated
+                            const updatedButtons = messagePreview.buttons.map((button, btnIndex) => {
+                              if (btnIndex === index) {
+                                return {
+                                  ...button, // Create a new object for the specific button
+                                  buttonText: e.target.value, // Update the buttonText property
+                                };
+                              }
+                              return button; // Keep other buttons unchanged
+                            });
+                          
+                            // Update the state with the new buttons array
                             setMessagePreview({
                               ...messagePreview,
                               buttons: updatedButtons,
                             });
                           }}
+                          
                           className="me-2"
                         />
 
                         {/* Type 1 Action Button */}
-                        {button.type === "1" && (
+                        {(button.buttonType === "1" || button.buttonType === 1) && (
                           <Button
                             style={{
                               backgroundColor: "grey",
                               borderColor: "green",
                               color: "white",
                             }}
-                            className="me-2"
-                            onClick={() => handlebuttonaction(index)}
+                            className=""
+                            onClick={() => handlebuttonaction(index,button.actionId,button.actionType)}
                           >
                             <i className="fa fa-bolt"></i>
                           </Button>
                         )}
 
                         {/* Type 2: Phone Number Input */}
-                        {button.type === "2" && (
+                        {(button.buttonType === "2" || button.buttonType === 2)&& (
                           <div className="d-flex me-2">
                             <Input
                               type="select"
@@ -727,7 +993,7 @@ const InteractiveTemplateCreation = () => {
                         )}
 
                         {/* Type 3: Website URL Input */}
-                        {button.type === "3" && (
+                        {(button.buttonType === "3" || button.buttonType === 3) && (
                           <>
                             <div className="d-flex flex-column me-2">
                               {/* Website URL Input */}
@@ -749,7 +1015,61 @@ const InteractiveTemplateCreation = () => {
                                   }}
                                   className="me-2"
                                 />
+                                <Button
+                                  onClick={() => addURLVariable(index)}
+                                  className="mt-0 mr-2 bg-transparent border-0"
+                                  style={{ minWidth: "max-content" }}
+                                >
+                                  <span className="text-primary">
+                                    + Add Variable
+                                  </span>
+                                </Button>
                               </div>
+
+                              {/* URL Variable Input */}
+                              {button.urlveriablevalue != null && (
+                                <div className="mt-3">
+                                  <Row>
+                                    <Col>
+                                      <Input
+                                        className="w-100"
+                                        type="text"
+                                        value={button.urlveriablevalue}
+                                        onChange={(e) =>
+                                          handleurlVariableChange(
+                                            index,
+                                            e.target.value
+                                          )
+                                        }
+                                        placeholder={`Enter Sample value for {${
+                                          index + 1
+                                        }}`}
+                                      />
+                                    </Col>
+                                    <Col xs="auto">
+                                      <div
+                                        className="border-1 d-flex align-items-center justify-content-center rounded"
+                                        style={{
+                                          height: "46px",
+                                          width: "38px",
+                                          background: "#e1e1e1",
+                                        }}
+                                      >
+                                        <FaTimes
+                                          key={index}
+                                          onClick={() => {
+                                            removeWebsiteVariable(index);
+                                          }}
+                                          style={{
+                                            cursor: "pointer",
+                                            color: "red",
+                                          }}
+                                        />
+                                      </div>
+                                    </Col>
+                                  </Row>
+                                </div>
+                              )}
                             </div>
                           </>
                         )}
@@ -767,18 +1087,19 @@ const InteractiveTemplateCreation = () => {
 
                     <div className="w-full flex justify-end gap-3">
                       <Button
-                        className="uniform_btn_Cancel mt-4"
+                        className="uniform_btn_Cancel "
                         onClick={handelCancel}
                       >
                         Cancel
                       </Button>
                       <Button
-                        className="uniform_btn mt-4"
+                        className="uniform_btn  "
                         onClick={() => handleSubmit(values)}
                       >
-                        Create
+                        Submit
                       </Button>
                     </div>
+
                     <MonitorFormikContext
                       setMessagePreview={setMessagePreview} // Pass setMessagePreview as a prop
                       defaultImage={defaultimage} // Pass the defaultImage as a prop
@@ -788,8 +1109,10 @@ const InteractiveTemplateCreation = () => {
               }}
             </Formik>
           </Col>
-
-          <Col md={4} className="overflow-hidden h-screen fixed right-10">
+          <Col
+            md={4}
+           className="overflow-hidden h-screen fixed right-10"
+          >
             <div
               style={{
                 position: "sticky",
@@ -913,22 +1236,22 @@ const InteractiveTemplateCreation = () => {
                         borderTopColor: "#e1e1e1",
                       }}
                     >
-                      {button.type == 1 && (
+                      {button.buttonType == 1 && (
                         <span style={{ color: "#00a9ee" }}>
                           <i className="fa fa-share fa-flip-horizontal me-2"></i>
-                          {button.text || "Button"}
+                          {button.buttonText || "Button"}
                         </span>
                       )}
-                      {button.type == 2 && (
+                      {button.buttonType == 2 && (
                         <span style={{ color: "#00a9ee" }}>
                           <i className="fa fa-phone me-2"></i>
-                          {button.text || "Button"}
+                          {button.buttonText || "Button"}
                         </span>
                       )}
-                      {button.type == 3 && (
+                      {button.buttonType == 3 && (
                         <span style={{ color: "#00a9ee" }}>
                           <i className="fa fa-external-link me-2"></i>
-                          {button.text || "Button"}
+                          {button.buttonText || "Button"}
                         </span>
                       )}
                     </Button>
@@ -984,9 +1307,10 @@ const InteractiveTemplateCreation = () => {
         toggle={togglePopup}
         onSubmit={handleSaveActionData}
         index={buttonindex}
+        existingData={actionbuttonvalues}
       />
     </App>
   );
 };
 
-export default InteractiveTemplateCreation;
+export default InteractiveTemplateUpdate;

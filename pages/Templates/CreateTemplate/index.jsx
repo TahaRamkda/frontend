@@ -565,45 +565,53 @@ const TemplateCreationPage = () => {
   };
 
   const handleButtonSelect = (type) => {
-    if (type === "2" && callPhoneNumberButtonCount >= 1) {
-      toast.error("You can only add one call phone number button.");
-      setButtonType(null);
-    } else if (
-      type === "3" &&
-      messagePreview.buttons.filter((button) => button.type === "3").length >= 2
-    ) {
-      toast.error("You can only add two visit website buttons.");
-      setButtonType(null);
-      setButtonText("");
-      setwebsiteUrl("");
-    } else {
-      setButtonType(type);
-      setButtonText("");
-      setPhoneNumber("");
-      setCountryCode("+965");
-      setwebsiteUrl("");
-      setActionId(0);
-      setActionType(0);
-      if (type === "1") {
-        setButtonText(" ");
+  if (!type || !messagePreview || !messagePreview.buttons) {
+    console.error("Invalid input or message preview state.");
+    return;
+  }
+
+  const callPhoneNumberButtonCount = messagePreview.buttons.filter((button) => button.type === "2").length;
+  const visitWebsiteButtonCount = messagePreview.buttons.filter((button) => button.type === "3").length;
+
+  if (type === "2" && callPhoneNumberButtonCount >= 1) {
+    toast.error("You can only add one call phone number button.");
+    setButtonType(null);
+  } else if (type === "3" && visitWebsiteButtonCount >= 2) {
+    toast.error("You can only add two visit website buttons.");
+    setButtonType(null);
+    setButtonText("");
+    setwebsiteUrl("");
+  } else {
+    setButtonType(type);
+    setButtonText("");
+    setPhoneNumber("");
+    setCountryCode("+965");
+    setwebsiteUrl("");
+    setActionId(0);
+    setActionType(0);
+    
+    switch (type) {
+      case "1":
+        setButtonText("");
         setMarketingOptOutAdded(true);
         setTotalButtonCount((prev) => prev + 1);
-      } else if (type === "2") {
+        break;
+      case "2":
         setButtonText("Call Phone Number");
         setCallPhoneNumberButtonCount((prev) => prev + 1);
         setTotalButtonCount((prev) => prev + 1);
-      } else if (type === "3") {
+        break;
+      case "3":
         setButtonText("Visit Website");
-        setVisitWebsiteButtonCount(
-          messagePreview.buttons.filter((button) => button.type === "3")
-            .length + 1
-        );
+        setVisitWebsiteButtonCount(visitWebsiteButtonCount + 1);
         setTotalButtonCount((prev) => prev + 1);
-      } else {
+        break;
+      default:
         setButtonText("");
-      }
+        break;
     }
-  };
+  }
+};
   const handelCancel = () => {
     router.push("/Templates/TemplatesList");
   };
@@ -809,7 +817,7 @@ const TemplateCreationPage = () => {
                         />
                       </FormGroup>
                     </div>
-                    <div className="mt-3 ">
+                    <div className="mt-3">
                       <FormGroup>
                         <Label
                           for="headerType"
@@ -1035,224 +1043,186 @@ const TemplateCreationPage = () => {
                         key={index}
                         className="d-flex align-items-center my-3 border-b-2 pb-3"
                       >
-                        {/* Button Text Input */}
+                        {/* Common Button Text Input */}
 
-                        {/* Type 1 Action Button */}
-                        {button.type === "1" && (
-                          <>
+                        <Input
+                          type="text"
+                          value={button.text}
+                          placeholder="Button Text"
+                          onChange={(e) => {
+                            const updatedButtons = [...messagePreview.buttons];
+                            updatedButtons[index].text = e.target.value;
+                            setMessagePreview({
+                              ...messagePreview,
+                              buttons: updatedButtons,
+                            });
+                          }}
+                          className="me-2"
+                          style={{
+                            flex: "1 1 40%",
+                            minWidth: "250px",
+                            marginBottom: "10px",
+                          }}
+                        />
+
+                        {/* Type-Specific Inputs */}
+                        {button.type === "2" && (
+                          <div
+                            className="d-flex align-items-center border rounded px-2"
+                            style={{ flex: "1 1 60%", minWidth: "300px" }}
+                          >
+                            {/* Country Code Dropdown */}
                             <Input
-                              type="text"
-                              value={button.text}
-                              placeholder="Button Text"
+                              type="select"
+                              value={button.countryCode}
                               onChange={(e) => {
                                 const updatedButtons = [
                                   ...messagePreview.buttons,
                                 ];
-                                updatedButtons[index].text = e.target.value;
+                                updatedButtons[index].countryCode =
+                                  e.target.value;
+                                setMessagePreview({
+                                  ...messagePreview,
+                                  buttons: updatedButtons,
+                                });
+                                setCountryCode(e.target.value);
+                              }}
+                              style={{
+                                border: "none",
+                                width: "80px",
+                                appearance: "none",
+                                background: "transparent",
+                                paddingRight: "8px",
+                              }}
+                              className="me-2"
+                            >
+                              <option value="+965">+965</option>
+                              <option value="+1">+1</option>
+                              <option value="+91">+91</option>
+                            </Input>
+
+                            {/* Phone Number Input */}
+                            <Input
+                              type="text"
+                              value={button.phoneNumber}
+                              placeholder="Phone Number"
+                              onChange={(e) => {
+                                const updatedButtons = [
+                                  ...messagePreview.buttons,
+                                ];
+                                updatedButtons[index].phoneNumber =
+                                  e.target.value;
                                 setMessagePreview({
                                   ...messagePreview,
                                   buttons: updatedButtons,
                                 });
                               }}
-                              className="me-2"
+                              style={{ flex: 1, border: "none" }}
                             />
-                            <Button
-                              style={{
-                                backgroundColor: "grey",
-                                borderColor: "green",
-                                color: "white",
-                              }}
-                              className="me-2"
-                              onClick={() => handlebuttonaction(index)}
-                            >
-                              <i className="fa fa-bolt"></i>
-                            </Button>
-                          </>
+                          </div>
                         )}
 
-                        {/* Type 2: Phone Number Input */}
-                        {button.type === "2" && (
-                          <div>
-                            {/* Button Text and Phone Input Row */}
-                            <div className="d-flex align-items-center mb-2">
-                              {/* Button Text Input */}
-                              <Input
-                                type="text"
-                                value={button.text}
-                                placeholder="Button Text"
-                                onChange={(e) => {
-                                  const updatedButtons = [
-                                    ...messagePreview.buttons,
-                                  ];
-                                  updatedButtons[index].text = e.target.value;
-                                  setMessagePreview({
-                                    ...messagePreview,
-                                    buttons: updatedButtons,
-                                  });
-                                }}
-                                className="me-2"
-                                style={{ flex: "1 1 35%", minWidth: "200px" }}
-                              />
-
-                              {/* Combined Country Code and Phone Number Input */}
-                              <div
-                                className="d-flex align-items-center border rounded px-2"
-                                style={{ flex: "2 1 60%", minWidth: "300px" }}
-                              >
-                                {/* Country Code Dropdown */}
-                                <Input
-                                  type="select"
-                                  value={button.countryCode}
-                                  onChange={(e) => {
-                                    const updatedButtons = [
-                                      ...messagePreview.buttons,
-                                    ];
-                                    updatedButtons[index].countryCode =
-                                      e.target.value;
-                                    setMessagePreview({
-                                      ...messagePreview,
-                                      buttons: updatedButtons,
-                                    });
-                                    setCountryCode(e.target.value);
-                                  }}
-                                  style={{
-                                    border: "none",
-                                    width: "80px",
-                                    appearance: "none",
-                                    background: "transparent",
-                                    paddingRight: "8px",
-                                  }}
-                                  className="me-2"
-                                >
-                                  <option value="+965">+965</option>
-                                  <option value="+1">+1</option>
-                                  <option value="+91">+91</option>
-                                </Input>
-
-                                {/* Phone Number Input */}
+                        {button.type === "3" && (
+                          <div className="mb-2" style={{ flex: "1 1 60%" }}>
+                            {/* Website URL Input and Variable */}
+                            <div className="d-flex flex-column">
+                              {/* Website URL Input */}
+                              <div className="d-flex align-items-center">
                                 <Input
                                   type="text"
-                                  value={button.phoneNumber}
-                                  placeholder="Phone Number"
+                                  value={button.websiteUrl}
+                                  placeholder="Website URL"
                                   onChange={(e) => {
                                     const updatedButtons = [
                                       ...messagePreview.buttons,
                                     ];
-                                    updatedButtons[index].phoneNumber =
+                                    updatedButtons[index].websiteUrl =
                                       e.target.value;
                                     setMessagePreview({
                                       ...messagePreview,
                                       buttons: updatedButtons,
                                     });
                                   }}
-                                  style={{ flex: 1, border: "none" }}
+                                  style={{
+                                    flex: "2 1 auto",
+                                    minWidth: "250px",
+                                    marginRight: "10px",
+                                  }}
                                 />
+
+                                {/* Add Variable Button */}
+                                <Button
+                                  onClick={() => addURLVariable(index)}
+                                  className="bg-transparent border-0 text-primary"
+                                  style={{
+                                    flex: "0 0 auto",
+                                    minWidth: "max-content",
+                                    fontSize: "0.75rem",
+                                    padding: "5px 10px",
+                                  }}
+                                >
+                                  + Add Variable
+                                </Button>
                               </div>
+                              {button.urlveriablevalue != null && (
+                                <div className="mt-2" style={{ width: "100%" }}>
+                                  <Row className="align-items-center">
+                                    <Col>
+                                      <Input
+                                        type="text"
+                                        value={button.urlveriablevalue}
+                                        onChange={(e) =>
+                                          handleurlVariableChange(
+                                            index,
+                                            e.target.value
+                                          )
+                                        }
+                                        placeholder={`Enter Sample value for ${
+                                          index + 1
+                                        }`}
+                                        className="w-100"
+                                      />
+                                    </Col>
+                                    <Col xs="auto">
+                                      <div
+                                        className="border-1 d-flex align-items-center justify-content-center rounded"
+                                        style={{
+                                          height: "46px",
+                                          width: "38px",
+                                          background: "#e1e1e1",
+                                        }}
+                                      >
+                                        <FaTimes
+                                          onClick={() => {
+                                            removeWebsiteVariable(index);
+                                          }}
+                                          style={{
+                                            cursor: "pointer",
+                                            color: "red",
+                                          }}
+                                        />
+                                      </div>
+                                    </Col>
+                                  </Row>
+                                </div>
+                              )}
                             </div>
                           </div>
                         )}
 
-                        {/* Type 3: Website URL Input */}
-                        {button.type === "3" && (
-                          <div>
-                            {/* Button Text and Website URL Input Row */}
-                            <div className="d-flex align-items-center mb-2">
-                              {/* Button Text Input */}
-                              <Input
-                                type="text"
-                                value={button.text}
-                                placeholder="Button Text"
-                                onChange={(e) => {
-                                  const updatedButtons = [
-                                    ...messagePreview.buttons,
-                                  ];
-                                  updatedButtons[index].text = e.target.value;
-                                  setMessagePreview({
-                                    ...messagePreview,
-                                    buttons: updatedButtons,
-                                  });
-                                }}
-                                className="me-2"
-                                style={{ flex: "2 1 40%", minWidth: "200px" }}
-                              />
-
-                              {/* Website URL Input */}
-                              <Input
-                                type="text"
-                                value={button.websiteUrl}
-                                placeholder="Website URL"
-                                onChange={(e) => {
-                                  const updatedButtons = [
-                                    ...messagePreview.buttons,
-                                  ];
-                                  updatedButtons[index].websiteUrl =
-                                    e.target.value;
-                                  setMessagePreview({
-                                    ...messagePreview,
-                                    buttons: updatedButtons,
-                                  });
-                                }}
-                                className="me-2"
-                                style={{ flex: "2 1 50%", minWidth: "250px" }}
-                              />
-
-                              {/* Add Variable Button */}
-                              <Button
-                                onClick={() => addURLVariable(index)}
-                                className="bg-transparent border-0 text-primary"
-                                style={{
-                                  minWidth: "max-content",
-                                  fontSize: "0.875rem",
-                                }}
-                              >
-                                + Add Variable
-                              </Button>
-                            </div>
-
-                            {/* URL Variable Input Row */}
-                            {button.urlveriablevalue != null && (
-                              <div className="mt-2">
-                                <Row className="align-items-center">
-                                  <Col>
-                                    <Input
-                                      type="text"
-                                      value={button.urlveriablevalue}
-                                      onChange={(e) =>
-                                        handleurlVariableChange(
-                                          index,
-                                          e.target.value
-                                        )
-                                      }
-                                      placeholder={`Enter Sample value for ${
-                                        index + 1
-                                      }`}
-                                      className="w-100"
-                                    />
-                                  </Col>
-                                  <Col xs="auto">
-                                    <div
-                                      className="border-1 d-flex align-items-center justify-content-center rounded"
-                                      style={{
-                                        height: "46px",
-                                        width: "38px",
-                                        background: "#e1e1e1",
-                                      }}
-                                    >
-                                      <FaTimes
-                                        onClick={() => {
-                                          removeWebsiteVariable(index);
-                                        }}
-                                        style={{
-                                          cursor: "pointer",
-                                          color: "red",
-                                        }}
-                                      />
-                                    </div>
-                                  </Col>
-                                </Row>
-                              </div>
-                            )}
-                          </div>
+                        {/* Action Button for Type 1 */}
+                        {button.type === "1" && (
+                          <Button
+                            style={{
+                              backgroundColor: "grey",
+                              borderColor: "green",
+                              color: "white",
+                            }}
+                            className="me-2"
+                            onClick={() => handlebuttonaction(index)}
+                          >
+                            <i className="fa fa-bolt"></i>
+                          </Button>
                         )}
 
                         {/* Remove Button */}

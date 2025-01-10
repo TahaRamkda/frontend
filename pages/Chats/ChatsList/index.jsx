@@ -755,7 +755,7 @@ const ChatPage = () => {
               {conversations
                 .filter((conversation) => conversation.id === Activechat)
                 .map((conversation) => (
-                  <div className="flex items-center justify-between text-black px-4 py-3 shadow-md">
+                  <div key={conversation.id} className="flex items-center justify-between text-black px-4 py-3 shadow-md">
                     {/* Left Section */}
                     <div
                       key={conversation.id}

@@ -10,7 +10,9 @@ import {
   SYNCTEMPLATE,
   TEMPLATEDROPDOWN,
   CREATEINTERACTIVETEMPLATE,
-  INRERACTIVETEMPLATELIST
+  INRERACTIVETEMPLATELIST,
+  INTERACTIVETEMPLATEDETAILS,
+  UPDATEINTERACTIVETEMPLATE,
 } from "@/utils/apiConstants";
 
 // Thunks
@@ -41,6 +43,27 @@ export const fetchInteractiveTemplates = createAsyncThunk(
   async ({clientId = localStorage.getItem("clientId"),fromDate,searchStr,toDate,pageNo,pageSize}, { rejectWithValue }) => {
     try {
       const response = await API.get(`${INRERACTIVETEMPLATELIST}?clientId=${clientId}${searchStr?`&searchStr=${searchStr}`:''}&fromDate=${fromDate}&toDate=${toDate}&pageNo=${pageNo}&pageSize=${pageSize}`);
+      if (response?.status === 200 && response.data?.result) {
+        return {
+          interactiveTemplateList: response.data.result,
+          totalRecords:
+            response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+        };
+      } else {
+        throw new Error("Failed to fetch details");
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
+export const fetchInteractiveTemplateDrop = createAsyncThunk(
+  'template/interactiveTemplateList',
+  async ({clientId = localStorage.getItem("clientId")}, { rejectWithValue }) => {
+    try {
+      const response = await API.get(`${INRERACTIVETEMPLATELIST}?clientId=${clientId}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           interactiveTemplateList: response.data.result,
@@ -89,6 +112,21 @@ export const fetchTemplatesById = createAsyncThunk(
     try {
       const response = await API.get(
         `${TEMPLATEDETAILS}?Id=${templateId}&ClientId=${ClientId}`
+      );
+      return response.data;
+    } catch (error) {
+      const handledError = handleError(error);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
+export const fetchInteractiveTemplatesById = createAsyncThunk(
+  "template/fetchInteractiveTemplatesById",
+  async ({ templateId, ClientId }, { rejectWithValue }) => {
+    try {
+      const response = await API.get(
+        `${INTERACTIVETEMPLATEDETAILS}?interactiveTemplateId=${templateId}&clientId=${ClientId}`
       );
       return response.data;
     } catch (error) {
@@ -152,6 +190,19 @@ export const updateTemplates = createAsyncThunk(
   }
 );
 
+export const updateInteractiveTemplates = createAsyncThunk(
+  "template/updateInteractiveTemplates",
+  async (templateData, { rejectWithValue }) => {
+    try {
+      const response = await API.put(UPDATEINTERACTIVETEMPLATE, templateData);
+      return response.data;
+    } catch (error) {
+      const handledError = handleError(error);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
 // Delete Template
 export const deleteTemplates = createAsyncThunk(
   "template/deleteTemplate",
@@ -174,6 +225,7 @@ const templateSlice = createSlice({
     templateDrop: [],
     interactiveTemplateList:[],
     template: null,
+    interactivetemplatedetail: null,
     loading: false,
     error: null,
     success: false,
@@ -220,6 +272,11 @@ const templateSlice = createSlice({
       state.totalRecords = 0;
     },
     clearTemplateDetailState: (state) => {
+      state.template = null;
+      state.loading = false;
+      state.error = null;
+    },
+    clearInteractiveTemplateDetailState: (state) => {
       state.template = null;
       state.loading = false;
       state.error = null;
@@ -310,6 +367,21 @@ const templateSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
+      .addCase(fetchInteractiveTemplatesById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchInteractiveTemplatesById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.interactivetemplatedetail = action.payload.result;
+        state.message = action.payload?.message || "";
+      })
+      .addCase(fetchInteractiveTemplatesById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+
       // Create Template
       .addCase(createTemplates.pending, (state) => {
         state.loading = true;
@@ -360,6 +432,22 @@ const templateSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
+      .addCase(updateInteractiveTemplates.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(updateInteractiveTemplates.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.message = action.payload.message || "Updated Successfully";
+      })
+      .addCase(updateInteractiveTemplates.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+
       // Delete Template
       .addCase(deleteTemplates.pending, (state) => {
         state.loading = true;
@@ -385,6 +473,7 @@ export const {
   setCurrentPage,
   clearTemplateState,
   clearTemplateDropState,
+  clearInteractiveTemplateDetailState,
   clearInteractiveTemplateCreateState,
   clearInteractiveTemplateListState,
   clearTemplateDetailState,
