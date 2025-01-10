@@ -39,6 +39,7 @@ import { useRouter } from "next/router";
 import Loader from "@/components/Loader";
 import bagroundimage from "@/public/images/baground.jpg";
 import { BASE_URL } from "@/utils/apiConstants";
+import { toast } from "react-toastify";
 const CampaignCreate = () => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -195,7 +196,19 @@ const CampaignCreate = () => {
   }, [bodyFinalContent]);
 
   const handleSubmit = async (values) => {
-
+    debugger
+    if (!campaignName) {
+      toast.error("Please select a campaign before proceeding")
+      return
+    }
+    if (!Array.isArray(selectedGroups) || selectedGroups.length === 0) {
+      toast.error("Please select a group before proceeding");
+      return; // Stop execution
+    }
+    if (!selectedTemplateId) {
+      toast.error("Please select a template before proceeding")
+      return
+    }
     let trimmedBodyContent = APIbodyContent.trimEnd();
 
     const requestBody = {

@@ -154,9 +154,6 @@ const SendernameList = () => {
     };
   }, [dispatch]);
 
-  const filteredSendernames = sendernames.filter((sender) =>
-    sender.senderName.toLowerCase().includes(filterText.toLowerCase())
-  );
 
   const subHeaderComponentMemo = useMemo(() => {
     return (
@@ -198,7 +195,7 @@ const SendernameList = () => {
 
       <div className="overflow-auto">
         <DataTable
-          data={filteredSendernames}
+          data={sendernames}
           columns={sendernameColumns}
           highlightOnHover
           striped

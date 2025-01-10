@@ -24,7 +24,7 @@ const SendernameList = () => {
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sendernameForm, setSendernameForm] = useState({});
-
+  const [filterText, setFilterText] = useState("");
   const [CreateModalOPen, setCreateModalOpen] = useState(false);
 
   const sendernameColumns = [
