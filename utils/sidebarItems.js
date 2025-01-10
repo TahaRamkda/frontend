@@ -43,14 +43,12 @@ export const sidebarItems = [
     },
 
     {
-      href: '/InteractiveTemplate/InteractiveList',
+      href: '/InteractiveTemplates/InteractiveList',
       icon: 'ti-layout', // Layout icon for Templates
-      text: 'Interactive Template',
+      text: 'Interactive Templates',
       module: 1,
       submenu: [],
     },
-
-
     {
       href: '/TemplateInsight',
       icon: 'ti-bar-chart-alt', // Bar chart icon for Template Insight
@@ -72,9 +70,6 @@ export const sidebarItems = [
       module: 1,
       submenu: [],
     },
-   
-    
-   
     {
       href: '/SenderNames/SenderNamelist',
       icon: 'ti-id-badge', // ID badge icon for Sender Names
@@ -97,13 +92,7 @@ export const sidebarItems = [
       module: 1,
       submenu: [],
     },
-    // {
-    //   href: '/dashboard',
-    //   icon: 'ti-key', // Key icon for API Keys
-    //   text: 'APIKeys',
-    //   module: 1,
-    //   submenu: [],
-    // },
+   
     {
       href: '#',
       icon: 'ti-bar-chart', // Chart icon for Reports

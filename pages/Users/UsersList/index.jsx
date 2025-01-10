@@ -45,7 +45,7 @@ const UserList = () => {
   }
   const handleDetailClick = async (userId) => {
     try {
-      const response = await dispatch(fetchUserById(userId)).unwrap();
+      const response = await dispatch(fetchUserById({userId})).unwrap();
       if (response) {
         setUserForm(response.result);
         setIsModalOpen(true);

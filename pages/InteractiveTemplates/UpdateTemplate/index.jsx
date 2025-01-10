@@ -16,6 +16,7 @@ import {
   DropdownItem,
   Alert,
 } from "reactstrap";
+//import ReactQuill from 'react-quill';
 import "react-quill/dist/quill.snow.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
@@ -25,30 +26,40 @@ import {
   createTemplates,
   clearTemplateCreateState,
 } from "@/slices/TemplateSlice";
+import {
+  updateInteractiveTemplates,
+  fetchInteractiveTemplatesById,
+  clearInteractiveTemplateDetailState,
+} from "@/slices/TemplateSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import defaultimage from "@/public/images/12.jpg";
 import bagroundimage from "@/public/images/baground.jpg";
 import Media from "@/pages/Media/MediaList";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
 import App from "@/components/App";
-import ButtonAction from "../ButtonAction";
+import ButtonAction from "@/pages/Templates/ButtonAction";
 import moment from "moment";
 import CustomMagicEditor from "@/components/CustomMagicEditor";
 import { BASE_URL } from "@/utils/apiConstants";
-import ClientDropdown from "@/components/Dropdowns/ClientDropdown";
-import { set } from "date-fns";
 import Loader from "@/components/Loader";
+import { useRecoilValue } from "recoil";
+import { TemplateState } from "@/components/recoil";
 import MonitorFormikContext from "@/components/monitorformikcontext";
 import TemplateCategoryDropdown from "@/components/Dropdowns/TemplateCategorydropdown";
 import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
-import { toast } from "react-toastify";
+import { set } from "date-fns";
 const CustomEditor = dynamic(
   () => import("../../../components/CustomEditor/CustomEditor"),
   { ssr: false }
 );
-const TemplateCreationPage = () => {
+const InteractiveTemplateUpdate = () => {
+  const Template_Id = useRecoilValue(TemplateState);
+  const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
   const router = useRouter();
   const dispatch = useDispatch();
+  const [Loading, setLoading] = useState(true);
+ const[actionbuttonvalues ,setactionbuttonvalues] = useState([]);
+  const { interactivetemplatedetail, loading, error } = useSelector((state) => state.templates);
   const stripHtml = (input) => input.replace(/<[^>]*>/g, "");
   const [messagePreview, setMessagePreview] = useState({
     header: "",
@@ -58,17 +69,14 @@ const TemplateCreationPage = () => {
     buttons: [],
     visitWebsiteButtonCount: 0,
   });
-  const [TemplateName, setTemplateName] = useState("");
-  const { loading, error } = useSelector((state) => state.templates);
   const [bodyContent, setBodyContent] = useState("");
   const [variables, setVariables] = useState([]);
   const [urlvariables, seturlvariables] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [buttonType, setButtonType] = useState(null);
   const [buttonText, setButtonText] = useState("");
-  const [ButtonSelected, setButtonSelected] = useState(false)
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [countryCode, setCountryCode] = useState("");
+  const [countryCode, setCountryCode] = useState("US +1");
   const [websiteUrl, setwebsiteUrl] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [marketingOptOutAdded, setMarketingOptOutAdded] = useState(false);
@@ -91,18 +99,18 @@ const TemplateCreationPage = () => {
   const [TotalButtonCount, setTotalButtonCount] = useState(0);
   const [Showallbutton, setShowallbutton] = useState(false);
   const [showaction, setshowaction] = useState(false);
-  const [actionType, setActionType] = useState(0);
+  const [actionType, setActionType] = useState(null);
   const [actionId, setActionId] = useState(null);
   const [buttonindex, setbuttonindex] = useState(0);
   const [headerPayloadDatawithVar, setheaderPayloaddatawithVar] = useState("");
   const [bodyPayloadDatawithVar, setBodyPayloadDatawithVar] = useState("");
   const [removeHeaderButtonEnabled, setRemoveHeaderButtonEnabled] =
     useState(false);
+  const [typingTimeout, setTypingTimeout] = useState(null);
   const [updatedvercontent, setupdatedvercontent] = useState("");
   const [updatedheadvercontent, setupdatedheadvercontent] = useState("");
   const [Templatetype, setTemplatetype] = useState("");
   const [language, setlanguage] = useState("");
-  const [typingTimeout, setTypingTimeout] = useState(null);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const replaceClosingPTagsWithNewline = (content) => {
     return content
@@ -113,7 +121,94 @@ const TemplateCreationPage = () => {
 
   const togglePopup = () => setshowaction(!showaction);
 
-  //console.log("!@#$%^&", bodyFinalContent)
+  console.log("!@#$%^&", bodyFinalContent);
+
+  useEffect(() => {
+    if (Template_Id) {
+      setLoading(true);
+      dispatch(
+        fetchInteractiveTemplatesById({
+            ClientId: localStorage.getItem("clientId"),
+          templateId: Template_Id,
+        })
+      )
+        .then((response) => {
+          setTemplate(response); // Assuming response is the interactivetemplatedetail object
+        })
+        .catch((error) => {
+          console.error("Error fetching interactivetemplatedetail:", error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [dispatch, Template_Id]);
+
+  // Handle interactivetemplatedetail updates once it has been fetched (Second useEffect)
+  useEffect(() => {
+    debugger
+    if (Loading || !interactivetemplatedetail) return; // Wait for the data to be loaded
+
+    const updatedMessagePreview = {
+      body: interactivetemplatedetail.bodyText,
+      footer: interactivetemplatedetail.footerText,
+      media: interactivetemplatedetail.mediaURL,
+      buttons:interactivetemplatedetail.buttons ?? [],
+      templatename: interactivetemplatedetail.templateName,
+      visitWebsiteButtonCount: 0,
+    };
+
+    // Update Header
+    if (interactivetemplatedetail.headerType === 1) {
+      updatedMessagePreview.header = interactivetemplatedetail.headerText;
+      setHeadContent(interactivetemplatedetail.headerText);
+      setupdatedheadvercontent(interactivetemplatedetail.headerText);
+      setheaderTextCount(interactivetemplatedetail.headerParamCount);
+
+      if (interactivetemplatedetail.headerValue) {
+        setHeaderVariable([interactivetemplatedetail.headerValue]);
+        interactivetemplatedetail.headerValue.forEach((variable, i) => {
+          if (variable?.defaultValue !== undefined) {
+            handleheaderVariableChange(i, variable.defaultValue);
+          }
+        });
+      }
+    } else {
+      setSelectedMediaId(interactivetemplatedetail.mediaId);
+      setSelectedMediaPath(interactivetemplatedetail.mediaURL);
+      setSelectedMediaType(interactivetemplatedetail.contentType);
+    }
+
+    // Update Body
+    setupdatedvercontent(interactivetemplatedetail.bodyText);
+    setbodyTextCount(interactivetemplatedetail.bodyParamCount);
+
+    if (interactivetemplatedetail.bodyValues) {
+      setVariables(interactivetemplatedetail.bodyValues);
+      interactivetemplatedetail.bodyValues.forEach((variable, i) => {
+        if (variable?.defaultValue !== undefined) {
+          handleVariableChange(i, variable.defaultValue);
+        }
+      });
+    }
+    if (interactivetemplatedetail.buttonsJson) {
+      const updatedButtons = [...updatedMessagePreview.buttons];
+      updatedButtons.websiteUrl = interactivetemplatedetail.buttons.url;
+      updatedButtons.urlveriable = interactivetemplatedetail.buttons;
+      updatedButtons.urlveriablevalue = interactivetemplatedetail.buttons;
+      updatedButtons.urlverindex = interactivetemplatedetail.buttons;
+      setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+    }
+    setSelectedSenderId(interactivetemplatedetail.senderId);
+    setTemplatetype(interactivetemplatedetail.category);
+    setlanguage(interactivetemplatedetail.language);
+    setTotalButtonCount(updatedMessagePreview.buttons.length);
+
+    setMessagePreview(updatedMessagePreview);
+
+    // Clear Template Detail State
+    clearInteractiveTemplateDetailState();
+  }, [Loading, interactivetemplatedetail]);
 
   useEffect(() => {
     setAPIheadContent(replaceClosingPTagsWithNewline(headContent));
@@ -124,10 +219,6 @@ const TemplateCreationPage = () => {
   }, [bodyFinalContent]);
 
   const handleSaveActionData = (data, index) => {
-    if (data.actiontype === null || data.actiontype === "") {
-      data.actiontype = 0;
-    }
-
     setMessagePreview((prev) => {
       const updatedButtons = [...prev.buttons];
       updatedButtons[index] = {
@@ -141,106 +232,10 @@ const TemplateCreationPage = () => {
       };
     });
   };
-
-  // useEffect(() => {
-  //   const result = headerPayloadDatawithVar.replace(/\*\*/g, "+");
-  //   const subresult = result.replace(/\*/g, "`");
-  //   const supresult = subresult.replace(/<sub>.*?<\/sub>/g, "~");
-  //   const replaceX = supresult.replace(/`/g, "_");
-  //   const finalHeaderReplace = replaceX.replace(/\+/g, "*");
-
-  //   console.log("UseEffectResult", finalReplace);
-  // }, [headerPayloadDatawithVar]);
-
+  const handelCancel = () => {
+    router.push("/InteractiveTemplates/InteractiveList");
+  };
   const handleSubmit = async (values) => {
-    
-    if (!selectedSenderId) {
-      toast.error("Please select a Sender Name before proceeding.");
-      return; // Prevent further execution if language is not selected
-    }
-    if (!Templatetype) {
-      toast.error("Please select a Template Type before proceeding.");
-      return; // Prevent further execution if language is not selected
-    }
-    if (!language) {
-      toast.error("Please select a language before proceeding.");
-      return; // Prevent further execution if language is not selected
-    }
-    if (!bodyPayloadDatawithVar) {
-      toast.error("Please Enter Body Text before proceeding.");
-      return; // Prevent further execution if language is not selected
-    }
-    
-    if (!TemplateName) {
-      toast.error("Please Enter Template Name before proceeding.");
-      return; // Prevent further execution if language is not selected
-    }
-    let isValid = true; // Flag to track validation status
-
-    messagePreview.buttons.forEach((button, index) => {
-      debugger
-      if (!ButtonSelected) {
-        toast.error(`No button selected for Button ${index + 1}.`);
-        isValid = false;
-        return;
-      }
-    
-      // Common validation for button text
-      if (!button.text || button.text.trim() === "") {
-        toast.error(`Please enter button text for Button ${index + 1}.`);
-        isValid = false;
-        return;
-      }
-    
-      // Type-specific validations
-      switch (button.type) {
-        case "1":
-        case 1:
-          // Type 1 has no additional validation
-          break;
-    
-        case "2":
-        case 2:
-          if (
-            !button.phoneNumber ||
-            button.phoneNumber.trim() === "" ||
-            !button.countryCode
-          ) {
-            toast.error(
-              `Please enter a valid phone number for Button ${
-                index + 1
-              }.`
-            );
-            isValid = false;
-            return;
-          }
-          break;
-    
-        case "3":
-        case 3:
-          if (!button.websiteUrl || button.websiteUrl.trim() === "" ) {
-            toast.error(`Please enter a valid URL for Button ${index + 1}.`);
-            isValid = false;
-            return;
-          }
-          break;
-    
-        default:
-          toast.error(`Invalid button type for Button ${index + 1}.`);
-          isValid = false;
-          return;
-      }
-    });
-    
-    // Prevent API call if validation failed
-    if (!isValid) {
-      console.log("Validation failed. Request will not be sent.");
-      return; // Stop further execution
-    }
-    
-    
-    
-
     // let trimmedBodyContent = APIbodyContent.replace(/\*\*/g, "*").trimEnd();
     // let APIbodyContent = "**Latest**<sub>Text</sub>*Example*   "; // Example content
 
@@ -263,12 +258,13 @@ const TemplateCreationPage = () => {
     const requestBody = {
       clientId: localStorage.getItem("clientId"),
       name: values.templateName,
+      Id: Template_Id,
       transactionType: 1,
-      category: Templatetype,
-      language: language,
+      category: "marketing",
+      language: "en",
       senderNameId: selectedSenderId,
-      status: "PENDING",
-      subCategory: Templatetype,
+      status: "Pending",
+      subCategory: "marketing",
       isApproved: false,
       mediaId: selectedMediaId,
       templateType: 1,
@@ -300,65 +296,48 @@ const TemplateCreationPage = () => {
       buttons: messagePreview.buttons.map((button, index) => ({
         type: button.type,
         text: button.text,
-        phoneNumber: `${button.countryCode}${button.phoneNumber}`,
+        phoneNumber: button.phoneNumber,
         textCount: button.textCount,
         index: index,
         url: button.websiteUrl,
-        values: {
-          value: button.urlveriablevalue,
-          defaultValue: button.urlveriablevalue,
-          index: button.urlverindex,
-        },
+        values: urlvariables.map((value, index) => ({
+          value: value,
+          defaultValue: value,
+          index: index + 1,
+        })),
         actionId: button.actionId,
         actionType: button.actiontype,
         buttonId: button.buttonValue,
       })),
     };
-    if (!language) {
-      alert("Please select Languaage")
-    }
 
     //console.log("TimingData", requestBody)
 
     try {
-      const isValid = variables.every((value, index) => {
-        // Check both conditions for variables and headerVariable
-        if (
-          (value.includes(`{{${index + 1}}}`) && value.trim() === "") || // Check condition for variable
-          (headerVariable[index] &&
-            headerVariable[index].includes(`{{${index + 1}}}`) &&
-            headerVariable[index].trim() === "") // Check condition for headerVariable
-        ) {
-          return false; // Break validation for this item
-        }
-        return true; // Validation passed for this item
-      });
-
-
-      const response = await dispatch(createTemplates(requestBody)).unwrap();
+      const response = await dispatch(updateInteractiveTemplates(requestBody)).unwrap();
       if (response.success) {
+        
         clearTemplateCreateState();
         showSweetAlert({
-          title: "Template Created",
-          text:
-            response.result.message ||
-            "The Template has been successfully created.",
+          title: "Updated Successfully",
+          text: "",
           icon: "success",
         });
-        await router.push("/Templates/TemplatesList");
+        router.push("/Templates/Templateslist");
       } else {
         showSweetAlert({
-          title: "Creation Failed",
-          text:
-            response.message || "Failed to create Template. Please try again.",
+          title: "Failed",
+          text: response.message || "",
           icon: "error",
         });
+
+        //window.location.reload();
       }
     } catch (err) {
-      console.error("Failed to create Template", err);
+      console.error("Failed to update Template", err);
       showSweetAlert({
-        title: "Creation Failed",
-        text: err.message || "Failed to create Template. Please try again.",
+        title: "Failed",
+        text: err.message || "",
         icon: "error",
       });
       //window.location.reload();
@@ -388,7 +367,10 @@ const TemplateCreationPage = () => {
     }));
   }, [bodyFinalContent, variables]);
 
+
+
   const addURLVariable = (index) => {
+   
     const newIndex = 1;
 
     const updatedButtons = [...messagePreview.buttons];
@@ -415,7 +397,6 @@ const TemplateCreationPage = () => {
       setErrorMessage(`Variable {${newIndex}} already exists in the body.`);
     }
   };
-
   const removeWebsiteVariable = (index) => {
     const updatedButtons = [...messagePreview.buttons];
 
@@ -443,56 +424,7 @@ const TemplateCreationPage = () => {
     }
   };
 
-  useEffect(() => {
-    setMessagePreview((prev) => ({
-      ...prev,
-      header: headContent
-        .replace(/\{{(\d+)\}}/g, (match, index) => headerVariable[index - 1])
-        .replace(/\n/g, "<br />"),
-    }));
-  }, [headContent, headerVariable]);
-
-  const removeVariable = (indexToRemove) => {
-    // Remove the variable at the specified index
-    const updatedVariables = variables.filter((_, i) => i !== indexToRemove);
-
-    // Update the body content by renumbering the remaining variables
-    let updatedBodyContent = bodyPayloadDatawithVar;
-
-    // Replace each old variable index with its new index in the body content
-    updatedVariables.forEach((variable, i) => {
-      const oldIndex = parseInt(variable.match(/\d+/)[0], 10); // Extract old index
-      const newVariable = `{{${i + 1}}}`;
-      updatedBodyContent = updatedBodyContent.replace(
-        `{{${oldIndex}}}`,
-        newVariable
-      );
-    });
-
-    // Remove the variable being deleted from the body content
-    const variableToRemove = `{{${indexToRemove + 1}}}`;
-    updatedBodyContent = updatedBodyContent
-      .replace(variableToRemove, "")
-      .replace(/\s\s+/g, " ");
-
-    // Update state
-    setVariables(updatedVariables.map((_, i) => `{{${i + 1}}}`)); // Adjust indices in variables
-    setupdatedvercontent(updatedBodyContent.trim());
-    setbodyTextCount(updatedVariables.length); // Update text count
-  };
-
-  const removeHeaderVariable = (index) => {
-    debugger;
-    //alert(bodyPayloadDatawithVar)
-    const updatedVariables = headerVariable.filter((_, i) => i !== index);
-    const updatedHeadContent = headerPayloadDatawithVar
-      .replace(`{{${index + 1}}}`, "")
-      .replace(/\s\s+/g, " ");
-    var value = headerTextCount;
-    setheaderTextCount(value - 1);
-    setHeaderVariable(updatedVariables);
-    setupdatedheadvercontent(updatedHeadContent);
-  };
+ 
 
   const handleVariableChange = (index, value) => {
     setVariables((prev) => {
@@ -502,84 +434,9 @@ const TemplateCreationPage = () => {
     });
   };
 
-  // const addheaderVariable = () => {
-  //   if (headerVariable.length < 1) {
-  //     const newIndex = headerVariable.length + 1;
-  //     if (!headContent.includes(`{{${newIndex}}}`)) {
-  //       setHeadContent((prev) => {
-  //         const newHeadContent = prev + `{{${newIndex}}}`;
-  //         return newHeadContent;
-  //       });
-  //       var value = headerTextCount;
-  //       setheaderTextCount(value + 1);
-  //       setHeaderVariable((prev) => [...prev, ""]); // Update the state correctly
-  //       setErrorMessage("");
-  //       setRemoveHeaderButtonEnabled(true); // Enable the remove button
-  //     } else {
-  //       setErrorMessage(`Variable {${newIndex}} already exists in the header.`);
-  //     }
-  //   } else {
-  //     setErrorMessage("You can only add one header variable.");
-  //   }
-  // };
-  // const handleBodyChange = (value) => {
-  //   const placeholders = variables.map((_, index) => `{{${index + 1}}}`);
-  //   const isValid = placeholders.every((placeholder) => value.includes(placeholder));
+ 
 
-  //   if (isValid) {
-  //     setBodyContent(value.replace(/\s\s+/g, " "));
-  //     //setBodyContent(replaceClosingPTagsWithNewline(value));
-  //     setErrorMessage("");
-  //   } else {
-  //     setErrorMessage("You cannot change the variable placeholders in the body.");
-  //   }
-  // };
-
-  // Additional Sam New Change
-
-  const addheaderVariable = (position) => {
-    if (headerVariable.length < 1) {
-      const newIndex = headerVariable.length + 1;
-      if (!headContent.includes(`{{${newIndex}}}`)) {
-        setHeadContent((prev) => {
-          const newHeadContent = prev + `{{${newIndex}}}`;
-          setheaderTextCount(headerTextCount + 1);
-          return newHeadContent;
-        });
-
-        setHeaderVariable((prev) => [
-          ...prev.slice(0, position),
-          `{{${newIndex}}}`,
-          ...prev.slice(position),
-        ]);
-        setErrorMessage("");
-        setRemoveHeaderButtonEnabled(true);
-      } else {
-        setErrorMessage(`Variable {${newIndex}} already exists in the header.`);
-      }
-    } else {
-      setErrorMessage("You can only add one header variable.");
-    }
-  };
-  const addVariable = (mineIndex) => {
-    // const newIndex = variables.length + 1;
-    console.log("MineIndex", mineIndex);
-    if (!bodyFinalContent.includes(`{{${mineIndex}}}`)) {
-      const html = bodyFinalContent;
-      //.replace(/<p[^>]*>/g, '') // Remove opening <p> tags
-      // .replace(/<\/p>/g, '<br />'); // Replace closing </p> tags with <br />
-      //.replace(/<br\s*\/?>/g, ''); // Remove existing <br /> tag
-      var a = `${html}{{${mineIndex}}}`;
-      console.log(a);
-      var value = bodyTextCount;
-      setbodyTextCount(value + 1);
-      setBodyContent(a);
-      setVariables((prev) => [...prev, `{{${mineIndex}}}`]);
-      setErrorMessage("");
-    } else {
-      setErrorMessage(`Variable {${mineIndex}} already exists in the body.`);
-    }
-  };
+  
 
   const handleBodyChange = (value) => {
     // Allow typing without interruptions
@@ -653,62 +510,52 @@ const TemplateCreationPage = () => {
   };
 
   const handleButtonSelect = (type) => {
-  if (!type || !messagePreview || !messagePreview.buttons) {
-    console.error("Invalid input or message preview state.");
-    return;
-  }
-
-  const callPhoneNumberButtonCount = messagePreview.buttons.filter((button) => button.type === "2").length;
-  const visitWebsiteButtonCount = messagePreview.buttons.filter((button) => button.type === "3").length;
-
-  if (type === "2" && callPhoneNumberButtonCount >= 1) {
-    toast.error("You can only add one call phone number button.");
-    setButtonType(null);
-  } else if (type === "3" && visitWebsiteButtonCount >= 2) {
-    toast.error("You can only add two visit website buttons.");
-    setButtonType(null);
-    setButtonText("");
-    setwebsiteUrl("");
-  } else {
-    setButtonType(type);
-    setButtonText("");
-    setPhoneNumber("");
-    setCountryCode("+965");
-    setwebsiteUrl("");
-    setActionId(0);
-    setActionType(0);
-    
-    switch (type) {
-      case "1":
-        setButtonText("");
+    if (type === "2" && callPhoneNumberButtonCount >= 1) {
+      toast.error("You can only add one call phone number button.");
+      setButtonType(null);
+    } else if (
+      type === "3" &&
+      messagePreview.buttons.filter((button) => button.type === "3").length >= 2
+    ) {
+      toast.error("You can only add two visit website buttons.");
+      setButtonType(null);
+      setButtonText("");
+      setwebsiteUrl("");
+    } else {
+      setButtonType(type);
+      setButtonText("");
+      setPhoneNumber("");
+      setCountryCode("+965");
+      setwebsiteUrl("");
+      setActionId(0);
+      setActionType(0);
+      if (type === "1") {
+        setButtonText(" ");
         setMarketingOptOutAdded(true);
         setTotalButtonCount((prev) => prev + 1);
-        break;
-      case "2":
+      } else if (type === "2") {
         setButtonText("Call Phone Number");
         setCallPhoneNumberButtonCount((prev) => prev + 1);
         setTotalButtonCount((prev) => prev + 1);
-        break;
-      case "3":
+      } else if (type === "3") {
         setButtonText("Visit Website");
-        setVisitWebsiteButtonCount(visitWebsiteButtonCount + 1);
+        setVisitWebsiteButtonCount(
+          messagePreview.buttons.filter((button) => button.type === "3")
+            .length + 1
+        );
         setTotalButtonCount((prev) => prev + 1);
-        break;
-      default:
+      } else {
         setButtonText("");
-        break;
+      }
     }
-  }
-};
-  const handelCancel = () => {
-    router.push("/Templates/TemplatesList");
   };
 
   useEffect(() => {
     if (buttonType) {
+
       const newButton = {
-        type: buttonType,
-        text: buttonText || buttonType,
+        buttonType: buttonType,
+        buttonText: buttonText,
         phoneNumber: buttonType === "2" ? phoneNumber : "",
         countryCode: buttonType === "2" ? countryCode : "",
         websiteUrl: buttonType === "3" ? websiteUrl : null,
@@ -743,6 +590,7 @@ const TemplateCreationPage = () => {
       setwebsiteUrl("");
     }
   }, [buttonType, buttonText]);
+ 
 
   const removeButtonFromPreview = (index) => {
     var totalcount = TotalButtonCount;
@@ -762,8 +610,13 @@ const TemplateCreationPage = () => {
     setSelectedSenderId(role);
   };
 
-  const handlebuttonaction = (index) => {
+  const handlebuttonaction = (index,actionId,actionType) => {
     setbuttonindex(index);
+    const buttonaction= {
+        actionId : actionId,
+        actionType: actionType,
+    }
+    setactionbuttonvalues(buttonaction);
     setshowaction(true);
   };
 
@@ -782,37 +635,25 @@ const TemplateCreationPage = () => {
       }));
     }
   }, [finalContent]);
-
-  // useEffect(() => {
-  //   if (bodyFinalContent) {
-  //     let formattedContentBody = bodyFinalContent?.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  //     formattedContentBody = formattedContentBody.replace(/\*(.*?)\*/g, '<em>$1</em>');
-  //     formattedContentBody = formattedContentBody.replace(/~(.*?)~/g, '<sub>$1</sub>');
-  //     setMessagePreview((prev) => ({
-  //       ...prev,
-  //       body: formattedContentBody,
-  //     }));
-  //   }
-  // }, [bodyFinalContent]);
-
   useEffect(() => {
     let updatedBody = bodyFinalContent;
-
-    // Replace variables in the body content
     variables.forEach((variable, index) => {
       updatedBody = updatedBody.replace(`{{${index + 1}}}`, variable);
     });
-
-    // Handle newlines and preserve the flow
     updatedBody = updatedBody.replace(/\n/g, "<br/>"); // Convert newlines to <br/> tags for HTML rendering
 
     // Replace <p> tags only if necessary, and ensure newlines are handled correctly
     updatedBody = updatedBody
       .replace(/<\/p>/gi, "<br/>")
       .replace(/<p.*?>/gi, "");
-    updatedBody = updatedBody?.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    updatedBody = updatedBody
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // for **bold** text
+      .replace(/_(.*?)_/g, "<strong>$1</strong>"); // for _bold_ text
+
     updatedBody = updatedBody.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
     updatedBody = updatedBody.replace(/~(.*?)~/g, "<sub>$1</sub>");
+
     // Update the message preview body content
     setMessagePreview((prev) => ({
       ...prev,
@@ -820,59 +661,46 @@ const TemplateCreationPage = () => {
     }));
   }, [bodyFinalContent, variables]);
 
-  //console.log("BodyFinalContent12", bodyContent, finalContent)
-  const HandleTemplatetypechange = (e) => {
-    const templatetype = e.target.value;
-    setTemplatetype(templatetype);
-  };
-
-  const HandleTemplateLanguagechange = (e) => {
-    const Language = e.target.value;
-    setlanguage(Language);
-  };
-
+  console.log("BodyFinalContent12", bodyContent, finalContent);
+  if (Loading)
+    return (
+      <App>
+        <Loader />
+      </App>
+    );
   return (
     <App>
       <Container fluid className="mt-0">
-        {loading && <Loader />}
         <Row style={{ height: "100vh" }}>
           <Col
             md={7}
             className="border-end overflow-auto shadow-lg"
-            style={{ padding: "20px", background: "#fffff" }}
+            style={{ padding: "20px", background: "#fff" }}
           >
-            <h4 className="mb-4">Create Template</h4>
+            <h4 className="mb-4">Update Template</h4>
+            {/* <CustomEditor /> */}
             <label className="block mb-1 mt-1">Sender Names</label>
             <Sendernames
               name="senderId"
               value={selectedSenderId}
-              onChange={handleSenderChange}
-              required
-            />
-
-            <label className="block mb-1 mt-1">Template type</label>
-            <TemplateCategoryDropdown
-              name="templatetype"
-              value={Templatetype}
-              onChange={HandleTemplatetypechange}
-              required
+              disabled={true}
             />
 
             <label className="block mb-1 mt-1">Language</label>
             <LanguageDropdown
               name="language"
               value={language}
-              onChange={HandleTemplateLanguagechange}
-              required
+              disabled={true}
             />
             <Formik
               initialValues={{
-                templateName: "",
-                headerType: "0",
-                headerContent: "",
+                templateName: interactivetemplatedetail.templateName,
+                headerType: interactivetemplatedetail.headerType,
+                headerContent: interactivetemplatedetail.headerText,
                 headerMedia: null,
                 body: "",
-                footer: "",
+                footer: interactivetemplatedetail.footerText,
+                senderId: interactivetemplatedetail.senderId,
                 buttons: [],
                 variables: [],
                 headerVariable: [],
@@ -882,9 +710,13 @@ const TemplateCreationPage = () => {
               onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
+
                 return (
                   <Form>
-                    <div className="">
+                    <div
+                      style={{ background: "#fff" }}
+                      className="p-2 px-3 rounded border-1 shadow-sm"
+                    >
                       <FormGroup>
                         <Label
                           for="templateName"
@@ -897,21 +729,26 @@ const TemplateCreationPage = () => {
                           type="text"
                           name="templateName"
                           id="templateName"
-                          maxLength="50"
+                          value={values.templateName} // Ensure it syncs with Formik's state
+                          readOnly // Prevent direct editing
+                          onClick={(e) => {
+                            // Allow user interactions like selecting or focusing the input
+                            e.preventDefault();
+                          }}
                           onChange={(e) => {
-
                             const value = e.target.value
                               .replace(/\s+/g, "_")
                               .replace(/[^a-zA-Z0-9_]/g, "")
                               .toLowerCase();
                             setFieldValue("templateName", value); // Update Formik's state
-                            setTemplateName(value)
                           }}
-
                         />
                       </FormGroup>
                     </div>
-                    <div className="mt-3">
+                    <div
+                      style={{ background: "#fff" }}
+                      className="mt-3 p-2 px-3 rounded border-1 shadow-sm"
+                    >
                       <FormGroup>
                         <Label
                           for="headerType"
@@ -939,7 +776,8 @@ const TemplateCreationPage = () => {
                         </Field>
                       </FormGroup>
                       <div>
-                        {values.headerType === "1" && (
+                        {(values.headerType === 1 ||
+                          values.headerType === "1") && (
                           <FormGroup>
                             <Label
                               for="headerContent"
@@ -949,37 +787,15 @@ const TemplateCreationPage = () => {
                             </Label>
                             <CustomMagicEditor
                               errorMessage={errorMessage}
-                              variables={variables}
                               setheaderPayloaddatawithVar={
                                 setheaderPayloaddatawithVar
                               }
-                              onFunction={addheaderVariable}
-                              headerVariable={headerVariable}
-                              handleheaderVariableChange={
-                                handleheaderVariableChange
-                              }
-                              removeHeaderVariable={removeHeaderVariable}
-                              setHeaderVariable={setHeaderVariable}
                               headContent={headContent}
                               setFinalContent={setFinalContent}
-                              existingContent={updatedheadvercontent}
                               body={false}
+                              existingContent={updatedheadvercontent}
+                              showaddvarbutton={false}
                             />
-                            {/* <ReactQuill
-                              value={headContent}
-                              onChange={handleHeadChange}
-                              modules={{
-                                toolbar: [
-                                  ['bold', 'underline'],
-                                  ['clean'],
-                                ],
-                              }}
-                              placeholder="Message body"
-
-                            />
-                            <Button onClick={addheaderVariable} className="mt-0 uniform_btn">
-                              + Add Variable
-                            </Button> */}
                           </FormGroup>
                         )}
                         {/* {console.log("Value Mania", ["2", "3", "4"].includes(values.headerType))} */}
@@ -990,13 +806,6 @@ const TemplateCreationPage = () => {
                               isPopup={["2", "3", "4"].includes(
                                 values.headerType
                               )}
-                              contentTypeStr={
-                                values.headerType === "2"
-                                  ? "image"
-                                  : values.headerType === "3"
-                                    ? "video"
-                                    : "application"
-                              }
                               onSelectMedia={(mediaId, mediaPath, mimeType) => {
                                 setSelectedMediaId(mediaId);
                                 setSelectedMediaPath(mediaPath);
@@ -1008,37 +817,22 @@ const TemplateCreationPage = () => {
                       </div>
                     </div>
 
-                    <div className="">
+                    <div className="border-1 rounded p-2 px-3 mt-2 shadow-sm">
                       <FormGroup>
                         <Label for="body" className="text-sm font-semibold">
                           Body
                         </Label>
                         <div style={{ position: "relative" }}>
-                          {/* <ReactQuill
-                          value={bodyContent}
-                          onChange={handleBodyChange}
-                          modules={{
-                            toolbar: [
-                              ['bold', 'underline'],
-                              ['clean'],
-                            ],
-                          }}
-                          formats={['bold', 'underline', 'clean']} // Limit formats to avoid block tags
-                          placeholder="Message body"
-                        /> */}
                           <CustomMagicEditor
                             errorMessage={errorMessage}
-                            variables={variables}
                             setBodyPayloadDatawithVar={
                               setBodyPayloadDatawithVar
                             }
                             setBodyFinalContent={setBodyFinalContent}
-                            handleVariableChange={handleVariableChange}
-                            addVariable={addVariable}
                             handleBodyChange={handleBodyChange}
-                            removeVariable={removeVariable}
                             body={true}
                             existingBodyContent={updatedvercontent}
+                            showaddvarbutton={false}
                           />
                         </div>
                         {errorMessage && (
@@ -1047,35 +841,9 @@ const TemplateCreationPage = () => {
                           </Alert>
                         )}
                       </FormGroup>
-                      {/* <Button onClick={addVariable} className="mt-0 uniform_btn">
-                      + Add Variable
-                    </Button> */}
                     </div>
-                    {/* {variables.map((variable, index) => (
-                      <FormGroup key={index}>
-                        <Label>{`Sample Value for {${index + 1}}`}</Label>
-                        <Row>
-                          <Col>
-                            <Input
-                              className="w-90"
-                              type="text"
-                              value={variable}
-                              onChange={(e) => handleVariableChange(index, e.target.value)}
-                              placeholder={`Enter sample  value for {${index + 1}}`}
-                            />
-                          </Col>
-                          <Col>
-                            <FaTimes
-                              key={index}
-                              onClick={() => removeVariable(index)} // Pass the correct index
-                              style={{ cursor: "pointer", color: "red", marginLeft: "10px" }}
-                            />
-                          </Col>
-                        </Row>
-                      </FormGroup>
-                    ))} */}
-
-                    <div className="">
+                   
+                    <div className="border-1 rounded p-2 px-3 mt-3">
                       <FormGroup>
                         <Label for="footer" className="text-sm font-semibold">
                           Footer
@@ -1094,7 +862,7 @@ const TemplateCreationPage = () => {
                         toggle={toggleDropdown}
                         className="mt-3"
                       >
-                        <div className="flex justify-end">
+                        <div className="flex">
                           <DropdownToggle
                             caret
                             color="gray"
@@ -1131,41 +899,56 @@ const TemplateCreationPage = () => {
                         </DropdownMenu>
                       </Dropdown>
                     </div>
-
                     {messagePreview.buttons.map((button, index) => (
                       <div
                         key={index}
-                        className="d-flex align-items-center my-3 border-b-2 pb-3"
+                        className="d-flex align-items-center my-3"
                       >
-                        {/* Common Button Text Input */}
-
+                        {/* Button Text Input */}
                         <Input
                           type="text"
-                          value={button.text}
+                          value={button.buttonText}
                           placeholder="Button Text"
                           onChange={(e) => {
-                            const updatedButtons = [...messagePreview.buttons];
-                            updatedButtons[index].text = e.target.value;
+                            // Create a deep copy of the button being updated
+                            const updatedButtons = messagePreview.buttons.map((button, btnIndex) => {
+                              if (btnIndex === index) {
+                                return {
+                                  ...button, // Create a new object for the specific button
+                                  buttonText: e.target.value, // Update the buttonText property
+                                };
+                              }
+                              return button; // Keep other buttons unchanged
+                            });
+                          
+                            // Update the state with the new buttons array
                             setMessagePreview({
                               ...messagePreview,
                               buttons: updatedButtons,
                             });
                           }}
+                          
                           className="me-2"
-                          style={{
-                            flex: "1 1 40%",
-                            minWidth: "250px",
-                            marginBottom: "10px",
-                          }}
                         />
 
-                        {/* Type-Specific Inputs */}
-                        {button.type === "2" && (
-                          <div
-                            className="d-flex align-items-center border rounded px-2"
-                            style={{ flex: "1 1 60%", minWidth: "300px" }}
+                        {/* Type 1 Action Button */}
+                        {(button.buttonType === "1" || button.buttonType === 1) && (
+                          <Button
+                            style={{
+                              backgroundColor: "grey",
+                              borderColor: "green",
+                              color: "white",
+                            }}
+                            className=""
+                            onClick={() => handlebuttonaction(index,button.actionId,button.actionType)}
                           >
-                            {/* Country Code Dropdown */}
+                            <i className="fa fa-bolt"></i>
+                          </Button>
+                        )}
+
+                        {/* Type 2: Phone Number Input */}
+                        {(button.buttonType === "2" || button.buttonType === 2)&& (
+                          <div className="d-flex me-2">
                             <Input
                               type="select"
                               value={button.countryCode}
@@ -1181,21 +964,13 @@ const TemplateCreationPage = () => {
                                 });
                                 setCountryCode(e.target.value);
                               }}
-                              style={{
-                                border: "none",
-                                width: "80px",
-                                appearance: "none",
-                                background: "transparent",
-                                paddingRight: "8px",
-                              }}
                               className="me-2"
+                              style={{ minWidth: "120px" }}
                             >
-                              <option value="+965">+965</option>
-                              <option value="+1">+1</option>
-                              <option value="+91">+91</option>
+                              <option value="+965">KW +965</option>
+                              <option value="+1">US +1</option>
+                              <option value="+91">IN +91</option>
                             </Input>
-
-                            {/* Phone Number Input */}
                             <Input
                               type="text"
                               value={button.phoneNumber}
@@ -1211,17 +986,18 @@ const TemplateCreationPage = () => {
                                   buttons: updatedButtons,
                                 });
                               }}
-                              style={{ flex: 1, border: "none" }}
+                              className="me-2"
+                              style={{ minWidth: "220px" }}
                             />
                           </div>
                         )}
 
-                        {button.type === "3" && (
-                          <div className="mb-2" style={{ flex: "1 1 60%" }}>
-                            {/* Website URL Input and Variable */}
-                            <div className="d-flex flex-column">
+                        {/* Type 3: Website URL Input */}
+                        {(button.buttonType === "3" || button.buttonType === 3) && (
+                          <>
+                            <div className="d-flex flex-column me-2">
                               {/* Website URL Input */}
-                              <div className="d-flex align-items-center">
+                              <div className="d-flex">
                                 <Input
                                   type="text"
                                   value={button.websiteUrl}
@@ -1237,32 +1013,26 @@ const TemplateCreationPage = () => {
                                       buttons: updatedButtons,
                                     });
                                   }}
-                                  style={{
-                                    flex: "2 1 auto",
-                                    minWidth: "250px",
-                                    marginRight: "10px",
-                                  }}
+                                  className="me-2"
                                 />
-
-                                {/* Add Variable Button */}
                                 <Button
                                   onClick={() => addURLVariable(index)}
-                                  className="bg-transparent border-0 text-primary"
-                                  style={{
-                                    flex: "0 0 auto",
-                                    minWidth: "max-content",
-                                    fontSize: "0.75rem",
-                                    padding: "5px 10px",
-                                  }}
+                                  className="mt-0 mr-2 bg-transparent border-0"
+                                  style={{ minWidth: "max-content" }}
                                 >
-                                  + Add Variable
+                                  <span className="text-primary">
+                                    + Add Variable
+                                  </span>
                                 </Button>
                               </div>
+
+                              {/* URL Variable Input */}
                               {button.urlveriablevalue != null && (
-                                <div className="mt-2" style={{ width: "100%" }}>
-                                  <Row className="align-items-center">
+                                <div className="mt-3">
+                                  <Row>
                                     <Col>
                                       <Input
+                                        className="w-100"
                                         type="text"
                                         value={button.urlveriablevalue}
                                         onChange={(e) =>
@@ -1271,10 +1041,9 @@ const TemplateCreationPage = () => {
                                             e.target.value
                                           )
                                         }
-                                        placeholder={`Enter Sample value for ${
+                                        placeholder={`Enter Sample value for {${
                                           index + 1
-                                        }`}
-                                        className="w-100"
+                                        }}`}
                                       />
                                     </Col>
                                     <Col xs="auto">
@@ -1287,6 +1056,7 @@ const TemplateCreationPage = () => {
                                         }}
                                       >
                                         <FaTimes
+                                          key={index}
                                           onClick={() => {
                                             removeWebsiteVariable(index);
                                           }}
@@ -1301,22 +1071,7 @@ const TemplateCreationPage = () => {
                                 </div>
                               )}
                             </div>
-                          </div>
-                        )}
-
-                        {/* Action Button for Type 1 */}
-                        {button.type === "1" && (
-                          <Button
-                            style={{
-                              backgroundColor: "grey",
-                              borderColor: "green",
-                              color: "white",
-                            }}
-                            className="me-2"
-                            onClick={() => handlebuttonaction(index)}
-                          >
-                            <i className="fa fa-bolt"></i>
-                          </Button>
+                          </>
                         )}
 
                         {/* Remove Button */}
@@ -1332,18 +1087,19 @@ const TemplateCreationPage = () => {
 
                     <div className="w-full flex justify-end gap-3">
                       <Button
-                        className="uniform_btn_Cancel mt-4"
+                        className="uniform_btn_Cancel "
                         onClick={handelCancel}
                       >
                         Cancel
                       </Button>
                       <Button
-                        className="uniform_btn mt-4"
+                        className="uniform_btn  "
                         onClick={() => handleSubmit(values)}
                       >
-                        Create
+                        Submit
                       </Button>
                     </div>
+
                     <MonitorFormikContext
                       setMessagePreview={setMessagePreview} // Pass setMessagePreview as a prop
                       defaultImage={defaultimage} // Pass the defaultImage as a prop
@@ -1353,19 +1109,9 @@ const TemplateCreationPage = () => {
               }}
             </Formik>
           </Col>
-
           <Col
             md={4}
-            className="overflow-hidden h-screen fixed right-10"
-          // style={{
-          //   position: "fixed", // Fix the position
-          //   top: "-20", // Adjust to your layout
-          //   right: "0", // Align to the right side of the screen
-          //   height: "100vh", // Full viewport height to ensure scrollability
-          //   overflowY: "auto", // Enable vertical scrolling
-          //   backgroundColor: "#f8f9fa", // Optional: background color for contrast
-          //   boxShadow: "0 0 10px rgba(0,0,0,0.1)", // Optional: Add shadow for emphasis
-          // }}
+           className="overflow-hidden h-screen fixed right-10"
           >
             <div
               style={{
@@ -1490,22 +1236,22 @@ const TemplateCreationPage = () => {
                         borderTopColor: "#e1e1e1",
                       }}
                     >
-                      {button.type == 1 && (
+                      {button.buttonType == 1 && (
                         <span style={{ color: "#00a9ee" }}>
                           <i className="fa fa-share fa-flip-horizontal me-2"></i>
-                          {button.text || "Button"}
+                          {button.buttonText || "Button"}
                         </span>
                       )}
-                      {button.type == 2 && (
+                      {button.buttonType == 2 && (
                         <span style={{ color: "#00a9ee" }}>
                           <i className="fa fa-phone me-2"></i>
-                          {button.text || "Button"}
+                          {button.buttonText || "Button"}
                         </span>
                       )}
-                      {button.type == 3 && (
+                      {button.buttonType == 3 && (
                         <span style={{ color: "#00a9ee" }}>
                           <i className="fa fa-external-link me-2"></i>
-                          {button.text || "Button"}
+                          {button.buttonText || "Button"}
                         </span>
                       )}
                     </Button>
@@ -1561,9 +1307,10 @@ const TemplateCreationPage = () => {
         toggle={togglePopup}
         onSubmit={handleSaveActionData}
         index={buttonindex}
+        existingData={actionbuttonvalues}
       />
     </App>
   );
 };
 
-export default TemplateCreationPage;
+export default InteractiveTemplateUpdate;

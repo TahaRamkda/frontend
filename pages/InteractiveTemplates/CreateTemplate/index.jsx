@@ -194,7 +194,7 @@ const InteractiveTemplateCreation = () => {
             "The Template has been successfully created.",
           icon: "success",
         });
-        await router.push("/InteractiveTemplate/InteractiveList");
+        await router.push("/InteractiveTemplates/InteractiveList");
       } else {
         showSweetAlert({
           title: "Creation Failed",
@@ -313,14 +313,14 @@ const InteractiveTemplateCreation = () => {
     }
   };
   const handelCancel = () => {
-    router.push("/InteractiveTemplate/InteractiveList");
+    router.push("/InteractiveTemplates/InteractiveList");
   };
 
   useEffect(() => {
     if (buttonType) {
       const newButton = {
         type: buttonType,
-        text: buttonText || buttonType,
+        text: buttonText,
         phoneNumber: buttonType === "2" ? phoneNumber : "",
         countryCode: buttonType === "2" ? countryCode : "",
         websiteUrl: buttonType === "3" ? websiteUrl : null,

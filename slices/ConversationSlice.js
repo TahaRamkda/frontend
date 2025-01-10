@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { CONVERSATIONLIST, CONVERSATIONMESSAGE ,AGENTMESSAGE} from '@/utils/apiConstants';
+import { CONVERSATIONLIST, CONVERSATIONMESSAGE ,AGENTMESSAGE,SENDAGENTINTERACTIVETEMPLATLIS} from '@/utils/apiConstants';
 
 // Thunks
 
@@ -30,6 +30,7 @@ export const fetchConversationMessage = createAsyncThunk(
   'conversation/fetchConversationMessage',
   async ({ clientId, ChatId, pageNo }, { rejectWithValue }) => {
     try {
+      
       const response = await API.get(
         `${CONVERSATIONMESSAGE}?clientId=${clientId}&id=${ChatId}&pageNo=${pageNo}&pageSize=15`
       );
@@ -54,6 +55,19 @@ export const fetchConversationMessage = createAsyncThunk(
     async (messageData, { rejectWithValue }) => {
       try {
         const response = await API.post(AGENTMESSAGE, messageData);
+        return response.data;
+      } catch (error) {
+        const handledError = handleError(error);
+        return rejectWithValue(handledError);
+      }
+    }
+  );
+
+  export const SendInteractivetemp = createAsyncThunk(
+    'conversation/SendInteractivetemp',
+    async (templatedata, { rejectWithValue }) => {
+      try {
+        const response = await API.post(SENDAGENTINTERACTIVETEMPLATLIS, templatedata);
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -120,6 +134,11 @@ const conversationslice = createSlice({
       state.error = null;
       state.success = false;
     },
+    clearAgentTemplateSentState: (state) => {
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -150,7 +169,7 @@ const conversationslice = createSlice({
       
         // Append messages if loading next page
         if (pageNo > state.currentPage) {
-          state.messages = [...state.messages, ...conversationMessage];
+          state.messages = [...state.messages,...conversationMessage];
         } else if (pageNo === 1) {
           // On first page or reset, replace all messages
           state.messages = [...conversationMessage];
@@ -182,6 +201,21 @@ const conversationslice = createSlice({
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
         })
+        .addCase(SendInteractivetemp.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+          state.success = false;
+         })
+        .addCase(SendInteractivetemp.fulfilled, (state, action) => {
+          state.loading = false;
+          state.success = true;
+          state.message = action.payload.message;
+         })
+        .addCase(SendInteractivetemp.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload || action.error.message;
+          state.message = action.payload?.message || action.error.message;
+          })
   },
 });
 
@@ -192,6 +226,7 @@ export const {
   setCurrentPage,
   clearConversationMessageState,
   clearconversationstate,
+  clearAgentTemplateSentState,
 } = conversationslice.actions;
 
 export default conversationslice.reducer;

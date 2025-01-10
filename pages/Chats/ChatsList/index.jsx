@@ -66,6 +66,7 @@ const ChatPage = () => {
   const [mediaFile, setMediaFile] = useState(null); // To store the selected media file
   const [connection, setConnection] = useState(null);
   const [Activechat, setActiveChat] = useState(0);
+  const [ActiveSenderId, setActiveSenderId] = useState(0);
   const fileInputRef = useRef(null); // Reference for the file input
   const [Errordisconect, setErrordisconect] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -117,6 +118,7 @@ const ChatPage = () => {
 
   //called each time to get conversation messages
   const HandleConversationDetail = async (id) => {
+    
     setChatsloading(true);
     dispatch(resetMessages());
     setActiveChat(id); // Update Activechat state
@@ -155,7 +157,7 @@ const ChatPage = () => {
     if (messages && messages.length > 0) {
       setChatsloading(false);
       setChatMessages(messages);
-      console.log("Messages changed:", messages);
+      setActiveSenderId(messages[0].senderId)
     }
   }, [messages]);
 
@@ -164,19 +166,7 @@ const ChatPage = () => {
     setMessageInput((prevMessage) => prevMessage + emoji);
   };
 
-  const fetchMoreData = async () => {
-    if (loading || !hasMore) return;
-    const clientId = localStorage.getItem("clientId");
-    if (clientId && Activechat) {
-      const response = await dispatch(
-        fetchConversationMessage({
-          clientId: clientId,
-          ChatId: Activechat,
-          pageNo: currentPage + 1,
-        })
-      ).unwrap();
-    }
-  };
+
 
   const handleScroll = () => {
     if (!hasMore || loading) return;
@@ -381,7 +371,7 @@ const ChatPage = () => {
 
       // Check if the message is from the active chat
       if (message.conversationId === activeChatRef.current) {
-        setChatMessages((prevMessages) => [...prevMessages, message]);
+        setChatMessages((prevMessages) => [message,...prevMessages]);
       } else {
         toast.success("Check message");
 
@@ -765,7 +755,7 @@ const ChatPage = () => {
               {conversations
                 .filter((conversation) => conversation.id === Activechat)
                 .map((conversation) => (
-                  <div className="flex items-center justify-between text-black px-4 py-3 shadow-md">
+                  <div key={conversation.id} className="flex items-center justify-between text-black px-4 py-3 shadow-md">
                     {/* Left Section */}
                     <div
                       key={conversation.id}
@@ -1069,6 +1059,8 @@ const ChatPage = () => {
                         <DefinedTemplates
                           isVisible={true}
                           onClose={handleAgenttemplateclose}
+                          SenderId={ActiveSenderId}
+                          ChatId={Activechat}
                         />
                       )}
                     </div>

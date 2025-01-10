@@ -37,6 +37,7 @@ function MyApp({ Component, pageProps }) {
   };
 
   const hasPermission = (path, action = 'view') => {
+    
     const permissions = fetchPermissions();
     const basePath = normalizeString(path.split('/')[1]);
     const isCreateAction = action.toLowerCase().includes('create');
@@ -48,12 +49,14 @@ function MyApp({ Component, pageProps }) {
       if (isCreateAction) {
         return taskName === basePath && perm.canCreate;
       }
-      return taskName === basePath && perm.canView;
+       return taskName === basePath && perm.canView;
+     
     });
   };
 
   useEffect(() => {
     const handleRouteChange = async () => {
+      
       setIsLoading(true);
 
       if (!isAuthenticated) {
@@ -73,6 +76,7 @@ function MyApp({ Component, pageProps }) {
           );
 
           if (matchingItem) {
+           
             router.push(matchingItem.href);
           } else {
             SweetAlert.fire({
@@ -80,6 +84,7 @@ function MyApp({ Component, pageProps }) {
               title: 'Permission Error',
               text: 'No valid permissions found for accessible pages.',
             });
+            
           }
         } else {
           SweetAlert.fire({

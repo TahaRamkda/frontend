@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, ModalBody, Input, FormGroup, Label, Button } from "reactstrap";
 import { FaTimes } from "react-icons/fa";
-import TemplateDropdown from "@/components/Dropdowns/TemplateDropdown";
+import TemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropdown";
 
-const SimplePopup = ({ isOpen, toggle, onSubmit, index }) => {
+const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData }) => {
   const [actionId, setActionId] = useState(0);
   const [buttonValue, setButtonValue] = useState("");
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
@@ -18,6 +18,15 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index }) => {
     { label: "CLOSE CHAT", value: 7 },
   ];
 
+  // Populate state when `existingData` changes
+  useEffect(() => {
+    if (existingData) {
+      setActionId(existingData.actiontype || 0);
+      setButtonValue(existingData.buttonValue || "");
+      setSelectedTemplateId(existingData.actionId || 0);
+    }
+  }, [existingData]);
+
   const handleTemplateChange = (e) => {
     const templateId = e.target.value;
     setSelectedTemplateId(templateId);
@@ -25,8 +34,8 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index }) => {
 
   const handleSubmit = () => {
     const data = {
-      actionId: actionId,
-      actiontype: actionId === 1 ? selectedTemplateId : null,
+      actiontype: actionId,
+      actionId: actionId === 1 ? selectedTemplateId : null,
       buttonValue: buttonValue,
     };
 
@@ -66,8 +75,9 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index }) => {
             <Label for="templateDropdown">Select Template</Label>
             <TemplateDropdown
               id="templateDropdown"
+              value={selectedTemplateId}
               onChange={handleTemplateChange}
-              TransactionType="2"
+              TransactionType="0"
             />
           </FormGroup>
         )}
