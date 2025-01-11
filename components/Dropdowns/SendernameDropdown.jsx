@@ -41,7 +41,7 @@ const SendernameDropdown = ({ name, value, onChange }) => {
   }, [sendernameDrop, onChange]);
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p className="text-danger">Error loading: {fetchError}</p>;
+  if (error) return <p className="text-danger">Error loading: {error}</p>;
 
   return (
     <div>

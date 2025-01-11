@@ -55,7 +55,7 @@ const SendernameList = () => {
 
   const handleDetailClick = async (senderId) => {
     try {
-      const response = await dispatch(fetchSendernameById(senderId)).unwrap();
+      const response = await dispatch(fetchSendernameById({senderId,clientId:localStorage.getItem('clientId')})).unwrap();
       if (response) {
         setSendernameForm(response.result);
         setIsModalOpen(true);

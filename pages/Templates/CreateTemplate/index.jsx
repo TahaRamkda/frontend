@@ -25,6 +25,7 @@ import {
   createTemplates,
   clearTemplateCreateState,
 } from "@/slices/TemplateSlice";
+import { fetchSendernameById } from "@/slices/sendernameSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import defaultimage from "@/public/images/12.jpg";
 import bagroundimage from "@/public/images/baground.jpg";
@@ -60,21 +61,22 @@ const TemplateCreationPage = () => {
   });
   const [TemplateName, setTemplateName] = useState("");
   const { loading, error } = useSelector((state) => state.templates);
+  const { sendername } = useSelector((state) => state.sendernames)
   const [bodyContent, setBodyContent] = useState("");
   const [variables, setVariables] = useState([]);
+  const [SendernamesData, setSendernamesData] = useState(null);
   const [showMediaPopup, setShowMediaPopup] = useState(false);
   const [urlvariables, seturlvariables] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [buttonType, setButtonType] = useState(null);
   const [buttonText, setButtonText] = useState("");
-  const [ButtonSelected, setButtonSelected] = useState(false)
+  const [ButtonSelected, setButtonSelected] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [countryCode, setCountryCode] = useState("");
   const [websiteUrl, setwebsiteUrl] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [marketingOptOutAdded, setMarketingOptOutAdded] = useState(false);
-  const [callPhoneNumberButtonCount, setCallPhoneNumberButtonCount] =
-    useState(0);
+  const [callPhoneNumberButtonCount, setCallPhoneNumberButtonCount] = useState(0);
   const [visitWebsiteButtonCount, setVisitWebsiteButtonCount] = useState(0);
   const [headContent, setHeadContent] = useState("");
   const [APIheadContent, setAPIheadContent] = useState("");
@@ -122,6 +124,7 @@ const TemplateCreationPage = () => {
 
   useEffect(() => {
     setAPIbodyContent(replaceClosingPTagsWithNewline(bodyFinalContent));
+
   }, [bodyFinalContent]);
 
   const handleSaveActionData = (data, index) => {
@@ -154,7 +157,7 @@ const TemplateCreationPage = () => {
   // }, [headerPayloadDatawithVar]);
 
   const handleSubmit = async (values) => {
-    
+
     if (!selectedSenderId) {
       toast.error("Please select a Sender Name before proceeding.");
       return; // Prevent further execution if language is not selected
@@ -171,7 +174,7 @@ const TemplateCreationPage = () => {
       toast.error("Please Enter Body Text before proceeding.");
       return; // Prevent further execution if language is not selected
     }
-    
+
     if (!TemplateName) {
       toast.error("Please Enter Template Name before proceeding.");
       return; // Prevent further execution if language is not selected
@@ -185,21 +188,21 @@ const TemplateCreationPage = () => {
         isValid = false;
         return;
       }
-    
+
       // Common validation for button text
       if (!button.text || button.text.trim() === "") {
         toast.error(`Please enter button text for Button ${index + 1}.`);
         isValid = false;
         return;
       }
-    
+
       // Type-specific validations
       switch (button.type) {
         case "1":
         case 1:
           // Type 1 has no additional validation
           break;
-    
+
         case "2":
         case 2:
           if (
@@ -208,39 +211,38 @@ const TemplateCreationPage = () => {
             !button.countryCode
           ) {
             toast.error(
-              `Please enter a valid phone number for Button ${
-                index + 1
+              `Please enter a valid phone number for Button ${index + 1
               }.`
             );
             isValid = false;
             return;
           }
           break;
-    
+
         case "3":
         case 3:
-          if (!button.websiteUrl || button.websiteUrl.trim() === "" ) {
+          if (!button.websiteUrl || button.websiteUrl.trim() === "") {
             toast.error(`Please enter a valid URL for Button ${index + 1}.`);
             isValid = false;
             return;
           }
           break;
-    
+
         default:
           toast.error(`Invalid button type for Button ${index + 1}.`);
           isValid = false;
           return;
       }
     });
-    
+
     // Prevent API call if validation failed
     if (!isValid) {
       console.log("Validation failed. Request will not be sent.");
       return; // Stop further execution
     }
-    
-    
-    
+
+
+
 
     // let trimmedBodyContent = APIbodyContent.replace(/\*\*/g, "*").trimEnd();
     // let APIbodyContent = "**Latest**<sub>Text</sub>*Example*   "; // Example content
@@ -654,53 +656,53 @@ const TemplateCreationPage = () => {
   };
 
   const handleButtonSelect = (type) => {
-  if (!type || !messagePreview || !messagePreview.buttons) {
-    console.error("Invalid input or message preview state.");
-    return;
-  }
-
-  const callPhoneNumberButtonCount = messagePreview.buttons.filter((button) => button.type === "2").length;
-  const visitWebsiteButtonCount = messagePreview.buttons.filter((button) => button.type === "3").length;
-
-  if (type === "2" && callPhoneNumberButtonCount >= 1) {
-    toast.error("You can only add one call phone number button.");
-    setButtonType(null);
-  } else if (type === "3" && visitWebsiteButtonCount >= 2) {
-    toast.error("You can only add two visit website buttons.");
-    setButtonType(null);
-    setButtonText("");
-    setwebsiteUrl("");
-  } else {
-    setButtonType(type);
-    setButtonText("");
-    setPhoneNumber("");
-    setCountryCode("+965");
-    setwebsiteUrl("");
-    setActionId(0);
-    setActionType(0);
-    
-    switch (type) {
-      case "1":
-        setButtonText("");
-        setMarketingOptOutAdded(true);
-        setTotalButtonCount((prev) => prev + 1);
-        break;
-      case "2":
-        setButtonText("Call Phone Number");
-        setCallPhoneNumberButtonCount((prev) => prev + 1);
-        setTotalButtonCount((prev) => prev + 1);
-        break;
-      case "3":
-        setButtonText("Visit Website");
-        setVisitWebsiteButtonCount(visitWebsiteButtonCount + 1);
-        setTotalButtonCount((prev) => prev + 1);
-        break;
-      default:
-        setButtonText("");
-        break;
+    if (!type || !messagePreview || !messagePreview.buttons) {
+      console.error("Invalid input or message preview state.");
+      return;
     }
-  }
-};
+
+    const callPhoneNumberButtonCount = messagePreview.buttons.filter((button) => button.type === "2").length;
+    const visitWebsiteButtonCount = messagePreview.buttons.filter((button) => button.type === "3").length;
+
+    if (type === "2" && callPhoneNumberButtonCount >= 1) {
+      toast.error("You can only add one call phone number button.");
+      setButtonType(null);
+    } else if (type === "3" && visitWebsiteButtonCount >= 2) {
+      toast.error("You can only add two visit website buttons.");
+      setButtonType(null);
+      setButtonText("");
+      setwebsiteUrl("");
+    } else {
+      setButtonType(type);
+      setButtonText("");
+      setPhoneNumber("");
+      setCountryCode("+965");
+      setwebsiteUrl("");
+      setActionId(0);
+      setActionType(0);
+
+      switch (type) {
+        case "1":
+          setButtonText("");
+          setMarketingOptOutAdded(true);
+          setTotalButtonCount((prev) => prev + 1);
+          break;
+        case "2":
+          setButtonText("Call Phone Number");
+          setCallPhoneNumberButtonCount((prev) => prev + 1);
+          setTotalButtonCount((prev) => prev + 1);
+          break;
+        case "3":
+          setButtonText("Visit Website");
+          setVisitWebsiteButtonCount(visitWebsiteButtonCount + 1);
+          setTotalButtonCount((prev) => prev + 1);
+          break;
+        default:
+          setButtonText("");
+          break;
+      }
+    }
+  };
   const handelCancel = () => {
     router.push("/Templates/TemplatesList");
   };
@@ -758,10 +760,29 @@ const TemplateCreationPage = () => {
     }
   };
 
-  const handleSenderChange = (e) => {
-    const role = e.target.value;
-    setSelectedSenderId(role);
+  const handleSenderChange = async (e) => {
+    const senderId = e.target.value;
+    console.log("Selected Sender ID:", senderId); // Debugging
+    setSelectedSenderId(senderId);
+
+
+    try {
+      const response = await dispatch(fetchSendernameById({
+        senderId: senderId,
+        clientId: localStorage.getItem("clientId"),
+      }));
+      if (response) {
+        console.log("Fetched Sender Data:", response.result); // Debugging
+        setSendernamesData(response.result);
+      } else {
+        console.error("Failed to fetch details");
+      }
+    } catch (error) {
+      console.error("Error fetching sender details:", error);
+    }
+
   };
+
 
   const handlebuttonaction = (index) => {
     setbuttonindex(index);
@@ -913,102 +934,102 @@ const TemplateCreationPage = () => {
                       </FormGroup>
                     </div>
                     <div className="mt-3">
-  <FormGroup>
-    <Label for="headerType" className="font-semibold text-sm mb-0">
-      Header Type
-    </Label>
-    <Field
-      as={Input}
-      type="select"
-      name="headerType"
-      className="form-control"
-      style={{ height: "46px" }}
-    >
-      {["none", "text", "image", "video", "document"].map((type, index) => (
-        <option key={type} value={index === 0 ? 0 : index}>
-          {type.charAt(0).toUpperCase() + type.slice(1)}
-        </option>
-      ))}
-    </Field>
-  </FormGroup>
+                      <FormGroup>
+                        <Label for="headerType" className="font-semibold text-sm mb-0">
+                          Header Type
+                        </Label>
+                        <Field
+                          as={Input}
+                          type="select"
+                          name="headerType"
+                          className="form-control"
+                          style={{ height: "46px" }}
+                        >
+                          {["none", "text", "image", "video", "document"].map((type, index) => (
+                            <option key={type} value={index === 0 ? 0 : index}>
+                              {type.charAt(0).toUpperCase() + type.slice(1)}
+                            </option>
+                          ))}
+                        </Field>
+                      </FormGroup>
 
-  <div>
-    {values.headerType === "1" && (
-      <FormGroup>
-        <Label for="headerContent" className="font-semibold text-sm mb-0">
-          Header Content
-        </Label>
-        <CustomMagicEditor
-          errorMessage={errorMessage}
-          variables={variables}
-          setheaderPayloaddatawithVar={setheaderPayloaddatawithVar}
-          onFunction={addheaderVariable}
-          headerVariable={headerVariable}
-          handleheaderVariableChange={handleheaderVariableChange}
-          removeHeaderVariable={removeHeaderVariable}
-          setHeaderVariable={setHeaderVariable}
-          headContent={headContent}
-          setFinalContent={setFinalContent}
-          existingContent={updatedheadvercontent}
-          body={false}
-        />
-      </FormGroup>
-    )}
+                      <div>
+                        {values.headerType === "1" && (
+                          <FormGroup>
+                            <Label for="headerContent" className="font-semibold text-sm mb-0">
+                              Header Content
+                            </Label>
+                            <CustomMagicEditor
+                              errorMessage={errorMessage}
+                              variables={variables}
+                              setheaderPayloaddatawithVar={setheaderPayloaddatawithVar}
+                              onFunction={addheaderVariable}
+                              headerVariable={headerVariable}
+                              handleheaderVariableChange={handleheaderVariableChange}
+                              removeHeaderVariable={removeHeaderVariable}
+                              setHeaderVariable={setHeaderVariable}
+                              headContent={headContent}
+                              setFinalContent={setFinalContent}
+                              existingContent={updatedheadvercontent}
+                              body={false}
+                            />
+                          </FormGroup>
+                        )}
 
-    {["2", "3", "4"].includes(values.headerType) && (
-      <div>
-        <Media
-          key={values.headerType}
-          isPopup={true}
-          contentTypeStr={
-            values.headerType === "2"
-              ? "image"
-              : values.headerType === "3"
-              ? "video"
-              : "application"
-          }
-          onSelectMedia={(mediaId, mediaPath, mimeType) => {
-            setSelectedMediaId(mediaId);
-            setSelectedMediaPath(mediaPath);
-            setSelectedMediaType(mimeType);
-          }}
-        />
+                        {["2", "3", "4"].includes(values.headerType) && (
+                          <div>
+                            <Media
+                              key={values.headerType}
+                              isPopup={true}
+                              contentTypeStr={
+                                values.headerType === "2"
+                                  ? "image"
+                                  : values.headerType === "3"
+                                    ? "video"
+                                    : "application"
+                              }
+                              onSelectMedia={(mediaId, mediaPath, mimeType) => {
+                                setSelectedMediaId(mediaId);
+                                setSelectedMediaPath(mediaPath);
+                                setSelectedMediaType(mimeType);
+                              }}
+                            />
 
-        {/* New Button for Changing Media */}
-        <div className="mt-3">
-          <Button
-            className="uniform_btn"
-            onClick={() => {
-              // Trigger the Media component to show the pop-up
-              setShowMediaPopup(true);
-            }}
-          >
-            Change {values.headerType === "2" ? "Image" : values.headerType === "3" ? "Video" : "Document"}
-          </Button>
+                            {/* New Button for Changing Media */}
+                            <div className="mt-3">
+                              <Button
+                                className="uniform_btn"
+                                onClick={() => {
+                                  // Trigger the Media component to show the pop-up
+                                  setShowMediaPopup(true);
+                                }}
+                              >
+                                Change {values.headerType === "2" ? "Image" : values.headerType === "3" ? "Video" : "Document"}
+                              </Button>
 
-          {showMediaPopup && (
-            <Media
-              isPopup={true}
-              contentTypeStr={
-                values.headerType === "2"
-                  ? "image"
-                  : values.headerType === "3"
-                  ? "video"
-                  : "application"
-              }
-              onSelectMedia={(mediaId, mediaPath, mimeType) => {
-                setSelectedMediaId(mediaId);
-                setSelectedMediaPath(mediaPath);
-                setSelectedMediaType(mimeType);
-                setShowMediaPopup(false); // Close the pop-up after selection
-              }}
-            />
-          )}
-        </div>
-      </div>
-    )}
-  </div>
-</div>
+                              {showMediaPopup && (
+                                <Media
+                                  isPopup={true}
+                                  contentTypeStr={
+                                    values.headerType === "2"
+                                      ? "image"
+                                      : values.headerType === "3"
+                                        ? "video"
+                                        : "application"
+                                  }
+                                  onSelectMedia={(mediaId, mediaPath, mimeType) => {
+                                    setSelectedMediaId(mediaId);
+                                    setSelectedMediaPath(mediaPath);
+                                    setSelectedMediaType(mimeType);
+                                    setShowMediaPopup(false); // Close the pop-up after selection
+                                  }}
+                                />
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
 
 
@@ -1275,9 +1296,8 @@ const TemplateCreationPage = () => {
                                             e.target.value
                                           )
                                         }
-                                        placeholder={`Enter Sample value for ${
-                                          index + 1
-                                        }`}
+                                        placeholder={`Enter Sample value for ${index + 1
+                                          }`}
                                         className="w-100"
                                       />
                                     </Col>
@@ -1387,101 +1407,168 @@ const TemplateCreationPage = () => {
                 Template Preview
               </h4>
             </div>
-            <div
-              className="border p-3 rounded"
-              style={{
-                height: "auto",
-                minHeight: "420px",
-                backgroundColor: "#e0e0e0",
-                backgroundImage: `url(${bagroundimage.src})`, // Update this path
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-                maxWidth: "600px", // Increased width of preview container
-                margin: "0 auto",
-                padding: "5px", // Optional: Adjust padding for more space inside the preview container
-              }}
-            >
+            <div>
+              {/* Show the header and sender data only when selectedSenderId is set and data is fetched */}
+              {sendername && Object.keys(sendername).length > 0 ? (
+                <div className="flex items-center justify-between text-black px-4 py-3 shadow-md bg-white rounded-lg">
+                  {/* Left Section: Display sender's image, name, and phone number */}
+                  <div className="flex items-center space-x-3">
+                    {/* Display Image */}
+                    {sendername.mediaPath && (
+                      <img
+                        src={`${BASE_URL}${sendername.mediaPath}`}
+                        alt="Sender Logo"
+                        className="w-10 h-10 rounded-full"
+                      />
+                    )}
+                    {/* Display Name and Phone */}
+                    <div>
+                      <div className="font-bold text-lg">{sendername.senderName}</div>
+                      <div className="text-sm text-gray-600">{sendername.phoneNumber}</div>
+                    </div>
+                  </div>
+                  {/* Right Section: Placeholder for future actions */}
+                  <div className="flex items-center space-x-4">
+                    {/* Add any buttons or actions here */}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-center text-gray-500">No sender data available</p>
+              )}
+
+
+
+
               <div
-                className="chat_bubble"
+                className="border p-3 rounded"
                 style={{
-                  position: "relative",
-                  backgroundColor: "#ffff",
-                  borderRadius: "5px",
-                  padding: "20px 10px",
-                  wordWrap: "break-word",
-                  marginBottom: "10px",
-                  maxWidth: "400px", // Message body width stays the same
-                  marginRight: "0", // Remove any margin from the right side
+                  height: "auto",
+                  minHeight: "420px",
+                  backgroundColor: "#e0e0e0",
+                  backgroundImage: `url(${bagroundimage.src})`, // Update this path
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+                  maxWidth: "600px", // Increased width of preview container
+                  margin: "0 auto",
+                  padding: "5px", // Optional: Adjust padding for more space inside the preview container
                 }}
               >
-                <span className="time_bubble">
-                  {moment(new Date()).format("LT")}
-                </span>
-                {messagePreview.media &&
-                  selectedMediaType.startsWith("image/") && (
-                    <img
-                      src={`${BASE_URL}${selectedMediaPath}`}
-                      alt="Media"
-                      className="img-fluid"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "contain",
-                        borderRadius: "8px",
-                        marginBottom: "5px",
-                      }}
-                    />
-                  )}
-                {messagePreview.media &&
-                  selectedMediaType.startsWith("video/") && (
-                    <video
-                      src={`${BASE_URL}${selectedMediaPath}`}
-                      autoPlay
-                      muted
-                      loop
-                      className="img-fluid"
-                      style={{
-                        width: "100%",
-                        height: "auto",
-                        objectFit: "contain",
-                        borderRadius: "8px",
-                        marginBottom: "10px",
-                      }}
-                    />
-                  )}
 
-                {messagePreview.media &&
-                  selectedMediaType.startsWith("audio/") && (
-                    <audio
-                      src={`${BASE_URL}${selectedMediaPath}`}
-                      controls
-                      controlsList="nodownload"
-                      style={{
-                        width: "100%",
-                        borderRadius: "8px",
-                        marginBottom: "10px",
-                      }}
+                <div
+                  className="chat_bubble"
+                  style={{
+                    position: "relative",
+                    backgroundColor: "#ffff",
+                    borderRadius: "5px",
+                    padding: "20px 10px",
+                    wordWrap: "break-word",
+                    marginBottom: "10px",
+                    maxWidth: "400px", // Message body width stays the same
+                    marginRight: "0", // Remove any margin from the right side
+                  }}
+                >
+                  <span className="time_bubble">
+                    {moment(new Date()).format("LT")}
+                  </span>
+                  {messagePreview.media &&
+                    selectedMediaType.startsWith("image/") && (
+                      <img
+                        src={`${BASE_URL}${selectedMediaPath}`}
+                        alt="Media"
+                        className="img-fluid"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                          borderRadius: "8px",
+                          marginBottom: "5px",
+                        }}
+                      />
+                    )}
+                  {messagePreview.media &&
+                    selectedMediaType.startsWith("video/") && (
+                      <video
+                        src={`${BASE_URL}${selectedMediaPath}`}
+                        autoPlay
+                        muted
+                        loop
+                        className="img-fluid"
+                        style={{
+                          width: "100%",
+                          height: "auto",
+                          objectFit: "contain",
+                          borderRadius: "8px",
+                          marginBottom: "10px",
+                        }}
+                      />
+                    )}
+
+                  {messagePreview.media &&
+                    selectedMediaType.startsWith("audio/") && (
+                      <audio
+                        src={`${BASE_URL}${selectedMediaPath}`}
+                        controls
+                        controlsList="nodownload"
+                        style={{
+                          width: "100%",
+                          borderRadius: "8px",
+                          marginBottom: "10px",
+                        }}
+                      />
+                    )}
+                  {messagePreview.header && (
+                    <h6
+                      style={{ marginBottom: "5px" }}
+                      dangerouslySetInnerHTML={{ __html: messagePreview.header }}
                     />
                   )}
-                {messagePreview.header && (
-                  <h6
-                    style={{ marginBottom: "5px" }}
-                    dangerouslySetInnerHTML={{ __html: messagePreview.header }}
+                  <div
+                    dangerouslySetInnerHTML={{ __html: messagePreview.body }}
                   />
-                )}
-                <div
-                  dangerouslySetInnerHTML={{ __html: messagePreview.body }}
-                />
-                {messagePreview.footer && (
-                  <p style={{ marginTop: "5px", fontSize: "0.9em" }}>
-                    {messagePreview.footer}
-                  </p>
-                )}
-                {(Showallbutton || TotalButtonCount <= 3) &&
-                  messagePreview.buttons.map((button, index) => (
+                  {messagePreview.footer && (
+                    <p style={{ marginTop: "5px", fontSize: "0.9em" }}>
+                      {messagePreview.footer}
+                    </p>
+                  )}
+                  {(Showallbutton || TotalButtonCount <= 3) &&
+                    messagePreview.buttons.map((button, index) => (
+                      <Button
+                        key={index}
+                        className="w-100 mb-2"
+                        style={{
+                          color: "#00a9ee",
+                          backgroundColor: "#ffffff",
+                          borderColor: "#ffffff",
+                          borderStyle: "solid",
+                          borderWidth: "1px 1px 1px 1px",
+                          borderTopWidth: "0.5px",
+                          borderTopStyle: "solid",
+                          borderTopColor: "#e1e1e1",
+                        }}
+                      >
+                        {button.type == 1 && (
+                          <span style={{ color: "#00a9ee" }}>
+                            <i className="fa fa-share fa-flip-horizontal me-2"></i>
+                            {button.text || "Button"}
+                          </span>
+                        )}
+                        {button.type == 2 && (
+                          <span style={{ color: "#00a9ee" }}>
+                            <i className="fa fa-phone me-2"></i>
+                            {button.text || "Button"}
+                          </span>
+                        )}
+                        {button.type == 3 && (
+                          <span style={{ color: "#00a9ee" }}>
+                            <i className="fa fa-external-link me-2"></i>
+                            {button.text || "Button"}
+                          </span>
+                        )}
+                      </Button>
+                    ))}
+                  {TotalButtonCount > 3 && !Showallbutton && (
                     <Button
-                      key={index}
                       className="w-100 mb-2"
                       style={{
                         color: "#00a9ee",
@@ -1493,67 +1580,34 @@ const TemplateCreationPage = () => {
                         borderTopStyle: "solid",
                         borderTopColor: "#e1e1e1",
                       }}
+                      onClick={() => setShowallbutton(!Showallbutton)}
                     >
-                      {button.type == 1 && (
-                        <span style={{ color: "#00a9ee" }}>
-                          <i className="fa fa-share fa-flip-horizontal me-2"></i>
-                          {button.text || "Button"}
-                        </span>
-                      )}
-                      {button.type == 2 && (
-                        <span style={{ color: "#00a9ee" }}>
-                          <i className="fa fa-phone me-2"></i>
-                          {button.text || "Button"}
-                        </span>
-                      )}
-                      {button.type == 3 && (
-                        <span style={{ color: "#00a9ee" }}>
-                          <i className="fa fa-external-link me-2"></i>
-                          {button.text || "Button"}
-                        </span>
-                      )}
+                      <i className="fa fa-list"></i>
+                      <span style={{ color: "#00a9ee" }}>See all options</span>
                     </Button>
-                  ))}
-                {TotalButtonCount > 3 && !Showallbutton && (
-                  <Button
-                    className="w-100 mb-2"
-                    style={{
-                      color: "#00a9ee",
-                      backgroundColor: "#ffffff",
-                      borderColor: "#ffffff",
-                      borderStyle: "solid",
-                      borderWidth: "1px 1px 1px 1px",
-                      borderTopWidth: "0.5px",
-                      borderTopStyle: "solid",
-                      borderTopColor: "#e1e1e1",
-                    }}
-                    onClick={() => setShowallbutton(!Showallbutton)}
-                  >
-                    <i className="fa fa-list"></i>
-                    <span style={{ color: "#00a9ee" }}>See all options</span>
-                  </Button>
-                )}
-                {TotalButtonCount > 3 && Showallbutton && (
-                  <Button
-                    className="w-100 mb-2"
-                    style={{
-                      color: "#00a9ee",
-                      backgroundColor: "#ffffff",
-                      borderColor: "#ffffff",
-                      borderStyle: "solid",
-                      borderWidth: "1px 1px 1px 1px",
-                      borderTopWidth: "0.5px",
-                      borderTopStyle: "solid",
-                      borderTopColor: "#e1e1e1",
-                    }}
-                    onClick={() => setShowallbutton(false)}
-                  >
-                    <span style={{ color: "#00a9ee" }}>
-                      <i className="fa fa-bars me-2"></i>
-                      Hide All
-                    </span>
-                  </Button>
-                )}
+                  )}
+                  {TotalButtonCount > 3 && Showallbutton && (
+                    <Button
+                      className="w-100 mb-2"
+                      style={{
+                        color: "#00a9ee",
+                        backgroundColor: "#ffffff",
+                        borderColor: "#ffffff",
+                        borderStyle: "solid",
+                        borderWidth: "1px 1px 1px 1px",
+                        borderTopWidth: "0.5px",
+                        borderTopStyle: "solid",
+                        borderTopColor: "#e1e1e1",
+                      }}
+                      onClick={() => setShowallbutton(false)}
+                    >
+                      <span style={{ color: "#00a9ee" }}>
+                        <i className="fa fa-bars me-2"></i>
+                        Hide All
+                      </span>
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </Col>
