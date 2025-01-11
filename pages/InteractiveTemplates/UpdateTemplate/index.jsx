@@ -576,12 +576,13 @@ const InteractiveTemplateUpdate = () => {
     setSelectedSenderId(role);
   };
 
-  const handlebuttonaction = (index, actionId, actionType) => {
+  const handlebuttonaction = (index, actionId, actionType , buttonValue) => {
     
     setbuttonindex(index);
     const buttonaction = {
       actionId: actionId,
       actionType: actionType,
+      buttonValue:buttonValue
     };
     setactionbuttonvalues(buttonaction);
     setshowaction(true);
@@ -946,7 +947,8 @@ const InteractiveTemplateUpdate = () => {
                               handlebuttonaction(
                                 index,
                                 button.actionId,
-                                button.actionType
+                                button.actionType,
+                                button.buttonValue
                               )
                             }
                           >

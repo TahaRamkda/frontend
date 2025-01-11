@@ -375,12 +375,13 @@ const InteractiveTemplateCreation = () => {
     setSelectedSenderId(role);
   };
 
-  const handlebuttonaction = (index,actionId,actionType) => {
+  const handlebuttonaction = (index,actionId,actionType,buttonValue) => {
     debugger
     setbuttonindex(index);
     const buttonaction= {
         actionId : actionId,
         actionType: actionType,
+        buttonValue:buttonValue
     }
     setactionbuttonvalues(buttonaction);
     setshowaction(true);
@@ -703,7 +704,7 @@ const InteractiveTemplateCreation = () => {
                               color: "white",
                             }}
                             className="me-2"
-                            onClick={() => handlebuttonaction(index,button.actionId,button.actionType)}
+                            onClick={() => handlebuttonaction(index,button.actionId,button.actionType,button.buttonValue)}
                           >
                             <i className="fa fa-bolt"></i>
                           </Button>

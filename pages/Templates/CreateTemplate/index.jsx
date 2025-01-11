@@ -764,12 +764,13 @@ const TemplateCreationPage = () => {
     setSelectedSenderId(role);
   };
 
-  const handlebuttonaction = (index,actionId,actionType) => {
+  const handlebuttonaction = (index,actionId,actionType,buttonValue) => {
     debugger
     setbuttonindex(index);
     const buttonaction= {
         actionId : actionId,
         actionType: actionType,
+        buttonValue:buttonValue,
     }
     setactionbuttonvalues(buttonaction);
     setshowaction(true);
@@ -1324,7 +1325,7 @@ const TemplateCreationPage = () => {
                               color: "white",
                             }}
                             className="me-2"
-                            onClick={() => handlebuttonaction(index,button.actionId,button.actiontype)}
+                            onClick={() => handlebuttonaction(index,button.actionId,button.actiontype,button.buttonValue)}
                           >
                             <i className="fa fa-bolt"></i>
                           </Button>

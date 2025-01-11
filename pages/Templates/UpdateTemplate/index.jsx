@@ -699,12 +699,13 @@ const TemplateUpdatePage = () => {
     setSelectedSenderId(role);
   };
 
-  const handlebuttonaction = (index,actionId,actionType) => {
+  const handlebuttonaction = (index,actionId,actionType,buttonValue) => {
     
     setbuttonindex(index);
     const buttonaction= {
         actionId : actionId,
         actionType: actionType,
+        buttonValue:buttonValue
     }
     setactionbuttonvalues(buttonaction);
     setshowaction(true);
@@ -1117,7 +1118,7 @@ const TemplateUpdatePage = () => {
                               color: "white",
                             }}
                             className=""
-                            onClick={() => handlebuttonaction(index,button.actionId,button.actionType)}
+                            onClick={() => handlebuttonaction(index,button.actionId,button.actionType,button.buttonValue)}
                           >
                             <i className="fa fa-bolt"></i>
                           </Button>
