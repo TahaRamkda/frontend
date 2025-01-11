@@ -78,15 +78,23 @@ export const fetchConversationMessage = createAsyncThunk(
 
   export const Transferchat = createAsyncThunk(
     'conversation/Transferchat',
-    async ({clientId,AgentId,ChatId,Comment}, { rejectWithValue }) => {
+    async ({ clientId, AgentId, ChatId, Comment }, { rejectWithValue }) => {
       try {
-        await API.get(`${TRANSFERCHAT}?clientId=${clientId}&agentId=${AgentId}&id=${ChatId}&Comment=${Comment}`);
+        const response = await API.get(`${TRANSFERCHAT}?clientId=${clientId}&agentId=${AgentId}&id=${ChatId}&Comment=${Comment}`);
+        
+        if (response?.status === 200) {
+          return response.data; // Pass API response to fulfilled reducer
+        } else {
+          throw new Error('Failed to transfer chat');
+        }
       } catch (err) {
         const handledError = handleError(err);
         return rejectWithValue(handledError);
       }
     }
   );
+  
+
 
 
 // Slice
@@ -232,8 +240,9 @@ const conversationslice = createSlice({
           })
           .addCase(Transferchat.fulfilled, (state, action) => {
             state.loading = false;
-            state.message = action.payload.message || '';
-          })
+            state.success = true;
+            state.message = action.payload?.message || 'Chat transferred successfully!';
+          })          
           .addCase(Transferchat.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload || action.error.message;

@@ -18,72 +18,71 @@ const TransferChat = ({ ChatId, onClose, isVisible ,SenderId}) => {
   const [agentId, setAgentId] = useState(0);
   const [comment, setComment] = useState("");
 
-  const handleTransfer = async () => {
+  const handleTransfer = async (e) => {
+    e.preventDefault(); // Prevent the form from refreshing the page
+    
     const clientId = localStorage.getItem("clientId");
-
-    if (agentId && comment.trim()) {
-      try {
-        await dispatch(
-          Transferchat({
-            ChatId,
-            AgentId: agentId,
-            Comment: comment,
-            clientId,
-          })
-        )
-
+  
+    if (agentId) {
+      const response = await dispatch(Transferchat({
+        ChatId,
+        AgentId: agentId,
+        Comment: comment,
+        clientId
+      }));
+  
+      if (response.payload?.success) {
         Sweetalert.fire({
           icon: "success",
           title: "Success",
-          text: message || "Chat transferred successfully!",
+          text: "Chat transferred successfully!",
         });
-
-        onClose();
-      } catch (error) {
+        onClose(); // Close the modal
+      } else {
         Sweetalert.fire({
           icon: "error",
           title: "Error",
-          text: message || "Failed to transfer chat. Please try again.",
+          text: response.payload?.message || "Failed to transfer chat. Please try again.",
         });
       }
-    } else {
-      Sweetalert.fire({
-        icon: "warning",
-        title: "Validation Error",
-        text: "Please select an agent and write a comment.",
-      });
-    }
+    } 
   };
+  
 
   return (
     <App>
       <Modal isOpen={isVisible} toggle={onClose} fade={false}>
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-2/5 relative h-2/3">
+          <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
             <ModalHeader toggle={onClose}>Transfer Chat</ModalHeader>
             <ModalBody>
+              <form onSubmit={handleTransfer}>
               <div className="p-4 w-full h-full">
                 <div className="mb-4">
+                <label className="font-medium text-gray-700 text-sm">Active Agents</label>
                   <Agentsdrop
-                  SenderId={SenderId}
+                    SenderId={SenderId}
                     Agentid={agentId}
                     onChange={(e) => setAgentId(e.target.value)}
                   />
                 </div>
                 <div className="mb-4">
+                <label className="font-medium text-gray-700 text-sm">Comment</label>
                   <Input
                     type="textarea"
-                    placeholder="Write your comment here"
+                    placeholder="Enter a text"
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
+                    
                   />
                 </div>
                 <div className="text-center">
-                  <Button color="primary" onClick={handleTransfer} >
+                  <Button type="submit" color="primary"  >
                     Transfer
                   </Button>
                 </div>
               </div>
+              </form>
             </ModalBody>
           </div>
         </div>
