@@ -30,7 +30,7 @@ import Loader from "@/components/Loader";
 const Chatview = ({ ChatId, onClose, isVisible }) => {
   const dispatch = useDispatch();
   const [Activechat, setActiveChat] = useState(0);
-  const { conversationMessage, loading, error } = useSelector(
+  const { messages, loading, error } = useSelector(
     (state) => state.conversations
   );
 
@@ -51,10 +51,10 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
   }, [Activechat]);
 
   useEffect(() => {
-    if (conversationMessage && conversationMessage.length > 0) {
-      setChatMessages(conversationMessage);
+    if (messages) {
+      setChatMessages(messages);
     }
-  }, [conversationMessage]);
+  }, [messages]);
 
   return (
     <App>
@@ -69,7 +69,12 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
                   style={{ height: "569px" }}
                 >
                   <div className="msger flex flex-col ">
-                    <div className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2">
+                    <div
+                      className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2"
+                      style={{
+                       
+                      }}
+                    >
                       {loading && (
                         <div className="text-center">
                           Please wait while we load your messages..!!

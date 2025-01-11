@@ -202,8 +202,9 @@ const sendernameSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchSendernameById.fulfilled, (state, action) => {
+        
         state.loading = false;
-        state.sendername = action.payload;
+        state.sendername = action.payload.result;
         state.message = action.payload?.message || '';
       })
       .addCase(fetchSendernameById.rejected, (state, action) => {

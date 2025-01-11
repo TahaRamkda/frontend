@@ -237,7 +237,7 @@ const ChatPage = () => {
         createdDate: new Date().toLocaleString(),
       };
 
-      setChatMessages((prevMessages) => [...prevMessages, newMessage]);
+      setChatMessages((prevMessages) => [newMessage,...prevMessages]);
       setMessageInput("");
       await dispatch(NewAgentMessage(formData)).unwrap();
       //toast.success("Message sent successfully!");
@@ -325,7 +325,7 @@ const ChatPage = () => {
     setConnection(connection);
 
     connection.on("MessageReceived", (message) => {
-      debugger;
+     
       // Play notification sound
       audioRef.current
         ?.play()
@@ -399,7 +399,7 @@ const ChatPage = () => {
     });
 
     connection.on("ConversationAssigned", (notification) => {
-      debugger;
+     
       console.log("Received notification:", notification);
       audioRef.current
         ?.play()
@@ -449,7 +449,7 @@ const ChatPage = () => {
     });
 
     connection.on("ConversationUnAssigned", (notification) => {
-      debugger;
+     
       console.log("Unassigned conversation:", notification);
 
       // Show a warning toast for the unassigned conversation
@@ -849,7 +849,7 @@ const ChatPage = () => {
                                 )}
                               </>
                             )}
-                          <p className="text-left text-sm">
+                          <p className="">
                             {message.messageContent
                               .split("\n")
                               .map((line, index) => (

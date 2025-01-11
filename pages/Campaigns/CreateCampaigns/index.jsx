@@ -165,9 +165,9 @@ const CampaignCreate = () => {
         }
       });
     }
-    if (template.buttonValues.some(item => item.value !== null)) {
+    if (template.buttonValues.some((item) => item.value !== null)) {
       const filteredButtonValues = template.buttonValues.filter(
-        item => item["isDynamic"] && item.value !== null
+        (item) => item["isDynamic"] && item.value !== null
       );
       setsenturlvariables(filteredButtonValues);
       console.log("urlvariables", filteredButtonValues);
@@ -196,18 +196,17 @@ const CampaignCreate = () => {
   }, [bodyFinalContent]);
 
   const handleSubmit = async (values) => {
-    debugger
     if (!campaignName) {
-      toast.error("Please select a campaign before proceeding")
-      return
+      toast.error("Please select a campaign before proceeding");
+      return;
     }
     if (!Array.isArray(selectedGroups) || selectedGroups.length === 0) {
       toast.error("Please select a group before proceeding");
       return; // Stop execution
     }
     if (!selectedTemplateId) {
-      toast.error("Please select a template before proceeding")
-      return
+      toast.error("Please select a template before proceeding");
+      return;
     }
     let trimmedBodyContent = APIbodyContent.trimEnd();
 
@@ -222,7 +221,6 @@ const CampaignCreate = () => {
       actionBy: localStorage.getItem("userId"),
 
       campaignParameters: [
-
         ...headerVariable.map((value, index) => ({
           sequence: index + 1,
           paramName: `${index + 1}`, // Dynamic name for header variables
@@ -241,8 +239,7 @@ const CampaignCreate = () => {
           isDynamic: true, // Static boolean
           status: 0, // Static status
         })),
-        ...senturlvariables.map((value, index) =>
-        ({
+        ...senturlvariables.map((value, index) => ({
           sequence: value.values.index,
           paramName: `${index + 1}`, // Dynamic name for header variables
           paramText: value.values.value, // Use value from headerVariable
@@ -357,7 +354,7 @@ const CampaignCreate = () => {
       // Create a new object for the `values` property
       const updatedButton = {
         ...newurlVariable[index],
-        values: { ...newurlVariable[index].values, value } // Create a new `values` object
+        values: { ...newurlVariable[index].values, value }, // Create a new `values` object
       };
       newurlVariable[index] = updatedButton; // Replace the button at index with the updated button
       return newurlVariable;
@@ -461,12 +458,9 @@ const CampaignCreate = () => {
                         />
                       </FormGroup>
                     </div>
-                    {headerVariable.length > 0 && (
-                      <h5>Header Variables</h5>
-                    )}
+                    {headerVariable.length > 0 && <h5>Header Variables</h5>}
                     {headerVariable.map((variable, index) => (
                       <FormGroup key={index}>
-
                         <Label>{`Value for {${index + 1}}`}</Label>
                         <Input
                           type="text"
@@ -480,12 +474,9 @@ const CampaignCreate = () => {
                         />
                       </FormGroup>
                     ))}
-                    {variables.length > 0 && (
-                      <h5>Body Variables</h5>
-                    )}
+                    {variables.length > 0 && <h5>Body Variables</h5>}
                     {variables.map((variable, index) => (
                       <FormGroup key={index}>
-
                         <Label>{`Body Value for {${index + 1}}`}</Label>
                         <Input
                           type="text"
@@ -499,31 +490,34 @@ const CampaignCreate = () => {
                         />
                       </FormGroup>
                     ))}
-                    {senturlvariables.length > 0 && (
-                      <h5>URL Variables</h5>
-                    )}
-                    {senturlvariables.map((variable) => (
-                      <FormGroup key={variable.index}>
-
-                        <Label>{`Url Value for {${1}}`}</Label>
-                        <Row>
-                          <Col>
-                            <Input
-                              className="w-90"
-                              type="text"
-                              value={variable.values.value}
-                              //data-id={variable.index}
-                              onChange={(e) =>
-                                handleurlVariableChange(0, e.target.value)
-                              }
-                              placeholder={`Enter Sample  value for {${variable.index + 1
-                                }}`}
-                            />
-                          </Col>
-
-                        </Row>
-                      </FormGroup>
-                    ))}
+                    {senturlvariables.length > 0 && <h5>URL Variables</h5>}
+                    {senturlvariables.length > 0 &&
+                      senturlvariables.map(
+                        (variable, index) =>
+                          variable.values !== null && (
+                            <FormGroup key={variable.index}>
+                              <Label>{`Url Value for {${index + 1}}`}</Label>
+                              <Row>
+                                <Col>
+                                  <Input
+                                    className="w-90"
+                                    type="text"
+                                    value={variable.values.value || ""}
+                                    onChange={(e) =>
+                                      handleurlVariableChange(
+                                        index,
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder={`Enter Sample value for {${
+                                      index + 1
+                                    }}`}
+                                  />
+                                </Col>
+                              </Row>
+                            </FormGroup>
+                          )
+                      )}
 
                     <div className="w-full flex justify-end gap-3">
                       <Button
@@ -548,15 +542,15 @@ const CampaignCreate = () => {
           <Col
             md={4}
             className="overflow-hidden h-screen fixed right-10"
-          // style={{
-          //   position: "fixed", // Fix the position
-          //   top: "-50", // Adjust to your layout
-          //   right: "0", // Align to the right side of the screen
-          //   height: "100vh", // Full viewport height to ensure scrollability
-          //   overflowY: "auto", // Enable vertical scrolling
-          //   backgroundColor: "#f8f9fa", // Optional: background color for contrast
-          //   boxShadow: "0 0 10px rgba(0,0,0,0.1)", // Optional: Add shadow for emphasis
-          // }}
+            // style={{
+            //   position: "fixed", // Fix the position
+            //   top: "-50", // Adjust to your layout
+            //   right: "0", // Align to the right side of the screen
+            //   height: "100vh", // Full viewport height to ensure scrollability
+            //   overflowY: "auto", // Enable vertical scrolling
+            //   backgroundColor: "#f8f9fa", // Optional: background color for contrast
+            //   boxShadow: "0 0 10px rgba(0,0,0,0.1)", // Optional: Add shadow for emphasis
+            // }}
           >
             <div
               style={{
@@ -659,7 +653,6 @@ const CampaignCreate = () => {
                 )}
                 <div
                   dangerouslySetInnerHTML={{ __html: messagePreview.body }}
-
                 />
 
                 {messagePreview.footer && (

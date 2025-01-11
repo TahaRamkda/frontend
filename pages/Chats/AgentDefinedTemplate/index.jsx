@@ -85,7 +85,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId }) => {
 
   // Handle Send button click
   const handleSend = async () => {
-    debugger;
+   
     // Convert the parameterValues array into an array of objects with 'key' and 'value' properties
     const Values = parameterValues.map((values) => ({
       key: values.key, // Set the key
@@ -104,7 +104,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId }) => {
       formData.append(`Values[${index}].Key`, item.key);
       formData.append(`Values[${index}].Value`, item.value);
     });
-    debugger;
+   
     try {
       // Send the form data using the dispatch function
       const response = await dispatch(SendInteractivetemp(formData)).unwrap();
