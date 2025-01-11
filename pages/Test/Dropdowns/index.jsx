@@ -13,6 +13,7 @@ import LanguageDropdown from '@/components/Dropdowns/LanguageDropdown';
 import RolesDropdown from '@/components/MultiSelect/RoleDropdown';
 import App from "@/components/App";
 import { useRouter } from 'next/router';  // Correct import
+import ActiveAgentDropdown from '@/components/Dropdowns/ActiveAgentsDropdown';
 
 
 const DropDowns = () => {
@@ -80,6 +81,11 @@ const DropDowns = () => {
       <div className="flex items-center">
         <label htmlFor="">Roles</label>
         <RolesDropdown  />
+      </div><br />
+
+      <div className="flex items-center">
+        <label htmlFor="">Active agents</label>
+        <ActiveAgentDropdown onChange={handleChange1}/>
       </div><br />
 
 

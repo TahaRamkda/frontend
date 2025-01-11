@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { AGENTLIST, AGENTDETAILS, CREATEAGENT, DELETEAGENT, UPDATEAGENT, AGENTSTIMINGLIST, ADDAGENTSTIMING, AGENTDROPDOWN ,GETAGENTSTATS } from '@/utils/apiConstants';
+import { AGENTLIST, AGENTDETAILS, CREATEAGENT, DELETEAGENT, UPDATEAGENT, AGENTSTIMINGLIST, ADDAGENTSTIMING, AGENTDROPDOWN ,GETAGENTSTATS,ACTIVEAGENTS } from '@/utils/apiConstants';
 
 
 // Thunks
@@ -15,6 +15,26 @@ export const fetchAgents = createAsyncThunk(
       if (response?.status === 200 && response.data?.result) {
         return {
           agents: response.data.result,
+          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+        };
+      } else {
+        throw new Error('Failed to fetch details');
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
+export const fetchActiveAgentsDrop = createAsyncThunk(
+  'agent/fetchActiveAgentsDrop',
+  async ({clientId,senderId}, { rejectWithValue }) => {
+    try {
+      const response = await API.get(`${ACTIVEAGENTS}?ClientId=${clientId}&senderId=${senderId}`);
+      if (response?.status === 200 && response.data?.result) {
+        return {
+          activeAgentDrop: response.data.result,
           totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
         };
       } else {
@@ -170,6 +190,7 @@ const agentSlice = createSlice({
     agentDrop:[],
     agentsTiming: [],
     AgentStats: [],
+    activeAgentDrop:[],
     agent: null,
     loading: false,
     error: null,
@@ -202,6 +223,13 @@ const agentSlice = createSlice({
     },
     cleaAgenDroptState: (state) => {
       state.agentDrop = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+      
+    },
+    cleaActiveAgenDroptState: (state) => {
+      state.activeAgentDrop = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -272,6 +300,21 @@ const agentSlice = createSlice({
         state.message = action.payload.message || '';
       })
       .addCase(fetchAgentsDrop.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+
+      .addCase(fetchActiveAgentsDrop.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchActiveAgentsDrop.fulfilled, (state, action) => {
+        state.loading = false;
+        state.activeAgentDrop = action.payload.activeAgentDrop;
+        state.message = action.payload.message || '';
+      })
+      .addCase(fetchActiveAgentsDrop.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
@@ -407,6 +450,7 @@ export const {
   clearAgentCreateState,
   cleaAgentStats,
   clearAgentDeleteState,
+  cleaActiveAgenDroptState,
   cleaAgenDroptState,
   clearAgentTimingCreateState,
   clearAgentsTimingListState,

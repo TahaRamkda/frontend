@@ -1,30 +1,29 @@
-import React, { useEffect, useRef,useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
-import { fetchSendernamesDrop, clearSendernameDropState } from "@/slices/sendernameSlice";
-import { Input } from 'reactstrap';
+import { fetchActiveAgentsDrop, cleaActiveAgenDroptState } from '@/slices/AgentSlice';
+import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
-const SendernameDropdown = ({ name, value, onChange }) => {
+const ActiveAgentDropdown = ({ name, value, onChange,SenderId }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
-  const { sendernameDrop, loading, error } = useSelector((state) => state.sendernames);
-    const [SearchStr, setSearchStr] = useState("")
+  const { activeAgentDrop, loading, error } = useSelector((state) => state.agents);
 
   useEffect(() => {
-    dispatch(fetchSendernamesDrop({ clientId: localStorage.getItem("clientId") }));
+    dispatch(fetchActiveAgentsDrop({ clientId: localStorage.getItem("clientId"), senderId:SenderId  }));
 
   }, [dispatch]);
-  
+
   useEffect(() => {
     if (selectRef.current) {
       $(selectRef.current).select2({
-        placeholder: "Select",
+        placeholder: 'Select',
         allowClear: true,
       });
 
-      $(selectRef.current).on("change", (e) => {
+      $(selectRef.current).on('change', (e) => {
         let selectedValue = e.target.value;
         if (!selectedValue) {
           selectedValue = "0";
@@ -35,17 +34,16 @@ const SendernameDropdown = ({ name, value, onChange }) => {
 
     return () => {
       if (selectRef.current) {
-        $(selectRef.current).off("change");
+        $(selectRef.current).off('change');
       }
     };
-  }, [sendernameDrop, onChange]);
+  }, [activeAgentDrop, onChange]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
 
   return (
     <div>
-
       <Input
         type="select"
         innerRef={selectRef}
@@ -55,18 +53,18 @@ const SendernameDropdown = ({ name, value, onChange }) => {
         required
       >
         <option value="">Select</option>
-        {sendernameDrop && sendernameDrop.length > 0 ? (
-          sendernameDrop.map((sendername) => (
-            <option key={sendername.id} value={sendername.id}>
-              {sendername.name}
+        {activeAgentDrop && activeAgentDrop.length > 0 ? (
+          activeAgentDrop.map((agent) => (
+            <option key={agent.id} value={agent.id}>
+              {agent.name}
             </option>
           ))
         ) : (
           <option disabled>No records found</option>
         )}
-      </Input>  
+      </Input>
     </div>
   );
 };
 
-export default SendernameDropdown;
+export default ActiveAgentDropdown;

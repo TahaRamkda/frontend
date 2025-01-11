@@ -47,9 +47,9 @@ export const fetchSendernamesDrop = createAsyncThunk(
 // Fetch Client by ID
 export const fetchSendernameById = createAsyncThunk(
   'sendername/fetchSendernameById',
-  async (senderId, { rejectWithValue }) => {
+  async ({senderId,clientId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${SENDERNAMEDETAIL}?id=${senderId}`);
+      const response = await API.get(`${SENDERNAMEDETAIL}?clientId=${clientId}&id=${senderId}`);
       return response.data;
     } catch (error) {
       const handledError = handleError(error);

@@ -59,6 +59,7 @@ const InteractiveTemplateCreation = () => {
   const { loading, error } = useSelector((state) => state.templates);
   const [bodyContent, setBodyContent] = useState("");
   const [variables, setVariables] = useState([]);
+  const [TemplateName, setTemplateName] = useState("");
   const [urlvariables, seturlvariables] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [buttonType, setButtonType] = useState(null);
@@ -77,6 +78,8 @@ const InteractiveTemplateCreation = () => {
   const [headerVariable, setHeaderVariable] = useState([]);
   const [finalContent, setFinalContent] = useState("");
   const [bodyFinalContent, setBodyFinalContent] = useState("");
+  const [ButtonSelected, setButtonSelected] = useState(false);
+  const [showMediaPopup, setShowMediaPopup] = useState(false);
   const [selectedMediaId, setSelectedMediaId] = useState(0);
   const [selectedSenderId, setSelectedSenderId] = useState(null);
   const [selectedMediaPath, setSelectedMediaPath] = useState("");
@@ -137,6 +140,83 @@ const InteractiveTemplateCreation = () => {
   };
 
   const handleSubmit = async (values) => {
+    if (!selectedSenderId) {
+      toast.error("Please select a Sender Name before proceeding.");
+      return; // Prevent further execution if language is not selected
+    }
+    if (!language) {
+      toast.error("Please select a language before proceeding.");
+      return; // Prevent further execution if language is not selected
+    }
+    if (!TemplateName) {
+      toast.error("Please Enter Template Name before proceeding.");
+      return; // Prevent further execution if language is not selected
+    }
+    let isValid = true; // Flag to track validation status
+    if (!bodyPayloadDatawithVar) {
+      toast.error("Please Enter Body Text before proceeding.");
+      return; // Prevent further execution if language is not selected
+    }
+
+   
+
+    messagePreview.buttons.forEach((button, index) => {
+
+      // Common validation for button text
+      if (!button.text || button.text.trim() === "") {
+        toast.error(`Please enter button text for Button ${index + 1}.`);
+        isValid = false;
+        return;
+      }
+
+      // Type-specific validations
+      switch (button.type) {
+        case "1":
+        case 1:
+          // Type 1 has no additional validation
+          break;
+
+        case "2":
+        case 2:
+          if (
+            !button.phoneNumber ||
+            button.phoneNumber.trim() === "" ||
+            !button.countryCode
+          ) {
+            toast.error(
+              `Please enter a valid phone number for Button ${index + 1
+              }.`
+            );
+            isValid = false;
+            return;
+          }
+          break;
+
+        case "3":
+        case 3:
+          if (!button.websiteUrl || button.websiteUrl.trim() === "") {
+            toast.error(`Please enter a valid URL for Button ${index + 1}.`);
+            isValid = false;
+            return;
+          }
+          break;
+
+        default:
+          toast.error(`Invalid button type for Button ${index + 1}.`);
+          isValid = false;
+          return;
+      }
+    });
+
+    // Prevent API call if validation failed
+    if (!isValid) {
+      console.log("Validation failed. Request will not be sent.");
+      return; // Stop further execution
+    }
+
+
+
+
     //Replacing the words
     const result = headerPayloadDatawithVar.replace(/\*\*/g, "+");
     const subresult = result.replace(/\*/g, "`");
@@ -494,6 +574,7 @@ const InteractiveTemplateCreation = () => {
                               .replace(/[^a-zA-Z0-9_]/g, "")
                               .toLowerCase();
                             setFieldValue("templateName", value); // Update Formik's state
+                            setTemplateName(value)
                           }}
                         />
                       </FormGroup>
@@ -571,6 +652,7 @@ const InteractiveTemplateCreation = () => {
                         {/* {console.log("Value Mania", ["2", "3", "4"].includes(values.headerType))} */}
                         {["2", "3", "4"].includes(values.headerType) && (
                           <>
+                          <div>
                             <Media
                               key={values.headerType} // This forces re-rendering when headerType changes
                               isPopup={["2", "3", "4"].includes(
@@ -589,6 +671,38 @@ const InteractiveTemplateCreation = () => {
                                 setSelectedMediaType(mimeType);
                               }}
                             />
+                             <div className="mt-3 text-sm">
+  <button
+    type="button" // Explicitly prevent form submission
+    className="text-blue-500 hover:underline text-sm font-medium"
+    onClick={(e) => {
+      e.preventDefault(); // Prevent default browser behavior
+      setShowMediaPopup(true); // Show the media popup
+    }}
+  >
+    Change {values.headerType === "2" ? "Image" : values.headerType === "3" ? "Video" : "Document"}
+  </button>
+
+  {showMediaPopup && (
+    <Media
+      isPopup={true}
+      contentTypeStr={
+        values.headerType === "2"
+          ? "image"
+          : values.headerType === "3"
+          ? "video"
+          : "application"
+      }
+      onSelectMedia={(mediaId, mediaPath, mimeType) => {
+        setSelectedMediaId(mediaId);
+        setSelectedMediaPath(mediaPath);
+        setSelectedMediaType(mimeType);
+        setShowMediaPopup(false); // Close the popup after selection
+      }}
+    />
+  )}
+</div>
+</div>
                           </>
                         )}
                       </div>

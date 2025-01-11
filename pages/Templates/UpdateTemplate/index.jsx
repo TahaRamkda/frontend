@@ -72,6 +72,7 @@ const TemplateUpdatePage = () => {
   const [bodyContent, setBodyContent] = useState("");
   const [variables, setVariables] = useState([]);
   const [urlvariables, seturlvariables] = useState([]);
+  const [showMediaPopup, setShowMediaPopup] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [buttonType, setButtonType] = useState(null);
   const [buttonText, setButtonText] = useState("");
@@ -841,7 +842,6 @@ const TemplateUpdatePage = () => {
                   <Form>
                     <div
                       style={{ background: "#fff" }}
-                      className="p-2 px-3 rounded border-1 shadow-sm"
                     >
                       <FormGroup>
                         <Label
@@ -873,7 +873,7 @@ const TemplateUpdatePage = () => {
                     </div>
                     <div
                       style={{ background: "#fff" }}
-                      className="mt-3 p-2 px-3 rounded border-1 shadow-sm"
+                      
                     >
                       <FormGroup>
                         <Label
@@ -954,18 +954,57 @@ const TemplateUpdatePage = () => {
                               isPopup={["2", "3", "4"].includes(
                                 values.headerType
                               )}
+                              contentTypeStr={
+                                values.headerType === "2"
+                                  ? "image"
+                                  : values.headerType === "3"
+                                  ? "video"
+                                  : "application"
+                              }
                               onSelectMedia={(mediaId, mediaPath, mimeType) => {
                                 setSelectedMediaId(mediaId);
                                 setSelectedMediaPath(mediaPath);
                                 setSelectedMediaType(mimeType);
                               }}
                             />
+                             {/* New Button for Changing Media */}
+                             <div className="mt-3 text-sm">
+  <button
+    type="button" // Explicitly prevent form submission
+    className="text-blue-500 hover:underline text-sm font-medium"
+    onClick={(e) => {
+      e.preventDefault(); // Prevent default browser behavior
+      setShowMediaPopup(true); // Show the media popup
+    }}
+  >
+    Change {values.headerType === "2" ? "Image" : values.headerType === "3" ? "Video" : "Document"}
+  </button>
+
+  {showMediaPopup && (
+    <Media
+      isPopup={true}
+      contentTypeStr={
+        values.headerType === "2"
+          ? "image"
+          : values.headerType === "3"
+          ? "video"
+          : "application"
+      }
+      onSelectMedia={(mediaId, mediaPath, mimeType) => {
+        setSelectedMediaId(mediaId);
+        setSelectedMediaPath(mediaPath);
+        setSelectedMediaType(mimeType);
+        setShowMediaPopup(false); // Close the popup after selection
+      }}
+    />
+  )}
+</div>
                           </>
                         )}
                       </div>
                     </div>
 
-                    <div className="border-1 rounded p-2 px-3 mt-2 shadow-sm">
+                    <div >
                       <FormGroup>
                         <Label for="body" className="text-sm font-semibold">
                           Body
@@ -1032,7 +1071,7 @@ const TemplateUpdatePage = () => {
                       </FormGroup>
                     ))} */}
 
-                    <div className="border-1 rounded p-2 px-3 mt-3">
+                    <div >
                       <FormGroup>
                         <Label for="footer" className="text-sm font-semibold">
                           Footer
@@ -1051,7 +1090,7 @@ const TemplateUpdatePage = () => {
                         toggle={toggleDropdown}
                         className="mt-3"
                       >
-                        <div className="flex">
+                        <div className="flex justify-end">
                           <DropdownToggle
                             caret
                             color="gray"
