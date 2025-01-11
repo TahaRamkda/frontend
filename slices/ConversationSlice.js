@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { CONVERSATIONLIST, CONVERSATIONMESSAGE ,AGENTMESSAGE,SENDAGENTINTERACTIVETEMPLATLIS} from '@/utils/apiConstants';
+import { CONVERSATIONLIST, CONVERSATIONMESSAGE ,AGENTMESSAGE,SENDAGENTINTERACTIVETEMPLATLIS,TRANSFERCHAT} from '@/utils/apiConstants';
 
 // Thunks
 
@@ -76,7 +76,17 @@ export const fetchConversationMessage = createAsyncThunk(
     }
   );
 
-
+  export const Transferchat = createAsyncThunk(
+    'conversation/Transferchat',
+    async ({clientId,AgentId,ChatId,Comment}, { rejectWithValue }) => {
+      try {
+        await API.get(`${TRANSFERCHAT}?clientId=${clientId}&agentId=${AgentId}&id=${ChatId}&Comment=${Comment}`);
+      } catch (err) {
+        const handledError = handleError(err);
+        return rejectWithValue(handledError);
+      }
+    }
+  );
 
 
 // Slice
@@ -215,6 +225,19 @@ const conversationslice = createSlice({
           state.loading = false;
           state.error = action.payload || action.error.message;
           state.message = action.payload?.message || action.error.message;
+          })
+          .addCase(Transferchat.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+          })
+          .addCase(Transferchat.fulfilled, (state, action) => {
+            state.loading = false;
+            state.message = action.payload.message || '';
+          })
+          .addCase(Transferchat.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload || action.error.message;
+            state.message = action.payload?.message || action.error.message;
           })
   },
 });

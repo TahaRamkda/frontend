@@ -6,7 +6,6 @@ import { Container, Row, Col, Table, input, Button, Pagination, List, label, Pag
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import DataTable from "react-data-table-component";
-
 import Loading from '@/components/Loader';
 import App from '@/components/App';
 

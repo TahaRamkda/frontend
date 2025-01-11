@@ -124,10 +124,7 @@ const InteractiveTemplateCreation = () => {
   }, [bodyFinalContent]);
 
   const handleSaveActionData = (data, index) => {
-    if (data.actiontype === null || data.actiontype === "") {
-      data.actiontype = 0;
-    }
-
+    
     setMessagePreview((prev) => {
       const updatedButtons = [...prev.buttons];
       updatedButtons[index] = {
@@ -255,7 +252,7 @@ const InteractiveTemplateCreation = () => {
         buttonType: button.type,
         buttonText: button.text,
         actionId: button.actionId,
-        actionType: button.actiontype,
+        actionType: button.actionType,
         sequence: index + 1,
         buttonValue: button.websiteUrl?.trim()
           ? button.websiteUrl
@@ -902,7 +899,7 @@ const InteractiveTemplateCreation = () => {
                         <Button
                           onClick={() => removeButtonFromPreview(index)}
                           color="danger"
-                          className="h-10 w-10"
+                          className="h-10 w-10 ml-1"
                         >
                           <FaRegTrashCan />
                         </Button>

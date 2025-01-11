@@ -97,6 +97,7 @@ export const ACTIVEAGENTS = "/Agents/getactiveagents"
 export const CONVERSATIONLIST = "/Conversation/getagentconversationlist";
 export const CONVERSATIONMESSAGE = "/Conversation/getconversationmessagebyid";
 export const AGENTMESSAGE = "/Message/sendagentmessage";
+export const TRANSFERCHAT = "/Conversation/transferconversationtoagent";
 
 //MasterSlice Endpoints
 export const TEMPLATECATEGORY = "/Templates/gettemplatecategories";

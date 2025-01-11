@@ -8,10 +8,12 @@ import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import DataTable from "react-data-table-component";
-import { HiPencilAlt, HiTrash, HiRefresh, HiEye } from "react-icons/hi";
+import { HiPencilAlt, HiTrash , HiEye } from "react-icons/hi";
 import Loading from '@/components/Loader';
 import App from '@/components/App';
 import Chatview from '@/pages/Chats/ChatView/indexPop-up';
+import TransferChat from '../TransferChat';
+import { MdSwapHoriz } from "react-icons/md"; 
 
 
 const ChatsReport = () => {
@@ -21,7 +23,9 @@ const ChatsReport = () => {
   const { chatsMonitor, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.Supervisor);
   const [clientId, setClientId] = useState(null);
   const [showchat, setshowchat] = useState(false);
+  const [showtransfer, setshowtransfer] = useState(false);
   const [activeChat, setActiveChat] = useState(0);
+  const [SenderId, setSenderId] = useState(0);
   const ChatsReportColumn = [
     { name: "Full Name", selector: (row) => row.fullName, sortable: true },
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
@@ -41,9 +45,9 @@ const ChatsReport = () => {
             </button>
             <button
               className="uniform_icon_btn"
-              onClick={() => handleDetailClick(row.id)}
+              onClick={() => handleTransferClick(row.id,row.senderId)}
             >
-              <HiRefresh style={{ fontSize: "15px" }} />
+              <MdSwapHoriz style={{ fontSize: "15px" }} />
             </button>
           </div>
         </center>
@@ -54,6 +58,9 @@ const ChatsReport = () => {
 
   const handleCancel = () => {
     setshowchat(false)
+  }
+  const handletransferCancel = () => {
+    setshowtransfer(false)
   }
 
 
@@ -71,6 +78,13 @@ const ChatsReport = () => {
       setClientId(localStorage.getItem('clientId'));
     }
   }, []);
+
+  const handleTransferClick = async (id , SenderId) => {
+    setActiveChat(id); // Update Activechat state
+    setSenderId(SenderId);
+    setshowtransfer(true);
+  };
+ 
 
 
 
@@ -183,6 +197,16 @@ const ChatsReport = () => {
             ChatId={activeChat}
             isVisible={true}
             onClose={handleCancel}
+          />
+        )
+      }
+       {
+        showtransfer && (
+          <TransferChat
+            ChatId={activeChat}
+            SenderId={SenderId}
+            isVisible={true}
+            onClose={handletransferCancel}
           />
         )
       }
