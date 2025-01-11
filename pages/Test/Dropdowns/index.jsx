@@ -85,7 +85,7 @@ const DropDowns = () => {
 
       <div className="flex items-center">
         <label htmlFor="">Active agents</label>
-        <ActiveAgentDropdown onChange={handleChange1}/>
+        <ActiveAgentDropdown onChange={handleChange1} SenderId={1}/>
       </div><br />
 
 

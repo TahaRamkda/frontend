@@ -52,7 +52,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
     return () => {
       dispatch(clearAgentMonitorState());
     };
-  }, [dispatch, clientId, senderid]);
+  }, [dispatch, clientId, senderid,FromDate,ToDate]);
 
   const handleSenderChange = (e) => {
     const senderId = e.target.value;
@@ -127,7 +127,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
               type="date"
               id="FromDate"
               value={FromDate}
-              onChange={(e) => setfromDate(e.target.value)}
+              onChange={(e) => setFromDate(e.target.value)}
               className="border rounded  w-100"
             />
           </div>
@@ -137,7 +137,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
               type="date"
               id="ToDate"
               value={ToDate}
-              onChange={(e) => settoDate(e.target.value)}
+              onChange={(e) => setToDate(e.target.value)}
               className="border rounded  w-100"
             />
 
