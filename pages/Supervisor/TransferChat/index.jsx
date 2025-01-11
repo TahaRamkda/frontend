@@ -8,7 +8,7 @@ import {
   Input,
 } from "reactstrap";
 import App from "@/components/App";
-import Agentsdrop from "@/components/Dropdowns/AgentDropdown";
+import Agentsdrop from "@/components/Dropdowns/ActiveAgentsDropdown";
 import { Transferchat } from "@/slices/ConversationSlice";
 import Sweetalert from "sweetalert2";
 
@@ -65,6 +65,7 @@ const TransferChat = ({ ChatId, onClose, isVisible ,SenderId}) => {
               <div className="p-4 w-full h-full">
                 <div className="mb-4">
                   <Agentsdrop
+                  SenderId={SenderId}
                     Agentid={agentId}
                     onChange={(e) => setAgentId(e.target.value)}
                   />

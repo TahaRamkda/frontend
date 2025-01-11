@@ -8,11 +8,12 @@ import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import DataTable from "react-data-table-component";
-import { HiPencilAlt, HiTrash, HiRefresh, HiEye } from "react-icons/hi";
+import { HiPencilAlt, HiTrash , HiEye } from "react-icons/hi";
 import Loading from '@/components/Loader';
 import App from '@/components/App';
 import Chatview from '@/pages/Chats/ChatView/indexPop-up';
 import TransferChat from '../TransferChat';
+import { MdSwapHoriz } from "react-icons/md"; 
 
 
 const ChatsReport = () => {
@@ -46,7 +47,7 @@ const ChatsReport = () => {
               className="uniform_icon_btn"
               onClick={() => handleTransferClick(row.id,row.senderId)}
             >
-              <HiRefresh style={{ fontSize: "15px" }} />
+              <MdSwapHoriz style={{ fontSize: "15px" }} />
             </button>
           </div>
         </center>
