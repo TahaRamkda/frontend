@@ -4,7 +4,7 @@ import { FaTimes } from "react-icons/fa";
 import TemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropdown";
 
 const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData }) => {
-  const [actionId, setActionId] = useState(0);
+  const [actionType, setActionType] = useState(0);
   const [buttonValue, setButtonValue] = useState("");
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
 
@@ -20,8 +20,9 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData }) => {
 
   // Populate state when `existingData` changes
   useEffect(() => {
+    
     if (existingData) {
-      setActionId(existingData.actiontype || 0);
+      setActionType(existingData.actionType || 0);
       setButtonValue(existingData.buttonValue || "");
       setSelectedTemplateId(existingData.actionId || 0);
     }
@@ -34,16 +35,21 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData }) => {
 
   const handleSubmit = () => {
     const data = {
-      actiontype: actionId,
-      actionId: actionId === 1 ? selectedTemplateId : null,
+      actionType: actionType,
+      actionId: actionType === 1 || actionType === "1" ? selectedTemplateId : null,
       buttonValue: buttonValue,
     };
-
+  
+    if (actionType !== 1 && actionType !== "1") {
+      data.actionId = actionType; // Use actionType as actionId for other cases
+    }
+  
     // Pass the index and the data to the parent component for updating the state
     onSubmit(data, index);
-
+  
     toggle(); // Close the modal
   };
+  
 
   return (
     <Modal isOpen={isOpen} toggle={toggle} centered>
@@ -55,12 +61,15 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData }) => {
       </div>
       <ModalBody style={{ backgroundColor: "white", height: "auto" }}>
         <FormGroup>
-          <Label for="actionId">Select Action Type</Label>
+          <Label for="actionType">Select Action Type</Label>
           <Input
             type="select"
-            id="actionId"
-            value={actionId}
-            onChange={(e) => setActionId(Number(e.target.value))}
+            id="actionType"
+            value={actionType}
+            onChange={
+              
+              
+              (e) => setActionType(e.target.value)}
           >
             {dropdownOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -70,7 +79,7 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData }) => {
           </Input>
         </FormGroup>
 
-        {actionId === 1 && (
+        {(actionType === 1 || actionType === "1") && (
           <FormGroup>
             <Label for="templateDropdown">Select Template</Label>
             <TemplateDropdown

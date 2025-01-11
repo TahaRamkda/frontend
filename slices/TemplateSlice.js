@@ -194,7 +194,7 @@ export const updateInteractiveTemplates = createAsyncThunk(
   "template/updateInteractiveTemplates",
   async (templateData, { rejectWithValue }) => {
     try {
-      const response = await API.put(UPDATEINTERACTIVETEMPLATE, templateData);
+      const response = await API.post(UPDATEINTERACTIVETEMPLATE, templateData);
       return response.data;
     } catch (error) {
       const handledError = handleError(error);

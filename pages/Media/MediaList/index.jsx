@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMedia, clearMediaState, deleteMedia } from "@/slices/MediaSlice";
-
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input } from "reactstrap";
 import SweetAlert from "sweetalert2";
 import App from '@/components/App';
@@ -14,8 +13,9 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMediaId, setSelectedMediaId] = useState(null);
   const { medias, loading, error } = useSelector((state) => state.media);
-
+ const[Medialist,setmediaList] = useState([]);
   useEffect(() => {
+    setmediaList(null)
     // Send contentTypeStr only when isPopup is true, otherwise send an empty string
     const contentType = isPopup ? contentTypeStr : "";
     dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType }));
@@ -29,9 +29,15 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr }) => {
   }, [isPopup]);
 
   const toggleModal = () => {
+  setmediaList([]);
     setIsModalOpen(false);
   };
-
+useEffect(() =>{
+  
+if(medias){
+  setmediaList(medias)
+}
+},[medias])
   const refreshList = () => {
     const contentType = isPopup ? contentTypeStr : "";
     dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType }));
@@ -57,8 +63,10 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr }) => {
   };
 
   const handleSelectImage = (mediaId, mediaPath, mimeType) => {
+
     setSelectedMediaId(mediaId);
     onSelectMedia(mediaId, mediaPath, mimeType);
+    toggleModal();
   };
 
   const renderMediaPreview = (mediaPath, mimeType) => {
@@ -147,7 +155,7 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr }) => {
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 lg:grid-cols-5 gap-4">
-          {medias.map((media) => (
+          {Medialist.map((media) => (
             <div key={media.mediaId} className="flex flex-col items-center space-y-2">
               <div className="w-full h-64 overflow-hidden">
                 {renderMediaPreview(media.mediaPath, media.contentType || "application/pdf")}
@@ -191,7 +199,7 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr }) => {
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 lg:grid-cols-5 gap-4">
-          {medias.map((media) => (
+          {Medialist.map((media) => (
             <div key={media.mediaId} className="flex flex-col items-center space-y-2">
               <div className="w-full h-64 overflow-hidden">
                 {renderMediaPreview(media.mediaPath, media.contentType || "application/pdf")}

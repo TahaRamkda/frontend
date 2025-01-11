@@ -58,8 +58,10 @@ const InteractiveTemplateUpdate = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const [Loading, setLoading] = useState(true);
- const[actionbuttonvalues ,setactionbuttonvalues] = useState([]);
-  const { interactivetemplatedetail, loading, error } = useSelector((state) => state.templates);
+  const [actionbuttonvalues, setactionbuttonvalues] = useState([]);
+  const { interactivetemplatedetail, loading, error } = useSelector(
+    (state) => state.templates
+  );
   const stripHtml = (input) => input.replace(/<[^>]*>/g, "");
   const [messagePreview, setMessagePreview] = useState({
     header: "",
@@ -128,7 +130,7 @@ const InteractiveTemplateUpdate = () => {
       setLoading(true);
       dispatch(
         fetchInteractiveTemplatesById({
-            ClientId: localStorage.getItem("clientId"),
+          ClientId: localStorage.getItem("clientId"),
           templateId: Template_Id,
         })
       )
@@ -146,14 +148,13 @@ const InteractiveTemplateUpdate = () => {
 
   // Handle interactivetemplatedetail updates once it has been fetched (Second useEffect)
   useEffect(() => {
-    debugger
     if (Loading || !interactivetemplatedetail) return; // Wait for the data to be loaded
 
     const updatedMessagePreview = {
       body: interactivetemplatedetail.bodyText,
       footer: interactivetemplatedetail.footerText,
-      media: interactivetemplatedetail.mediaURL,
-      buttons:interactivetemplatedetail.buttons ?? [],
+      media: interactivetemplatedetail.mediaPath,
+      buttons: interactivetemplatedetail.buttons ?? [],
       templatename: interactivetemplatedetail.templateName,
       visitWebsiteButtonCount: 0,
     };
@@ -175,7 +176,7 @@ const InteractiveTemplateUpdate = () => {
       }
     } else {
       setSelectedMediaId(interactivetemplatedetail.mediaId);
-      setSelectedMediaPath(interactivetemplatedetail.mediaURL);
+      setSelectedMediaPath(interactivetemplatedetail.mediaPath);
       setSelectedMediaType(interactivetemplatedetail.contentType);
     }
 
@@ -256,74 +257,50 @@ const InteractiveTemplateUpdate = () => {
     const bodyfinalReplace = bodyreplaceX.replace(/\+/g, "*");
 
     const requestBody = {
-      clientId: localStorage.getItem("clientId"),
-      name: values.templateName,
       Id: Template_Id,
-      transactionType: 1,
-      category: "marketing",
-      language: "en",
+      clientId: localStorage.getItem("clientId"),
       senderNameId: selectedSenderId,
-      status: "Pending",
-      subCategory: "marketing",
-      isApproved: false,
+      name: values.templateName,
+      language: language,
+      usedByAgent: interactivetemplatedetail.usedByAgent,
       mediaId: selectedMediaId,
-      templateType: 1,
+      status: "1",
+      defaultTypeId: interactivetemplatedetail.defaultTypeId,
       actionBy: localStorage.getItem("userId"),
       header: {
         format: values.headerType,
         text: finalHeaderReplace,
-        textCount: headerTextCount,
-        values: headerVariable.map((value, index) => ({
-          value: value,
-          defaultValue: value,
-          index: index + 1,
-        })),
       },
       body: {
-        // text: trimmedBodyContent,
         text: bodyfinalReplace,
-        textCount: bodyTextCount,
-        values: variables.map((value, index) => ({
-          value: value,
-          defaultValue: value,
-          index: index + 1,
-        })),
       },
       footer: {
-        //text: messagePreview.footer,
         text: messagePreview.footer,
       },
       buttons: messagePreview.buttons.map((button, index) => ({
-        type: button.type,
-        text: button.text,
-        phoneNumber: button.phoneNumber,
-        textCount: button.textCount,
-        index: index,
-        url: button.websiteUrl,
-        values: urlvariables.map((value, index) => ({
-          value: value,
-          defaultValue: value,
-          index: index + 1,
-        })),
+        buttonType: button.buttonType,
+        buttonText: button.buttonText,
         actionId: button.actionId,
-        actionType: button.actiontype,
-        buttonId: button.buttonValue,
+        actionType: button.actionType,
+        index: index,
+        buttonValue: button.buttonValue,
       })),
     };
 
     //console.log("TimingData", requestBody)
 
     try {
-      const response = await dispatch(updateInteractiveTemplates(requestBody)).unwrap();
+      const response = await dispatch(
+        updateInteractiveTemplates(requestBody)
+      ).unwrap();
       if (response.success) {
-        
-        clearTemplateCreateState();
+        clearInteractiveTemplateDetailState();
         showSweetAlert({
           title: "Updated Successfully",
           text: "",
           icon: "success",
         });
-        router.push("/Templates/Templateslist");
+        router.push("/InteractiveTemplates/InteractiveList");
       } else {
         showSweetAlert({
           title: "Failed",
@@ -367,10 +344,7 @@ const InteractiveTemplateUpdate = () => {
     }));
   }, [bodyFinalContent, variables]);
 
-
-
   const addURLVariable = (index) => {
-   
     const newIndex = 1;
 
     const updatedButtons = [...messagePreview.buttons];
@@ -424,8 +398,6 @@ const InteractiveTemplateUpdate = () => {
     }
   };
 
- 
-
   const handleVariableChange = (index, value) => {
     setVariables((prev) => {
       const newVariables = [...prev];
@@ -433,10 +405,6 @@ const InteractiveTemplateUpdate = () => {
       return newVariables;
     });
   };
-
- 
-
-  
 
   const handleBodyChange = (value) => {
     // Allow typing without interruptions
@@ -552,7 +520,6 @@ const InteractiveTemplateUpdate = () => {
 
   useEffect(() => {
     if (buttonType) {
-
       const newButton = {
         buttonType: buttonType,
         buttonText: buttonText,
@@ -590,7 +557,6 @@ const InteractiveTemplateUpdate = () => {
       setwebsiteUrl("");
     }
   }, [buttonType, buttonText]);
- 
 
   const removeButtonFromPreview = (index) => {
     var totalcount = TotalButtonCount;
@@ -610,12 +576,14 @@ const InteractiveTemplateUpdate = () => {
     setSelectedSenderId(role);
   };
 
-  const handlebuttonaction = (index,actionId,actionType) => {
+  const handlebuttonaction = (index, actionId, actionType , buttonValue) => {
+    
     setbuttonindex(index);
-    const buttonaction= {
-        actionId : actionId,
-        actionType: actionType,
-    }
+    const buttonaction = {
+      actionId: actionId,
+      actionType: actionType,
+      buttonValue:buttonValue
+    };
     setactionbuttonvalues(buttonaction);
     setshowaction(true);
   };
@@ -706,11 +674,11 @@ const InteractiveTemplateUpdate = () => {
                 headerVariable: [],
                 bodyValues: [],
                 buttonValues: [],
+                usedByAgent: interactivetemplatedetail.usedByAgent,
               }}
               onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
-
                 return (
                   <Form>
                     <div
@@ -743,6 +711,32 @@ const InteractiveTemplateUpdate = () => {
                             setFieldValue("templateName", value); // Update Formik's state
                           }}
                         />
+                      </FormGroup>
+                    </div>
+                    <div className="mt-3">
+                      <FormGroup className="d-flex align-items-center">
+                        <Field name="usedByAgent">
+                          {({ field, form }) => (
+                            <Input
+                              type="checkbox"
+                              id="usedByAgent"
+                              checked={field.value} // Ensure boolean value
+                              onChange={(e) =>
+                                form.setFieldValue(
+                                  "usedByAgent",
+                                  e.target.checked
+                                )
+                              }
+                              className="me-2"
+                            />
+                          )}
+                        </Field>
+                        <Label
+                          for="usedByAgent"
+                          className="mb-0 text-sm font-semibold"
+                        >
+                          Used by agent?
+                        </Label>
                       </FormGroup>
                     </div>
                     <div
@@ -806,6 +800,13 @@ const InteractiveTemplateUpdate = () => {
                               isPopup={["2", "3", "4"].includes(
                                 values.headerType
                               )}
+                              contentTypeStr={
+                                values.headerType === "2"
+                                  ? "image"
+                                  : values.headerType === "3"
+                                  ? "video"
+                                  : "application"
+                              }
                               onSelectMedia={(mediaId, mediaPath, mimeType) => {
                                 setSelectedMediaId(mediaId);
                                 setSelectedMediaPath(mediaPath);
@@ -842,7 +843,7 @@ const InteractiveTemplateUpdate = () => {
                         )}
                       </FormGroup>
                     </div>
-                   
+
                     <div className="border-1 rounded p-2 px-3 mt-3">
                       <FormGroup>
                         <Label for="footer" className="text-sm font-semibold">
@@ -911,28 +912,30 @@ const InteractiveTemplateUpdate = () => {
                           placeholder="Button Text"
                           onChange={(e) => {
                             // Create a deep copy of the button being updated
-                            const updatedButtons = messagePreview.buttons.map((button, btnIndex) => {
-                              if (btnIndex === index) {
-                                return {
-                                  ...button, // Create a new object for the specific button
-                                  buttonText: e.target.value, // Update the buttonText property
-                                };
+                            const updatedButtons = messagePreview.buttons.map(
+                              (button, btnIndex) => {
+                                if (btnIndex === index) {
+                                  return {
+                                    ...button, // Create a new object for the specific button
+                                    buttonText: e.target.value, // Update the buttonText property
+                                  };
+                                }
+                                return button; // Keep other buttons unchanged
                               }
-                              return button; // Keep other buttons unchanged
-                            });
-                          
+                            );
+
                             // Update the state with the new buttons array
                             setMessagePreview({
                               ...messagePreview,
                               buttons: updatedButtons,
                             });
                           }}
-                          
                           className="me-2"
                         />
 
                         {/* Type 1 Action Button */}
-                        {(button.buttonType === "1" || button.buttonType === 1) && (
+                        {(button.buttonType === "1" ||
+                          button.buttonType === 1) && (
                           <Button
                             style={{
                               backgroundColor: "grey",
@@ -940,14 +943,22 @@ const InteractiveTemplateUpdate = () => {
                               color: "white",
                             }}
                             className=""
-                            onClick={() => handlebuttonaction(index,button.actionId,button.actionType)}
+                            onClick={() =>
+                              handlebuttonaction(
+                                index,
+                                button.actionId,
+                                button.actionType,
+                                button.buttonValue
+                              )
+                            }
                           >
                             <i className="fa fa-bolt"></i>
                           </Button>
                         )}
 
                         {/* Type 2: Phone Number Input */}
-                        {(button.buttonType === "2" || button.buttonType === 2)&& (
+                        {(button.buttonType === "2" ||
+                          button.buttonType === 2) && (
                           <div className="d-flex me-2">
                             <Input
                               type="select"
@@ -993,7 +1004,8 @@ const InteractiveTemplateUpdate = () => {
                         )}
 
                         {/* Type 3: Website URL Input */}
-                        {(button.buttonType === "3" || button.buttonType === 3) && (
+                        {(button.buttonType === "3" ||
+                          button.buttonType === 3) && (
                           <>
                             <div className="d-flex flex-column me-2">
                               {/* Website URL Input */}
@@ -1109,10 +1121,7 @@ const InteractiveTemplateUpdate = () => {
               }}
             </Formik>
           </Col>
-          <Col
-            md={4}
-           className="overflow-hidden h-screen fixed right-10"
-          >
+          <Col md={4} className="overflow-hidden h-screen fixed right-10">
             <div
               style={{
                 position: "sticky",
