@@ -1335,7 +1335,7 @@ const TemplateCreationPage = () => {
                         <Button
                           onClick={() => removeButtonFromPreview(index)}
                           color="danger"
-                          className="h-10 w-10"
+                          className="h-10 w-10 ml-1"
                         >
                           <FaRegTrashCan />
                         </Button>

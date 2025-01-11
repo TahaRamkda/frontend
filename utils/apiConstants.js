@@ -96,6 +96,7 @@ export const GETAGENTSTATS = "/Agents/GetAgentStats"
 export const CONVERSATIONLIST = "/Conversation/getagentconversationlist";
 export const CONVERSATIONMESSAGE = "/Conversation/getconversationmessagebyid";
 export const AGENTMESSAGE = "/Message/sendagentmessage";
+export const TRANSFERCHAT = "/Conversation/transferconversationtoagent";
 
 //MasterSlice Endpoints
 export const TEMPLATECATEGORY = "/Templates/gettemplatecategories";

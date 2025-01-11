@@ -42,17 +42,18 @@ export const sidebarItems = [
       submenu: [],
     },
 
-    {
-      href: '/InteractiveTemplates/InteractiveList',
-      icon: 'ti-layout', // Layout icon for Templates
-      text: 'Interactive Templates',
-      module: 1,
-      submenu: [],
-    },
+   
     {
       href: '/TemplateInsight',
       icon: 'ti-bar-chart-alt', // Bar chart icon for Template Insight
       text: 'Template Insight',
+      module: 1,
+      submenu: [],
+    },
+    {
+      href: '/InteractiveTemplates/InteractiveList',
+      icon: 'ti-layout', // Layout icon for Templates
+      text: 'Interactive Templates',
       module: 1,
       submenu: [],
     },

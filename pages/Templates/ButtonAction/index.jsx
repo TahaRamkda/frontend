@@ -36,14 +36,9 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData }) => {
   const handleSubmit = () => {
     const data = {
       actionType: actionType,
-      actionId: actionType === 1 || actionType === "1" ? selectedTemplateId : null,
+      actionId: actionType === 1 || actionType === "1" ? selectedTemplateId : "0",
       buttonValue: buttonValue,
     };
-  
-    if (actionType !== 1 && actionType !== "1") {
-      data.actionId = actionType; // Use actionType as actionId for other cases
-    }
-  
     // Pass the index and the data to the parent component for updating the state
     onSubmit(data, index);
   
