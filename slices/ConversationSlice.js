@@ -28,7 +28,7 @@ export const fetchConversationList = createAsyncThunk(
 
 export const fetchConversationMessage = createAsyncThunk(
   'conversation/fetchConversationMessage',
-  async ({ clientId, ChatId, pageNo }, { rejectWithValue }) => {
+  async ({ clientId, ChatId, pageNo=0 }, { rejectWithValue }) => {
     try {
       
       const response = await API.get(
