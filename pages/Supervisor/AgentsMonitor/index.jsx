@@ -1,12 +1,14 @@
 "use client";
 import React, { useMemo, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {fetchAgentsMonitor,clearAgentMonitorState, setPageSize, setCurrentPage } from "@/slices/SuperwiseSlice";
-import { Container, Row, Col, Table, input, Button, Pagination, List, label, PaginationItem, PaginationLink, CardBody, Card } from 'reactstrap';
+import {fetchAgentsMonitor,clearAgentMonitorState, setPageSize, setCurrentPage, agentDisable, clearAgentDisableState } from "@/slices/SuperwiseSlice";
+
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input } from "reactstrap";
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import DataTable from "react-data-table-component";
 import Loading from '@/components/Loader';
+import { MdEdit } from "react-icons/md"; 
 import App from '@/components/App';
 
 
@@ -20,6 +22,7 @@ const MessageSummary = () => {
 const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [isfilteropen, setisfilteropen] = useState(false);
   const [showfilterbutton, setshowfilterbutton] = useState(true);
+  const [ShowEditModal, setShowEditModal] = useState(false);
   const { agentsMonitor, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.Supervisor);
   const [clientId, setClientId] = useState(null);
 
@@ -29,6 +32,21 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
     { name: "Status Name", selector: (row) => row.statusName, sortable: true },
     { name: "Agent Name", selector: (row) => row.agentName, sortable: true },
     { name: "Unread Count", selector: (row) => row.unreadCount, sortable: true },
+     {
+          name: "Action",
+          cell: (row) => (
+            <center>
+              <div className="flex gap-2">
+                <button
+                  className="uniform_icon_btn"
+                  onClick={editModalClick}
+                >
+                  <MdEdit style={{ fontSize: "15px" }} />
+                </button>
+              </div>
+            </center>
+          ),
+        },
   ];
 
 
@@ -89,7 +107,46 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
       pageSize: newSize, pageNo: 1
     }));
   };
+   const editModalClick = ()=>{
+    setShowEditModal(true);
+   }
+  const toggleModal = () => {
 
+    setShowEditModal(false);
+  };
+  const handleSubmit = async (values, { setSubmitting }) => {
+    const formData = new FormData();
+    formData.append("clientId", localStorage.getItem("clientId"));
+    formData.append("agentId", values.agentId); // Use Formik's value
+    formData.append("disable", values.disable);
+
+    try {
+      const response = await dispatch(agentDisable(formData)).unwrap();
+      if (response.success) {
+        dispatch(clearAgentDisableState());
+        setSubmitting(false);
+        showSweetAlert({
+          title: "Updated Successfully",
+          text: "",
+          icon: "success",
+        });
+        onUploadSuccess();
+      } else {
+        showSweetAlert({
+          title: "Failed",
+          text: response.result.message || "",
+          icon: "error",
+        });
+      }
+    } catch (err) {
+      console.error("Failed to Update", err);
+      showSweetAlert({
+        title: "Failed",
+        text: err.message || "",
+        icon: "error",
+      });
+    }
+  };
   const handlePageChange = async (page) => {
     // Update current page state in Redux
     dispatch(setCurrentPage(page));
@@ -204,7 +261,40 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
           },
         }}
       />
-
+      {ShowEditModal &&(
+           <Modal isOpen={true} toggle={toggleModal} fade={false}>
+           <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+             <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
+               <ModalHeader toggle={toggleModal}>Edit Agent</ModalHeader>
+               <ModalBody>
+                 <form onSubmit={handleSubmit}>
+                   <div className="flex flex-col">
+                     <label
+                       htmlFor="agentStatus"
+                       className="font-medium text-gray-700 text-sm"
+                     >
+                       Agent Status
+                     </label>
+                     <Input
+                       type="checkbox"
+                       id="agentStatus"
+                       name="agentStatus"
+                       checked={values.disable}
+                       onChange={handleCheckboxChange}
+                       className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                     />
+                   </div>
+                   <div className="mt-4 w-full flex justify-end">
+                     <button type="submit" className="uniform_btn">
+                       Save
+                     </button>
+                   </div>
+                 </form>
+               </ModalBody>
+             </div>
+           </div>
+         </Modal>
+      )}
     </App>
 
   );

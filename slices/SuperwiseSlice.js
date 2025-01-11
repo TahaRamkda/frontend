@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { CHATSMONITOR, AGENTSMONITOR} from '@/utils/apiConstants';
+import { CHATSMONITOR, AGENTSMONITOR,AGENTDISABLE} from '@/utils/apiConstants';
 
 // Fetch Clients
 export const fetchChatsMonitor = createAsyncThunk(
@@ -42,6 +42,19 @@ export const fetchAgentsMonitor = createAsyncThunk(
         return rejectWithValue(handledError);
       }
      
+    }
+  );
+  
+  export const agentDisable = createAsyncThunk(
+    'media/agentDisable',
+    async (agentData, { rejectWithValue }) => {
+      try {
+        const response = await API.post(AGENTDISABLE, agentData);
+        return response.data;
+      } catch (error) {
+        const handledError = handleError(error);
+        return rejectWithValue(handledError);
+      }
     }
   );
   
@@ -89,6 +102,11 @@ const Supervisor = createSlice({
             state.pageSize = 10;
             state.totalRecords = 0;
           }, 
+          clearAgentDisableState: (state) => {
+            state.loading = false;
+            state.error = null;
+            state.success = false;
+          },
         },
          extraReducers: (builder) => {
             builder
@@ -124,6 +142,22 @@ const Supervisor = createSlice({
                 state.loading = false;
                 state.error = action.payload || action.error.message;
                 state.message = action.payload?.message || action.error.message;
+              })
+              
+              .addCase(agentDisable.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+                state.success = false;
+              })
+              .addCase(agentDisable.fulfilled, (state, action) => {
+                state.loading = false;
+                state.success = true;
+                state.message = action.payload.message || 'Updated Successfully';
+              })
+              .addCase(agentDisable.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload || action.error.message;
+                state.message = action.payload?.message || action.error.message;
               });
             },
         });
@@ -131,6 +165,7 @@ export const {
   setPageSize,
   setCurrentPage,
   clearAgentMonitorState,
+  clearAgentDisableState,
   clearChatsMonitorState,
 } = Supervisor.actions;
 

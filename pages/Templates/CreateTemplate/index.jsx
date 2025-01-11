@@ -181,67 +181,9 @@ const TemplateCreationPage = () => {
       toast.error("Please Enter Body Text before proceeding.");
       return; // Prevent further execution if language is not selected
     }
-    let isValid = true; // Flag to track validation status
+   
 
-    messagePreview.buttons.forEach((button, index) => {
-      debugger
-      if (!ButtonSelected) {
-        toast.error(`No button selected for Button ${index + 1}.`);
-        isValid = false;
-        return;
-      }
-
-      // Common validation for button text
-      if (!button.text || button.text.trim() === "") {
-        toast.error(`Please enter button text for Button ${index + 1}.`);
-        isValid = false;
-        return;
-      }
-
-      // Type-specific validations
-      switch (button.type) {
-        case "1":
-        case 1:
-          // Type 1 has no additional validation
-          break;
-
-        case "2":
-        case 2:
-          if (
-            !button.phoneNumber ||
-            button.phoneNumber.trim() === "" ||
-            !button.countryCode
-          ) {
-            toast.error(
-              `Please enter a valid phone number for Button ${index + 1
-              }.`
-            );
-            isValid = false;
-            return;
-          }
-          break;
-
-        case "3":
-        case 3:
-          if (!button.websiteUrl || button.websiteUrl.trim() === "") {
-            toast.error(`Please enter a valid URL for Button ${index + 1}.`);
-            isValid = false;
-            return;
-          }
-          break;
-
-        default:
-          toast.error(`Invalid button type for Button ${index + 1}.`);
-          isValid = false;
-          return;
-      }
-    });
-
-    // Prevent API call if validation failed
-    if (!isValid) {
-      console.log("Validation failed. Request will not be sent.");
-      return; // Stop further execution
-    }
+    
 
 
 
