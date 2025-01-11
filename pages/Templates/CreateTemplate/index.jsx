@@ -64,7 +64,7 @@ const TemplateCreationPage = () => {
   const { sendername } = useSelector((state) => state.sendernames)
   const [bodyContent, setBodyContent] = useState("");
   const [variables, setVariables] = useState([]);
-  const [SendernamesData, setSendernamesData] = useState(null);
+  const [SendernamesData, setSendernamesData] = useState([]);
   const [showMediaPopup, setShowMediaPopup] = useState(false);
   const [urlvariables, seturlvariables] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
@@ -429,7 +429,7 @@ const TemplateCreationPage = () => {
   };
 
   const removeHeaderVariable = (index) => {
-    debugger;
+   
     //alert(bodyPayloadDatawithVar)
     const updatedVariables = headerVariable.filter((_, i) => i !== index);
     const updatedHeadContent = headerPayloadDatawithVar
@@ -703,15 +703,20 @@ const TemplateCreationPage = () => {
       setCallPhoneNumberButtonCount(callPhoneNumberButtonCount - 1);
     }
   };
+useEffect(() => {
 
+  if(sendername){
+
+    setSendernamesData(sendername)
+  }
+},[sendername])
   const handleSenderChange = async (e) => {
     const senderId = e.target.value;
     console.log("Selected Sender ID:", senderId); // Debugging
     setSelectedSenderId(senderId);
 
-
     try {
-      const response = await dispatch(fetchSendernameById({
+      dispatch(fetchSendernameById({
         senderId: senderId,
         clientId: localStorage.getItem("clientId"),
       }));
@@ -729,7 +734,7 @@ const TemplateCreationPage = () => {
 
 
   const handlebuttonaction = (index,actionId,actionType,buttonValue) => {
-    debugger
+   
     setbuttonindex(index);
     const buttonaction= {
         actionId : actionId,
@@ -1362,7 +1367,7 @@ const TemplateCreationPage = () => {
             </div>
             <div>
               {/* Show the header and sender data only when selectedSenderId is set and data is fetched */}
-              {sendername && Object.keys(sendername).length > 0 ? (
+              {sendername && (
                 <div className="flex items-center justify-between text-black px-4 py-3 shadow-md bg-white rounded-lg">
                   {/* Left Section: Display sender's image, name, and phone number */}
                   <div className="flex items-center space-x-3">
@@ -1385,8 +1390,6 @@ const TemplateCreationPage = () => {
                     {/* Add any buttons or actions here */}
                   </div>
                 </div>
-              ) : (
-                <p className="text-center text-gray-500">No sender data available</p>
               )}
 
 

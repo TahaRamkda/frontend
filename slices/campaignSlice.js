@@ -9,7 +9,6 @@ export const fetchCampaign = createAsyncThunk(
   'campaign/fetchCampaign',
   async ({ClientId, FromDate, ToDate, srcStr, PageNo, pageSize}, { rejectWithValue }) => {
     try {
-      debugger;
       const response = await API.get(`${CAMPAIGNLIST}?ClientId=${ClientId}${srcStr? `&SearchStr=${srcStr}`: ''}&FromDate=${FromDate}&ToDate=${ToDate}&PageNo=${PageNo}&PageSize=${pageSize}`);
       if (response?.status === 200 && response.data?.result) {
         console.log("Total Recordsssssss:",response.data.result[0].totalRecords);

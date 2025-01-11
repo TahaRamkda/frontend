@@ -453,7 +453,7 @@ const InteractiveTemplateCreation = () => {
   };
 
   const handlebuttonaction = (index,actionId,actionType,buttonValue) => {
-    debugger
+   
     setbuttonindex(index);
     const buttonaction= {
         actionId : actionId,

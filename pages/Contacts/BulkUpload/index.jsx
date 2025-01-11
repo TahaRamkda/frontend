@@ -13,7 +13,7 @@ const BulkUpload = ({ onClose, onsuccess, isVisible }) => {
   const [FieldValue, setFieldValue] = useState(null); // Track uploaded file URL
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    debugger
+    
     const formData = new FormData();
     formData.append("ClientId", localStorage.getItem("clientId"));
     formData.append("File", FieldValue);
