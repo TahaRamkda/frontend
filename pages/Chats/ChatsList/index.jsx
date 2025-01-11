@@ -114,6 +114,9 @@ const ChatPage = () => {
       setContactsloading(false);
       setAgentConversaton(conversations);
     }
+    else{
+      setContactsloading(false);
+    }
   }, [conversations]);
 
   //called each time to get conversation messages
