@@ -171,13 +171,14 @@ const TemplateCreationPage = () => {
       toast.error("Please select a language before proceeding.");
       return; // Prevent further execution if language is not selected
     }
-    if (!bodyPayloadDatawithVar) {
-      toast.error("Please Enter Body Text before proceeding.");
+    
+    if (!TemplateName) {
+      toast.error("Please Enter Template Name before proceeding.");
       return; // Prevent further execution if language is not selected
     }
 
-    if (!TemplateName) {
-      toast.error("Please Enter Template Name before proceeding.");
+    if (!bodyPayloadDatawithVar) {
+      toast.error("Please Enter Body Text before proceeding.");
       return; // Prevent further execution if language is not selected
     }
     let isValid = true; // Flag to track validation status
@@ -1004,36 +1005,38 @@ const TemplateCreationPage = () => {
                             />
 
                             {/* New Button for Changing Media */}
-                            <div className="mt-3">
-                              <Button
-                                className="uniform_btn"
-                                onClick={() => {
-                                  // Trigger the Media component to show the pop-up
-                                  setShowMediaPopup(true);
-                                }}
-                              >
-                                Change {values.headerType === "2" ? "Image" : values.headerType === "3" ? "Video" : "Document"}
-                              </Button>
+                            <div className="mt-3 text-sm">
+  <button
+    type="button" // Explicitly prevent form submission
+    className="text-blue-500 hover:underline text-sm font-medium"
+    onClick={(e) => {
+      e.preventDefault(); // Prevent default browser behavior
+      setShowMediaPopup(true); // Show the media popup
+    }}
+  >
+    Change {values.headerType === "2" ? "Image" : values.headerType === "3" ? "Video" : "Document"}
+  </button>
 
-                              {showMediaPopup && (
-                                <Media
-                                  isPopup={true}
-                                  contentTypeStr={
-                                    values.headerType === "2"
-                                      ? "image"
-                                      : values.headerType === "3"
-                                        ? "video"
-                                        : "application"
-                                  }
-                                  onSelectMedia={(mediaId, mediaPath, mimeType) => {
-                                    setSelectedMediaId(mediaId);
-                                    setSelectedMediaPath(mediaPath);
-                                    setSelectedMediaType(mimeType);
-                                    setShowMediaPopup(false); // Close the pop-up after selection
-                                  }}
-                                />
-                              )}
-                            </div>
+  {showMediaPopup && (
+    <Media
+      isPopup={true}
+      contentTypeStr={
+        values.headerType === "2"
+          ? "image"
+          : values.headerType === "3"
+          ? "video"
+          : "application"
+      }
+      onSelectMedia={(mediaId, mediaPath, mimeType) => {
+        setSelectedMediaId(mediaId);
+        setSelectedMediaPath(mediaPath);
+        setSelectedMediaType(mimeType);
+        setShowMediaPopup(false); // Close the popup after selection
+      }}
+    />
+  )}
+</div>
+
                           </div>
                         )}
                       </div>

@@ -79,6 +79,7 @@ const InteractiveTemplateUpdate = () => {
   const [buttonText, setButtonText] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [countryCode, setCountryCode] = useState("US +1");
+  const [showMediaPopup, setShowMediaPopup] = useState(false);
   const [websiteUrl, setwebsiteUrl] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [marketingOptOutAdded, setMarketingOptOutAdded] = useState(false);
@@ -683,7 +684,7 @@ const InteractiveTemplateUpdate = () => {
                   <Form>
                     <div
                       style={{ background: "#fff" }}
-                      className="p-2 px-3 rounded border-1 shadow-sm"
+                      className=""
                     >
                       <FormGroup>
                         <Label
@@ -741,7 +742,7 @@ const InteractiveTemplateUpdate = () => {
                     </div>
                     <div
                       style={{ background: "#fff" }}
-                      className="mt-3 p-2 px-3 rounded border-1 shadow-sm"
+                      className=""
                     >
                       <FormGroup>
                         <Label
@@ -795,6 +796,7 @@ const InteractiveTemplateUpdate = () => {
                         {/* {console.log("Value Mania", ["2", "3", "4"].includes(values.headerType))} */}
                         {["2", "3", "4"].includes(values.headerType) && (
                           <>
+                          <div>
                             <Media
                               key={values.headerType} // This forces re-rendering when headerType changes
                               isPopup={["2", "3", "4"].includes(
@@ -813,12 +815,44 @@ const InteractiveTemplateUpdate = () => {
                                 setSelectedMediaType(mimeType);
                               }}
                             />
+                             <div className="mt-3 text-sm">
+  <button
+    type="button" // Explicitly prevent form submission
+    className="text-blue-500 hover:underline text-sm font-medium"
+    onClick={(e) => {
+      e.preventDefault(); // Prevent default browser behavior
+      setShowMediaPopup(true); // Show the media popup
+    }}
+  >
+    Change {values.headerType === "2" ? "Image" : values.headerType === "3" ? "Video" : "Document"}
+  </button>
+
+  {showMediaPopup && (
+    <Media
+      isPopup={true}
+      contentTypeStr={
+        values.headerType === "2"
+          ? "image"
+          : values.headerType === "3"
+          ? "video"
+          : "application"
+      }
+      onSelectMedia={(mediaId, mediaPath, mimeType) => {
+        setSelectedMediaId(mediaId);
+        setSelectedMediaPath(mediaPath);
+        setSelectedMediaType(mimeType);
+        setShowMediaPopup(false); // Close the popup after selection
+      }}
+    />
+  )}
+</div>
+</div>
                           </>
                         )}
                       </div>
                     </div>
 
-                    <div className="border-1 rounded p-2 px-3 mt-2 shadow-sm">
+                    <div className="">
                       <FormGroup>
                         <Label for="body" className="text-sm font-semibold">
                           Body
@@ -844,7 +878,7 @@ const InteractiveTemplateUpdate = () => {
                       </FormGroup>
                     </div>
 
-                    <div className="border-1 rounded p-2 px-3 mt-3">
+                    <div className="">
                       <FormGroup>
                         <Label for="footer" className="text-sm font-semibold">
                           Footer
@@ -863,7 +897,7 @@ const InteractiveTemplateUpdate = () => {
                         toggle={toggleDropdown}
                         className="mt-3"
                       >
-                        <div className="flex">
+                        <div className="flex justify-end">
                           <DropdownToggle
                             caret
                             color="gray"
