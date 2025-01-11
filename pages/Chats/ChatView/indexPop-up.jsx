@@ -19,7 +19,7 @@ import Loading from "@/components/Loader";
 import App from "@/components/App";
 import {
   fetchConversationList,
-  fetchConversationMessage,
+  fetchConversationMessageReport,
   clearconversationstate,
   clearConversationMessageState,
   NewAgentMessage,
@@ -27,36 +27,37 @@ import {
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { BASE_URL } from "@/utils/apiConstants";
 import Loader from "@/components/Loader";
-
+ 
 const Chatview = ({ ChatId, onClose, isVisible }) => {
   const dispatch = useDispatch();
   const [Activechat, setActiveChat] = useState(0);
-  const { messages, loading, error } = useSelector(
+  const { conversationMessagereport, loading, error } = useSelector(
     (state) => state.conversations
   );
-
+ 
   const [chatMessages, setChatMessages] = useState([]);
   useEffect(() => {
     if (ChatId) {
       setActiveChat(ChatId);
     }
   }, [ChatId]);
-
+ 
   useEffect(() => {
     const ClientId = localStorage.getItem("clientId");
     if (ClientId && Activechat) {
       dispatch(
-        fetchConversationMessage({ clientId: ClientId, ChatId: Activechat })
+        fetchConversationMessageReport({ clientId: ClientId, ChatId: Activechat })
       );
     }
   }, [Activechat]);
-
+ 
   useEffect(() => {
-    if (messages) {
-      setChatMessages(messages);
+    
+    if (conversationMessagereport && conversationMessagereport.length > 0) {
+      setChatMessages(conversationMessagereport);
     }
-  }, [messages]);
-
+  }, [conversationMessagereport]);
+ 
   return (
     <App>
       <Modal isOpen={isVisible} toggle={onClose} fade={false}>
@@ -71,16 +72,9 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
                 >
                   <div className="msger flex flex-col">
                     <div className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2">
-                  <div className="msger flex flex-col ">
-                    <div
-                      className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2"
-                      style={{
-                       
-                      }}
-                    >
                       {loading && (
                         <div className="text-center">
-                          Please wait while we load your messages..!!
+                          Please wait while we load your chat!!
                         </div>
                       )}
                       {chatMessages.map((message) => (
@@ -153,5 +147,5 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
     </App>
   );
 };
-
+ 
 export default Chatview;

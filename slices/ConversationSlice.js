@@ -94,7 +94,28 @@ export const fetchConversationMessage = createAsyncThunk(
     }
   );
   
-
+  export const fetchConversationMessageReport = createAsyncThunk(
+    'conversation/fetchConversationMessageReport',
+    async ({ clientId, ChatId }, { rejectWithValue }) => {
+      try {
+        
+        const response = await API.get(
+          `${CONVERSATIONMESSAGE}?clientId=${clientId}&id=${ChatId}`
+        );
+        if (response?.status === 200 && response.data?.result) {
+          return {
+            conversationMessagereport: response.data.result,
+      
+          };
+        } else {
+          throw new Error('Failed to fetch details');
+        }
+      } catch (err) {
+        const handledError = handleError(err);
+        return rejectWithValue(handledError);
+      }
+    }
+  );
 
 
 // Slice
@@ -103,6 +124,7 @@ const conversationslice = createSlice({
   initialState: {
     conversations: [],
     messages: [],
+    conversationMessagereport: [],
     loading: false,
     error: null,
     success: false,
@@ -204,6 +226,24 @@ const conversationslice = createSlice({
       .addCase(fetchConversationMessage.rejected, (state) => {
         state.loading = false;
       })
+
+
+      .addCase(fetchConversationMessageReport.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchConversationMessageReport.fulfilled, (state, action) => {
+        state.loading = false;
+        state.conversationMessagereport = action.payload.conversationMessagereport.reverse();
+
+        state.message = action.payload.message || '';
+      })
+     
+      
+      .addCase(fetchConversationMessageReport.rejected, (state) => {
+        state.loading = false;
+      })
+
+
        .addCase(NewAgentMessage.pending, (state) => {
         state.loading = true;
         state.error = null;
