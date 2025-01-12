@@ -46,9 +46,9 @@ export const fetchGroupsDrop = createAsyncThunk(
 // Fetch Group by ID
 export const fetchGroupById = createAsyncThunk(
     'group/fetchGroupById',
-    async (groupId, { rejectWithValue }) => {
+    async ({groupId, clientId=localStorage.getItem("clientId")}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${ GROUPDETAILS}?Id=${groupId}`);
+        const response = await API.get(`${ GROUPDETAILS}?Id=${groupId}&clientId=${clientId}`);
         return response.data;
       } catch (error) {
         const handledError = handleError(error);

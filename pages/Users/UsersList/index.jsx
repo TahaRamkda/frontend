@@ -116,8 +116,8 @@ const UserList = () => {
     e.preventDefault();
     try {
       const requestBody = {
-        user_Id:localStorage.getItem("userId") || 0,
-        client_Id: userForm.client_Id || 0,
+        userId:localStorage.getItem("userId") || 0,
+        clientId: localStorage.getItem('clientId') || 0,
         userName: userForm.userName || "string",
         isActive: userForm.isActive || false,
         fullName: userForm.fullName || "string",
