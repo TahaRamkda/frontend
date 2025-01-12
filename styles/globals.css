@@ -319,3 +319,15 @@ input {
     animation: fade-in 1s ease-in-out;
   }
 }
+
+.chat_bubble::after {
+  content: '';
+  width: 0 !important;
+  height: 0 !important;
+  border-top: 8px solid transparent !important;
+  border-bottom: 8px solid transparent !important;
+  border-right: 12px solid #ffff !important;
+  top: 0px !important;
+  left: -9px !important;
+  position: absolute;
+  }

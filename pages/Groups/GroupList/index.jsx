@@ -54,7 +54,7 @@ const GroupList = () => {
 
   const handleDetailClick = async (groupId) => {
     try {
-      const response = await dispatch(fetchGroupById(groupId)).unwrap();
+      const response = await dispatch(fetchGroupById({groupId})).unwrap();
       if (response) {
         setGroupForm(response.result);
         setIsModalOpen(true);

@@ -73,7 +73,7 @@ export const deleteUser = createAsyncThunk(
   'user/deleteUser',
   async ({ userId, onSuccess }, { rejectWithValue }) => {
     try {
-      const response = await API.delete(`${DELETEUSER}?user_Id=${userId}`);
+      const response = await API.delete(`${DELETEUSER}?userId=${userId}`);
       if (onSuccess) onSuccess(); // Handle success callback
       return response.data;
     } catch (error) {

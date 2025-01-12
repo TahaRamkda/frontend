@@ -1359,8 +1359,8 @@ const TemplateCreationPage = () => {
               }}
             >
               <h4
-                className="mb-1 bg-light p-3 shadow-sm"
-                style={{ maxWidth: "600px", margin: "auto" }}
+                className="p-3"
+                style={{ maxWidth: "600px"}}
               >
                 Template Preview
               </h4>
@@ -1379,7 +1379,7 @@ const TemplateCreationPage = () => {
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-                  maxWidth: "600px", // Increased width of preview container
+                  maxWidth: "800px", // Increased width of preview container
                   position: "relative", // Keep the container relative for positioning
                 }}
               >
@@ -1391,7 +1391,7 @@ const TemplateCreationPage = () => {
                       top: "0", // Stick it to the top
                       zIndex: "10", // Ensure it stays above other content
                       backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white for readability
-                      padding: "10px", // Adjust padding as needed
+                      
                     }}
                   >
                     {/* Left Section: Display sender's image, name, and phone number */}
@@ -1405,9 +1405,9 @@ const TemplateCreationPage = () => {
                         />
                       )}
                       {/* Display Name and Phone */}
-                      <div>
-                        <div className="font-bold text-lg">{sendername.senderName}</div>
-                        <div className="text-sm text-gray-600">{sendername.phoneNumber}</div>
+                      <div className="p-1">
+                        <div className=" ">{sendername.senderName}</div>
+                        <div className="text-xs text-gray-600">{sendername.phoneNumber}</div>
                       </div>
                     </div>
                     {/* Right Section: Placeholder for future actions */}
