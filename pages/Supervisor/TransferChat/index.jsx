@@ -76,8 +76,8 @@ const TransferChat = ({ ChatId, onClose, isVisible ,SenderId}) => {
                     
                   />
                 </div>
-                <div className="text-center">
-                  <Button type="submit" color="primary"  >
+                <div className="flex justify-end">
+                  <Button className="uniform_btn" type="submit"  >
                     Transfer
                   </Button>
                 </div>

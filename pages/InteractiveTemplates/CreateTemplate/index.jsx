@@ -30,6 +30,7 @@ import defaultimage from "@/public/images/12.jpg";
 import bagroundimage from "@/public/images/baground.jpg";
 import Media from "@/pages/Media/MediaList";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
+import { fetchSendernameById } from "@/slices/sendernameSlice";
 import App from "@/components/App";
 import ButtonAction from "@/pages/Templates/ButtonAction";
 import moment from "moment";
@@ -64,6 +65,7 @@ const InteractiveTemplateCreation = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [buttonType, setButtonType] = useState(null);
   const [buttonText, setButtonText] = useState("");
+  const { sendername } = useSelector((state) => state.sendernames)
   const [phoneNumber, setPhoneNumber] = useState("");
   const [countryCode, setCountryCode] = useState("");
   const [websiteUrl, setwebsiteUrl] = useState("");
@@ -81,6 +83,7 @@ const InteractiveTemplateCreation = () => {
   const [ButtonSelected, setButtonSelected] = useState(false);
   const [showMediaPopup, setShowMediaPopup] = useState(false);
   const [selectedMediaId, setSelectedMediaId] = useState(0);
+  const [SendernamesData, setSendernamesData] = useState([]);
   const [selectedSenderId, setSelectedSenderId] = useState(null);
   const [selectedMediaPath, setSelectedMediaPath] = useState("");
   const [selectedMediaType, setSelectedMediaType] = useState("");
@@ -446,11 +449,36 @@ const InteractiveTemplateCreation = () => {
       setCallPhoneNumberButtonCount(callPhoneNumberButtonCount - 1);
     }
   };
+useEffect(() => {
 
-  const handleSenderChange = (e) => {
-    const role = e.target.value;
-    setSelectedSenderId(role);
+  if(sendername){
+
+    setSendernamesData(sendername)
+  }
+},[sendername])
+  const handleSenderChange = async (e) => {
+    const senderId = e.target.value;
+    console.log("Selected Sender ID:", senderId); // Debugging
+    setSelectedSenderId(senderId);
+
+    try {
+      dispatch(fetchSendernameById({
+        senderId: senderId,
+        clientId: localStorage.getItem("clientId"),
+      }));
+      if (response) {
+        console.log("Fetched Sender Data:", response.result); // Debugging
+        setSendernamesData(response.result);
+      } else {
+        console.error("Failed to fetch details");
+      }
+    } catch (error) {
+      console.error("Error fetching sender details:", error);
+    }
+
   };
+
+
 
   const handlebuttonaction = (index,actionId,actionType,buttonValue) => {
    
@@ -932,192 +960,228 @@ const InteractiveTemplateCreation = () => {
           </Col>
 
           <Col md={4} className="overflow-hidden h-screen fixed right-10">
-            <div
-              style={{
-                position: "sticky",
-                top: "0",
-                zIndex: "10",
-                backgroundColor: "white", // Ensure the background color covers the content behind it
-                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-              }}
-            >
-              <h4
-                className="mb-1 bg-light p-3 shadow-sm"
-                style={{ maxWidth: "600px", margin: "auto" }}
-              >
-                Template Preview
-              </h4>
-            </div>
-            <div
-              className="border p-3 rounded"
-              style={{
-                height: "auto",
-                minHeight: "420px",
-                backgroundColor: "#e0e0e0",
-                backgroundImage: `url(${bagroundimage.src})`, // Update this path
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-                maxWidth: "600px", // Increased width of preview container
-                margin: "0 auto",
-                padding: "5px", // Optional: Adjust padding for more space inside the preview container
-              }}
-            >
-              <div
-                className="chat_bubble"
-                style={{
-                  position: "relative",
-                  backgroundColor: "#ffff",
-                  borderRadius: "5px",
-                  padding: "20px 10px",
-                  wordWrap: "break-word",
-                  marginBottom: "10px",
-                  maxWidth: "400px", // Message body width stays the same
-                  marginRight: "0", // Remove any margin from the right side
-                }}
-              >
-                <span className="time_bubble">
-                  {moment(new Date()).format("LT")}
-                </span>
-                {messagePreview.media &&
-                  selectedMediaType.startsWith("image/") && (
-                    <img
-                      src={`${BASE_URL}${selectedMediaPath}`}
-                      alt="Media"
-                      className="img-fluid"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "contain",
-                        borderRadius: "8px",
-                        marginBottom: "5px",
-                      }}
-                    />
-                  )}
-                {messagePreview.media &&
-                  selectedMediaType.startsWith("video/") && (
-                    <video
-                      src={`${BASE_URL}${selectedMediaPath}`}
-                      autoPlay
-                      muted
-                      loop
-                      className="img-fluid"
-                      style={{
-                        width: "100%",
-                        height: "auto",
-                        objectFit: "contain",
-                        borderRadius: "8px",
-                        marginBottom: "10px",
-                      }}
-                    />
-                  )}
-
-                {messagePreview.media &&
-                  selectedMediaType.startsWith("audio/") && (
-                    <audio
-                      src={`${BASE_URL}${selectedMediaPath}`}
-                      controls
-                      controlsList="nodownload"
-                      style={{
-                        width: "100%",
-                        borderRadius: "8px",
-                        marginBottom: "10px",
-                      }}
-                    />
-                  )}
-                {messagePreview.header && (
-                  <h6
-                    style={{ marginBottom: "5px" }}
-                    dangerouslySetInnerHTML={{ __html: messagePreview.header }}
-                  />
-                )}
-                <div
-                  dangerouslySetInnerHTML={{ __html: messagePreview.body }}
-                />
-                {messagePreview.footer && (
-                  <p style={{ marginTop: "5px", fontSize: "0.9em" }}>
-                    {messagePreview.footer}
-                  </p>
-                )}
-                {(Showallbutton || TotalButtonCount <= 3) &&
-                  messagePreview.buttons.map((button, index) => (
-                    <Button
-                      key={index}
-                      className="w-100 mb-2"
-                      style={{
-                        color: "#00a9ee",
-                        backgroundColor: "#ffffff",
-                        borderColor: "#ffffff",
-                        borderStyle: "solid",
-                        borderWidth: "1px 1px 1px 1px",
-                        borderTopWidth: "0.5px",
-                        borderTopStyle: "solid",
-                        borderTopColor: "#e1e1e1",
-                      }}
-                    >
-                      {button.type == 1 && (
-                        <span style={{ color: "#00a9ee" }}>
-                          <i className="fa fa-share fa-flip-horizontal me-2"></i>
-                          {button.text || "Button"}
-                        </span>
-                      )}
-                      {button.type == 2 && (
-                        <span style={{ color: "#00a9ee" }}>
-                          <i className="fa fa-phone me-2"></i>
-                          {button.text || "Button"}
-                        </span>
-                      )}
-                      {button.type == 3 && (
-                        <span style={{ color: "#00a9ee" }}>
-                          <i className="fa fa-external-link me-2"></i>
-                          {button.text || "Button"}
-                        </span>
-                      )}
-                    </Button>
-                  ))}
-                {TotalButtonCount > 3 && !Showallbutton && (
-                  <Button
-                    className="w-100 mb-2"
-                    style={{
-                      color: "#00a9ee",
-                      backgroundColor: "#ffffff",
-                      borderColor: "#ffffff",
-                      borderStyle: "solid",
-                      borderWidth: "1px 1px 1px 1px",
-                      borderTopWidth: "0.5px",
-                      borderTopStyle: "solid",
-                      borderTopColor: "#e1e1e1",
-                    }}
-                    onClick={() => setShowallbutton(!Showallbutton)}
-                  >
-                    <i className="fa fa-list"></i>
-                    <span style={{ color: "#00a9ee" }}>See all options</span>
-                  </Button>
-                )}
-                {TotalButtonCount > 3 && Showallbutton && (
-                  <Button
-                    className="w-100 mb-2"
-                    style={{
-                      color: "#00a9ee",
-                      backgroundColor: "#ffffff",
-                      borderColor: "#ffffff",
-                      borderStyle: "solid",
-                      borderWidth: "1px 1px 1px 1px",
-                      borderTopWidth: "0.5px",
-                      borderTopStyle: "solid",
-                      borderTopColor: "#e1e1e1",
-                    }}
-                    onClick={() => setShowallbutton(false)}
-                  >
-                    <span style={{ color: "#00a9ee" }}>
-                      <i className="fa fa-bars me-2"></i>
-                      Hide All
-                    </span>
-                  </Button>
-                )}
-              </div>
-            </div>
-          </Col>
+             <div
+                         style={{
+                           position: "sticky",
+                           top: "0",
+                           zIndex: "10",
+                           backgroundColor: "white", // Ensure the background color covers the content behind it
+                           boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+                         }}
+                       >
+                         <h4
+                           className="mb-1 bg-light p-3 shadow-sm"
+                           style={{ maxWidth: "600px", margin: "auto" }}
+                         >
+                           Template Preview
+                         </h4>
+                       </div>
+                       <div>
+                         {/* Show the header and sender data only when selectedSenderId is set and data is fetched */}
+                        
+                         <div
+             className="border"
+             style={{
+               maxHeight: "700px",
+               minHeight: "420px",
+               overflow: "auto",
+               backgroundColor: "#e0e0e0",
+               backgroundImage: `url(${bagroundimage.src})`, // Update this path
+               backgroundSize: "cover",
+               backgroundPosition: "center",
+               boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+               maxWidth: "600px", // Increased width of preview container
+               position: "relative", // Keep the container relative for positioning
+             }}
+           >
+             {sendername && (
+               <div
+                 className="flex items-center justify-between text-black px-2 shadow-md bg-white"
+                 style={{
+                   position: "sticky", // Make this section sticky
+                   top: "0", // Stick it to the top
+                   zIndex: "10", // Ensure it stays above other content
+                   backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white for readability
+                   padding: "10px", // Adjust padding as needed
+                 }}
+               >
+                 {/* Left Section: Display sender's image, name, and phone number */}
+                 <div className="flex items-center space-x-3">
+                   {/* Display Image */}
+                   {sendername.mediaPath && (
+                     <img
+                       src={`${BASE_URL}${sendername.mediaPath}`}
+                       alt="Sender Logo"
+                       className="w-10 h-10 rounded-full"
+                     />
+                   )}
+                   {/* Display Name and Phone */}
+                   <div>
+                     <div className="font-bold text-lg">{sendername.senderName}</div>
+                     <div className="text-sm text-gray-600">{sendername.phoneNumber}</div>
+                   </div>
+                 </div>
+                 {/* Right Section: Placeholder for future actions */}
+                 <div className="flex items-center space-x-4">
+                   {/* Add any buttons or actions here */}
+                 </div>
+               </div>
+             )}
+           
+             {/* Rest of the content (message preview, etc.) */}
+             <div
+               className="chat_bubble"
+               style={{
+                 position: "relative",
+                 backgroundColor: "#ffff",
+                 borderRadius: "5px",
+                 padding: "20px 10px",
+                 wordWrap: "break-word",
+                 marginTop: "15px",
+                 marginBottom: "10px",
+                 maxWidth: "400px", // Message body width stays the same
+                 marginRight: "0", // Remove any margin from the right side
+                 marginLeft: "22px",
+               }}
+             >
+               <span className="time_bubble">
+                 {moment(new Date()).format("LT")}
+               </span>
+               {messagePreview.media && selectedMediaType.startsWith("image/") && (
+                 <img
+                   src={`${BASE_URL}${selectedMediaPath}`}
+                   alt="Media"
+                   className="img-fluid"
+                   style={{
+                     width: "100%",
+                     height: "100%",
+                     objectFit: "contain",
+                     borderRadius: "8px",
+                     marginBottom: "5px",
+                   }}
+                 />
+               )}
+           
+               {messagePreview.media && selectedMediaType.startsWith("video/") && (
+                 <video
+                   src={`${BASE_URL}${selectedMediaPath}`}
+                   autoPlay
+                   muted
+                   loop
+                   className="img-fluid"
+                   style={{
+                     width: "100%",
+                     height: "auto",
+                     objectFit: "contain",
+                     borderRadius: "8px",
+                     marginBottom: "10px",
+                   }}
+                 />
+               )}
+           
+               {messagePreview.media && selectedMediaType.startsWith("audio/") && (
+                 <audio
+                   src={`${BASE_URL}${selectedMediaPath}`}
+                   controls
+                   controlsList="nodownload"
+                   style={{
+                     width: "100%",
+                     borderRadius: "8px",
+                     marginBottom: "10px",
+                   }}
+                 />
+               )}
+           
+               {messagePreview.header && (
+                 <h6 style={{ marginBottom: "5px" }} dangerouslySetInnerHTML={{ __html: messagePreview.header }} />
+               )}
+               <div dangerouslySetInnerHTML={{ __html: messagePreview.body }} />
+               {messagePreview.footer && (
+                 <p style={{ marginTop: "5px", fontSize: "0.9em" }}>{messagePreview.footer}</p>
+               )}
+           
+               {(Showallbutton || TotalButtonCount <= 3) &&
+                 messagePreview.buttons.map((button, index) => (
+                   <Button
+                     key={index}
+                     className="w-100 mb-2"
+                     style={{
+                       color: "#00a9ee",
+                       backgroundColor: "#ffffff",
+                       borderColor: "#ffffff",
+                       borderStyle: "solid",
+                       borderWidth: "1px 1px 1px 1px",
+                       borderTopWidth: "0.5px",
+                       borderTopStyle: "solid",
+                       borderTopColor: "#e1e1e1",
+                     }}
+                   >
+                     {button.type == 1 && (
+                       <span style={{ color: "#00a9ee" }}>
+                         <i className="fa fa-share fa-flip-horizontal me-2"></i>
+                         {button.text || "Button"}
+                       </span>
+                     )}
+                     {button.type == 2 && (
+                       <span style={{ color: "#00a9ee" }}>
+                         <i className="fa fa-phone me-2"></i>
+                         {button.text || "Button"}
+                       </span>
+                     )}
+                     {button.type == 3 && (
+                       <span style={{ color: "#00a9ee" }}>
+                         <i className="fa fa-external-link me-2"></i>
+                         {button.text || "Button"}
+                       </span>
+                     )}
+                   </Button>
+                 ))}
+           
+               {TotalButtonCount > 3 && !Showallbutton && (
+                 <Button
+                   className="w-100 mb-2"
+                   style={{
+                     color: "#00a9ee",
+                     backgroundColor: "#ffffff",
+                     borderColor: "#ffffff",
+                     borderStyle: "solid",
+                     borderWidth: "1px 1px 1px 1px",
+                     borderTopWidth: "0.5px",
+                     borderTopStyle: "solid",
+                     borderTopColor: "#e1e1e1",
+                   }}
+                   onClick={() => setShowallbutton(!Showallbutton)}
+                 >
+                   <i className="fa fa-list"></i>
+                   <span style={{ color: "#00a9ee" }}>See all options</span>
+                 </Button>
+               )}
+               {TotalButtonCount > 3 && Showallbutton && (
+                 <Button
+                   className="w-100 mb-2"
+                   style={{
+                     color: "#00a9ee",
+                     backgroundColor: "#ffffff",
+                     borderColor: "#ffffff",
+                     borderStyle: "solid",
+                     borderWidth: "1px 1px 1px 1px",
+                     borderTopWidth: "0.5px",
+                     borderTopStyle: "solid",
+                     borderTopColor: "#e1e1e1",
+                   }}
+                   onClick={() => setShowallbutton(false)}
+                 >
+                   <span style={{ color: "#00a9ee" }}>
+                     <i className="fa fa-bars me-2"></i>
+                     Hide All
+                   </span>
+                 </Button>
+               )}
+             </div>
+           </div>
+           
+                       </div>
+                     </Col>
         </Row>
       </Container>
 
