@@ -108,7 +108,7 @@ export const fetchCampaignDetail = createAsyncThunk(
     'campaign/UpdateCampaign',
     async ( campaignData, { rejectWithValue }) => {
       try {
-        const response = await API.post(UPDATECAMPAIGN,  campaignData);
+        const response = await API.put(UPDATECAMPAIGN,  campaignData);
         return response.data;
       } catch (error) {
         const handledError = handleError(error);

@@ -111,6 +111,18 @@ const UpdateCampaigns = () => {
       setSelectedTemplateId(campaigndetail.templateId);
       setcampaignName(campaigndetail.campaignName);
       setexistinggroupId(campaigndetail.groupIds.replace(/['"]+/g, '').split(',').map(Number))
+      if (campaigndetail?.parameters) {
+        //setHeaderVariable([template?.headerValue || ""]);
+        campaigndetail.parameters.forEach((variable, i) => {
+          const { paramType, paramText } = variable || {};
+          if ((paramType === 1 )) {
+            handleheaderVariableChange(i, paramText || "");
+          } else if (paramType === 2) {
+            handleVariableChange(i, paramText || "");
+          }
+        });
+      }
+      
     }
     
   }, [dispatch, campaigndetail]);
@@ -134,14 +146,14 @@ const UpdateCampaigns = () => {
       setheaderPayloaddatawithVar(template.headerText);
       setheaderTextCount(template.headerParamCount);
 
-      if (template.headerValue) {
-        setHeaderVariable([template.headerValue]);
-        template.headerValue.forEach((variable, i) => {
-          if (variable?.defaultValue !== undefined) {
-            handleheaderVariableChange(i, variable.defaultValue);
-          }
-        });
-      }
+      // if (template.headerValue) {
+      //   setHeaderVariable([template.headerValue]);
+      //   template.headerValue.forEach((variable, i) => {
+      //     if (variable?.defaultValue !== undefined) {
+      //       handleheaderVariableChange(i, variable.defaultValue);
+      //     }
+      //   });
+      // }
     } else {
       //alert(template.mediaURL);
       //alert(template.headerType);
@@ -156,14 +168,14 @@ const UpdateCampaigns = () => {
     setBodyFinalContent(template.bodyText);
     setbodyTextCount(template.bodyParamCount);
 
-    if (template.bodyValues) {
-      setVariables(template.bodyValues);
-      template.bodyValues.forEach((variable, i) => {
-        if (variable?.defaultValue !== undefined) {
-          handleVariableChange(i, variable.defaultValue);
-        }
-      });
-    }
+    // if (template.bodyValues) {
+    //   setVariables(template.bodyValues);
+    //   template.bodyValues.forEach((variable, i) => {
+    //     if (variable?.defaultValue !== undefined) {
+    //       handleVariableChange(i, variable.defaultValue);
+    //     }
+    //   });
+    // }
     setSelectedSenderId(template.senderId)
     // Update Buttons
     setTotalButtonCount(updatedMessagePreview.buttons.length);
@@ -196,6 +208,8 @@ const UpdateCampaigns = () => {
       templateId: selectedTemplateId,
       clientId: localStorage.getItem("clientId"),
       campaignName: campaignName,
+      campaignId: SelectedCampaign,
+      mediaId: campaigndetail.mediaId,
       campaignType: "1",
       status: "0",
       senderId: template.senderId,
