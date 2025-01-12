@@ -49,9 +49,9 @@ export const  fetchRolesDrop = createAsyncThunk(
   // Fetch Client by ID
   export const  fetchRoleById = createAsyncThunk(
     ' role/ fetchRoleById',
-    async ( roleId, { rejectWithValue }) => { 
+    async ( {roleId,clientId=localStorage.getItem("clientId")}, { rejectWithValue }) => { 
       try {
-        const response = await API.get(`${ROLEDETAILS}?id=${roleId}`);
+        const response = await API.get(`${ROLEDETAILS}?id=${roleId}&clientId=${clientId}`);
         return response.data;
       } catch (error) {
         const handledError = handleError(error);

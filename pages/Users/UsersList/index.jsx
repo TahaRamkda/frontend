@@ -17,8 +17,10 @@ const UserList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { users, loading, error } = useSelector((state) => state.users);
+  const { user } = useSelector((state) => state.users);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [CreateModalOpen, setCreateModalOpen] = useState(false)
+  const[existingRoleId, setexistingRoleId] = useState([]);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [userForm, setUserForm] = useState({});
   const [filterText, setFilterText] = useState("");
@@ -48,6 +50,7 @@ const UserList = () => {
       const response = await dispatch(fetchUserById({userId})).unwrap();
       if (response) {
         setUserForm(response.result);
+        setexistingRoleId(response.result.roleIds.replace(/['"]+/g, '').split(',').map(Number))
         setIsModalOpen(true);
       } else {
         showSweetAlert({ title: "Error", text: "", icon: "error" });
@@ -89,7 +92,6 @@ const UserList = () => {
     setUserForm({ ...userForm, [name]: value });
   };
 
-
  const handleSearchString = (e) => {
     const searchValue = e.target.value;
     setFilterText(searchValue);
@@ -108,13 +110,13 @@ const UserList = () => {
 
     setSearchTimeout(timeout); // Save the timeout reference
   };
-
+ 
 
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     try {
       const requestBody = {
-        user_Id: userForm.user_Id || 0,
+        user_Id:localStorage.getItem("userId") || 0,
         client_Id: userForm.client_Id || 0,
         userName: userForm.userName || "string",
         isActive: userForm.isActive || false,
@@ -136,15 +138,16 @@ const UserList = () => {
         showSweetAlert({ title: "Error", text: response.message, icon: "error" });
       }
     } catch (error) {
-      alert("Failed to update : " + error.message);
+      showSweetAlert({ title: "Error", text: "Failed to Update", icon: "error" });
     }
   };
 
   const refreshUserList = () => {
     dispatch(fetchUser({ clientId: localStorage.getItem("clientId"),searchValue:filterText }));
   };
-  const handleDropdownChange = (value) => {
-    setUserForm((prev) => ({ ...prev, userRoles: value }));
+  const handleDropdownChange = (selectedValues) => {
+    setUserForm({ ...userForm, userRoles: selectedValues.join(",") });
+
   };
   const handleCheckboxChange = (value) => {
     setUserForm((prev) => ({ ...prev, isActive: value }));
@@ -273,8 +276,8 @@ const UserList = () => {
                         <RolesDropdown
                           name="userRoles"
                           value={userForm.userRoles || ""}
-
-                          onChange={(value) => (value)}
+                          existingdata={existingRoleId}
+                          onChange={(value) =>handleDropdownChange(value)}
                         />
                       </FormGroup>
                     </Col>
@@ -291,10 +294,11 @@ const UserList = () => {
                       </FormGroup>
                     </Col>
                   </Row>
-                  <Button color="primary" type="submit">
+                  <div className="flex justify-end">
+                  <Button className='uniform_btn'color="primary" type="submit">
                     Save
-                    UpdateSender
                   </Button>
+                  </div>
                 </Form>
               )}
             </ModalBody>

@@ -55,7 +55,7 @@ const ContactList = () => {
   ];
   const handleDetailClick = async (contactId) => {
     try {
-      const response = await dispatch(fetchContactById(contactId)).unwrap();
+      const response = await dispatch(fetchContactById({contactId:contactId})).unwrap();
       if (response.success) {
         setcontactForm(response.result);
         setIsModalOpen(true);
