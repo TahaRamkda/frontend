@@ -22,7 +22,7 @@ export const fetchTemplates = createAsyncThunk(
   'template/fetchTemplates',
  
   async ({clientId = localStorage.getItem("clientId"),TransactonType,searchStr,pageNo,pageSize}, { rejectWithValue }) => {
-    debugger
+    
     try {
       const response = await API.get(`${TEMPLATELIST}?ClientId=${clientId}&TransactionType=${TransactonType ? TransactonType : 1}${searchStr?`&searchStr=${searchStr}`:''}&pageNo=${pageNo}&pageSize=${pageSize}`);
       if (response?.status === 200 && response.data?.result) {
@@ -111,7 +111,7 @@ export const fetchTemplatesDrop = createAsyncThunk(
 export const fetchTemplatesById = createAsyncThunk(
   "template/fetchTemplatesById",
   async ({ templateId, ClientId }, { rejectWithValue }) => {
-    debugger
+    
     try {
       const response = await API.get(
         `${TEMPLATEDETAILS}?Id=${templateId}&ClientId=${ClientId}`

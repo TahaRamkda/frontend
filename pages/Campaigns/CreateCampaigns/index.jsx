@@ -219,6 +219,7 @@ const CampaignCreate = () => {
       status: "0",
       senderId: template.senderId,
       groupIds: selectedGroups.join(","),
+      mediaId:selectedMediaId,
       actionBy: localStorage.getItem("userId"),
 
       campaignParameters: [
@@ -460,7 +461,7 @@ const CampaignCreate = () => {
                       </FormGroup>
                     </div>
                     {template && 
-  (["2", "3", "4"].includes(String(template.headerType))) && (
+  ([2,3,4].includes(template.headerType)) && (
     <div className="mt-3 text-sm">
       <button
         type="button" // Explicitly prevent form submission
