@@ -47,7 +47,8 @@ const RoleList = () => {
 
   const handleDetailClick = async (roleId) => {
     try {
-      const response = await dispatch(fetchRoleById(roleId)).unwrap();
+      debugger
+      const response = await dispatch(fetchRoleById({roleId:roleId})).unwrap();
       if (response) {
         setRoleForm(response.result);
         setIsModalOpen(true);

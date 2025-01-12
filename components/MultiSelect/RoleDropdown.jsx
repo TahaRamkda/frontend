@@ -5,7 +5,7 @@ import $ from 'jquery';
 import Select from 'react-select';
 import { fetchRolesDrop, clearRoleDropState } from "@/slices/RoleSlice";
 
-export const RolesDropdown = ({ onChange, error }) => {
+export const RolesDropdown = ({ onChange, error,existingdata }) => {
   const dispatch = useDispatch();
   const { roleDrop, loading, error: fetchError } = useSelector((state) => state.roles);
   const selectRef = useRef(null);
@@ -19,6 +19,11 @@ export const RolesDropdown = ({ onChange, error }) => {
 
   }, [dispatch]);
 
+ useEffect(() => {
+    if(existingdata){
+      setselectedRoleId(existingdata || [])
+    }
+  }, [existingdata]);
 
   // Notify parent of selected group changes
   useEffect(() => {

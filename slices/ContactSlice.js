@@ -28,9 +28,9 @@ export const fetchContact = createAsyncThunk(
 
 export const fetchContactById = createAsyncThunk(
   'contact/fetchContactById',
-  async (contactId, { rejectWithValue }) => {
+  async ({contactId,clientId=localStorage.getItem("clientId")}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${CONTACTDETAILS}?Id=${contactId}`);
+      const response = await API.get(`${CONTACTDETAILS}?Id=${contactId}&clientId=${clientId}`);
       return response.data;
     } catch (error) {
       const handledError = handleError(error);

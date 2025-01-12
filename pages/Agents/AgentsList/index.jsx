@@ -30,6 +30,7 @@ const AgentsList = () => {
   const [filterText, setFilterText] = useState('');
   const [showagenttiming, setshowagenttiming] = useState("");
   const [CreateModalOpen, setCreateModalOpen] = useState("")
+  const[existinSenderId, setexistingSenderId] = useState([]);
 
   const agentColumn = [
 
@@ -56,12 +57,15 @@ const AgentsList = () => {
     },
   ];
 
+
   useEffect(() => {
     if (agent) {
+     
       setagentForm(agent)
+      setexistingSenderId(agent.senderIds.replace(/['"]+/g, '').split(',').map(Number))
     }
-  }, [agent]);
-
+    
+  }, [dispatch, agent]);
 
   const handleDetailClick = async (agentId) => {
 
@@ -335,6 +339,7 @@ const AgentsList = () => {
               value={agentForm.senderIds || []}  // Split string to array
               onChange={(value) => handleDropdownChange(value)}  // Handle value change
               className="border rounded py-1 px-2 w-full text-sm"
+              existingdata={existinSenderId}
             />
                   </div>
                   <div>

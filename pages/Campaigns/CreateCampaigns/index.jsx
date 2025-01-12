@@ -36,6 +36,7 @@ import Templates from "@/components/Dropdowns/TemplateDropdown";
 import App from "@/components/App";
 import moment from "moment";
 import { useRouter } from "next/router";
+import Media from "@/pages/Media/MediaList";
 import Loader from "@/components/Loader";
 import bagroundimage from "@/public/images/baground.jpg";
 import { BASE_URL } from "@/utils/apiConstants";
@@ -58,7 +59,7 @@ const CampaignCreate = () => {
     visitWebsiteButtonCount: 0,
   });
   const [bodyContent, setBodyContent] = useState("");
-
+  const [showMediaPopup, setShowMediaPopup] = useState(false);
   const [campaignName, setcampaignName] = useState("");
   const [variables, setVariables] = useState([]);
   const [urlvariables, seturlvariables] = useState([]);
@@ -218,6 +219,7 @@ const CampaignCreate = () => {
       status: "0",
       senderId: template.senderId,
       groupIds: selectedGroups.join(","),
+      mediaId:selectedMediaId,
       actionBy: localStorage.getItem("userId"),
       mediaId: template.mediaId,
       campaignParameters: [
@@ -458,8 +460,43 @@ const CampaignCreate = () => {
                         />
                       </FormGroup>
                     </div>
-            
-                   
+                    {template && 
+  ([2,3,4].includes(template.headerType)) && (
+    <div className="mt-3 text-sm">
+      <button
+        type="button" // Explicitly prevent form submission
+        className="text-blue-500 hover:underline text-sm font-medium"
+        onClick={(e) => {
+          e.preventDefault(); // Prevent default browser behavior
+          setShowMediaPopup(true); // Show the media popup
+        }}
+      >
+        Change {template.headerType === 2 ? "Image" : template.headerType === 3 ? "Video" : "Document"}
+      </button>
+
+      {showMediaPopup && (
+        <Media
+          isPopup={true}
+          contentTypeStr={
+            template.headerType === 2
+              ? "image"
+              : template.headerType === 3
+              ? "video"
+              : "application"
+          }
+          onSelectMedia={(mediaId, mediaPath, mimeType) => {
+            setSelectedMediaId(mediaId);
+            setSelectedMediaPath(mediaPath);
+            setSelectedMediaType(mimeType);
+            setShowMediaPopup(false); // Close the popup after selection
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+
                     {headerVariable.length > 0 && <h5>Header Variables</h5>}
                     {headerVariable.map((variable, index) => (
                       <FormGroup key={index}>

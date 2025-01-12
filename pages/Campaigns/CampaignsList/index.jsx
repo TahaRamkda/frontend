@@ -86,7 +86,7 @@ const CampaignsList = () => {
     return () => {
       dispatch(clearCampaignListState());
     };
-  }, [dispatch]);
+  }, [dispatch,FromDate,ToDate]);
 
 
 
@@ -191,9 +191,9 @@ const CampaignsList = () => {
       
     },
     { name: "Sent Count", selector: (row) => row.sentCount, sortable: true },
-    { name: "Failed Count", selector: (row) => row.failedCount, sortable: true },
     { name: "Delivered Count", selector: (row) => row.deliveredCount, sortable: true },
-    { name: "Undelivered Count", selector: (row) => row.undeliveredCount, sortable: true },
+    { name: "Read Count", selector: (row) => row.readCount, sortable: true },
+    { name: "Failed Count", selector: (row) => row.failedCount, sortable: true },
     { name: "Created Date", selector: (row) => row.createdDate, sortable: true, width: '15%' },
     {
       name: "Action", cell: (row) => {

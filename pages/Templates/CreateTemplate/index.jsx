@@ -106,7 +106,7 @@ const TemplateCreationPage = () => {
   const [Templatetype, setTemplatetype] = useState("");
   const [language, setlanguage] = useState("");
   const [typingTimeout, setTypingTimeout] = useState(null);
- const[actionbuttonvalues ,setactionbuttonvalues] = useState([]);
+  const [actionbuttonvalues, setactionbuttonvalues] = useState([]);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const replaceClosingPTagsWithNewline = (content) => {
     return content
@@ -171,7 +171,7 @@ const TemplateCreationPage = () => {
       toast.error("Please select a language before proceeding.");
       return; // Prevent further execution if language is not selected
     }
-    
+
     if (!TemplateName) {
       toast.error("Please Enter Template Name before proceeding.");
       return; // Prevent further execution if language is not selected
@@ -181,9 +181,9 @@ const TemplateCreationPage = () => {
       toast.error("Please Enter Body Text before proceeding.");
       return; // Prevent further execution if language is not selected
     }
-   
 
-    
+
+
 
 
 
@@ -429,7 +429,7 @@ const TemplateCreationPage = () => {
   };
 
   const removeHeaderVariable = (index) => {
-   
+
     //alert(bodyPayloadDatawithVar)
     const updatedVariables = headerVariable.filter((_, i) => i !== index);
     const updatedHeadContent = headerPayloadDatawithVar
@@ -703,13 +703,13 @@ const TemplateCreationPage = () => {
       setCallPhoneNumberButtonCount(callPhoneNumberButtonCount - 1);
     }
   };
-useEffect(() => {
+  useEffect(() => {
 
-  if(sendername){
+    if (sendername) {
 
-    setSendernamesData(sendername)
-  }
-},[sendername])
+      setSendernamesData(sendername)
+    }
+  }, [sendername])
   const handleSenderChange = async (e) => {
     const senderId = e.target.value;
     console.log("Selected Sender ID:", senderId); // Debugging
@@ -733,13 +733,13 @@ useEffect(() => {
   };
 
 
-  const handlebuttonaction = (index,actionId,actionType,buttonValue) => {
-   
+  const handlebuttonaction = (index, actionId, actionType, buttonValue) => {
+
     setbuttonindex(index);
-    const buttonaction= {
-        actionId : actionId,
-        actionType: actionType,
-        buttonValue:buttonValue,
+    const buttonaction = {
+      actionId: actionId,
+      actionType: actionType,
+      buttonValue: buttonValue,
     }
     setactionbuttonvalues(buttonaction);
     setshowaction(true);
@@ -953,36 +953,36 @@ useEffect(() => {
 
                             {/* New Button for Changing Media */}
                             <div className="mt-3 text-sm">
-  <button
-    type="button" // Explicitly prevent form submission
-    className="text-blue-500 hover:underline text-sm font-medium"
-    onClick={(e) => {
-      e.preventDefault(); // Prevent default browser behavior
-      setShowMediaPopup(true); // Show the media popup
-    }}
-  >
-    Change {values.headerType === "2" ? "Image" : values.headerType === "3" ? "Video" : "Document"}
-  </button>
+                              <button
+                                type="button" // Explicitly prevent form submission
+                                className="text-blue-500 hover:underline text-sm font-medium"
+                                onClick={(e) => {
+                                  e.preventDefault(); // Prevent default browser behavior
+                                  setShowMediaPopup(true); // Show the media popup
+                                }}
+                              >
+                                Change {values.headerType === "2" ? "Image" : values.headerType === "3" ? "Video" : "Document"}
+                              </button>
 
-  {showMediaPopup && (
-    <Media
-      isPopup={true}
-      contentTypeStr={
-        values.headerType === "2"
-          ? "image"
-          : values.headerType === "3"
-          ? "video"
-          : "application"
-      }
-      onSelectMedia={(mediaId, mediaPath, mimeType) => {
-        setSelectedMediaId(mediaId);
-        setSelectedMediaPath(mediaPath);
-        setSelectedMediaType(mimeType);
-        setShowMediaPopup(false); // Close the popup after selection
-      }}
-    />
-  )}
-</div>
+                              {showMediaPopup && (
+                                <Media
+                                  isPopup={true}
+                                  contentTypeStr={
+                                    values.headerType === "2"
+                                      ? "image"
+                                      : values.headerType === "3"
+                                        ? "video"
+                                        : "application"
+                                  }
+                                  onSelectMedia={(mediaId, mediaPath, mimeType) => {
+                                    setSelectedMediaId(mediaId);
+                                    setSelectedMediaPath(mediaPath);
+                                    setSelectedMediaType(mimeType);
+                                    setShowMediaPopup(false); // Close the popup after selection
+                                  }}
+                                />
+                              )}
+                            </div>
 
                           </div>
                         )}
@@ -1295,7 +1295,7 @@ useEffect(() => {
                               color: "white",
                             }}
                             className="me-2"
-                            onClick={() => handlebuttonaction(index,button.actionId,button.actionType,button.buttonValue)}
+                            onClick={() => handlebuttonaction(index, button.actionId, button.actiontype, button.buttonValue)}
                           >
                             <i className="fa fa-bolt"></i>
                           </Button>
@@ -1367,207 +1367,207 @@ useEffect(() => {
             </div>
             <div>
               {/* Show the header and sender data only when selectedSenderId is set and data is fetched */}
-             
+
               <div
-  className="border"
-  style={{
-    maxHeight: "700px",
-    minHeight: "420px",
-    overflow: "auto",
-    backgroundColor: "#e0e0e0",
-    backgroundImage: `url(${bagroundimage.src})`, // Update this path
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-    maxWidth: "600px", // Increased width of preview container
-    position: "relative", // Keep the container relative for positioning
-  }}
->
-  {sendername && (
-    <div
-      className="flex items-center justify-between text-black px-2 shadow-md bg-white"
-      style={{
-        position: "sticky", // Make this section sticky
-        top: "0", // Stick it to the top
-        zIndex: "10", // Ensure it stays above other content
-        backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white for readability
-        padding: "10px", // Adjust padding as needed
-      }}
-    >
-      {/* Left Section: Display sender's image, name, and phone number */}
-      <div className="flex items-center space-x-3">
-        {/* Display Image */}
-        {sendername.mediaPath && (
-          <img
-            src={`${BASE_URL}${sendername.mediaPath}`}
-            alt="Sender Logo"
-            className="w-10 h-10 rounded-full"
-          />
-        )}
-        {/* Display Name and Phone */}
-        <div>
-          <div className="font-bold text-lg">{sendername.senderName}</div>
-          <div className="text-sm text-gray-600">{sendername.phoneNumber}</div>
-        </div>
-      </div>
-      {/* Right Section: Placeholder for future actions */}
-      <div className="flex items-center space-x-4">
-        {/* Add any buttons or actions here */}
-      </div>
-    </div>
-  )}
+                className="border"
+                style={{
+                  maxHeight: "700px",
+                  minHeight: "420px",
+                  overflow: "auto",
+                  backgroundColor: "#e0e0e0",
+                  backgroundImage: `url(${bagroundimage.src})`, // Update this path
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+                  maxWidth: "600px", // Increased width of preview container
+                  position: "relative", // Keep the container relative for positioning
+                }}
+              >
+                {sendername && (
+                  <div
+                    className="flex items-center justify-between text-black px-2 shadow-md bg-white"
+                    style={{
+                      position: "sticky", // Make this section sticky
+                      top: "0", // Stick it to the top
+                      zIndex: "10", // Ensure it stays above other content
+                      backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white for readability
+                      padding: "10px", // Adjust padding as needed
+                    }}
+                  >
+                    {/* Left Section: Display sender's image, name, and phone number */}
+                    <div className="flex items-center space-x-3">
+                      {/* Display Image */}
+                      {sendername.mediaPath && (
+                        <img
+                          src={`${BASE_URL}${sendername.mediaPath}`}
+                          alt="Sender Logo"
+                          className="w-10 h-10 rounded-full"
+                        />
+                      )}
+                      {/* Display Name and Phone */}
+                      <div>
+                        <div className="font-bold text-lg">{sendername.senderName}</div>
+                        <div className="text-sm text-gray-600">{sendername.phoneNumber}</div>
+                      </div>
+                    </div>
+                    {/* Right Section: Placeholder for future actions */}
+                    <div className="flex items-center space-x-4">
+                      {/* Add any buttons or actions here */}
+                    </div>
+                  </div>
+                )}
 
-  {/* Rest of the content (message preview, etc.) */}
-  <div
-    className="chat_bubble"
-    style={{
-      position: "relative",
-      backgroundColor: "#ffff",
-      borderRadius: "5px",
-      padding: "20px 10px",
-      wordWrap: "break-word",
-      marginTop: "15px",
-      marginBottom: "10px",
-      maxWidth: "400px", // Message body width stays the same
-      marginRight: "0", // Remove any margin from the right side
-      marginLeft: "22px",
-    }}
-  >
-    <span className="time_bubble">
-      {moment(new Date()).format("LT")}
-    </span>
-    {messagePreview.media && selectedMediaType.startsWith("image/") && (
-      <img
-        src={`${BASE_URL}${selectedMediaPath}`}
-        alt="Media"
-        className="img-fluid"
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "contain",
-          borderRadius: "8px",
-          marginBottom: "5px",
-        }}
-      />
-    )}
+                {/* Rest of the content (message preview, etc.) */}
+                <div
+                  className="chat_bubble"
+                  style={{
+                    position: "relative",
+                    backgroundColor: "#ffff",
+                    borderRadius: "5px",
+                    padding: "20px 10px",
+                    wordWrap: "break-word",
+                    marginTop: "15px",
+                    marginBottom: "10px",
+                    maxWidth: "400px", // Message body width stays the same
+                    marginRight: "0", // Remove any margin from the right side
+                    marginLeft: "22px",
+                  }}
+                >
+                  <span className="time_bubble">
+                    {moment(new Date()).format("LT")}
+                  </span>
+                  {messagePreview.media && selectedMediaType.startsWith("image/") && (
+                    <img
+                      src={`${BASE_URL}${selectedMediaPath}`}
+                      alt="Media"
+                      className="img-fluid"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        borderRadius: "8px",
+                        marginBottom: "5px",
+                      }}
+                    />
+                  )}
 
-    {messagePreview.media && selectedMediaType.startsWith("video/") && (
-      <video
-        src={`${BASE_URL}${selectedMediaPath}`}
-        autoPlay
-        muted
-        loop
-        className="img-fluid"
-        style={{
-          width: "100%",
-          height: "auto",
-          objectFit: "contain",
-          borderRadius: "8px",
-          marginBottom: "10px",
-        }}
-      />
-    )}
+                  {messagePreview.media && selectedMediaType.startsWith("video/") && (
+                    <video
+                      src={`${BASE_URL}${selectedMediaPath}`}
+                      autoPlay
+                      muted
+                      loop
+                      className="img-fluid"
+                      style={{
+                        width: "100%",
+                        height: "auto",
+                        objectFit: "contain",
+                        borderRadius: "8px",
+                        marginBottom: "10px",
+                      }}
+                    />
+                  )}
 
-    {messagePreview.media && selectedMediaType.startsWith("audio/") && (
-      <audio
-        src={`${BASE_URL}${selectedMediaPath}`}
-        controls
-        controlsList="nodownload"
-        style={{
-          width: "100%",
-          borderRadius: "8px",
-          marginBottom: "10px",
-        }}
-      />
-    )}
+                  {messagePreview.media && selectedMediaType.startsWith("audio/") && (
+                    <audio
+                      src={`${BASE_URL}${selectedMediaPath}`}
+                      controls
+                      controlsList="nodownload"
+                      style={{
+                        width: "100%",
+                        borderRadius: "8px",
+                        marginBottom: "10px",
+                      }}
+                    />
+                  )}
 
-    {messagePreview.header && (
-      <h6 style={{ marginBottom: "5px" }} dangerouslySetInnerHTML={{ __html: messagePreview.header }} />
-    )}
-    <div dangerouslySetInnerHTML={{ __html: messagePreview.body }} />
-    {messagePreview.footer && (
-      <p style={{ marginTop: "5px", fontSize: "0.9em" }}>{messagePreview.footer}</p>
-    )}
+                  {messagePreview.header && (
+                    <h6 style={{ marginBottom: "5px" }} dangerouslySetInnerHTML={{ __html: messagePreview.header }} />
+                  )}
+                  <div dangerouslySetInnerHTML={{ __html: messagePreview.body }} />
+                  {messagePreview.footer && (
+                    <p style={{ marginTop: "5px", fontSize: "0.9em" }}>{messagePreview.footer}</p>
+                  )}
 
-    {(Showallbutton || TotalButtonCount <= 3) &&
-      messagePreview.buttons.map((button, index) => (
-        <Button
-          key={index}
-          className="w-100 mb-2"
-          style={{
-            color: "#00a9ee",
-            backgroundColor: "#ffffff",
-            borderColor: "#ffffff",
-            borderStyle: "solid",
-            borderWidth: "1px 1px 1px 1px",
-            borderTopWidth: "0.5px",
-            borderTopStyle: "solid",
-            borderTopColor: "#e1e1e1",
-          }}
-        >
-          {button.type == 1 && (
-            <span style={{ color: "#00a9ee" }}>
-              <i className="fa fa-share fa-flip-horizontal me-2"></i>
-              {button.text || "Button"}
-            </span>
-          )}
-          {button.type == 2 && (
-            <span style={{ color: "#00a9ee" }}>
-              <i className="fa fa-phone me-2"></i>
-              {button.text || "Button"}
-            </span>
-          )}
-          {button.type == 3 && (
-            <span style={{ color: "#00a9ee" }}>
-              <i className="fa fa-external-link me-2"></i>
-              {button.text || "Button"}
-            </span>
-          )}
-        </Button>
-      ))}
+                  {(Showallbutton || TotalButtonCount <= 3) &&
+                    messagePreview.buttons.map((button, index) => (
+                      <Button
+                        key={index}
+                        className="w-100 mb-2"
+                        style={{
+                          color: "#00a9ee",
+                          backgroundColor: "#ffffff",
+                          borderColor: "#ffffff",
+                          borderStyle: "solid",
+                          borderWidth: "1px 1px 1px 1px",
+                          borderTopWidth: "0.5px",
+                          borderTopStyle: "solid",
+                          borderTopColor: "#e1e1e1",
+                        }}
+                      >
+                        {button.type == 1 && (
+                          <span style={{ color: "#00a9ee" }}>
+                            <i className="fa fa-share fa-flip-horizontal me-2"></i>
+                            {button.text || "Button"}
+                          </span>
+                        )}
+                        {button.type == 2 && (
+                          <span style={{ color: "#00a9ee" }}>
+                            <i className="fa fa-phone me-2"></i>
+                            {button.text || "Button"}
+                          </span>
+                        )}
+                        {button.type == 3 && (
+                          <span style={{ color: "#00a9ee" }}>
+                            <i className="fa fa-external-link me-2"></i>
+                            {button.text || "Button"}
+                          </span>
+                        )}
+                      </Button>
+                    ))}
 
-    {TotalButtonCount > 3 && !Showallbutton && (
-      <Button
-        className="w-100 mb-2"
-        style={{
-          color: "#00a9ee",
-          backgroundColor: "#ffffff",
-          borderColor: "#ffffff",
-          borderStyle: "solid",
-          borderWidth: "1px 1px 1px 1px",
-          borderTopWidth: "0.5px",
-          borderTopStyle: "solid",
-          borderTopColor: "#e1e1e1",
-        }}
-        onClick={() => setShowallbutton(!Showallbutton)}
-      >
-        <i className="fa fa-list"></i>
-        <span style={{ color: "#00a9ee" }}>See all options</span>
-      </Button>
-    )}
-    {TotalButtonCount > 3 && Showallbutton && (
-      <Button
-        className="w-100 mb-2"
-        style={{
-          color: "#00a9ee",
-          backgroundColor: "#ffffff",
-          borderColor: "#ffffff",
-          borderStyle: "solid",
-          borderWidth: "1px 1px 1px 1px",
-          borderTopWidth: "0.5px",
-          borderTopStyle: "solid",
-          borderTopColor: "#e1e1e1",
-        }}
-        onClick={() => setShowallbutton(false)}
-      >
-        <span style={{ color: "#00a9ee" }}>
-          <i className="fa fa-bars me-2"></i>
-          Hide All
-        </span>
-      </Button>
-    )}
-  </div>
-</div>
+                  {TotalButtonCount > 3 && !Showallbutton && (
+                    <Button
+                      className="w-100 mb-2"
+                      style={{
+                        color: "#00a9ee",
+                        backgroundColor: "#ffffff",
+                        borderColor: "#ffffff",
+                        borderStyle: "solid",
+                        borderWidth: "1px 1px 1px 1px",
+                        borderTopWidth: "0.5px",
+                        borderTopStyle: "solid",
+                        borderTopColor: "#e1e1e1",
+                      }}
+                      onClick={() => setShowallbutton(!Showallbutton)}
+                    >
+                      <i className="fa fa-list"></i>
+                      <span style={{ color: "#00a9ee" }}>See all options</span>
+                    </Button>
+                  )}
+                  {TotalButtonCount > 3 && Showallbutton && (
+                    <Button
+                      className="w-100 mb-2"
+                      style={{
+                        color: "#00a9ee",
+                        backgroundColor: "#ffffff",
+                        borderColor: "#ffffff",
+                        borderStyle: "solid",
+                        borderWidth: "1px 1px 1px 1px",
+                        borderTopWidth: "0.5px",
+                        borderTopStyle: "solid",
+                        borderTopColor: "#e1e1e1",
+                      }}
+                      onClick={() => setShowallbutton(false)}
+                    >
+                      <span style={{ color: "#00a9ee" }}>
+                        <i className="fa fa-bars me-2"></i>
+                        Hide All
+                      </span>
+                    </Button>
+                  )}
+                </div>
+              </div>
 
             </div>
           </Col>
@@ -1579,7 +1579,7 @@ useEffect(() => {
         toggle={togglePopup}
         onSubmit={handleSaveActionData}
         index={buttonindex}
-        
+
         existingData={actionbuttonvalues}
       />
     </App>
