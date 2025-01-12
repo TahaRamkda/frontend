@@ -97,7 +97,6 @@ const CampaignCreate = () => {
   console.log("!@#$%^&", bodyFinalContent);
 
   const handleGroupSelection = (groupIds) => {
-    
     setSelectedGroups(groupIds);
     console.log("Selected Groups:", groupIds);
   };
@@ -219,7 +218,7 @@ const CampaignCreate = () => {
       status: "0",
       senderId: template.senderId,
       groupIds: selectedGroups.join(","),
-      mediaId:selectedMediaId,
+      mediaId: selectedMediaId,
       actionBy: localStorage.getItem("userId"),
       mediaId: template.mediaId,
       campaignParameters: [
@@ -460,42 +459,44 @@ const CampaignCreate = () => {
                         />
                       </FormGroup>
                     </div>
-                    {template && 
-  ([2,3,4].includes(template.headerType)) && (
-    <div className="mt-3 text-sm">
-      <button
-        type="button" // Explicitly prevent form submission
-        className="text-blue-500 hover:underline text-sm font-medium"
-        onClick={(e) => {
-          e.preventDefault(); // Prevent default browser behavior
-          setShowMediaPopup(true); // Show the media popup
-        }}
-      >
-        Change {template.headerType === 2 ? "Image" : template.headerType === 3 ? "Video" : "Document"}
-      </button>
+                    {template && [2, 3, 4].includes(template.headerType) && (
+                      <div className="mt-3 text-sm">
+                        <button
+                          type="button" // Explicitly prevent form submission
+                          className="text-blue-500 hover:underline text-sm font-medium"
+                          onClick={(e) => {
+                            e.preventDefault(); // Prevent default browser behavior
+                            setShowMediaPopup(true); // Show the media popup
+                          }}
+                        >
+                          Change{" "}
+                          {template.headerType === 2
+                            ? "Image"
+                            : template.headerType === 3
+                            ? "Video"
+                            : "Document"}
+                        </button>
 
-      {showMediaPopup && (
-        <Media
-          isPopup={true}
-          contentTypeStr={
-            template.headerType === 2
-              ? "image"
-              : template.headerType === 3
-              ? "video"
-              : "application"
-          }
-          onSelectMedia={(mediaId, mediaPath, mimeType) => {
-            setSelectedMediaId(mediaId);
-            setSelectedMediaPath(mediaPath);
-            setSelectedMediaType(mimeType);
-            setShowMediaPopup(false); // Close the popup after selection
-          }}
-        />
-      )}
-    </div>
-  )
-}
-
+                        {showMediaPopup && (
+                          <Media
+                            isPopup={true}
+                            contentTypeStr={
+                              template.headerType === 2
+                                ? "image"
+                                : template.headerType === 3
+                                ? "video"
+                                : "application"
+                            }
+                            onSelectMedia={(mediaId, mediaPath, mimeType) => {
+                              setSelectedMediaId(mediaId);
+                              setSelectedMediaPath(mediaPath);
+                              setSelectedMediaType(mimeType);
+                              setShowMediaPopup(false); // Close the popup after selection
+                            }}
+                          />
+                        )}
+                      </div>
+                    )}
 
                     {headerVariable.length > 0 && <h5>Header Variables</h5>}
                     {headerVariable.map((variable, index) => (

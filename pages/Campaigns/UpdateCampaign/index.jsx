@@ -65,6 +65,7 @@ const UpdateCampaigns = () => {
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
   const[existinggroupId, setexistinggroupId] = useState([]);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
+  const [senturlvariables, setsenturlvariables] = useState([]);
   const replaceClosingPTagsWithNewline = (content) => {
     return content?.replace(/<\/p>/gi, '\n ').replace(/<p.*?>/gi, '').replace(/\n /g, '\n  ');
   };
@@ -121,6 +122,21 @@ const UpdateCampaigns = () => {
             handleheaderVariableChange(i, paramText || "");
           } else if (paramType === 2) {
             handleVariableChange(i, paramText || "");
+          }else if (paramType === 3) {
+            const filteredButtonValues =  campaigndetail.parameters.filter(
+              (item) => item["isDynamic"] && item.paramDefaultValue !== null
+            );
+            setsenturlvariables(filteredButtonValues);
+          }
+
+
+
+          if (template.buttonValues.some((item) => item.value !== null)) {
+            const filteredButtonValues = template.buttonValues.filter(
+              (item) => item["isDynamic"] && item.value !== null
+            );
+            setsenturlvariables(filteredButtonValues);
+            console.log("urlvariables", filteredButtonValues);
           }
         });
       }
@@ -336,12 +352,18 @@ const UpdateCampaigns = () => {
   };
 
   const handleurlVariableChange = (index, value) => {
-    seturlvariables((prev) => {
+    setsenturlvariables((prev) => {
       const newurlVariable = [...prev];
-      newurlVariable[index] = value;
+      // Create a new object for the `values` property
+      const updatedButton = {
+        ...newurlVariable[index],
+        values: { ...newurlVariable[index].values, value }, // Create a new `values` object
+      };
+      newurlVariable[index] = updatedButton; // Replace the button at index with the updated button
       return newurlVariable;
     });
   };
+
 
   const handleSenderChange = (e) => {
     const role = e.target.value;
@@ -442,6 +464,7 @@ const UpdateCampaigns = () => {
                       </FormGroup>
 
                     </div>
+                 
                     {template && 
   (["2", "3", "4"].includes(String(template.headerType))) && (
     <div className="mt-3 text-sm">
@@ -453,7 +476,7 @@ const UpdateCampaigns = () => {
           setShowMediaPopup(true); // Show the media popup
         }}
       >
-        Change {template.headerType === 2 ? "Image" : template.headerType === 3 ? "Video" : "Document"}
+        Change header {template.headerType === 2 ? "Image" : template.headerType === 3 ? "Video" : "Document"}
       </button>
 
       {showMediaPopup && (
@@ -477,9 +500,10 @@ const UpdateCampaigns = () => {
     </div>
   )
 }
+                    {headerVariable.length > 0 && <h5>Header Variables</h5>}
                     {headerVariable.map((variable, index) => (
                       <FormGroup key={index}>
-                        <h5>Header Variables</h5>
+                        
                         <Label>{`Value for {${index + 1}}`}</Label>
                         <Input
                           type="text"
@@ -493,10 +517,10 @@ const UpdateCampaigns = () => {
                         />
                       </FormGroup>
                     ))}
-
+                    {variables.length > 0 && <h5>Body Variables</h5>}
                     {variables.map((variable, index) => (
                       <FormGroup key={index}>
-                        <h5>Body Variables</h5>
+                       
                         <Label>{`Value for {${index + 1}}`}</Label>
                         <Input
                           type="text"
@@ -508,34 +532,33 @@ const UpdateCampaigns = () => {
                         />
                       </FormGroup>
                     ))}
-                    {urlvariables.map((variable, index) => (
-                      <FormGroup key={index}>
-                        <Label>{`Sample Value for {${index + 1}}`}</Label>
-                        <Row>
-                          <Col>
-                            <Input
-                              className="w-90"
-                              type="text"
-                              value={variable}
-                              onChange={(e) => handleurlVariableChange(index, e.target.value)}
-                              placeholder={`Enter Sample  value for {${index + 1}}`}
-                            />
-                          </Col>
-                          <Col>
-                            <div className="border-1 flex items-center justify-center rounded" style={{ height: "46px", width: "38px", background: "#e1e1e1" }}>
-                              <FaTimes
-                                key={index}
-                                onClick={() => {
-                                  removeHeaderVariable(index);
-                                  setHeaderVariable(headerVariable.filter((_, i) => i !== index));
-                                }}
-                                style={{ cursor: "pointer", color: "red" }}
-                              />
-                            </div>
-                          </Col>
-                        </Row>
-                      </FormGroup>
-                    ))}
+                    {senturlvariables.length > 0 &&
+                      senturlvariables.map(
+                        (variable, index) =>
+                          variable.values !== null && (
+                            <FormGroup key={variable.index}>
+                              <Label>{`Url Value for {${index + 1}}`}</Label>
+                              <Row>
+                                <Col>
+                                  <Input
+                                    className="w-90"
+                                    type="text"
+                                    value={variable.values.value || ""}
+                                    onChange={(e) =>
+                                      handleurlVariableChange(
+                                        index,
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder={`Enter Sample value for {${
+                                      index + 1
+                                    }}`}
+                                  />
+                                </Col>
+                              </Row>
+                            </FormGroup>
+                          )
+                      )}
                     <div className="w-full flex justify-end gap-3">
                       <Button className="uniform_btn_Cancel " onClick={handelCancel}>
                         Cancel
