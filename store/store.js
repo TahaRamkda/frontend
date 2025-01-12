@@ -5,7 +5,7 @@ import clientSlice from "@/slices/ClientSlice";
 import sendernameSlice from "@/slices/sendernameSlice";
 import GroupSlice from "@/slices/Groupslice";
 import templateSlice from "@/slices/TemplateSlice";
-import CampaignSlice from "@/slices/CampaignSlice";
+import CampaignSlice from "@/slices/campaignSlice";
 import mediaSlice from "@/slices/MediaSlice";
 import roleSlice from "@/slices/RoleSlice";
 import userSlice from "@/slices/UserSlice";

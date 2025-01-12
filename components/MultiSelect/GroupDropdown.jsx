@@ -5,7 +5,7 @@ import $ from 'jquery';
 import Select from 'react-select';
 import { fetchGroupsDrop, clearGroupDropState } from "@/slices/Groupslice";
 
-export const GroupsDropdown = ({ onChange }) => {
+export const GroupsDropdown = ({ onChange ,existingdata}) => {
   const dispatch = useDispatch();
   const { groupDrop, loading, error } = useSelector((state) => state.groups);
   const [selectedGroupId, setSelectedGroupId] = useState([]);
@@ -18,6 +18,12 @@ export const GroupsDropdown = ({ onChange }) => {
     dispatch(fetchGroupsDrop({ clientId: localStorage.getItem("clientId"), SearchStr: SearchStr }));
 
   }, [dispatch]);
+
+  useEffect(() => {
+    if(existingdata){
+      setSelectedGroupId(existingdata || [])
+    }
+  }, [existingdata]);
 
 
   // Notify parent of selected group changes

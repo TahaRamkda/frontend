@@ -47,9 +47,9 @@ export const fetchAgentsMonitor = createAsyncThunk(
   
   export const agentDisable = createAsyncThunk(
     'media/agentDisable',
-    async (agentData, { rejectWithValue }) => {
+    async ({agentId, disable,clientId}, { rejectWithValue }) => {
       try {
-        const response = await API.post(AGENTDISABLE, agentData);
+        const response = await API.get(`${AGENTDISABLE}?clientId=${clientId}&agentId=${agentId}&disable=${disable}`);
         return response.data;
       } catch (error) {
         const handledError = handleError(error);

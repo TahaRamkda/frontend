@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { FaTimes } from 'react-icons/fa';
 import { FaRegTrashCan } from "react-icons/fa6";
 import { fetchTemplatesById, clearTemplateDetailState } from "@/slices/TemplateSlice";
-import { UpdateCampaign, clearCampaignUpdateState, fetchCampaignDetail, clearCampaignDetailState } from "@/slices/CampaignSlice";
+import { UpdateCampaign, clearCampaignUpdateState, fetchCampaignDetail, clearCampaignDetailState } from "@/slices/campaignSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Groups from "@/components/MultiSelect/GroupDropdown";
 import Templates from "@/components/Dropdowns/TemplateDropdown";
@@ -63,6 +63,7 @@ const UpdateCampaigns = () => {
   const [updatedvercontent, setupdatedvercontent] = useState("");
   const [SelectedCampaign, setSelectedCampaign] = useState(0);
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
+  const[existinggroupId, setexistinggroupId] = useState([]);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const replaceClosingPTagsWithNewline = (content) => {
     return content?.replace(/<\/p>/gi, '\n ').replace(/<p.*?>/gi, '').replace(/\n /g, '\n  ');
@@ -74,7 +75,7 @@ const UpdateCampaigns = () => {
 
   const handleGroupSelection = (groupIds) => {
     setSelectedGroups(groupIds);
-    console.log("Selected Groups:", groupIds);
+    console.log("Selected Groups:", selectedGroups);
   };
 
   const handleTemplateChange = (e) => {
@@ -108,12 +109,12 @@ const UpdateCampaigns = () => {
   }, [dispatch, selectedTemplateId]);
 
   useEffect(() => {
-    if (campaigndetail) { // Run only if a template is selected
-
+    if (campaigndetail) {
       setSelectedTemplateId(campaigndetail.templateId);
       setcampaignName(campaigndetail.campaignName);
-      setSelectedGroups(campaigndetail.groupIds);
+      setexistinggroupId(campaigndetail.groupIds.replace(/['"]+/g, '').split(',').map(Number))
     }
+    
   }, [dispatch, campaigndetail]);
 
   useEffect(() => {
@@ -422,6 +423,7 @@ const UpdateCampaigns = () => {
                           name="senderId"
                           onChange={handleGroupSelection}
                           className="mb-3"
+                          existingdata={existinggroupId}
                         />
                       </FormGroup>
 

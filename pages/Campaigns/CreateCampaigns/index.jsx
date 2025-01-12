@@ -29,7 +29,7 @@ import {
 import {
   createCampaign,
   clearCampaignCreeateState,
-} from "@/slices/CampaignSlice";
+} from "@/slices/campaignSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Groups from "@/components/MultiSelect/GroupDropdown";
 import Templates from "@/components/Dropdowns/TemplateDropdown";
@@ -83,7 +83,6 @@ const CampaignCreate = () => {
   const [headerPayloadDatawithVar, setheaderPayloaddatawithVar] = useState("");
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [updatedvercontent, setupdatedvercontent] = useState("");
-
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const replaceClosingPTagsWithNewline = (content) => {
@@ -98,6 +97,7 @@ const CampaignCreate = () => {
   console.log("!@#$%^&", bodyFinalContent);
 
   const handleGroupSelection = (groupIds) => {
+    
     setSelectedGroups(groupIds);
     console.log("Selected Groups:", groupIds);
   };
@@ -221,7 +221,7 @@ const CampaignCreate = () => {
       groupIds: selectedGroups.join(","),
       mediaId:selectedMediaId,
       actionBy: localStorage.getItem("userId"),
-
+      mediaId: template.mediaId,
       campaignParameters: [
         ...headerVariable.map((value, index) => ({
           sequence: index + 1,

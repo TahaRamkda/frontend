@@ -7,12 +7,12 @@ import { CREATECAMPAIGN, CAMPAIGNLIST, ACTIVATECAMPAIGN ,CAMPAIGNDETAIL,UPDATECA
 export const fetchCampaign = createAsyncThunk(
   'campaign/fetchCampaign',
   async ({ClientId, FromDate, ToDate, srcStr, PageNo, pageSize}, { rejectWithValue }) => {
+    console.log("Fetching campaign data...");
    
     try {
       
       const response = await API.get(`${CAMPAIGNLIST}?ClientId=${ClientId}${srcStr ? `&SearchStr=${srcStr}` : ''}&FromDate=${FromDate}&ToDate=${ToDate}&PageNo=${PageNo}&PageSize=${pageSize}`);
-      if (response?.status === 200 && response.data?.result) {
-        console.log("Total Recordsssssss:", response.data.result[0].totalRecords);
+      if (response?.status === 200) {
         return {
           campaigns: response.data.result,
           totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
@@ -72,6 +72,7 @@ export const fetchCampaignDetail = createAsyncThunk(
   'campaign/fetchCampaignDetail',
   async ({CampaignId ,ClientId}, { rejectWithValue }) => {
     try {
+      
       const response = await API.get(`${CAMPAIGNDETAIL}?ClientId=${ClientId ? ClientId : localStorage.getItem('clientId')}&CampaignId=${CampaignId}`);
       if (response?.status === 200 && response.data?.result) {
         return {
@@ -260,12 +261,11 @@ export const fetchCampaignDetail = createAsyncThunk(
           state.success = false;
         })
         .addCase( fetchCampaign.fulfilled, (state, action) => {
-          alert(action.payload.totalRecords);
+          
           state.campaigns = action.payload.campaigns ;
           state.loading = false;
           state.success = true;
-          state.message = action.payload.message || 'Created Successfully';
-          state.totalRecords = action.payload.totalRecords;
+          state.totalRecords = action.payload.totalRecords || 0;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || "";
         })
@@ -372,5 +372,4 @@ export const fetchCampaignDetail = createAsyncThunk(
   } = campaignSlice.actions;
  
   export default campaignSlice.reducer;
- 
  

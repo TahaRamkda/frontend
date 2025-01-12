@@ -13,7 +13,7 @@ import {
   clearCampaignContactState,
   fetchCampaignFrequentDelete,
   clearCampaignFreqDeleteState,
-} from "@/slices/CampaignSlice";
+} from "@/slices/campaignSlice";
 import { useDispatch, useSelector } from "react-redux";
 import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Loader";

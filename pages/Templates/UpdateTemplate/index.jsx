@@ -306,7 +306,7 @@ const TemplateUpdatePage = () => {
           index: index + 1,
         })),
         actionId: button.actionId,
-        actionType: button.actiontype,
+        actionType: button.actionType,
         buttonId: button.buttonValue,
       })),
     };
