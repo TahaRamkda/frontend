@@ -182,33 +182,34 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId }) => {
             </div>
           </div>
 
-          {/* Options List */}
           <div className="max-h-60 overflow-y-auto">
             {agenttemplates.length > 0 &&
               agenttemplates.map((option) => (
                 <div
-                  key={option.id} // Use unique property as the key
-                  className={`px-4 py-2 hover:bg-gray-200 cursor-pointer text-sm ${
-                    selectedOption === option ? "bg-gray-200 text-blue-600" : ""
+                  key={option.id}
+                  className={`px-4 py-2 cursor-pointer text-sm ${
+                    selectedOption === option.id
+                      ? "bg-blue-100 text-blue-600 border-l-4 border-blue-500"
+                      : "hover:bg-gray-200"
                   }`}
                   onClick={() => handleSelection(option.id)}
                 >
-                  {option.name}{" "}
-                  {/* Render the desired property, e.g., templateName */}
+                  {option.name}
                 </div>
               ))}
           </div>
 
           {/* Footer */}
-          <div className="p-2 border-t text-end bg-gray-50">
-            <button
-              className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600 disabled:bg-blue-500"
-              onClick={handleSend}
-              disabled={!selectedOption} // Disable if no option selected
-            >
-              <i className="fa fa-paper-plane-o"></i>
-            </button>
-          </div>
+          {selectedOption && (
+            <div className="p-2 border-t text-end bg-gray-50">
+              <button
+                className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600"
+                onClick={handleSend}
+              >
+                <i className="fa fa-paper-plane-o"></i> Send
+              </button>
+            </div>
+          )}
 
           {/* Loading state */}
           {loading && (

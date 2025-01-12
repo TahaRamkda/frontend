@@ -10,7 +10,7 @@ import DataTable from "react-data-table-component";
 import Loading from '@/components/Loader';
 import { MdEdit } from "react-icons/md"; 
 import App from '@/components/App';
-
+import sweetalert from 'sweetalert2';
 
 
 const MessageSummary = () => {
@@ -35,16 +35,12 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
      {
           name: "Action",
           cell: (row) => (
-            <center>
-              <div className="flex gap-2">
-                <button
-                  className="uniform_icon_btn"
-                  onClick={editModalClick}
-                >
-                  <MdEdit style={{ fontSize: "15px" }} />
-                </button>
-              </div>
-            </center>
+            <button
+                className={`btn ${row.isDisabled ? 'btn-danger' : 'btn-success'}`}
+                onClick={() => handleAction(row.agentId, row.isDisabled)}
+              >
+                {row.isDisabled ? 'Enable' : 'Disable'}
+              </button>
           ),
         },
   ];
@@ -75,7 +71,10 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
     const senderId = e.target.value;
     setsenderid(senderId);
   };
+ const refreshlist = () => {
+  dispatch(fetchAgentsMonitor({ clientId: clientId, senderId: senderid, srcStr:srcStr,pageSize, pageNo: currentPage, fromDate:FromDate, toDate:ToDate}));
 
+ }
  const handleSearchString = (e) => {
     const searchValue = e.target.value;
     setsrcStr(searchValue);
@@ -93,7 +92,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
 
     setSearchTimeout(timeout); // Save the timeout reference
   };
-
+   
 
   const handlePageSizeChange = async (newSize) => {
     // Update page size and reset to the first page
@@ -114,39 +113,39 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
 
     setShowEditModal(false);
   };
-  const handleSubmit = async (values, { setSubmitting }) => {
-    const formData = new FormData();
-    formData.append("clientId", localStorage.getItem("clientId"));
-    formData.append("agentId", values.agentId); // Use Formik's value
-    formData.append("disable", values.disable);
-
-    try {
-      const response = await dispatch(agentDisable(formData)).unwrap();
-      if (response.success) {
-        dispatch(clearAgentDisableState());
-        setSubmitting(false);
-        showSweetAlert({
-          title: "Updated Successfully",
-          text: "",
-          icon: "success",
-        });
-        onUploadSuccess();
-      } else {
-        showSweetAlert({
-          title: "Failed",
-          text: response.result.message || "",
-          icon: "error",
-        });
+  const handleAction = async (agentId, currentStatus) => {
+    const action = currentStatus ? 'enable' : 'disable';
+    const newStatus = !currentStatus;
+  
+    const confirmation = await sweetalert.fire({
+      title: `Are you sure you want to ${action} this agent?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      cancelButtonText: 'No',
+    });
+  
+    if (confirmation.isConfirmed) {
+      try {
+        const clientId = localStorage.getItem("clientId");
+        const response = await dispatch(agentDisable({ agentId : agentId,
+          disable: newStatus,
+          clientId : clientId})).unwrap();
+  
+        if (response.result) {
+          sweetalert.fire('Success', `Agent has been ${action}d successfully.`, 'success');
+         refreshlist();
+        } else {
+          sweetalert.fire('Error', response.message || 'Failed to update agent status.', 'error');
+        }
+      } catch (error) {
+        sweetalert.fire('Error', 'An error occurred while updating the agent status.', 'error');
       }
-    } catch (err) {
-      console.error("Failed to Update", err);
-      showSweetAlert({
-        title: "Failed",
-        text: err.message || "",
-        icon: "error",
-      });
     }
   };
+  
+  
+  
   const handlePageChange = async (page) => {
     // Update current page state in Redux
     dispatch(setCurrentPage(page));
