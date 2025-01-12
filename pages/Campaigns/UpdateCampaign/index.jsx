@@ -14,6 +14,7 @@ import showSweetAlert from "@/components/Sweetalert";
 import Groups from "@/components/MultiSelect/GroupDropdown";
 import Templates from "@/components/Dropdowns/TemplateDropdown";
 import App from "@/components/App";
+import Media from "@/pages/Media/MediaList";
 import moment from "moment";
 import bagroundimage from '@/public/images/baground.jpg';
 import { BASE_URL } from "@/utils/apiConstants";
@@ -27,6 +28,7 @@ const UpdateCampaigns = () => {
   const [Loading, setLoading] = useState(true);
   const { template, loading, error } = useSelector((state) => state.templates);
   const { campaigndetail, loading: campaignloading, error: campaignerror } = useSelector((state) => state.campaigns);
+  const [showMediaPopup, setShowMediaPopup] = useState(false);
   const [messagePreview, setMessagePreview] = useState({
     header: "",
     body: "",
@@ -424,6 +426,41 @@ const UpdateCampaigns = () => {
                       </FormGroup>
 
                     </div>
+                    {template && 
+  (["2", "3", "4"].includes(String(template.headerType))) && (
+    <div className="mt-3 text-sm">
+      <button
+        type="button" // Explicitly prevent form submission
+        className="text-blue-500 hover:underline text-sm font-medium"
+        onClick={(e) => {
+          e.preventDefault(); // Prevent default browser behavior
+          setShowMediaPopup(true); // Show the media popup
+        }}
+      >
+        Change {template.headerType === 2 ? "Image" : template.headerType === 3 ? "Video" : "Document"}
+      </button>
+
+      {showMediaPopup && (
+        <Media
+          isPopup={true}
+          contentTypeStr={
+            template.headerType === 2
+              ? "image"
+              : template.headerType === 3
+              ? "video"
+              : "application"
+          }
+          onSelectMedia={(mediaId, mediaPath, mimeType) => {
+            setSelectedMediaId(mediaId);
+            setSelectedMediaPath(mediaPath);
+            setSelectedMediaType(mimeType);
+            setShowMediaPopup(false); // Close the popup after selection
+          }}
+        />
+      )}
+    </div>
+  )
+}
                     {headerVariable.map((variable, index) => (
                       <FormGroup key={index}>
                         <h5>Header Variables</h5>

@@ -184,13 +184,11 @@ const TemplateList = () => {
   };
   const handleSearchString = (e) => {
     const searchValue = e.target.value;
-    setSrcStr(searchValue);
-
+    setFilterText(searchValue);
     // Clear the previous timeout if any
     if (searchTimeout) {
       clearTimeout(searchTimeout);
     }
-
     // Set a new timeout for 0.5 seconds
     const timeout = setTimeout(() => {
       dispatch(
@@ -238,12 +236,10 @@ const TemplateList = () => {
             />
           </div>
           <div className="flex flex-col text-start mb-1">
-            <label className="font-medium text-gray-700 text-sm">
-              From Date
-            </label>
+            <label className="font-medium text-gray-700 text-sm">From Date</label>
             <input
               type="date"
-              id="fromDate"
+              id="FromDate"
               value={FromDate}
               onChange={(e) => setfromDate(e.target.value)}
               className="border rounded  w-100"
@@ -253,7 +249,7 @@ const TemplateList = () => {
             <label className="font-medium text-gray-700 text-sm">To Date</label>
             <input
               type="date"
-              id="toDate"
+              id="ToDate"
               value={ToDate}
               onChange={(e) => settoDate(e.target.value)}
               className="border rounded  w-100"
@@ -262,7 +258,8 @@ const TemplateList = () => {
         </div>
       </div>
     );
-  }, [filterText]);
+  }, [filterText, FromDate, ToDate]);
+  
 
   if (error) {
     return <Alert color="danger">{error}</Alert>;

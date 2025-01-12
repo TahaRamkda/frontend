@@ -5,24 +5,18 @@ import { CREATECAMPAIGN, CAMPAIGNLIST, ACTIVATECAMPAIGN ,CAMPAIGNDETAIL,UPDATECA
 
 // Thunks
 export const fetchCampaign = createAsyncThunk(
-  
   'campaign/fetchCampaign',
   async ({ClientId, FromDate, ToDate, srcStr, PageNo, pageSize}, { rejectWithValue }) => {
+    console.log("Fetching campaign data...");
+   
     try {
-      const response = await API.get(`${CAMPAIGNLIST}?ClientId=${ClientId}${srcStr? `&SearchStr=${srcStr}`: ''}&FromDate=${FromDate}&ToDate=${ToDate}&PageNo=${PageNo}&PageSize=${pageSize}`);
+      const response = await API.get(`${CAMPAIGNLIST}?ClientId=${ClientId}${srcStr ? `&SearchStr=${srcStr}` : ''}&FromDate=${FromDate}&ToDate=${ToDate}&PageNo=${PageNo}&PageSize=${pageSize}`);
       if (response?.status === 200 && response.data?.result) {
-        console.log("Total Recordsssssss:",response.data.result[0].totalRecords);
+        console.log("Total Recordsssssss:", response.data.result[0].totalRecords);
         return {
           campaigns: response.data.result,
-          totalRecords: (response.data && 
-            response.data.result && 
-            response.data.result.length > 0 && 
-            response.data.result[0].totalRecords) 
-            ? response.data.result[0].totalRecords 
-            : 0,
-         
+          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
         };
-        
       } else {
         throw new Error('Failed to fetch details');
       }
@@ -32,6 +26,7 @@ export const fetchCampaign = createAsyncThunk(
     }
   }
 );
+
 
 
 export const fetchCampaignContactState = createAsyncThunk(
@@ -184,6 +179,7 @@ export const fetchCampaignDetail = createAsyncThunk(
         state.success = false;
       },
       clearCampaignListState: (state) => {
+        
         state.campaigns=[];
         state.loading = false;
         state.error = null;
@@ -263,6 +259,7 @@ export const fetchCampaignDetail = createAsyncThunk(
           state.success = false;
         })
         .addCase( fetchCampaign.fulfilled, (state, action) => {
+
           state.campaigns = action.payload.campaigns ;
           state.loading = false;
           state.success = true;
