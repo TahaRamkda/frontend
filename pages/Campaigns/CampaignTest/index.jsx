@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, Label } from "reactstrap";
 import showSweetAlert from "@/components/Sweetalert";
-import { sendCampaign, clearCampaignSendState } from "@/slices/CampaignSlice";
+import { sendCampaign, clearCampaignSendState } from "@/slices/campaignSlice";
 
 const CampaignTest = ({ isVisible, onClose, onsuccess, CampaignId }) => {
   const dispatch = useDispatch();

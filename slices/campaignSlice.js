@@ -2,27 +2,22 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
 import { CREATECAMPAIGN, CAMPAIGNLIST, ACTIVATECAMPAIGN ,CAMPAIGNDETAIL,UPDATECAMPAIGN, CAMPAIGNCONTACTFREQUENTREMOVE , CAMPAIGNCONTACTFREQUENTSTATE,SENDCAMPAIGN} from '@/utils/apiConstants';
-
+ 
 // Thunks
 export const fetchCampaign = createAsyncThunk(
-  
   'campaign/fetchCampaign',
   async ({ClientId, FromDate, ToDate, srcStr, PageNo, pageSize}, { rejectWithValue }) => {
+    console.log("Fetching campaign data...");
+   
     try {
-      const response = await API.get(`${CAMPAIGNLIST}?ClientId=${ClientId}${srcStr? `&SearchStr=${srcStr}`: ''}&FromDate=${FromDate}&ToDate=${ToDate}&PageNo=${PageNo}&PageSize=${pageSize}`);
-      if (response?.status === 200 && response.data?.result) {
-        console.log("Total Recordsssssss:",response.data.result[0].totalRecords);
+      
+      const response = await API.get(`${CAMPAIGNLIST}?ClientId=${ClientId}${srcStr ? `&SearchStr=${srcStr}` : ''}&FromDate=${FromDate}&ToDate=${ToDate}&PageNo=${PageNo}&PageSize=${pageSize}`);
+      if (response?.status === 200) {
         return {
           campaigns: response.data.result,
-          totalRecords: (response.data && 
-            response.data.result && 
-            response.data.result.length > 0 && 
-            response.data.result[0].totalRecords) 
-            ? response.data.result[0].totalRecords 
-            : 0,
+          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
          
         };
-        
       } else {
         throw new Error('Failed to fetch details');
       }
@@ -32,8 +27,9 @@ export const fetchCampaign = createAsyncThunk(
     }
   }
 );
-
-
+ 
+ 
+ 
 export const fetchCampaignContactState = createAsyncThunk(
   'campaign/fetchCampaignContactState',
   async ({ClientId , CampaignId}, { rejectWithValue }) => {
@@ -52,7 +48,7 @@ export const fetchCampaignContactState = createAsyncThunk(
     }
   }
 );
-
+ 
 export const fetchCampaignFrequentDelete = createAsyncThunk(
   'campaign/fetchCampaignFrequentDelete',
   async ({ClientId,CampaignId,Removedays}, { rejectWithValue }) => {
@@ -71,16 +67,17 @@ export const fetchCampaignFrequentDelete = createAsyncThunk(
     }
   }
 );
-
+ 
 export const fetchCampaignDetail = createAsyncThunk(
   'campaign/fetchCampaignDetail',
   async ({CampaignId ,ClientId}, { rejectWithValue }) => {
     try {
+      
       const response = await API.get(`${CAMPAIGNDETAIL}?ClientId=${ClientId ? ClientId : localStorage.getItem('clientId')}&CampaignId=${CampaignId}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           campaigndetail: response.data.result,
-
+ 
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -91,7 +88,7 @@ export const fetchCampaignDetail = createAsyncThunk(
     }
   }
 );
-
+ 
   // Create Roles
   export const  createCampaign = createAsyncThunk(
     'campaign/createCampaign',
@@ -105,8 +102,8 @@ export const fetchCampaignDetail = createAsyncThunk(
       }
     }
   );
-
-
+ 
+ 
   export const  UpdateCampaign = createAsyncThunk(
     'campaign/UpdateCampaign',
     async ( campaignData, { rejectWithValue }) => {
@@ -119,7 +116,7 @@ export const fetchCampaignDetail = createAsyncThunk(
       }
     }
   );
-
+ 
   //first create an api end point and replace it with the curent endpoint and replace clientdata to campaigndata and put method to post
   export const activateCampaign = createAsyncThunk(
     'campaign/activateCampaign',
@@ -133,7 +130,7 @@ export const fetchCampaignDetail = createAsyncThunk(
       }
     }
   );
-
+ 
   export const  sendCampaign = createAsyncThunk(
     'campaign/sendCampaign',
     async ( sendData, { rejectWithValue }) => {
@@ -162,9 +159,9 @@ export const fetchCampaignDetail = createAsyncThunk(
       totalPages: 1,
       pageSize: 10,
       totalRecords: 0,
-      
+     
     },
-    
+   
     reducers: {
       setPageSize: (state, action) => {
         state.pageSize = action.payload;
@@ -184,6 +181,7 @@ export const fetchCampaignDetail = createAsyncThunk(
         state.success = false;
       },
       clearCampaignListState: (state) => {
+       
         state.campaigns=[];
         state.loading = false;
         state.error = null;
@@ -220,7 +218,7 @@ export const fetchCampaignDetail = createAsyncThunk(
         state.loading = false;
         state.error = null;
         state.success = false;
-        
+       
       }
     },
     extraReducers: (builder) => {
@@ -241,7 +239,7 @@ export const fetchCampaignDetail = createAsyncThunk(
           state.error = action.payload || action.error.message;
           state.message = action.payload?.message || action.error.message;
         })
-        
+       
         .addCase( UpdateCampaign.pending, (state) => {
           state.loading = true;
           state.error = null;
@@ -263,13 +261,13 @@ export const fetchCampaignDetail = createAsyncThunk(
           state.success = false;
         })
         .addCase( fetchCampaign.fulfilled, (state, action) => {
+          
           state.campaigns = action.payload.campaigns ;
           state.loading = false;
           state.success = true;
-          state.message = action.payload.message || 'Created Successfully';
-          state.totalRecords = action.payload.totalRecords;
-          state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
-          state.message = action.payload.message || '';
+          state.totalRecords = action.payload.totalRecords || 0;
+        state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
+        state.message = action.payload.message || "";
         })
         .addCase( fetchCampaign.rejected, (state, action) => {
           state.campaigns =[];
@@ -358,7 +356,7 @@ export const fetchCampaignDetail = createAsyncThunk(
         })
     },
   });
-  
+ 
   // Export actions
   export const {
     setPageSize,
@@ -372,6 +370,6 @@ export const fetchCampaignDetail = createAsyncThunk(
     clearCampaignSendState,
     clearCampaignActivateState,
   } = campaignSlice.actions;
-  
+ 
   export default campaignSlice.reducer;
-  
+ 
