@@ -1296,7 +1296,6 @@ const TemplateCreationPage = () => {
                             }}
                             className="me-2"
                             onClick={() => handlebuttonaction(index, button.actionId, button.actiontype, button.buttonValue)}
-                            onClick={() => handlebuttonaction(index,button.actionId,button.actionType,button.buttonValue)}
                           >
                             <i className="fa fa-bolt"></i>
                           </Button>
