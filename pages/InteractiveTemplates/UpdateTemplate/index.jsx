@@ -145,7 +145,11 @@ const InteractiveTemplateUpdate = () => {
           setLoading(false);
         });
     }
+    else{
+      router.back()
+    }
   }, [dispatch, Template_Id]);
+  
 
   // Handle interactivetemplatedetail updates once it has been fetched (Second useEffect)
   useEffect(() => {
@@ -345,60 +349,7 @@ const InteractiveTemplateUpdate = () => {
     }));
   }, [bodyFinalContent, variables]);
 
-  const addURLVariable = (index) => {
-    const newIndex = 1;
-
-    const updatedButtons = [...messagePreview.buttons];
-
-    if (!updatedButtons[index].websiteUrl.includes(`{{1}}`)) {
-      const html = updatedButtons[index].websiteUrl;
-      //.replace(/<p[^>]*>/g, '') // Remove opening <p> tags
-      // .replace(/<\/p>/g, '<br />'); // Replace closing </p> tags with <br />
-      //.replace(/<br\s*\/?>/g, ''); // Remove existing <br /> tag
-      var a = `${html}{{${newIndex}}}`;
-      var value = bodyTextCount;
-      //setbodyTextCount(value+1);
-      updatedButtons[index].websiteUrl = a;
-      updatedButtons[index].urlveriable = "";
-      updatedButtons[index].urlveriablevalue = "";
-      updatedButtons[index].urlverindex = newIndex;
-      //setwebsiteUrl(e.target.value)
-      setMessagePreview({ ...messagePreview, buttons: updatedButtons });
-      //setwebsiteUrl(a);
-      // alert(websiteUrl);
-      //seturlvariables((prev) => [...prev, ""]);
-      setErrorMessage("");
-    } else {
-      setErrorMessage(`Variable {${newIndex}} already exists in the body.`);
-    }
-  };
-  const removeWebsiteVariable = (index) => {
-    const updatedButtons = [...messagePreview.buttons];
-
-    // Check if the variable exists in the URL
-    if (
-      updatedButtons[index].websiteUrl.includes(
-        `{{${updatedButtons[index].urlverindex}}}`
-      )
-    ) {
-      // Remove the variable from the website URL
-      updatedButtons[index].websiteUrl = updatedButtons[
-        index
-      ].websiteUrl.replace(`{{${updatedButtons[index].urlverindex}}}`, "");
-      delete updatedButtons[index].urlveriable;
-      delete updatedButtons[index].urlveriablevalue;
-      delete updatedButtons[index].urlverind;
-
-      // Update the state
-      setMessagePreview({ ...messagePreview, buttons: updatedButtons });
-      setErrorMessage(""); // Clear any existing error messages
-    } else {
-      setErrorMessage(
-        `Variable {${updatedButtons[index].urlverindex}} does not exist in the URL.`
-      );
-    }
-  };
-
+ 
   const handleVariableChange = (index, value) => {
     setVariables((prev) => {
       const newVariables = [...prev];
@@ -1018,19 +969,19 @@ const InteractiveTemplateUpdate = () => {
                             </Input>
                             <Input
                               type="text"
-                              value={button.phoneNumber}
+                              value={button.buttonValue}
                               placeholder="Phone Number"
                               onChange={(e) => {
-                                const updatedButtons = [
-                                  ...messagePreview.buttons,
-                                ];
-                                updatedButtons[index].phoneNumber =
-                                  e.target.value;
+                                const updatedButtons = messagePreview.buttons.map((button, btnIndex) =>
+                                  btnIndex === index ? { ...button, buttonValue: e.target.value } : button
+                                );
+                              
                                 setMessagePreview({
                                   ...messagePreview,
                                   buttons: updatedButtons,
                                 });
                               }}
+                              
                               className="me-2"
                               style={{ minWidth: "220px" }}
                             />
@@ -1046,13 +997,13 @@ const InteractiveTemplateUpdate = () => {
                               <div className="d-flex">
                                 <Input
                                   type="text"
-                                  value={button.websiteUrl}
+                                  value={button.buttonValue}
                                   placeholder="Website URL"
                                   onChange={(e) => {
                                     const updatedButtons = [
                                       ...messagePreview.buttons,
                                     ];
-                                    updatedButtons[index].websiteUrl =
+                                    updatedButtons[index].buttonValue =
                                       e.target.value;
                                     setMessagePreview({
                                       ...messagePreview,
@@ -1061,15 +1012,7 @@ const InteractiveTemplateUpdate = () => {
                                   }}
                                   className="me-2"
                                 />
-                                <Button
-                                  onClick={() => addURLVariable(index)}
-                                  className="mt-0 mr-2 bg-transparent border-0"
-                                  style={{ minWidth: "max-content" }}
-                                >
-                                  <span className="text-primary">
-                                    + Add Variable
-                                  </span>
-                                </Button>
+                               
                               </div>
 
                               {/* URL Variable Input */}
