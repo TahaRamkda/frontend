@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchCampaign, clearCampaignListState, activateCampaign, clearCampaignActivateState, setPageSize, setCurrentPage } from "@/slices/campaignSlice";
 import { Card, CardBody, CardHeader, Col, Input, Label, Alert, Button, Modal, ModalBody, ModalHeader, Form, FormGroup, Row, Table, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
-import Loader from '@/components/Loader';
 import showSweetAlert from "@/components/Sweetalert";
 import App from "@/components/App";
 import { useRouter } from "next/router"; // Correct import
@@ -34,7 +33,6 @@ const CampaignsList = () => {
   const [CampaignId, setCampaignId] = useState(null);
   const [activateCampaignId, setactivateCampaignId] = useState(null);
   const [CampaignForm, setCampaignForm] = useState({});
-const [cammpaignloading, setcammpaignloading] = useState(false);
   const { campaigns, loading, error, currentPage, pageSize, totalRecords } =
     useSelector((state) => state.campaigns);
   const [clientId, setClientId] = useState(null);
@@ -103,7 +101,6 @@ const [cammpaignloading, setcammpaignloading] = useState(false);
 
 
   useEffect(() => {
-    setcammpaignloading(true)
       dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
     return () => {
       dispatch(clearCampaignListState());
@@ -311,7 +308,7 @@ const [cammpaignloading, setcammpaignloading] = useState(false);
   return (
     <App>
       <div className="flex items-center">
-        {cammpaignloading && <Loading />}
+        {loading && <Loading />}
         <div className='mb-1'>
           <h4 className="font-bold mb-2">Campaign</h4>
         </div>
