@@ -100,6 +100,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
   }, [dispatch, debouncedSearchQuery]);
 
   const handleSelection = (templateId) => {
+    setChatMessages([])
     setSelectedOption(templateId);
     if (templateId) {
       dispatch(
@@ -154,17 +155,21 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
         // Invoke the onSend callback with agenttemplatedetail
         dispatch(clearAgentTemplateDetailState());
       } else {
-       toast.error(response.result.message || "Failed to send template");
+       toast.error("Failed to send template");
       }
     } catch (err) {
       
-     toast.error(err.message || "Failed to send template");
+     toast.error( "Failed to send template");
     }
 
     onClose();
   };
 
   const handleParameterChange = (paramName, value) => {
+    chatMessages[0].messageContent = chatMessages[0].messageContent.replace(
+      new RegExp(paramName, "g"),
+      value
+    )
     setParameterValues((prevValues) => {
       const updatedValues = prevValues.filter((item) => item.key !== paramName);
       return [
@@ -181,6 +186,22 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
     console.log("Param Name", parameterValues);
   };
 
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (event.key === 'Escape') {
+        onClose(); // Call onClose when the Escape key is pressed
+      }
+    };
+
+    // Add the event listener for keydown
+    window.addEventListener('keydown', handleKeyPress);
+
+    // Clean up the event listener on component unmount
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [onClose]);
+
   return (
     <>
     {isVisible && (
@@ -188,6 +209,13 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
         className="absolute bottom-[1.5rem] bg-white text-gray-800 shadow-2xl rounded-lg z-50"
         style={{ minWidth: "800px", right: "-94px" }}
       >
+         <div
+            className="absolute top-2 right-2 text-end w-full  cursor-pointer"
+            onClick={onClose}
+          >
+            <i className="fa fa-times"></i>{" "}
+            {/* You can change this to an "X" or another icon */}
+          </div>
         <div className="flex h-[550px] ">
            {/* Left Section (Search Bar and Template List) */}
            <div className="w-1/2 p-4">

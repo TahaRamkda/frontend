@@ -10,7 +10,11 @@ const App = (props) => {
 
     // Authentication check
     const isAuthenticated = typeof window !== 'undefined' ? localStorage.getItem("accessToken") : false
-
+    useEffect(()=> {
+        if(router.pathname.indexOf("ChatsList") !== -1){
+            setIsSidebarOpen(false);
+        }
+    })
     useEffect(() => {
         if (!isAuthenticated) {
             router.push('/auth/login') // Redirect to login if not authenticated
@@ -30,7 +34,7 @@ const App = (props) => {
     const collapsedSidebarWidth = 80 // Width when sidebar is collapsed
 
     return (
-        <div id="pcoded" className="pcoded">
+        <div id="pcoded" >
             <div className="pcoded-overlay-box"></div>
             <div className="pcoded-container navbar-wrapper">
                 <Head>
@@ -90,7 +94,9 @@ const App = (props) => {
                     </div>
                 </div>
             </div>
+            
         </div>
+       
     )
 }
 

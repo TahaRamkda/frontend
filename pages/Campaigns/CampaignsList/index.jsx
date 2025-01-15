@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useState, use } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCampaign, clearCampaignListState, activateCampaign, clearCampaignActivateState, setPageSize, setCurrentPage } from "@/slices/campaignSlice";
 import { Card, CardBody, CardHeader, Col, Input, Label, Alert, Button, Modal, ModalBody, ModalHeader, Form, FormGroup, Row, Table, Pagination, PaginationItem, PaginationLink } from "reactstrap";
@@ -34,22 +34,46 @@ const CampaignsList = () => {
   const [CampaignId, setCampaignId] = useState(null);
   const [activateCampaignId, setactivateCampaignId] = useState(null);
   const [CampaignForm, setCampaignForm] = useState({});
-
+const [cammpaignloading, setcammpaignloading] = useState(false);
   const { campaigns, loading, error, currentPage, pageSize, totalRecords } =
     useSelector((state) => state.campaigns);
   const [clientId, setClientId] = useState(null);
   const setCampaignsId = useSetRecoilState(CampaignState);
 
-
+useEffect(() => {
+ if(campaigns){
+  setcammpaignloading(false)
+ }
+}, [campaigns]);
 
   const handleTemplateChange = (e) => {
     const template = e.target.value;
     settemplateId(template);
+    setcammpaignloading(true)
     dispatch(
       fetchCampaign({
         ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status, templateId: template, srcStr: keyword, pageSize, PageNo: currentPage,
       }));
   };
+
+  
+
+ 
+
+
+  useEffect(() => {
+    // Fetch data initially when the component mounts
+    refreshCampaignList();
+
+    // Set up an interval to fetch data every 5 minutes (300,000 milliseconds)
+    const intervalId = setInterval(() => {
+      refreshCampaignList();
+    }, 30000);
+
+    // Clear the interval when the component unmounts
+    return () => clearInterval(intervalId);
+  }, []);
+
 
   const HandleUpdateCampaign = (CampaignId) => {
     setCampaignsId(CampaignId);
@@ -70,6 +94,7 @@ const CampaignsList = () => {
 
     // Set a new timeout for 0.5 seconds
     const timeout = setTimeout(() => {
+      setcammpaignloading(true)
       dispatch(
         fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: searchValue, pageSize, PageNo: currentPage})
       );
@@ -81,7 +106,7 @@ const CampaignsList = () => {
 
 
   useEffect(() => {
-   
+    setcammpaignloading(true)
       dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
     return () => {
       dispatch(clearCampaignListState());
@@ -114,13 +139,14 @@ const CampaignsList = () => {
   }
 
   const handlePageSizeChange = async (newSize) => {
-    
+    setcammpaignloading(true)
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to the first page
     await dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize: newSize, PageNo: 1 }));
   };
 
   const handlePageChange = async (page) => {
+    setcammpaignloading(true)
     dispatch(setCurrentPage(page));
     await dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: page }));
   };
@@ -288,7 +314,7 @@ const CampaignsList = () => {
   return (
     <App>
       <div className="flex items-center">
-        {loading && <Loading />}
+        {cammpaignloading && <Loading />}
         <div className='mb-1'>
           <h4 className="font-bold mb-2">Campaign</h4>
         </div>

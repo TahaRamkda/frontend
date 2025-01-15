@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import Head from "next/head";
+import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 import {
   FaComments,
@@ -6,6 +8,9 @@ import {
   FaTimesCircle,
   FaClock,
 } from "react-icons/fa";
+
+import UserBadge from "@/public/images/User.jpg";
+import Link from "next/link";
 import { MdOutlineTimer } from "react-icons/md";
 import { AiOutlineHourglass } from "react-icons/ai";
 import {
@@ -30,7 +35,7 @@ import {
   clearconversationstate,
   NewAgentMessage,
 } from "@/slices/ConversationSlice";
-
+import SweetAlert from "sweetalert2";
 import { fetchAgentStats, cleaAgentStats } from "@/slices/AgentSlice";
 import * as signalR from "@microsoft/signalr";
 import DefinedTemplates from "../AgentDefinedTemplate";
@@ -42,13 +47,25 @@ import EmojiPicker from "emoji-picker-react";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 import { extractTime } from "@/utils/constants";
 import { set } from "date-fns";
+import {
+  HiZoomIn,
+  HiZoomOut,
+  HiLogout,
+  HiMoon,
+  HiSun,
+  HiMenu,
+  HiShieldExclamation,
+} from "react-icons/hi";
 const ChatPage = () => {
+  const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
+  const [tempMessages, setTempMessages] = useState([]);
   const dispatch = useDispatch();
   const { conversations, loading, error } = useSelector(
     (state) => state.conversations
   );
 
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const {
     messages,
     currentPage,
@@ -60,7 +77,7 @@ const ChatPage = () => {
   );
   const inputRef = useRef(null);
   const [chatMessages, setChatMessages] = useState([]);
-  const [AgentConversaton, setAgentConversaton] = useState([]);
+  const [AgentConversation, setAgentConversation] = useState([]);
   const [ShowDetailedTemplate, setShowDetailedTemplate] = useState(false);
   const [messageInput, setMessageInput] = useState("");
   const [mediaFile, setMediaFile] = useState(null); // To store the selected media file
@@ -72,7 +89,7 @@ const ChatPage = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const toggleModal = () => setModalOpen((prevState) => !prevState);
   const activeChatRef = useRef(Activechat);
-  const agentChatRef = useRef([AgentConversaton]);
+  const agentChatRef = useRef([AgentConversation]);
   const containerRef = useRef(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [Contactsloading, setContactsloading] = useState(false);
@@ -96,6 +113,24 @@ const ChatPage = () => {
   const handleTemplateSend = (details) => {
     setTemplateDetails(details); // Update parent state
     console.log("Received template details:", details);
+  };
+
+  const handleLogout = () => {
+    SweetAlert.fire({
+      title: "Are you sure you want to logout?",
+      text: "",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Logout",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.clear();
+        router.push("/auth/login");
+      }
+    });
   };
 
   useEffect(() => {
@@ -138,7 +173,7 @@ const ChatPage = () => {
   useEffect(() => {
     if (conversations && conversations.length > 0) {
       setContactsloading(false);
-      setAgentConversaton(conversations);
+      setAgentConversation(conversations);
     } else {
       setContactsloading(false);
     }
@@ -146,6 +181,7 @@ const ChatPage = () => {
 
   //called each time to get conversation messages
   const HandleConversationDetail = async (id) => {
+    debugger;
     setChatsloading(true);
     dispatch(resetMessages());
     setActiveChat(id); // Update Activechat state
@@ -176,8 +212,8 @@ const ChatPage = () => {
   }, [Activechat]);
 
   useEffect(() => {
-    agentChatRef.current = AgentConversaton;
-  }, [AgentConversaton]);
+    agentChatRef.current = AgentConversation;
+  }, [AgentConversation]);
 
   //triggered each time when messages changes and assign to local state
   useEffect(() => {
@@ -291,7 +327,7 @@ const ChatPage = () => {
         });
 
         agentChatRef.current = updatedConversations;
-        setAgentConversaton(updatedConversations);
+        setAgentConversation(updatedConversations);
       } else {
         console.warn(
           "No matching conversation found for Activechat:",
@@ -305,9 +341,9 @@ const ChatPage = () => {
   };
 
   useEffect(() => {
-    if (AgentConversaton && AgentConversaton.length > 0) {
+    if (AgentConversation && AgentConversation.length > 0) {
       // Filter messages with unread count > 0
-      const unreadMessages = AgentConversaton.filter(
+      const unreadMessages = AgentConversation.filter(
         (message) => message.unreadCount > 0
       );
       const unreadMessageIds = unreadMessages.map((message) => message.id);
@@ -318,7 +354,7 @@ const ChatPage = () => {
         markChatAsUnreplied(messageId);
       });
     }
-  }, [AgentConversaton]);
+  }, [AgentConversation]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -334,21 +370,39 @@ const ChatPage = () => {
   };
 
   useEffect(() => {
-    const UserId = localStorage.getItem("userId");
-    const connection = new signalR.HubConnectionBuilder()
+    if (!Chatsloading && tempMessages.length > 0) {
+      debugger;
+      // Append tempMessages to chatMessages when loading becomes false
+      setChatMessages((prevMessages) => [...tempMessages, ...prevMessages]);
+      setTempMessages([]); // Clear tempMessages after appending
+    }
+  }, [Chatsloading, tempMessages]);
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      console.error("UserId not found in localStorage");
+      return;
+    }
+
+    // Initialize SignalR connection
+    const newConnection = new signalR.HubConnectionBuilder()
       .withUrl(
-        `https://qawhatsappapi.consulttechies.com/conversation?AgentId=${UserId}`,
+        `https://qawhatsappapi.consulttechies.com/conversation?AgentId=${userId}`,
         {
           skipNegotiation: true,
           transport: signalR.HttpTransportType.WebSockets,
         }
       )
-      .withAutomaticReconnect()
+      .withAutomaticReconnect() // Automatically reconnect on failure
       .build();
 
-    setConnection(connection);
+    setConnection(newConnection);
 
-    connection.on("MessageReceived", (message) => {
+    // Handles incoming messages
+    const handleIncomingMessage = (message) => {
+      debugger;
       // Play notification sound
       audioRef.current
         ?.play()
@@ -356,38 +410,42 @@ const ChatPage = () => {
           console.error("Failed to play notification sound:", err)
         );
 
-      // Show a toast notification for the new message
+      // Show success toast notification
       toast.success("You have a new message");
+
+      // Update agent statistics
       dispatch(
         fetchAgentStats({
           clientId: localStorage.getItem("clientId"),
-          agentId: localStorage.getItem("userId"),
+          agentId: userId,
         })
       );
-      // Check if the conversation exists in agentChatRef
+
+      // Find if the message belongs to an existing conversation
       const matchingConversationIndex = agentChatRef.current.findIndex(
         (conversation) => conversation.id === message.conversationId
       );
 
       if (matchingConversationIndex !== -1) {
+        const updatedConversations = [...agentChatRef.current];
         const matchingConversation =
-          agentChatRef.current[matchingConversationIndex];
+          updatedConversations[matchingConversationIndex];
 
-        // Set the timer only if unreadCount is 0 or less
+        // Start timer for unread message if no unread messages exist
         if ((matchingConversation.unreadCount || 0) <= 0) {
           startTimer(message.conversationId);
         }
 
-        // Update conversation details
-        const updatedConversations = [...agentChatRef.current];
+        // Update the conversation with the latest message and unread count
         updatedConversations[matchingConversationIndex] = {
           ...matchingConversation,
           lastMessageText: message.messageContent,
           updatedDate: message.createdDate,
           unreadCount: (matchingConversation.unreadCount || 0) + 1,
         };
+
         agentChatRef.current = updatedConversations;
-        setAgentConversaton(updatedConversations);
+        setAgentConversation(updatedConversations);
       } else {
         console.warn(
           "No matching conversation found for message.conversationId:",
@@ -395,10 +453,20 @@ const ChatPage = () => {
         );
       }
 
-      // Check if the message is from the active chat
+      // If the message belongs to the active chat
       if (message.conversationId === activeChatRef.current) {
-        setChatMessages((prevMessages) => [message, ...prevMessages]);
+        if (loading) {
+          setTempMessages((prevTemp) => [...prevTemp, message]);
+        } else {
+          setChatMessages((prevMessages) => [
+            message,
+            ...tempMessages,
+            ...prevMessages,
+          ]);
+          setTempMessages([]);
+        }
       } else {
+        // Show notification for new message
         toast.success("Check message");
 
         if (matchingConversationIndex !== -1) {
@@ -406,46 +474,43 @@ const ChatPage = () => {
           const matchingConversation =
             updatedConversations[matchingConversationIndex];
 
-          // Move the conversation to the top of the list
-          updatedConversations.splice(matchingConversationIndex, 1); // Remove it from the current position
-          updatedConversations.unshift({
-            ...matchingConversation,
-            // updatedDate: message.createdDate,
-            // lastMessageText: message.messageContent,
-            // unreadCount: (matchingConversation.unreadCount || 0) + 1,
-          });
+          // Move the updated conversation to the top of the list
+          updatedConversations.splice(matchingConversationIndex, 1);
+          updatedConversations.unshift(matchingConversation);
 
           agentChatRef.current = updatedConversations;
-          setAgentConversaton(updatedConversations);
+          setAgentConversation(updatedConversations);
         }
       }
-    });
+    };
 
-    connection.on("ConversationAssigned", (notification) => {
-      console.log("Received notification:", notification);
+    // Handles new conversation assignment to the agent
+    const handleConversationAssigned = (notification) => {
+      debugger;
       audioRef.current
         ?.play()
         .catch((err) =>
           console.error("Failed to play notification sound:", err)
         );
+      console.log("notification :", notification);
       toast.success("You have a new message request");
 
+      // Update agent statistics
       dispatch(
         fetchAgentStats({
           clientId: localStorage.getItem("clientId"),
-          agentId: localStorage.getItem("userId"),
+          agentId: userId,
         })
       );
-      // Start a 5-minute timer for the new chat
+
       startTimer(notification.id);
 
-      // Find the matching conversation in the agent chat reference
+      // Find if the conversation already exists
       const matchingConversationIndex = agentChatRef.current.findIndex(
         (conversation) => conversation.id === notification.id
       );
 
       if (matchingConversationIndex !== -1) {
-        // Update the lastMessageText for the matching conversation
         const updatedConversations = [...agentChatRef.current];
         updatedConversations[matchingConversationIndex] = {
           ...updatedConversations[matchingConversationIndex],
@@ -454,50 +519,47 @@ const ChatPage = () => {
             (updatedConversations[matchingConversationIndex].unreadCount || 0) +
             1,
         };
-        console.log("Updated conversation:", updatedConversations);
+
         agentChatRef.current = updatedConversations;
-        setAgentConversaton(updatedConversations);
+        setAgentConversation(updatedConversations);
       } else {
-        console.warn(
-          "No matching conversation found for message.id:",
-          notification.id
-        );
+        // Add the new conversation to the list
         const newNotification = { ...notification, unreadCount: 1 };
-        setAgentConversaton((prevMessages) => [
+        setAgentConversation((prevMessages) => [
           newNotification,
           ...prevMessages,
         ]);
       }
-    });
+    };
 
-    connection.on("ConversationUnAssigned", (notification) => {
-      console.log("Unassigned conversation:", notification);
-
-      // Show a warning toast for the unassigned conversation
+    // Handles unassignment of a conversation
+    const handleConversationUnAssigned = (ChatId) => {
+      debugger
       toast.warning("A conversation has been unassigned");
 
+      // Update agent statistics
       dispatch(
         fetchAgentStats({
           clientId: localStorage.getItem("clientId"),
-          agentId: localStorage.getItem("userId"),
+          agentId: userId,
         })
       );
-      // Remove the unassigned conversation from the agent chat reference
+
+      // Remove the conversation from the list
       const updatedConversations = agentChatRef.current.filter(
-        (conversation) => conversation.id !== notification.id
+        (conversation) => conversation.id !== ChatId
       );
 
-      // Update the reference and state
       agentChatRef.current = updatedConversations;
-      setAgentConversaton(updatedConversations);
+      setAgentConversation(updatedConversations);
+    };
 
-      console.log(
-        "Updated conversations after unassignment:",
-        updatedConversations
-      );
-    });
+    // Set up SignalR event listeners
+    newConnection.on("MessageReceived", handleIncomingMessage);
+    newConnection.on("ConversationAssigned", handleConversationAssigned);
+    newConnection.on("ConversationUnAssigned", handleConversationUnAssigned);
 
-    connection
+    newConnection
       .start()
       .then(() => {
         console.log("Connected to SignalR");
@@ -508,7 +570,7 @@ const ChatPage = () => {
       });
 
     return () => {
-      connection.stop().then(() => console.log("Connection stopped"));
+      newConnection.stop().then(() => console.log("Connection stopped"));
       setErrordisconect(true);
     };
   }, []);
@@ -576,116 +638,181 @@ const ChatPage = () => {
   };
 
   return (
-    <App>
-      <div className="flex flex-wrap items-center justify-between bg-gray-100 p-4 rounded shadow-md space-x-4">
-        {/* Assigned */}
-        <div className="flex items-center space-x-2">
-          <FaComments size={20} className="text-blue-500" />
-          <span className="font-medium text-gray-700">
-            Assigned:{" "}
-            <span className="font-bold">
-              {AgentStats.totalAssigned ?? "-/-"}
+    <>
+     <div className="flex flex-wrap items-center justify-between bg-gray-900 p-4 rounded shadow-md space-x-4">
+  {/* Assigned */}
+  <nav className="text-white bg-gray-900 fixed top-0 left-0 right-0 z-50 shadow-md w-full">
+    <Head>
+      <title>BCT-Chat Portal</title>
+      {/* <title>{props.title}</title> */}
+    </Head>
+    <div className="flex justify-between items-center py-3 px-4">
+      {/* Logo Section on the Left Side */}
+      <div className="flex items-center space-x-3">
+       
+          <img
+            className="h-8 w-auto"
+            src="/images/logo/Loader.svg"
+            alt="Logo"
+          />
+      </div>
+
+      {/* Action Buttons Section on the Right Side */}
+      <div className="">
+        {/* Sidebar Toggle Button */}
+        <div className="flex items-center space-x-4">
+          {/* Assigned */}
+          <div className="flex items-center space-x-2">
+            <FaComments size={20} className="text-blue-500" />
+            <span className="font-medium text-white">
+              Assigned:{" "}
+              <span className="font-bold">
+                {AgentStats.totalAssigned ?? "-/-"}
+              </span>
             </span>
-          </span>
-        </div>
+          </div>
 
-        {/* Active */}
-        <div className="flex items-center space-x-2">
-          <FaCheckCircle size={20} className="text-green-500" />
-          <span className="font-medium text-gray-700">
-            Active:{" "}
-            <span className="font-bold">{AgentStats.totalActive ?? "-/-"}</span>
-          </span>
-        </div>
-
-        {/* Closed */}
-        <div className="flex items-center space-x-2">
-          <FaTimesCircle size={20} className="text-red-500" />
-          <span className="font-medium text-gray-700">
-            Closed:{" "}
-            <span className="font-bold">{AgentStats.totalClosed ?? "-/-"}</span>
-          </span>
-        </div>
-
-        {/* Expired */}
-        <div className="flex items-center space-x-2">
-          <AiOutlineHourglass size={20} className="text-yellow-500" />
-          <span className="font-medium text-gray-700">
-            Expired:{" "}
-            <span className="font-bold">
-              {AgentStats.expiredChats ?? "-/-"}
+          {/* Active */}
+          <div className="flex items-center space-x-2">
+            <FaCheckCircle size={20} className="text-green-500" />
+            <span className="font-medium text-white">
+              Active:{" "}
+              <span className="font-bold">
+                {AgentStats.totalActive ?? "-/-"}
+              </span>
             </span>
-          </span>
-        </div>
+          </div>
 
-        {/* Force Closed */}
-        <div className="flex items-center space-x-2">
-          <FaClock size={20} className="text-purple-500" />
-          <span className="font-medium text-gray-700">
-            Force Closed:{" "}
-            <span className="font-bold">
-              {AgentStats.forceClosedChats ?? "-/-"}
+          {/* Closed */}
+          <div className="flex items-center space-x-2">
+            <FaTimesCircle size={20} className="text-red-500" />
+            <span className="font-medium text-white">
+              Closed:{" "}
+              <span className="font-bold">
+                {AgentStats.totalClosed ?? "-/-"}
+              </span>
             </span>
-          </span>
-        </div>
+          </div>
 
-        {/* Avg Duration */}
-        <div className="flex items-center space-x-2">
-          <MdOutlineTimer size={20} className="text-orange-500" />
-          <span className="font-medium text-gray-700">
-            Avg Duration:{" "}
-            <span className="font-bold">
-              {AgentStats.avgChatDuration ?? "-/-"}
+          {/* Expired */}
+          <div className="flex items-center space-x-2">
+            <AiOutlineHourglass size={20} className="text-yellow-500" />
+            <span className="font-medium text-white">
+              Expired:{" "}
+              <span className="font-bold">
+                {AgentStats.expiredChats ?? "-/-"}
+              </span>
             </span>
-          </span>
-        </div>
+          </div>
 
-        {/* Response Time */}
-        <div className="flex items-center space-x-2">
-          <MdOutlineTimer size={20} className="text-gray-500" />
-          <span className="font-medium text-gray-700">
-            Response Time:{" "}
-            <span className="font-bold">
-              {AgentStats.responseTime ?? "-/-"}min
+          {/* Force Closed */}
+          <div className="flex items-center space-x-2">
+            <FaClock size={20} className="text-purple-500" />
+            <span className="font-medium text-white">
+              Force Closed:{" "}
+              <span className="font-bold">
+                {AgentStats.forceClosedChats ?? "-/-"}
+              </span>
             </span>
-          </span>
+          </div>
+
+          {/* Avg Duration */}
+          <div className="flex items-center space-x-2">
+            <MdOutlineTimer size={20} className="text-orange-500" />
+            <span className="font-medium text-white">
+              Avg Duration:{" "}
+              <span className="font-bold">
+                {AgentStats.avgChatDuration ?? "-/-"}
+              </span>
+            </span>
+          </div>
+
+          {/* Response Time */}
+          <div className="flex items-center space-x-2">
+            <MdOutlineTimer size={20} className="text-gray-500" />
+            <span className="font-medium text-white">
+              Response Time:{" "}
+              <span className="font-bold">
+                {AgentStats.responseTime ?? "-/-"} min(s)
+              </span>
+            </span>
+          </div>
+
+          {/* User Badge with Name and Dropdown */}
+          <div className="relative">
+          <button
+                className="flex items-center space-x-2 p-2 bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+              >
+                <img
+                  src={UserBadge.src}
+                  alt="User"
+                  className="w-8 h-8 rounded-full"
+                />
+                <span>{localStorage.getItem("userName")}</span>
+              </button>
+
+            {/* Dropdown Menu */}
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-gray-700 shadow-lg rounded-md">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center w-full text-left px-4 py-2 text-white-800 dark:text-gray-200 hover:bg-gray-600 dark:hover:bg-gray-600"
+                >
+                  <HiLogout />
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-      <Container fluid className="h-100 overflow-hidden">
+    </div>
+  </nav>
+</div>
+
+      <Container fluid className="h-100  mt-[35px]">
         <Row className="g-0 h-100">
           <Col
             xxl="3"
             xl="4"
             md="5"
-            className="box-col-5 p-0"
-            style={{ height: "86vh", overflow: "hidden", margin: "0" }}
+            sm="12"
+            className="p-0"
+            style={{
+              height: "calc(100vh - 100px)",
+              overflow: "hidden",
+            }}
           >
+            {/* Content goes here */}
+
             <Card className="left-sidebar-wrapper h-100">
-              <div className="left-sidebar-chat ">
+              {/* <div className="left-sidebar-chat ">
                 <InputGroup>
                   <InputGroupText className="w-full">
                     <i className="fa fa-search mr-2" aria-hidden="true"></i>
                     <Input type="text" placeholder="Search here" />
                   </InputGroupText>
                 </InputGroup>
-              </div>
-              <Nav
-                tabs
-                className="border-tab bg-white border-b border-gray-200 shadow-sm"
-              >
-                <NavItem className="flex justify-content-center w-full text-xl font-bold text-gray-900">
-                  Chats
-                </NavItem>
-              </Nav>
+              </div> */}
+
               <TabContent id="chat-options-tabContent">
-                <TabPane id="chats" className="text-center">
-                  <ul className="list-unstyled chats-user overflow-y-auto">
-                    {Contactsloading && (
+                <TabPane id="chats">
+                  <ul
+                    className="list-unstyled chats-user overflow-auto"
+                    style={{ height: "80vh", margin: "0" }}
+                  >
+                    {loading && (
                       <div className="text-center">
                         Please wait while we load your chats..!!
                       </div>
                     )}
-                    {AgentConversaton?.map((conversation) => (
+                    {(AgentConversation?.length === 0 && !loading) && (
+                      <div className="text-center">
+                        No Chats Found
+                      </div>
+                    )}
+                    {AgentConversation?.map((conversation) => (
                       <li
                         key={conversation.id}
                         className={`d-flex justify-content-between align-items-center p-2 mb-1 chat-item ${
@@ -697,38 +824,31 @@ const ChatPage = () => {
                           unrepliedChats.includes(conversation.id)
                             ? {
                                 animation: "blink 1s infinite",
-                                backgroundColor: "#ffcccc", // Red background for blinking
+                                backgroundColor: "#ffcccc",
                               }
-                            : { minHeight: "60px" } // Reduced height
+                            : { minHeight: "60px" }
                         }
-                        onClick={() => {
-                          HandleConversationDetail(conversation.id);
-                        }}
+                        onClick={() =>
+                          HandleConversationDetail(conversation.id)
+                        }
                       >
                         <div className="d-flex align-items-center w-75">
-                          <div className="me-2">
-                            <img
-                              src={`${BASE_URL}${conversation.logo}`}
-                              alt="User Logo"
-                              className="rounded-circle"
-                              style={{
-                                width: "40px",
-                                height: "40px",
-                                objectFit: "cover",
-                              }}
-                            />
-                          </div>
-                          <div className="flex-grow-1 text-start">
-                            <span
-                              className="d-block text-truncate fw-bold text-dark"
-                              style={{ maxWidth: "200px", fontSize: "14px" }}
-                            >
+                          <img
+                            src={`${BASE_URL}${conversation.logo}`}
+                            alt="User Logo"
+                            className="rounded-circle me-2"
+                            style={{
+                              width: "40px",
+                              height: "40px",
+                              objectFit: "cover",
+                            }}
+                          />
+
+                          <div className="flex-grow-1">
+                            <span className="d-block text-truncate fw-bold text-dark">
                               {conversation.fullName}
                             </span>
-                            <span
-                              className="d-block text-truncate text-muted"
-                              style={{ maxWidth: "200px", fontSize: "12px" }}
-                            >
+                            <span className="d-block text-truncate text-muted">
                               {conversation.phoneNumber}
                             </span>
                             {conversation.lastMessageText !== "" ? (
@@ -767,44 +887,44 @@ const ChatPage = () => {
               </TabContent>
             </Card>
           </Col>
-
           <Col
             xxl="9"
             xl="8"
             md="7"
-            className="box-col-7 p-0"
-            style={{ height: "86vh", margin: "0" }}
+            sm="12"
+            className="p-0"
+            style={{ height: "calc(100vh - 100px)" }}
           >
             {Activechat !== 0 && (
               <Card className="right-sidebar-chat h-100">
-                {conversations
-                  .filter((conversation) => conversation.id === Activechat)
-                  .map((conversation) => (
+                {AgentConversation.filter(
+                  (conversation) => conversation.id === Activechat
+                ).map((conversation) => (
+                  <div
+                    key={conversation.id}
+                    className="flex items-center justify-between text-black px-4 py-3 shadow-md"
+                  >
+                    {/* Left Section */}
                     <div
                       key={conversation.id}
-                      className="flex items-center justify-between text-black px-4 py-3 shadow-md"
+                      className="flex items-center space-x-3"
                     >
-                      {/* Left Section */}
-                      <div
-                        key={conversation.id}
-                        className="flex items-center space-x-3"
-                      >
-                        <img
-                          src={`${BASE_URL}${conversation.logo}`}
-                          alt="User Logo"
-                          className="w-10 h-10 rounded-full"
-                        />
+                      <img
+                        src={`${BASE_URL}${conversation.logo}`}
+                        alt="User Logo"
+                        className="w-10 h-10 rounded-full"
+                      />
 
-                        <div>{conversation.fullName}</div>
-                        <div>{conversation.phoneNumber}</div>
-                      </div>
-
-                      {/* Right Section */}
-                      <div className="flex items-center space-x-4">
-                        {/* Search Input */}
-                      </div>
+                      <div>{conversation.fullName}</div>
+                      <div>{conversation.phoneNumber}</div>
                     </div>
-                  ))}
+
+                    {/* Right Section */}
+                    <div className="flex items-center space-x-4">
+                      {/* Search Input */}
+                    </div>
+                  </div>
+                ))}
                 <div className="right-sidebar-chat p-4 w-full height-chat-box overflow-y-auto chat-background h-100">
                   <div className="msger flex flex-col h-full">
                     <div
@@ -857,39 +977,46 @@ const ChatPage = () => {
                                     <img
                                       src={`${BASE_URL}${message.mediaPath}`}
                                       alt="Image"
-                                      className="max-w-full rounded"
+                                      className="w-full h-auto rounded"
                                     />
                                   )}
                                   {message.contentType.startsWith("video/") && (
                                     <video
                                       controls
                                       src={`${BASE_URL}${message.mediaPath}`}
-                                      className="max-w-full rounded"
+                                      className="w-full h-auto rounded"
                                     />
                                   )}
                                   {message.contentType.startsWith("audio/") && (
                                     <audio
                                       controls
                                       src={`${BASE_URL}${message.mediaPath}`}
-                                      className="max-w-full rounded"
+                                      className="w-full h-auto rounded"
                                     />
                                   )}
                                 </>
                               )}
-                            <p className="">
-                              <p className="">
+                            <div className="flex items-end justify-between min-w-[100px]  p-2 rounded-lg">
+                              <p className="whitespace-pre-wrap break-words flex-grow">
                                 {message.messageContent
                                   ? message.messageContent
                                       .split("\n")
                                       .map((line, index) => (
                                         <span key={index}>
                                           {line}
-                                          <br />
+                                          {index <
+                                            message.messageContent.split("\n")
+                                              .length -
+                                              1 && <br />}
                                         </span>
                                       ))
                                   : null}
                               </p>
-                            </p>
+                              <span className="ml-2 text-gray-500 text-xs">
+                                {extractTime(message.createdDate).slice(0, 5)}
+                              </span>
+                            </div>
+
                             {message.buttonJson &&
                               message.buttonJson.length > 0 && (
                                 <div className="mt-2">
@@ -933,10 +1060,6 @@ const ChatPage = () => {
                                   ))}
                                 </div>
                               )}
-
-                            <p className="text-xs text-gray-500">
-                              {extractTime(message.createdDate)}
-                            </p>
                           </div>
                         </div>
                       ))}
@@ -1159,7 +1282,7 @@ const ChatPage = () => {
           </Col>
         </Row>
       </Container>
-      {/* {Errordisconect && (
+      {Errordisconect && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
           <div className="bg-red-500 p-8 rounded-lg shadow-md max-w-md w-full text-center">
             <div className="flex justify-center mb-4">
@@ -1195,8 +1318,8 @@ const ChatPage = () => {
             </button>
           </div>
         </div>
-      )} */}
-    </App>
+      )}
+    </>
   );
 };
 
