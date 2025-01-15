@@ -183,7 +183,8 @@ const handleSearchString = (e) => {
       group.groupName &&
       group.groupName.toLowerCase().includes(filterText.toLowerCase())
   );
-
+  const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
+  const defultpagessize = 10
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className="w-full">
@@ -237,6 +238,8 @@ const handleSearchString = (e) => {
           paginationTotalRows={totalRecords}
           onChangePage={handlePageChange}
           onChangeRowsPerPage={handlePageSizeChange}
+          paginationPerPage={defultpagessize} // Default number of rows per page
+          paginationRowsPerPageOptions={customPageSizes} // Custom page size options
           subHeader
           subHeaderComponent={subHeaderComponentMemo}
           className="w-full border"

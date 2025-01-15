@@ -40,7 +40,8 @@ const CampaignsList = () => {
   const [clientId, setClientId] = useState(null);
   const setCampaignsId = useSetRecoilState(CampaignState);
 
-
+  const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
+  const defultpagessize = 10
 
   const handleTemplateChange = (e) => {
     const template = e.target.value;
@@ -316,6 +317,8 @@ const CampaignsList = () => {
           paginationTotalRows={totalRecords}
           onChangePage={handlePageChange}
           onChangeRowsPerPage={handlePageSizeChange}
+          paginationPerPage={defultpagessize} // Default number of rows per page
+          paginationRowsPerPageOptions={customPageSizes} // Custom page size options
           subHeader
           subHeaderComponent={subHeaderComponentMemo}
           className="w-full border"

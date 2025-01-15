@@ -25,7 +25,7 @@ const Sidebar = ({ isSidebarOpen }) => {
         }`}
       aria-label="Sidebar"
     >
-      <div className="h-full px-3 py-4 overflow-y-auto">
+      <div className="h-full px-3 py-4 pb-2 overflow-y-auto">
         <ul className="space-y-2">
           {sidebarItems.map((menu) => {
             const showSubMenu = menu.submenu.some((sm) => checkPermissions(permissions, sm.text, 'canView'));
@@ -70,7 +70,6 @@ const Sidebar = ({ isSidebarOpen }) => {
                 </li>
               );
             }
-
             if (checkPermissions(permissions, menu.text, 'canView')) {
               return (
                 <li key={menu.text}>

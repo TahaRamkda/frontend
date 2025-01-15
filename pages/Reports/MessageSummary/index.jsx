@@ -90,7 +90,8 @@ const Messagereports = () => {
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
     { name: "Schedule Time", selector: (row) => row.scheduleTime, sortable: true },
   ];
-
+  const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
+  const defultpagessize = 10
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className="w-full">
@@ -157,6 +158,8 @@ const Messagereports = () => {
           paginationTotalRows={totalRecords}
           onChangePage={handlePageChange}
           onChangeRowsPerPage={handlePageSizeChange}
+          paginationPerPage={defultpagessize} // Default number of rows per page
+          paginationRowsPerPageOptions={customPageSizes} // Custom page size options
           subHeader
           subHeaderComponent={subHeaderComponentMemo}
           className="w-full border"
