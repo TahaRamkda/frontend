@@ -86,11 +86,37 @@ const ChatPage = () => {
   const timersRef = useRef({});
   const [pageNo, setPageNo] = useState(1);
   const [unrepliedChats, setUnrepliedChats] = useState([]);
+  const [templateDetails, setTemplateDetails] = useState([]);
   const lastScrollTop = useRef(0);
   useEffect(() => {
     // Initialize the audio object only once
     audioRef.current = new Audio("/assets/Notification/chatassigned.mp3");
   }, []);
+
+  const handleTemplateSend = (details) => {
+    setTemplateDetails(details); // Update parent state
+    console.log("Received template details:", details);
+  };
+
+  useEffect(() => {
+    if (templateDetails) {
+      const newMessage = {
+        messageId: Date.now(),
+        typeId: 1,
+        messageContent: templateDetails.bodyText,
+        contentType: templateDetails.contentType
+          ? templateDetails.contentType
+          : "", // Set content type if there's media
+        mediaPath: templateDetails.mediaPath ? templateDetails.mediaPath : "", // Set media path if there's media
+        buttonJson: templateDetails.buttonsJson
+          ? templateDetails.buttonsJson
+          : "",
+        createdDate: new Date().toLocaleString(),
+      };
+
+      setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
+    }
+  }, [templateDetails]);
 
   //call the fetchConversationList action to fetch agents conversations
   useEffect(() => {
@@ -113,15 +139,13 @@ const ChatPage = () => {
     if (conversations && conversations.length > 0) {
       setContactsloading(false);
       setAgentConversaton(conversations);
-    }
-    else{
+    } else {
       setContactsloading(false);
     }
   }, [conversations]);
 
   //called each time to get conversation messages
   const HandleConversationDetail = async (id) => {
-    
     setChatsloading(true);
     dispatch(resetMessages());
     setActiveChat(id); // Update Activechat state
@@ -160,7 +184,7 @@ const ChatPage = () => {
     if (messages && messages.length > 0) {
       setChatsloading(false);
       setChatMessages(messages);
-      setActiveSenderId(messages[0].senderId)
+      setActiveSenderId(messages[0].senderId);
     }
   }, [messages]);
 
@@ -168,8 +192,6 @@ const ChatPage = () => {
   const addEmoji = (emoji) => {
     setMessageInput((prevMessage) => prevMessage + emoji);
   };
-
-
 
   const handleScroll = () => {
     if (!hasMore || loading) return;
@@ -198,10 +220,12 @@ const ChatPage = () => {
   };
 
   useEffect(() => {
-    const container = scrollContainerRef.current;
-    container.addEventListener("scroll", handleScroll);
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, [currentPage, hasMore, loading]);
+    if (Activechat !== 0) {
+      const container = scrollContainerRef.current;
+      container.addEventListener("scroll", handleScroll);
+      return () => container.removeEventListener("scroll", handleScroll);
+    }
+  }, [currentPage, hasMore, loading, Activechat]);
 
   const handleImageclose = () => {
     setMediaFile(null);
@@ -237,7 +261,7 @@ const ChatPage = () => {
         createdDate: new Date().toLocaleString(),
       };
 
-      setChatMessages((prevMessages) => [newMessage,...prevMessages]);
+      setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
       setMessageInput("");
       await dispatch(NewAgentMessage(formData)).unwrap();
       //toast.success("Message sent successfully!");
@@ -325,7 +349,6 @@ const ChatPage = () => {
     setConnection(connection);
 
     connection.on("MessageReceived", (message) => {
-     
       // Play notification sound
       audioRef.current
         ?.play()
@@ -374,7 +397,7 @@ const ChatPage = () => {
 
       // Check if the message is from the active chat
       if (message.conversationId === activeChatRef.current) {
-        setChatMessages((prevMessages) => [message,...prevMessages]);
+        setChatMessages((prevMessages) => [message, ...prevMessages]);
       } else {
         toast.success("Check message");
 
@@ -399,7 +422,6 @@ const ChatPage = () => {
     });
 
     connection.on("ConversationAssigned", (notification) => {
-     
       console.log("Received notification:", notification);
       audioRef.current
         ?.play()
@@ -449,7 +471,6 @@ const ChatPage = () => {
     });
 
     connection.on("ConversationUnAssigned", (notification) => {
-     
       console.log("Unassigned conversation:", notification);
 
       // Show a warning toast for the unassigned conversation
@@ -754,326 +775,387 @@ const ChatPage = () => {
             className="box-col-7 p-0"
             style={{ height: "86vh", margin: "0" }}
           >
-            <Card className="right-sidebar-chat h-100">
-              {conversations
-                .filter((conversation) => conversation.id === Activechat)
-                .map((conversation) => (
-                  <div key={conversation.id} className="flex items-center justify-between text-black px-4 py-3 shadow-md">
-                    {/* Left Section */}
+            {Activechat !== 0 && (
+              <Card className="right-sidebar-chat h-100">
+                {conversations
+                  .filter((conversation) => conversation.id === Activechat)
+                  .map((conversation) => (
                     <div
                       key={conversation.id}
-                      className="flex items-center space-x-3"
+                      className="flex items-center justify-between text-black px-4 py-3 shadow-md"
                     >
-                      <img
-                        src={`${BASE_URL}${conversation.logo}`}
-                        alt="User Logo"
-                        className="w-10 h-10 rounded-full"
-                      />
-
-                      <div>{conversation.fullName}</div>
-                      <div>{conversation.phoneNumber}</div>
-                    </div>
-
-                    {/* Right Section */}
-                    <div className="flex items-center space-x-4">
-                      {/* Search Input */}
-                    </div>
-                  </div>
-                ))}
-              <div className="right-sidebar-chat p-4 w-full height-chat-box overflow-y-auto chat-background h-100">
-                <div className="msger flex flex-col h-full">
-                  <div
-                    ref={scrollContainerRef}
-                    className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2"
-                    style={{
-                      height: "80vh",
-                      overflowY: "auto",
-                      display: "flex",
-                      flexDirection: "column-reverse",
-                    }}
-                  >
-                    {Chatsloading && (
-                      <div className="text-center">Loading messages...</div>
-                    )}
-                    {chatMessages.map((message) => (
+                      {/* Left Section */}
                       <div
-                        key={message.messageId}
-                        className={`flex ${
-                          message.typeId === 1 ? "justify-end" : "justify-start"
-                        }`}
+                        key={conversation.id}
+                        className="flex items-center space-x-3"
                       >
+                        <img
+                          src={`${BASE_URL}${conversation.logo}`}
+                          alt="User Logo"
+                          className="w-10 h-10 rounded-full"
+                        />
+
+                        <div>{conversation.fullName}</div>
+                        <div>{conversation.phoneNumber}</div>
+                      </div>
+
+                      {/* Right Section */}
+                      <div className="flex items-center space-x-4">
+                        {/* Search Input */}
+                      </div>
+                    </div>
+                  ))}
+                <div className="right-sidebar-chat p-4 w-full height-chat-box overflow-y-auto chat-background h-100">
+                  <div className="msger flex flex-col h-full">
+                    <div
+                      ref={scrollContainerRef}
+                      className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2"
+                      style={{
+                        height: "80vh",
+                        overflowY: "auto",
+                        display: "flex",
+                        flexDirection: "column-reverse",
+                      }}
+                    >
+                      {Chatsloading && (
+                        <div className="text-center">Loading messages...</div>
+                      )}
+                      {chatMessages?.map((message) => (
                         <div
-                          className={`max-w-xs p-2 rounded-2xl shadow-sm ${
+                          key={message.messageId}
+                          className={`flex ${
                             message.typeId === 1
-                              ? "bg-[#ddffd9] text-black rounded-br-none"
-                              : "bg-[#ffffff] text-black rounded-bl-none"
+                              ? "justify-end"
+                              : "justify-start"
                           }`}
                         >
-                          {message.parentMessageContent &&
-                            message.parentMessageContent.trim() !== "" && (
-                              <div
-                                className="mb-2 p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis"
+                          <div
+                            className={`max-w-xs p-2 rounded-2xl shadow-sm ${
+                              message.typeId === 1
+                                ? "bg-[#ddffd9] text-black rounded-br-none"
+                                : "bg-[#ffffff] text-black rounded-bl-none"
+                            }`}
+                          >
+                            {message.parentMessageContent &&
+                              message.parentMessageContent.trim() !== "" && (
+                                <div
+                                  className="mb-2 p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis"
+                                  style={{
+                                    display: "-webkit-box",
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: "vertical",
+                                    whiteSpace: "normal",
+                                  }}
+                                >
+                                  {message.parentMessageContent}
+                                </div>
+                              )}
+                            {message.contentType &&
+                              message.contentType !== "" && (
+                                <>
+                                  {message.contentType.startsWith("image/") && (
+                                    <img
+                                      src={`${BASE_URL}${message.mediaPath}`}
+                                      alt="Image"
+                                      className="max-w-full rounded"
+                                    />
+                                  )}
+                                  {message.contentType.startsWith("video/") && (
+                                    <video
+                                      controls
+                                      src={`${BASE_URL}${message.mediaPath}`}
+                                      className="max-w-full rounded"
+                                    />
+                                  )}
+                                  {message.contentType.startsWith("audio/") && (
+                                    <audio
+                                      controls
+                                      src={`${BASE_URL}${message.mediaPath}`}
+                                      className="max-w-full rounded"
+                                    />
+                                  )}
+                                </>
+                              )}
+                            <p className="">
+                              <p className="">
+                                {message.messageContent
+                                  ? message.messageContent
+                                      .split("\n")
+                                      .map((line, index) => (
+                                        <span key={index}>
+                                          {line}
+                                          <br />
+                                        </span>
+                                      ))
+                                  : null}
+                              </p>
+                            </p>
+                            {message.buttonJson &&
+                              message.buttonJson.length > 0 && (
+                                <div className="mt-2">
+                                  {(typeof message.buttonJson === "string"
+                                    ? JSON.parse(message.buttonJson)
+                                    : message.buttonJson
+                                  ).map((button, index) => (
+                                    <Button
+                                      key={index}
+                                      className="w-100 mb-2"
+                                      style={{
+                                        color: "#00a9ee",
+                                        backgroundColor: "#ddffd9",
+                                        borderColor: "#ffffff",
+                                        borderStyle: "solid",
+                                        borderWidth: "2px 2px 2px 2px",
+                                        borderTopWidth: "0.5px",
+                                        borderTopStyle: "solid",
+                                        borderTopColor: "#e1e1e1",
+                                      }}
+                                    >
+                                      {button.ButtonType == 1 && (
+                                        <span>
+                                          <i className="fa fa-share fa-flip-horizontal me-2"></i>
+                                          {button.ButtonText || "Button"}
+                                        </span>
+                                      )}
+                                      {button.ButtonType == 2 && (
+                                        <span>
+                                          <i className="fa fa-phone me-2"></i>
+                                          {button.ButtonText || "Button"}
+                                        </span>
+                                      )}
+                                      {button.ButtonType == 3 && (
+                                        <span>
+                                          <i className="fa fa-external-link me-2"></i>
+                                          {button.ButtonText || "Button"}
+                                        </span>
+                                      )}
+                                    </Button>
+                                  ))}
+                                </div>
+                              )}
+
+                            <p className="text-xs text-gray-500">
+                              {extractTime(message.createdDate)}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                      <div ref={messagesEndRef} />
+                    </div>
+
+                    {previewUrl && (
+                      <div
+                        style={{
+                          position: "relative",
+                          padding: "20px",
+                          borderRadius: "8px",
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                          maxWidth: "450px",
+                          marginRight: "20px auto",
+                        }}
+                      >
+                        <button
+                          onClick={() => handleImageclose()}
+                          style={{
+                            position: "absolute",
+                            top: "10px",
+                            right: "10px",
+                            backgroundColor: "red",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "50%",
+                            width: "25px",
+                            height: "25px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            cursor: "pointer",
+                            boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+                            fontSize: "16px",
+                            lineHeight: "1",
+                          }}
+                        >
+                          &times;
+                        </button>
+
+                        {fileType === "image" && (
+                          <img
+                            src={previewUrl}
+                            alt="Preview"
+                            style={{
+                              maxWidth: "100%",
+                              marginTop: "10px",
+                              borderRadius: "8px",
+                            }}
+                          />
+                        )}
+
+                        {fileType === "video" && (
+                          <video
+                            controls
+                            src={previewUrl}
+                            style={{
+                              width: "100%",
+                              marginTop: "10px",
+                              borderRadius: "8px",
+                            }}
+                          />
+                        )}
+
+                        {fileType === "audio" && (
+                          <audio
+                            controls
+                            src={previewUrl}
+                            style={{
+                              width: "100%",
+                              marginTop: "10px",
+                            }}
+                          />
+                        )}
+
+                        {fileType === "application" && (
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginTop: "10px",
+                            }}
+                          >
+                            <div
+                              style={{
+                                backgroundColor: "#f0f0f0",
+                                borderRadius: "50%",
+                                width: "50px",
+                                height: "50px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                marginRight: "10px",
+                              }}
+                            >
+                              <i
+                                className="fa fa-file"
                                 style={{
-                                  display: "-webkit-box",
-                                  WebkitLineClamp: 2,
-                                  WebkitBoxOrient: "vertical",
-                                  whiteSpace: "normal",
+                                  fontSize: "24px",
+                                  color: "#555",
+                                }}
+                              ></i>
+                            </div>
+                            <div>
+                              <p
+                                style={{
+                                  margin: "0 0 5px",
+                                  fontWeight: "bold",
+                                  color: "#333",
                                 }}
                               >
-                                {message.parentMessageContent}
-                              </div>
-                            )}
-                          {message.contentType &&
-                            message.contentType !== "" && (
-                              <>
-                                {message.contentType.startsWith("image/") && (
-                                  <img
-                                    src={`${BASE_URL}${message.mediaPath}`}
-                                    alt="Image"
-                                    className="max-w-full rounded"
-                                  />
-                                )}
-                                {message.contentType.startsWith("video/") && (
-                                  <video
-                                    controls
-                                    src={`${BASE_URL}${message.mediaPath}`}
-                                    className="max-w-full rounded"
-                                  />
-                                )}
-                                {message.contentType.startsWith("audio/") && (
-                                  <audio
-                                    controls
-                                    src={`${BASE_URL}${message.mediaPath}`}
-                                    className="max-w-full rounded"
-                                  />
-                                )}
-                              </>
-                            )}
-                          <p className="">
-                            {message.messageContent
-                              .split("\n")
-                              .map((line, index) => (
-                                <span key={index}>
-                                  {line}
-                                  <br />
-                                </span>
-                              ))}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {extractTime(message.createdDate)}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                    <div ref={messagesEndRef} />
-                  </div>
-
-                  {previewUrl && (
-  <div
-    style={{
-      position: "relative",
-      padding: "20px",
-      borderRadius: "8px",
-      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-      maxWidth: "450px",
-      marginRight: "20px auto",
-    }}
-  >
-    <button
-      onClick={() => handleImageclose()}
-      style={{
-        position: "absolute",
-        top: "10px",
-        right: "10px",
-        backgroundColor: "red",
-        color: "white",
-        border: "none",
-        borderRadius: "50%",
-        width: "25px",
-        height: "25px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        cursor: "pointer",
-        boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
-        fontSize: "16px",
-        lineHeight: "1",
-      }}
-    >
-      &times;
-    </button>
-
-    {fileType === "image" && (
-      <img
-        src={previewUrl}
-        alt="Preview"
-        style={{
-          maxWidth: "100%",
-          marginTop: "10px",
-          borderRadius: "8px",
-        }}
-      />
-    )}
-
-    {fileType === "video" && (
-      <video
-        controls
-        src={previewUrl}
-        style={{
-          width: "100%",
-          marginTop: "10px",
-          borderRadius: "8px",
-        }}
-      />
-    )}
-
-    {fileType === "audio" && (
-      <audio
-        controls
-        src={previewUrl}
-        style={{
-          width: "100%",
-          marginTop: "10px",
-        }}
-      />
-    )}
-
-    {fileType === "application" && (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          marginTop: "10px",
-        }}
-      >
-        <div
-          style={{
-            backgroundColor: "#f0f0f0",
-            borderRadius: "50%",
-            width: "50px",
-            height: "50px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginRight: "10px",
-          }}
-        >
-          <i
-            className="fa fa-file"
-            style={{
-              fontSize: "24px",
-              color: "#555",
-            }}
-          ></i>
-        </div>
-        <div>
-          <p
-            style={{
-              margin: "0 0 5px",
-              fontWeight: "bold",
-              color: "#333",
-            }}
-          >
-            {mediaFile.name}
-          </p>
-          <a
-            href={previewUrl}
-            download={mediaFile.name}
-            style={{
-              color: "#007BFF",
-              textDecoration: "none",
-            }}
-          >
-            Download
-          </a>
-        </div>
-      </div>
-    )}
-  </div>
-)}
-
-                  <div className="msger-inputs px-4 py-3 flex items-center">
-                    <Button
-                      onClick={openFileManager}
-                      className="text-xl text-gray-500 hover:text-gray-700 mr-2"
-                    >
-                      <i className="fa fa-paperclip"></i>
-                    </Button>
-                    {/* Emoji Picker Button */}
-                    <button
-                      className="mr-2 p-2 hover:bg-gray-200 rounded-full"
-                      onClick={() => setShowEmojiPicker((prev) => !prev)}
-                    >
-                      <i className="fa fa-smile-o text-gray-600"></i>
-                    </button>
-
-                    {/* Emoji Picker */}
-                    {showEmojiPicker && (
-                      <div
-                        className="absolute bottom-16 left-0 bg-white border rounded-lg shadow-lg p-2 z-50"
-                        style={{ width: "auto" }}
-                      >
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-gray-700 font-semibold">
-                            Select Emoji
-                          </span>
-                          <button
-                            className="text-red-500 hover:text-red-700"
-                            onClick={() => setShowEmojiPicker(false)}
-                          >
-                            <i className="fa fa-times"></i>
-                          </button>
-                        </div>
-                        <EmojiPicker
-                          onEmojiClick={(emojiData) => {
-                            addEmoji(emojiData.emoji); // Pass emoji value
-                          }}
-                        />
+                                {mediaFile.name}
+                              </p>
+                              <a
+                                href={previewUrl}
+                                download={mediaFile.name}
+                                style={{
+                                  color: "#007BFF",
+                                  textDecoration: "none",
+                                }}
+                              >
+                                Download
+                              </a>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
-                    <Input
-                      type="text"
-                      value={messageInput}
-                      onChange={(e) => setMessageInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          HandleSendMessage();
-                        }
-                      }}
-                      placeholder="Type a message..."
-                      className="rounded-lg border-0 shadow-sm"
-                    />
 
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      onChange={handleFileChange}
-                      className="hidden"
-                    />
-                    <div className="relative">
-                      <button
-                        onClick={handleAgentdefinetemplate}
-                        className="  rounded-full m-3 "
+                    <div className="msger-inputs px-4 py-3 flex items-center">
+                      <Button
+                        onClick={openFileManager}
+                        className="text-xl text-gray-500 hover:text-gray-700 mr-2"
                       >
-                        <i className="fa fa-comment"></i>
+                        <i className="fa fa-paperclip"></i>
+                      </Button>
+                      {/* Emoji Picker Button */}
+                      <button
+                        className="mr-2 p-2 hover:bg-gray-200 rounded-full"
+                        onClick={() => setShowEmojiPicker((prev) => !prev)}
+                      >
+                        <i className="fa fa-smile-o text-gray-600"></i>
                       </button>
 
-                      {ShowDetailedTemplate && (
-                        <DefinedTemplates
-                          isVisible={true}
-                          onClose={handleAgenttemplateclose}
-                          SenderId={ActiveSenderId}
-                          ChatId={Activechat}
-                        />
+                      {/* Emoji Picker */}
+                      {showEmojiPicker && (
+                        <div
+                          className="absolute bottom-16 left-0 bg-white border rounded-lg shadow-lg p-2 z-50"
+                          style={{ width: "auto" }}
+                        >
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-gray-700 font-semibold">
+                              Select Emoji
+                            </span>
+                            <button
+                              className="text-red-500 hover:text-red-700"
+                              onClick={() => setShowEmojiPicker(false)}
+                            >
+                              <i className="fa fa-times"></i>
+                            </button>
+                          </div>
+                          <EmojiPicker
+                            onEmojiClick={(emojiData) => {
+                              addEmoji(emojiData.emoji); // Pass emoji value
+                            }}
+                          />
+                        </div>
                       )}
+                      <Input
+                        type="text"
+                        value={messageInput}
+                        onChange={(e) => setMessageInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            HandleSendMessage();
+                          }
+                        }}
+                        placeholder="Type a message..."
+                        className="rounded-lg border-0 shadow-sm"
+                      />
+
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                      <div className="relative">
+                        <button
+                          onClick={handleAgentdefinetemplate}
+                          className="  rounded-full m-3 "
+                        >
+                          <i className="fa fa-comment"></i>
+                        </button>
+
+                        {ShowDetailedTemplate && (
+                          <DefinedTemplates
+                            isVisible={true}
+                            onClose={handleAgenttemplateclose}
+                            SenderId={ActiveSenderId}
+                            ChatId={Activechat}
+                            onSend={handleTemplateSend}
+                          />
+                        )}
+                      </div>
+                      <Button onClick={HandleSendMessage} color="primary">
+                        <i className="fa fa-paper-plane"></i>
+                      </Button>
                     </div>
-                    <Button onClick={HandleSendMessage} color="primary">
-                      <i className="fa fa-paper-plane"></i>
-                    </Button>
                   </div>
                 </div>
+              </Card>
+            )}
+            {Activechat === 0 && (
+              <div className="font-bold text-center mt-[30%] text-gray-400 text-2xl">
+                Select a chat from left panel
               </div>
-            </Card>
+            )}
           </Col>
         </Row>
       </Container>

@@ -1,25 +1,47 @@
 import { useState, useEffect } from "react";
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 import { Formik, Field, useFormikContext } from "formik";
-import { Form, FormGroup, Label, Input, Container, Row, Col, Button, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Alert } from "reactstrap";
-//import ReactQuill from 'react-quill'; 
-import 'react-quill/dist/quill.snow.css';
+import {
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  Container,
+  Row,
+  Col,
+  Button,
+  Dropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  Alert,
+} from "reactstrap";
+//import ReactQuill from 'react-quill';
+import "react-quill/dist/quill.snow.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes } from "react-icons/fa";
 import { FaRegTrashCan } from "react-icons/fa6";
-import { fetchTemplatesById, clearTemplateDetailState } from "@/slices/TemplateSlice";
-import { UpdateCampaign, clearCampaignUpdateState, fetchCampaignDetail, clearCampaignDetailState } from "@/slices/campaignSlice";
+import {
+  fetchTemplatesById,
+  clearTemplateDetailState,
+} from "@/slices/TemplateSlice";
+import {
+  UpdateCampaign,
+  clearCampaignUpdateState,
+  fetchCampaignDetail,
+  clearCampaignDetailState,
+} from "@/slices/campaignSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Groups from "@/components/MultiSelect/GroupDropdown";
 import Templates from "@/components/Dropdowns/TemplateDropdown";
 import App from "@/components/App";
 import Media from "@/pages/Media/MediaList";
 import moment from "moment";
-import bagroundimage from '@/public/images/baground.jpg';
+import bagroundimage from "@/public/images/baground.jpg";
 import { BASE_URL } from "@/utils/apiConstants";
-import { useRecoilValue } from 'recoil';
-import { CampaignState } from '@/components/recoil';
+import { useRecoilValue } from "recoil";
+import { CampaignState } from "@/components/recoil";
 const UpdateCampaigns = () => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -27,7 +49,11 @@ const UpdateCampaigns = () => {
   //const { CampaignID } = location.state || {}; // Get CampaignID from state
   const [Loading, setLoading] = useState(true);
   const { template, loading, error } = useSelector((state) => state.templates);
-  const { campaigndetail, loading: campaignloading, error: campaignerror } = useSelector((state) => state.campaigns);
+  const {
+    campaigndetail,
+    loading: campaignloading,
+    error: campaignerror,
+  } = useSelector((state) => state.campaigns);
   const [showMediaPopup, setShowMediaPopup] = useState(false);
   const [messagePreview, setMessagePreview] = useState({
     header: "",
@@ -63,16 +89,19 @@ const UpdateCampaigns = () => {
   const [updatedvercontent, setupdatedvercontent] = useState("");
   const [SelectedCampaign, setSelectedCampaign] = useState(0);
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
-  const[existinggroupId, setexistinggroupId] = useState([]);
+  const [existinggroupId, setexistinggroupId] = useState([]);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const [senturlvariables, setsenturlvariables] = useState([]);
   const replaceClosingPTagsWithNewline = (content) => {
-    return content?.replace(/<\/p>/gi, '\n ').replace(/<p.*?>/gi, '').replace(/\n /g, '\n  ');
+    return content
+      ?.replace(/<\/p>/gi, "\n ")
+      .replace(/<p.*?>/gi, "")
+      .replace(/\n /g, "\n  ");
   };
 
   const togglePopup = () => setshowaction(!showaction);
 
-  console.log("!@#$%^&", bodyFinalContent)
+  console.log("!@#$%^&", bodyFinalContent);
 
   const handleGroupSelection = (groupIds) => {
     setSelectedGroups(groupIds);
@@ -84,66 +113,79 @@ const UpdateCampaigns = () => {
     setSelectedTemplateId(templateId);
   };
   useEffect(() => {
-    if (CampaignID) { // Run only if a template is selected
+    if (CampaignID) {
+      // Run only if a template is selected
 
       setSelectedCampaign(CampaignID);
+    }
+    else{
+      router.back();
     }
   }, [SelectedCampaign]);
 
   useEffect(() => {
-    if (SelectedCampaign) { // Run only if a template is selected
+    if (SelectedCampaign) {
+      // Run only if a template is selected
       setLoading(true);
-      dispatch(fetchCampaignDetail({
-        CampaignId: SelectedCampaign
-      }));
+      dispatch(
+        fetchCampaignDetail({
+          CampaignId: SelectedCampaign,
+        })
+      );
     }
   }, [dispatch, SelectedCampaign]);
 
   useEffect(() => {
-    if (selectedTemplateId) { // Run only if a template is selected
+    if (selectedTemplateId) {
+      // Run only if a template is selected
       setLoading(true);
-      dispatch(fetchTemplatesById({
-        ClientId: localStorage.getItem("clientId"),
-        templateId: selectedTemplateId,
-      }));
+      dispatch(
+        fetchTemplatesById({
+          ClientId: localStorage.getItem("clientId"),
+          templateId: selectedTemplateId,
+        })
+      );
     }
   }, [dispatch, selectedTemplateId]);
 
   useEffect(() => {
-    if (campaigndetail) {
-      setSelectedTemplateId(campaigndetail.templateId);
-      setcampaignName(campaigndetail.campaignName);
-      setexistinggroupId(campaigndetail.groupIds.replace(/['"]+/g, '').split(',').map(Number))
-      if (campaigndetail?.parameters) {
-        //setHeaderVariable([template?.headerValue || ""]);
-        campaigndetail.parameters.forEach((variable, i) => {
-          const { paramType, paramText } = variable || {};
-          if ((paramType === 1 )) {
-            handleheaderVariableChange(i, paramText || "");
-          } else if (paramType === 2) {
-            handleVariableChange(i, paramText || "");
-          }else if (paramType === 3) {
-            const filteredButtonValues =  campaigndetail.parameters.filter(
-              (item) => item["isDynamic"] && item.paramDefaultValue !== null
-            );
-            setsenturlvariables(filteredButtonValues);
-          }
-
-
-
-          if (template.buttonValues.some((item) => item.value !== null)) {
-            const filteredButtonValues = template.buttonValues.filter(
-              (item) => item["isDynamic"] && item.value !== null
-            );
-            setsenturlvariables(filteredButtonValues);
-            console.log("urlvariables", filteredButtonValues);
-          }
-        });
-      }
+    const initializeCampaignDetails = async () => {
       
-    }
-    
+      if (campaigndetail) {
+        setSelectedTemplateId(campaigndetail.templateId);
+        setcampaignName(campaigndetail.campaignName);
+        setexistinggroupId(
+          campaigndetail.groupIds.replace(/['"]+/g, "").split(",").map(Number)
+        );
+  
+        if (campaigndetail.parameters) {
+          // Update header and body variables
+          campaigndetail.parameters.forEach((variable, i) => {
+            const { paramType, paramText } = variable || {};
+  
+            if (paramType === 1) {
+              handleheaderVariableChange(i, paramText || "");
+            } else if (paramType === 2) {
+              handleVariableChange(i, paramText || "");
+            }
+          });
+  
+          // Handle dynamic button values
+          const filteredButtonValues = campaigndetail.parameters.filter(
+            (item) =>
+              item.isDynamic === true &&
+              item.paramType === 3 &&
+              item.paramDefaultValue !== null
+          );
+  
+          setsenturlvariables(filteredButtonValues);
+        }
+      }
+    };
+  
+    initializeCampaignDetails();
   }, [dispatch, campaigndetail]);
+  
 
   useEffect(() => {
     if (!template) return;
@@ -178,7 +220,6 @@ const UpdateCampaigns = () => {
       setSelectedMediaId(template.mediaId);
       setSelectedMediaPath(template.mediaURL);
       setSelectedMediaType(template.contentType);
-
     }
 
     // Update Body
@@ -194,7 +235,7 @@ const UpdateCampaigns = () => {
     //     }
     //   });
     // }
-    setSelectedSenderId(template.senderId)
+    setSelectedSenderId(template.senderId);
     // Update Buttons
     setTotalButtonCount(updatedMessagePreview.buttons.length);
 
@@ -204,21 +245,17 @@ const UpdateCampaigns = () => {
     // Finalize Template Update
     setLoading(false);
 
-
     // Clear State
     clearTemplateDetailState();
   }, [template]);
-
 
   useEffect(() => {
     setAPIheadContent(replaceClosingPTagsWithNewline(headContent));
   }, [headContent]); // Trigger only when headContent changes
 
-
   useEffect(() => {
     setAPIbodyContent(replaceClosingPTagsWithNewline(bodyFinalContent));
   }, [bodyFinalContent]);
-
 
   const handleSubmit = async (values) => {
     let trimmedBodyContent = APIbodyContent.trimEnd();
@@ -241,20 +278,18 @@ const UpdateCampaigns = () => {
           paramType: 1,
           paramDefaultValue: value,
           isDynamic: false,
-          status: 0
+          status: 0,
         })),
         ...variables.map((value, index) => ({
           sequence: index + 1,
           paramName: `${index + 1}`, // Dynamic name for header variables
-          paramText: value,                    // Use value from headerVariable
-          paramType: 2,                        // Static type
-          paramDefaultValue: value,            // Default value same as value
-          isDynamic: false,                     // Static boolean
-          status: 0                                    // Static status
-        }))
+          paramText: value, // Use value from headerVariable
+          paramType: 2, // Static type
+          paramDefaultValue: value, // Default value same as value
+          isDynamic: false, // Static boolean
+          status: 0, // Static status
+        })),
       ],
-
-
     };
 
     try {
@@ -296,10 +331,12 @@ const UpdateCampaigns = () => {
     });
 
     // Handle newlines and preserve the flow
-    updatedBody = updatedBody?.replace(/\n/g, '<br/>'); // Convert newlines to <br/> tags for HTML rendering
+    updatedBody = updatedBody?.replace(/\n/g, "<br/>"); // Convert newlines to <br/> tags for HTML rendering
 
     // Replace <p> tags only if necessary, and ensure newlines are handled correctly
-    updatedBody = updatedBody?.replace(/<\/p>/gi, '<br/>').replace(/<p.*?>/gi, '');
+    updatedBody = updatedBody
+      ?.replace(/<\/p>/gi, "<br/>")
+      .replace(/<p.*?>/gi, "");
 
     // Update the message preview body content
     setMessagePreview((prev) => ({
@@ -311,7 +348,9 @@ const UpdateCampaigns = () => {
   useEffect(() => {
     setMessagePreview((prev) => ({
       ...prev,
-      header: headContent.replace(/\{{(\d+)\}}/g, (match, index) => headerVariable[index - 1]).replace(/\n/g, "<br />"),
+      header: headContent
+        .replace(/\{{(\d+)\}}/g, (match, index) => headerVariable[index - 1])
+        .replace(/\n/g, "<br />"),
     }));
   }, [headContent, headerVariable]);
   const handleVariableChange = (index, value) => {
@@ -339,9 +378,8 @@ const UpdateCampaigns = () => {
     setTypingTimeout(timeout);
   };
   const handelCancel = () => {
-    router.push("/Campaigns/CampaignsList")
-  }
-
+    router.push("/Campaigns/CampaignsList");
+  };
 
   const handleheaderVariableChange = (index, value) => {
     setHeaderVariable((prev) => {
@@ -354,16 +392,25 @@ const UpdateCampaigns = () => {
   const handleurlVariableChange = (index, value) => {
     setsenturlvariables((prev) => {
       const newurlVariable = [...prev];
-      // Create a new object for the `values` property
-      const updatedButton = {
-        ...newurlVariable[index],
-        values: { ...newurlVariable[index].values, value }, // Create a new `values` object
-      };
-      newurlVariable[index] = updatedButton; // Replace the button at index with the updated button
+  
+      // Ensure the index exists before updating
+      if (newurlVariable[index]) {
+        const updatedButton = {
+          ...newurlVariable[index],
+          values: {
+            ...newurlVariable[index].values, // Keep existing values
+            value, // Update the specific value
+          },
+          paramText: value, // Update the paramText field
+        };
+  
+        newurlVariable[index] = updatedButton; // Replace the button at the specified index
+      }
+  
       return newurlVariable;
     });
   };
-
+  
 
   const handleSenderChange = (e) => {
     const role = e.target.value;
@@ -375,16 +422,17 @@ const UpdateCampaigns = () => {
     variables.forEach((variable, index) => {
       updatedBody = updatedBody.replace(`{{${index + 1}}}`, variable);
     });
-    updatedBody = updatedBody.replace(/\n/g, '<br/>'); // Convert newlines to <br/> tags for HTML rendering
+    updatedBody = updatedBody.replace(/\n/g, "<br/>"); // Convert newlines to <br/> tags for HTML rendering
 
     // Replace <p> tags only if necessary, and ensure newlines are handled correctly
-    updatedBody = updatedBody.replace(/<\/p>/gi, '<br/>').replace(/<p.*?>/gi, '');
-    updatedBody = updatedBody.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    updatedBody = updatedBody
+      .replace(/<\/p>/gi, "<br/>")
+      .replace(/<p.*?>/gi, "");
+    updatedBody = updatedBody.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
 
-    updatedBody = updatedBody.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    updatedBody = updatedBody.replace(/\*(.*?)\*/g, "<em>$1</em>");
 
-    updatedBody = updatedBody.replace(/~(.*?)~/g, '<sub>$1</sub>');
-
+    updatedBody = updatedBody.replace(/~(.*?)~/g, "<sub>$1</sub>");
 
     // Update the message preview body content
     setMessagePreview((prev) => ({
@@ -397,7 +445,11 @@ const UpdateCampaigns = () => {
     <App>
       <Container fluid className="mt-0">
         <Row style={{ height: "100vh" }}>
-          <Col md={7} className="border-end overflow-auto shadow-lg" style={{ padding: '20px', background: "#fff" }}>
+          <Col
+            md={7}
+            className="border-end overflow-auto shadow-lg"
+            style={{ padding: "20px", background: "#fff" }}
+          >
             <h4 className="mb-4">Update Campaign</h4>
             {/* <CustomEditor /> */}
 
@@ -418,10 +470,8 @@ const UpdateCampaigns = () => {
               onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
-
-
                 return (
-                  <Form  >
+                  <Form>
                     <div style={{ background: "#fff" }} className="">
                       <FormGroup>
                         <Label for="campaignName">Campaign Name</Label>
@@ -436,7 +486,6 @@ const UpdateCampaigns = () => {
                           style={{ borderRadius: "8px" }}
                         />
                       </FormGroup>
-
                     </div>
                     <div style={{ background: "#fff" }} className="">
                       <FormGroup>
@@ -448,9 +497,7 @@ const UpdateCampaigns = () => {
                           className="mb-3"
                         />
                       </FormGroup>
-
                     </div>
-
 
                     <div className="">
                       <FormGroup>
@@ -462,48 +509,50 @@ const UpdateCampaigns = () => {
                           existingdata={existinggroupId}
                         />
                       </FormGroup>
-
                     </div>
-                 
-                    {template && 
-  (["2", "3", "4"].includes(String(template.headerType))) && (
-    <div className="mt-3 text-sm">
-      <button
-        type="button" // Explicitly prevent form submission
-        className="text-blue-500 hover:underline text-sm font-medium"
-        onClick={(e) => {
-          e.preventDefault(); // Prevent default browser behavior
-          setShowMediaPopup(true); // Show the media popup
-        }}
-      >
-        Change header {template.headerType === 2 ? "Image" : template.headerType === 3 ? "Video" : "Document"}
-      </button>
 
-      {showMediaPopup && (
-        <Media
-          isPopup={true}
-          contentTypeStr={
-            template.headerType === 2
-              ? "image"
-              : template.headerType === 3
-              ? "video"
-              : "application"
-          }
-          onSelectMedia={(mediaId, mediaPath, mimeType) => {
-            setSelectedMediaId(mediaId);
-            setSelectedMediaPath(mediaPath);
-            setSelectedMediaType(mimeType);
-            setShowMediaPopup(false); // Close the popup after selection
-          }}
-        />
-      )}
-    </div>
-  )
-}
+                    {template &&
+                      ["2", "3", "4"].includes(String(template.headerType)) && (
+                        <div className="mt-3 text-sm">
+                          <button
+                            type="button" // Explicitly prevent form submission
+                            className="text-blue-500 hover:underline text-sm font-medium"
+                            onClick={(e) => {
+                              e.preventDefault(); // Prevent default browser behavior
+                              setShowMediaPopup(true); // Show the media popup
+                            }}
+                          >
+                            Change header{" "}
+                            {template.headerType === 2
+                              ? "Image"
+                              : template.headerType === 3
+                              ? "Video"
+                              : "Document"}
+                          </button>
+
+                          {showMediaPopup && (
+                            <Media
+                              isPopup={true}
+                              contentTypeStr={
+                                template.headerType === 2
+                                  ? "image"
+                                  : template.headerType === 3
+                                  ? "video"
+                                  : "application"
+                              }
+                              onSelectMedia={(mediaId, mediaPath, mimeType) => {
+                                setSelectedMediaId(mediaId);
+                                setSelectedMediaPath(mediaPath);
+                                setSelectedMediaType(mimeType);
+                                setShowMediaPopup(false); // Close the popup after selection
+                              }}
+                            />
+                          )}
+                        </div>
+                      )}
                     {headerVariable.length > 0 && <h5>Header Variables</h5>}
                     {headerVariable.map((variable, index) => (
                       <FormGroup key={index}>
-                        
                         <Label>{`Value for {${index + 1}}`}</Label>
                         <Input
                           type="text"
@@ -520,12 +569,13 @@ const UpdateCampaigns = () => {
                     {variables.length > 0 && <h5>Body Variables</h5>}
                     {variables.map((variable, index) => (
                       <FormGroup key={index}>
-                       
                         <Label>{`Value for {${index + 1}}`}</Label>
                         <Input
                           type="text"
                           value={variable}
-                          onChange={(e) => handleVariableChange(index, e.target.value)}
+                          onChange={(e) =>
+                            handleVariableChange(index, e.target.value)
+                          }
                           placeholder={`Enter Sample Value for {${index + 1}}`}
                           style={{ borderRadius: "8px" }}
                           className="mb-3"
@@ -543,7 +593,7 @@ const UpdateCampaigns = () => {
                                   <Input
                                     className="w-90"
                                     type="text"
-                                    value={variable.values.value || ""}
+                                    value={variable.paramText || ""}
                                     onChange={(e) =>
                                       handleurlVariableChange(
                                         index,
@@ -560,148 +610,182 @@ const UpdateCampaigns = () => {
                           )
                       )}
                     <div className="w-full flex justify-end gap-3">
-                      <Button className="uniform_btn_Cancel " onClick={handelCancel}>
+                      <Button
+                        className="uniform_btn_Cancel "
+                        onClick={handelCancel}
+                      >
                         Cancel
                       </Button>
-                      <Button className="uniform_btn " onClick={() => handleSubmit(values)}>
+                      <Button
+                        className="uniform_btn "
+                        onClick={() => handleSubmit(values)}
+                      >
                         Submit
                       </Button>
-
                     </div>
                   </Form>
                 );
               }}
-
             </Formik>
           </Col>
-          <Col md={5} className="overflow-auto" style={{ padding: '20px' }}>
+          <Col md={5} className="overflow-auto" style={{ padding: "20px" }}>
             <div>
-              <h4 className="mb-1 bg-light p-3 shadow-sm" style={{ maxWidth: "600px", margin: "auto" }}>Template Preview</h4>
+              <h4
+                className="mb-1 bg-light p-3 shadow-sm"
+                style={{ maxWidth: "600px", margin: "auto" }}
+              >
+                Template Preview
+              </h4>
             </div>
-            <div className="border p-3 rounded" style={{
-              height: "auto",
-              minHeight: "420px",
-              backgroundColor: "#e0e0e0",
-              backgroundImage: `url(${bagroundimage.src})`, // Update this path
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-              maxWidth: '600px',  // Increased width of preview container
-              margin: '0 auto',
-              padding: '5px'  // Optional: Adjust padding for more space inside the preview container
-            }}>
-              <div className="chat_bubble" style={{
-                position: "relative",
-                backgroundColor: '#f7f7f7',
-                borderRadius: '5px',
-                padding: '20px 10px',
-                wordWrap: 'break-word',
-                marginBottom: '10px',
-                maxWidth: '400px', // Message body width stays the same
-                marginRight: '0',    // Remove any margin from the right side
-              }}>
-                <span className="time_bubble">{moment(new Date()).format('LT')}</span>
-                {messagePreview.media && selectedMediaType.startsWith("image/") && (
-                  //alert(selectedMediaPath),
-                  <img
-                    src={`${BASE_URL}${selectedMediaPath}`}
-                    alt="Media"
-                    className="img-fluid"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'contain',
-                      borderRadius: '8px',
-                      marginBottom: '5px'
-                    }}
+            <div
+              className="border p-3 rounded"
+              style={{
+                height: "auto",
+                minHeight: "420px",
+                backgroundColor: "#e0e0e0",
+                backgroundImage: `url(${bagroundimage.src})`, // Update this path
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+                maxWidth: "600px", // Increased width of preview container
+                margin: "0 auto",
+                padding: "5px", // Optional: Adjust padding for more space inside the preview container
+              }}
+            >
+              <div
+                className="chat_bubble"
+                style={{
+                  position: "relative",
+                  backgroundColor: "#f7f7f7",
+                  borderRadius: "5px",
+                  padding: "20px 10px",
+                  wordWrap: "break-word",
+                  marginBottom: "10px",
+                  maxWidth: "400px", // Message body width stays the same
+                  marginRight: "0", // Remove any margin from the right side
+                }}
+              >
+                <span className="time_bubble">
+                  {moment(new Date()).format("LT")}
+                </span>
+                {messagePreview.media &&
+                  selectedMediaType.startsWith("image/") && (
+                    //alert(selectedMediaPath),
+                    <img
+                      src={`${BASE_URL}${selectedMediaPath}`}
+                      alt="Media"
+                      className="img-fluid"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        borderRadius: "8px",
+                        marginBottom: "5px",
+                      }}
+                    />
+                  )}
+                {messagePreview.media &&
+                  selectedMediaType.startsWith("video/") && (
+                    <video
+                      src={`${BASE_URL}${selectedMediaPath}`}
+                      autoPlay
+                      muted
+                      loop
+                      className="img-fluid"
+                      style={{
+                        width: "100%",
+                        height: "auto",
+                        objectFit: "contain",
+                        borderRadius: "8px",
+                        marginBottom: "10px",
+                      }}
+                    />
+                  )}
+
+                {messagePreview.media &&
+                  selectedMediaType.startsWith("audio/") && (
+                    <audio
+                      src={`${BASE_URL}${selectedMediaPath}`}
+                      controls
+                      controlsList="nodownload"
+                      style={{
+                        width: "100%",
+                        borderRadius: "8px",
+                        marginBottom: "10px",
+                      }}
+                    />
+                  )}
+
+                {messagePreview.header && (
+                  <h6
+                    style={{ marginBottom: "5px" }}
+                    dangerouslySetInnerHTML={{ __html: messagePreview.header }}
                   />
                 )}
-                {messagePreview.media && selectedMediaType.startsWith("video/") && (
-                  <video
-                    src={`${BASE_URL}${selectedMediaPath}`}
-                    autoPlay
-                    muted
-                    loop
-                    className="img-fluid"
-                    style={{
-                      width: '100%',
-                      height: 'auto',
-                      objectFit: 'contain',
-                      borderRadius: '8px',
-                      marginBottom: '10px'
-                    }}
-                  />
+                <div
+                  dangerouslySetInnerHTML={{ __html: messagePreview.body }}
+                />
+                {messagePreview.footer && (
+                  <p style={{ marginTop: "5px", fontSize: "0.9em" }}>
+                    {messagePreview.footer}
+                  </p>
                 )}
 
-                {messagePreview.media && selectedMediaType.startsWith("audio/") && (
-                  <audio
-                    src={`${BASE_URL}${selectedMediaPath}`}
-                    controls
-                    controlsList="nodownload"
-                    style={{
-                      width: '100%',
-                      borderRadius: '8px',
-                      marginBottom: '10px'
-                    }}
-                  />
-                )}
+                {(Showallbutton || TotalButtonCount <= 3) &&
+                  messagePreview.buttons.map((button, index) => (
+                    <Button
+                      key={index}
+                      className="w-100 mb-2"
+                      style={{
+                        color: "#00a9ee",
+                        backgroundColor: "#ffffff",
+                        borderColor: "#ffffff",
+                        borderStyle: "solid",
+                        borderWidth: "1px 1px 1px 1px",
+                        borderTopWidth: "0.5px",
+                        borderTopStyle: "solid",
+                        borderTopColor: "#e1e1e1",
+                      }}
+                    >
+                      {button.type == 1 && (
+                        <span style={{ color: "#00a9ee" }}>
+                          <i className="fa fa-share fa-flip-horizontal me-2"></i>
 
-                {messagePreview.header && <h6 style={{ marginBottom: '5px' }} dangerouslySetInnerHTML={{ __html: messagePreview.header }} />}
-                <div dangerouslySetInnerHTML={{ __html: messagePreview.body }} />
-                {messagePreview.footer && <p style={{ marginTop: '5px', fontSize: '0.9em' }}>{messagePreview.footer}</p>}
-
-                {(Showallbutton || TotalButtonCount <= 3) && messagePreview.buttons.map((button, index) => (
-                  <Button
-                    key={index}
-                    className="w-100 mb-2"
-                    style={{
-                      color: "#00a9ee",
-                      backgroundColor: '#ffffff',
-                      borderColor: '#ffffff',
-                      borderStyle: 'solid',
-                      borderWidth: '1px 1px 1px 1px',
-                      borderTopWidth: '0.5px',
-                      borderTopStyle: 'solid',
-                      borderTopColor: '#e1e1e1'
-                    }}
-                  >
-                    {button.type == 1 && (
-                      <span style={{ color: '#00a9ee' }}>
-                        <i className="fa fa-share fa-flip-horizontal me-2"></i>
-
-                        {button.text || "Button"}
-                      </span>
-                    )}
-                    {button.type == 2 && (
-                      <span style={{ color: '#00a9ee' }}>
-                        <i className="fa fa-phone me-2"></i>
-                        {button.text || "Button"}
-                      </span>
-                    )}
-                    {button.type == 3 && (
-                      <span style={{ color: '#00a9ee' }}>
-                        <i className="fa fa-external-link me-2"></i>
-                        {button.text || "Button"}
-                      </span>
-                    )}
-                  </Button>
-                ))}
+                          {button.text || "Button"}
+                        </span>
+                      )}
+                      {button.type == 2 && (
+                        <span style={{ color: "#00a9ee" }}>
+                          <i className="fa fa-phone me-2"></i>
+                          {button.text || "Button"}
+                        </span>
+                      )}
+                      {button.type == 3 && (
+                        <span style={{ color: "#00a9ee" }}>
+                          <i className="fa fa-external-link me-2"></i>
+                          {button.text || "Button"}
+                        </span>
+                      )}
+                    </Button>
+                  ))}
                 {TotalButtonCount > 3 && (
                   <Button
                     className="w-100 mb-2"
                     style={{
                       color: "#00a9ee",
-                      backgroundColor: '#ffffff',
-                      borderColor: '#ffffff',
-                      borderStyle: 'solid',
-                      borderWidth: '1px 1px 1px 1px',
-                      borderTopWidth: '0.5px',
-                      borderTopStyle: 'solid',
-                      borderTopColor: '#e1e1e1'
+                      backgroundColor: "#ffffff",
+                      borderColor: "#ffffff",
+                      borderStyle: "solid",
+                      borderWidth: "1px 1px 1px 1px",
+                      borderTopWidth: "0.5px",
+                      borderTopStyle: "solid",
+                      borderTopColor: "#e1e1e1",
                     }}
                     onClick={() => setShowallbutton(!Showallbutton)}
-                  > <i className="fa fa-list"></i>
-                    <span style={{ color: '#00a9ee' }}>See all options</span>
+                  >
+                    {" "}
+                    <i className="fa fa-list"></i>
+                    <span style={{ color: "#00a9ee" }}>See all options</span>
                   </Button>
                 )}
               </div>
@@ -710,7 +794,6 @@ const UpdateCampaigns = () => {
         </Row>
       </Container>
     </App>
-
   );
 };
 

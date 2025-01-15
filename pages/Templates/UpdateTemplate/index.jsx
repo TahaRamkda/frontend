@@ -143,6 +143,9 @@ const TemplateUpdatePage = () => {
           setLoading(false);
         });
     }
+    else{
+      router.back();
+    }
   }, [dispatch, Template_Id]);
 
   // Handle template updates once it has been fetched (Second useEffect)
