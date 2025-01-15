@@ -69,7 +69,7 @@ const CampaignCreate = () => {
   const [APIheadContent, setAPIheadContent] = useState("");
   const [headerVariable, setHeaderVariable] = useState([]);
   const [bodyFinalContent, setBodyFinalContent] = useState("");
-  const [selectedMediaId, setSelectedMediaId] = useState("");
+  const [selectedMediaId, setSelectedMediaId] = useState(0);
   const [selectedSenderId, setSelectedSenderId] = useState(null);
   const [selectedMediaPath, setSelectedMediaPath] = useState("");
   const [selectedMediaType, setSelectedMediaType] = useState("");
@@ -220,7 +220,6 @@ const CampaignCreate = () => {
       groupIds: selectedGroups.join(","),
       mediaId: selectedMediaId,
       actionBy: localStorage.getItem("userId"),
-      mediaId: template.mediaId,
       campaignParameters: [
         ...headerVariable.map((value, index) => ({
           sequence: index + 1,
@@ -256,12 +255,13 @@ const CampaignCreate = () => {
       const response = await dispatch(createCampaign(requestBody)).unwrap();
       if (response.success) {
         clearCampaignCreeateState();
+        clearTemplateDetailState();
         showSweetAlert({
           title: "Created Successfully",
           text: "",
           icon: "success",
         });
-        await router.push("/Campaigns/CampaignsList");
+         router.push("/Campaigns/CampaignsList");
       } else {
         showSweetAlert({
           title: "Failed",

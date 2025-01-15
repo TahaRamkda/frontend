@@ -56,18 +56,7 @@ const CampaignsList = () => {
  
 
 
-  useEffect(() => {
-    // Fetch data initially when the component mounts
-    refreshCampaignList();
-
-    // Set up an interval to fetch data every 5 minutes (300,000 milliseconds)
-    const intervalId = setInterval(() => {
-      refreshCampaignList();
-    }, 30000);
-
-    // Clear the interval when the component unmounts
-    return () => clearInterval(intervalId);
-  }, []);
+ 
 
 
   const HandleUpdateCampaign = (CampaignId) => {
@@ -164,9 +153,10 @@ const CampaignsList = () => {
         scheduleDate: CampaignForm.scheduleDate,
       };
       setIsModalOpen(false)
-      refreshCampaignList()
+     
       const response = await dispatch(activateCampaign(requestBody)).unwrap();
       if (response.success) {
+        refreshCampaignList()
         showSweetAlert({
           title: "Schedule Successfully",
           text: "",
@@ -180,6 +170,7 @@ const CampaignsList = () => {
           icon: "error",
         });
       }
+      
     } catch (error) {
       showSweetAlert({ title: "Failed", text: error.message, icon: "error" });
     }

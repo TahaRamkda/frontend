@@ -157,6 +157,9 @@ const UpdateCampaigns = () => {
         setexistinggroupId(
           campaigndetail.groupIds.replace(/['"]+/g, "").split(",").map(Number)
         );
+        setSelectedMediaId(campaigndetail.mediaId);
+      setSelectedMediaPath(campaigndetail.mediaURL);
+      setSelectedMediaType(campaigndetail.contentType);
   
         if (campaigndetail.parameters) {
           // Update header and body variables
@@ -217,9 +220,7 @@ const UpdateCampaigns = () => {
     } else {
       //alert(template.mediaURL);
       //alert(template.headerType);
-      setSelectedMediaId(template.mediaId);
-      setSelectedMediaPath(template.mediaURL);
-      setSelectedMediaType(template.contentType);
+      
     }
 
     // Update Body
@@ -270,6 +271,7 @@ const UpdateCampaigns = () => {
       senderId: template.senderId,
       groupIds: selectedGroups.join(","),
       actionBy: localStorage.getItem("userId"),
+      mediaId:selectedMediaId,
       campaignParameters: [
         ...headerVariable.map((value, index) => ({
           sequence: index + 1,
@@ -296,12 +298,13 @@ const UpdateCampaigns = () => {
       const response = await dispatch(UpdateCampaign(requestBody)).unwrap();
       if (response.success) {
         clearCampaignUpdateState();
+        clearCampaignDetailState();
         showSweetAlert({
           title: "Updated Successfully",
           text: "",
           icon: "success",
         });
-        //await router.push('/Campaigns/campaignList');
+         router.push('/Campaigns/CampaignsList');
       } else {
         showSweetAlert({
           title: "Failed",
