@@ -181,7 +181,6 @@ const ChatPage = () => {
 
   //called each time to get conversation messages
   const HandleConversationDetail = async (id) => {
-    debugger;
     setChatsloading(true);
     dispatch(resetMessages());
     setActiveChat(id); // Update Activechat state
@@ -371,7 +370,7 @@ const ChatPage = () => {
 
   useEffect(() => {
     if (!Chatsloading && tempMessages.length > 0) {
-      debugger;
+      //debugger;
       // Append tempMessages to chatMessages when loading becomes false
       setChatMessages((prevMessages) => [...tempMessages, ...prevMessages]);
       setTempMessages([]); // Clear tempMessages after appending
@@ -402,7 +401,7 @@ const ChatPage = () => {
 
     // Handles incoming messages
     const handleIncomingMessage = (message) => {
-      debugger;
+      //debugger;
       // Play notification sound
       audioRef.current
         ?.play()
@@ -486,7 +485,7 @@ const ChatPage = () => {
 
     // Handles new conversation assignment to the agent
     const handleConversationAssigned = (notification) => {
-      debugger;
+      //debugger;
       audioRef.current
         ?.play()
         .catch((err) =>
@@ -533,8 +532,15 @@ const ChatPage = () => {
     };
 
     // Handles unassignment of a conversation
-    const handleConversationUnAssigned = (ChatId) => {
+    const handleConversationUnAssigned = (chatId) => {
       debugger
+      if (
+        agentChatRef.current.filter(
+          (conversation) => conversation.id === chatId
+        ).length === 0
+      )
+        return;
+
       toast.warning("A conversation has been unassigned");
 
       // Update agent statistics
@@ -544,14 +550,15 @@ const ChatPage = () => {
           agentId: userId,
         })
       );
-
+    
       // Remove the conversation from the list
       const updatedConversations = agentChatRef.current.filter(
-        (conversation) => conversation.id !== ChatId
+        (conversation) => conversation.id !== chatId
       );
 
       agentChatRef.current = updatedConversations;
       setAgentConversation(updatedConversations);
+      setChatMessages([]);
     };
 
     // Set up SignalR event listeners
@@ -639,137 +646,136 @@ const ChatPage = () => {
 
   return (
     <>
-     <div className="flex flex-wrap items-center justify-between bg-gray-900 p-4 rounded shadow-md space-x-4">
-  {/* Assigned */}
-  <nav className="text-white bg-gray-900 fixed top-0 left-0 right-0 z-50 shadow-md w-full">
-    <Head>
-      <title>BCT-Chat Portal</title>
-      {/* <title>{props.title}</title> */}
-    </Head>
-    <div className="flex justify-between items-center py-3 px-4">
-      {/* Logo Section on the Left Side */}
-      <div className="flex items-center space-x-3">
-       
-          <img
-            className="h-8 w-auto"
-            src="/images/logo/Loader.svg"
-            alt="Logo"
-          />
-      </div>
+      <div className="flex flex-wrap items-center justify-between bg-gray-900 p-4 rounded shadow-md space-x-4">
+        {/* Assigned */}
+        <nav className="text-white bg-gray-900 fixed top-0 left-0 right-0 z-50 shadow-md w-full">
+          <Head>
+            <title>BCT-Chat Portal</title>
+            {/* <title>{props.title}</title> */}
+          </Head>
+          <div className="flex justify-between items-center py-3 px-4">
+            {/* Logo Section on the Left Side */}
+            <div className="flex items-center space-x-3">
+              <img
+                className="h-8 w-auto"
+                src="/images/logo/Loader.svg"
+                alt="Logo"
+              />
+            </div>
 
-      {/* Action Buttons Section on the Right Side */}
-      <div className="">
-        {/* Sidebar Toggle Button */}
-        <div className="flex items-center space-x-4">
-          {/* Assigned */}
-          <div className="flex items-center space-x-2">
-            <FaComments size={20} className="text-blue-500" />
-            <span className="font-medium text-white">
-              Assigned:{" "}
-              <span className="font-bold">
-                {AgentStats.totalAssigned ?? "-/-"}
-              </span>
-            </span>
-          </div>
+            {/* Action Buttons Section on the Right Side */}
+            <div className="">
+              {/* Sidebar Toggle Button */}
+              <div className="flex items-center space-x-4">
+                {/* Assigned */}
+                <div className="flex items-center space-x-2">
+                  <FaComments size={20} className="text-blue-500" />
+                  <span className="font-medium text-white">
+                    Assigned:{" "}
+                    <span className="font-bold">
+                      {AgentStats.totalAssigned ?? "-/-"}
+                    </span>
+                  </span>
+                </div>
 
-          {/* Active */}
-          <div className="flex items-center space-x-2">
-            <FaCheckCircle size={20} className="text-green-500" />
-            <span className="font-medium text-white">
-              Active:{" "}
-              <span className="font-bold">
-                {AgentStats.totalActive ?? "-/-"}
-              </span>
-            </span>
-          </div>
+                {/* Active */}
+                <div className="flex items-center space-x-2">
+                  <FaCheckCircle size={20} className="text-green-500" />
+                  <span className="font-medium text-white">
+                    Active:{" "}
+                    <span className="font-bold">
+                      {AgentStats.totalActive ?? "-/-"}
+                    </span>
+                  </span>
+                </div>
 
-          {/* Closed */}
-          <div className="flex items-center space-x-2">
-            <FaTimesCircle size={20} className="text-red-500" />
-            <span className="font-medium text-white">
-              Closed:{" "}
-              <span className="font-bold">
-                {AgentStats.totalClosed ?? "-/-"}
-              </span>
-            </span>
-          </div>
+                {/* Closed */}
+                <div className="flex items-center space-x-2">
+                  <FaTimesCircle size={20} className="text-red-500" />
+                  <span className="font-medium text-white">
+                    Closed:{" "}
+                    <span className="font-bold">
+                      {AgentStats.totalClosed ?? "-/-"}
+                    </span>
+                  </span>
+                </div>
 
-          {/* Expired */}
-          <div className="flex items-center space-x-2">
-            <AiOutlineHourglass size={20} className="text-yellow-500" />
-            <span className="font-medium text-white">
-              Expired:{" "}
-              <span className="font-bold">
-                {AgentStats.expiredChats ?? "-/-"}
-              </span>
-            </span>
-          </div>
+                {/* Expired */}
+                <div className="flex items-center space-x-2">
+                  <AiOutlineHourglass size={20} className="text-yellow-500" />
+                  <span className="font-medium text-white">
+                    Expired:{" "}
+                    <span className="font-bold">
+                      {AgentStats.expiredChats ?? "-/-"}
+                    </span>
+                  </span>
+                </div>
 
-          {/* Force Closed */}
-          <div className="flex items-center space-x-2">
-            <FaClock size={20} className="text-purple-500" />
-            <span className="font-medium text-white">
-              Force Closed:{" "}
-              <span className="font-bold">
-                {AgentStats.forceClosedChats ?? "-/-"}
-              </span>
-            </span>
-          </div>
+                {/* Force Closed */}
+                <div className="flex items-center space-x-2">
+                  <FaClock size={20} className="text-purple-500" />
+                  <span className="font-medium text-white">
+                    Force Closed:{" "}
+                    <span className="font-bold">
+                      {AgentStats.forceClosedChats ?? "-/-"}
+                    </span>
+                  </span>
+                </div>
 
-          {/* Avg Duration */}
-          <div className="flex items-center space-x-2">
-            <MdOutlineTimer size={20} className="text-orange-500" />
-            <span className="font-medium text-white">
-              Avg Duration:{" "}
-              <span className="font-bold">
-                {AgentStats.avgChatDuration ?? "-/-"}
-              </span>
-            </span>
-          </div>
+                {/* Avg Duration */}
+                <div className="flex items-center space-x-2">
+                  <MdOutlineTimer size={20} className="text-orange-500" />
+                  <span className="font-medium text-white">
+                    Avg Duration:{" "}
+                    <span className="font-bold">
+                      {AgentStats.avgChatDuration ?? "-/-"}
+                    </span>
+                  </span>
+                </div>
 
-          {/* Response Time */}
-          <div className="flex items-center space-x-2">
-            <MdOutlineTimer size={20} className="text-gray-500" />
-            <span className="font-medium text-white">
-              Response Time:{" "}
-              <span className="font-bold">
-                {AgentStats.responseTime ?? "-/-"} min(s)
-              </span>
-            </span>
-          </div>
+                {/* Response Time */}
+                <div className="flex items-center space-x-2">
+                  <MdOutlineTimer size={20} className="text-gray-500" />
+                  <span className="font-medium text-white">
+                    Response Time:{" "}
+                    <span className="font-bold">
+                      {AgentStats.responseTime ?? "-/-"} min(s)
+                    </span>
+                  </span>
+                </div>
 
-          {/* User Badge with Name and Dropdown */}
-          <div className="relative">
-          <button
-                className="flex items-center space-x-2 p-2 bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                <img
-                  src={UserBadge.src}
-                  alt="User"
-                  className="w-8 h-8 rounded-full"
-                />
-                <span>{localStorage.getItem("userName")}</span>
-              </button>
+                {/* User Badge with Name and Dropdown */}
+                <div className="relative">
+                  <button
+                    className="flex items-center space-x-2 p-2 bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none"
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                  >
+                    <img
+                      src={UserBadge.src}
+                      alt="User"
+                      className="w-8 h-8 rounded-full"
+                    />
+                    <span>{localStorage.getItem("userName")}</span>
+                  </button>
 
-            {/* Dropdown Menu */}
-            {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-gray-700 shadow-lg rounded-md">
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center w-full text-left px-4 py-2 text-white-800 dark:text-gray-200 hover:bg-gray-600 dark:hover:bg-gray-600"
-                >
-                  <HiLogout />
-                  <span>Logout</span>
-                </button>
+                  {/* Dropdown Menu */}
+                  {dropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-gray-700 shadow-lg rounded-md">
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center w-full text-left px-4 py-2 text-white-800 dark:text-gray-200 hover:bg-gray-600 dark:hover:bg-gray-600"
+                      >
+                        <HiLogout />
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        </nav>
       </div>
-    </div>
-  </nav>
-</div>
 
       <Container fluid className="h-100  mt-[35px]">
         <Row className="g-0 h-100">
@@ -807,10 +813,8 @@ const ChatPage = () => {
                         Please wait while we load your chats..!!
                       </div>
                     )}
-                    {(AgentConversation?.length === 0 && !loading) && (
-                      <div className="text-center">
-                        No Chats Found
-                      </div>
+                    {AgentConversation?.length === 0 && !loading && (
+                      <div className="text-center">No Chats Found</div>
                     )}
                     {AgentConversation?.map((conversation) => (
                       <li
