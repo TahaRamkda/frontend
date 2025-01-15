@@ -164,7 +164,8 @@ const UserList = () => {
     user.userName.toLowerCase().includes(filterText.toLowerCase())
     || user.fullName.toLowerCase().includes(filterText.toLowerCase())
   );
-
+  const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
+  const defultpagessize = 10
   const subHeaderComponentMemo = useMemo(() => (
     <div className="w-full">
       <div className="grid grid-cols-5 gap-4">
@@ -203,6 +204,8 @@ const UserList = () => {
         paginationServer
         subHeader
         subHeaderComponent={subHeaderComponentMemo}
+        paginationPerPage={defultpagessize} // Default number of rows per page
+        paginationRowsPerPageOptions={customPageSizes} // Custom page size options
         className="w-full border"
         customStyles={{
           table: {

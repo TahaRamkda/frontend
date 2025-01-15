@@ -153,6 +153,9 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
     // Fetch clients for the new page
     await dispatch(fetchAgentsMonitor({ clientId: clientId, fromDate: FromDate, toDate: ToDate, sendernameId: sendernameId, senderId: senderid, srcStr: srcStr, pageSize, pageNo: page }));
   };
+
+  const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
+  const defultpagessize = 10
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className="w-full">
@@ -225,6 +228,8 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
         paginationTotalRows={totalRecords}
         onChangePage={handlePageChange}
         onChangeRowsPerPage={handlePageSizeChange}
+        paginationPerPage={defultpagessize} // Default number of rows per page
+        paginationRowsPerPageOptions={customPageSizes} // Custom page size options
         subHeader
         subHeaderComponent={subHeaderComponentMemo}
         className="w-full border"

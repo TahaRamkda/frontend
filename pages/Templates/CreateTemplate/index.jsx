@@ -400,33 +400,42 @@ const TemplateCreationPage = () => {
   }, [headContent, headerVariable]);
 
   const removeVariable = (indexToRemove) => {
-    // Remove the variable at the specified index
+    // Remove the variable at the specified index from the variables array
     const updatedVariables = variables.filter((_, i) => i !== indexToRemove);
-
-    // Update the body content by renumbering the remaining variables
+  
+    // Determine the placeholder to remove
+    const variableToRemove = `{{${indexToRemove + 1}}}`; // Variable to remove with its index
+  
+    // Ensure we only remove the exact placeholder and not affect others' values
     let updatedBodyContent = bodyPayloadDatawithVar;
-
-    // Replace each old variable index with its new index in the body content
-    updatedVariables.forEach((variable, i) => {
-      const oldIndex = parseInt(variable.match(/\d+/)[0], 10); // Extract old index
-      const newVariable = `{{${i + 1}}}`;
-      updatedBodyContent = updatedBodyContent.replace(
-        `{{${oldIndex}}}`,
-        newVariable
-      );
+  
+    // Remove the placeholder being deleted
+    updatedBodyContent = updatedBodyContent.replaceAll(variableToRemove, ""); // Only removes the exact placeholder
+    
+    // Adjust the remaining placeholders (renumber variables)
+    updatedVariables.forEach((_, newIndex) => {
+      const oldIndex = newIndex >= indexToRemove ? newIndex + 1 : newIndex; // Adjust old index based on removal
+      const oldVariable = `{{${oldIndex + 1}}}`; // Variable with old index
+      const newVariable = `{{${newIndex + 1}}}`; // Variable with new index
+  
+      // Replace the old placeholder with the new placeholder
+      updatedBodyContent = updatedBodyContent.replaceAll(oldVariable, newVariable);
     });
-
-    // Remove the variable being deleted from the body content
-    const variableToRemove = `{{${indexToRemove + 1}}}`;
+  
+    // Cleanup: Remove extra spaces introduced by deletion
     updatedBodyContent = updatedBodyContent
-      .replace(variableToRemove, "")
-      .replace(/\s\s+/g, " ");
-
-    // Update state
+      .replace(/\s\s+/g, " ") // Replace multiple spaces with a single space
+      .trim(); // Trim leading and trailing spaces
+  
+    // Update the state with the renumbered variables and updated content
     setVariables(updatedVariables.map((_, i) => `{{${i + 1}}}`)); // Adjust indices in variables
-    setupdatedvercontent(updatedBodyContent.trim());
-    setbodyTextCount(updatedVariables.length); // Update text count
+    setupdatedvercontent(updatedBodyContent); // Update the content
+    setbodyTextCount(updatedVariables.length); // Update the variable count
   };
+  
+  
+  
+  
 
   const removeHeaderVariable = (index) => {
 

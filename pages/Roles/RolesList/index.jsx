@@ -27,6 +27,7 @@ const RoleList = () => {
     {
       name: "Action",
       cell: (row) => (
+        
         <div className="flex gap-2">
           <button
             className="uniform_icon_btn"
@@ -141,6 +142,8 @@ const RoleList = () => {
     role.roleName.toLowerCase().includes(filterText.toLowerCase())
   );
 
+  const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
+  const defultpagessize = 10
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className="w-full">
@@ -191,6 +194,8 @@ const RoleList = () => {
           className="w-full border"
           subHeader
           subHeaderComponent={subHeaderComponentMemo}
+          paginationPerPage={defultpagessize} // Default number of rows per page
+          paginationRowsPerPageOptions={customPageSizes} // Custom page size options
           customStyles={{
             table: {
               style: {

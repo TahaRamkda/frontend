@@ -175,7 +175,8 @@ const PermissionList = () => {
     refreshPermissionList(role);
     setData(permissions);
   };
-
+  const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
+  const defultpagessize = 50
   const subHeaderComponentMemo = useMemo(
     () => (
       <div className="w-full">
@@ -218,6 +219,8 @@ const PermissionList = () => {
         className="w-full border"
         subHeader
         subHeaderComponent={subHeaderComponentMemo}
+        paginationPerPage={defultpagessize} // Default number of rows per page
+        paginationRowsPerPageOptions={customPageSizes} // Custom page size options
         customStyles={{
           table: {
             style: {

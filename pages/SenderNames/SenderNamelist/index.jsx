@@ -121,7 +121,8 @@ const SendernameList = () => {
   const filteredSendernames = sendernames.filter((sender) =>
     sender.senderName.toLowerCase().includes(filterText.toLowerCase())
   );
-
+  const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
+  const defultpagessize = 10
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className="w-full">
@@ -168,6 +169,8 @@ const SendernameList = () => {
           pagination
           subHeader
           subHeaderComponent={subHeaderComponentMemo}
+          paginationPerPage={defultpagessize} // Default number of rows per page
+          paginationRowsPerPageOptions={customPageSizes} // Custom page size options
           className="w-full border"
           customStyles={{
             table: {
