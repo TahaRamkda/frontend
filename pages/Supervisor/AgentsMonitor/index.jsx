@@ -3,7 +3,7 @@ import React, { useMemo, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {fetchAgentsMonitor,clearAgentMonitorState, setPageSize, setCurrentPage, agentDisable, clearAgentDisableState } from "@/slices/SuperwiseSlice";
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input } from "reactstrap";
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input ,CustomInput} from "reactstrap";
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import DataTable from "react-data-table-component";
 import Loading from '@/components/Loader';
@@ -11,6 +11,8 @@ import { MdEdit } from "react-icons/md";
 import App from '@/components/App';
 import Switch from "react-switch";
 import sweetalert from 'sweetalert2';
+
+import Switch from "react-switch"; 
 
 
 const MessageSummary = () => {
@@ -39,8 +41,8 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
             <Switch
               onChange={() => handleAction(row.agentId,row.isDisabled)}
               checked={!row.isDisabled} // Button is ON if the user is disabled
-              onColor="#dc3545"
-              offColor="#28a745"
+              onColor="#dc3545" 
+              offColor="#28a745" 
               height={35}
               width={80}
               checkedIcon={
@@ -77,7 +79,9 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
                 </div>
               }
             />
-          </div>          
+          </div>
+          
+          
           
           ),
         },

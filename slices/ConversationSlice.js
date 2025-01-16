@@ -78,9 +78,9 @@ export const fetchConversationMessage = createAsyncThunk(
 
   export const Transferchat = createAsyncThunk(
     'conversation/Transferchat',
-    async ({ clientId, AgentId, ChatId, Comment }, { rejectWithValue }) => {
+    async ({ clientId, AgentId, ChatId, Comment,oldAgentId }, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${TRANSFERCHAT}?clientId=${clientId}&agentId=${AgentId}&id=${ChatId}&Comment=${Comment}`);
+        const response = await API.get(`${TRANSFERCHAT}?clientId=${clientId}&oldAgentId=${oldAgentId}&agentId=${AgentId}&id=${ChatId}&Comment=${Comment}`);
         
         if (response?.status === 200) {
           return response.data; // Pass API response to fulfilled reducer

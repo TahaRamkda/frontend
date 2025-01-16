@@ -12,7 +12,7 @@ import Agentsdrop from "@/components/Dropdowns/ActiveAgentsDropdown";
 import { Transferchat } from "@/slices/ConversationSlice";
 import Sweetalert from "sweetalert2";
 
-const TransferChat = ({ ChatId, onClose, isVisible ,SenderId}) => {
+const TransferChat = ({ ChatId, onClose, isVisible ,SenderId ,oldAgentId}) => {
   const dispatch = useDispatch();
   const { loading ,message} = useSelector((state) => state.conversations);
   const [agentId, setAgentId] = useState(0);
@@ -28,6 +28,7 @@ const TransferChat = ({ ChatId, onClose, isVisible ,SenderId}) => {
         ChatId,
         AgentId: agentId,
         Comment: comment,
+        oldAgentId:oldAgentId,
         clientId
       }));
   
