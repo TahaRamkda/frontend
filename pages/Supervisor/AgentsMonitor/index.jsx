@@ -12,8 +12,6 @@ import App from '@/components/App';
 import Switch from "react-switch";
 import sweetalert from 'sweetalert2';
 
-import Switch from "react-switch"; 
-
 
 const MessageSummary = () => {
   const dispatch = useDispatch();
