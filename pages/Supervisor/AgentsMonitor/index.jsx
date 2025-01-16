@@ -2,7 +2,6 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {fetchAgentsMonitor,clearAgentMonitorState, setPageSize, setCurrentPage, agentDisable, clearAgentDisableState } from "@/slices/SuperwiseSlice";
-
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input } from "reactstrap";
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
@@ -10,6 +9,7 @@ import DataTable from "react-data-table-component";
 import Loading from '@/components/Loader';
 import { MdEdit } from "react-icons/md"; 
 import App from '@/components/App';
+import Switch from "react-switch";
 import sweetalert from 'sweetalert2';
 
 
@@ -27,24 +27,61 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
   const [clientId, setClientId] = useState(null);
 
   const ChatsReportColumn = [
-    { name: "Full Name", selector: (row) => row.fullName, sortable: true },
-    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
-    { name: "Status Name", selector: (row) => row.statusName, sortable: true },
     { name: "Agent Name", selector: (row) => row.agentName, sortable: true },
-    { name: "Unread Count", selector: (row) => row.unreadCount, sortable: true },
+    { name: "Status Name", selector: (row) => row.statusName, sortable: true },
+    { name: "Unread Count", selector: (row) => row.unreadCount || 0, sortable: true },
+    { name: "Conversation Assigned", selector: (row) => row.totalConversationsAssigned, sortable: true },
+
      {
           name: "Action",
           cell: (row) => (
-            <button
-                className={`btn ${row.isDisabled ? 'btn-danger' : 'btn-success'}`}
-                onClick={() => handleAction(row.agentId, row.isDisabled)}
-              >
-                {row.isDisabled ? 'Enable' : 'Disable'}
-              </button>
+            <div style={{ textAlign: "center"}}>
+            <Switch
+              onChange={() => handleAction(row.agentId,row.isDisabled)}
+              checked={!row.isDisabled} // Button is ON if the user is disabled
+              onColor="#dc3545"
+              offColor="#28a745"
+              height={35}
+              width={80}
+              checkedIcon={
+               
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "100%",
+                    fontSize: 12,
+                    color: "white",
+                    whiteSpace: "nowrap",
+                    padding: "0 12px",
+                  }}
+                >
+                  Disable
+                </div>
+              }
+              uncheckedIcon={
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "100%",
+                    fontSize: 12,
+                    color: "white",
+                    whiteSpace: "nowrap",
+                    padding: "0 12px",
+                  }}
+                >
+                  Enable
+                </div>
+              }
+            />
+          </div>          
+          
           ),
         },
   ];
-
 
 
 
@@ -103,6 +140,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
       clientId: clientId,
       senderId: senderid,
       srcStr: srcStr,
+      fromDate:FromDate, toDate:ToDate,
       pageSize: newSize, pageNo: 1
     }));
   };
@@ -151,7 +189,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
     dispatch(setCurrentPage(page));
 
     // Fetch clients for the new page
-    await dispatch(fetchAgentsMonitor({ clientId: clientId, fromDate: FromDate, toDate: ToDate, sendernameId: sendernameId, senderId: senderid, srcStr: srcStr, pageSize, pageNo: page }));
+    await dispatch(fetchAgentsMonitor({ clientId: clientId, fromDate: FromDate, toDate: ToDate, senderId: senderid, srcStr: srcStr, pageSize, pageNo: page }));
   };
 
   const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
