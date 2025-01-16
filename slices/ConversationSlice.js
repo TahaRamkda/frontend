@@ -153,6 +153,13 @@ const conversationslice = createSlice({
       state.pageSize = 10;
       state.totalRecords = 0;
     },
+
+    clearMessagesReportState: (state) => {
+      state.conversationMessagereport =[]
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    },
     resetMessages: (state) => {
       
       state.messages = [];
@@ -298,6 +305,7 @@ export const {
   setCurrentPage,
   clearConversationMessageState,
   clearconversationstate,
+  clearMessagesReportState,
   clearAgentTemplateSentState,
 } = conversationslice.actions;
 
