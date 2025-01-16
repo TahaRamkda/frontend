@@ -35,13 +35,13 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [parameterValues, setParameterValues] = useState([]);
-
+ const [templateView, settemplateView] = useState("");
   const [chatMessages, setChatMessages] = useState([]);
   const dispatch = useDispatch();
   const { agenttemplates, loading, error } = useSelector(
     (state) => state.agenttemplates
   );
-  const [Perameter, setPerameter] = useState([]);
+  const [Perameter, setParameter] = useState([]);
   const {
     agenttemplatedetail,
     loading: detailloading,
@@ -81,7 +81,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
 
   useEffect(() => {
     if (debouncedSearchQuery.trim() !== "") {
-      setPerameter([]);
+      setParameter([]);
       dispatch(
         fetchAgentTemplate({
           clientId: localStorage.getItem("clientId"),
@@ -114,9 +114,12 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
     }
   };
 
+ 
+
   useEffect(() => {
     if (agenttemplatedetail) {
-      setPerameter(agenttemplatedetail.parameters);
+      setParameter(agenttemplatedetail.parameters);
+      settemplateView(agenttemplatedetail.bodyText);
     }
     return () => {
       //dispatch(clearAgentTemplateDetailState());
@@ -147,11 +150,21 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
       const response = await dispatch(SendInteractivetemp(formData)).unwrap();
  
       if (response.success) {
+        debugger
         dispatch(clearAgentTemplateSentState());
         // Invoke the onSend callback with agenttemplatedetail
         if (onSend && typeof onSend === "function") {
-          onSend(agenttemplatedetail);
+          // Make a copy of the agenttemplatedetail object
+          const updatedTemplateDetail = { ...agenttemplatedetail };
+        
+          // Update the messageContent directly
+          updatedTemplateDetail.bodyText = templateView;
+        
+          // Pass the updated object to onSend
+          onSend(updatedTemplateDetail);
         }
+        
+        
         onClose();
         toast.success("Template Sent Successfully");
         dispatch(clearAgentTemplateDetailState());
@@ -164,17 +177,33 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
     }
     setsending(false);
   };
+  useEffect(() => {
+   setParameterValues([]);
+   setParameter([])
+  }, [dispatch]);
 
   const handleParameterChange = (paramName, value) => {
-    chatMessages[0].messageContent = chatMessages[0].messageContent.replace(
-      new RegExp(paramName, "g"),
-      value
-    );
+    
     setParameterValues((prevValues) => {
       const updatedValues = prevValues.filter((item) => item.key !== paramName);
-      return [...updatedValues, { key: paramName, value }];
+      const newValues = [...updatedValues, { key: paramName, value }];
+  
+      // Now, perform operations that require the updated state inside this callback
+      const Values1 = newValues.map((item) => ({
+        key: item.key,
+        value: item.value,
+      }));
+  
+      let view = chatMessages[0].messageContent;
+      Values1.forEach((item) => {
+        view = view.replace(new RegExp(item.key, "g"), item.value);
+      });
+  
+      settemplateView(view);
+      console.log("Updated Params", newValues); // Logging the updated values
+  
+      return newValues; // Return updated state value
     });
-    console.log("Peram Name", parameterValues);
   };
 
   const handleSearchChange = (value) => {
@@ -369,7 +398,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
                                 </>
                               )}
                             <p className="">
-                              {message.messageContent
+                              {templateView
                                 .split("\n")
                                 .map((line, index) => (
                                   <span key={index}>
@@ -434,17 +463,19 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
 
               {/* Send Button */}
               {selectedOption && (
-                <div className=" text-end ">
-                  <button
-                    type="submit"
-                    className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600"
-                    onClick={handleSend}
-                    disabled={sending}
-                  >
-                    <i className="fa fa-paper-plane-o"></i> {sending? "Sending..." : "Send"}
-                  </button>
-                </div>
-              )}
+  <div className="text-end">
+    <button
+      type="submit"
+      className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600"
+      onClick={handleSend}
+      disabled={sending}
+    >
+      <i className="fa fa-paper-plane-o"></i> 
+      {sending ? "Sending..." : "Send"}
+    </button>
+  </div>
+)}
+
             </div>
           </div>
         </div>

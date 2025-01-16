@@ -254,8 +254,7 @@ const CampaignCreate = () => {
     try {
       const response = await dispatch(createCampaign(requestBody)).unwrap();
       if (response.success) {
-        clearCampaignCreeateState();
-        clearTemplateDetailState();
+    dispatch(clearTemplateDetailState());
         showSweetAlert({
           title: "Created Successfully",
           text: "",
@@ -640,7 +639,7 @@ const CampaignCreate = () => {
                   {moment(new Date()).format("LT")}
                 </span>
                 {messagePreview.media &&
-                  selectedMediaType.startsWith("image/") && (
+                  selectedMediaType?.startsWith("image/") && (
                     <img
                       src={`${BASE_URL}${selectedMediaPath}`}
                       alt="Media"
@@ -655,7 +654,7 @@ const CampaignCreate = () => {
                     />
                   )}
                 {messagePreview.media &&
-                  selectedMediaType.startsWith("video/") && (
+                  selectedMediaType?.startsWith("video/") && (
                     <video
                       src={`${BASE_URL}${selectedMediaPath}`}
                       autoPlay
@@ -673,7 +672,7 @@ const CampaignCreate = () => {
                   )}
 
                 {messagePreview.media &&
-                  selectedMediaType.startsWith("audio/") && (
+                  selectedMediaType?.startsWith("audio/") && (
                     <audio
                       src={`${BASE_URL}${selectedMediaPath}`}
                       controls

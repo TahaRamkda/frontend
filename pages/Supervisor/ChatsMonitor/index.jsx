@@ -26,6 +26,7 @@ const ChatsReport = () => {
   const [showtransfer, setshowtransfer] = useState(false);
   const [activeChat, setActiveChat] = useState(0);
   const [SenderId, setSenderId] = useState(0);
+  const [oldAgentId, setoldAgentId] = useState(0);
   const ChatsReportColumn = [
     { name: "Full Name", selector: (row) => row.fullName, sortable: true },
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
@@ -37,15 +38,15 @@ const ChatsReport = () => {
       cell: (row) => (
         <center>
           <div className="flex gap-2">
-            <button
+            <button title="View Chat"
               className="uniform_icon_btn"
               onClick={() => handleDetailClick(row.id)}
             >
               <HiEye style={{ fontSize: "15px" }} />
             </button>
-            <button
+            <button  title="Transfer Chat"
               className="uniform_icon_btn"
-              onClick={() => handleTransferClick(row.id,row.senderId)}
+              onClick={() => handleTransferClick(row.id,row.senderId,row.agentId)}
             >
               <MdSwapHoriz style={{ fontSize: "15px" }} />
             </button>
@@ -79,9 +80,10 @@ const ChatsReport = () => {
     }
   }, []);
 
-  const handleTransferClick = async (id , SenderId) => {
+  const handleTransferClick = async (id , SenderId ,oldAgentId) => {
     setActiveChat(id); // Update Activechat state
     setSenderId(SenderId);
+    setoldAgentId(oldAgentId);
     setshowtransfer(true);
   };
  
@@ -209,6 +211,7 @@ const ChatsReport = () => {
           <TransferChat
             ChatId={activeChat}
             SenderId={SenderId}
+            oldAgentId={oldAgentId}
             isVisible={true}
             onClose={handletransferCancel}
           />

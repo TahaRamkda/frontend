@@ -297,8 +297,8 @@ const UpdateCampaigns = () => {
     try {
       const response = await dispatch(UpdateCampaign(requestBody)).unwrap();
       if (response.success) {
-        clearCampaignUpdateState();
-        clearCampaignDetailState();
+        dispatch(clearCampaignDetailState());
+        dispatch(clearTemplateDetailState());
         showSweetAlert({
           title: "Updated Successfully",
           text: "",
@@ -380,8 +380,10 @@ const UpdateCampaigns = () => {
 
     setTypingTimeout(timeout);
   };
-  const handelCancel = () => {
-    router.push("/Campaigns/CampaignsList");
+  const handleCancel = async () => {
+    await router.push("/Campaigns/CampaignsList");
+    dispatch(clearCampaignDetailState());
+    dispatch(clearTemplateDetailState());
   };
 
   const handleheaderVariableChange = (index, value) => {
@@ -615,7 +617,7 @@ const UpdateCampaigns = () => {
                     <div className="w-full flex justify-end gap-3">
                       <Button
                         className="uniform_btn_Cancel "
-                        onClick={handelCancel}
+                        onClick={handleCancel}
                       >
                         Cancel
                       </Button>
@@ -671,8 +673,8 @@ const UpdateCampaigns = () => {
                 <span className="time_bubble">
                   {moment(new Date()).format("LT")}
                 </span>
-                {messagePreview.media &&
-                  selectedMediaType.startsWith("image/") && (
+                {messagePreview.media !==null &&
+                  selectedMediaType?.startsWith("image/") && (
                     //alert(selectedMediaPath),
                     <img
                       src={`${BASE_URL}${selectedMediaPath}`}
@@ -688,7 +690,7 @@ const UpdateCampaigns = () => {
                     />
                   )}
                 {messagePreview.media &&
-                  selectedMediaType.startsWith("video/") && (
+                  selectedMediaType?.startsWith("video/") && (
                     <video
                       src={`${BASE_URL}${selectedMediaPath}`}
                       autoPlay
@@ -706,7 +708,7 @@ const UpdateCampaigns = () => {
                   )}
 
                 {messagePreview.media &&
-                  selectedMediaType.startsWith("audio/") && (
+                  selectedMediaType?.startsWith("audio/") && (
                     <audio
                       src={`${BASE_URL}${selectedMediaPath}`}
                       controls
