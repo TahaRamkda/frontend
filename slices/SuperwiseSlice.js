@@ -6,9 +6,9 @@ import { CHATSMONITOR, AGENTSMONITOR,AGENTDISABLE} from '@/utils/apiConstants';
 // Fetch Clients
 export const fetchChatsMonitor = createAsyncThunk(
     'chatsmonitor /fetchChatsMonitor',
-    async ({clientId, pageSize,pageNo,senderId}, { rejectWithValue }) => {
+    async ({clientId, pageSize,pageNo,senderId, searchStr}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${CHATSMONITOR}?clientId=${clientId}&senderId=${senderId}&pageSize=${pageSize}&pageNo=${pageNo}`);
+        const response = await API.get(`${CHATSMONITOR}?clientId=${clientId}${searchStr? `&searchStr=${searchStr}`: ''}&senderId=${senderId}&pageSize=${pageSize}&pageNo=${pageNo}`);
         if (response?.status === 200 && response.data?.result) {
           return {
           chatsMonitor: response.data.result,

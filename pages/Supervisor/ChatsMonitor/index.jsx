@@ -23,6 +23,8 @@ const ChatsReport = () => {
   const { chatsMonitor, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.Supervisor);
   const [clientId, setClientId] = useState(null);
   const [showchat, setshowchat] = useState(false);
+  const [srcStr, setsrcStr] = useState('');
+  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [showtransfer, setshowtransfer] = useState(false);
   const [activeChat, setActiveChat] = useState(0);
   const [SenderId, setSenderId] = useState(0);
@@ -63,6 +65,23 @@ const ChatsReport = () => {
     setshowtransfer(false)
   }
 
+const handleSearchString = (e) => {
+    const searchValue = e.target.value;
+    setsrcStr(searchValue);
+
+    // Clear the previous timeout if any
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set a new timeout for 0.5 seconds
+    const timeout = setTimeout(() => {
+      dispatch(
+        fetchChatsMonitor({ clientId: clientId, senderId: senderid,searchStr:searchValue, pageSize, pageNo: currentPage}));
+    }, 500);
+
+    setSearchTimeout(timeout); // Save the timeout reference
+  };
 
   const handleSenderChange = (e) => {
     const senderId = e.target.value;
@@ -90,7 +109,7 @@ const ChatsReport = () => {
 
   useEffect(() => {
     if (clientId) {
-      dispatch(fetchChatsMonitor({ clientId: clientId, senderId: senderid, pageSize, pageNo: currentPage }));
+      dispatch(fetchChatsMonitor({ clientId: clientId, senderId: senderid,searchStr:srcStr, pageSize, pageNo: currentPage }));
 
     }
     return () => {
@@ -104,6 +123,7 @@ const ChatsReport = () => {
     // Fetch data with updated page size and reset to page 1
     await dispatch(fetchChatsMonitor({
       clientId: clientId,
+      searchStr:srcStr,
       senderId: senderid,
       pageSize: newSize, pageNo: 1
     }));
@@ -114,7 +134,7 @@ const ChatsReport = () => {
     dispatch(setCurrentPage(page));
 
     // Fetch clients for the new page
-    await dispatch(fetchChatsMonitor({ clientId: clientId, senderId: senderid, pageSize, pageNo: page }));
+    await dispatch(fetchChatsMonitor({ clientId: clientId, senderId: senderid,searchStr:srcStr, pageSize, pageNo: page }));
   }
   const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10
@@ -122,6 +142,16 @@ const ChatsReport = () => {
     return (
       <div className="w-full">
         <div className='grid grid-cols-5 gap-4'>
+        <div className='flex flex-col text-start mb-1'>
+            <label className="font-medium text-gray-700 text-sm">Search</label>
+            <input
+              type="text"
+              placeholder=""
+              value={srcStr}
+              onChange={handleSearchString}
+              className="border rounded  w-100"
+            />
+          </div>
           <div className='flex flex-col text-start mb-1'>
             <label className="font-medium text-gray-700 text-sm">Sender Names</label>
             <SendernameDropdown
