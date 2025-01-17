@@ -72,6 +72,7 @@ export const USERLIST = "/User/getuserslist"
 export const USERDETAILS = "/User/getuserbyid"
 export const CREATEUSER = "/User/adduser"
 export const UPDATEUSER = "/User/updateuser"
+export const CHANGEPASSWORD = "/User/changepassword"
 export const DELETEUSER = "/User/deleteuser"
 
 // Report end points

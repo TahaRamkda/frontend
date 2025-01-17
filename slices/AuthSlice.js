@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import Cookies from 'js-cookie';
 import API from '@/utils/api.axios';
-import { LOGINAPI } from '@/utils/apiConstants';
+import { LOGINAPI, CHANGEPASSWORD } from '@/utils/apiConstants';
 import handleError from '../utils/handleError';
 
 const initialState = {
@@ -11,7 +11,7 @@ const initialState = {
     message: '',
 };
 
-export const fetchLogin = createAsyncThunk('auth/login', async ({email,password}, { rejectWithValue }) => {
+export const fetchLogin = createAsyncThunk('auth/login', async ({ email, password }, { rejectWithValue }) => {
     try {
         const loginUrl = `${LOGINAPI}?username=${email}&password=${password}`;
         const response = await API.get(loginUrl);
@@ -43,6 +43,19 @@ export const fetchLogin = createAsyncThunk('auth/login', async ({email,password}
     }
 });
 
+export const changePassword = createAsyncThunk(
+    'auth/changePassword',
+    async (changePass, { rejectWithValue }) => {
+        try {
+            const response = await API.put(CHANGEPASSWORD, changePass);
+            return response.data;
+        } catch (error) {
+            const handledError = handleError(error);
+            return rejectWithValue(handledError);
+        }
+    }
+);
+
 const authSlice = createSlice({
     name: "auth",
     initialState,
@@ -67,6 +80,21 @@ const authSlice = createSlice({
             state.loading = false;
             state.error = action.authData || 'Incorrect Username Or Passwords'; // Set error from payload
             state.message = state.error; // Optional: You might want to keep `message` as well
+        });
+        builder.addCase(changePassword.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+            state.success = false;
+        });
+        builder.addCase(changePassword.fulfilled, (state, action) => {
+            state.loading = false;
+            state.success = true;
+            state.message = action.payload.message || 'Changed Successfully';
+        });
+        builder.addCase(changePassword.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload || action.error.message;
+            state.message = action.payload?.message || action.error.message;
         });
     }
 });

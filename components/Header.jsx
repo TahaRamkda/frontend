@@ -12,9 +12,11 @@ import {
 import { useRouter } from "next/router";
 import SweetAlert from "sweetalert2";
 import UserBadge from "@/public/images/User.jpg";
+import ChangePass from "./ChangePassword";
 export function Header({ toggleSidebar }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [ShowChangePass, setShowChangePass] = useState (false)
   const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   useEffect(() => {
@@ -45,6 +47,14 @@ export function Header({ toggleSidebar }) {
       document.removeEventListener("msfullscreenchange", checkFullScreen);
     };
   }, []);
+
+  const HandelChangePass = () =>{
+    setShowChangePass(true)
+  }
+  const handleCancel = () => {
+    setShowChangePass(false);
+
+  };
 
   const toggleFullScreen = () => {
     if (isFullScreen) {
@@ -160,18 +170,23 @@ export function Header({ toggleSidebar }) {
                     <span>Logout</span>
                   </button>
 
-                  {/* <button
-       onClick={handleLogout}
+                  <button
+       onClick={HandelChangePass}
        className="flex items-center w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-600"
      >
        <HiShieldExclamation className="" />
        <span>Change Password</span>
-     </button> */}
+     </button> 
                 </div>
               )}
             </div>
           </div>
         </div>
+        {ShowChangePass && (
+          <ChangePass 
+          isVisible={true}
+          onClose={handleCancel} />
+        )} 
       </div>
     </nav>
   );

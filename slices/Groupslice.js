@@ -29,7 +29,7 @@ export const fetchGroupsDrop = createAsyncThunk(
     async ({clientId, SearchStr}, { rejectWithValue }) => {
       try {
         const response = await API.get(`${GROUPDROPDOWN}?ClientId=${clientId}&searchStr=${SearchStr}`);
-        if (response?.status === 200 && response.data?.result) {
+        if (response?.status === 200 ) {
           return {
             groupDrop: response.data.result,
           };

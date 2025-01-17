@@ -91,7 +91,7 @@ export const fetchTemplatesDrop = createAsyncThunk(
           TransactionType ? TransactionType : 0
         }`
       );
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200 ) {
         return {
           templateDrop: response.data.result,
           totalRecords:
