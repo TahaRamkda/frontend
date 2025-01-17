@@ -37,10 +37,10 @@ const ContactList = () => {
       cell: (row) => (
         <>
           <div className="flex gap-2">
-            <button className="uniform_icon_btn" onClick={() => handleDetailClick(row.contactId)}>
+            <button className="uniform_icon_btn" title="Edit Contact" onClick={() => handleDetailClick(row.contactId)}>
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
-            <button className="uniform_icon_btn" onClick={() => handleDeleteClick(row.contactId)}>
+            <button className="uniform_icon_btn" title="Delete Contact" onClick={() => handleDeleteClick(row.contactId)}>
               <HiTrash style={{ fontSize: "15px" }} />
             </button>
             {/* <button

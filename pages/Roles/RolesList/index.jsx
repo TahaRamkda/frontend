@@ -30,12 +30,14 @@ const RoleList = () => {
         
         <div className="flex gap-2">
           <button
+            title="Edit Roles"
             className="uniform_icon_btn"
             onClick={() => handleDetailClick(row.roleId)}
           >
             <HiPencilAlt style={{ fontSize: "15px" }} />
           </button>
           <button
+          title="Delete Roles"
             className="uniform_icon_btn"
             onClick={() => handleDeleteClick(row.roleId)}
           >

@@ -9,7 +9,6 @@ import DataTable from "react-data-table-component";
 import Loading from '@/components/Loader';
 import { MdEdit } from "react-icons/md"; 
 import App from '@/components/App';
-import Switch from "react-switch";
 import sweetalert from 'sweetalert2';
 
 import Switch from "react-switch"; 
@@ -39,6 +38,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
           cell: (row) => (
             <div style={{ textAlign: "center"}}>
             <Switch
+             
               onChange={() => handleAction(row.agentId,row.isDisabled)}
               checked={!row.isDisabled} // Button is ON if the user is disabled
               onColor="#dc3545" 

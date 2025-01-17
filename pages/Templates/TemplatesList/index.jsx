@@ -61,12 +61,14 @@ const TemplateList = () => {
         <center>
           <div className="flex gap-2">
             <button
+            title="Edit Template"
               className="uniform_icon_btn"
               onClick={() => handleDetailClick(row.id)}
             >
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
             <button
+            title="Delete Template"
               className="uniform_icon_btn"
               onClick={() => handleDeleteClick(row.id)}
             >

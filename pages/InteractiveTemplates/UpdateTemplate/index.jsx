@@ -30,7 +30,7 @@ import {
   updateInteractiveTemplates,
   fetchInteractiveTemplatesById,
   clearInteractiveTemplateDetailState,
-} from "@/slices/TemplateSlice";
+} from "@/slices/InteractiveTemplateSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import defaultimage from "@/public/images/12.jpg";
 import bagroundimage from "@/public/images/baground.jpg";
@@ -60,7 +60,7 @@ const InteractiveTemplateUpdate = () => {
   const [Loading, setLoading] = useState(true);
   const [actionbuttonvalues, setactionbuttonvalues] = useState([]);
   const { interactivetemplatedetail, loading, error } = useSelector(
-    (state) => state.templates
+    (state) => state.interactiveTemplates
   );
   const stripHtml = (input) => input.replace(/<[^>]*>/g, "");
   const [messagePreview, setMessagePreview] = useState({

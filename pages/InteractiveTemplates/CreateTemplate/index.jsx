@@ -23,8 +23,8 @@ import { FaTimes } from "react-icons/fa";
 import { FaRegTrashCan } from "react-icons/fa6";
 import {
   createInteractiveTemplates,
-  clearInteractiveTemplateCreateState,
-} from "@/slices/TemplateSlice";
+  clearInteractiveTemplateListState,
+} from "@/slices/InteractiveTemplateSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import defaultimage from "@/public/images/12.jpg";
 import bagroundimage from "@/public/images/baground.jpg";
@@ -57,7 +57,7 @@ const InteractiveTemplateCreation = () => {
     visitWebsiteButtonCount: 0,
   });
 
-  const { loading, error } = useSelector((state) => state.templates);
+  const { loading, error } = useSelector((state) => state.interactiveTemplates);
   const [bodyContent, setBodyContent] = useState("");
   const [variables, setVariables] = useState([]);
   const [TemplateName, setTemplateName] = useState("");
