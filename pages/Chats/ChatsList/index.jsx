@@ -388,7 +388,7 @@ const ChatPage = () => {
     // Initialize SignalR connection
     const newConnection = new signalR.HubConnectionBuilder()
       .withUrl(
-        `https://qawhatsappapi.consulttechies.com/conversation?AgentId=${userId}`,
+        `${BASE_URL}?AgentId=${userId}`,
         {
           skipNegotiation: true,
           transport: signalR.HttpTransportType.WebSockets,
