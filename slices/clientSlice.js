@@ -31,7 +31,7 @@ export const fetchClientsDrop = createAsyncThunk(
   async ({clientId,searchStr}, { rejectWithValue }) => {
     try {
       const response = await API.get(`${CLIENTDROPDOWN}?clientId=${0}${searchStr ?`&SearchStr=${searchStr}`: ''}`);
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200 ) {
         return {
           clientsDrop: response.data.result,
         };

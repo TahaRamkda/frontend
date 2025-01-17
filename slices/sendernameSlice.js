@@ -30,7 +30,7 @@ export const fetchSendernamesDrop = createAsyncThunk(
   async ({clientId}, { rejectWithValue }) => {
     try {
       const response = await API.get(`${SENDERNAMEDROP}?ClientId=${clientId}`);
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200 ) {
         return {
           sendernameDrop: response.data.result,
         };

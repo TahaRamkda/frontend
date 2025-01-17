@@ -32,7 +32,7 @@ export const  fetchRolesDrop = createAsyncThunk(
       try {
       
         const response = await API.get(`${ROLEDROP}?clientId=${clientId}`);
-        if (response?.status === 200 && response.data?.result) { 
+        if (response?.status === 200 ) { 
           return {
              roleDrop: response.data.result,
           };
