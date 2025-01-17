@@ -43,13 +43,13 @@ const AgentsList = () => {
       cell: (row) => (
         <>
           <div className="flex gap-2">
-            <button onClick={() => handleDetailClick(row.id)} className="uniform_icon_btn ">
+            <button onClick={() => handleDetailClick(row.id)} title="Edit Agent" className="uniform_icon_btn ">
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
-            <button onClick={() => handleTime(row.id)} className="uniform_icon_btn">
+            <button onClick={() => handleTime(row.id)} title="Agents Timming" className="uniform_icon_btn">
               <HiClock style={{ fontSize: "15px" }} />
             </button>
-            <button onClick={() => handleDeleteClick(row.id)} className="uniform_icon_btn">
+            <button onClick={() => handleDeleteClick(row.id)} title="Delete Agent" className="uniform_icon_btn">
               <HiTrash style={{ fontSize: "15px" }} />
             </button>
           </div>        </>

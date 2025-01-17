@@ -32,12 +32,14 @@ const GroupList = () => {
         <>
           <div className="flex gap-2 ">
             <button
+              title="Edit Group"
               className="uniform_icon_btn"
               onClick={() => handleDetailClick(row.groupId)}
             >
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
             <button
+            title="Delete Group"
               className="uniform_icon_btn"
               onClick={() => handleDeleteClick(row.groupId)}
             >

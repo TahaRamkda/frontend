@@ -5,6 +5,7 @@ import clientSlice from "@/slices/ClientSlice";
 import sendernameSlice from "@/slices/sendernameSlice";
 import GroupSlice from "@/slices/Groupslice";
 import templateSlice from "@/slices/TemplateSlice";
+import interactiveTemplateSlice from "@/slices/InteractiveTemplateSlice";
 import CampaignSlice from "@/slices/campaignSlice";
 import mediaSlice from "@/slices/MediaSlice";
 import roleSlice from "@/slices/RoleSlice";
@@ -38,6 +39,7 @@ export const store = configureStore({
     Master:MasterSlice,
     Supervisor:SuperwiserSlice,
     agenttemplates:agentTemplateSlice,
+    interactiveTemplates:interactiveTemplateSlice
 
     }
 })

@@ -21,10 +21,10 @@ import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchInteractiveTemplates,
-  clearInteractiveTemplateCreateState,
+  clearInteractiveTemplateListState,
   setCurrentPage,
   setPageSize,
-} from "@/slices/TemplateSlice";
+} from "@/slices/InteractiveTemplateSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import App from "@/components/App";
 import { HiPencilAlt, HiTrash, HiRefresh } from "react-icons/hi";
@@ -45,7 +45,7 @@ const TemplateList = () => {
     pageSize,
     totalRecords,
     currentPage,
-  } = useSelector((state) => state.templates);
+  } = useSelector((state) => state.interactiveTemplates);
   const [isModalOpen, setIsModalOpen] = useState(false);
   //const [templateId, settemplateId] = useState(0);
   const [filterText, setFilterText] = useState("");
@@ -84,6 +84,7 @@ const TemplateList = () => {
         <center>
           <div className="flex gap-2">
             <button
+            title="Edit Interactive Template"
               className="uniform_icon_btn"
               onClick={() => handleDetailClick(row.interactiveTemplateId)}
             >
@@ -91,6 +92,7 @@ const TemplateList = () => {
             </button>
             {(row.defaultTypeId === 0 || row.defaultTypeId === "0") && (
               <button
+              title="Delete Interactive Template"
                 className="uniform_icon_btn"
                 onClick={() => handleDeleteClick(row.interactiveTemplateId)}
               >
@@ -217,7 +219,7 @@ const TemplateList = () => {
       })
     );
     return () => {
-      dispatch(clearInteractiveTemplateCreateState());
+      dispatch(clearInteractiveTemplateListState());
     };
   }, [dispatch, ToDate, FromDate]);
   const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options

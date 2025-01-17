@@ -44,7 +44,7 @@ const CampaignsList = () => {
   const handleTemplateChange = (e) => {
     const template = e.target.value;
     settemplateId(template);
-    setcammpaignloading(true)
+
     dispatch(
       fetchCampaign({
         ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status, templateId: template, srcStr: keyword, pageSize, PageNo: currentPage,
@@ -78,7 +78,6 @@ const CampaignsList = () => {
 
     // Set a new timeout for 0.5 seconds
     const timeout = setTimeout(() => {
-      setcammpaignloading(true)
       dispatch(
         fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: searchValue, pageSize, PageNo: currentPage})
       );
@@ -122,14 +121,14 @@ const CampaignsList = () => {
   }
 
   const handlePageSizeChange = async (newSize) => {
-    setcammpaignloading(true)
+
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to the first page
     await dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize: newSize, PageNo: 1 }));
   };
 
   const handlePageChange = async (page) => {
-    setcammpaignloading(true)
+
     dispatch(setCurrentPage(page));
     await dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: page }));
   };
@@ -221,21 +220,18 @@ const CampaignsList = () => {
       
         return (
           <div className='flex gap-2' id='InfoIcon'>
-            <button className="uniform_icon_btn" onClick={() => handleActivateClick(row.campaignId)}>
+            <button title="Schedule Campaign" className="uniform_icon_btn" onClick={() => handleActivateClick(row.campaignId)}>
               <HiLightningBolt style={{ fontSize: "15px" }} />
-              <Tooltip target="InfoIcon" placement="top">
-                This is an info button
-              </Tooltip>
             </button>
-            <button className="uniform_icon_btn" onClick={() => handelClick(row.campaignId)}>
+            <button title="Last Contacted People" className="uniform_icon_btn" onClick={() => handelClick(row.campaignId)}>
               <MdGroupRemove style={{ fontSize: "15px" }} />
             </button>
-            <button className="uniform_icon_btn" onClick={() => handleTestCampaign(row.campaignId)}>
+            <button title="Test Campaign" className="uniform_icon_btn" onClick={() => handleTestCampaign(row.campaignId)}>
               <HiBeaker style={{ fontSize: "15px" }} />
             </button>
              {/* Conditionally render the Edit button */}
              {(isSameDay && timeDifference > 3) || !isSameDay ? (
-              <button className="uniform_icon_btn" onClick={() => HandleUpdateCampaign(row.campaignId)}>
+              <button title="Edit Campaign" className="uniform_icon_btn" onClick={() => HandleUpdateCampaign(row.campaignId)}>
                 <HiPencilAlt style={{ fontSize: "15px" }} />
               </button>
             ) : null}
