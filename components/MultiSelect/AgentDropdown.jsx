@@ -24,10 +24,10 @@ const AgentsDropdown = ({ name, value, onChange }) => {
   }, [selectedAgentId, onChange]);
 
   // Mapping the fetched agent data into the format that react-select expects
-  const Options = agentDrop.map(agent => ({
+  const Options = agentDrop?.map(agent => ({
     value: agent.id,
     label: agent.name
-  }));
+  })) || [];
 
   // Handle when selection changes
   const handleSelectChange = (selectedOptions) => {
@@ -47,6 +47,7 @@ const AgentsDropdown = ({ name, value, onChange }) => {
         onChange={handleSelectChange}
         options={Options}
         isMulti
+        noOptionsMessage={() => "No records found"}
         className="border border-gray-300 rounded-lg"
         isSearchable
         placeholder="Select"

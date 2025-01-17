@@ -32,10 +32,10 @@ export const RolesDropdown = ({ onChange, error,existingdata }) => {
     }
   }, [selectedRoleId, onChange]);
 
-  const Options = roleDrop.map(role => ({
+  const Options = roleDrop?.map(role => ({
     value: role.id,
     label: role.name
-  }));
+  })) || [];
 
   const handleSelectChange = (selectedOptions) => {
     const selectedIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
@@ -61,6 +61,7 @@ export const RolesDropdown = ({ onChange, error,existingdata }) => {
         className="border border-gray-300 rounded-lg"
         isSearchable
         placeholder="Select"
+        noOptionsMessage={() => "No records found"}
         required
       />
       </div>

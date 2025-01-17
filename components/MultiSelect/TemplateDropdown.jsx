@@ -30,10 +30,10 @@ export const TemplatesDropdown = ({ onChange }) => {
     const selectedIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
     setSelectedTemplateId(selectedIds);
   };
- const Options = templateDrop.map(template => ({
+ const Options = templateDrop?.map(template => ({
     value: template.id,
     label: template.name
-  }));
+  })) || [];
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
@@ -50,6 +50,7 @@ export const TemplatesDropdown = ({ onChange }) => {
         options={Options}
         isMulti
         isSearchable
+        noOptionsMessage={() => "No records found"}
         placeholder="Select"
         className="border border-gray-300 rounded-lg text-sm"
         required

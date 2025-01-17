@@ -32,10 +32,10 @@ const SendernamesDropdown = ({ name, value, onChange, error, existingdata  }) =>
     const selectedIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
     setSelectedSenderId(selectedIds);
   };
- const Options = sendernameDrop.map(sendername => ({
+ const Options = sendernameDrop?.map(sendername => ({
     value: sendername.id,
     label: sendername.name
-  }));
+  })) || [];
 
   // Handle select/deselect seder (via select2)
  
@@ -59,6 +59,7 @@ const SendernamesDropdown = ({ name, value, onChange, error, existingdata  }) =>
         isMulti
         isSearchable
         placeholder="Select"
+        noOptionsMessage={() => "No records found"}
         className="border border-gray-300 rounded-lg text-sm"
         required
       />

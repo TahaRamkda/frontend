@@ -5,6 +5,7 @@ import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, FormGroup, L
 import App from "@/components/App";
 import API from "@/utils/api.axios"; // Assuming you have a utility for API calls
 import { changePassword } from "@/slices/AuthSlice";
+import { FaEye, FaEyeSlash } from "react-icons/fa"; 
 
 const ChangePass = ({ isVisible, onClose, onsuccess }) => {
     const [formData, setFormData] = useState({
@@ -89,75 +90,79 @@ const ChangePass = ({ isVisible, onClose, onsuccess }) => {
 
         <Modal isOpen={isVisible} toggle={onClose} fade={false}>
             <div className="fixed inset-0 bg-transparent flex items-center justify-center">
-                <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
+                <div className="bg-white p-6 rounded shadow-lg w-1/3 relative">
                     <ModalHeader toggle={onClose}>Change Password</ModalHeader>
                     <ModalBody>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <FormGroup>
                                 <Label for="oldPassword">Old Password</Label>
-                                <Input
-                                    type={showOld ? "text" : "password"}
-                                    name="oldPassword"
-                                    id="oldPassword"
-                                    placeholder="Enter old password"
-                                    value={formData.oldPassword}
-                                    onChange={handleChange}
-                                    invalid={!!errors.oldPassword}
-                                />
-                                <span
-                                    className=""
-                                    onClick={() => setShowOld(!showOld)}
-                                >
-                                    {showOld ? "Hide" : "Show"}
-                                </span>
+                                <div className="input-group">
+                                    <Input
+                                        type={showOld ? "text" : "password"}
+                                        name="oldPassword"
+                                        id="oldPassword"
+                                        placeholder="Enter old password"
+                                        value={formData.oldPassword}
+                                        onChange={handleChange}
+                                        invalid={!!errors.oldPassword}
+                                    />
+                                    <span
+                                        className="input-group-text cursor-pointer"
+                                        onClick={() => setShowOld(!showOld)}
+                                        style={{ userSelect: "none" }}
+                                    >
+                                         {showOld ? <FaEyeSlash /> : <FaEye />}
+                                    </span>
+                                </div>
                                 <FormFeedback>{errors.oldPassword}</FormFeedback>
                             </FormGroup>
+
                             <FormGroup>
                                 <Label for="newPassword">New Password</Label>
-                                <Input
-                                    type={showNew ? "text" : "password"}
-                                    name="newPassword"
-                                    id="newPassword"
-                                    placeholder="Enter new password"
-                                    value={formData.newPassword}
-                                    onChange={handleChange}
-                                    invalid={!!errors.newPassword}
-                                />
-                                <span
-                                    className=""
-                                    onClick={() => setShowNew(!showNew)}
-                                >
-                                    {showNew ? "Hide" : "Show"}
-                                </span>
+                                <div className="input-group">
+                                    <Input
+                                        type={showNew ? "text" : "password"}
+                                        name="newPassword"
+                                        id="newPassword"
+                                        placeholder="Enter new password"
+                                        value={formData.newPassword}
+                                        onChange={handleChange}
+                                        invalid={!!errors.newPassword}
+                                    />
+                                    <span
+                                        className="input-group-text cursor-pointer"
+                                        onClick={() => setShowNew(!showNew)}
+                                        style={{ userSelect: "none" }}
+                                    >
+                                          {showNew ? <FaEyeSlash /> : <FaEye />}
+                                    </span>
+                                </div>
                                 <FormFeedback>{errors.newPassword}</FormFeedback>
                             </FormGroup>
+
                             <FormGroup>
                                 <Label for="confirmPassword">Confirm Password</Label>
-                                <Input
-                                    type={showConfirm ? "text" : "password"}
-                                    name="confirmPassword"
-                                    id="confirmPassword"
-                                    placeholder="Confirm new password"
-                                    value={formData.confirmPassword}
-                                    onChange={handleChange}
-                                    invalid={!!errors.confirmPassword}
-                                />
-                                <Button
-          type="button"
-          className="btn btn-outline-secondary"
-          onClick={togglePasswordVisibility}
-          style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-        >
-          {showPassword ? <FaEyeSlash /> : <FaEye />}
-        </Button>
-                                <span
-                                    className=""
-                                    
-                                >
-                                    {showConfirm ? "Hide" : "Show"}
-                                </span>
+                                <div className="input-group">
+                                    <Input
+                                        type={showConfirm ? "text" : "password"}
+                                        name="confirmPassword"
+                                        id="confirmPassword"
+                                        placeholder="Confirm new password"
+                                        value={formData.confirmPassword}
+                                        onChange={handleChange}
+                                        invalid={!!errors.confirmPassword}
+                                    />
+                                    <span
+                                        className="input-group-text cursor-pointer"
+                                        onClick={() => setShowConfirm(!showConfirm)}
+                                        style={{ userSelect: "none" }}
+                                    >
+                                          {showConfirm ? <FaEyeSlash /> : <FaEye />}
+                                    </span>
+                                </div>
                                 <FormFeedback>{errors.confirmPassword}</FormFeedback>
                             </FormGroup>
+
                             <ModalFooter>
                                 <Button color="primary" type="submit" disabled={isSubmitting}>
                                     {isSubmitting ? "Submitting..." : "Change Password"}

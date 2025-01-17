@@ -24,10 +24,10 @@ export const ClientsDropdown = ({ onChange }) => {
     }
   }, [selectedClientId, onChange]);
 
-  const Options = clientsDrop.map(client => ({
+  const Options = clientsDrop?.map(client => ({
     value: client.id,
     label: client.name
-  }));
+  })) || [];
 
   const handleSelectChange = (selectedOptions) => {
     const selectedIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
@@ -50,6 +50,7 @@ export const ClientsDropdown = ({ onChange }) => {
         isMulti
         className="border border-gray-300 rounded-lg"
         isSearchable
+        noOptionsMessage={() => "No records found"}
         placeholder="Select"
         required
       />

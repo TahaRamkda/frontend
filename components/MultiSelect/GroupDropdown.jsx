@@ -34,10 +34,10 @@ export const GroupsDropdown = ({ onChange ,existingdata}) => {
   }, [selectedGroupId, onChange]);
 
   
-  const Options = groupDrop.map(group => ({
+  const Options = groupDrop?.map((group) => ({
     value: group.id,
-    label: group.name
-  }));
+    label: group.name,
+  })) || [];
 
   const handleSelectChange = (selectedOptions) => {
     const selectedIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
@@ -46,6 +46,7 @@ export const GroupsDropdown = ({ onChange ,existingdata}) => {
   
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
+  
 
 
   
@@ -62,6 +63,7 @@ export const GroupsDropdown = ({ onChange ,existingdata}) => {
         isSearchable
         placeholder="Select"
         required
+        noOptionsMessage={() => "No records found"}
       />
       </div>
     </>
