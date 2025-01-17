@@ -11,8 +11,6 @@ import { MdEdit } from "react-icons/md";
 import App from '@/components/App';
 import sweetalert from 'sweetalert2';
 
-import Switch from "react-switch"; 
-
 
 const MessageSummary = () => {
   const dispatch = useDispatch();
