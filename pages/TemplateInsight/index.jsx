@@ -11,7 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import App from "@/components/App";
+import App from "@/components/Layout/App";
 import {
   fetchTemplateInsight,
   clearTemplateInsightState,

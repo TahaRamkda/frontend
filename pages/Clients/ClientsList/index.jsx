@@ -15,7 +15,7 @@ import {
   setCurrentPage
 } from "@/slices/ClientSlice";
 import showSweetAlert from "@/components/Sweetalert";
-import Loading from "@/components/Loader";
+import Loading from "@/components/Layout/Loader";
 import App from '@/components/App';
 
 const ClientList = () => {

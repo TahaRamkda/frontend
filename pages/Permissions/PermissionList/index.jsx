@@ -7,10 +7,10 @@ import {
   clearPermissionState,
   createPermission,
 } from "@/slices/PermissionSlice";
-import Loading from "@/components/Loader";
+import Loading from "@/components/Layout/Loader";
 import showSweetAlert from "@/components/Sweetalert";
 import App from '@/components/App';
-import Loader from "@/components/Loader"
+import Loader from "@/components/Layout/Loader"
 const PermissionList = () => {
   const dispatch = useDispatch();
   const { permissions, loading, error } = useSelector((state) => state.permission);

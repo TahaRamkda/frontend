@@ -13,6 +13,8 @@ import { useRouter } from "next/router";
 import SweetAlert from "sweetalert2";
 import UserBadge from "@/public/images/User.jpg";
 import ChangePass from "./ChangePassword";
+import LiveReportingSwitch from "./LiveReportingSwitch";
+import Switch from "react-switch";
 export function Header({ toggleSidebar }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -133,6 +135,8 @@ export function Header({ toggleSidebar }) {
           </div>
 
           <div className="flex items-center space-x-4">
+         
+          <LiveReportingSwitch />
             {/* Fullscreen Toggle Icon */}
             <button
               onClick={toggleFullScreen}

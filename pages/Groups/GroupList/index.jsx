@@ -6,10 +6,10 @@ import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, La
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGroup, clearGroupState, deleteGroup, fetchGroupById, updateGroup, setPageSize, setCurrentPage } from "@/slices/Groupslice";
 import showSweetAlert from "@/components/Sweetalert";
-import Loading from "@/components/Loader";
+import Loading from "@/components/Layout/Loader";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
 import GroupForm from "../CreateGroup";
-import App from '@/components/App';
+import App from '@/components/Layout/App';
 
 const GroupList = () => {
   const router = useRouter();

@@ -33,11 +33,11 @@ import {
 import showSweetAlert from "@/components/Sweetalert";
 import Groups from "@/components/MultiSelect/GroupDropdown";
 import Templates from "@/components/Dropdowns/TemplateDropdown";
-import App from "@/components/App";
+import App from "@/components/Layout/App";
 import moment from "moment";
 import { useRouter } from "next/router";
 import Media from "@/pages/Media/MediaList";
-import Loader from "@/components/Loader";
+import Loader from "@/components/Layout/Loader";
 import bagroundimage from "@/public/images/baground.jpg";
 import { BASE_URL } from "@/utils/apiConstants";
 import { toast } from "react-toastify";

@@ -10,7 +10,7 @@ import { Row, Modal, ModalBody, ModalHeader } from "reactstrap";
 import { useRouter } from "next/navigation";
 import showSweetAlert from "@/components/Sweetalert"; // Import your SweetAlert utility
 import ClientDropdown from "@/components/Dropdowns/ClientDropdown";
-import App from "@/components/App";
+import App from "@/components/Layout/App";
 // Validation Schema using Yup
 const validationSchema = Yup.object({
   client_Id: Yup.string().required("Client is required"), // client_Id from dropdown

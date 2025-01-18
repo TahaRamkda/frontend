@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import Toast from 'react-bootstrap/Toast'
 import ToastContainer from 'react-bootstrap/ToastContainer'
 import { useRecoilState } from 'recoil'
-import { toastState } from '../atoms'
+import { toastState } from '../../atoms'
 function PlacementMultiExample() {
     const [toast, setToast] = useRecoilState(toastState)
 

@@ -5,7 +5,7 @@ import * as Yup from "yup";
 import { Row, Modal, ModalBody, ModalHeader } from "reactstrap";
 import showSweetAlert from "@/components/Sweetalert";
 import { useRouter } from "next/navigation";
-import App from "@/components/App"
+import App from "@/components/Layout/App"
 // Validation Schema using Yup
 const validationSchema = Yup.object({
   role_Name: Yup.string().required("Role Name is required"),

@@ -11,7 +11,7 @@ import GroupsDropdown from '@/components/MultiSelect/GroupDropdown';
 import TemplateCategoryDropdown from '@/components/Dropdowns/TemplateCategorydropdown';
 import LanguageDropdown from '@/components/Dropdowns/LanguageDropdown';
 import RolesDropdown from '@/components/MultiSelect/RoleDropdown';
-import App from "@/components/App";
+import App from "@/components/Layout/App";
 import { useRouter } from 'next/router';  // Correct import
 import ActiveAgentDropdown from '@/components/Dropdowns/ActiveAgentsDropdown';
 

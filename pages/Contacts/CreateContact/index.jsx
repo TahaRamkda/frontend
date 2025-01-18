@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Row, Modal, ModalBody, ModalHeader } from "reactstrap";
 import showSweetAlert from "@/components/Sweetalert";
 import GroupDropdown from '@/components/Dropdowns/GroupDropdown';
-import App from '@/components/App';
+import App from '@/components/Layout/App';
 const validationSchema = Yup.object({
   groupId: Yup.string().required("Group is required"), // groupId from dropdown
   firstName: Yup.string().required("First Name is required"),

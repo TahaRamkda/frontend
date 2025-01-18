@@ -7,11 +7,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchTemplates, clearTemplateState, deleteTemplates, syncTemplates, updateTemplates, fetchTemplatesById, setCurrentPage, setPageSize } from "@/slices/TemplateSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import UpdateTemplate from "../UpdateTemplate";
-import App from "@/components/App";
+import App from "@/components/Layout/App";
 import { HiPencilAlt, HiTrash, HiRefresh } from "react-icons/hi";
 import { useSetRecoilState } from "recoil";
 import { TemplateState } from "@/components/recoil";
-import Loading from "@/components/Loader";
+import Loading from "@/components/Layout/Loader";
 const TemplateList = () => {
   const router = useRouter();
   const dispatch = useDispatch();

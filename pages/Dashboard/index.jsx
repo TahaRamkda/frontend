@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect,useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Line } from "react-chartjs-2";
 import {
@@ -11,45 +11,87 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import App from "@/components/App";
+import App from "@/components/Layout/App";
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 import { fetchDashboardSummary, clearDashboardReportState } from "@/slices/ReportSlice";
 
-import Loader from "@/components/Loader";
+import Loader from "@/components/Layout/Loader";
+import { set } from "date-fns";
+import { toast } from "react-toastify";
+import { REFRESH_INTERVAL } from "@/utils/constants";
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
+  const [dataloading, setdataloading] = useState(false);
+  const [fromDate, setfromDate] = useState("");
+  const [toDate, settoDate] = useState("");
   const [SenderId, setSenderId] = useState(0);
   const [clientId, setclientId] = useState(0);
   const { dashboardsummary, loading, error } = useSelector((state) => state.reports);
   //const clientId = localStorage.getItem("clientId");
+  const fromDateRef = useRef("");
+  const toDateRef = useRef("");
   useEffect(() => {
+    
     const today = new Date();
     const lastWeek = new Date(today);
     lastWeek.setDate(today.getDate() - 7);
 
-    setToDate(today.toISOString().split("T")[0]);
-    setFromDate(lastWeek.toISOString().split("T")[0]);
+    settoDate(today.toISOString().split("T")[0]);
+    setfromDate(lastWeek.toISOString().split("T")[0]);
+
+    const todayStr = today.toISOString().split("T")[0];
+    const lastWeekStr = lastWeek.toISOString().split("T")[0];
+
+    fromDateRef.current = lastWeekStr;
+    toDateRef.current = todayStr;
   }, []);
 
   useEffect(()=>{
     if(dashboardsummary){
-      
-      console.log(dashboardsummary)
+      setdataloading(false)
     }
   },[dashboardsummary]
 
 
   
 )
+
+//function for live reporting
+ useEffect(() => {
+    const checkAndFetch = async () => {
+      const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
+      const fromDate = fromDateRef.current;
+      const toDate = toDateRef.current;
+      if (isLiveReporting && !loading) {
+       
+        try {
+          await dispatch(fetchDashboardSummary({ clientId:localStorage.getItem("clientId"), fromDate:fromDate, toDate:toDate, senderid: SenderId }));
+        } catch (error) {
+          console.error("Error fetching chat monitor:", error);
+        } 
+      }
+    };
+
+   
+
+    const intervalId = setInterval(() => {
+      // Perform the periodic refresh (e.g., every 5 minutes) if page is loaded
+      if (!loading) {
+        checkAndFetch();
+      }
+    }, REFRESH_INTERVAL);
+
+    // Cleanup interval on component unmount or when page is unloaded
+    return () => clearInterval(intervalId);
+  }, [dispatch, SenderId]);
+
   useEffect(() => {
     if (fromDate && toDate) {
       const clientId = localStorage.getItem("clientId");
-     
+      setdataloading(true)
       dispatch(fetchDashboardSummary({ clientId:clientId, fromDate, toDate, senderid: SenderId }));
     }
     return () => {
@@ -57,14 +99,19 @@ const Dashboard = () => {
     };
   }, [dispatch, fromDate, toDate, SenderId]);
 
-  const handleDateChange = (setter) => (e) => {
+  const handlefromDateChange = (setter) => (e) => {
+    fromDateRef.current = e.target.value;
+    setter(e.target.value);
+  };
+  const handletoDateChange = (setter) => (e) => {
+    toDateRef.current = e.target.value;
     setter(e.target.value);
   };
   const handleChange = (e) => {
     const senderId = e.target.value;
     setSenderId(senderId)
     const clientId = localStorage.getItem("clientId");
-     
+     setdataloading(true)
     dispatch(fetchDashboardSummary({ clientId : clientId, fromDate, toDate, senderid: SenderId }));
   };
   const lineChartData = {
@@ -96,7 +143,7 @@ const Dashboard = () => {
 
   return (
     <App>
-      {loading && <Loader />}
+      {dataloading && <Loader />}
       <div className="w-full">
         {/* Date Filters */}
         <div className="grid grid-cols-5 mb-4 gap-4">
@@ -105,7 +152,7 @@ const Dashboard = () => {
             <input
               type="date"
               value={fromDate}
-              onChange={handleDateChange(setFromDate)}
+              onChange={handlefromDateChange(setfromDate)}
               className="border rounded py-1 px-2 w-full text-sm"
             />
           </div>
@@ -114,7 +161,7 @@ const Dashboard = () => {
             <input
               type="date"
               value={toDate}
-              onChange={handleDateChange(setToDate)}
+              onChange={handletoDateChange(settoDate)}
               className="border rounded py-1 px-2 w-full text-sm"
             />
           </div>

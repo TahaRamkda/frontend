@@ -1,20 +1,19 @@
 "use client";
-import React, { useMemo, useEffect, useState, useRef } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchChatsMonitor, clearChatsMonitorState, setPageSize, setCurrentPage } from "@/slices/SuperwiseSlice";
-import { fetchConversationMessage, clearConversationMessageState } from '@/slices/ConversationSlice';
 import { Container, Row, Col, Table, input, Button, Pagination, List, label, PaginationItem, PaginationLink, CardBody, Card } from 'reactstrap';
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import DataTable from "react-data-table-component";
 import { HiPencilAlt, HiTrash , HiEye } from "react-icons/hi";
-import Loading from '@/components/Loader';
-import App from '@/components/App';
+import Loading from '@/components/Layout/Loader';
+import App from '@/components/Layout/App';
 import Chatview from '@/pages/Chats/ChatView/indexPop-up';
 import TransferChat from '../TransferChat';
 import { MdSwapHoriz } from "react-icons/md"; 
-
+import { REFRESH_INTERVAL } from '@/utils/constants';
 
 const ChatsReport = () => {
   const dispatch = useDispatch();
@@ -29,6 +28,8 @@ const ChatsReport = () => {
   const [activeChat, setActiveChat] = useState(0);
   const [SenderId, setSenderId] = useState(0);
   const [oldAgentId, setoldAgentId] = useState(0);
+  const [refreshpage, setrefreshpage] = useState(false);  // Track if page is refreshing
+
   const ChatsReportColumn = [
     { name: "Full Name", selector: (row) => row.fullName, sortable: true },
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
@@ -56,29 +57,31 @@ const ChatsReport = () => {
         </center>
       ),
     },
-
   ];
 
   const handleCancel = () => {
-    setshowchat(false)
-  }
-  const handletransferCancel = () => {
-    setshowtransfer(false)
-  }
+    setshowchat(false);
+  };
+  const handleTransferCancel = () => {
+    setshowtransfer(false);
+  };
 
-const handleSearchString = (e) => {
+  const handleSearchString = (e) => {
     const searchValue = e.target.value;
     setsrcStr(searchValue);
 
-    // Clear the previous timeout if any
     if (searchTimeout) {
       clearTimeout(searchTimeout);
     }
 
-    // Set a new timeout for 0.5 seconds
     const timeout = setTimeout(() => {
-      dispatch(
-        fetchChatsMonitor({ clientId: clientId, senderId: senderid,searchStr:searchValue, pageSize, pageNo: currentPage}));
+      dispatch(fetchChatsMonitor({
+        clientId: clientId,
+        senderId: senderid,
+        searchStr: searchValue,
+        pageSize,
+        pageNo: currentPage,
+      }));
     }, 500);
 
     setSearchTimeout(timeout); // Save the timeout reference
@@ -89,69 +92,112 @@ const handleSearchString = (e) => {
     setsenderid(senderId);
   };
 
+  useEffect(() => {
+    const checkAndFetch = async () => {
+      const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
+
+      if (isLiveReporting && !loading) {
+        setrefreshpage(true);  // Mark the page as refreshing
+        try {
+          await dispatch(fetchChatsMonitor({
+            clientId: localStorage.getItem("clientId"),
+            senderId: senderid,
+            searchStr: srcStr,
+            pageSize: 10, // Example page size
+            pageNo: 1, // Example current page
+          }));
+        } catch (error) {
+          console.error("Error fetching chat monitor:", error);
+        } finally {
+          setrefreshpage(false); // Mark refresh completed
+        }
+      }
+    };
+
+   
+
+    const intervalId = setInterval(() => {
+      // Perform the periodic refresh (e.g., every 5 minutes) if page is loaded
+      if (!loading) {
+        checkAndFetch();
+      }
+    }, REFRESH_INTERVAL);
+
+    // Cleanup interval on component unmount or when page is unloaded
+    return () => clearInterval(intervalId);
+  }, [ senderid, srcStr, dispatch]);
+
   const handleDetailClick = async (id) => {
-    setActiveChat(id); // Update Activechat state
+    setActiveChat(id);
     setshowchat(true);
   };
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setClientId(localStorage.getItem('clientId'));
     }
   }, []);
 
-  const handleTransferClick = async (id , SenderId ,oldAgentId) => {
-    setActiveChat(id); // Update Activechat state
+  const handleTransferClick = async (id, SenderId, oldAgentId) => {
+    setActiveChat(id);
     setSenderId(SenderId);
     setoldAgentId(oldAgentId);
     setshowtransfer(true);
   };
- 
-
-
 
   useEffect(() => {
     if (clientId) {
-      dispatch(fetchChatsMonitor({ clientId: clientId, senderId: senderid,searchStr:srcStr, pageSize, pageNo: currentPage }));
-
+      dispatch(fetchChatsMonitor({
+        clientId: clientId,
+        senderId: senderid,
+        searchStr: srcStr,
+        pageSize,
+        pageNo: currentPage,
+      }));
     }
+
     return () => {
       dispatch(clearChatsMonitorState());
     };
   }, [dispatch, clientId]);
+
   const handlePageSizeChange = async (newSize) => {
-    // Update page size and reset to the first page
     dispatch(setPageSize(newSize));
-    dispatch(setCurrentPage(1)); // Reset to first page
-    // Fetch data with updated page size and reset to page 1
+    dispatch(setCurrentPage(1));  // Reset to first page
     await dispatch(fetchChatsMonitor({
       clientId: clientId,
-      searchStr:srcStr,
+      searchStr: srcStr,
       senderId: senderid,
-      pageSize: newSize, pageNo: 1
+      pageSize: newSize,
+      pageNo: 1,
     }));
   };
 
   const handlePageChange = async (page) => {
-    // Update current page state in Redux
     dispatch(setCurrentPage(page));
+    await dispatch(fetchChatsMonitor({
+      clientId: clientId,
+      senderId: senderid,
+      searchStr: srcStr,
+      pageSize,
+      pageNo: page,
+    }));
+  };
 
-    // Fetch clients for the new page
-    await dispatch(fetchChatsMonitor({ clientId: clientId, senderId: senderid,searchStr:srcStr, pageSize, pageNo: page }));
-  }
-  const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
-  const defultpagessize = 10
+  const customPageSizes = [1, 5, 10, 20, 50, 100];  // Custom page size options
+  const defultpagessize = 10;
+
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className="w-full">
         <div className='grid grid-cols-5 gap-4'>
-        <div className='flex flex-col text-start mb-1'>
+          <div className='flex flex-col text-start mb-1'>
             <label className="font-medium text-gray-700 text-sm">Search</label>
             <input
               type="text"
-              placeholder=""
               value={srcStr}
               onChange={handleSearchString}
-              className="border rounded  w-100"
+              className="border rounded w-100"
             />
           </div>
           <div className='flex flex-col text-start mb-1'>
@@ -159,23 +205,18 @@ const handleSearchString = (e) => {
             <SendernameDropdown
               name="senderId"
               onChange={handleSenderChange}
-              className="border rounded  w-100"
+              className="border rounded w-100"
             />
           </div>
         </div>
-
-
       </div>
-
-    )
-
-  })
-  // Pagination calculations
+    );
+  }, [srcStr, senderid]);
 
   return (
     <App>
       <div className="flex items-center">
-        {loading && <Loading />}
+        {loading && !refreshpage && <Loading />}  {/* Show loader only when page is not refreshing */}
         <div >
           <h4 className="font-bold ">Chats Report</h4>
         </div>
@@ -190,8 +231,8 @@ const handleSearchString = (e) => {
         paginationTotalRows={totalRecords}
         onChangePage={handlePageChange}
         onChangeRowsPerPage={handlePageSizeChange}
-        paginationPerPage={defultpagessize} // Default number of rows per page
-        paginationRowsPerPageOptions={customPageSizes} // Custom page size options
+        paginationPerPage={defultpagessize}
+        paginationRowsPerPageOptions={customPageSizes}
         subHeader
         subHeaderComponent={subHeaderComponentMemo}
         className="w-full border"
@@ -199,7 +240,7 @@ const handleSearchString = (e) => {
           table: {
             style: {
               width: '100%',
-              borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
+              borderCollapse: 'collapse',
             },
           },
           headRow: {
@@ -209,20 +250,18 @@ const handleSearchString = (e) => {
           },
           headCells: {
             style: {
-
-              borderRight: '1px solid #ddd', // Grid line between columns
+              borderRight: '1px solid #ddd',
               fontWeight: 'bold',
             },
           },
           rows: {
             style: {
-              borderBottom: '1px solid #ddd', // Horizontal grid line between rows
+              borderBottom: '1px solid #ddd',
             },
           },
           cells: {
             style: {
-
-              borderRight: '1px solid #ddd', // Vertical grid line between cells
+              borderRight: '1px solid #ddd',
             },
           },
         }}
@@ -236,19 +275,18 @@ const handleSearchString = (e) => {
           />
         )
       }
-       {
+      {
         showtransfer && (
           <TransferChat
             ChatId={activeChat}
             SenderId={SenderId}
             oldAgentId={oldAgentId}
             isVisible={true}
-            onClose={handletransferCancel}
+            onClose={handleTransferCancel}
           />
         )
       }
     </App>
-
   );
 };
 

@@ -29,4 +29,8 @@
   
     return `${String(hours).padStart(2, "0")}:${minutes} ${period}`;
   };
+
+  //to refresh the api call every 5 minutes
+export const REFRESH_INTERVAL=10000 ; // 5 minutes in milliseconds
+
   

@@ -1,5 +1,5 @@
 import { ToastContainer } from 'react-toastify';
-import Toast from '../components/Toast';
+import Toast from '../components/Layout/Toast';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { RecoilRoot, useRecoilState } from 'recoil';
 import { useEffect, useState } from 'react';
@@ -16,7 +16,7 @@ import { Provider } from 'react-redux';
 import { store } from '@/store/store';
 import SweetAlert from 'sweetalert2';
 import { sidebarItems } from '@/utils/sidebarItems';
-import Loader from '@/components/Loader';
+import Loader from '@/components/Layout/Loader';
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();

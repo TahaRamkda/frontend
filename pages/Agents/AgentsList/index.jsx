@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
-import Loading from "@/components/Loader";
+import Loading from "@/components/Layout/Loader";
 import dynamic from "next/dynamic";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAgents, cleaAgentState, deleteAgent, fetchAgentsById, updateAgent, setCurrentPage, setPageSize } from "@/slices/AgentSlice";
@@ -12,7 +12,7 @@ import { HiPencilAlt, HiTrash, HiLightningBolt, HiClock } from "react-icons/hi";
 import SendernamesDropdown from "@/components/MultiSelect/SendernameDropdown";
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 import AgentsForm from "../CreateAgents";
-import App from '@/components/App';
+import App from '@/components/Layout/App';
 //import AgentTiming from "../AgentsTiming/index";
 const AgentTiming = dynamic(() => import("../AgentsTiming"), { ssr: false });
 const AgentsList = () => {

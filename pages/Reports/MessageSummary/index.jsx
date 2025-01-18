@@ -6,8 +6,8 @@ import { fetchMessageSummary, clearMessageSummaryState, setPageSize, setCurrentP
 import { Input, label, Button } from 'reactstrap';
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import DataTable from "react-data-table-component";
-import App from '@/components/App';
-import Loading from "@/components/Loader";
+import App from '@/components/Layout/App';
+import Loading from "@/components/Layout/Loader";
 
 const Messagereports = () => {
   const dispatch = useDispatch();

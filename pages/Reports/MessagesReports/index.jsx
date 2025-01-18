@@ -7,9 +7,10 @@ import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import DataTable from "react-data-table-component";
 
-import Loading from '@/components/Loader';
-import App from '@/components/App';
-
+import Loading from '@/components/Layout/Loader';
+import App from '@/components/Layout/App';
+import { REFRESH_INTERVAL } from '@/utils/constants';
+import { set } from 'date-fns';
 
 
 const MessageReport = () => {
@@ -26,7 +27,7 @@ const MessageReport = () => {
   const [showfilterbutton, setshowfilterbutton] = useState(true);
   const { messagereport, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.reports);
   const [clientId, setClientId] = useState(null);
-
+ const [reportloading, setreportloading] = useState(false);
   const ReportColumns = [
     { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
@@ -67,6 +68,28 @@ const MessageReport = () => {
     if (typeof window !== 'undefined') {
       setClientId(localStorage.getItem('clientId'));
     }
+  }, []);
+
+  useEffect(() => {
+    const checkAndFetch = () => {
+      const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
+  
+      if (isLiveReporting) {
+        setreportloading(true);
+        refreshpage()
+      } else {
+        // Handle the case when isLiveReporting is false
+      }
+    };
+  
+    // Run the function every 5 minutes
+    const intervalId = setInterval(checkAndFetch, REFRESH_INTERVAL);
+  
+    // Run the function once immediately
+    checkAndFetch();
+  
+    // Cleanup the interval when the component unmounts
+    return () => clearInterval(intervalId);
   }, []);
 
 
@@ -116,6 +139,10 @@ const MessageReport = () => {
     await dispatch(fetchMessageReport({
       clientId: clientId, fromDate: fromDate, toDate: toDate, moduleId: ModuleId, status: status, sendernameId: sendernameId, senderid: senderid, srcStr: srcStr, pageSize : newSize, pageNo: 1 
     }));
+  };
+  const refreshpage = async () => {
+    await dispatch(fetchMessageReport({ clientId: localStorage.getItem("clientId"), fromDate: fromDate, toDate: toDate, moduleId: ModuleId, status: status, sendernameId: sendernameId, senderid: senderid, srcStr: srcStr, pageSize, pageNo: currentPage }));
+    return setreportloading(false);
   };
 
   const handlePageChange = async (page) => {
@@ -198,7 +225,7 @@ const MessageReport = () => {
   return (
     <App>
       <div className="flex items-center">
-        {loading && <Loading />}
+        {loading && !reportloading && <Loading />}
         <div >
           <h4 className="font-bold ">Message Reports</h4>
         </div>

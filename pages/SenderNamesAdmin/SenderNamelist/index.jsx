@@ -5,7 +5,7 @@ import DataTable from "react-data-table-component";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input } from "reactstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
-import Loading from "@/components/Loader";
+import Loading from "@/components/Layout/Loader";
 import {
   fetchSendernames,
   clearSendernameState,
@@ -14,7 +14,7 @@ import {
   updateSendername,
 } from "@/slices/sendernameSlice";
 import showSweetAlert from "@/components/Sweetalert";
-import App from "@/components/App"
+import App from "@/components/Layout/App"
 import SenderNameForm from "../CreateSenderName";
 
 const SendernameList = () => {

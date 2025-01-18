@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchMedia, clearMediaState, deleteMedia } from "@/slices/MediaSlice";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input } from "reactstrap";
 import SweetAlert from "sweetalert2";
-import App from '@/components/App';
+import App from '@/components/Layout/App';
 import UploadMedia from "../UploadMedia";
-import Loader from "@/components/Loader";
+import Loader from "@/components/Layout/Loader";
 import { BASE_URL } from "@/utils/apiConstants";
 
 const MediaList = ({ isPopup, onSelectMedia, contentTypeStr }) => {

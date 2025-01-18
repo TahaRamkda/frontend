@@ -11,8 +11,8 @@ import { fetchUser, clearUserState, deleteUser, fetchUserById, updateUser } from
 import showSweetAlert from "@/components/Sweetalert";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
 import UserForm from "../CreateUsers";
-import App from '@/components/App';
-import Loading from "@/components/Loader";
+import App from '@/components/Layout/App';
+import Loading from "@/components/Layout/Loader";
 const UserList = () => {
   const router = useRouter();
   const dispatch = useDispatch();

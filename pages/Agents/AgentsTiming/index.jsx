@@ -5,7 +5,7 @@ import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Table, Input } from
 import dayjs from "dayjs";
 import { fetchAgentsTimingList, createAgentTiming } from "@/slices/AgentSlice";
 import showSweetAlert from "@/components/Sweetalert";
-import Loading from "@/components/Loader";
+import Loading from "@/components/Layout/Loader";
 
 const weekDayMapping = {
   Sunday: 1,

@@ -6,9 +6,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchRoles, clearRoleState, deleteRole, fetchRoleById, updateRole } from "@/slices/RoleSlice";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input } from "reactstrap";
 import showSweetAlert from "@/components/Sweetalert";
-import Loading from "@/components/Loader";
+import Loading from "@/components/Layout/Loader";
 import CreateRole from "../CreateRoles";
-import App from '@/components/App';
+import App from '@/components/Layout/App';
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
 const RoleList = () => {
   const router = useRouter();
