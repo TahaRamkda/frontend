@@ -23,10 +23,6 @@ import { useRouter } from "next/navigation";
 import { FaTimes } from "react-icons/fa";
 import { FaRegTrashCan } from "react-icons/fa6";
 import {
-  createTemplates,
-  clearTemplateCreateState,
-} from "@/slices/TemplateSlice";
-import {
   updateInteractiveTemplates,
   fetchInteractiveTemplatesById,
   clearInteractiveTemplateDetailState,

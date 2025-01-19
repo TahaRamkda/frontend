@@ -6,7 +6,7 @@ import { uploadMedia, clearMediaUploadState } from "@/slices/MediaSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
 
-const UploadMediaPage = ({ onUploadSuccess }) => {
+const UploadMediaPage = ({ onUploadSuccess,onsenderChange }) => {
   const dispatch = useDispatch();
   const [selectedSenderId, setSelectedSenderId] = useState(null);
 
@@ -55,6 +55,10 @@ const UploadMediaPage = ({ onUploadSuccess }) => {
 
   const handleSenderChange = (e) => {
     setSelectedSenderId(e.target.value);
+    if (onsenderChange){
+      onsenderChange(e.target.value);
+    }
+    
   };
 
   return (

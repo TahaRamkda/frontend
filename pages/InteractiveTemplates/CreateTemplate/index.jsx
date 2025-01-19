@@ -23,7 +23,7 @@ import { FaTimes } from "react-icons/fa";
 import { FaRegTrashCan } from "react-icons/fa6";
 import {
   createInteractiveTemplates,
-  clearInteractiveTemplateListState,
+  clearInteractiveTemplateCreateState,
 } from "@/slices/InteractiveTemplateSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import defaultimage from "@/public/images/12.jpg";
@@ -1012,7 +1012,12 @@ useEffect(() => {
                      <img
                        src={`${BASE_URL}${sendername.mediaPath}`}
                        alt="Sender Logo"
-                       className="w-10 h-10 rounded-full"
+                       className="rounded-circle me-2"
+                       style={{
+                         width: "40px",
+                         height: "40px",
+                         objectFit: "cover",
+                       }}
                      />
                    )}
                    {/* Display Name and Phone */}

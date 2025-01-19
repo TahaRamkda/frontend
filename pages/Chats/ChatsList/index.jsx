@@ -7,6 +7,7 @@ import {
   FaCheckCircle,
   FaTimesCircle,
   FaClock,
+  FaBan ,
 } from "react-icons/fa";
 
 import UserBadge from "@/public/images/User.jpg";
@@ -530,7 +531,7 @@ const ChatPage = () => {
 
     // Handles unassignment of a conversation
     const handleConversationUnAssigned = (chatId) => {
-      debugger;
+      
       if (
         agentChatRef.current.filter(
           (conversation) => conversation.id === chatId
@@ -547,22 +548,23 @@ const ChatPage = () => {
           agentId: userId,
         })
       );
-
       // Remove the conversation from the list
       const updatedConversations = agentChatRef.current.filter(
         (conversation) => conversation.id !== chatId
       );
-
-      agentChatRef.current = updatedConversations;
-      setAgentConversation(updatedConversations);
-
       const matchingConversationIndex = agentChatRef.current.findIndex(
         (conversation) => conversation.id === chatId
       );
 
       if (matchingConversationIndex !== -1) {
         setChatMessages([]);
+        setActiveChat(0);
       }
+      clearTimer(chatId);
+      agentChatRef.current = updatedConversations;
+      setAgentConversation(updatedConversations);
+
+      
     };
 
     // Set up SignalR event listeners
@@ -692,7 +694,16 @@ const ChatPage = () => {
                     </span>
                   </span>
                 </div>
-
+               {/* Abandoned */}
+               <div className="flex items-center space-x-2">
+                  <FaBan  size={20} className="text-red-500" />
+                  <span className="font-medium text-white">
+                    Abandoned:{" "}
+                    <span className="font-bold">
+                      {AgentStats.totalActive ?? "-/-"}
+                    </span>
+                  </span>
+                </div>
                 {/* Closed */}
                 <div className="flex items-center space-x-2">
                   <FaTimesCircle size={20} className="text-red-500" />
@@ -703,10 +714,10 @@ const ChatPage = () => {
                     </span>
                   </span>
                 </div>
-
+               
                 {/* Expired */}
                 <div className="flex items-center space-x-2">
-                  <AiOutlineHourglass size={20} className="text-yellow-500" />
+                  <AiOutlineHourglass size={20} className="text-yellow-100" />
                   <span className="font-medium text-white">
                     Expired:{" "}
                     <span className="font-bold">
@@ -714,7 +725,6 @@ const ChatPage = () => {
                     </span>
                   </span>
                 </div>
-
                 {/* Force Closed */}
                 <div className="flex items-center space-x-2">
                   <FaClock size={20} className="text-purple-500" />
@@ -725,7 +735,6 @@ const ChatPage = () => {
                     </span>
                   </span>
                 </div>
-
                 {/* Avg Duration */}
                 <div className="flex items-center space-x-2">
                   <MdOutlineTimer size={20} className="text-orange-500" />
@@ -736,10 +745,9 @@ const ChatPage = () => {
                     </span>
                   </span>
                 </div>
-
                 {/* Response Time */}
                 <div className="flex items-center space-x-2">
-                  <MdOutlineTimer size={20} className="text-gray-500" />
+                  <MdOutlineTimer size={20} className="text-green-500" />
                   <span className="font-medium text-white">
                     Response Time:{" "}
                     <span className="font-bold">
@@ -747,7 +755,6 @@ const ChatPage = () => {
                     </span>
                   </span>
                 </div>
-
                 {/* User Badge with Name and Dropdown */}
                 <div className="relative">
                   <button
@@ -918,8 +925,14 @@ const ChatPage = () => {
                     >
                       <img
                         src={`${BASE_URL}${conversation.logo}`}
+                        
                         alt="User Logo"
-                        className="w-10 h-10 rounded-full"
+                            className="rounded-circle me-2"
+                            style={{
+                              width: "40px",
+                              height: "40px",
+                              objectFit: "cover",
+                            }}
                       />
 
                       <div>{conversation.fullName}</div>

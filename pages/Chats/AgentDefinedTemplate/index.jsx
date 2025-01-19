@@ -163,7 +163,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
         }
 
         onClose();
-        toast.success("Template Sent Successfully");
+        //toast.success("Template Sent Successfully");
         dispatch(clearAgentTemplateDetailState());
       } else {
         toast.error(response.message || "Failed to send template");

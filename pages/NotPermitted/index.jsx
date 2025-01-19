@@ -1,4 +1,3 @@
-import App from '@/components/App';
 import { useRouter } from 'next/router';
 
 const NotPermitted = () => {

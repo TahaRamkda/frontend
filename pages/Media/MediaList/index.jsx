@@ -8,19 +8,25 @@ import UploadMedia from "../UploadMedia";
 import Loader from "@/components/Layout/Loader";
 import { BASE_URL } from "@/utils/apiConstants";
 
-const MediaList = ({ isPopup, onSelectMedia, contentTypeStr }) => {
+const MediaList = ({ isPopup, onSelectMedia, contentTypeStr,senderId }) => {
   const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMediaId, setSelectedMediaId] = useState(null);
+  const [selectedsenderId, setselectedsenderId] = useState(0);
   const { medias, loading, error } = useSelector((state) => state.media);
  const[Medialist,setmediaList] = useState([]);
   useEffect(() => {
     setmediaList(null)
     // Send contentTypeStr only when isPopup is true, otherwise send an empty string
     const contentType = isPopup ? contentTypeStr : "";
-    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType }));
+    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType,senderId:senderId?senderId:selectedsenderId }));
     return () => clearMediaState();
   }, [dispatch, isPopup, contentTypeStr]);
+
+  useEffect(() => {
+    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType,senderId:selectedsenderId }));
+    return () => clearMediaState();
+  }, [dispatch, selectedsenderId]);
 
   useEffect(() => {
     if (isPopup) {
@@ -33,16 +39,11 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr }) => {
     setIsModalOpen(false);
   };
 useEffect(() =>{
-  
 if(medias){
   setmediaList(medias)
 }
 },[medias])
-  const refreshList = () => {
-    const contentType = isPopup ? contentTypeStr : "";
-    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType }));
-  };
-
+ 
   const handleDeleteClick = (mediaId) => {
     SweetAlert.fire({
       title: "Are you sure?",
@@ -60,6 +61,17 @@ if(medias){
         });
       }
     });
+  };
+  const handlesenderchange = async(value) => {
+    debugger
+    setselectedsenderId(value);
+    //await refreshList();
+  }
+
+   const refreshList = async () => {
+    debugger
+    const contentType = isPopup ? contentTypeStr : "";
+    await dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType ,senderId:selectedsenderId}));
   };
 
   const handleSelectImage = (mediaId, mediaPath, mimeType) => {
@@ -196,6 +208,7 @@ if(medias){
 
         <UploadMedia
           onUploadSuccess={refreshList}
+          onsenderChange={handlesenderchange}
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 lg:grid-cols-5 gap-4">
