@@ -4,7 +4,7 @@ import { createGroup, clearGroupCreateState, fetchGroup, setPageSize, setCurrent
 import showSweetAlert from "@/components/Sweetalert"; // Import your SweetAlert utility
 import { useRouter } from "next/navigation";
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
-import App from '@/components/App';
+import App from '@/components/Layout/App';
 
 const GroupForm = ({ onClose, isVisible, onsuccess }) => {
   const [formData, setFormData] = useState({

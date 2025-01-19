@@ -6,12 +6,12 @@ import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input ,CustomInput} from "reactstrap";
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import DataTable from "react-data-table-component";
-import Loading from '@/components/Loader';
+import Loading from '@/components/Layout/Loader';
 import { MdEdit } from "react-icons/md"; 
-import App from '@/components/App';
+import App from '@/components/Layout/App';
 import sweetalert from 'sweetalert2';
 import Switch from "react-switch";
-
+import { REFRESH_INTERVAL } from '@/utils/constants';
 const MessageSummary = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
@@ -24,7 +24,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
   const [ShowEditModal, setShowEditModal] = useState(false);
   const { agentsMonitor, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.Supervisor);
   const [clientId, setClientId] = useState(null);
-
+  const [refreshpage, setrefreshpage] = useState(false);  // Track if page is refreshing
   const ChatsReportColumn = [
     { name: "Agent Name", selector: (row) => row.agentName, sortable: true },
     { name: "Status Name", selector: (row) => row.statusName, sortable: true },
@@ -93,6 +93,39 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
       setClientId(localStorage.getItem('clientId'));
     }
   }, []);
+
+ 
+
+    useEffect(() => {
+      const checkAndFetch = async () => {
+        const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
+  
+        if (isLiveReporting && !loading) {
+          setrefreshpage(true);  // Mark the page as refreshing
+          try {
+             await dispatch(fetchAgentsMonitor({ clientId: clientId, senderId: senderid, srcStr:srcStr,pageSize, pageNo: currentPage, fromDate:FromDate, toDate:ToDate}));
+            
+          } catch (error) {
+            console.error("Error fetching chat monitor:", error);
+          } finally {
+            setrefreshpage(false); // Mark refresh completed
+          }
+        }
+      };
+  
+     
+  
+      const intervalId = setInterval(() => {
+        // Perform the periodic refresh (e.g., every 5 minutes) if page is loaded
+        if (!loading) {
+          checkAndFetch();
+        }
+      }, REFRESH_INTERVAL);
+  
+      // Cleanup interval on component unmount or when page is unloaded
+      return () => clearInterval(intervalId);
+    }, [ senderid, srcStr, dispatch]);
+
 
 
 
@@ -253,7 +286,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
   return (
     <App>
       <div className="flex items-center">
-        {loading && <Loading />}
+        {loading && refreshpage === false&& <Loading />}
         <div >
           <h4 className="font-bold ">Agents Report</h4>
         </div>

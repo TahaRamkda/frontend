@@ -4,8 +4,8 @@ import {
   ModalHeader,
   ModalBody,
 } from "reactstrap";
-import Loading from '@/components/Loader';
-import App from '@/components/App';
+import Loading from '@/components/Layout/Loader';
+import App from '@/components/Layout/App';
 
 const ActiveConversations = () => {
   // Hardcoded data

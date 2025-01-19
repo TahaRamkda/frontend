@@ -4,14 +4,14 @@ import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
-import Loading from "@/components/Loader";
+import Loading from "@/components/Layout/Loader";
 import {
   fetchSendernames,
   clearSendernameState,
   updateSendername,
 } from "@/slices/sendernameSlice";
 import showSweetAlert from "@/components/Sweetalert";
-import App from "@/components/App";
+import App from "@/components/Layout/App";
 import SenderNameForm from "../CreateSenderName";
 import { BASE_URL } from "@/utils/apiConstants";
 import { selector } from "recoil";

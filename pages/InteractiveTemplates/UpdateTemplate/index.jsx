@@ -23,10 +23,6 @@ import { useRouter } from "next/navigation";
 import { FaTimes } from "react-icons/fa";
 import { FaRegTrashCan } from "react-icons/fa6";
 import {
-  createTemplates,
-  clearTemplateCreateState,
-} from "@/slices/TemplateSlice";
-import {
   updateInteractiveTemplates,
   fetchInteractiveTemplatesById,
   clearInteractiveTemplateDetailState,
@@ -36,12 +32,12 @@ import defaultimage from "@/public/images/12.jpg";
 import bagroundimage from "@/public/images/baground.jpg";
 import Media from "@/pages/Media/MediaList";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
-import App from "@/components/App";
+import App from "@/components/Layout/App";
 import ButtonAction from "@/pages/Templates/ButtonAction";
 import moment from "moment";
 import CustomMagicEditor from "@/components/CustomMagicEditor";
 import { BASE_URL } from "@/utils/apiConstants";
-import Loader from "@/components/Loader";
+import Loader from "@/components/Layout/Loader";
 import { useRecoilValue } from "recoil";
 import { TemplateState } from "@/components/recoil";
 import MonitorFormikContext from "@/components/monitorformikcontext";

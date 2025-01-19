@@ -4,10 +4,10 @@ import { fetchCampaign, clearCampaignListState, activateCampaign, clearCampaignA
 import { Card, CardBody, CardHeader, Col, Input, Label, Alert, Button, Modal, ModalBody, ModalHeader, Form, FormGroup, Row, Table, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import showSweetAlert from "@/components/Sweetalert";
-import App from "@/components/App";
+import App from "@/components/Layout/App";
 import { useRouter } from "next/router"; // Correct import
 import DataTable from "react-data-table-component";
-import Loading from "@/components/Loader";
+import Loading from "@/components/Layout/Loader";
 import { HiPencilAlt, HiTrash, HiLightningBolt, HiClock, HiBeaker } from "react-icons/hi";
 import { MdGroupRemove } from "react-icons/md";
 import { useSetRecoilState } from "recoil";
@@ -15,6 +15,8 @@ import { CampaignState } from "@/components/recoil";
 import CampaignTest from '../CampaignTest';
 import LastContactedList from '../Contacted';
 import {Tooltip} from 'reactstrap';
+import { REFRESH_INTERVAL } from '@/utils/constants';
+import { set } from 'date-fns';
 const CampaignsList = () => {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -37,14 +39,14 @@ const CampaignsList = () => {
     useSelector((state) => state.campaigns);
   const [clientId, setClientId] = useState(null);
   const setCampaignsId = useSetRecoilState(CampaignState);
-
+ const [campaignloading, setcampaignloading] = useState(false);
   const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10
 
   const handleTemplateChange = (e) => {
     const template = e.target.value;
     settemplateId(template);
-
+     setcampaignloading(true)
     dispatch(
       fetchCampaign({
         ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status, templateId: template, srcStr: keyword, pageSize, PageNo: currentPage,
@@ -52,8 +54,37 @@ const CampaignsList = () => {
   };
 
   
-
+useState (() => {
+    if (campaigns) {
+      
+     setcampaignloading(false)
+    }
+  }, [campaigns]);
  
+
+
+  useEffect(() => {
+    const checkAndFetch = () => {
+      const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
+  
+      if (isLiveReporting) {
+        dispatch(
+          fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage})
+        );
+      } else {
+        // Handle the case when isLiveReporting is false
+      }
+    };
+  
+    // Run the function every 5 minutes
+    const intervalId = setInterval(checkAndFetch, REFRESH_INTERVAL);
+  
+    // Run the function once immediately
+    checkAndFetch();
+  
+    // Cleanup the interval when the component unmounts
+    return () => clearInterval(intervalId);
+  }, []);
 
 
  
@@ -75,7 +106,7 @@ const CampaignsList = () => {
     if (searchTimeout) {
       clearTimeout(searchTimeout);
     }
-
+    
     // Set a new timeout for 0.5 seconds
     const timeout = setTimeout(() => {
       dispatch(
@@ -91,6 +122,7 @@ const CampaignsList = () => {
   useEffect(() => {
       dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
     return () => {
+      
       dispatch(clearCampaignListState());
     };
   }, [dispatch,FromDate,ToDate]);
@@ -111,12 +143,13 @@ const CampaignsList = () => {
   }
 
   const handelCloseClick = () => {
-    //setContactedModaL(false)
+    setContactedModaL(false)
     setCampaignTestModal(false)
   }
 
 
   const refreshCampaignList = () => {
+    setcampaignloading(true)
     dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
   }
 
@@ -124,11 +157,12 @@ const CampaignsList = () => {
 
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to the first page
+    setcampaignloading(true)
     await dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize: newSize, PageNo: 1 }));
   };
 
   const handlePageChange = async (page) => {
-
+    setcampaignloading(true)
     dispatch(setCurrentPage(page));
     await dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: page }));
   };
@@ -295,7 +329,7 @@ const CampaignsList = () => {
   return (
     <App>
       <div className="flex items-center">
-        {loading && <Loading />}
+        {campaignloading === true && <Loading />}
         <div className='mb-1'>
           <h4 className="font-bold mb-2">Campaign</h4>
         </div>

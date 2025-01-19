@@ -16,7 +16,7 @@ import {
 } from "@/slices/campaignSlice";
 import { useDispatch, useSelector } from "react-redux";
 import showSweetAlert from "@/components/Sweetalert";
-import Loading from "@/components/Loader";
+import Loading from "@/components/Layout/Loader";
 
 
 const LastContactedList = ({ isVisible, onClose, onsuccess, campaignId }) => {

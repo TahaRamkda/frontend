@@ -4,7 +4,7 @@ import { createAgent, clearAgentCreateState } from "@/slices/AgentSlice"; // Ass
 import showSweetAlert from "@/components/Sweetalert"; // Import your SweetAlert utility
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Table, Input } from "reactstrap";
 import { useRouter } from "next/navigation";
-import App from '@/components/App';
+import App from '@/components/Layout/App';
 import SendernameDropdown from "@/components/MultiSelect/SendernameDropdown";
 
 const AgentsForm = ({ onClose, isVisible, onsuccess }) => {

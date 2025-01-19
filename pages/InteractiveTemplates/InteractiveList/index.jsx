@@ -26,11 +26,11 @@ import {
   setPageSize,
 } from "@/slices/InteractiveTemplateSlice";
 import showSweetAlert from "@/components/Sweetalert";
-import App from "@/components/App";
+import App from "@/components/Layout/App";
 import { HiPencilAlt, HiTrash, HiRefresh } from "react-icons/hi";
 import { useSetRecoilState } from "recoil";
 import { TemplateState } from "@/components/recoil";
-import Loading from "@/components/Loader";
+import Loading from "@/components/Layout/Loader";
 import { toDate } from "date-fns";
 const TemplateList = () => {
   const router = useRouter();

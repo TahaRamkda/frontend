@@ -35,7 +35,7 @@ import {
 import showSweetAlert from "@/components/Sweetalert";
 import Groups from "@/components/MultiSelect/GroupDropdown";
 import Templates from "@/components/Dropdowns/TemplateDropdown";
-import App from "@/components/App";
+import App from "@/components/Layout/App";
 import Media from "@/pages/Media/MediaList";
 import moment from "moment";
 import bagroundimage from "@/public/images/baground.jpg";

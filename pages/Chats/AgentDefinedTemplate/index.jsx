@@ -35,7 +35,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [parameterValues, setParameterValues] = useState([]);
- const [templateView, settemplateView] = useState("");
+  const [templateView, settemplateView] = useState("");
   const [chatMessages, setChatMessages] = useState([]);
   const dispatch = useDispatch();
   const { agenttemplates, loading, error } = useSelector(
@@ -47,7 +47,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
     loading: detailloading,
     error: detailerror,
   } = useSelector((state) => state.agenttemplates);
- const [sending, setsending] = useState(false);
+  const [sending, setsending] = useState(false);
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
@@ -114,8 +114,6 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
     }
   };
 
- 
-
   useEffect(() => {
     if (agenttemplatedetail) {
       setParameter(agenttemplatedetail.parameters);
@@ -148,29 +146,27 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
       // onClose();
       setsending(true);
       const response = await dispatch(SendInteractivetemp(formData)).unwrap();
- 
+
       if (response.success) {
-        debugger
+        debugger;
         dispatch(clearAgentTemplateSentState());
         // Invoke the onSend callback with agenttemplatedetail
         if (onSend && typeof onSend === "function") {
           // Make a copy of the agenttemplatedetail object
           const updatedTemplateDetail = { ...agenttemplatedetail };
-        
+
           // Update the messageContent directly
           updatedTemplateDetail.bodyText = templateView;
-        
+
           // Pass the updated object to onSend
           onSend(updatedTemplateDetail);
         }
-        
-        
+
         onClose();
-        toast.success("Template Sent Successfully");
+        //toast.success("Template Sent Successfully");
         dispatch(clearAgentTemplateDetailState());
       } else {
         toast.error(response.message || "Failed to send template");
-       
       }
     } catch (err) {
       toast.error("Failed to send template");
@@ -178,30 +174,29 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
     setsending(false);
   };
   useEffect(() => {
-   setParameterValues([]);
-   setParameter([])
+    setParameterValues([]);
+    setParameter([]);
   }, [dispatch]);
 
   const handleParameterChange = (paramName, value) => {
-    
     setParameterValues((prevValues) => {
       const updatedValues = prevValues.filter((item) => item.key !== paramName);
       const newValues = [...updatedValues, { key: paramName, value }];
-  
+
       // Now, perform operations that require the updated state inside this callback
       const Values1 = newValues.map((item) => ({
         key: item.key,
         value: item.value,
       }));
-  
+
       let view = chatMessages[0].messageContent;
       Values1.forEach((item) => {
         view = view.replace(new RegExp(item.key, "g"), item.value);
       });
-  
+
       settemplateView(view);
       console.log("Updated Params", newValues); // Logging the updated values
-  
+
       return newValues; // Return updated state value
     });
   };
@@ -260,7 +255,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
               </div>
 
               <div className="max-h-60 overflow-y-auto">
-                {agenttemplates.length > 0 &&
+                {agenttemplates?.length > 0 ? (
                   agenttemplates.map((option) => (
                     <div
                       key={option.id}
@@ -273,7 +268,12 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
                     >
                       {option.name}
                     </div>
-                  ))}
+                  ))
+                ) : (
+                  <div className="max-h-60 overflow-y-auto">
+                    No templates found
+                  </div>
+                )}
               </div>
 
               {/* Loading State */}
@@ -398,14 +398,12 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
                                 </>
                               )}
                             <p className="">
-                              {templateView
-                                .split("\n")
-                                .map((line, index) => (
-                                  <span key={index}>
-                                    {line}
-                                    <br />
-                                  </span>
-                                ))}
+                              {templateView.split("\n").map((line, index) => (
+                                <span key={index}>
+                                  {line}
+                                  <br />
+                                </span>
+                              ))}
                             </p>
                             {message.buttonJson &&
                               message.buttonJson.length > 0 && (
@@ -463,19 +461,18 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
 
               {/* Send Button */}
               {selectedOption && (
-  <div className="text-end">
-    <button
-      type="submit"
-      className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600"
-      onClick={handleSend}
-      disabled={sending}
-    >
-      <i className="fa fa-paper-plane-o"></i> 
-      {sending ? "Sending..." : "Send"}
-    </button>
-  </div>
-)}
-
+                <div className="text-end">
+                  <button
+                    type="submit"
+                    className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600"
+                    onClick={handleSend}
+                    disabled={sending}
+                  >
+                    <i className="fa fa-paper-plane-o"></i>
+                    {sending ? "Sending..." : "Send"}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

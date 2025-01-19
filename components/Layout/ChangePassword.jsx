@@ -12,7 +12,6 @@ import {
   Label,
   FormFeedback,
 } from "reactstrap";
-import App from "@/components/App";
 import API from "@/utils/api.axios"; // Assuming you have a utility for API calls
 import { changePassword } from "@/slices/AuthSlice";
 import { FaEyeSlash, FaEye } from "react-icons/fa";

@@ -12,7 +12,7 @@ export const fetchAgentTemplate = createAsyncThunk(
   async ({clientId, searchStr,senderId,}, { rejectWithValue }) => {
     try {
       const response = await API.get(`${AGENTINTERACTIVETEMPLATLIST}?ClientId=${clientId}${searchStr?`&searchStr=${searchStr}`:''}&senderId=${senderId}`);
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200) {
         return {
           agenttemplates: response.data.result,
          

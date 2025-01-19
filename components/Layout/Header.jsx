@@ -13,6 +13,9 @@ import { useRouter } from "next/router";
 import SweetAlert from "sweetalert2";
 import UserBadge from "@/public/images/User.jpg";
 import ChangePass from "./ChangePassword";
+import LiveReportingSwitch from "./LiveReportingSwitch";
+import Switch from "react-switch";
+import { set } from "date-fns";
 export function Header({ toggleSidebar }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -56,33 +59,66 @@ export function Header({ toggleSidebar }) {
 
   };
 
-  const toggleFullScreen = () => {
-    if (isFullScreen) {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-      } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
-      } else if (document.msExitFullscreen) {
-        document.msExitFullscreen();
-      }
-    } else {
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
-      } else if (document.documentElement.webkitRequestFullscreen) {
-        document.documentElement.webkitRequestFullscreen();
-      } else if (document.documentElement.mozRequestFullScreen) {
-        document.documentElement.mozRequestFullScreen();
-      } else if (document.documentElement.msRequestFullscreen) {
-        document.documentElement.msRequestFullscreen();
-      }
+  const enterFullScreen = () => {
+    const docEl = document.documentElement;
+    if (docEl.requestFullscreen) {
+      docEl.requestFullscreen();
+    } else if (docEl.webkitRequestFullscreen) {
+      docEl.webkitRequestFullscreen();
+    } else if (docEl.mozRequestFullScreen) {
+      docEl.mozRequestFullScreen();
+    } else if (docEl.msRequestFullscreen) {
+      docEl.msRequestFullscreen();
     }
   };
 
+  const exitFullScreen = () => {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+  };
+
+  const toggleFullScreen = () => {
+    if (isFullScreen) {
+      exitFullScreen();
+    } else {
+      enterFullScreen();
+    }
+  };
+
+  // Listen for fullscreen changes and update the state
   useEffect(() => {
-    localStorage.setItem("darkMode", true);
+    const handleFullScreenChange = () => {
+      const fullScreenElement =
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement;
+
+      setIsFullScreen(!!fullScreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullScreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullScreenChange);
+    document.addEventListener("mozfullscreenchange", handleFullScreenChange);
+    document.addEventListener("MSFullscreenChange", handleFullScreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullScreenChange);
+      document.removeEventListener("webkitfullscreenchange", handleFullScreenChange);
+      document.removeEventListener("mozfullscreenchange", handleFullScreenChange);
+      document.removeEventListener("MSFullscreenChange", handleFullScreenChange);
+    };
   }, []);
+
+  
+
 
   const handleLogout = () => {
     SweetAlert.fire({
@@ -133,6 +169,8 @@ export function Header({ toggleSidebar }) {
           </div>
 
           <div className="flex items-center space-x-4">
+         
+          <LiveReportingSwitch />
             {/* Fullscreen Toggle Icon */}
             <button
               onClick={toggleFullScreen}

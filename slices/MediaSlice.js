@@ -8,10 +8,10 @@ import { UPLOADMEDIA, MEDIALIST, DELETEMEDIA } from '@/utils/apiConstants';
 // Fetch Medias
 export const fetchMedia = createAsyncThunk(
   'media/fetchMedia',
-  async ({ClientId,contentTypeStr}, { rejectWithValue }) => {
+  async ({ClientId,contentTypeStr,senderId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${MEDIALIST}?ClientId=${ClientId}&contentTypeStr=${contentTypeStr ? contentTypeStr : ''}`);
-      if (response?.status === 200 && response.data?.result) {
+      const response = await API.get(`${MEDIALIST}?ClientId=${ClientId}&contentTypeStr=${contentTypeStr ? contentTypeStr : ''}&senderId=${senderId?senderId:0}`);
+      if (response?.status === 200) {
         return {
           medias: response.data.result,
           totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,

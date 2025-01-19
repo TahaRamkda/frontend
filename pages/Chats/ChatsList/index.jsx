@@ -7,6 +7,7 @@ import {
   FaCheckCircle,
   FaTimesCircle,
   FaClock,
+  FaBan ,
 } from "react-icons/fa";
 
 import UserBadge from "@/public/images/User.jpg";
@@ -41,8 +42,8 @@ import * as signalR from "@microsoft/signalr";
 import DefinedTemplates from "../AgentDefinedTemplate";
 import { toast } from "react-toastify";
 import { BASE_URL } from "@/utils/apiConstants";
-import Loader from "@/components/Loader";
-import App from "@/components/App";
+import Loader from "@/components/Layout/Loader";
+import App from "@/components/Layout/App";
 import EmojiPicker from "emoji-picker-react";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 import { extractTime } from "@/utils/constants";
@@ -387,13 +388,10 @@ const ChatPage = () => {
 
     // Initialize SignalR connection
     const newConnection = new signalR.HubConnectionBuilder()
-      .withUrl(
-        `${BASE_URL}?AgentId=${userId}`,
-        {
-          skipNegotiation: true,
-          transport: signalR.HttpTransportType.WebSockets,
-        }
-      )
+      .withUrl(`${BASE_URL}/conversation?AgentId=${userId}`, {
+        skipNegotiation: true,
+        transport: signalR.HttpTransportType.WebSockets,
+      })
       .withAutomaticReconnect() // Automatically reconnect on failure
       .build();
 
@@ -410,7 +408,7 @@ const ChatPage = () => {
         );
 
       // Show success toast notification
-      toast.success("You have a new message");
+      //toast.success("You have a new message");
 
       // Update agent statistics
       dispatch(
@@ -466,7 +464,7 @@ const ChatPage = () => {
         }
       } else {
         // Show notification for new message
-        toast.success("Check message");
+        //toast.success("Check message");
 
         if (matchingConversationIndex !== -1) {
           const updatedConversations = [...agentChatRef.current];
@@ -491,8 +489,8 @@ const ChatPage = () => {
         .catch((err) =>
           console.error("Failed to play notification sound:", err)
         );
-      console.log("notification :", notification);
-      toast.success("You have a new message request");
+      //console.log("notification :", notification);
+      //toast.success("You have a new message request");
 
       // Update agent statistics
       dispatch(
@@ -533,7 +531,7 @@ const ChatPage = () => {
 
     // Handles unassignment of a conversation
     const handleConversationUnAssigned = (chatId) => {
-      debugger
+      
       if (
         agentChatRef.current.filter(
           (conversation) => conversation.id === chatId
@@ -541,7 +539,7 @@ const ChatPage = () => {
       )
         return;
 
-      toast.warning("A conversation has been unassigned");
+      //toast.warning("A conversation has been unassigned");
 
       // Update agent statistics
       dispatch(
@@ -550,15 +548,23 @@ const ChatPage = () => {
           agentId: userId,
         })
       );
-    
       // Remove the conversation from the list
       const updatedConversations = agentChatRef.current.filter(
         (conversation) => conversation.id !== chatId
       );
+      const matchingConversationIndex = agentChatRef.current.findIndex(
+        (conversation) => conversation.id === chatId
+      );
 
+      if (matchingConversationIndex !== -1) {
+        setChatMessages([]);
+        setActiveChat(0);
+      }
+      clearTimer(chatId);
       agentChatRef.current = updatedConversations;
       setAgentConversation(updatedConversations);
-      setChatMessages([]);
+
+      
     };
 
     // Set up SignalR event listeners
@@ -591,7 +597,7 @@ const ChatPage = () => {
     // Set a new 5-minute timer
     timersRef.current[id] = setTimeout(() => {
       handleTimerExpiry(id);
-    }, 30 * 60 * 1000); // 30 minutes
+    }, 5 * 60 * 1000); // 30 minutes
   };
 
   const handleTimerExpiry = (id) => {
@@ -688,7 +694,16 @@ const ChatPage = () => {
                     </span>
                   </span>
                 </div>
-
+               {/* Abandoned */}
+               <div className="flex items-center space-x-2">
+                  <FaBan  size={20} className="text-red-500" />
+                  <span className="font-medium text-white">
+                    Abandoned:{" "}
+                    <span className="font-bold">
+                      {AgentStats.totalActive ?? "-/-"}
+                    </span>
+                  </span>
+                </div>
                 {/* Closed */}
                 <div className="flex items-center space-x-2">
                   <FaTimesCircle size={20} className="text-red-500" />
@@ -699,10 +714,10 @@ const ChatPage = () => {
                     </span>
                   </span>
                 </div>
-
+               
                 {/* Expired */}
                 <div className="flex items-center space-x-2">
-                  <AiOutlineHourglass size={20} className="text-yellow-500" />
+                  <AiOutlineHourglass size={20} className="text-yellow-100" />
                   <span className="font-medium text-white">
                     Expired:{" "}
                     <span className="font-bold">
@@ -710,7 +725,6 @@ const ChatPage = () => {
                     </span>
                   </span>
                 </div>
-
                 {/* Force Closed */}
                 <div className="flex items-center space-x-2">
                   <FaClock size={20} className="text-purple-500" />
@@ -721,7 +735,6 @@ const ChatPage = () => {
                     </span>
                   </span>
                 </div>
-
                 {/* Avg Duration */}
                 <div className="flex items-center space-x-2">
                   <MdOutlineTimer size={20} className="text-orange-500" />
@@ -732,10 +745,9 @@ const ChatPage = () => {
                     </span>
                   </span>
                 </div>
-
                 {/* Response Time */}
                 <div className="flex items-center space-x-2">
-                  <MdOutlineTimer size={20} className="text-gray-500" />
+                  <MdOutlineTimer size={20} className="text-green-500" />
                   <span className="font-medium text-white">
                     Response Time:{" "}
                     <span className="font-bold">
@@ -743,7 +755,6 @@ const ChatPage = () => {
                     </span>
                   </span>
                 </div>
-
                 {/* User Badge with Name and Dropdown */}
                 <div className="relative">
                   <button
@@ -808,11 +819,6 @@ const ChatPage = () => {
                     className="list-unstyled chats-user overflow-auto"
                     style={{ height: "80vh", margin: "0" }}
                   >
-                    {loading && (
-                      <div className="text-center">
-                        Please wait while we load your chats..!!
-                      </div>
-                    )}
                     {AgentConversation?.length === 0 && !loading && (
                       <div className="text-center">No Chats Found</div>
                     )}
@@ -820,15 +826,19 @@ const ChatPage = () => {
                       <li
                         key={conversation.id}
                         className={`d-flex justify-content-between align-items-center p-2 mb-1 chat-item ${
-                          Activechat === conversation.id
-                            ? "bg-gray-200"
-                            : "hover-bg-gray-100"
+                          Activechat === conversation.id ? " text-white" : ""
                         }`}
                         style={
+                          Activechat !== conversation.id &&
                           unrepliedChats.includes(conversation.id)
                             ? {
                                 animation: "blink 1s infinite",
                                 backgroundColor: "#ffcccc",
+                              }
+                            : Activechat === conversation.id
+                            ? {
+                                backgroundColor: "#ddffd9", // Dark gray color
+                                color: "white",
                               }
                             : { minHeight: "60px" }
                         }
@@ -860,7 +870,7 @@ const ChatPage = () => {
                                 className="d-block text-truncate text-muted"
                                 style={{
                                   maxWidth: "220px",
-                                  fontSize: "12px",
+                                  fontSize: "14px",
                                   marginBottom: "0",
                                 }}
                               >
@@ -915,8 +925,14 @@ const ChatPage = () => {
                     >
                       <img
                         src={`${BASE_URL}${conversation.logo}`}
+                        
                         alt="User Logo"
-                        className="w-10 h-10 rounded-full"
+                            className="rounded-circle me-2"
+                            style={{
+                              width: "40px",
+                              height: "40px",
+                              objectFit: "cover",
+                            }}
                       />
 
                       <div>{conversation.fullName}</div>
@@ -940,7 +956,7 @@ const ChatPage = () => {
                         display: "flex",
                         flexDirection: "column-reverse",
                       }}
-                      >
+                    >
                       {Chatsloading && (
                         <div className="text-center">Loading messages...</div>
                       )}
@@ -965,6 +981,7 @@ const ChatPage = () => {
                                 <div
                                   className="mb-2 p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis"
                                   style={{
+                                    fontSize: "15px",
                                     display: "-webkit-box",
                                     WebkitLineClamp: 2,
                                     WebkitBoxOrient: "vertical",
@@ -1000,8 +1017,18 @@ const ChatPage = () => {
                                   )}
                                 </>
                               )}
-                            <div className="flex items-end justify-between min-w-[100px]  p-2 rounded-lg">
-                              <p className="whitespace-pre-wrap break-words flex-grow">
+                            <div
+                              className="flex items-end justify-between p-2 rounded-lg"
+                              style={{ width: "auto" }}
+                            >
+                              <p
+                                className="whitespace-pre-wrap break-words overflow-hidden"
+                                style={{
+                                  fontSize: "15px",
+                                  display: "inline-block",
+                                  
+                                }}
+                              >
                                 {message.messageContent
                                   ? message.messageContent
                                       .split("\n")
@@ -1016,7 +1043,10 @@ const ChatPage = () => {
                                       ))
                                   : null}
                               </p>
-                              <span className="ml-2 text-gray-500 text-xs">
+                              <span
+                                className="ml-2 text-gray-500 text-xs"
+                                style={{ whiteSpace: "nowrap" }}
+                              >
                                 {extractTime(message.createdDate).slice(0, 5)}
                               </span>
                             </div>

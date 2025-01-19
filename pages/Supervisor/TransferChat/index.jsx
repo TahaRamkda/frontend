@@ -7,7 +7,7 @@ import {
   Button,
   Input,
 } from "reactstrap";
-import App from "@/components/App";
+import App from "@/components/Layout/App";
 import Agentsdrop from "@/components/Dropdowns/ActiveAgentsDropdown";
 import { Transferchat } from "@/slices/ConversationSlice";
 import Sweetalert from "sweetalert2";

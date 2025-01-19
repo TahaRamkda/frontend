@@ -8,10 +8,10 @@ import showSweetAlert from "@/components/Sweetalert";
 import { Row, Modal, ModalBody, ModalHeader } from "reactstrap";
 import GroupDropdown from '@/components/Dropdowns/GroupDropdown';
 import ContactForm from "../CreateContact";
-import Loading from "@/components/Loader";
+import Loading from "@/components/Layout/Loader";
 import { HiPencilAlt, HiTrash, HiRefresh } from "react-icons/hi";
 import BulkUpload from "../BulkUpload";
-import App from '@/components/App';
+import App from '@/components/Layout/App';
 const ContactList = () => {
   const router = useRouter();
   const dispatch = useDispatch();

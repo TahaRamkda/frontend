@@ -15,9 +15,9 @@ import {
   CardBody,
   Card,
 } from "reactstrap";
-import Loading from "@/components/Loader";
+import Loading from "@/components/Layout/Loader";
 import DefinedTemplates from "../AgentDefinedTemplate";
-import App from "@/components/App";
+import App from "@/components/Layout/App";
 import {
   fetchConversationList,
   fetchConversationMessageReport,
@@ -28,7 +28,7 @@ import {
 } from "@/slices/ConversationSlice";
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { BASE_URL } from "@/utils/apiConstants";
-import Loader from "@/components/Loader";
+import Loader from "@/components/Layout/Loader";
 import { extractTime } from "@/utils/constants";
 
 

@@ -31,14 +31,14 @@ import defaultimage from "@/public/images/12.jpg";
 import bagroundimage from "@/public/images/baground.jpg";
 import Media from "@/pages/Media/MediaList";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
-import App from "@/components/App";
+import App from "@/components/Layout/App";
 import ButtonAction from "../ButtonAction";
 import moment from "moment";
 import CustomMagicEditor from "@/components/CustomMagicEditor";
 import { BASE_URL } from "@/utils/apiConstants";
 import ClientDropdown from "@/components/Dropdowns/ClientDropdown";
 import { set } from "date-fns";
-import Loader from "@/components/Loader";
+import Loader from "@/components/Layout/Loader";
 import MonitorFormikContext from "@/components/monitorformikcontext";
 import TemplateCategoryDropdown from "@/components/Dropdowns/TemplateCategorydropdown";
 import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
@@ -953,6 +953,7 @@ const TemplateCreationPage = () => {
                                     ? "video"
                                     : "application"
                               }
+                              senderId={selectedSenderId}
                               onSelectMedia={(mediaId, mediaPath, mimeType) => {
                                 setSelectedMediaId(mediaId);
                                 setSelectedMediaPath(mediaPath);
@@ -976,6 +977,7 @@ const TemplateCreationPage = () => {
                               {showMediaPopup && (
                                 <Media
                                   isPopup={true}
+                                  senderId={selectedSenderId}
                                   contentTypeStr={
                                     values.headerType === "2"
                                       ? "image"
@@ -1410,7 +1412,12 @@ const TemplateCreationPage = () => {
                         <img
                           src={`${BASE_URL}${sendername.mediaPath}`}
                           alt="Sender Logo"
-                          className="w-10 h-10 rounded-full"
+                          className="rounded-circle me-2"
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            objectFit: "cover",
+                          }}
                         />
                       )}
                       {/* Display Name and Phone */}
