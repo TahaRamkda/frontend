@@ -308,12 +308,11 @@ const AgentsList = () => {
             },
             headCells: {
               style: {
-
                 borderRight: '1px solid #ddd', // Grid line between columns
                 fontWeight: 'bold',
               },
             },
-            rows: {
+            rows: { 
               style: {
                 borderBottom: '1px solid #ddd', // Horizontal grid line between rows
               },
