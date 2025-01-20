@@ -576,6 +576,7 @@ const ChatPage = () => {
       .start()
       .then(() => {
         console.log("Connected to SignalR");
+        console.log("Connection ID: ", newConnection.connectionId);
       })
       .catch((err) => {
         console.error("Error while starting the connection:", err);

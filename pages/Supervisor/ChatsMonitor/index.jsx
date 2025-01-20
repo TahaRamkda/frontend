@@ -47,12 +47,15 @@ const ChatsReport = () => {
             >
               <HiEye style={{ fontSize: "15px" }} />
             </button>
-            <button  title="Transfer Chat"
-              className="uniform_icon_btn"
-              onClick={() => handleTransferClick(row.id,row.senderId,row.agentId)}
-            >
-              <MdSwapHoriz style={{ fontSize: "15px" }} />
-            </button>
+            {row.status!==3 &&(
+               <button  title="Transfer Chat"
+               className="uniform_icon_btn"
+               onClick={() => handleTransferClick(row.id,row.senderId,row.agentId)}
+             >
+               <MdSwapHoriz style={{ fontSize: "15px" }} />
+             </button>
+            )}
+           
           </div>
         </center>
       ),
