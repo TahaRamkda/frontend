@@ -24,9 +24,10 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr,senderId }) => {
   }, [dispatch, isPopup, contentTypeStr]);
 
   useEffect(() => {
+    const contentType = isPopup ? contentTypeStr : "";
     dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType,senderId:selectedsenderId }));
     return () => clearMediaState();
-  }, [dispatch, selectedsenderId]);
+  }, [selectedsenderId]);
 
   useEffect(() => {
     if (isPopup) {

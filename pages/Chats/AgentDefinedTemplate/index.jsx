@@ -148,7 +148,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
       const response = await dispatch(SendInteractivetemp(formData)).unwrap();
 
       if (response.success) {
-        debugger;
+      
         dispatch(clearAgentTemplateSentState());
         // Invoke the onSend callback with agenttemplatedetail
         if (onSend && typeof onSend === "function") {
@@ -469,7 +469,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
                     disabled={sending}
                   >
                     <i className="fa fa-paper-plane-o"></i>
-                    {sending ? "Sending..." : "Send"}
+                    {sending ? " Sending..." : " Send"}
                   </button>
                 </div>
               )}
