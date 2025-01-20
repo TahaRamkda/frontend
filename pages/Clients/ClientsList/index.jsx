@@ -16,7 +16,7 @@ import {
 } from "@/slices/ClientSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Layout/Loader";
-import App from '@/components/App';
+import App from '@/components/Layout/App';
 
 const ClientList = () => {
   const router = useRouter();

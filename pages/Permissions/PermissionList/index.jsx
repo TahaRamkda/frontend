@@ -9,7 +9,7 @@ import {
 } from "@/slices/PermissionSlice";
 import Loading from "@/components/Layout/Loader";
 import showSweetAlert from "@/components/Sweetalert";
-import App from '@/components/App';
+import App from '@/components/Layout/App';
 import Loader from "@/components/Layout/Loader"
 const PermissionList = () => {
   const dispatch = useDispatch();
