@@ -112,6 +112,7 @@ const ChatPage = () => {
   }, []);
 
   const handleTemplateSend = (details) => {
+    clearTimer(Activechat);
     setTemplateDetails(details); // Update parent state
     console.log("Received template details:", details);
   };
@@ -409,15 +410,6 @@ const ChatPage = () => {
 
       // Show success toast notification
       //toast.success("You have a new message");
-
-      // Update agent statistics
-      dispatch(
-        fetchAgentStats({
-          clientId: localStorage.getItem("clientId"),
-          agentId: userId,
-        })
-      );
-
       // Find if the message belongs to an existing conversation
       const matchingConversationIndex = agentChatRef.current.findIndex(
         (conversation) => conversation.id === message.conversationId
@@ -598,7 +590,7 @@ const ChatPage = () => {
     // Set a new 5-minute timer
     timersRef.current[id] = setTimeout(() => {
       handleTimerExpiry(id);
-    }, 5 * 60 * 1000); // 30 minutes
+    }, 1 * 60 * 1000); // 5 minutes
   };
 
   const handleTimerExpiry = (id) => {
@@ -639,7 +631,7 @@ const ChatPage = () => {
 
   const markChatAsUnreplied = async (id) => {
     setUnrepliedChats((prev) => [...prev, id]);
-    console.log("Marked chat as unreplied:", unrepliedChats);
+    //console.log("Marked chat as unreplied:", unrepliedChats);
   };
 
   const removeUnrepliedMark = (id) => {
