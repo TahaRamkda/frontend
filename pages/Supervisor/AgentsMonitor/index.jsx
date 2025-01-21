@@ -26,15 +26,15 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
   const [clientId, setClientId] = useState(null);
   const [refreshpage, setrefreshpage] = useState(false);  // Track if page is refreshing
   const ChatsReportColumn = [
-    { name: "Agent Name", selector: (row) => row.agentName, sortable: true },
-    { name: "Status", selector: (row) => row.statusName, sortable: true },
-    { name: "Unread Count", selector: (row) => row.unreadCount || 0, sortable: true },
-    { name: "Conversation Assigned", selector: (row) => row.assignedChat, sortable: true },
-    { name: "Conversation Unassigned", selector: (row) => row.unAssignedChat, sortable: true },
-    { name: "Conversation Abanded", selector: (row) => row.abandonChat, sortable: true },
-    { name: "Conversation Force closed", selector: (row) => row.forceClosedChat, sortable: true },
-    { name: "Conversation Closed", selector: (row) => row.closedChat, sortable: true },
-    { name: "Exp[ired Chats", selector: (row) => row.forceClosedChat, sortable: true },
+    { name: "Agent Name", selector: (row) => row.agentName, sortable: true,width: '10%' },
+    { name: "Status", selector: (row) => row.statusName, sortable: true,width: '10%' },
+    { name: "Unread Count", selector: (row) => row.unreadCount || 0, sortable: true, width: '10%' },
+    { name: "Chats Assigned", selector: (row) => row.assignedChat, sortable: true, width: '10%' },
+    { name: "Chats Unassigned", selector: (row) => row.unAssignedChat, sortable: true, width: '10%' },
+    { name: "Chats Abanded", selector: (row) => row.abandonChat, sortable: true, width: '10%' },
+    { name: "Chats Force closed", selector: (row) => row.forceClosedChat, sortable: true, width: '10%' },
+    { name: "Chats Closed", selector: (row) => row.closedChat, sortable: true, width: '10%' },
+    { name: "Exp[ired Chats", selector: (row) => row.forceClosedChat, sortable: true,width: '10%' },
 
      {
           name: "Action",
@@ -87,6 +87,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
           
           
           ),
+          width: '10%' 
         },
   ];
 
