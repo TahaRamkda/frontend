@@ -680,7 +680,7 @@ const ChatPage = () => {
                   <span className="font-medium text-white">
                     Assigned:{" "}
                     <span className="font-bold">
-                      {AgentStats.totalAssigned ?? "-/-"}
+                      {AgentStats.assignedChat ?? "-/-"}
                     </span>
                   </span>
                 </div>
@@ -691,7 +691,7 @@ const ChatPage = () => {
                   <span className="font-medium text-white">
                     Active:{" "}
                     <span className="font-bold">
-                      {AgentStats.totalActive ?? "-/-"}
+                      {AgentStats.activeChat ?? "-/-"}
                     </span>
                   </span>
                 </div>
@@ -701,7 +701,7 @@ const ChatPage = () => {
                   <span className="font-medium text-white">
                     Abandoned:{" "}
                     <span className="font-bold">
-                      {AgentStats.totalActive ?? "-/-"}
+                      {AgentStats.abandonChat ?? "-/-"}
                     </span>
                   </span>
                 </div>
@@ -709,9 +709,9 @@ const ChatPage = () => {
                 <div className="flex items-center space-x-2">
                   <FaTimesCircle size={20} className="text-red-500" />
                   <span className="font-medium text-white">
-                    Closed:{" "}
+                     Closed:{" "}
                     <span className="font-bold">
-                      {AgentStats.totalClosed ?? "-/-"}
+                      {AgentStats.closedChat ?? "-/-"}
                     </span>
                   </span>
                 </div>
@@ -722,7 +722,7 @@ const ChatPage = () => {
                   <span className="font-medium text-white">
                     Expired:{" "}
                     <span className="font-bold">
-                      {AgentStats.expiredChats ?? "-/-"}
+                      {AgentStats.expiredChat ?? "-/-"}
                     </span>
                   </span>
                 </div>
@@ -732,7 +732,7 @@ const ChatPage = () => {
                   <span className="font-medium text-white">
                     Force Closed:{" "}
                     <span className="font-bold">
-                      {AgentStats.forceClosedChats ?? "-/-"}
+                      {AgentStats.forceClosedChat ?? "-/-"}
                     </span>
                   </span>
                 </div>

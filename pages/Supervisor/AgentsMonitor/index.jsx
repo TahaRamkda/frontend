@@ -27,9 +27,14 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
   const [refreshpage, setrefreshpage] = useState(false);  // Track if page is refreshing
   const ChatsReportColumn = [
     { name: "Agent Name", selector: (row) => row.agentName, sortable: true },
-    { name: "Status Name", selector: (row) => row.statusName, sortable: true },
+    { name: "Status", selector: (row) => row.statusName, sortable: true },
     { name: "Unread Count", selector: (row) => row.unreadCount || 0, sortable: true },
-    { name: "Conversation Assigned", selector: (row) => row.totalConversationsAssigned, sortable: true },
+    { name: "Conversation Assigned", selector: (row) => row.assignedChat, sortable: true },
+    { name: "Conversation Unassigned", selector: (row) => row.unAssignedChat, sortable: true },
+    { name: "Conversation Abanded", selector: (row) => row.abandonChat, sortable: true },
+    { name: "Conversation Force closed", selector: (row) => row.forceClosedChat, sortable: true },
+    { name: "Conversation Closed", selector: (row) => row.closedChat, sortable: true },
+    { name: "Exp[ired Chats", selector: (row) => row.forceClosedChat, sortable: true },
 
      {
           name: "Action",
@@ -39,8 +44,8 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
              
               onChange={() => handleAction(row.agentId,row.isDisabled)}
               checked={!row.isDisabled} // Button is ON if the user is disabled
-              onColor="#dc3545" 
-              offColor="#28a745" 
+              onColor="#28a745" 
+              offColor="#dc3545" 
               height={35}
               width={80}
               checkedIcon={
@@ -57,7 +62,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
                     padding: "0 12px",
                   }}
                 >
-                  Disable
+                  Enabled
                 </div>
               }
               uncheckedIcon={
@@ -73,7 +78,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
                     padding: "0 12px",
                   }}
                 >
-                  Enable
+                  Disabled
                 </div>
               }
             />
