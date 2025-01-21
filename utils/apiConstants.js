@@ -94,6 +94,13 @@ export const AGENTDROPDOWN = "/Agents/getagents"
 export const GETAGENTSTATS = "/Agents/GetAgentStats"
 export const ACTIVEAGENTS = "/Agents/getactiveagents"
 
+// Agnets Shift
+export const AGENTSSHIFT = "#"
+export const CREATEAGENTSHIFT = "#"
+export const AGENTSHIFTDETAILS = "#"
+export const UPDATEAGENTSHIFT = "#"
+export const DELETEAGENTSHIFT = "#"
+
 //convesration Endpoints
 export const CONVERSATIONLIST = "/Conversation/getagentconversationlist";
 export const CONVERSATIONMESSAGE = "/Conversation/getconversationmessagebyid";

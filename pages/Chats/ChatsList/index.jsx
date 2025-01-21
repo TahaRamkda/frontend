@@ -742,7 +742,7 @@ const ChatPage = () => {
                   <span className="font-medium text-white">
                     Avg Duration:{" "}
                     <span className="font-bold">
-                      {AgentStats.avgChatDuration ?? "-/-"}
+                      {AgentStats.avgChatTime ?? "-/-"}
                     </span>
                   </span>
                 </div>
@@ -752,7 +752,7 @@ const ChatPage = () => {
                   <span className="font-medium text-white">
                     Response Time:{" "}
                     <span className="font-bold">
-                      {AgentStats.responseTime ?? "-/-"} min(s)
+                      {AgentStats.avgResponseTime ?? "-/-"} min(s)
                     </span>
                   </span>
                 </div>

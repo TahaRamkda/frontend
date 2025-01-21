@@ -17,6 +17,7 @@ import conversationSlice from "@/slices/ConversationSlice";
 import MasterSlice from "@/slices/MasterSlice";
 import SuperwiserSlice from "@/slices/SuperwiseSlice";
 import agentTemplateSlice from "@/slices/AgentTemplateSlice";
+import agentShiftSlice from "@/slices/AgentsShift"
 import { configureStore } from "@reduxjs/toolkit";
 
 export const store = configureStore({
@@ -39,7 +40,8 @@ export const store = configureStore({
     Master:MasterSlice,
     Supervisor:SuperwiserSlice,
     agenttemplates:agentTemplateSlice,
-    interactiveTemplates:interactiveTemplateSlice
+    interactiveTemplates:interactiveTemplateSlice,
+    agentShifts: agentShiftSlice,
 
     }
 })
