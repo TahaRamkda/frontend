@@ -48,6 +48,7 @@ import EmojiPicker from "emoji-picker-react";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 import { extractTime } from "@/utils/constants";
 import { set } from "date-fns";
+import { NOTIFICATION_WARNING_INTERVAL } from "@/utils/constants";
 import {
   HiZoomIn,
   HiZoomOut,
@@ -232,15 +233,15 @@ const ChatPage = () => {
 
   const handleScroll = () => {
     if (!hasMore || loading) return;
-
+  
     const container = scrollContainerRef.current;
-    const buffer = 200; // Trigger API call 200px before reaching the top
-
-    // Detect upward scrolling
+    const buffer = 10; // Trigger API call 100px before reaching the top
+  
+    // Detect upward scrolling and proximity to the top
     const currentScrollTop = container.scrollTop;
     if (
-      currentScrollTop < lastScrollTop.current &&
-      currentScrollTop <= buffer
+      currentScrollTop < lastScrollTop.current && // Scrolling up
+      currentScrollTop <= buffer // Within 100px of the top
     ) {
       // Fetch older chats when scrolling up near the top
       dispatch(
@@ -251,11 +252,11 @@ const ChatPage = () => {
         })
       );
     }
-
+  
     // Update last scroll position
     lastScrollTop.current = currentScrollTop;
   };
-
+  
   useEffect(() => {
     if (Activechat !== 0) {
       const container = scrollContainerRef.current;
@@ -263,7 +264,7 @@ const ChatPage = () => {
       return () => container.removeEventListener("scroll", handleScroll);
     }
   }, [currentPage, hasMore, loading, Activechat]);
-
+  
   const handleImageclose = () => {
     setMediaFile(null);
     setPreviewUrl(null);
@@ -343,16 +344,17 @@ const ChatPage = () => {
 
   useEffect(() => {
     if (AgentConversation && AgentConversation.length > 0) {
+      
       // Filter messages with unread count > 0
       const unreadMessages = AgentConversation.filter(
         (message) => message.unreadCount > 0
       );
-      const unreadMessageIds = unreadMessages.map((message) => message.id);
+      //const unreadMessageIds = unreadMessages.map((message) => message.id);
 
       // Assign the unread message IDs to the desired functions
-      unreadMessageIds.map((messageId) => {
-        startTimer(messageId);
-        markChatAsUnreplied(messageId);
+      unreadMessages.map((message) => {
+        startTimer(message);
+        markChatAsUnreplied(message.id);
       });
     }
   }, [AgentConversation]);
@@ -422,7 +424,7 @@ const ChatPage = () => {
 
         // Start timer for unread message if no unread messages exist
         if ((matchingConversation.unreadCount || 0) <= 0) {
-          startTimer(message.conversationId);
+          startTimer(message);
         }
 
         // Update the conversation with the latest message and unread count
@@ -492,7 +494,7 @@ const ChatPage = () => {
         })
       );
 
-      startTimer(notification.id);
+      startTimer(notification);
 
       // Find if the conversation already exists
       const matchingConversationIndex = agentChatRef.current.findIndex(
@@ -581,20 +583,22 @@ const ChatPage = () => {
     };
   }, []);
 
-  const startTimer = (id) => {
+  const startTimer = (messages) => {
+    
     // Clear existing timer if any
-    if (timersRef.current[id]) {
-      clearTimeout(timersRef.current[id]);
+    if (timersRef.current[messages.id]) {
+      clearTimeout(timersRef.current[messages.id]);
     }
 
     // Set a new 5-minute timer
-    timersRef.current[id] = setTimeout(() => {
-      handleTimerExpiry(id);
-    }, 1 * 60 * 1000); // 5 minutes
+    timersRef.current[messages.id] = setTimeout(() => {
+      handleTimerExpiry(messages);
+    }, NOTIFICATION_WARNING_INTERVAL); // 5 minutes
   };
 
-  const handleTimerExpiry = (id) => {
-    toast.error(`Time expired for chat/message ID: ${id}`);
+  const handleTimerExpiry = (message) => {
+    
+    toast.error(`Time expired for Phone number: ${message.phoneNumber}`);
 
     // Play alert sound
     audioRef.current
@@ -604,13 +608,13 @@ const ChatPage = () => {
       );
 
     // Trigger another 5-minute timer if no action is taken
-    if (!isMessageReplied(id)) {
-      console.warn(`No reply for ID: ${id}, rescheduling timer.`);
-      markChatAsUnreplied(id);
-      startTimer(id); // Restart the timer
+    if (!isMessageReplied(message.id)) {
+      console.warn(`No reply for ID: ${message.id}, rescheduling timer.`);
+      markChatAsUnreplied(message.id);
+      startTimer(message); // Restart the timer
     } else {
-      console.info(`Reply received for ID: ${id}, stopping timer.`);
-      clearTimer(id); // Stop the timer if replied
+      console.info(`Reply received for ID: ${message.id}, stopping timer.`);
+      clearTimer(message.id); // Stop the timer if replied
     }
   };
 
@@ -944,7 +948,7 @@ const ChatPage = () => {
                       ref={scrollContainerRef}
                       className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2"
                       style={{
-                        height: "80vh",
+                       
                         overflowY: "auto",
                         display: "flex",
                         flexDirection: "column-reverse",
@@ -954,6 +958,7 @@ const ChatPage = () => {
                         <div className="text-center">Loading messages...</div>
                       )}
                       {chatMessages?.map((message) => (
+                        
                         <div
                           key={message.messageId}
                           className={`flex ${
@@ -1002,12 +1007,15 @@ const ChatPage = () => {
                                     />
                                   )}
                                   {message.contentType.startsWith("audio/") && (
-                                    <audio
-                                      controls
-                                      src={`${BASE_URL}${message.mediaPath}`}
-                                      className="w-full h-auto rounded"
-                                    />
-                                  )}
+                                    
+                                    <audio controls>
+                                    <source src={`${BASE_URL}${message.mediaPath}`} />
+                                    Your browser does not support the audio element.
+                                  </audio>
+                                  
+                                  )
+                                 
+                                  }
                                 </>
                               )}
                             <div

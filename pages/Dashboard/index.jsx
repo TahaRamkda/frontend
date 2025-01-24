@@ -1,4 +1,4 @@
-import { useState, useEffect,useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Line } from "react-chartjs-2";
 import {
@@ -13,14 +13,26 @@ import {
 } from "chart.js";
 import App from "@/components/Layout/App";
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
-import { fetchDashboardSummary, clearDashboardReportState } from "@/slices/ReportSlice";
+import {
+  fetchDashboardSummary,
+  clearDashboardReportState,
+} from "@/slices/ReportSlice";
 
 import Loader from "@/components/Layout/Loader";
 import { set } from "date-fns";
 import { toast } from "react-toastify";
 import { REFRESH_INTERVAL } from "@/utils/constants";
+import DateTimePicker from "@/components/Timepicker/datetimepicker";
 // Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -29,12 +41,13 @@ const Dashboard = () => {
   const [toDate, settoDate] = useState("");
   const [SenderId, setSenderId] = useState(0);
   const [clientId, setclientId] = useState(0);
-  const { dashboardsummary, loading, error } = useSelector((state) => state.reports);
+  const { dashboardsummary, loading, error } = useSelector(
+    (state) => state.reports
+  );
   //const clientId = localStorage.getItem("clientId");
   const fromDateRef = useRef("");
   const toDateRef = useRef("");
   useEffect(() => {
-    
     const today = new Date();
     const lastWeek = new Date(today);
     lastWeek.setDate(today.getDate() - 7);
@@ -49,33 +62,35 @@ const Dashboard = () => {
     toDateRef.current = todayStr;
   }, []);
 
-  useEffect(()=>{
-    if(dashboardsummary){
-      setdataloading(false)
+  useEffect(() => {
+    if (dashboardsummary) {
+      setdataloading(false);
     }
-  },[dashboardsummary]
+  }, [dashboardsummary]);
 
-
-  
-)
-
-//function for live reporting
- useEffect(() => {
+  //function for live reporting
+  useEffect(() => {
     const checkAndFetch = async () => {
-      const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
+      const isLiveReporting = JSON.parse(
+        localStorage.getItem("isLiveReporting")
+      );
       const fromDate = fromDateRef.current;
       const toDate = toDateRef.current;
       if (isLiveReporting && !loading) {
-       
         try {
-          await dispatch(fetchDashboardSummary({ clientId:localStorage.getItem("clientId"), fromDate:fromDate, toDate:toDate, senderid: SenderId }));
+          await dispatch(
+            fetchDashboardSummary({
+              clientId: localStorage.getItem("clientId"),
+              fromDate: fromDate,
+              toDate: toDate,
+              senderid: SenderId,
+            })
+          );
         } catch (error) {
           console.error("Error fetching chat monitor:", error);
-        } 
+        }
       }
     };
-
-   
 
     const intervalId = setInterval(() => {
       // Perform the periodic refresh (e.g., every 5 minutes) if page is loaded
@@ -91,8 +106,15 @@ const Dashboard = () => {
   useEffect(() => {
     if (fromDate && toDate) {
       const clientId = localStorage.getItem("clientId");
-      setdataloading(true)
-      dispatch(fetchDashboardSummary({ clientId:clientId, fromDate, toDate, senderid: SenderId }));
+      setdataloading(true);
+      dispatch(
+        fetchDashboardSummary({
+          clientId: clientId,
+          fromDate,
+          toDate,
+          senderid: SenderId,
+        })
+      );
     }
     return () => {
       clearDashboardReportState();
@@ -100,40 +122,56 @@ const Dashboard = () => {
   }, [dispatch, fromDate, toDate, SenderId]);
 
   const handlefromDateChange = (setter) => (e) => {
-    fromDateRef.current = e.target.value;
-    setter(e.target.value);
+    fromDateRef.current = e;
+    setter(e);
   };
   const handletoDateChange = (setter) => (e) => {
-    toDateRef.current = e.target.value;
-    setter(e.target.value);
+    toDateRef.current = e;
+    setter(e);
   };
   const handleChange = (e) => {
     const senderId = e.target.value;
-    setSenderId(senderId)
+    setSenderId(senderId);
     const clientId = localStorage.getItem("clientId");
-     setdataloading(true)
-    dispatch(fetchDashboardSummary({ clientId : clientId, fromDate, toDate, senderid: SenderId }));
+    setdataloading(true);
+    dispatch(
+      fetchDashboardSummary({
+        clientId: clientId,
+        fromDate,
+        toDate,
+        senderid: SenderId,
+      })
+    );
   };
   const lineChartData = {
-    labels: dashboardsummary?.TotalMessagesChart?.map((item) => item.CreatedDate) || [],
+    labels:
+      dashboardsummary?.TotalMessagesChart?.map((item) => item.CreatedDate) ||
+      [],
     datasets: [
       {
         label: "Total Messages Sent",
-        data: dashboardsummary?.TotalMessagesChart?.map((item) => item.SentCount) || [],
+        data:
+          dashboardsummary?.TotalMessagesChart?.map((item) => item.SentCount) ||
+          [],
         borderColor: "#7e3af2",
         backgroundColor: "rgba(126, 58, 242, 0.2)",
         fill: true,
       },
       {
         label: "Total Delivered",
-        data: dashboardsummary?.TotalMessagesChart?.map((item) => item.DeliveredCount) || [],
+        data:
+          dashboardsummary?.TotalMessagesChart?.map(
+            (item) => item.DeliveredCount
+          ) || [],
         borderColor: "#ffc107",
         backgroundColor: "rgba(40, 167, 69, 0.2)",
         fill: true,
       },
       {
         label: "Total Read",
-        data: dashboardsummary?.TotalMessagesChart?.map((item) => item.ReadCount) || [],
+        data:
+          dashboardsummary?.TotalMessagesChart?.map((item) => item.ReadCount) ||
+          [],
         borderColor: "#28a745",
         backgroundColor: "rgba(255, 193, 7, 0.2)",
         fill: true,
@@ -147,26 +185,25 @@ const Dashboard = () => {
       <div className="w-full">
         {/* Date Filters */}
         <div className="grid grid-cols-5 mb-4 gap-4">
-          <div className="flex flex-col space-y-1 text-start mb-1 ">
-            <label className="font-medium text-gray-700 text-sm">From Date</label>
-            <input
-              type="date"
+          <div className="flex flex-col space-y-1 text-start mb-1">
+            <DateTimePicker
+              label="From Date"
               value={fromDate}
               onChange={handlefromDateChange(setfromDate)}
-              className="border rounded py-1 px-2 w-full text-sm"
             />
           </div>
+
           <div className="flex flex-col space-y-1 text-start mb-1 ">
-            <label className="font-medium text-gray-700 text-sm">To Date</label>
-            <input
-              type="date"
+            <DateTimePicker
+              label="To Date"
               value={toDate}
               onChange={handletoDateChange(settoDate)}
-              className="border rounded py-1 px-2 w-full text-sm"
             />
           </div>
           <div className="flex flex-col mb-1 text-start">
-            <label className="font-medium text-gray-700 text-sm">Sender Names</label>
+            <label className="font-medium text-gray-700 text-sm">
+              Sender Names
+            </label>
             <SendernameDropdown name="senderId" onChange={handleChange} />
           </div>
         </div>
@@ -181,10 +218,32 @@ const Dashboard = () => {
               <h3 className="text-lg font-bold">{tile.Title}</h3>
               <hr className="h-1" />
               <table border="1">
+                <tr></tr>{" "}
                 <tr>
-                </tr> <tr><td>  <p className="text-lg font-semibold">Sent {tile.SentCount}</p></td>
-                </tr> <tr> <td> <p className="text-lg font-semibold">Delivered {tile.DeliveredCount}</p></td>
-                </tr> <tr> <td> <p className="text-lg font-semibold">Read {tile.ReadCount}</p></td>
+                  <td>
+                    {" "}
+                    <p className="text-lg font-semibold">
+                      Sent {tile.SentCount}
+                    </p>
+                  </td>
+                </tr>{" "}
+                <tr>
+                  {" "}
+                  <td>
+                    {" "}
+                    <p className="text-lg font-semibold">
+                      Delivered {tile.DeliveredCount}
+                    </p>
+                  </td>
+                </tr>{" "}
+                <tr>
+                  {" "}
+                  <td>
+                    {" "}
+                    <p className="text-lg font-semibold">
+                      Read {tile.ReadCount}
+                    </p>
+                  </td>
                 </tr>
               </table>
             </div>
@@ -199,7 +258,9 @@ const Dashboard = () => {
               <h3 className="text-lg font-bold">{tile.Title}</h3>
               <hr className="h-1" />
               <p className="text-lg font-semibold">Sent: {tile.SentCount}</p>
-              <p className="text-lg font-semibold">Delivered: {tile.DeliveredCount}</p>
+              <p className="text-lg font-semibold">
+                Delivered: {tile.DeliveredCount}
+              </p>
               <p className="text-lg font-semibold">Read: {tile.ReadCount}</p>
             </div>
           ))}
@@ -212,8 +273,12 @@ const Dashboard = () => {
             >
               <h3 className="text-lg font-bold">{tile.Title}</h3>
               <hr className="h-1" />
-              <p className="text-lg font-semibold">Count: {tile.TotalConversation}</p>
-              <p className="text-lg font-semibold">Messages: {tile.TotalMessages}</p>
+              <p className="text-lg font-semibold">
+                Count: {tile.TotalConversation}
+              </p>
+              <p className="text-lg font-semibold">
+                Messages: {tile.TotalMessages}
+              </p>
             </div>
           ))}
 
@@ -226,8 +291,12 @@ const Dashboard = () => {
               <h3 className="text-lg font-bold">{tile.Title}</h3>
               <hr className="h-1" />
 
-              <p className="text-lg font-semibold">Count: {tile.TotalConversation}</p>
-              <p className="text-lg font-semibold">Messages: {tile.TotalMessages}</p>
+              <p className="text-lg font-semibold">
+                Count: {tile.TotalConversation}
+              </p>
+              <p className="text-lg font-semibold">
+                Messages: {tile.TotalMessages}
+              </p>
             </div>
           ))}
           {dashboardsummary?.ActiveConversations.map((tile, index) => (
@@ -239,19 +308,27 @@ const Dashboard = () => {
               <h3 className="text-lg font-bold">{tile.Title}</h3>
               <hr className="h-1" />
 
-              <p className="text-lg font-semibold">Count: {tile.TotalConversation}</p>
-              <p className="text-lg font-semibold">Not Assigned: {tile.NotAssigned}</p>
+              <p className="text-lg font-semibold">
+                Count: {tile.TotalConversation}
+              </p>
+              <p className="text-lg font-semibold">
+                Not Assigned: {tile.NotAssigned}
+              </p>
               <p className="text-lg font-semibold">Assigned: {tile.Assigned}</p>
-
             </div>
           ))}
         </div>
 
         {/* Line Chart */}
         <div className="mt-8 bg-white p-4 rounded shadow-md">
-          <h3 className="text-xl font-semibold text-center mb-4">Total Messages Chart</h3>
+          <h3 className="text-xl font-semibold text-center mb-4">
+            Total Messages Chart
+          </h3>
           <div style={{ height: "400px" }}>
-            <Line data={lineChartData} options={{ maintainAspectRatio: false }} />
+            <Line
+              data={lineChartData}
+              options={{ maintainAspectRatio: false }}
+            />
           </div>
         </div>
       </div>

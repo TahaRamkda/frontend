@@ -12,6 +12,7 @@ import App from '@/components/Layout/App';
 import sweetalert from 'sweetalert2';
 import Switch from "react-switch";
 import { REFRESH_INTERVAL } from '@/utils/constants';
+import DateTimePicker from '@/components/Timepicker/datetimepicker';
 const MessageSummary = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
@@ -109,7 +110,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
         if (isLiveReporting && !loading) {
           setrefreshpage(true);  // Mark the page as refreshing
           try {
-             await dispatch(fetchAgentsMonitor({ clientId: clientId, senderId: senderid, srcStr:srcStr,pageSize, pageNo: currentPage, fromDate:FromDate, toDate:ToDate}));
+             await dispatch(fetchAgentsMonitor({ clientId: localStorage.getItem("clientId"), senderId: senderid, srcStr:srcStr,pageSize, pageNo: currentPage, fromDate:FromDate, toDate:ToDate}));
             
           } catch (error) {
             console.error("Error fetching chat monitor:", error);
@@ -259,23 +260,17 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
           </div>
 
           <div className='flex flex-col text-start mb-1'>
-            <label className="font-medium text-gray-700 text-sm">From Date</label>
-            <input
-              type="date"
-              id="FromDate"
+          <DateTimePicker
+              label="From Date"
               value={FromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="border rounded  w-100"
+              onChange={setFromDate}
             />
           </div>
           <div className='flex flex-col text-start mb-1'>
-            <label className="font-medium text-gray-700 text-sm">To Date</label>
-            <input
-              type="date"
-              id="ToDate"
+          <DateTimePicker
+              label="To Date"
               value={ToDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="border rounded  w-100"
+              onChange={setToDate}
             />
 
           </div>

@@ -6,12 +6,11 @@ import { Container, Row, Col, Table, input, Button, Pagination, List, label, Pag
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import DataTable from "react-data-table-component";
-
 import Loading from '@/components/Layout/Loader';
 import App from '@/components/Layout/App';
 import { REFRESH_INTERVAL } from '@/utils/constants';
 import { set } from 'date-fns';
-
+import DateTimePicker from '@/components/Timepicker/datetimepicker';
 
 const MessageReport = () => {
   const dispatch = useDispatch();
@@ -178,23 +177,17 @@ const MessageReport = () => {
           </div>
 
           <div className='flex flex-col text-start mb-1'>
-            <label className="font-medium text-gray-700 text-sm">From Date</label>
-            <input
-              type="date"
-              id="fromDate"
+          <DateTimePicker
+              label="From Date"
               value={fromDate}
-              onChange={(e) => setfromDate(e.target.value)}
-              className="border rounded  w-100"
+              onChange={setfromDate}
             />
           </div>
           <div className='flex flex-col text-start mb-1'>
-            <label className="font-medium text-gray-700 text-sm">To Date</label>
-            <input
-              type="date"
-              id="toDate"
+          <DateTimePicker
+              label="To Date"
               value={toDate}
-              onChange={(e) => settoDate(e.target.value)}
-              className="border rounded  w-100"
+              onChange={settoDate}
             />
 
           </div>

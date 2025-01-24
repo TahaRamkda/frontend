@@ -8,7 +8,7 @@ import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import DataTable from "react-data-table-component";
 import App from '@/components/Layout/App';
 import Loading from "@/components/Layout/Loader";
-
+import DateTimePicker from '@/components/Timepicker/datetimepicker';
 const Messagereports = () => {
   const dispatch = useDispatch();
   const [templateId, setTemplateId] = useState(0);
@@ -115,23 +115,17 @@ const Messagereports = () => {
             />
           </div>
           <div className="flex flex-col text-start mb-1">
-            <label className="font-medium text-gray-700 text-sm">From Date</label>
-            <Input
-              type="date"
-              id="fromDate"
+          <DateTimePicker
+              label="From Date"
               value={fromDate}
-              onChange={handleFromDateChange}
-              className="border rounded m-0 w-100"
+              onChange={setFromDate}
             />
           </div>
           <div className="flex flex-col text-start mb-1 ">
-            <label className="font-medium text-gray-700 text-sm">To Date</label>
-            <Input
-              type="date"
-              id="toDate"
+          <DateTimePicker
+              label="To Date"
               value={toDate}
-              onChange={handleToDateChange}
-              className="border rounded m-0 w-100"
+              onChange={setToDate}
             />
           </div>
         </div>

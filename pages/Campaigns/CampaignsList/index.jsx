@@ -16,7 +16,8 @@ import CampaignTest from '../CampaignTest';
 import LastContactedList from '../Contacted';
 import {Tooltip} from 'reactstrap';
 import { REFRESH_INTERVAL } from '@/utils/constants';
-import { set } from 'date-fns';
+import { set, toDate } from 'date-fns';
+import DateTimePicker from '@/components/Timepicker/datetimepicker';
 const CampaignsList = () => {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -301,23 +302,17 @@ useState (() => {
             />
           </div>
           <div className="flex flex-col text-start mb-1">
-            <Label className="font-medium text-sm mb-0">From Date</Label>
-            <Input
-              type="date"
-              id="FromDate"
+             <DateTimePicker
+              label="From Date"
               value={FromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="border rounded  w-100"
+              onChange={setFromDate}
             />
           </div>
           <div className="flex flex-col text-start mb-1">
-            <Label className="font-medium text-sm mb-0">To Date</Label>
-            <Input
-              type="date"
-              id="ToDate"
+          <DateTimePicker
+              label="To Date"
               value={ToDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="border rounded  w-100"
+              onChange={setToDate}
             />
           </div>
 

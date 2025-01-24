@@ -17,7 +17,7 @@ import {
   clearTemplateInsightState,
 } from "@/slices/ReportSlice";
 import TemplateDropdown from "@/components/Dropdowns/TemplateDropdown";
-
+import DateTimePicker from "@/components/Timepicker/datetimepicker";
 // Register Chart.js components
 ChartJS.register(
   CategoryScale,
@@ -66,7 +66,7 @@ const TemplateInsight = () => {
   }, [dispatch, fromDate, toDate, TemplateId]);
 
   const handleDateChange = (setter) => (e) => {
-    setter(e.target.value);
+    setter(e);
   };
 
   const lineChartData = {
@@ -114,23 +114,17 @@ const TemplateInsight = () => {
         {/* Date Filters */}
         <div className="grid grid-cols-5 mb-4 gap-4">
           <div className="flex flex-col space-y-1 text-start mb-1 ">
-            <label className="font-medium text-gray-700 text-sm">
-              From Date
-            </label>
-            <input
-              type="date"
+          <DateTimePicker
+              label="From Date"
               value={fromDate}
               onChange={handleDateChange(setFromDate)}
-              className="border rounded p-1"
             />
           </div>
           <div className="flex flex-col space-y-1 text-start mb-1 ">
-            <label className="font-medium text-gray-700 text-sm">To Date</label>
-            <input
-              type="date"
+          <DateTimePicker
+              label="To Date"
               value={toDate}
               onChange={handleDateChange(setToDate)}
-              className="border rounded p-1"
             />
           </div>
           <div className="flex flex-col space-y-1 text-start mb-1 ">

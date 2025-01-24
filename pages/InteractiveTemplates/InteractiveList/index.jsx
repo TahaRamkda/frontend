@@ -32,6 +32,7 @@ import { useSetRecoilState } from "recoil";
 import { TemplateState } from "@/components/recoil";
 import Loading from "@/components/Layout/Loader";
 import { toDate } from "date-fns";
+import DateTimePicker from "@/components/Timepicker/datetimepicker";
 const TemplateList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -239,23 +240,17 @@ const TemplateList = () => {
             />
           </div>
           <div className="flex flex-col text-start mb-1">
-            <label className="font-medium text-gray-700 text-sm">From Date</label>
-            <input
-              type="date"
-              id="FromDate"
+          <DateTimePicker
+              label="From Date"
               value={FromDate}
-              onChange={(e) => setfromDate(e.target.value)}
-              className="border rounded  w-100"
+              onChange={setfromDate}
             />
           </div>
           <div className="flex flex-col text-start mb-1">
-            <label className="font-medium text-gray-700 text-sm">To Date</label>
-            <input
-              type="date"
-              id="ToDate"
-              value={ToDate}
-              onChange={(e) => settoDate(e.target.value)}
-              className="border rounded  w-100"
+          <DateTimePicker
+              label="To Date"
+              value={toDate}
+              onChange={settoDate}
             />
           </div>
         </div>
