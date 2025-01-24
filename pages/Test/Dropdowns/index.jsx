@@ -14,6 +14,7 @@ import RolesDropdown from '@/components/MultiSelect/RoleDropdown';
 import App from "@/components/Layout/App";
 import { useRouter } from 'next/router';  // Correct import
 import ActiveAgentDropdown from '@/components/Dropdowns/ActiveAgentsDropdown';
+import InteractiveTemplateDropdown from '@/components/Dropdowns/InteractiveTemplateDropWithoutParam';
 
 
 const DropDowns = () => {
@@ -86,6 +87,11 @@ const DropDowns = () => {
       <div className="flex items-center">
         <label htmlFor="">Active agents</label>
         <ActiveAgentDropdown onChange={handleChange1} SenderId={1}/>
+      </div><br />
+
+      <div className="flex items-center">
+        <label htmlFor="">Interactive Template </label>
+        <InteractiveTemplateDropdown onChange={handleChange1} SenderId={1}/>
       </div><br />
 
 

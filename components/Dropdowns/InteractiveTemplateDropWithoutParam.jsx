@@ -3,17 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import $ from "jquery";
 import "select2/dist/css/select2.min.css";
 import "select2/dist/js/select2.min.js";
-import {
-    fetchInteractiveTemplateDrop,
-  clearInteractiveTemplateListState,
-} from "@/slices/TemplateSlice";
+import { fetchInteractiveTemplateDropWithoutParam,clearInteractiveTemplateDropStateState } from "@/slices/InteractiveTemplateSlice";
 import { FormGroup, Label, Input, FormText } from "reactstrap";
 
-const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
+const InteractiveTemplateDropdown = ({ name, value, onChange, TransactionType, SenderId }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
   const { interactiveTemplateDropList, loading, error } = useSelector(
-    (state) => state.templates
+    (state) => state.interactiveTemplates
   );
   const [transactionType, settransactionType] = useState(0);
 
@@ -25,11 +22,11 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
 
   useEffect(() => {
     dispatch(
-        fetchInteractiveTemplateDrop({
-        clientId: localStorage.getItem("clientId"),
+        fetchInteractiveTemplateDropWithoutParam({
+            clientId: localStorage.getItem("clientId"),
+            senderId: SenderId
       })
     );
-
   }, [dispatch, transactionType]);
 
   useEffect(() => {
@@ -71,8 +68,8 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
         <option value="0">Select</option>
         {interactiveTemplateDropList && interactiveTemplateDropList.length > 0 ? (
           interactiveTemplateDropList.map((template) => (
-            <option key={template.interactiveTemplateId} value={template.interactiveTemplateId}>
-              {template.templateName}
+            <option key={template.id} value={template.id}>
+              {template.name}
             </option>
           ))
         ) : (
@@ -83,4 +80,4 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
   );
 };
 
-export default TemplateDropdown;
+export default InteractiveTemplateDropdown;
