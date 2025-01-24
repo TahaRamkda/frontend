@@ -11,7 +11,7 @@ export const fetchCampaign = createAsyncThunk(
    
     try {
       
-      const response = await API.get(`${CAMPAIGNLIST}?ClientId=${ClientId}${srcStr ? `&SearchStr=${srcStr}` : ''}&FromDate=${FromDate}&ToDate=${ToDate}&PageNo=${PageNo}&PageSize=${pageSize}`);
+      const response = await API.get(`${CAMPAIGNLIST}?${srcStr ? `&SearchStr=${srcStr}` : ''}&FromDate=${FromDate}&ToDate=${ToDate}&PageNo=${PageNo}&PageSize=${pageSize}`);
       if (response?.status === 200) {
         return {
           campaigns: response.data.result,
@@ -34,7 +34,7 @@ export const fetchCampaignContactState = createAsyncThunk(
   'campaign/fetchCampaignContactState',
   async ({ClientId , CampaignId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${CAMPAIGNCONTACTFREQUENTSTATE}?ClientId=${ClientId}&CampaignId=${CampaignId}`);
+      const response = await API.get(`${CAMPAIGNCONTACTFREQUENTSTATE}?CampaignId=${CampaignId}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           campaignContactState: response.data.result,
@@ -53,7 +53,7 @@ export const fetchCampaignFrequentDelete = createAsyncThunk(
   'campaign/fetchCampaignFrequentDelete',
   async ({ClientId,CampaignId,Removedays}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${CAMPAIGNCONTACTFREQUENTREMOVE}?ClientId=${ClientId}&CampaignId=${CampaignId}&LastContactedInDays=${Removedays}`);
+      const response = await API.get(`${CAMPAIGNCONTACTFREQUENTREMOVE}?CampaignId=${CampaignId}&LastContactedInDays=${Removedays}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           campaignFreqDelete: response.data.result,
@@ -73,7 +73,7 @@ export const fetchCampaignDetail = createAsyncThunk(
   async ({CampaignId ,ClientId}, { rejectWithValue }) => {
     try {
       
-      const response = await API.get(`${CAMPAIGNDETAIL}?ClientId=${ClientId ? ClientId : localStorage.getItem('clientId')}&CampaignId=${CampaignId}`);
+      const response = await API.get(`${CAMPAIGNDETAIL}?CampaignId=${CampaignId}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           campaigndetail: response.data.result,
