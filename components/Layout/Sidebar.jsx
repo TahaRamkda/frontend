@@ -22,12 +22,12 @@ const Sidebar = ({ isSidebarOpen }) => {
 
   return (
     <aside
-    className={`text-white bg-gray-900 fixed left-0 top-16 z-40 h-screen transition-all transform ${
-      isSidebarOpen ? 'translate-x-0 w-64' : 'translate-x-0 w-20'
+    className={` aside text-white bg-gray-900 fixed left-0 top-16 z-40 h-screen transition-all transform ${
+      isSidebarOpen ? 'translate-x-0 ' : 'translate-x-0 w-20'
     }`}
     aria-label="Sidebar"
   >
-    <div className="h-full px-3 py-4 overflow-y-auto">
+    <div className="h-full px-3 py-4 overflow-y-auto sidebar_panel">
       <ul className="space-y-2">
         {sidebarItems.map((menu) => {
           const showSubMenu = menu.submenu.some((sm) =>

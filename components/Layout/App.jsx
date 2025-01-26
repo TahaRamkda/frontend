@@ -50,7 +50,6 @@ const App = (props) => {
         <div
           className="pcoded-main-container"
           style={{
-            display: "flex",
             flexDirection: "row",
             paddingTop: `${headerHeight}px`,
           }}

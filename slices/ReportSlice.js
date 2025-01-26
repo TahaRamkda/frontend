@@ -30,7 +30,7 @@ export const fetchMessageSummary = createAsyncThunk(
   ) => {
     try {
       const response = await API.get(
-        `${MESSAGESUMMARY}?ClientId=${clientId}&FromDate=${fromDate}&ToDate=${toDate}&Status=${status}&templateId=${templateId}&PageSize=${pageSize}&PageNo=${pageNo}&SearchStr=${srcStr}`
+        `${MESSAGESUMMARY}?FromDate=${fromDate}&ToDate=${toDate}&Status=${status}&templateId=${templateId}&PageSize=${pageSize}&PageNo=${pageNo}&SearchStr=${srcStr}`
       );
       if (response?.status === 200 && response.data?.result) {
         return {
@@ -68,7 +68,7 @@ export const fetchMessageReport = createAsyncThunk(
   ) => {
     try {
       const response = await API.get(
-        `${MESSAGEREPORT}?ModuleId=${moduleId}&ClientId=${clientId}&SenderId=${senderid}&FromDate=${fromDate}&ToDate=${toDate}&CurrentStatus=${status}&SearchStr=${srcStr}&PageNo=${pageNo}&PageSize=${pageSize}`
+        `${MESSAGEREPORT}?ModuleId=${moduleId}&SenderId=${senderid}&FromDate=${fromDate}&ToDate=${toDate}&CurrentStatus=${status}&SearchStr=${srcStr}&PageNo=${pageNo}&PageSize=${pageSize}`
       );
       if (response?.status === 200 && response.data?.result) {
         const obj = JSON.stringify(response.data, 2);
@@ -95,7 +95,7 @@ export const fetchDashboardSummary = createAsyncThunk(
   async ({ clientId, fromDate, toDate, senderid }, { rejectWithValue }) => {
     try {
       const response = await API.get(
-        `${DASHBOARDSUMMARY}?ClientId=${clientId}&SenderId=${senderid}&FromDate=${fromDate}&ToDate=${toDate}`
+        `${DASHBOARDSUMMARY}?SenderId=${senderid}&FromDate=${fromDate}&ToDate=${toDate}`
       );
       if (response?.status === 200) {
         // const parseddata= JSON.parse(response.data, 2);
@@ -118,7 +118,7 @@ export const fetchTemplateInsight = createAsyncThunk(
   async ({ clientId, fromDate, toDate, TemplateId }, { rejectWithValue }) => {
     try {
       const response = await API.get(
-        `${TEMPLATEINSIGHT}?ClientId=${clientId}&templateId=${TemplateId}&FromDate=${fromDate}&ToDate=${toDate}`
+        `${TEMPLATEINSIGHT}?templateId=${TemplateId}&FromDate=${fromDate}&ToDate=${toDate}`
       );
       if (response?.status === 200 && response.data?.result) {
         // const parseddata= JSON.parse(response.data, 2);
@@ -141,7 +141,7 @@ export const fetchActiveConvo = createAsyncThunk(
   async ({ clientId, startDate, endDate, status }, { rejectWithValue }) => {
     try {
       const response = await API.get(
-        `${ACTIVECONVOLIST}?ClientId=${clientId}&startDate=${startDate}&endDate=${endDate}&status=${status}`
+        `${ACTIVECONVOLIST}?startDate=${startDate}&endDate=${endDate}&status=${status}`
       );
       if (response?.status === 200 && response.data?.result) {
         const obj = JSON.stringify(response.data, 2);
@@ -166,7 +166,7 @@ export const fetchAgentStatus = createAsyncThunk(
       //console.log('asd'+ searchString.length);
 
       const response = await API.get(
-        `${AGENTSSTATUSLIST}?ClientId=${clientId}&startDate=${startDate}&endDate=${endDate}&status=${status}`
+        `${AGENTSSTATUSLIST}?startDate=${startDate}&endDate=${endDate}&status=${status}`
       );
       if (response?.status === 200 && response.data?.result) {
         return {

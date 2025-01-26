@@ -9,7 +9,7 @@ export const fetchGroup = createAsyncThunk(
     'group/fetchGroup',
     async ({clientId, pageNo, pageSize, SearchStr}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${GROUPLIST}?ClientId=${clientId}${ SearchStr? `&SearchStr=${SearchStr}`:''}&PageNo=${pageNo}&PageSize=${pageSize}`);
+        const response = await API.get(`${GROUPLIST}?${ SearchStr? `SearchStr=${SearchStr}`:''}&PageNo=${pageNo}&PageSize=${pageSize}`);
         if (response?.status === 200 && response.data?.result) {
           return {
             groups: response.data.result,
@@ -28,7 +28,7 @@ export const fetchGroupsDrop = createAsyncThunk(
     'group/fetchGroupsDrop',
     async ({clientId, SearchStr}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${GROUPDROPDOWN}?ClientId=${clientId}&searchStr=${SearchStr}`);
+        const response = await API.get(`${GROUPDROPDOWN}?searchStr=${SearchStr}`);
         if (response?.status === 200) {
           return {
             groupDrop: response.data.result,
@@ -48,7 +48,7 @@ export const fetchGroupById = createAsyncThunk(
     'group/fetchGroupById',
     async ({groupId, clientId=localStorage.getItem("clientId")}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${ GROUPDETAILS}?Id=${groupId}&clientId=${clientId}`);
+        const response = await API.get(`${ GROUPDETAILS}?Id=${groupId}`);
         return response.data;
       } catch (error) {
         const handledError = handleError(error);

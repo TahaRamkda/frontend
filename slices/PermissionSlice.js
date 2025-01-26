@@ -14,7 +14,7 @@ export const fetchPermissions = createAsyncThunk(
        
 
         // Ensure that the Client_Id and role_Id parameters are correctly formatted
-        const response = await API.get(`${PERMISSIONLIST}?ClientId=${client_Id}&RoleId=${role_Id}`);
+        const response = await API.get(`${PERMISSIONLIST}?RoleId=${role_Id}`);
         if (response?.status === 200 && response.data?.result) {
           return {
             permissions: response.data.result,

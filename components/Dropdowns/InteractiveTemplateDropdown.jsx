@@ -12,7 +12,7 @@ import { FormGroup, Label, Input, FormText } from "reactstrap";
 const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
-  const { interactiveTemplateDropList, loading, error } = useSelector(
+  const { interactiveTemplateList, loading, error } = useSelector(
     (state) => state.templates
   );
   const [transactionType, settransactionType] = useState(0);
@@ -53,7 +53,7 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
         $(selectRef.current).off("change");
       }
     };
-  }, [interactiveTemplateDropList, onChange]);
+  }, [interactiveTemplateList, onChange]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
@@ -69,8 +69,8 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
         required
       >
         <option value="0">Select</option>
-        {interactiveTemplateDropList && interactiveTemplateDropList.length > 0 ? (
-          interactiveTemplateDropList.map((template) => (
+        {interactiveTemplateList && interactiveTemplateList.length > 0 ? (
+          interactiveTemplateList.map((template) => (
             <option key={template.interactiveTemplateId} value={template.interactiveTemplateId}>
               {template.templateName}
             </option>

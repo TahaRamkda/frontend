@@ -396,8 +396,8 @@ const CampaignCreate = () => {
       <Container fluid className="mt-0">
         <Row style={{ height: "100vh" }}>
           <Col
-            md={7}
-            className="border-end overflow-auto shadow-lg"
+            md={6} lg={7}
+            className="campaign-leftsection overflow-auto "
             style={{ padding: "20px", background: "#fff" }}
           >
             <h4 className="mb-4">Create Campaign</h4>
@@ -579,8 +579,8 @@ const CampaignCreate = () => {
             </Formik>
           </Col>
           <Col
-            md={4}
-            className="overflow-hidden h-screen fixed right-10"
+            md={6} lg={5}
+            className="overflow-hidden h-screen  right-10"
             // style={{
             //   position: "fixed", // Fix the position
             //   top: "-50", // Adjust to your layout

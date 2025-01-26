@@ -18,7 +18,7 @@ export const fetchInteractiveTemplates = createAsyncThunk(
   'template/interactiveTemplateList',
   async ({clientId = localStorage.getItem("clientId"),fromDate,searchStr,toDate,pageNo,pageSize}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${INRERACTIVETEMPLATELIST}?clientId=${clientId}${searchStr?`&searchStr=${searchStr}`:''}&fromDate=${fromDate}&toDate=${toDate}&pageNo=${pageNo}&pageSize=${pageSize}`);
+      const response = await API.get(`${INRERACTIVETEMPLATELIST}?${searchStr?`searchStr=${searchStr}`:''}&fromDate=${fromDate}&toDate=${toDate}&pageNo=${pageNo}&pageSize=${pageSize}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           interactiveTemplateList: response.data.result,
@@ -39,7 +39,7 @@ export const fetchInteractiveTemplateDrop = createAsyncThunk(
   'template/interactiveTemplateList',
   async ({clientId = localStorage.getItem("clientId")}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${INRERACTIVETEMPLATELIST}?clientId=${clientId}`);
+      const response = await API.get(`${INRERACTIVETEMPLATELIST}`);
       if (response?.status === 200 ) {
         return {
           interactiveTemplateList: response.data.result,
@@ -59,7 +59,7 @@ export const fetchInteractiveTemplateDropWithoutParam = createAsyncThunk(
   'template/fetchInteractiveTemplateDropWithoutParam',
   async ({clientId = localStorage.getItem("clientId"),senderId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${INTERACTIVETEMPLATEDROPWITHOUTPARAM}?clientId=${clientId}&senderId=${senderId}`);
+      const response = await API.get(`${INTERACTIVETEMPLATEDROPWITHOUTPARAM}?senderId=${senderId}`);
       if (response?.status === 200 ) {
         return {
           interactiveTemplateDropList: response.data.result,
@@ -81,7 +81,7 @@ export const fetchInteractiveTemplatesById = createAsyncThunk(
   async ({ templateId, ClientId }, { rejectWithValue }) => {
     try {
       const response = await API.get(
-        `${INTERACTIVETEMPLATEDETAILS}?interactiveTemplateId=${templateId}&clientId=${ClientId}`
+        `${INTERACTIVETEMPLATEDETAILS}?interactiveTemplateId=${templateId}`
       );
       return response.data;
     } catch (error) {

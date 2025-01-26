@@ -824,8 +824,8 @@ const TemplateCreationPage = () => {
         {loading && <Loader />}
         <Row style={{ height: "100vh" }}>
           <Col
-            md={7}
-            className="border-end overflow-auto shadow-lg"
+            md={6} lg={7}
+            className="border-end overflow-auto templete-leftsection"
             style={{ padding: "20px", background: "#fffff" }}
           >
             <h4 className="mb-4">Create Template</h4>
@@ -1348,8 +1348,8 @@ const TemplateCreationPage = () => {
           </Col>
 
           <Col
-            md={4}
-            className="overflow-hidden h-screen fixed right-10"
+            md={6} lg={5}
+            className=" h-screen right-10 templete_chatSection "
           // style={{
           //   position: "fixed", // Fix the position
           //   top: "-20", // Adjust to your layout
@@ -1366,11 +1366,11 @@ const TemplateCreationPage = () => {
                 top: "0",
                 zIndex: "10",
                 backgroundColor: "white", // Ensure the background color covers the content behind it
-                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+                // boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
               }}
             >
               <h4
-                className="p-3"
+                className=""
                 style={{ maxWidth: "600px"}}
               >
                 Template Preview
@@ -1382,9 +1382,8 @@ const TemplateCreationPage = () => {
               <div
                 className="border"
                 style={{
-                  maxHeight: "700px",
-                  minHeight: "420px",
-                  overflow: "auto",
+                  // maxHeight: "700px",
+                  minHeight: "400px",
                   backgroundColor: "#e0e0e0",
                   backgroundImage: `url(${bagroundimage.src})`, // Update this path
                   backgroundSize: "cover",
@@ -1412,7 +1411,7 @@ const TemplateCreationPage = () => {
                         <img
                           src={`${BASE_URL}${sendername.mediaPath}`}
                           alt="Sender Logo"
-                          className="rounded-circle me-2"
+                          className="rounded-circle me-2 img-fluid"
                           style={{
                             width: "40px",
                             height: "40px",
@@ -1444,9 +1443,9 @@ const TemplateCreationPage = () => {
                     wordWrap: "break-word",
                     marginTop: "15px",
                     marginBottom: "10px",
-                    maxWidth: "400px", // Message body width stays the same
                     marginRight: "0", // Remove any margin from the right side
                     marginLeft: "22px",
+                    width: "85%",
                   }}
                 >
                   <span className="time_bubble">
@@ -1595,7 +1594,7 @@ const TemplateCreationPage = () => {
         toggle={togglePopup}
         onSubmit={handleSaveActionData}
         index={buttonindex}
-        SenderId ={selectedSenderId}
+
         existingData={actionbuttonvalues}
       />
     </App>

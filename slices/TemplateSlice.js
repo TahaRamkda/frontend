@@ -24,7 +24,7 @@ export const fetchTemplates = createAsyncThunk(
   async ({clientId = localStorage.getItem("clientId"),TransactonType,searchStr,pageNo,pageSize}, { rejectWithValue }) => {
     
     try {
-      const response = await API.get(`${TEMPLATELIST}?ClientId=${clientId}&TransactionType=${TransactonType ? TransactonType : 1}${searchStr?`&searchStr=${searchStr}`:''}&pageNo=${pageNo}&pageSize=${pageSize}`);
+      const response = await API.get(`${TEMPLATELIST}?TransactionType=${TransactonType ? TransactonType : 1}${searchStr?`&searchStr=${searchStr}`:''}&pageNo=${pageNo}&pageSize=${pageSize}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           templates: response.data.result,
@@ -44,7 +44,7 @@ export const fetchInteractiveTemplates = createAsyncThunk(
   'template/interactiveTemplateList',
   async ({clientId = localStorage.getItem("clientId"),fromDate,searchStr,toDate,pageNo,pageSize}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${INRERACTIVETEMPLATELIST}?clientId=${clientId}${searchStr?`&searchStr=${searchStr}`:''}&fromDate=${fromDate}&toDate=${toDate}&pageNo=${pageNo}&pageSize=${pageSize}`);
+      const response = await API.get(`${INRERACTIVETEMPLATELIST}?${searchStr?`searchStr=${searchStr}`:''}&fromDate=${fromDate}&toDate=${toDate}&pageNo=${pageNo}&pageSize=${pageSize}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           interactiveTemplateList: response.data.result,
@@ -65,7 +65,7 @@ export const fetchInteractiveTemplateDrop = createAsyncThunk(
   'template/interactiveTemplateList',
   async ({clientId = localStorage.getItem("clientId")}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${INRERACTIVETEMPLATELIST}?clientId=${clientId}`);
+      const response = await API.get(`${INRERACTIVETEMPLATELIST}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           interactiveTemplateList: response.data.result,
@@ -87,7 +87,7 @@ export const fetchTemplatesDrop = createAsyncThunk(
   async ({ clientId, TransactionType }, { rejectWithValue }) => {
     try {
       const response = await API.get(
-        `${TEMPLATEDROPDOWN}?ClientId=${clientId}&transactionType=${
+        `${TEMPLATEDROPDOWN}?transactionType=${
           TransactionType ? TransactionType : 0
         }`
       );
@@ -114,7 +114,7 @@ export const fetchTemplatesById = createAsyncThunk(
     
     try {
       const response = await API.get(
-        `${TEMPLATEDETAILS}?Id=${templateId}&ClientId=${ClientId}`
+        `${TEMPLATEDETAILS}?Id=${templateId}`
       );
       return response.data;
     } catch (error) {
@@ -129,7 +129,7 @@ export const fetchInteractiveTemplatesById = createAsyncThunk(
   async ({ templateId, ClientId }, { rejectWithValue }) => {
     try {
       const response = await API.get(
-        `${INTERACTIVETEMPLATEDETAILS}?interactiveTemplateId=${templateId}&clientId=${ClientId}`
+        `${INTERACTIVETEMPLATEDETAILS}?interactiveTemplateId=${templateId}`
       );
       return response.data;
     } catch (error) {

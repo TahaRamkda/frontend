@@ -11,7 +11,7 @@ export const  fetchRoles = createAsyncThunk(
     async ({clientId}, { rejectWithValue }) => {
       try {
       
-        const response = await API.get(`${ROLELIST}?ClientId=${clientId}`);
+        const response = await API.get(`${ROLELIST}`);
         if (response?.status === 200 && response.data?.result) { 
           return {
              roles: response.data.result,
@@ -31,7 +31,7 @@ export const  fetchRolesDrop = createAsyncThunk(
     async ({clientId}, { rejectWithValue }) => {
       try {
       
-        const response = await API.get(`${ROLEDROP}?clientId=${clientId}`);
+        const response = await API.get(`${ROLEDROP}`);
         if (response?.status === 200 ) { 
           return {
              roleDrop: response.data.result,
@@ -51,7 +51,7 @@ export const  fetchRolesDrop = createAsyncThunk(
     ' role/ fetchRoleById',
     async ( {roleId,clientId=localStorage.getItem("clientId")}, { rejectWithValue }) => { 
       try {
-        const response = await API.get(`${ROLEDETAILS}?id=${roleId}&clientId=${clientId}`);
+        const response = await API.get(`${ROLEDETAILS}?id=${roleId}`);
         return response.data;
       } catch (error) {
         const handledError = handleError(error);

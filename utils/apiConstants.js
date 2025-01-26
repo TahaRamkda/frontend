@@ -120,6 +120,4 @@ export const AGENTINTERACTIVETEMPLATLIST =  "/InteractiveTemplates/getagentinter
 export const AGENTINTERACTIVETEMPLATLISTDETAIL = "/InteractiveTemplates/getinteractivetemplatedetail";
 export const SENDAGENTINTERACTIVETEMPLATLIS = "/Message/sendagentinteractivemessage";
 
-export const INTERACTIVETEMPLATEDROPWITHOUTPARAM = "/InteractiveTemplates/getinteractivetemplatewithoutparams"
-
 
