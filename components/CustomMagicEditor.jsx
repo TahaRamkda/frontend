@@ -12,7 +12,6 @@ const CustomMagicEditor = ({
   existingBodyContent,
   headerVariable,
   handleheaderVariableChange,
-  removeHeaderVariable,
   setHeaderVariable,
   headContent,
   setFinalContent,
@@ -22,7 +21,6 @@ const CustomMagicEditor = ({
   setBodyFinalContent,
   setBodyPayloadDatawithVar,
   setheaderPayloaddatawithVar,
-  removeVariable,
   body,
   showaddvarbutton = true,
 }) => {
@@ -129,35 +127,6 @@ const CustomMagicEditor = ({
     };
   }, []);
 
-  // Add variable at cursor position
-  // const addVariableAtCursor = (variable) => {
-  //   const textareaRefCurrent =
-  //     body === false ? headerTextareaRef : bodyTextareaRef;
-  //   const textarea = textareaRefCurrent.current;
-  //   if (!textarea) return;
-
-  //   const start = textarea.selectionStart;
-  //   const end = textarea.selectionEnd;
-
-  //   // Insert variable at the cursor position
-  //   const newContent =
-  //     textarea.value.substring(0, start) +
-  //     variable +
-  //     textarea.value.substring(end);
-  //   if (body === false) {
-  //     setContent(newContent);
-  //   } else if (body === true) {
-  //     setBodyContent(newContent);
-  //   }
-
-  //   // Update cursor position to after the inserted variable
-  //   const cursorPosition = start + variable.length;
-  //   setTimeout(() => {
-  //     textarea.setSelectionRange(cursorPosition, cursorPosition);
-  //     textarea.focus();
-  //   }, 0);
-  // };
-
   // Automatically process and send the final content to the parent
   useEffect(() => {
     let finalContent = content;
@@ -174,111 +143,123 @@ const CustomMagicEditor = ({
       setBodyPayloadDatawithVar(bodyContent);
       setBodyFinalContent(bodyfinalContent);
     }
-  }, [bodyContent, variables]);
+  }, [bodyContent]);
 
   const handleBodyChange = (e) => {
     const newValue = e.target.value;
 
     if (showaddvarbutton === true) {
-      // Extract all variable placeholders like {{1}}, {{2}}, etc.
-      const existingPlaceholders = bodyContent.match(/\{\{\d+\}\}/g) || [];
-      const newPlaceholders = newValue.match(/\{\{\d+\}\}/g) || [];
-
-      // Check for removed placeholders
-      const removedPlaceholders = existingPlaceholders.filter(
-        (placeholder) => !newPlaceholders.includes(placeholder)
-      );
-
-      if (removedPlaceholders.length > 0) {
-        toast.error("You cannot remove existing variable placeholders.");
-        return; // Prevent state update
-      }
-
-      // Check for duplicates in the new content
-      const duplicates = newPlaceholders.filter(
-        (placeholder, index) => newPlaceholders.indexOf(placeholder) !== index
-      );
-
-      // Check if the user has moved an existing placeholder to a position where it already exists
-      const hasInvalidChange = newPlaceholders.some((placeholder) => {
-        return (
-          existingPlaceholders.includes(placeholder) &&
-          newPlaceholders.indexOf(placeholder) !==
-            existingPlaceholders.indexOf(placeholder)
-        );
-      });
-
-      if (duplicates.length > 0 || hasInvalidChange) {
-        toast.error("You cannot change the variable placeholders in the body.");
-        return; // Do not update the state
-      }
+      // // Extract all variable placeholders like {{1}}, {{2}}, etc.
+      // const existingPlaceholders = bodyContent.match(/\{\{\d+\}\}/g) || [];
+      // const newPlaceholders = newValue.match(/\{\{\d+\}\}/g) || [];
+      // // Check for removed placeholders
+      // const removedPlaceholders = existingPlaceholders.filter(
+      //   (placeholder) => !newPlaceholders.includes(placeholder)
+      // );
+      // if (removedPlaceholders.length > 0) {
+      //   toast.error("You cannot remove existing variable placeholders.");
+      //   return; // Prevent state update
+      // }
+      // // Check for duplicates in the new content
+      // const duplicates = newPlaceholders.filter(
+      //   (placeholder, index) => newPlaceholders.indexOf(placeholder) !== index
+      // );
+      // // Check if the user has moved an existing placeholder to a position where it already exists
+      // const hasInvalidChange = newPlaceholders.some((placeholder) => {
+      //   return (
+      //     existingPlaceholders.includes(placeholder) &&
+      //     newPlaceholders.indexOf(placeholder) !==
+      //       existingPlaceholders.indexOf(placeholder)
+      //   );
+      // });
+      // if (duplicates.length > 0 || hasInvalidChange) {
+      //   toast.error("You cannot change the variable placeholders in the body.");
+      //   return; // Do not update the state
+      // }
     }
     // Update the body content if validation passes
     setBodyContent(newValue);
   };
 
+  //function to load body veriables
   const loadVariables = () => {
     const variablePattern = /{{(.*?)}}/g;
     const matches = bodyContent.match(variablePattern);
-
+  
     if (matches) {
-      matches.forEach((variable) => {
-        //const variableName = variable.replace(/{{|}}/g, '');
-        addVariable(variable);
-      });
+      // Extract variable names with curly braces
+      const allVariables = matches.map((variable) => variable);
+      // Pass all variables to addVariable for resetting and updating
+      addVariable(null, allVariables);
+    } else {
+      // If no variables are found, clear the variables array
+      addVariable(null, []);
+      //setErrorMessage("No variables found in the body content.");
     }
   };
+  
+  
 
+  //function to load header veriables
   const loadheaderVariables = () => {
-    setheaderror("");
     const variablePattern = /{{(.*?)}}/g;
     const matches = content.match(variablePattern);
-
-    if (matches && matches.length === 1) {
-      matches.forEach((variable) => {
-        //const variableName = variable.replace(/{{|}}/g, '');
-        onFunction(variable);
-      });
+    setheaderror("");
+    if (matches) {
+      if(matches.length === 1){
+         // Extract variable names with curly braces
+      const allVariables = matches.map((variable) => variable);
+      // Pass all variables to addVariable for resetting and updating
+      onFunction(null, allVariables);
+      }
+      else{
+        setheaderror("You can add only one header veriable");
+      }
+      
+     
     } else {
-      setheaderror("Please enter only one variable in header");
+      // If no variables are found, clear the variables array
+      onFunction(null, []);
+      //setErrorMessage("No variables found in the body content.");
     }
   };
 
+  //function to handel head content change
   const handleHeadChange = (e) => {
     const newValue = e.target.value;
     if (showaddvarbutton === true) {
-      // Extract all variable placeholders like {{1}}, {{2}}, etc.
-      const existingPlaceholders = content.match(/\{\{\d+\}\}/g) || [];
-      const newPlaceholders = newValue.match(/\{\{\d+\}\}/g) || [];
+      // // Extract all variable placeholders like {{1}}, {{2}}, etc.
+      // const existingPlaceholders = content.match(/\{\{\d+\}\}/g) || [];
+      // const newPlaceholders = newValue.match(/\{\{\d+\}\}/g) || [];
 
-      // Check for removed placeholders
-      const removedPlaceholders = existingPlaceholders.filter(
-        (placeholder) => !newPlaceholders.includes(placeholder)
-      );
+      // // Check for removed placeholders
+      // const removedPlaceholders = existingPlaceholders.filter(
+      //   (placeholder) => !newPlaceholders.includes(placeholder)
+      // );
 
-      if (removedPlaceholders.length > 0) {
-        toast.error("You cannot remove existing variable placeholders.");
-        return; // Prevent state update
-      }
+      // if (removedPlaceholders.length > 0) {
+      //   toast.error("You cannot remove existing variable placeholders.");
+      //   return; // Prevent state update
+      // }
 
-      // Check for duplicates in the new content
-      const duplicates = newPlaceholders.filter(
-        (placeholder, index) => newPlaceholders.indexOf(placeholder) !== index
-      );
+      // // Check for duplicates in the new content
+      // const duplicates = newPlaceholders.filter(
+      //   (placeholder, index) => newPlaceholders.indexOf(placeholder) !== index
+      // );
 
-      // Check if the user has moved an existing placeholder to a position where it already exists
-      const hasInvalidChange = newPlaceholders.some((placeholder) => {
-        return (
-          existingPlaceholders.includes(placeholder) &&
-          newPlaceholders.indexOf(placeholder) !==
-            existingPlaceholders.indexOf(placeholder)
-        );
-      });
+      // // Check if the user has moved an existing placeholder to a position where it already exists
+      // const hasInvalidChange = newPlaceholders.some((placeholder) => {
+      //   return (
+      //     existingPlaceholders.includes(placeholder) &&
+      //     newPlaceholders.indexOf(placeholder) !==
+      //       existingPlaceholders.indexOf(placeholder)
+      //   );
+      // });
 
-      if (duplicates.length > 0 || hasInvalidChange) {
-        toast.error("You cannot change the variable placeholders in the body.");
-        return; // Do not update the state
-      }
+      // if (duplicates.length > 0 || hasInvalidChange) {
+      //   toast.error("You cannot change the variable placeholders in the body.");
+      //   return; // Do not update the state
+      // }
 
       // Update the body content if validation passes
       setContent(newValue);
@@ -372,8 +353,7 @@ const CustomMagicEditor = ({
           <div className="flex justify-end">
             {showaddvarbutton && (
               <Button
-                className="mt-3 text-underline  cursor-pointer  border-0"
-                disabled={headerVariable?.length === 1}
+                className="Btn-Regular-2"
                 onClick={() => {
                   loadheaderVariables();
                 }}
@@ -390,7 +370,7 @@ const CustomMagicEditor = ({
                 <b>{`Sample Value for ${variable.name}`}</b>
               </Label>
               <Row>
-                <Col>
+                <Col lg={6} md={6} sm={12}>
                   <Input
                     className="w-100"
                     type="text"
@@ -406,25 +386,6 @@ const CustomMagicEditor = ({
                     placeholder={`Enter Sample value for ${variable.name}`}
                     required
                   />
-                </Col>
-                <Col className="p-0">
-                  <div
-                    className="border-1 flex items-center justify-center rounded"
-                    style={{
-                      height: "46px",
-                      width: "38px",
-                      background: "#e1e1e1",
-                    }}
-                  >
-                    <FaTimes
-                      onClick={() => removeHeaderVariable(index)} // Handle variable removal
-                      style={{
-                        cursor: "pointer",
-                        color: "red",
-                        fontSize: "20px",
-                      }}
-                    />
-                  </div>
                 </Col>
               </Row>
             </FormGroup>
@@ -461,13 +422,11 @@ const CustomMagicEditor = ({
           <div className="flex justify-end">
             {showaddvarbutton && (
               <Button
+                className="Btn-Regular-2"
                 onClick={() => {
                   const variableIndex = variables?.length + 1;
                   loadVariables();
-                  //addVariable(variableIndex);
-                  //addVariableAtCursor(`{{${variableIndex}}}`);
                 }}
-                className="mt-3  cursor-pointer  border-0"
                 style={{ color: "white" }}
               >
                 Load Variable
@@ -480,7 +439,7 @@ const CustomMagicEditor = ({
                 <b>{`Sample Value for ${variable.name}`}</b>
               </Label>
               <Row>
-                <Col>
+                <Col lg={6} md={6} sm={12}>
                   <Input
                     className="w-100"
                     type="text"
@@ -496,25 +455,6 @@ const CustomMagicEditor = ({
                     placeholder={`Enter sample value for ${variable.name}`} // Placeholder text
                     required
                   />
-                </Col>
-                <Col className="p-0">
-                  <div
-                    className="border-1 flex items-center justify-center rounded"
-                    style={{
-                      height: "46px",
-                      width: "38px",
-                      background: "#e1e1e1",
-                    }}
-                  >
-                    <FaTimes
-                      onClick={() => removeVariable(index)} // Handle variable removal
-                      style={{
-                        cursor: "pointer",
-                        color: "red",
-                        fontSize: "20px",
-                      }}
-                    />
-                  </div>
                 </Col>
               </Row>
             </FormGroup>
