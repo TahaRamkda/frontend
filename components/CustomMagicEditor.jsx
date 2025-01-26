@@ -34,15 +34,15 @@ const CustomMagicEditor = ({
 
   useEffect(() => {
     if (existingContent !== content && existingContent !== undefined) {
-      //alert(existingContent)
       setContent(existingContent); // Set header content for editing
     }
+
     if (
       existingBodyContent !== bodyContent &&
       existingBodyContent !== undefined
     ) {
-      //alert(existingBodyContent)
       setBodyContent(existingBodyContent); // Set body content for editing
+      //loadVariables();
     }
   }, [existingContent, existingBodyContent]);
 
@@ -184,8 +184,13 @@ const CustomMagicEditor = ({
   //function to load body veriables
   const loadVariables = () => {
     const variablePattern = /{{(.*?)}}/g;
-    const matches = bodyContent.match(variablePattern);
-  
+    const contentToCheck =
+      bodyContent && bodyContent.trim() ? bodyContent : existingBodyContent;
+
+    const matches = contentToCheck
+      ? contentToCheck.match(variablePattern)
+      : null;
+
     if (matches) {
       // Extract variable names with curly braces
       const allVariables = matches.map((variable) => variable);
@@ -197,26 +202,27 @@ const CustomMagicEditor = ({
       //setErrorMessage("No variables found in the body content.");
     }
   };
-  
-  
 
   //function to load header veriables
   const loadheaderVariables = () => {
     const variablePattern = /{{(.*?)}}/g;
-    const matches = content.match(variablePattern);
+    const contentToCheck =
+      content && content.trim() ? content : existingContent;
+
+    const matches = contentToCheck
+      ? contentToCheck.match(variablePattern)
+      : null;
+
     setheaderror("");
     if (matches) {
-      if(matches.length === 1){
-         // Extract variable names with curly braces
-      const allVariables = matches.map((variable) => variable);
-      // Pass all variables to addVariable for resetting and updating
-      onFunction(null, allVariables);
-      }
-      else{
+      if (matches.length === 1) {
+        // Extract variable names with curly braces
+        const allVariables = matches.map((variable) => variable);
+        // Pass all variables to addVariable for resetting and updating
+        onFunction(null, allVariables);
+      } else {
         setheaderror("You can add only one header veriable");
       }
-      
-     
     } else {
       // If no variables are found, clear the variables array
       onFunction(null, []);

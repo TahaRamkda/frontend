@@ -58,7 +58,7 @@ const TemplateUpdatePage = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const [Loading, setLoading] = useState(true);
-  const[actionbuttonvalues ,setactionbuttonvalues] = useState([]);
+  const [actionbuttonvalues, setactionbuttonvalues] = useState([]);
   const { template, loading, error } = useSelector((state) => state.templates);
   const stripHtml = (input) => input.replace(/<[^>]*>/g, "");
   const [messagePreview, setMessagePreview] = useState({
@@ -142,8 +142,7 @@ const TemplateUpdatePage = () => {
         .finally(() => {
           setLoading(false);
         });
-    }
-    else{
+    } else {
       router.back();
     }
   }, [dispatch, Template_Id]);
@@ -152,11 +151,18 @@ const TemplateUpdatePage = () => {
   useEffect(() => {
     if (Loading || !template) return; // Wait for the data to be loaded
 
+    const customButtons = template.buttons?.map(button => {
+      return {
+        type: button.buttonType, // Example: Copy over the type
+        text: button.buttonText, // Example: Copy over the label
+        
+      };
+    }) ?? [];
     const updatedMessagePreview = {
       body: template.bodyText,
       footer: template.footerText,
       media: template.mediaURL,
-      buttons: template.buttonValues ?? [],
+      buttons: customButtons ?? [],
       templatename: template.templateName,
       visitWebsiteButtonCount: 0,
     };
@@ -168,14 +174,7 @@ const TemplateUpdatePage = () => {
       setupdatedheadvercontent(template.headerText);
       setheaderTextCount(template.headerParamCount);
 
-      if (template.headerValue) {
-        setHeaderVariable([template.headerValue]);
-        template.headerValue.forEach((variable, i) => {
-          if (variable?.defaultValue !== undefined) {
-            handleheaderVariableChange(i, variable.defaultValue);
-          }
-        });
-      }
+     
     } else {
       setSelectedMediaId(template.mediaId);
       setSelectedMediaPath(template.mediaURL);
@@ -186,21 +185,70 @@ const TemplateUpdatePage = () => {
     setupdatedvercontent(template.bodyText);
     setbodyTextCount(template.bodyParamCount);
 
-    if (template.bodyValues) {
-      setVariables(template.bodyValues);
-      template.bodyValues.forEach((variable, i) => {
-        if (variable?.defaultValue !== undefined) {
-          handleVariableChange(i, variable.defaultValue);
-        }
-      });
+    if (template.bodyText) {
+      // setVariables(template.bodyValues);
+      // template.bodyValues.forEach((variable, i) => {
+      //   if (variable?.defaultValue !== undefined) {
+      //     handleVariableChange(i, variable.defaultValue);
+      //   }
+      // });
     }
-    if (template.buttonValues) {
-      const updatedButtons = [...updatedMessagePreview.buttons];
-      updatedButtons.websiteUrl = template.buttonValues.url;
-      updatedButtons.urlveriable = template.buttonValues;
-      updatedButtons.urlveriablevalue = template.buttonValues;
-      updatedButtons.urlverindex = template.buttonValues;
+    if (template.buttons) {
+      debugger;
+    
+      // Create updated buttons array
+      const updatedButtons = template.buttons.map(button => {
+        return {
+          websiteUrl: button.buttonValue,
+          urlVariable: button.buttonValues,
+          urlVariableValue: button.buttonValues,
+          urlVerIndex: button.buttonValues,
+        };
+      });
+    
+      // Update the message preview with the new buttons
       setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+    }
+    
+    if (template.parameters) {
+      // Filter headerValue to only include items where type === 2
+      const filteredHeaderValues = template.parameters.filter(
+        (variable) => variable?.paramType === 1
+      );
+
+      if (filteredHeaderValues) {
+        const allVariables = filteredHeaderValues.map(
+          (variable) => variable.paramName
+        );
+        addHeaderVariable(null, allVariables);
+
+        filteredHeaderValues.forEach((variable, i) => {
+          if (variable?.paramDefaultValue !== undefined) {
+            handleheaderVariableChange(
+              variable.paramName,
+              variable.paramDefaultValue
+            );
+          }
+        });
+      }
+      const filteredbodyValues = template.parameters.filter(
+        (variable) => variable?.paramType === 2
+      );
+      // Set the filtered header values
+      if (filteredbodyValues) {
+        const allVariables = filteredbodyValues.map(
+          (variable) => variable.paramName
+        );
+        addVariable(null, allVariables);
+        filteredbodyValues.forEach((variable, i) => {
+          if (variable?.paramDefaultValue !== undefined) {
+            handleVariableChange(
+              variable.paramName,
+              variable.paramDefaultValue
+            );
+          }
+        });
+      }
     }
     setSelectedSenderId(template.senderId);
     setTemplatetype(template.category);
@@ -319,7 +367,6 @@ const TemplateUpdatePage = () => {
     try {
       const response = await dispatch(updateTemplates(requestBody)).unwrap();
       if (response.success) {
-        
         clearTemplateCreateState();
         showSweetAlert({
           title: "Updated Successfully",
@@ -349,49 +396,51 @@ const TemplateUpdatePage = () => {
 
   useEffect(() => {
     let updatedBody = bodyFinalContent;
-
-    // Replace variables in the body content
-    variables.forEach((variable, index) => {
-      updatedBody = updatedBody?.replace(`{{${index + 1}}}`, variable);
-    });
-
     // Handle newlines and preserve the flow
-    updatedBody = updatedBody?.replace(/\n/g, "<br/>"); // Convert newlines to <br/> tags for HTML rendering
+    updatedBody = updatedBody.replace(/\n/g, "<br/>"); // Convert newlines to <br/> tags for HTML rendering
 
     // Replace <p> tags only if necessary, and ensure newlines are handled correctly
     updatedBody = updatedBody
-      ?.replace(/<\/p>/gi, "<br/>")
+      .replace(/<\/p>/gi, "<br/>")
       .replace(/<p.*?>/gi, "");
-
+    updatedBody = updatedBody?.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    updatedBody = updatedBody.replace(/\*(.*?)\*/g, "<em>$1</em>");
+    updatedBody = updatedBody.replace(/~(.*?)~/g, "<sub>$1</sub>");
     // Update the message preview body content
     setMessagePreview((prev) => ({
       ...prev,
       body: updatedBody, // HTML safe body with <br/> tags and replaced variables
     }));
-  }, [bodyFinalContent, variables]);
+  }, [bodyFinalContent]);
 
-  const addVariable = (mineIndex) => {
-    // const newIndex = variables.length + 1;
-    console.log("MineIndex", mineIndex);
-    if (!bodyFinalContent.includes(`{{${mineIndex}}}`)) {
-      const html = bodyFinalContent;
-      //.replace(/<p[^>]*>/g, '') // Remove opening <p> tags
-      // .replace(/<\/p>/g, '<br />'); // Replace closing </p> tags with <br />
-      //.replace(/<br\s*\/?>/g, ''); // Remove existing <br /> tag
-      var a = `${html}{{${mineIndex}}}`;
-      console.log(a);
-      var value = bodyTextCount;
-      setbodyTextCount(value + 1);
-      setBodyContent(a);
-      setVariables((prev) => [...prev, ""]);
-      setErrorMessage("");
-    } else {
-      setErrorMessage(`Variable {${mineIndex}} already exists in the body.`);
-    }
+  const addVariable = (variablename, allVariables) => {
+    // If this is the first call, clear the existing array
+    setVariables((prev) => {
+      // Reset variables array if this is the first call with allVariables
+      if (allVariables) {
+        return allVariables.map((variable) => {
+          // Check if the variable already exists and maintain its value, otherwise default to an empty string
+          const existingVariable = prev.find((v) => v.name === variable);
+          return {
+            name: variable,
+            value: existingVariable ? existingVariable.value : "", // If variable exists, retain its value
+          };
+        });
+      }
+
+      // Add a new variable if it doesn't already exist
+      const existingVariable = prev.find((v) => v.name === variablename);
+      if (!existingVariable) {
+        return [...prev, { name: variablename, value: "" }];
+      }
+
+      return prev; // Return unchanged if the variable already exists
+    });
+
+    setErrorMessage(""); // Clear error message after adding or updating variable
   };
 
   const addURLVariable = (index) => {
-   
     const newIndex = 1;
 
     const updatedButtons = [...messagePreview.buttons];
@@ -456,11 +505,42 @@ const TemplateUpdatePage = () => {
     setupdatedvercontent(updatedBodyContent);
   };
 
-  const handleVariableChange = (index, value) => {
+  const handleVariableChange = (variableName, newValue) => {
     setVariables((prev) => {
-      const newVariables = [...prev];
-      newVariables[index] = value;
-      return newVariables;
+      // Update the variable's value in the array
+      const updatedVariables = prev.map((v) =>
+        v.name === variableName ? { ...v, value: newValue } : v
+      );
+
+      // Calculate the updated body content using the new variables
+      let updatedBody = bodyFinalContent;
+
+      updatedVariables.forEach((variable) => {
+        updatedBody = updatedBody.replace(
+          variable.name,
+          variable.value ? variable.value : variable.name
+        );
+      });
+
+      // Handle newlines and preserve the flow
+      updatedBody = updatedBody.replace(/\n/g, "<br/>"); // Convert newlines to <br/> tags for HTML rendering
+      updatedBody = updatedBody
+        .replace(/<\/p>/gi, "<br/>")
+        .replace(/<p.*?>/gi, ""); // Remove <p> tags
+      updatedBody = updatedBody?.replace(
+        /\*\*(.*?)\*\*/g,
+        "<strong>$1</strong>"
+      ); // Bold formatting
+      updatedBody = updatedBody.replace(/\*(.*?)\*/g, "<em>$1</em>"); // Italic formatting
+      updatedBody = updatedBody.replace(/~(.*?)~/g, "<sub>$1</sub>"); // Subscript formatting
+
+      // Update the message preview state in real time
+      setMessagePreview((prev) => ({
+        ...prev,
+        body: updatedBody, // Updated HTML content with variables replaced
+      }));
+
+      return updatedVariables; // Update the state
     });
   };
 
@@ -499,28 +579,54 @@ const TemplateUpdatePage = () => {
 
   // Additional Sam New Change
 
-  const addheaderVariable = (position) => {
-    if (headerVariable.length < 1) {
-      const newIndex = headerVariable.length + 1;
-      if (!headContent.includes(`{{${newIndex}}}`)) {
-        setHeadContent((prev) => {
-          const newHeadContent = prev + `{{${newIndex}}}`;
-          return newHeadContent;
-        });
+  // const addheaderVariable = (position) => {
+  //   if (headerVariable.length < 1) {
+  //     const newIndex = headerVariable.length + 1;
+  //     if (!headContent.includes(`{{${newIndex}}}`)) {
+  //       setHeadContent((prev) => {
+  //         const newHeadContent = prev + `{{${newIndex}}}`;
+  //         return newHeadContent;
+  //       });
 
-        setHeaderVariable((prev) => [
-          ...prev.slice(0, position),
-          `{{${newIndex}}}`,
-          ...prev.slice(position),
-        ]);
-        setErrorMessage("");
-        setRemoveHeaderButtonEnabled(true);
-      } else {
-        setErrorMessage(`Variable {${newIndex}} already exists in the header.`);
+  //       setHeaderVariable((prev) => [
+  //         ...prev.slice(0, position),
+  //         `{{${newIndex}}}`,
+  //         ...prev.slice(position),
+  //       ]);
+  //       setErrorMessage("");
+  //       setRemoveHeaderButtonEnabled(true);
+  //     } else {
+  //       setErrorMessage(`Variable {${newIndex}} already exists in the header.`);
+  //     }
+  //   } else {
+  //     setErrorMessage("You can only add one header variable.");
+  //   }
+  // };
+
+  const addHeaderVariable = (variablename, allVariables) => {
+    setHeaderVariable((prev) => {
+      // Reset variables array if this is the first call with allVariables
+      if (allVariables) {
+        return allVariables.map((variable) => {
+          // Check if the variable already exists and maintain its value, otherwise default to an empty string
+          const existingVariable = prev.find((v) => v.name === variable);
+          return {
+            name: variable,
+            value: existingVariable ? existingVariable.value : "", // If variable exists, retain its value
+          };
+        });
       }
-    } else {
-      setErrorMessage("You can only add one header variable.");
-    }
+
+      // Add a new variable if it doesn't already exist
+      const existingVariable = prev.find((v) => v.name === variablename);
+      if (!existingVariable) {
+        return [...prev, { name: variablename, value: "" }];
+      }
+
+      return prev; // Return unchanged if the variable already exists
+    });
+
+    setErrorMessage(""); // Clear error message after adding or updating variable
   };
 
   const handleBodyChange = (value) => {
@@ -564,27 +670,48 @@ const TemplateUpdatePage = () => {
     };
   }, [typingTimeout]);
 
-  const handleHeadChange = (value) => {
-    const placeholders = headerVariable.map((_, index) => `{{${index + 1}}}`);
-    const isValid = placeholders.every((placeholder) =>
-      value.includes(placeholder)
-    );
+  // const handleHeadChange = (value) => {
+  //   const placeholders = headerVariable.map((_, index) => `{{${index + 1}}}`);
+  //   const isValid = placeholders.every((placeholder) =>
+  //     value.includes(placeholder)
+  //   );
 
-    if (isValid) {
-      setHeadContent(value.replace(/\s\s+/g, " "));
-      setErrorMessage("");
-    } else {
-      setErrorMessage(
-        "You cannot change the variable placeholders in the header."
-      );
-    }
-  };
+  //   if (isValid) {
+  //     setHeadContent(value.replace(/\s\s+/g, " "));
+  //     setErrorMessage("");
+  //   } else {
+  //     setErrorMessage(
+  //       "You cannot change the variable placeholders in the header."
+  //     );
+  //   }
+  // };
 
-  const handleheaderVariableChange = (index, value) => {
+  const handleheaderVariableChange = (variableName, newValue) => {
     setHeaderVariable((prev) => {
-      const newHeaderVariable = [...prev];
-      newHeaderVariable[index] = value;
-      return newHeaderVariable;
+      // Update the variable's value in the array
+      const updatedVariables = prev.map((v) =>
+        v.name === variableName ? { ...v, value: newValue } : v
+      );
+
+      // Calculate the updated body content using the new variables
+      let updatedBody = finalContent;
+
+      // Replace all variables with their values in the updatedBody
+      updatedVariables.forEach((variable) => {
+        updatedBody = updatedBody.replace(
+          variable.name,
+          variable.value ? variable.value : variable.name
+        );
+      });
+
+      // Update the message preview state in real-time
+      setMessagePreview((prev) => ({
+        ...prev,
+        header: updatedBody, // Updated HTML content with variables replaced
+      }));
+
+      // Return the updated variables to set the new state
+      return updatedVariables;
     });
   };
 
@@ -674,6 +801,7 @@ const TemplateUpdatePage = () => {
       setwebsiteUrl("");
     }
   }, [buttonType, buttonText]);
+
   const removeHeaderVariable = (index) => {
     if (headerVariable.length > 1) {
       setHeaderVariable((prev) => prev.filter((_, i) => i !== index));
@@ -703,14 +831,13 @@ const TemplateUpdatePage = () => {
     setSelectedSenderId(role);
   };
 
-  const handlebuttonaction = (index,actionId,actionType,buttonValue) => {
-    
+  const handlebuttonaction = (index, actionId, actionType, buttonValue) => {
     setbuttonindex(index);
-    const buttonaction= {
-        actionId : actionId,
-        actionType: actionType,
-        buttonValue:buttonValue
-    }
+    const buttonaction = {
+      actionId: actionId,
+      actionType: actionType,
+      buttonValue: buttonValue,
+    };
     setactionbuttonvalues(buttonaction);
     setshowaction(true);
   };
@@ -744,9 +871,7 @@ const TemplateUpdatePage = () => {
   // }, [bodyFinalContent]);
   useEffect(() => {
     let updatedBody = bodyFinalContent;
-    variables.forEach((variable, index) => {
-      updatedBody = updatedBody.replace(`{{${index + 1}}}`, variable);
-    });
+
     updatedBody = updatedBody.replace(/\n/g, "<br/>"); // Convert newlines to <br/> tags for HTML rendering
 
     // Replace <p> tags only if necessary, and ensure newlines are handled correctly
@@ -766,7 +891,7 @@ const TemplateUpdatePage = () => {
       ...prev,
       body: updatedBody, // HTML safe body with <br/> tags and replaced variables
     }));
-  }, [bodyFinalContent, variables]);
+  }, [bodyFinalContent]);
 
   console.log("BodyFinalContent12", bodyContent, finalContent);
   if (Loading)
@@ -780,7 +905,8 @@ const TemplateUpdatePage = () => {
       <Container fluid className="mt-0">
         <Row style={{ height: "100vh" }}>
           <Col
-            md={6} lg={7}
+            md={6}
+            lg={7}
             className=" Updatetemplete-leftsection"
             style={{ padding: "20px", background: "#fff" }}
           >
@@ -843,9 +969,7 @@ const TemplateUpdatePage = () => {
 
                 return (
                   <Form>
-                    <div
-                      style={{ background: "#fff" }}
-                    >
+                    <div style={{ background: "#fff" }}>
                       <FormGroup>
                         <Label
                           for="templateName"
@@ -874,10 +998,7 @@ const TemplateUpdatePage = () => {
                         />
                       </FormGroup>
                     </div>
-                    <div
-                      style={{ background: "#fff" }}
-                      
-                    >
+                    <div style={{ background: "#fff" }}>
                       <FormGroup>
                         <Label
                           for="headerType"
@@ -920,7 +1041,7 @@ const TemplateUpdatePage = () => {
                               setheaderPayloaddatawithVar={
                                 setheaderPayloaddatawithVar
                               }
-                              onFunction={addheaderVariable}
+                              onFunction={addHeaderVariable}
                               headerVariable={headerVariable}
                               handleheaderVariableChange={
                                 handleheaderVariableChange
@@ -970,44 +1091,53 @@ const TemplateUpdatePage = () => {
                                 setSelectedMediaType(mimeType);
                               }}
                             />
-                             {/* New Button for Changing Media */}
-                             <div className="mt-3 text-sm">
-  <button
-    type="button" // Explicitly prevent form submission
-    className="text-blue-500 hover:underline text-sm font-medium"
-    onClick={(e) => {
-      e.preventDefault(); // Prevent default browser behavior
-      setShowMediaPopup(true); // Show the media popup
-    }}
-  >
-    Change {values.headerType === "2" ? "Image" : values.headerType === "3" ? "Video" : "Document"}
-  </button>
+                            {/* New Button for Changing Media */}
+                            <div className="mt-3 text-sm">
+                              <button
+                                type="button" // Explicitly prevent form submission
+                                className="text-blue-500 hover:underline text-sm font-medium"
+                                onClick={(e) => {
+                                  e.preventDefault(); // Prevent default browser behavior
+                                  setShowMediaPopup(true); // Show the media popup
+                                }}
+                              >
+                                Change{" "}
+                                {values.headerType === "2"
+                                  ? "Image"
+                                  : values.headerType === "3"
+                                  ? "Video"
+                                  : "Document"}
+                              </button>
 
-  {showMediaPopup && (
-    <Media
-      isPopup={true}
-      contentTypeStr={
-        values.headerType === "2"
-          ? "image"
-          : values.headerType === "3"
-          ? "video"
-          : "application"
-      }
-      onSelectMedia={(mediaId, mediaPath, mimeType) => {
-        setSelectedMediaId(mediaId);
-        setSelectedMediaPath(mediaPath);
-        setSelectedMediaType(mimeType);
-        setShowMediaPopup(false); // Close the popup after selection
-      }}
-    />
-  )}
-</div>
+                              {showMediaPopup && (
+                                <Media
+                                  isPopup={true}
+                                  contentTypeStr={
+                                    values.headerType === "2"
+                                      ? "image"
+                                      : values.headerType === "3"
+                                      ? "video"
+                                      : "application"
+                                  }
+                                  onSelectMedia={(
+                                    mediaId,
+                                    mediaPath,
+                                    mimeType
+                                  ) => {
+                                    setSelectedMediaId(mediaId);
+                                    setSelectedMediaPath(mediaPath);
+                                    setSelectedMediaType(mimeType);
+                                    setShowMediaPopup(false); // Close the popup after selection
+                                  }}
+                                />
+                              )}
+                            </div>
                           </>
                         )}
                       </div>
                     </div>
 
-                    <div >
+                    <div>
                       <FormGroup>
                         <Label for="body" className="text-sm font-semibold">
                           Body
@@ -1074,7 +1204,7 @@ const TemplateUpdatePage = () => {
                       </FormGroup>
                     ))} */}
 
-                    <div >
+                    <div>
                       <FormGroup>
                         <Label for="footer" className="text-sm font-semibold">
                           Footer
@@ -1138,7 +1268,7 @@ const TemplateUpdatePage = () => {
                         {/* Button Text Input */}
                         <Input
                           type="text"
-                          value={button.text}
+                          value={button.text }
                           placeholder="Button Text"
                           onChange={(e) => {
                             const updatedButtons = [...messagePreview.buttons];
@@ -1152,147 +1282,157 @@ const TemplateUpdatePage = () => {
                         />
 
                         {/* Type 1 Action Button */}
-                        {button.type === "1" || button.type === 1 && (
-                          <Button
-                            style={{
-                              backgroundColor: "grey",
-                              borderColor: "green",
-                              color: "white",
-                            }}
-                            className=""
-                            onClick={() => handlebuttonaction(index,button.actionId,button.actionType,button.buttonValue)}
-                          >
-                            <i className="fa fa-bolt"></i>
-                          </Button>
-                        )}
+                        {button.type === "1" ||
+                          (button.type === 1 && (
+                            <Button
+                              style={{
+                                backgroundColor: "grey",
+                                borderColor: "green",
+                                color: "white",
+                              }}
+                              className=""
+                              onClick={() =>
+                                handlebuttonaction(
+                                  index,
+                                  button.actionId,
+                                  button.actionType,
+                                  button.buttonValue
+                                )
+                              }
+                            >
+                              <i className="fa fa-bolt"></i>
+                            </Button>
+                          ))}
 
                         {/* Type 2: Phone Number Input */}
-                        {button.type === "2" || button.type === 2 && (
-                          <div className="d-flex me-2">
-                            <Input
-                              type="select"
-                              value={button.countryCode}
-                              onChange={(e) => {
-                                const updatedButtons = [
-                                  ...messagePreview.buttons,
-                                ];
-                                updatedButtons[index].countryCode =
-                                  e.target.value;
-                                setMessagePreview({
-                                  ...messagePreview,
-                                  buttons: updatedButtons,
-                                });
-                                setCountryCode(e.target.value);
-                              }}
-                              className="me-2"
-                              style={{ minWidth: "120px" }}
-                            >
-                              <option value="+965">KW +965</option>
-                              <option value="+1">US +1</option>
-                              <option value="+91">IN +91</option>
-                            </Input>
-                            <Input
-                              type="text"
-                              value={button.phoneNumber}
-                              placeholder="Phone Number"
-                              onChange={(e) => {
-                                const updatedButtons = [
-                                  ...messagePreview.buttons,
-                                ];
-                                updatedButtons[index].phoneNumber =
-                                  e.target.value;
-                                setMessagePreview({
-                                  ...messagePreview,
-                                  buttons: updatedButtons,
-                                });
-                              }}
-                              className="me-2"
-                              style={{ minWidth: "220px" }}
-                            />
-                          </div>
-                        )}
+                        {button.type === "2" ||
+                          (button.type === 2 && (
+                            <div className="d-flex me-2">
+                              <Input
+                                type="select"
+                                value={button.countryCode}
+                                onChange={(e) => {
+                                  const updatedButtons = [
+                                    ...messagePreview.buttons,
+                                  ];
+                                  updatedButtons[index].countryCode =
+                                    e.target.value;
+                                  setMessagePreview({
+                                    ...messagePreview,
+                                    buttons: updatedButtons,
+                                  });
+                                  setCountryCode(e.target.value);
+                                }}
+                                className="me-2"
+                                style={{ minWidth: "120px" }}
+                              >
+                                <option value="+965">KW +965</option>
+                                <option value="+1">US +1</option>
+                                <option value="+91">IN +91</option>
+                              </Input>
+                              <Input
+                                type="text"
+                                value={button.phoneNumber}
+                                placeholder="Phone Number"
+                                onChange={(e) => {
+                                  const updatedButtons = [
+                                    ...messagePreview.buttons,
+                                  ];
+                                  updatedButtons[index].phoneNumber =
+                                    e.target.value;
+                                  setMessagePreview({
+                                    ...messagePreview,
+                                    buttons: updatedButtons,
+                                  });
+                                }}
+                                className="me-2"
+                                style={{ minWidth: "220px" }}
+                              />
+                            </div>
+                          ))}
 
                         {/* Type 3: Website URL Input */}
-                        {button.type === "3" || button.type === 3&& (
-                          <>
-                            <div className="d-flex flex-column me-2">
-                              {/* Website URL Input */}
-                              <div className="d-flex">
-                                <Input
-                                  type="text"
-                                  value={button.url}
-                                  placeholder="Website URL"
-                                  onChange={(e) => {
-                                    const updatedButtons = [
-                                      ...messagePreview.buttons,
-                                    ];
-                                    updatedButtons[index].websiteUrl =
-                                      e.target.value;
-                                    setMessagePreview({
-                                      ...messagePreview,
-                                      buttons: updatedButtons,
-                                    });
-                                  }}
-                                  className="me-2"
-                                />
-                                <Button
-                                  onClick={() => addURLVariable(index)}
-                                  className="mt-0 mr-2 bg-transparent border-0"
-                                  style={{ minWidth: "max-content" }}
-                                >
-                                  <span className="text-primary">
-                                    + Add Variable
-                                  </span>
-                                </Button>
-                              </div>
-
-                              {/* URL Variable Input */}
-                              {button.urlveriablevalue != null && (
-                                <div className="mt-3">
-                                  <Row>
-                                    <Col>
-                                      <Input
-                                        className="w-100"
-                                        type="text"
-                                        value={button.urlveriablevalue}
-                                        onChange={(e) =>
-                                          handleurlVariableChange(
-                                            index,
-                                            e.target.value
-                                          )
-                                        }
-                                        placeholder={`Enter Sample value for {${
-                                          index + 1
-                                        }}`}
-                                      />
-                                    </Col>
-                                    <Col xs="auto">
-                                      <div
-                                        className="border-1 d-flex align-items-center justify-content-center rounded"
-                                        style={{
-                                          height: "46px",
-                                          width: "38px",
-                                          background: "#e1e1e1",
-                                        }}
-                                      >
-                                        <FaTimes
-                                          key={index}
-                                          onClick={() => {
-                                            removeWebsiteVariable(index);
-                                          }}
-                                          style={{
-                                            cursor: "pointer",
-                                            color: "red",
-                                          }}
-                                        />
-                                      </div>
-                                    </Col>
-                                  </Row>
+                        {button.type === "3" ||
+                          (button.type === 3 && (
+                            <>
+                              <div className="d-flex flex-column me-2">
+                                {/* Website URL Input */}
+                                <div className="d-flex">
+                                  <Input
+                                    type="text"
+                                    value={button.url}
+                                    placeholder="Website URL"
+                                    onChange={(e) => {
+                                      const updatedButtons = [
+                                        ...messagePreview.buttons,
+                                      ];
+                                      updatedButtons[index].websiteUrl =
+                                        e.target.value;
+                                      setMessagePreview({
+                                        ...messagePreview,
+                                        buttons: updatedButtons,
+                                      });
+                                    }}
+                                    className="me-2"
+                                  />
+                                  <Button
+                                    onClick={() => addURLVariable(index)}
+                                    className="mt-0 mr-2 bg-transparent border-0"
+                                    style={{ minWidth: "max-content" }}
+                                  >
+                                    <span className="text-primary">
+                                      + Add Variable
+                                    </span>
+                                  </Button>
                                 </div>
-                              )}
-                            </div>
-                          </>
-                        )}
+
+                                {/* URL Variable Input */}
+                                {button.urlveriablevalue != null && (
+                                  <div className="mt-3">
+                                    <Row>
+                                      <Col>
+                                        <Input
+                                          className="w-100"
+                                          type="text"
+                                          value={button.urlveriablevalue}
+                                          onChange={(e) =>
+                                            handleurlVariableChange(
+                                              index,
+                                              e.target.value
+                                            )
+                                          }
+                                          placeholder={`Enter Sample value for {${
+                                            index + 1
+                                          }}`}
+                                        />
+                                      </Col>
+                                      <Col xs="auto">
+                                        <div
+                                          className="border-1 d-flex align-items-center justify-content-center rounded"
+                                          style={{
+                                            height: "46px",
+                                            width: "38px",
+                                            background: "#e1e1e1",
+                                          }}
+                                        >
+                                          <FaTimes
+                                            key={index}
+                                            onClick={() => {
+                                              removeWebsiteVariable(index);
+                                            }}
+                                            style={{
+                                              cursor: "pointer",
+                                              color: "red",
+                                            }}
+                                          />
+                                        </div>
+                                      </Col>
+                                    </Row>
+                                  </div>
+                                )}
+                              </div>
+                            </>
+                          ))}
 
                         {/* Remove Button */}
                         <Button
@@ -1330,8 +1470,9 @@ const TemplateUpdatePage = () => {
             </Formik>
           </Col>
           <Col
-             md={6} lg={5}
-           className="h-screen right-10 Updatetemplete_chatSection "
+            md={6}
+            lg={5}
+            className="h-screen right-10 Updatetemplete_chatSection "
             // style={{
             //   position: "fixed", // Fix the position
             //   top: "-50", // Adjust to your layout
@@ -1361,15 +1502,15 @@ const TemplateUpdatePage = () => {
             <div
               className="border p-3 rounded"
               style={{
-               // maxHeight: "700px",
-                                 minHeight: "400px",
-                                 backgroundColor: "#e0e0e0",
-                                 backgroundImage: `url(${bagroundimage.src})`, // Update this path
-                                 backgroundSize: "cover",
-                                 backgroundPosition: "center",
-                                 boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-                                 maxWidth: "800px", // Increased width of preview container
-                                 position: "relative", // Keep the container relative for positioning
+                // maxHeight: "700px",
+                minHeight: "400px",
+                backgroundColor: "#e0e0e0",
+                backgroundImage: `url(${bagroundimage.src})`, // Update this path
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+                maxWidth: "800px", // Increased width of preview container
+                position: "relative", // Keep the container relative for positioning
               }}
             >
               <div
