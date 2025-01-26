@@ -208,11 +208,11 @@ const Dashboard = () => {
           </div>
         </div>
         {/* Tiles */}
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-5 row">
           {dashboardsummary?.UtilityMessages?.map((tile, index) => (
             <div
               key={index}
-              className="bg-white shadow-md rounded-lg p-4 text-left"
+              className="bg-white shadow-md rounded-lg col-lg-3 mb-5 col-md-4 p-4 text-left"
               style={{ borderTop: `4px solid ${tile.Color}` }}
             >
               <h3 className="text-lg font-bold">{tile.Title}</h3>
@@ -252,7 +252,7 @@ const Dashboard = () => {
           {dashboardsummary?.MarketingMessages?.map((tile, index) => (
             <div
               key={index}
-              className="bg-white shadow-md rounded-lg p-4 text-left"
+              className="bg-white shadow-md rounded-lg col-lg-3 mb-5 col-md-4 p-4 text-left"
               style={{ borderTop: `4px solid ${tile.Color}` }}
             >
               <h3 className="text-lg font-bold">{tile.Title}</h3>
@@ -268,7 +268,7 @@ const Dashboard = () => {
           {dashboardsummary?.TotalConversations?.map((tile, index) => (
             <div
               key={index}
-              className="bg-white shadow-md rounded-lg p-4 text-left"
+              className="bg-white shadow-md rounded-lg col-lg-3 mb-5 col-md-4 p-4 text-left"
               style={{ borderTop: `4px solid ${tile.Color}` }}
             >
               <h3 className="text-lg font-bold">{tile.Title}</h3>
@@ -285,7 +285,7 @@ const Dashboard = () => {
           {dashboardsummary?.TotalConversationsInitiated?.map((tile, index) => (
             <div
               key={index}
-              className="bg-white shadow-md rounded-lg p-4 text-left"
+              className="bg-white shadow-md rounded-lg col-lg-3 mb-5 col-md-4 p-4 text-left"
               style={{ borderTop: `4px solid ${tile.Color}` }}
             >
               <h3 className="text-lg font-bold">{tile.Title}</h3>
@@ -302,7 +302,7 @@ const Dashboard = () => {
           {dashboardsummary?.ActiveConversations.map((tile, index) => (
             <div
               key={index}
-              className="bg-white shadow-md rounded-lg p-4 text-left"
+              className="bg-white shadow-md rounded-l col-lg-3 mb-5 col-md-4 g p-4 text-left"
               style={{ borderTop: `4px solid ${tile.Color}` }}
             >
               <h3 className="text-lg font-bold">{tile.Title}</h3>
@@ -324,7 +324,7 @@ const Dashboard = () => {
           <h3 className="text-xl font-semibold text-center mb-4">
             Total Messages Chart
           </h3>
-          <div style={{ height: "400px" }}>
+          <div className="chart-dashboard" style={{ height: "400px" }}>
             <Line
               data={lineChartData}
               options={{ maintainAspectRatio: false }}

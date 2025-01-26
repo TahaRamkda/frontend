@@ -3,35 +3,35 @@ export const LOGINAPI = "/User/Login";
 export const REFRESHTOKENAPI = "/Token/Refresh";
 export const DASHBOARDSUMMARY = "/Dashboard/getdashboardsummary";
 export const DASHBOARDREPORT="/Dashboard/getdashboardreportsummary";
-// Clients
+// Clients endpoints
 export const CREATECLIENT = "/Clients/addClient";
 export const CLIENTLIST="/Clients/getclientslist";
 export const CLIENTDETAIL = "/Clients/getclientbyid";
 export const CLIENTUPDATE = "/Clients/updateclient";
 export const DELETECLIENT = "/Clients/deleteclient";
 export const CLIENTDROPDOWN = "/Clients/getclients";
-
+//sendername endpoints
 export const SENDERNAMELIST = "/SenderNames/getsenderNameslist";
 export const CREATESENDERNAME = "/SenderNames/addSenderName";
 export const SENDERNAMEDETAIL = "/SenderNames/getsenderNamebyid";
 export const UPDATESENDERNAME = "/SenderNames/updatesenderName";
 export const DELETESENDERNAME = "/SenderNames/deletesenderName";
 export const SENDERNAMEDROP = "/SenderNames/getsendernames"
-
+//Contact endpoints
 export const CONTACTLIST="/Contacts/getcontactslist"; 
 export const CONTACTDETAILS="/Contacts/getcontactbyid"; 
 export const CREATECONTACT="/Contacts/addContact";
 export const DELETECONTACT="/Contacts/deletecontact"; 
 export const UPDATECONTACT="/Contacts/updatecontact";
 export const BULKUPLOAD = "/Contacts/importcontacts"
-
+//Group endpoints
 export const GROUPLIST = "/Groups/getgroupslist";
 export const CREATEGROUP = "/Groups/addGroup" ;
 export const GROUPDETAILS = "/Groups/getgroupbyid";
 export const UPDATEGROUP = "/Groups/updategroup";
 export const DELETEGROUP = "/Groups/deletegroup";
 export const GROUPDROPDOWN = "/Groups/getgroups"
-
+//Template endpoints
 export const TEMPLATELIST = "/Templates/gettemplateslist";
 export const INRERACTIVETEMPLATELIST = "/InteractiveTemplates/getinteractivetemplateslist"
 export const TEMPLATEDETAILS = "/Templates/gettemplatedetails";
@@ -43,14 +43,14 @@ export const UPDATETEMPLATE = "/Templates/updatetemplate";
 export const UPDATEINTERACTIVETEMPLATE = "/InteractiveTemplates/updateinteractivetemplate";
 export const DELETETEMPLATE = "/Templates/deletetemplate";
 export const TEMPLATEDROPDOWN = "/Templates/gettemplates"
-
+//Role endpoints
 export const ROLELIST = "/Role/getRolelist";
 export const ROLEDETAILS = "/Role/getRolebyid";
 export const CREATEROLES = "/Role/addRole";
 export const UPDATEROLES = "/Role/updateRole";
 export const DELETEROLES = "/Role/deleteRole";
 export const ROLEDROP = "/Role/getroles"
-
+//Campaign endpoints
 export const CREATECAMPAIGN = "/Campaigns/addcampaign";
 export const CAMPAIGNLIST = "/Campaigns/getcampaignlist";
 export const ACTIVATECAMPAIGN = "/Campaigns/activatecampaign";
@@ -59,15 +59,14 @@ export const CAMPAIGNDETAIL = "/Campaigns/getcampaigndetail";
 export const CAMPAIGNCONTACTFREQUENTSTATE="/Campaigns/getcampaigncontactstats";
 export const CAMPAIGNCONTACTFREQUENTREMOVE="/Campaigns/deletefrequentlycontactedcontacts";
 export const SENDCAMPAIGN="/Campaigns/sendcampaign";
-
-
+//Media endpoints
 export const UPLOADMEDIA = "/Media/uploadmedia"
 export const MEDIALIST = "/Media/getmedialist"
 export const DELETEMEDIA = "/Media/deletemedia"
-
+//Permission endpoints
 export const PERMISSIONLIST = "/Permissions/getpermissionlist"
 export const CREATEPERMISSION = "/Permissions/addpermission"
-
+//user endpoints
 export const USERLIST = "/User/getuserslist"
 export const USERDETAILS = "/User/getuserbyid"
 export const CREATEUSER = "/User/adduser"
@@ -82,7 +81,7 @@ export const ACTIVECONVOLIST = "#"
 export const AGENTSSTATUSLIST = "#"
 export const TEMPLATEINSIGHT = "/Dashboard/gettemplateinsight"
 
-
+//agenst endpoints
 export const AGENTLIST = "/Agents/getagentlist"
 export const AGENTDETAILS = "/Agents/getagentbyid"
 export const CREATEAGENT = "/Agents/addagent"
