@@ -10,7 +10,7 @@ export const fetchConversationList = createAsyncThunk(
   'conversation/fetchConversationList',
   async ({clientId,AgentId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${CONVERSATIONLIST}?clientId=${clientId}&agentId=${AgentId}`);
+      const response = await API.get(`${CONVERSATIONLIST}?agentId=${AgentId}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           conversations: response.data.result,
@@ -32,7 +32,7 @@ export const fetchConversationMessage = createAsyncThunk(
     try {
       
       const response = await API.get(
-        `${CONVERSATIONMESSAGE}?clientId=${clientId}&id=${ChatId}&pageNo=${pageNo}&pageSize=15`
+        `${CONVERSATIONMESSAGE}?id=${ChatId}&pageNo=${pageNo}&pageSize=15`
       );
       if (response?.status === 200 && response.data?.result) {
         return {
@@ -80,7 +80,7 @@ export const fetchConversationMessage = createAsyncThunk(
     'conversation/Transferchat',
     async ({ clientId, AgentId, ChatId, Comment,oldAgentId }, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${TRANSFERCHAT}?clientId=${clientId}&oldAgentId=${oldAgentId}&agentId=${AgentId}&id=${ChatId}&Comment=${Comment}`);
+        const response = await API.get(`${TRANSFERCHAT}?oldAgentId=${oldAgentId}&agentId=${AgentId}&id=${ChatId}&Comment=${Comment}`);
         
         if (response?.status === 200) {
           return response.data; // Pass API response to fulfilled reducer
@@ -100,7 +100,7 @@ export const fetchConversationMessage = createAsyncThunk(
       try {
         
         const response = await API.get(
-          `${CONVERSATIONMESSAGE}?clientId=${clientId}&id=${ChatId}`
+          `${CONVERSATIONMESSAGE}?id=${ChatId}`
         );
         if (response?.status === 200 && response.data?.result) {
           return {

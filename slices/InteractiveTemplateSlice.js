@@ -6,6 +6,7 @@ import {
   INRERACTIVETEMPLATELIST,
   INTERACTIVETEMPLATEDETAILS,
   UPDATEINTERACTIVETEMPLATE,
+  INTERACTIVETEMPLATEDROPWITHOUTPARAM
 } from "@/utils/apiConstants";
 
 // Thunks
@@ -17,7 +18,7 @@ export const fetchInteractiveTemplates = createAsyncThunk(
   'template/interactiveTemplateList',
   async ({clientId = localStorage.getItem("clientId"),fromDate,searchStr,toDate,pageNo,pageSize}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${INRERACTIVETEMPLATELIST}?clientId=${clientId}${searchStr?`&searchStr=${searchStr}`:''}&fromDate=${fromDate}&toDate=${toDate}&pageNo=${pageNo}&pageSize=${pageSize}`);
+      const response = await API.get(`${INRERACTIVETEMPLATELIST}?${searchStr?`searchStr=${searchStr}`:''}&fromDate=${fromDate}&toDate=${toDate}&pageNo=${pageNo}&pageSize=${pageSize}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           interactiveTemplateList: response.data.result,
@@ -38,12 +39,30 @@ export const fetchInteractiveTemplateDrop = createAsyncThunk(
   'template/interactiveTemplateList',
   async ({clientId = localStorage.getItem("clientId")}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${INRERACTIVETEMPLATELIST}?clientId=${clientId}`);
+      const response = await API.get(`${INRERACTIVETEMPLATELIST}`);
       if (response?.status === 200 ) {
         return {
           interactiveTemplateList: response.data.result,
           totalRecords:
             response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+        };
+      } else {
+        throw new Error("Failed to fetch details");
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+export const fetchInteractiveTemplateDropWithoutParam = createAsyncThunk(
+  'template/fetchInteractiveTemplateDropWithoutParam',
+  async ({clientId = localStorage.getItem("clientId"),senderId}, { rejectWithValue }) => {
+    try {
+      const response = await API.get(`${INTERACTIVETEMPLATEDROPWITHOUTPARAM}?senderId=${senderId}`);
+      if (response?.status === 200 ) {
+        return {
+          interactiveTemplateDropList: response.data.result,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -62,7 +81,7 @@ export const fetchInteractiveTemplatesById = createAsyncThunk(
   async ({ templateId, ClientId }, { rejectWithValue }) => {
     try {
       const response = await API.get(
-        `${INTERACTIVETEMPLATEDETAILS}?interactiveTemplateId=${templateId}&clientId=${ClientId}`
+        `${INTERACTIVETEMPLATEDETAILS}?interactiveTemplateId=${templateId}`
       );
       return response.data;
     } catch (error) {
@@ -110,6 +129,7 @@ const interactiveTemplateSlice = createSlice({
   name: "interactiveTemplate",
   initialState: {
     interactiveTemplateList:[],
+    interactiveTemplateDropList:[],
     interactivetemplatedetail: null,
     loading: false,
     error: null,
@@ -149,6 +169,12 @@ const interactiveTemplateSlice = createSlice({
       state.error = null;
       state.success = false;
     },
+    clearInteractiveTemplateDropStateState: (state) => {
+      state.interactiveTemplateDropList=[];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    },
 
   },
   extraReducers: (builder) => {
@@ -166,6 +192,21 @@ const interactiveTemplateSlice = createSlice({
         state.message = action.payload.message || "";
       })
       .addCase(fetchInteractiveTemplates.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+
+      .addCase(fetchInteractiveTemplateDropWithoutParam.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchInteractiveTemplateDropWithoutParam.fulfilled, (state, action) => {
+        state.loading = false;
+        state.interactiveTemplateDropList = action.payload.interactiveTemplateDropList;
+        state.message = action.payload.message || "";
+      })
+      .addCase(fetchInteractiveTemplateDropWithoutParam.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
@@ -232,6 +273,7 @@ export const {
   setPageSize,
   setCurrentPage,
   clearInteractiveTemplateDetailState,
+  clearInteractiveTemplateDropStateState,
   clearInteractiveTemplateCreateState,
   clearInteractiveTemplateListState,
 } = interactiveTemplateSlice.actions;

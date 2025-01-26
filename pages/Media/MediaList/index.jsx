@@ -83,7 +83,7 @@ if(medias){
   };
 
   const renderMediaPreview = (mediaPath, mimeType) => {
-    const previewStyle = "w-full h-56 overflow-hidden flex justify-center items-center rounded-lg bg-gray-100";
+    const previewStyle = "w-full popup_img_container overflow-hidden flex justify-center items-center rounded-lg bg-gray-100";
 
     if (mimeType.startsWith("image/")) {
       return (
@@ -91,7 +91,7 @@ if(medias){
           <img
             src={`${BASE_URL}${mediaPath}`}
             alt="Image"
-            className="w-full h-full object-cover rounded-lg"
+            className="w-full img-fluid h-full object-cover rounded-lg"
           />
         </div>
       );
@@ -158,7 +158,7 @@ if(medias){
         <div className="bg-white p-6 rounded shadow-lg w-50 relative">
          <ModalHeader toggle={() => toggleModal()}>Media Gallery</ModalHeader>
          <ModalBody>
-            <div className={`w-full mt-4 ${isPopup ? 'max-h-[40vh] overflow-y-auto' : ''}`}>
+            <div className={`w-full ${isPopup ? 'max-h-[40vh] overflow-y-auto' : ''}`}>
       <div>
         {loading && <div className="text-center text-blue-500"><Loader /></div>}
         {error && <div className="text-center text-red-500">{error}</div>}
@@ -170,13 +170,13 @@ if(medias){
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 lg:grid-cols-5 gap-4">
           {Medialist.map((media) => (
             <div key={media.mediaId} className="flex flex-col items-center space-y-2">
-              <div className="w-full h-64 overflow-hidden">
+              <div className="w-full  overflow-hidden">
                 {renderMediaPreview(media.mediaPath, media.contentType || "application/pdf")}
               </div>
               {isPopup ? (
                 <button
                   type="button"
-                  className={`w-full px-4 py-2 rounded bg-blue-700 text-white ${selectedMediaId === media.id ? "bg-green-500" : ""}`}
+                  className={` Btn-Regular  ${selectedMediaId === media.id ? "bg-green-500" : ""}`}
                   onClick={() =>
                     handleSelectImage(media.id, media.mediaPath, media.contentType)
                   }
@@ -185,7 +185,7 @@ if(medias){
                 </button>
               ) : (
                 <button
-                  className="w-full px-4 py-2 rounded bg-red-500 text-white"
+                  className="w-full px-4 py-2 rounded  bg-red-500 text-white"
                   onClick={() => handleDeleteClick(media.id)}
                 >
                   Delete
@@ -212,16 +212,16 @@ if(medias){
           onsenderChange={handlesenderchange}
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 lg:grid-cols-5 gap-4">
+        <div className="row">
           {Medialist.map((media) => (
-            <div key={media.mediaId} className="flex flex-col items-center space-y-2">
-              <div className="w-full h-64 overflow-hidden">
+            <div key={media.mediaId} className="flex flex-col items-center space-y-2 col-lg-2 col-md-3 mb-5">
+              <div className="w-full overflow-hidden">
                 {renderMediaPreview(media.mediaPath, media.contentType || "application/pdf")}
               </div>
               {isPopup ? (
                 <button
                   type="button"
-                  className={`w-full px-4 py-2 rounded bg-blue-700 text-white ${selectedMediaId === media.id ? "bg-green-500" : ""}`}
+                  className={`Btn-Regular ${selectedMediaId === media.id ? "bg-green-500" : ""}`}
                   onClick={() =>
                     handleSelectImage(media.id, media.mediaPath, media.contentType)
                   }
@@ -230,9 +230,9 @@ if(medias){
                 </button>
               ) : (
                 <button
-                  className="w-full px-4 py-2 rounded bg-red-500 text-white"
+                  className="Btn-Regular-3"
                   onClick={() => handleDeleteClick(media.id)}
-                >
+                ><i className="fa fa-trash mr-2"></i>
                   Delete
                 </button>
               )}

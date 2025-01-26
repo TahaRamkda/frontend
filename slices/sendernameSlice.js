@@ -10,7 +10,7 @@ export const fetchSendernames = createAsyncThunk(
   'sendername/fetchSendernames',
   async ({client_Id}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${SENDERNAMELIST}?ClientId=${client_Id}`);
+      const response = await API.get(`${SENDERNAMELIST}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           sendernames: response.data.result,
@@ -29,7 +29,7 @@ export const fetchSendernamesDrop = createAsyncThunk(
   'sendername/fetchSendernamesDrop',
   async ({clientId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${SENDERNAMEDROP}?ClientId=${clientId}`);
+      const response = await API.get(`${SENDERNAMEDROP}`);
       if (response?.status === 200 ) {
         return {
           sendernameDrop: response.data.result,
@@ -49,7 +49,7 @@ export const fetchSendernameById = createAsyncThunk(
   'sendername/fetchSendernameById',
   async ({senderId,clientId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${SENDERNAMEDETAIL}?clientId=${clientId}&id=${senderId}`);
+      const response = await API.get(`${SENDERNAMEDETAIL}?id=${senderId}`);
       return response.data;
     } catch (error) {
       const handledError = handleError(error);

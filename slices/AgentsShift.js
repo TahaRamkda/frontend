@@ -11,7 +11,7 @@ export const fetchAgentShiftList = createAsyncThunk(
   'agent/fetchAgentsShift',
   async ({clientId, searchStr,senderId,pageSize,pageNo}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${AGENTSSHIFT}?ClientId=${clientId}${searchStr?`&searchStr=${searchStr}`:''}&senderId=${senderId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+      const response = await API.get(`${AGENTSSHIFT}?${searchStr?`searchStr=${searchStr}`:''}&senderId=${senderId}&pageNo=${pageNo}&pageSize=${pageSize}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           agentsShift: response.data.result,
@@ -52,7 +52,7 @@ export const fetchAgentsShiftById = createAsyncThunk(
   'agent/fetchAgentsShiftById',
   async ({agentId,clientId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${AGENTSHIFTDETAILS}?clientId=${clientId}&agentId=${agentId}`);
+      const response = await API.get(`${AGENTSHIFTDETAILS}?agentId=${agentId}`);
       return response.data;
     } catch (error) {
       const handledError = handleError(error);

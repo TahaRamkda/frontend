@@ -9,7 +9,7 @@ export const fetchContact = createAsyncThunk(
   'contact/fetchContact',
   async ({clientId,groupId,searchStr,pageNo,pageSize}, { rejectWithValue }) => {
     try {
-     const response = await API.get(`${CONTACTLIST}?ClientId=${clientId}&GroupId=${groupId}&PageNo=${pageNo}&PageSize=${pageSize}${searchStr ? `&SearchStr=${searchStr}` : ''}`);
+     const response = await API.get(`${CONTACTLIST}?GroupId=${groupId}&PageNo=${pageNo}&PageSize=${pageSize}${searchStr ? `&SearchStr=${searchStr}` : ''}`);
       if (response?.status === 200 && response.data?.result) {
         console.log("Total Recordsssssss:", response.data.result[0]);
         return {
@@ -30,7 +30,7 @@ export const fetchContactById = createAsyncThunk(
   'contact/fetchContactById',
   async ({contactId,clientId=localStorage.getItem("clientId")}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${CONTACTDETAILS}?Id=${contactId}&clientId=${clientId}`);
+      const response = await API.get(`${CONTACTDETAILS}?Id=${contactId}`);
       return response.data;
     } catch (error) {
       const handledError = handleError(error);

@@ -10,7 +10,7 @@ export const fetchMedia = createAsyncThunk(
   'media/fetchMedia',
   async ({ClientId,contentTypeStr,senderId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${MEDIALIST}?ClientId=${ClientId}&contentTypeStr=${contentTypeStr ? contentTypeStr : ''}&senderId=${senderId?senderId:0}`);
+      const response = await API.get(`${MEDIALIST}?contentTypeStr=${contentTypeStr ? contentTypeStr : ''}&senderId=${senderId?senderId:0}`);
       if (response?.status === 200) {
         return {
           medias: response.data.result,

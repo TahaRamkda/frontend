@@ -9,9 +9,9 @@ import { AGENTLIST, AGENTDETAILS, CREATEAGENT, DELETEAGENT, UPDATEAGENT, AGENTST
 // Fetch Clients
 export const fetchAgents = createAsyncThunk(
   'agent/fetchAgents',
-  async ({clientId, searchStr,senderId,pageSize,pageNo}, { rejectWithValue }) => {
+  async ({ searchStr,senderId,pageSize,pageNo}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${AGENTLIST}?ClientId=${clientId}${searchStr?`&searchStr=${searchStr}`:''}&senderId=${senderId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+      const response = await API.get(`${AGENTLIST}?${searchStr?`searchStr=${searchStr}`:''}&senderId=${senderId}&pageNo=${pageNo}&pageSize=${pageSize}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           agents: response.data.result,
@@ -31,7 +31,7 @@ export const fetchActiveAgentsDrop = createAsyncThunk(
   'agent/fetchActiveAgentsDrop',
   async ({clientId,senderId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${ACTIVEAGENTS}?ClientId=${clientId}&senderId=${senderId}`);
+      const response = await API.get(`${ACTIVEAGENTS}?senderId=${senderId}`);
       if (response?.status === 200 ) {
         return {
           activeAgentDrop: response.data.result,
@@ -52,7 +52,7 @@ export const fetchAgentsDrop = createAsyncThunk(
   'agent/fetchAgentsDrop',
   async ({clientId,senderId,pageNo,pageSize,searchStr}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${AGENTDROPDOWN}?ClientId=${clientId}&senderId=${senderId}${searchStr?`&searchStr=${searchStr}`: ''}`);
+      const response = await API.get(`${AGENTDROPDOWN}?senderId=${senderId}${searchStr?`&searchStr=${searchStr}`: ''}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           agentDrop: response.data.result,
@@ -73,7 +73,7 @@ export const fetchAgentsTimingList = createAsyncThunk(
   'agent/fetchAgentsTimingList',
   async ({clientId, agentId, senderId, pageNo, pageSize}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${AGENTSTIMINGLIST}?ClientId=${clientId}&agentId=${agentId}`);
+      const response = await API.get(`${AGENTSTIMINGLIST}?agentId=${agentId}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           agentsTiming: response.data.result,
@@ -94,7 +94,7 @@ export const fetchAgentStats = createAsyncThunk(
   'agent/fetchAgentStats',
   async ({clientId = localStorage.getItem("clientId"), agentId = localStorage.getItem("userId"),senderId = 0}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${GETAGENTSTATS}?clientId=${clientId}&senderId=${senderId}&agentId=${agentId}`);
+      const response = await API.get(`${GETAGENTSTATS}?senderId=${senderId}&agentId=${agentId}`);
       if (response?.status === 200 && response.data?.result) {
         return {
           AgentStats: response.data.result,
@@ -129,7 +129,7 @@ export const fetchAgentsById = createAsyncThunk(
   'agent/fetchAgentsById',
   async ({agentId,clientId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${AGENTDETAILS}?clientId=${clientId}&agentId=${agentId}`);
+      const response = await API.get(`${AGENTDETAILS}?agentId=${agentId}`);
       return response.data;
     } catch (error) {
       const handledError = handleError(error);

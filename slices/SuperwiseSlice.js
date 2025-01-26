@@ -8,7 +8,8 @@ export const fetchChatsMonitor = createAsyncThunk(
     'chatsmonitor /fetchChatsMonitor',
     async ({clientId, pageSize,pageNo,senderId, searchStr}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${CHATSMONITOR}?clientId=${clientId}${searchStr? `&searchStr=${searchStr}`: ''}&senderId=${senderId}&pageSize=${pageSize}&pageNo=${pageNo}`);
+
+        const response = await API.get(`${CHATSMONITOR}?${searchStr? `searchStr=${searchStr}`: ''}&senderId=${senderId}&pageSize=${pageSize}&pageNo=${pageNo}`);
         if (response?.status === 200 && response.data?.result) {
           return {
           chatsMonitor: response.data.result,
@@ -28,7 +29,7 @@ export const fetchAgentsMonitor = createAsyncThunk(
     'agentmonitor/fetchAgentsMonitor',
     async ({clientId, fromDate, toDate, senderId, srcStr, pageSize,pageNo}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${AGENTSMONITOR}?clientId=${clientId}&fromDate=${fromDate}&toDate=${toDate}&senderId=${senderId}&pageSize=${pageSize}&pageNo=${pageNo}${srcStr? `&searchStr=${srcStr}`:''}`);
+        const response = await API.get(`${AGENTSMONITOR}?fromDate=${fromDate}&toDate=${toDate}&senderId=${senderId}&pageSize=${pageSize}&pageNo=${pageNo}${srcStr? `&searchStr=${srcStr}`:''}`);
         if (response?.status === 200 && response.data?.result) {
           return {
           agentsMonitor: response.data.result,
@@ -49,7 +50,7 @@ export const fetchAgentsMonitor = createAsyncThunk(
     'media/agentDisable',
     async ({agentId, disable,clientId}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${AGENTDISABLE}?clientId=${clientId}&agentId=${agentId}&disable=${disable}`);
+        const response = await API.get(`${AGENTDISABLE}?agentId=${agentId}&disable=${disable}`);
         return response.data;
       } catch (error) {
         const handledError = handleError(error);

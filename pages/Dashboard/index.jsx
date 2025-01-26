@@ -208,21 +208,21 @@ const Dashboard = () => {
           </div>
         </div>
         {/* Tiles */}
-        <div className="grid grid-cols-5 row">
+        <div className="dashboard_stats row">
           {dashboardsummary?.UtilityMessages?.map((tile, index) => (
             <div
               key={index}
-              className="bg-white shadow-md rounded-lg col-lg-3 mb-5 col-md-4 p-4 text-left"
+              className="bg-white stats shadow-md rounded-lg col-lg-3 mb-5 col-md-4 p-3 text-left"
               style={{ borderTop: `4px solid ${tile.Color}` }}
             >
-              <h3 className="text-lg font-bold">{tile.Title}</h3>
-              <hr className="h-1" />
+              <h3 className=" font-bold mb-0 ">{tile.Title}</h3>
+              <hr className="h-1 d-hr" />
               <table border="1">
                 <tr></tr>{" "}
                 <tr>
                   <td>
                     {" "}
-                    <p className="text-lg font-semibold">
+                    <p className=" font-semibold">
                       Sent {tile.SentCount}
                     </p>
                   </td>
@@ -231,7 +231,7 @@ const Dashboard = () => {
                   {" "}
                   <td>
                     {" "}
-                    <p className="text-lg font-semibold">
+                    <p className="font-semibold">
                       Delivered {tile.DeliveredCount}
                     </p>
                   </td>
@@ -240,7 +240,7 @@ const Dashboard = () => {
                   {" "}
                   <td>
                     {" "}
-                    <p className="text-lg font-semibold">
+                    <p className=" font-semibold">
                       Read {tile.ReadCount}
                     </p>
                   </td>
@@ -252,31 +252,31 @@ const Dashboard = () => {
           {dashboardsummary?.MarketingMessages?.map((tile, index) => (
             <div
               key={index}
-              className="bg-white shadow-md rounded-lg col-lg-3 mb-5 col-md-4 p-4 text-left"
+              className="bg-white stats shadow-md rounded-lg col-lg-3 mb-5 col-md-4 p-3 text-left"
               style={{ borderTop: `4px solid ${tile.Color}` }}
             >
-              <h3 className="text-lg font-bold">{tile.Title}</h3>
-              <hr className="h-1" />
-              <p className="text-lg font-semibold">Sent: {tile.SentCount}</p>
-              <p className="text-lg font-semibold">
+              <h3 className=" font-bold mb-0">{tile.Title}</h3>
+              <hr className="h-1 d-hr" />
+              <p className=" font-semibold">Sent: {tile.SentCount}</p>
+              <p className=" font-semibold">
                 Delivered: {tile.DeliveredCount}
               </p>
-              <p className="text-lg font-semibold">Read: {tile.ReadCount}</p>
+              <p className=" font-semibold">Read: {tile.ReadCount}</p>
             </div>
           ))}
 
           {dashboardsummary?.TotalConversations?.map((tile, index) => (
             <div
               key={index}
-              className="bg-white shadow-md rounded-lg col-lg-3 mb-5 col-md-4 p-4 text-left"
+              className="bg-white stats shadow-md rounded-lg col-lg-3 mb-5 col-md-4 p-3 text-left"
               style={{ borderTop: `4px solid ${tile.Color}` }}
             >
-              <h3 className="text-lg font-bold">{tile.Title}</h3>
-              <hr className="h-1" />
-              <p className="text-lg font-semibold">
+              <h3 className=" font-bold mb-0">{tile.Title}</h3>
+              <hr className="h-1 d-hr" />
+              <p className=" font-semibold">
                 Count: {tile.TotalConversation}
               </p>
-              <p className="text-lg font-semibold">
+              <p className=" font-semibold">
                 Messages: {tile.TotalMessages}
               </p>
             </div>
@@ -285,16 +285,16 @@ const Dashboard = () => {
           {dashboardsummary?.TotalConversationsInitiated?.map((tile, index) => (
             <div
               key={index}
-              className="bg-white shadow-md rounded-lg col-lg-3 mb-5 col-md-4 p-4 text-left"
+              className="bg-white stats shadow-md rounded-lg col-lg-3 mb-5 col-md-4 p-3 text-left"
               style={{ borderTop: `4px solid ${tile.Color}` }}
             >
-              <h3 className="text-lg font-bold">{tile.Title}</h3>
-              <hr className="h-1" />
+              <h3 className=" font-bold mb-0">{tile.Title}</h3>
+              <hr className="h-1 d-hr" />
 
-              <p className="text-lg font-semibold">
+              <p className=" font-semibold">
                 Count: {tile.TotalConversation}
               </p>
-              <p className="text-lg font-semibold">
+              <p className=" font-semibold">
                 Messages: {tile.TotalMessages}
               </p>
             </div>
@@ -302,19 +302,19 @@ const Dashboard = () => {
           {dashboardsummary?.ActiveConversations.map((tile, index) => (
             <div
               key={index}
-              className="bg-white shadow-md rounded-l col-lg-3 mb-5 col-md-4 g p-4 text-left"
+              className="bg-white stats shadow-md rounded-l col-lg-3 mb-5 col-md-4 g p-4 text-left"
               style={{ borderTop: `4px solid ${tile.Color}` }}
             >
-              <h3 className="text-lg font-bold">{tile.Title}</h3>
-              <hr className="h-1" />
+              <h3 className=" font-bold mb-0">{tile.Title}</h3>
+              <hr className="h-1 d-hr" />
 
-              <p className="text-lg font-semibold">
+              <p className=" font-semibold">
                 Count: {tile.TotalConversation}
               </p>
-              <p className="text-lg font-semibold">
+              <p className=" font-semibold">
                 Not Assigned: {tile.NotAssigned}
               </p>
-              <p className="text-lg font-semibold">Assigned: {tile.Assigned}</p>
+              <p className=" font-semibold">Assigned: {tile.Assigned}</p>
             </div>
           ))}
         </div>

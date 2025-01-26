@@ -11,11 +11,10 @@ export const fetchAgentTemplate = createAsyncThunk(
   'agenttemplate/fetchAgentTemplate',
   async ({clientId, searchStr,senderId,}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${AGENTINTERACTIVETEMPLATLIST}?ClientId=${clientId}${searchStr?`&searchStr=${searchStr}`:''}&senderId=${senderId}`);
+      const response = await API.get(`${AGENTINTERACTIVETEMPLATLIST}?${searchStr?`searchStr=${searchStr}`:''}&senderId=${senderId}`);
       if (response?.status === 200) {
         return {
           agenttemplates: response.data.result,
-         
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -32,7 +31,7 @@ export const fetchAgentTemplatesDetail = createAsyncThunk(
   'agenttemplate/fetchAgentTemplatesDetail',
   async ({senderId,TemplateId,clientId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${AGENTINTERACTIVETEMPLATLISTDETAIL}?clientId=${clientId}&interactiveTemplateId=${TemplateId}&senderId=${senderId}`);
+      const response = await API.get(`${AGENTINTERACTIVETEMPLATLISTDETAIL}?interactiveTemplateId=${TemplateId}&senderId=${senderId}`);
       return response.data;
     } catch (error) {
       const handledError = handleError(error);

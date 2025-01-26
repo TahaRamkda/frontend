@@ -95,7 +95,7 @@ const UploadMediaPage = ({ onUploadSuccess,onsenderChange }) => {
               
               <input
                 type="file"
-                className="form-control border rounded py-1 px-2"
+                className="form-control border rounded py-1 px-2" style={{lineHeight:"2"}}
                 accept="image/*,video/*,audio/*,.pdf"
                 onChange={(event) => {
                   const file = event.currentTarget.files[0];
