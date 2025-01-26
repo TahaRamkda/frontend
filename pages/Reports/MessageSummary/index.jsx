@@ -9,6 +9,7 @@ import DataTable from "react-data-table-component";
 import App from '@/components/Layout/App';
 import Loading from "@/components/Layout/Loader";
 import DateTimePicker from '@/components/Timepicker/datetimepicker';
+import SearchBar from '@/components/SearchBar/SearchComponent';
 const Messagereports = () => {
   const dispatch = useDispatch();
   const [templateId, setTemplateId] = useState(0);
@@ -60,9 +61,10 @@ const Messagereports = () => {
       clientId, fromDate, toDate, status, templateId, srcStr, pageSize: newSize, pageNo: 1
     }));
   };
- const handleSearchString = (e) => {
-    const searchValue = e.target.value;
+  const handleSearchString = (setter) => (e) => {
+    const searchValue = e;
     setSrcStr(searchValue);
+    setter(e)
 
     // Clear the previous timeout if any
     if (searchTimeout) {
@@ -97,13 +99,10 @@ const Messagereports = () => {
       <div className="w-full">
         <div className='grid grid-cols-5 gap-4'>
           <div className="flex flex-col text-start mb-1">
-            <label className="font-medium text-gray-700 text-sm">Search</label>
-            <Input
-              type="text"
-              placeholder="Search"
+          <SearchBar
+              label="Search"
               value={srcStr}
-              onChange={handleSearchString}
-              className="border rounded m-0 w-100"
+              onChange={handleSearchString(setSrcStr)}
             />
           </div>
           <div className="flex flex-col text-start mb-1">

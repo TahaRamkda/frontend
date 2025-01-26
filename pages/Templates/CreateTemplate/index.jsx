@@ -825,7 +825,7 @@ const TemplateCreationPage = () => {
         <Row style={{ height: "100vh" }}>
           <Col
             md={6} lg={7}
-            className="border-end overflow-auto templete-leftsection"
+            className="overflow-auto templete-leftsection"
             style={{ padding: "20px", background: "#fffff" }}
           >
             <h4 className="mb-4">Create Template</h4>
@@ -1366,12 +1366,12 @@ const TemplateCreationPage = () => {
                 top: "0",
                 zIndex: "10",
                 backgroundColor: "white", // Ensure the background color covers the content behind it
-                // boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
               }}
             >
               <h4
-                className=""
-                style={{ maxWidth: "600px"}}
+                className="mb-1  p-3  "
+                style={{ maxWidth: "600px", margin: "auto" }}
               >
                 Template Preview
               </h4>

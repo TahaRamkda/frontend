@@ -17,6 +17,7 @@ import LastContactedList from '../Contacted';
 import {Tooltip} from 'reactstrap';
 import { REFRESH_INTERVAL } from '@/utils/constants';
 import { set, toDate } from 'date-fns';
+import SearchBar from '@/components/SearchBar/SearchComponent';
 import DateTimePicker from '@/components/Timepicker/datetimepicker';
 const CampaignsList = () => {
   const dispatch = useDispatch();
@@ -99,9 +100,10 @@ useState (() => {
     setactivateCampaignId(CampaignId)
     setCampaignTestModal(true)
   }
-  const handleSearchString = (e) => {
-    const searchValue = e.target.value;
+  const handleSearchString = setter => (e) => {
+    const searchValue = e;
     setKeyword(searchValue);
+    setter(e)
 
     // Clear the previous timeout if any
     if (searchTimeout) {
@@ -220,13 +222,13 @@ useState (() => {
       name: "Campaign Name",
       selector: (row) => row.campaignName,
       sortable: true,
-      width: '15%',
+      
     },
     {
       name: "Schedule Date",
       selector: (row) => row.scheduleDate,
       sortable: true,
-      width: '15%',
+     
     },
     { name: "Status", selector: (row) => row.statusName, sortable: true },
     {
@@ -239,7 +241,7 @@ useState (() => {
     { name: "Delivered Count", selector: (row) => row.deliveredCount, sortable: true },
     { name: "Read Count", selector: (row) => row.readCount, sortable: true },
     { name: "Failed Count", selector: (row) => row.failedCount, sortable: true },
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true, width: '15%' },
+    { name: "Created Date", selector: (row) => row.createdDate, sortable: true, },
     {
       name: "Action", cell: (row) => {
         const scheduleDate = new Date(row.scheduleDate); // Convert scheduleDate to Date object
@@ -254,27 +256,25 @@ useState (() => {
         const timeDifference = (scheduleDate - currentTime) / (1000 * 60 * 60); // Difference in hours
       
         return (
-          <div className='flex gap-2' id='InfoIcon'>
-            <button title="Schedule Campaign" className="uniform_icon_btn" onClick={() => handleActivateClick(row.campaignId)}>
+          <div className='Action_table' id='InfoIcon'>
+            <button title="Schedule Campaign" className="uniform_icon_btn Action_Button" onClick={() => handleActivateClick(row.campaignId)}>
               <HiLightningBolt style={{ fontSize: "15px" }} />
             </button>
-            <button title="Last Contacted People" className="uniform_icon_btn" onClick={() => handelClick(row.campaignId)}>
+            <button title="Last Contacted People" className="uniform_icon_btn Action_Button" onClick={() => handelClick(row.campaignId)}>
               <MdGroupRemove style={{ fontSize: "15px" }} />
             </button>
-            <button title="Test Campaign" className="uniform_icon_btn" onClick={() => handleTestCampaign(row.campaignId)}>
+            <button title="Test Campaign" className="uniform_icon_btn Action_Button" onClick={() => handleTestCampaign(row.campaignId)}>
               <HiBeaker style={{ fontSize: "15px" }} />
             </button>
              {/* Conditionally render the Edit button */}
              {(isSameDay && timeDifference > 3) || !isSameDay ? (
-              <button title="Edit Campaign" className="uniform_icon_btn" onClick={() => HandleUpdateCampaign(row.campaignId)}>
+              <button title="Edit Campaign" className="uniform_icon_btn Action_Button" onClick={() => HandleUpdateCampaign(row.campaignId)}>
                 <HiPencilAlt style={{ fontSize: "15px" }} />
               </button>
             ) : null}
           </div>
         );
       },
-      
-      width: '10%'
     }
     
 
@@ -282,7 +282,9 @@ useState (() => {
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className='w-full'>
+        
         <div className="grid grid-cols-5 gap-4 justify-start">
+        
           <div className="flex flex-col text-start mb-1">
             <Label className="font-medium text-sm mb-0">Select Templates</Label>
             <TemplateDropdown
@@ -293,12 +295,10 @@ useState (() => {
             />
           </div>
           <div className="flex flex-col text-start mb-1">
-            <Label className="font-medium text-sm mb-0">Search</Label>
-            <input
-              type="text"
+          <SearchBar
+              label="Search"
               value={keyword}
-              onChange={handleSearchString}
-              className="border rounded  w-100"
+              onChange={handleSearchString(setKeyword )}
             />
           </div>
           <div className="flex flex-col text-start mb-1">
@@ -324,7 +324,7 @@ useState (() => {
   return (
     <App>
       <div className="flex items-center">
-        {campaignloading === true && <Loading />}
+      {loading && <Loading />}
         <div className='mb-1'>
           <h4 className="font-bold mb-2">Campaign</h4>
         </div>

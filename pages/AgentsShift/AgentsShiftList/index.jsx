@@ -11,6 +11,7 @@ import showSweetAlert from "@/components/Sweetalert";
 import { HiPencilAlt, HiTrash, HiLightningBolt, HiClock } from "react-icons/hi";
 import AgentsShiftForm from "../CreateAgentsShift";
 import App from '@/components/Layout/App';
+import SearchBar from '@/components/SearchBar/SearchComponent';
 //import AgentTiming from "../AgentsTiming/index";
 
 const AgentsShiftList = () => {
@@ -162,10 +163,10 @@ const AgentsShiftList = () => {
     setIsModalOpen(false);
   };
   
-  const handleSearchString = (e) => {
-    const searchValue = e.target.value;
+  const handleSearchString = (setter) => (e) => {
+    const searchValue = e;
     setFilterText(searchValue);
-
+    setter(e)
     // Clear the previous timeout if any
     if (searchTimeout) {
       clearTimeout(searchTimeout);
@@ -212,13 +213,10 @@ const AgentsShiftList = () => {
       <div className="w-full">
         <div className="grid grid-cols-5 gap-4">
           <div className="flex flex-col mb-1  text-start ">
-            <label className="font-medium text-gray-700 text-sm">Search</label>
-            <input
-              type="search"
+          <SearchBar
+              label="Search"
               value={filterText}
-              onChange={handleSearchString}
-              placeholder=""
-              className="border rounded py-1 px-2 w-full mt-1 text-sm"
+              onChange={handleSearchString(setFilterText)}
             />
           </div>
         </div>

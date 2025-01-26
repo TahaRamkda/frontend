@@ -452,7 +452,7 @@ const UpdateCampaigns = () => {
         <Row style={{ height: "100vh" }}>
           <Col
             md={7}
-            className="border-end overflow-auto shadow-lg"
+            className="update-Campaign-leftsection "
             style={{ padding: "20px", background: "#fff" }}
           >
             <h4 className="mb-4">Update Campaign</h4>
@@ -634,27 +634,37 @@ const UpdateCampaigns = () => {
             </Formik>
           </Col>
           <Col md={5} className="overflow-auto" style={{ padding: "20px" }}>
+          <div
+              style={{
+                position: "sticky",
+                top: "0",
+                zIndex: "10",
+                backgroundColor: "white", // Ensure the background color covers the content behind it
+                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+              }}
+            >
             <div>
               <h4
-                className="mb-1 bg-light p-3 shadow-sm"
+                className="mb-1  p-3 "
                 style={{ maxWidth: "600px", margin: "auto" }}
               >
                 Template Preview
               </h4>
             </div>
+            </div>
             <div
               className="border p-3 rounded"
               style={{
                 height: "auto",
-                minHeight: "420px",
-                backgroundColor: "#e0e0e0",
-                backgroundImage: `url(${bagroundimage.src})`, // Update this path
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-                maxWidth: "600px", // Increased width of preview container
-                margin: "0 auto",
-                padding: "5px", // Optional: Adjust padding for more space inside the preview container
+                               minHeight: "420px",
+                               backgroundColor: "#e0e0e0",
+                               backgroundImage: `url(${bagroundimage.src})`, // Update this path
+                               backgroundSize: "cover",
+                               backgroundPosition: "center",
+                               boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+                               maxWidth: "700px", // Increased width of preview container
+                               margin: "0 auto",
+                               padding: "5px", // Optional: Adjust padding for more space inside the preview container  
               }}
             >
               <div

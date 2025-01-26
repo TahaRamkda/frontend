@@ -601,7 +601,7 @@ const CampaignCreate = () => {
               }}
             >
               <h4
-                className="mb-1 bg-light p-3 shadow-sm"
+                className="mb-1  p-3 "
                 style={{ maxWidth: "600px", margin: "auto" }}
               >
                 Template Preview
@@ -617,7 +617,7 @@ const CampaignCreate = () => {
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-                maxWidth: "600px", // Increased width of preview container
+                maxWidth: "700px", // Increased width of preview container
                 margin: "0 auto",
                 padding: "5px", // Optional: Adjust padding for more space inside the preview container
               }}

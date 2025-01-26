@@ -14,6 +14,7 @@ import Chatview from '@/pages/Chats/ChatView/indexPop-up';
 import TransferChat from '../TransferChat';
 import { MdSwapHoriz } from "react-icons/md"; 
 import { REFRESH_INTERVAL } from '@/utils/constants';
+import SearchBar from '@/components/SearchBar/SearchComponent';
 
 const ChatsReport = () => {
   const dispatch = useDispatch();
@@ -69,9 +70,10 @@ const ChatsReport = () => {
     setshowtransfer(false);
   };
 
-  const handleSearchString = (e) => {
-    const searchValue = e.target.value;
+  const handleSearchString = (setter) => (e) => {
+    const searchValue = e;
     setsrcStr(searchValue);
+    setter(e)
 
     if (searchTimeout) {
       clearTimeout(searchTimeout);
@@ -195,13 +197,12 @@ const ChatsReport = () => {
       <div className="w-full">
         <div className='grid grid-cols-5 gap-4'>
           <div className='flex flex-col text-start mb-1'>
-            <label className="font-medium text-gray-700 text-sm">Search</label>
-            <input
-              type="text"
+          <SearchBar
+              label="Search"
               value={srcStr}
-              onChange={handleSearchString}
-              className="border rounded w-100"
+              onChange={handleSearchString(setsrcStr)}
             />
+            
           </div>
           <div className='flex flex-col text-start mb-1'>
             <label className="font-medium text-gray-700 text-sm">Sender Names</label>

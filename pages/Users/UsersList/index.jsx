@@ -13,6 +13,7 @@ import { HiPencilAlt, HiTrash } from "react-icons/hi";
 import UserForm from "../CreateUsers";
 import App from '@/components/Layout/App';
 import Loading from "@/components/Layout/Loader";
+import SearchBar from '@/components/SearchBar/SearchComponent';
 const UserList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -92,9 +93,10 @@ const UserList = () => {
     setUserForm({ ...userForm, [name]: value });
   };
 
- const handleSearchString = (e) => {
-    const searchValue = e.target.value;
+  const handleSearchString = (setter) => (e) => {
+    const searchValue = e;
     setFilterText(searchValue);
+    setter(e)
 
     // Clear the previous timeout if any
     if (searchTimeout) {
@@ -170,8 +172,11 @@ const UserList = () => {
     <div className="w-full">
       <div className="grid grid-cols-5 gap-4">
         <div className="flex flex-col space-y-1 text-start mb-1 ">
-          <label className="font-medium text-gray-700 text-sm">Search </label>
-          <input type="search" className="border rounded py-1 px-2 w-full text-sm" value={filterText} onChange={handleSearchString} placeholder={"Enter Text"} />
+        <SearchBar
+              label="Search"
+              value={filterText}
+              onChange={handleSearchString(setFilterText)}
+            />
         </div>
       </div>
     </div>

@@ -544,8 +544,8 @@ useEffect(() => {
         {loading && <Loader />}
         <Row style={{ height: "100vh" }}>
           <Col
-            md={7}
-            className="border-end overflow-auto shadow-lg"
+            md={6} lg={7}
+            className="Interactivetemplete-leftsection"
             style={{ padding: "20px", background: "#fffff" }}
           >
             <h4 className="mb-4">Create Interactive Template</h4>
@@ -959,18 +959,18 @@ useEffect(() => {
             </Formik>
           </Col>
 
-          <Col md={4} className="overflow-hidden h-screen fixed right-10">
+          <Col md={6} lg={5} className="h-screen right-10 Interactive_PreviewSection">
              <div
                          style={{
-                           position: "sticky",
-                           top: "0",
-                           zIndex: "10",
-                           backgroundColor: "white", // Ensure the background color covers the content behind it
-                           boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+                          position: "sticky",
+                          top: "0",
+                          zIndex: "10",
+                          backgroundColor: "white", // Ensure the background color covers the content behind it
+                          boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
                          }}
                        >
                          <h4
-                           className="mb-1 bg-light p-3 shadow-sm"
+                           className="mb-1  p-3 "
                            style={{ maxWidth: "600px", margin: "auto" }}
                          >
                            Template Preview
@@ -980,18 +980,17 @@ useEffect(() => {
                          {/* Show the header and sender data only when selectedSenderId is set and data is fetched */}
                         
                          <div
-             className="border"
+             className="border p-3 rounded"
              style={{
-               maxHeight: "700px",
-               minHeight: "420px",
-               overflow: "auto",
-               backgroundColor: "#e0e0e0",
-               backgroundImage: `url(${bagroundimage.src})`, // Update this path
-               backgroundSize: "cover",
-               backgroundPosition: "center",
-               boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-               maxWidth: "600px", // Increased width of preview container
-               position: "relative", // Keep the container relative for positioning
+                // maxHeight: "700px",
+                                                minHeight: "400px",
+                                                backgroundColor: "#e0e0e0",
+                                                backgroundImage: `url(${bagroundimage.src})`, // Update this path
+                                                backgroundSize: "cover",
+                                                backgroundPosition: "center",
+                                                boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+                                                maxWidth: "800px", // Increased width of preview container
+                                                position: "relative", // Keep the container relative for positioning
              }}
            >
              {sendername && (

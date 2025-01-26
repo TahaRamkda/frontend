@@ -31,6 +31,7 @@ import { HiPencilAlt, HiTrash, HiRefresh } from "react-icons/hi";
 import { useSetRecoilState } from "recoil";
 import { TemplateState } from "@/components/recoil";
 import Loading from "@/components/Layout/Loader";
+import SearchBar from '@/components/SearchBar/SearchComponent';
 import { toDate } from "date-fns";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
 const TemplateList = () => {
@@ -185,9 +186,10 @@ const TemplateList = () => {
       })
     );
   };
-  const handleSearchString = (e) => {
-    const searchValue = e.target.value;
+  const handleSearchString = (setter) => (e) => {
+    const searchValue = e;
     setFilterText(searchValue);
+    setter(e)
     // Clear the previous timeout if any
     if (searchTimeout) {
       clearTimeout(searchTimeout);
@@ -230,13 +232,10 @@ const TemplateList = () => {
       <div className="w-full">
         <div className="grid grid-cols-5 gap-4">
           <div className="flex flex-col text-start mb-1">
-            <label className="font-medium text-gray-700 text-sm">Search</label>
-            <input
-              type="search"
+          <SearchBar
+              label="Search"
               value={filterText}
-              onChange={handleSearchString}
-              className="border rounded"
-              placeholder=""
+              onChange={handleSearchString(setFilterText)}
             />
           </div>
           <div className="flex flex-col text-start mb-1">

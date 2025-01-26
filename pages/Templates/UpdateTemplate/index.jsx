@@ -780,8 +780,8 @@ const TemplateUpdatePage = () => {
       <Container fluid className="mt-0">
         <Row style={{ height: "100vh" }}>
           <Col
-            md={7}
-            className="border-end overflow-auto shadow-lg"
+            md={6} lg={7}
+            className=" Updatetemplete-leftsection"
             style={{ padding: "20px", background: "#fff" }}
           >
             <h4 className="mb-4">Update Template</h4>
@@ -1330,8 +1330,8 @@ const TemplateUpdatePage = () => {
             </Formik>
           </Col>
           <Col
-            md={4}
-           className="overflow-hidden h-screen fixed right-10"
+             md={6} lg={5}
+           className="h-screen right-10 Updatetemplete_chatSection "
             // style={{
             //   position: "fixed", // Fix the position
             //   top: "-50", // Adjust to your layout
@@ -1352,7 +1352,7 @@ const TemplateUpdatePage = () => {
               }}
             >
               <h4
-                className="mb-1 bg-light p-3 shadow-sm"
+                className="mb-1 p-3 "
                 style={{ maxWidth: "600px", margin: "auto" }}
               >
                 Template Preview
@@ -1361,16 +1361,15 @@ const TemplateUpdatePage = () => {
             <div
               className="border p-3 rounded"
               style={{
-                height: "auto",
-                minHeight: "420px",
-                backgroundColor: "#e0e0e0",
-                backgroundImage: `url(${bagroundimage.src})`, // Update this path
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-                maxWidth: "600px", // Increased width of preview container
-                margin: "0 auto",
-                padding: "5px", // Optional: Adjust padding for more space inside the preview container
+               // maxHeight: "700px",
+                                 minHeight: "400px",
+                                 backgroundColor: "#e0e0e0",
+                                 backgroundImage: `url(${bagroundimage.src})`, // Update this path
+                                 backgroundSize: "cover",
+                                 backgroundPosition: "center",
+                                 boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+                                 maxWidth: "800px", // Increased width of preview container
+                                 position: "relative", // Keep the container relative for positioning
               }}
             >
               <div

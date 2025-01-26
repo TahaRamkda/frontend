@@ -266,10 +266,17 @@ body {
   border: 1px solid #ddd;
 }
 .campaign-leftsection,
-.templete-leftsection {
+.templete-leftsection,
+.Interactivetemplete-leftsection,
+
+.Updatetemplete-leftsection,
+.update-Campaign-leftsection,
+.UpdateInteractivetemplete-leftsection {
   max-height: 80vh;
   overflow-y: scroll;
 }
+
+
 ::-webkit-scrollbar {
   display: none;
 }
@@ -292,9 +299,18 @@ body {
   min-height: 100px;
   border: 1px solid #ccc;
 }
+.buPAxp{
+  padding: 0 !important;
+}
 
+.templete_chatSection,
+.Updatetemplete_chatSection,
+.UpdateInteractivetemplete_chatSection {
+  min-height: 400px;
+  overflow-y: scroll;
+}
 
-.templete_chatSection {
+.Interactive_PreviewSection {
   min-height: 400px;
   overflow-y: scroll;
 }
@@ -365,8 +381,14 @@ body {
   .stats h3 {
     font-size: 13px;
   }
+  .Action_table{
+    display: block ;
+  }
+ 
 }
-
+.Action_Button{
+  margin:0px 1px 0px 1px;
+ }
 @layer utilities {
   .text-balance {
     text-wrap: balance;

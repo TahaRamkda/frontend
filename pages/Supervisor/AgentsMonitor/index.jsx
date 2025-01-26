@@ -13,6 +13,7 @@ import sweetalert from 'sweetalert2';
 import Switch from "react-switch";
 import { REFRESH_INTERVAL } from '@/utils/constants';
 import DateTimePicker from '@/components/Timepicker/datetimepicker';
+import SearchBar from '@/components/SearchBar/SearchComponent';
 const MessageSummary = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
@@ -154,10 +155,10 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
   dispatch(fetchAgentsMonitor({ clientId: clientId, senderId: senderid, srcStr:srcStr,pageSize, pageNo: currentPage, fromDate:FromDate, toDate:ToDate}));
 
  }
- const handleSearchString = (e) => {
-    const searchValue = e.target.value;
-    setsrcStr(searchValue);
-
+ const handleSearchString = (setter) => (e) => {
+  const searchValue = e;
+  setsrcStr(searchValue);
+  setter(e)
     // Clear the previous timeout if any
     if (searchTimeout) {
       clearTimeout(searchTimeout);
@@ -249,13 +250,10 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
             />
           </div>
           <div className='flex flex-col text-start mb-1'>
-            <label className="font-medium text-gray-700 text-sm">Search</label>
-            <input
-              type="text"
-              placeholder=""
+          <SearchBar
+              label="Search"
               value={srcStr}
-              onChange={handleSearchString}
-              className="border rounded  w-100"
+              onChange={handleSearchString(setsrcStr)}
             />
           </div>
 

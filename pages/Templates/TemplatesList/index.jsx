@@ -11,6 +11,7 @@ import App from "@/components/Layout/App";
 import { HiPencilAlt, HiTrash, HiRefresh } from "react-icons/hi";
 import { useSetRecoilState } from "recoil";
 import { TemplateState } from "@/components/recoil";
+import SearchBar from '@/components/SearchBar/SearchComponent';
 import Loading from "@/components/Layout/Loader";
 const TemplateList = () => {
   const router = useRouter();
@@ -169,10 +170,10 @@ const TemplateList = () => {
   const filteredSendernames = templates.filter((template) =>
     template.templateName.toLowerCase().includes(filterText.toLowerCase())
   );
-  const handleSearchString = (e) => {
-    const searchValue = e.target.value;
+  const handleSearchString = (setter) => (e) => {
+    const searchValue = e;
     setFilterText(searchValue);
-
+    setter(e)
     // Clear the previous timeout if any
     if (searchTimeout) {
       clearTimeout(searchTimeout);
@@ -199,13 +200,10 @@ const TemplateList = () => {
       <div className="w-full">
         <div className="grid grid-cols-5 gap-4">
           <div className="flex flex-col text-start mb-1">
-            <label className="font-medium text-gray-700 text-sm">Search</label>
-            <input
-              type="search"
+          <SearchBar
+              label="Search"
               value={filterText}
-              onChange={handleSearchString}
-              className="border rounded"
-              placeholder=""
+              onChange={handleSearchString(setFilterText)}
             />
           </div>
         </div>

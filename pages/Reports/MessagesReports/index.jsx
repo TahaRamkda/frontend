@@ -11,7 +11,7 @@ import App from '@/components/Layout/App';
 import { REFRESH_INTERVAL } from '@/utils/constants';
 import { set } from 'date-fns';
 import DateTimePicker from '@/components/Timepicker/datetimepicker';
-
+import SearchBar from '@/components/SearchBar/SearchComponent';
 const MessageReport = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
@@ -92,9 +92,10 @@ const MessageReport = () => {
   }, []);
 
 
-  const handleSearchString = (e) => {
-    const searchValue = e.target.value;
+  const handleSearchString = (setter) => (e) => {
+    const searchValue = e;
     setsrcStr(searchValue);
+    setter(e)
 
     // Clear the previous timeout if any
     if (searchTimeout) {
@@ -166,13 +167,10 @@ const MessageReport = () => {
             />
           </div>
           <div className='flex flex-col text-start mb-1'>
-            <label className="font-medium text-gray-700 text-sm">Search</label>
-            <input
-              type="text"
-              placeholder=""
+          <SearchBar
+              label="Search"
               value={srcStr}
-              onChange={handleSearchString}
-              className="border rounded  w-100"
+              onChange={handleSearchString(setsrcStr)}
             />
           </div>
 
