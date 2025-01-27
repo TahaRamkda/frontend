@@ -112,6 +112,8 @@ const TemplateUpdatePage = () => {
   const [updatedheadvercontent, setupdatedheadvercontent] = useState("");
   const [Templatetype, setTemplatetype] = useState("");
   const [language, setlanguage] = useState("");
+  const [urlerror, seturlerror] = useState("");
+  const[MessagePreviewupdated,setMessagePreviewupdated] = useState(false);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const replaceClosingPTagsWithNewline = (content) => {
     return content
@@ -147,120 +149,120 @@ const TemplateUpdatePage = () => {
     }
   }, [dispatch, Template_Id]);
 
-  // Handle template updates once it has been fetched (Second useEffect)
   useEffect(() => {
-    if (Loading || !template) return; // Wait for the data to be loaded
-
-    const customButtons = template.buttons?.map(button => {
-      return {
-        type: button.buttonType, // Example: Copy over the type
-        text: button.buttonText, // Example: Copy over the label
-        
-      };
-    }) ?? [];
+    if (Loading || !template) return;
+  
+    // Map buttons with conditional logic for phoneNumber or URL
+    const customButtons = template.buttons?.map(button => ({
+      type: button.buttonType, // Copy over the type
+      text: button.buttonText, // Copy over the label
+      ...(button.buttonType === 2
+        ? { phoneNumber: button.buttonValue }
+        : button.buttonType === 3
+        ? { url: button.buttonValue }
+        : {})
+    })) ?? [];
+  
+    // Construct the complete message preview locally
     const updatedMessagePreview = {
       body: template.bodyText,
       footer: template.footerText,
       media: template.mediaURL,
-      buttons: customButtons ?? [],
+      buttons: customButtons,
       templatename: template.templateName,
       visitWebsiteButtonCount: 0,
+      header: template.headerType === 1 ? template.headerText : undefined,
     };
-
-    // Update Header
+  
+    // Set messagePreview state only if it has changed and not already set
+    setMessagePreview(prevPreview =>
+      JSON.stringify(prevPreview) !== JSON.stringify(updatedMessagePreview)
+        ? updatedMessagePreview
+        : prevPreview
+    );
+  
+    // Mark messagePreview as set
+    if (!MessagePreviewupdated) {
+      setMessagePreviewupdated(true);
+    }
+  
+    // Update Header State
     if (template.headerType === 1) {
-      updatedMessagePreview.header = template.headerText;
       setHeadContent(template.headerText);
       setupdatedheadvercontent(template.headerText);
       setheaderTextCount(template.headerParamCount);
-
-     
     } else {
       setSelectedMediaId(template.mediaId);
       setSelectedMediaPath(template.mediaURL);
       setSelectedMediaType(template.contentType);
     }
-
-    // Update Body
+  
+    // Update Body State
     setupdatedvercontent(template.bodyText);
     setbodyTextCount(template.bodyParamCount);
-
-    if (template.bodyText) {
-      // setVariables(template.bodyValues);
-      // template.bodyValues.forEach((variable, i) => {
-      //   if (variable?.defaultValue !== undefined) {
-      //     handleVariableChange(i, variable.defaultValue);
-      //   }
-      // });
-    }
-    if (template.buttons) {
-      debugger;
-    
-      // Create updated buttons array
-      const updatedButtons = template.buttons.map(button => {
-        return {
-          websiteUrl: button.buttonValue,
-          urlVariable: button.buttonValues,
-          urlVariableValue: button.buttonValues,
-          urlVerIndex: button.buttonValues,
-        };
-      });
-    
-      // Update the message preview with the new buttons
-      setMessagePreview({ ...messagePreview, buttons: updatedButtons });
-    }
-    
-    if (template.parameters) {
-      // Filter headerValue to only include items where type === 2
-      const filteredHeaderValues = template.parameters.filter(
-        (variable) => variable?.paramType === 1
-      );
-
-      if (filteredHeaderValues) {
-        const allVariables = filteredHeaderValues.map(
-          (variable) => variable.paramName
-        );
-        addHeaderVariable(null, allVariables);
-
-        filteredHeaderValues.forEach((variable, i) => {
-          if (variable?.paramDefaultValue !== undefined) {
-            handleheaderVariableChange(
-              variable.paramName,
-              variable.paramDefaultValue
-            );
-          }
-        });
-      }
-      const filteredbodyValues = template.parameters.filter(
-        (variable) => variable?.paramType === 2
-      );
-      // Set the filtered header values
-      if (filteredbodyValues) {
-        const allVariables = filteredbodyValues.map(
-          (variable) => variable.paramName
-        );
-        addVariable(null, allVariables);
-        filteredbodyValues.forEach((variable, i) => {
-          if (variable?.paramDefaultValue !== undefined) {
-            handleVariableChange(
-              variable.paramName,
-              variable.paramDefaultValue
-            );
-          }
-        });
-      }
-    }
+  
+    // Update Other Template-Related States
     setSelectedSenderId(template.senderId);
     setTemplatetype(template.category);
     setlanguage(template.language);
     setTotalButtonCount(updatedMessagePreview.buttons.length);
-
-    setMessagePreview(updatedMessagePreview);
-
+  
+  }, [Loading, template]);
+  
+  useEffect(() => {
+    if (!MessagePreviewupdated || Loading || !template.parameters) return;
+  
+    // Use a flag to ensure this runs only once
+    let parametersProcessed = false;
+    if (parametersProcessed) return;
+  
+    // Process Parameters
+    const filteredHeaderValues = template.parameters.filter(
+      variable => variable?.paramType === 1
+    );
+    if (filteredHeaderValues.length > 0) {
+      const allVariables = filteredHeaderValues.map(variable => variable.paramName);
+      addHeaderVariable(null, allVariables);
+      filteredHeaderValues.forEach(variable => {
+        if (variable?.paramDefaultValue !== undefined) {
+          handleheaderVariableChange(variable.paramName, variable.paramDefaultValue);
+        }
+      });
+    }
+  
+    const filteredBodyValues = template.parameters.filter(
+      variable => variable?.paramType === 2
+    );
+    if (filteredBodyValues.length > 0) {
+      const allVariables = filteredBodyValues.map(variable => variable.paramName);
+      addVariable(null, allVariables);
+      filteredBodyValues.forEach(variable => {
+        if (variable?.paramDefaultValue !== undefined) {
+          handleVariableChange(variable.paramName, variable.paramDefaultValue);
+        }
+      });
+    }
+  
+    const filteredURLValues = template.parameters.filter(
+      variable => variable?.paramType === 3
+    );
+    if (filteredURLValues.length > 0) {
+      const allVariables = filteredURLValues.map(variable => variable.paramName);
+      filteredURLValues.forEach(variable => {
+        if (variable?.paramDefaultValue !== undefined) {
+          addURLVariable(variable.sequence , variable.paramName);
+          handleurlVariableChange(variable.sequence , variable.paramDefaultValue);
+        }
+      });
+    }
+  
+    // Mark parameters as processed
+    parametersProcessed = true;
+  
     // Clear Template Detail State
     clearTemplateDetailState();
-  }, [Loading, template]);
-
+  }, [ MessagePreviewupdated]);
+  
   useEffect(() => {
     setAPIheadContent(replaceClosingPTagsWithNewline(headContent));
   }, [headContent]); // Trigger only when headContent changes
@@ -268,131 +270,6 @@ const TemplateUpdatePage = () => {
   useEffect(() => {
     setAPIbodyContent(replaceClosingPTagsWithNewline(bodyFinalContent));
   }, [bodyFinalContent]);
-
-  const handleSaveActionData = (data, index) => {
-    setMessagePreview((prev) => {
-      const updatedButtons = [...prev.buttons];
-      updatedButtons[index] = {
-        ...updatedButtons[index],
-        ...data, // Update the button with the new data
-      };
-
-      return {
-        ...prev,
-        buttons: updatedButtons,
-      };
-    });
-  };
-  const handelCancel = () => {
-    router.push("/Templates/TemplatesList");
-  };
-  const handleSubmit = async (values) => {
-    // let trimmedBodyContent = APIbodyContent.replace(/\*\*/g, "*").trimEnd();
-    // let APIbodyContent = "**Latest**<sub>Text</sub>*Example*   "; // Example content
-
-    // Replace ** with *, * with _, and <sub>/<sub> with ~
-    let trimmedBodyContent = APIbodyContent;
-
-    //Replacing the words
-    const result = headerPayloadDatawithVar.replace(/\*\*/g, "+");
-    const subresult = result.replace(/\*/g, "`");
-    const supresult = subresult.replace(/<sub>.*?<\/sub>/g, "~");
-    const replaceX = supresult.replace(/`/g, "_");
-    const finalHeaderReplace = replaceX.replace(/\+/g, "*");
-
-    const bodyresult = bodyPayloadDatawithVar.replace(/\*\*/g, "+");
-    const bodysubresult = bodyresult.replace(/\*/g, "`");
-    const bodysupresult = bodysubresult.replace(/<sub>.*?<\/sub>/g, "~");
-    const bodyreplaceX = bodysupresult.replace(/`/g, "_");
-    const bodyfinalReplace = bodyreplaceX.replace(/\+/g, "*");
-
-    const requestBody = {
-      clientId: localStorage.getItem("clientId"),
-      name: values.templateName,
-      Id: Template_Id,
-      transactionType: 1,
-      category: "marketing",
-      language: "en",
-      senderNameId: selectedSenderId,
-      status: "Pending",
-      subCategory: "marketing",
-      isApproved: false,
-      mediaId: selectedMediaId,
-      templateType: 1,
-      actionBy: localStorage.getItem("userId"),
-      header: {
-        format: values.headerType,
-        text: finalHeaderReplace,
-        textCount: headerTextCount,
-        values: headerVariable.map((value, index) => ({
-          value: value,
-          defaultValue: value,
-          index: index + 1,
-        })),
-      },
-      body: {
-        // text: trimmedBodyContent,
-        text: bodyfinalReplace,
-        textCount: bodyTextCount,
-        values: variables.map((value, index) => ({
-          value: value,
-          defaultValue: value,
-          index: index + 1,
-        })),
-      },
-      footer: {
-        //text: messagePreview.footer,
-        text: messagePreview.footer,
-      },
-      buttons: messagePreview.buttons.map((button, index) => ({
-        type: button.type,
-        text: button.text,
-        phoneNumber: button.phoneNumber,
-        textCount: button.textCount,
-        index: index,
-        url: button.websiteUrl,
-        values: urlvariables.map((value, index) => ({
-          value: value,
-          defaultValue: value,
-          index: index + 1,
-        })),
-        actionId: button.actionId,
-        actionType: button.actionType,
-        buttonId: button.buttonValue,
-      })),
-    };
-
-    //console.log("TimingData", requestBody)
-
-    try {
-      const response = await dispatch(updateTemplates(requestBody)).unwrap();
-      if (response.success) {
-        clearTemplateCreateState();
-        showSweetAlert({
-          title: "Updated Successfully",
-          text: "",
-          icon: "success",
-        });
-        router.push("/Templates/Templateslist");
-      } else {
-        showSweetAlert({
-          title: "Failed",
-          text: response.message || "",
-          icon: "error",
-        });
-
-        //window.location.reload();
-      }
-    } catch (err) {
-      console.error("Failed to update Template", err);
-      showSweetAlert({
-        title: "Failed",
-        text: err.message || "",
-        icon: "error",
-      });
-      //window.location.reload();
-    }
-  };
 
   useEffect(() => {
     let updatedBody = bodyFinalContent;
@@ -413,6 +290,159 @@ const TemplateUpdatePage = () => {
     }));
   }, [bodyFinalContent]);
 
+  const handleSaveActionData = (data, index) => {
+    setMessagePreview((prev) => {
+      const updatedButtons = [...prev.buttons];
+      updatedButtons[index] = {
+        ...updatedButtons[index],
+        ...data, // Update the button with the new data
+      };
+
+      return {
+        ...prev,
+        buttons: updatedButtons,
+      };
+    });
+  };
+  const handelCancel = () => {
+    router.push("/Templates/TemplatesList");
+  };
+  // const handleSubmit = async (values) => {
+  //   // let trimmedBodyContent = APIbodyContent.replace(/\*\*/g, "*").trimEnd();
+  //   // let APIbodyContent = "**Latest**<sub>Text</sub>*Example*   "; // Example content
+
+  //   // Replace ** with *, * with _, and <sub>/<sub> with ~
+  //   let trimmedBodyContent = APIbodyContent;
+
+  //   //Replacing the words
+  //   const result = headerPayloadDatawithVar.replace(/\*\*/g, "+");
+  //   const subresult = result.replace(/\*/g, "`");
+  //   const supresult = subresult.replace(/<sub>.*?<\/sub>/g, "~");
+  //   const replaceX = supresult.replace(/`/g, "_");
+  //   const finalHeaderReplace = replaceX.replace(/\+/g, "*");
+
+  //   const bodyresult = bodyPayloadDatawithVar.replace(/\*\*/g, "+");
+  //   const bodysubresult = bodyresult.replace(/\*/g, "`");
+  //   const bodysupresult = bodysubresult.replace(/<sub>.*?<\/sub>/g, "~");
+  //   const bodyreplaceX = bodysupresult.replace(/`/g, "_");
+  //   const bodyfinalReplace = bodyreplaceX.replace(/\+/g, "*");
+
+  //   const requestBody = {
+  //     clientId: localStorage.getItem("clientId"),
+  //     name: values.templateName,
+  //     Id: Template_Id,
+  //     transactionType: 1,
+  //     category: "marketing",
+  //     language: "en",
+  //     senderNameId: selectedSenderId,
+  //     status: "Pending",
+  //     subCategory: "marketing",
+  //     isApproved: false,
+  //     mediaId: selectedMediaId,
+  //     templateType: 1,
+  //     actionBy: localStorage.getItem("userId"),
+  //     header: {
+  //       format: values.headerType,
+  //       text: finalHeaderReplace,
+  //       textCount: headerTextCount,
+  //       values: headerVariable.map((value, index) => ({
+  //         value: value,
+  //         defaultValue: value,
+  //         index: index + 1,
+  //       })),
+  //     },
+  //     body: {
+  //       // text: trimmedBodyContent,
+  //       text: bodyfinalReplace,
+  //       textCount: bodyTextCount,
+  //       values: variables.map((value, index) => ({
+  //         value: value,
+  //         defaultValue: value,
+  //         index: index + 1,
+  //       })),
+  //     },
+  //     footer: {
+  //       //text: messagePreview.footer,
+  //       text: messagePreview.footer,
+  //     },
+  //     buttons: messagePreview.buttons.map((button, index) => ({
+  //       type: button.type,
+  //       text: button.text,
+  //       phoneNumber: button.phoneNumber,
+  //       textCount: button.textCount,
+  //       index: index,
+  //       url: button.websiteUrl,
+  //       values: urlvariables.map((value, index) => ({
+  //         value: value,
+  //         defaultValue: value,
+  //         index: index + 1,
+  //       })),
+  //       actionId: button.actionId,
+  //       actionType: button.actionType,
+  //       buttonId: button.buttonValue,
+  //     })),
+  //   };
+
+  //   //console.log("TimingData", requestBody)
+
+  //   try {
+  //     const response = await dispatch(updateTemplates(requestBody)).unwrap();
+  //     if (response.success) {
+  //       clearTemplateCreateState();
+  //       showSweetAlert({
+  //         title: "Updated Successfully",
+  //         text: "",
+  //         icon: "success",
+  //       });
+  //       router.push("/Templates/Templateslist");
+  //     } else {
+  //       showSweetAlert({
+  //         title: "Failed",
+  //         text: response.message || "",
+  //         icon: "error",
+  //       });
+
+  //       //window.location.reload();
+  //     }
+  //   } catch (err) {
+  //     console.error("Failed to update Template", err);
+  //     showSweetAlert({
+  //       title: "Failed",
+  //       text: err.message || "",
+  //       icon: "error",
+  //     });
+  //     //window.location.reload();
+  //   }
+  // };
+
+ 
+//function to add veriable in header
+  const addHeaderVariable = (variablename, allVariables) => {
+    setHeaderVariable((prev) => {
+      // Reset variables array if this is the first call with allVariables
+      if (allVariables) {
+        return allVariables.map((variable) => {
+          // Check if the variable already exists and maintain its value, otherwise default to an empty string
+          const existingVariable = prev.find((v) => v.name === variable);
+          return {
+            name: variable,
+            value: existingVariable ? existingVariable.value : "", // If variable exists, retain its value
+          };
+        });
+      }
+
+      // Add a new variable if it doesn't already exist
+      const existingVariable = prev.find((v) => v.name === variablename);
+      if (!existingVariable) {
+        return [...prev, { name: variablename, value: "" }];
+      }
+
+      return prev; // Return unchanged if the variable already exists
+    });
+
+    setErrorMessage(""); // Clear error message after adding or updating variable
+  };
+ //function to add body variable
   const addVariable = (variablename, allVariables) => {
     // If this is the first call, clear the existing array
     setVariables((prev) => {
@@ -440,25 +470,29 @@ const TemplateUpdatePage = () => {
     setErrorMessage(""); // Clear error message after adding or updating variable
   };
 
-  const addURLVariable = (index) => {
+
+ //function to add url veriable
+  const addURLVariable = (index,veriablename) => {
+    debugger
     const newIndex = 1;
 
     const updatedButtons = [...messagePreview.buttons];
-
-    if (!updatedButtons[index].websiteUrl.includes(`{{1}}`)) {
-      const html = updatedButtons[index].websiteUrl;
+   if(updatedButtons.length>0){
+    if (updatedButtons[index].url?.includes(veriablename)) {
+      //const html = updatedButtons[index].websiteUrl;
       //.replace(/<p[^>]*>/g, '') // Remove opening <p> tags
       // .replace(/<\/p>/g, '<br />'); // Replace closing </p> tags with <br />
       //.replace(/<br\s*\/?>/g, ''); // Remove existing <br /> tag
-      var a = `${html}{{${newIndex}}}`;
-      var value = bodyTextCount;
+      //var a = `${html}{{${newIndex}}}`;
+      //var value = bodyTextCount;
       //setbodyTextCount(value+1);
-      updatedButtons[index].websiteUrl = a;
-      updatedButtons[index].urlveriable = "";
+      //updatedButtons[index].websiteUrl = a;
+      updatedButtons[index].urlveriable = veriablename;
       updatedButtons[index].urlveriablevalue = "";
-      updatedButtons[index].urlverindex = newIndex;
+      //updatedButtons[index].urlverindex = newIndex;
       //setwebsiteUrl(e.target.value)
       setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+      //console.log("Updated Buttons:", messagePreview.buttons);
       //setwebsiteUrl(a);
       // alert(websiteUrl);
       //seturlvariables((prev) => [...prev, ""]);
@@ -466,45 +500,97 @@ const TemplateUpdatePage = () => {
     } else {
       setErrorMessage(`Variable {${newIndex}} already exists in the body.`);
     }
+
+   }
+   
   };
-  const removeWebsiteVariable = (index) => {
-    const updatedButtons = [...messagePreview.buttons];
 
-    // Check if the variable exists in the URL
-    if (
-      updatedButtons[index].websiteUrl.includes(
-        `{{${updatedButtons[index].urlverindex}}}`
-      )
-    ) {
-      // Remove the variable from the website URL
-      updatedButtons[index].websiteUrl = updatedButtons[
-        index
-      ].websiteUrl.replace(`{{${updatedButtons[index].urlverindex}}}`, "");
-      delete updatedButtons[index].urlveriable;
-      delete updatedButtons[index].urlveriablevalue;
-      delete updatedButtons[index].urlverind;
+  // const loadurlVariables = (index) => {
+  //   seturlerror("");
+  //   const updatedButtons = [...messagePreview.buttons];
+  //   const variablePattern = /{{(.*?)}}/g;
+  //   const matches=updatedButtons[index].websiteUrl.match(variablePattern);
+  //   if (matches && matches.length === 1) {
+  //     matches.forEach((variable) => {
+  //       //const variableName = variable.replace(/{{|}}/g, '');
+  //       addURLVariable(index,variable);
+  //     });
+  //   } else {
+  //     seturlerror("Please enter only one variable in header");
+  //   }
+  // };
 
-      // Update the state
-      setMessagePreview({ ...messagePreview, buttons: updatedButtons });
-      setErrorMessage(""); // Clear any existing error messages
-    } else {
-      setErrorMessage(
-        `Variable {${updatedButtons[index].urlverindex}} does not exist in the URL.`
+
+ 
+  // const removeWebsiteVariable = (index) => {
+  //   const updatedButtons = [...messagePreview.buttons];
+
+  //   // Check if the variable exists in the URL
+  //   if (
+  //     updatedButtons[index].websiteUrl.includes(
+  //       `{{${updatedButtons[index].urlverindex}}}`
+  //     )
+  //   ) {
+  //     // Remove the variable from the website URL
+  //     updatedButtons[index].websiteUrl = updatedButtons[
+  //       index
+  //     ].websiteUrl.replace(`{{${updatedButtons[index].urlverindex}}}`, "");
+  //     delete updatedButtons[index].urlveriable;
+  //     delete updatedButtons[index].urlveriablevalue;
+  //     delete updatedButtons[index].urlverind;
+
+  //     // Update the state
+  //     setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+  //     setErrorMessage(""); // Clear any existing error messages
+  //   } else {
+  //     setErrorMessage(
+  //       `Variable {${updatedButtons[index].urlverindex}} does not exist in the URL.`
+  //     );
+  //   }
+  // };
+
+  // const removeVariable = (index) => {
+  //   const updatedVariables = variables.filter((_, i) => i !== index);
+  //   const updatedBodyContent = bodyPayloadDatawithVar
+  //     .replace(`{{${index + 1}}}`, "")
+  //     .replace(/\s\s+/g, " ");
+  //   var value = bodyTextCount;
+  //   setbodyTextCount(value - 1);
+  //   setVariables(updatedVariables);
+  //   setupdatedvercontent(updatedBodyContent);
+  // };
+
+  //function to handle header variable change
+  const handleheaderVariableChange = (variableName, newValue) => {
+    setHeaderVariable((prev) => {
+      // Update the variable's value in the array
+      const updatedVariables = prev.map((v) =>
+        v.name === variableName ? { ...v, value: newValue } : v
       );
-    }
-  };
 
-  const removeVariable = (index) => {
-    const updatedVariables = variables.filter((_, i) => i !== index);
-    const updatedBodyContent = bodyPayloadDatawithVar
-      .replace(`{{${index + 1}}}`, "")
-      .replace(/\s\s+/g, " ");
-    var value = bodyTextCount;
-    setbodyTextCount(value - 1);
-    setVariables(updatedVariables);
-    setupdatedvercontent(updatedBodyContent);
-  };
+      // Calculate the updated body content using the new variables
+      let updatedBody = finalContent;
 
+      // Replace all variables with their values in the updatedBody
+      updatedVariables.forEach((variable) => {
+        updatedBody = updatedBody.replace(
+          variable.name,
+          variable.value ? variable.value : variable.name
+        );
+      });
+
+      // Update the message preview state in real-time
+      setMessagePreview((prev) => ({
+        ...prev,
+        header: updatedBody, // Updated HTML content with variables replaced
+      }));
+
+      // Return the updated variables to set the new state
+      return updatedVariables;
+    });
+  };
+  
+ //function to handle body variable change
   const handleVariableChange = (variableName, newValue) => {
     setVariables((prev) => {
       // Update the variable's value in the array
@@ -542,6 +628,20 @@ const TemplateUpdatePage = () => {
 
       return updatedVariables; // Update the state
     });
+  };
+
+//function to handle url variable change
+  const handleurlVariableChange = (index, value) => {
+    const updatedButtons = [...messagePreview.buttons];
+    if(updatedButtons.length>0){
+      updatedButtons[index].urlveriablevalue = value; // Update the variable value
+      setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+      
+    }
+    else{
+      return
+    }
+   
   };
 
   // const addheaderVariable = () => {
@@ -603,32 +703,9 @@ const TemplateUpdatePage = () => {
   //   }
   // };
 
-  const addHeaderVariable = (variablename, allVariables) => {
-    setHeaderVariable((prev) => {
-      // Reset variables array if this is the first call with allVariables
-      if (allVariables) {
-        return allVariables.map((variable) => {
-          // Check if the variable already exists and maintain its value, otherwise default to an empty string
-          const existingVariable = prev.find((v) => v.name === variable);
-          return {
-            name: variable,
-            value: existingVariable ? existingVariable.value : "", // If variable exists, retain its value
-          };
-        });
-      }
+  
 
-      // Add a new variable if it doesn't already exist
-      const existingVariable = prev.find((v) => v.name === variablename);
-      if (!existingVariable) {
-        return [...prev, { name: variablename, value: "" }];
-      }
-
-      return prev; // Return unchanged if the variable already exists
-    });
-
-    setErrorMessage(""); // Clear error message after adding or updating variable
-  };
-
+ //function to handle body change
   const handleBodyChange = (value) => {
     // Allow typing without interruptions
     setBodyContent(value);
@@ -686,40 +763,9 @@ const TemplateUpdatePage = () => {
   //   }
   // };
 
-  const handleheaderVariableChange = (variableName, newValue) => {
-    setHeaderVariable((prev) => {
-      // Update the variable's value in the array
-      const updatedVariables = prev.map((v) =>
-        v.name === variableName ? { ...v, value: newValue } : v
-      );
 
-      // Calculate the updated body content using the new variables
-      let updatedBody = finalContent;
 
-      // Replace all variables with their values in the updatedBody
-      updatedVariables.forEach((variable) => {
-        updatedBody = updatedBody.replace(
-          variable.name,
-          variable.value ? variable.value : variable.name
-        );
-      });
-
-      // Update the message preview state in real-time
-      setMessagePreview((prev) => ({
-        ...prev,
-        header: updatedBody, // Updated HTML content with variables replaced
-      }));
-
-      // Return the updated variables to set the new state
-      return updatedVariables;
-    });
-  };
-
-  const handleurlVariableChange = (index, value) => {
-    const updatedButtons = [...messagePreview.buttons];
-    updatedButtons[index].urlveriablevalue = value; // Update the variable value
-    setMessagePreview({ ...messagePreview, buttons: updatedButtons });
-  };
+  
 
   const handleButtonSelect = (type) => {
     if (type === "2" && callPhoneNumberButtonCount >= 1) {
@@ -802,29 +848,29 @@ const TemplateUpdatePage = () => {
     }
   }, [buttonType, buttonText]);
 
-  const removeHeaderVariable = (index) => {
-    if (headerVariable.length > 1) {
-      setHeaderVariable((prev) => prev.filter((_, i) => i !== index));
-      setRemoveHeaderButtonEnabled(true); // Enable the remove button
-      var value = headerTextCount;
-      setheaderTextCount(value - 1);
-    } else {
-      setRemoveHeaderButtonEnabled(false); // Disable the remove button
-    }
-  };
+  // const removeHeaderVariable = (index) => {
+  //   if (headerVariable.length > 1) {
+  //     setHeaderVariable((prev) => prev.filter((_, i) => i !== index));
+  //     setRemoveHeaderButtonEnabled(true); // Enable the remove button
+  //     var value = headerTextCount;
+  //     setheaderTextCount(value - 1);
+  //   } else {
+  //     setRemoveHeaderButtonEnabled(false); // Disable the remove button
+  //   }
+  // };
 
-  const removeButtonFromPreview = (index) => {
-    var totalcount = TotalButtonCount;
-    setTotalButtonCount(totalcount - 1);
-    setMessagePreview((prev) => ({
-      ...prev,
-      buttons: prev.buttons.filter((_, i) => i !== index),
-    }));
+  // const removeButtonFromPreview = (index) => {
+  //   var totalcount = TotalButtonCount;
+  //   setTotalButtonCount(totalcount - 1);
+  //   setMessagePreview((prev) => ({
+  //     ...prev,
+  //     buttons: prev.buttons.filter((_, i) => i !== index),
+  //   }));
 
-    if (messagePreview.buttons[index].type === "2") {
-      setCallPhoneNumberButtonCount(callPhoneNumberButtonCount - 1);
-    }
-  };
+  //   if (messagePreview.buttons[index].type === "2") {
+  //     setCallPhoneNumberButtonCount(callPhoneNumberButtonCount - 1);
+  //   }
+  // };
 
   const handleSenderChange = (e) => {
     const role = e.target.value;
@@ -869,6 +915,7 @@ const TemplateUpdatePage = () => {
   //     }));
   //   }
   // }, [bodyFinalContent]);
+  
   useEffect(() => {
     let updatedBody = bodyFinalContent;
 
@@ -893,7 +940,6 @@ const TemplateUpdatePage = () => {
     }));
   }, [bodyFinalContent]);
 
-  console.log("BodyFinalContent12", bodyContent, finalContent);
   if (Loading)
     return (
       <App>
@@ -947,7 +993,7 @@ const TemplateUpdatePage = () => {
                 bodyValues: [],
                 buttonValues: [],
               }}
-              onSubmit={handleSubmit}
+              //onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
                 // useEffect(() => {
@@ -1046,12 +1092,12 @@ const TemplateUpdatePage = () => {
                               handleheaderVariableChange={
                                 handleheaderVariableChange
                               }
-                              removeHeaderVariable={removeHeaderVariable}
                               setHeaderVariable={setHeaderVariable}
                               headContent={headContent}
                               setFinalContent={setFinalContent}
                               body={false}
                               existingContent={updatedheadvercontent}
+                              showaddvarbutton={false}
                             />
                             {/* <ReactQuill
                               value={headContent}
@@ -1165,9 +1211,9 @@ const TemplateUpdatePage = () => {
                             handleVariableChange={handleVariableChange}
                             addVariable={addVariable}
                             handleBodyChange={handleBodyChange}
-                            removeVariable={removeVariable}
                             body={true}
                             existingBodyContent={updatedvercontent}
+                            showaddvarbutton={false}
                           />
                         </div>
                         {errorMessage && (
@@ -1218,7 +1264,7 @@ const TemplateUpdatePage = () => {
                         />
                       </FormGroup>
                       {/* Button dropdown */}
-                      <Dropdown
+                      {/* <Dropdown
                         isOpen={dropdownOpen}
                         toggle={toggleDropdown}
                         className="mt-3"
@@ -1258,8 +1304,11 @@ const TemplateUpdatePage = () => {
                             </small>
                           </DropdownItem>
                         </DropdownMenu>
-                      </Dropdown>
+                      </Dropdown> */}
                     </div>
+                    <Label for="footer" className="text-sm font-semibold">
+                          Buttons
+                        </Label>
                     {messagePreview.buttons.map((button, index) => (
                       <div
                         key={index}
@@ -1375,15 +1424,15 @@ const TemplateUpdatePage = () => {
                                     }}
                                     className="me-2"
                                   />
-                                  <Button
-                                    onClick={() => addURLVariable(index)}
+                                  {/* <Button
+                                    onClick={() => loadurlVariables(index)}
                                     className="mt-0 mr-2 bg-transparent border-0"
                                     style={{ minWidth: "max-content" }}
                                   >
                                     <span className="text-primary">
-                                      + Add Variable
+                                      + Load Variable
                                     </span>
-                                  </Button>
+                                  </Button> */}
                                 </div>
 
                                 {/* URL Variable Input */}
@@ -1406,7 +1455,7 @@ const TemplateUpdatePage = () => {
                                           }}`}
                                         />
                                       </Col>
-                                      <Col xs="auto">
+                                      {/* <Col xs="auto">
                                         <div
                                           className="border-1 d-flex align-items-center justify-content-center rounded"
                                           style={{
@@ -1426,7 +1475,7 @@ const TemplateUpdatePage = () => {
                                             }}
                                           />
                                         </div>
-                                      </Col>
+                                      </Col> */}
                                     </Row>
                                   </div>
                                 )}
@@ -1435,13 +1484,13 @@ const TemplateUpdatePage = () => {
                           ))}
 
                         {/* Remove Button */}
-                        <Button
+                        {/* <Button
                           onClick={() => removeButtonFromPreview(index)}
                           color="danger"
                           className="h-10 w-10 ml-1"
                         >
                           <FaRegTrashCan />
-                        </Button>
+                        </Button> */}
                       </div>
                     ))}
 
@@ -1452,12 +1501,12 @@ const TemplateUpdatePage = () => {
                       >
                         Cancel
                       </Button>
-                      <Button
+                      {/* <Button
                         className="uniform_btn  "
                         onClick={() => handleSubmit(values)}
                       >
                         Submit
-                      </Button>
+                      </Button> */}
                     </div>
 
                     <MonitorFormikContext

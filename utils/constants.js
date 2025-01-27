@@ -36,4 +36,6 @@ export const REFRESH_INTERVAL=10000 ; // 5 minutes in milliseconds
 
 export const NOTIFICATION_WARNING_INTERVAL=300000 ; // 5 minutes in milliseconds
 
+export const HEARTBEAT_CHECK_INTERVAL=10000 ; // 5 minutes in milliseconds
+
   

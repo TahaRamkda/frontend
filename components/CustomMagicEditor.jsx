@@ -145,93 +145,10 @@ const CustomMagicEditor = ({
     }
   }, [bodyContent]);
 
-  const handleBodyChange = (e) => {
-    const newValue = e.target.value;
+ 
 
-    if (showaddvarbutton === true) {
-      // // Extract all variable placeholders like {{1}}, {{2}}, etc.
-      // const existingPlaceholders = bodyContent.match(/\{\{\d+\}\}/g) || [];
-      // const newPlaceholders = newValue.match(/\{\{\d+\}\}/g) || [];
-      // // Check for removed placeholders
-      // const removedPlaceholders = existingPlaceholders.filter(
-      //   (placeholder) => !newPlaceholders.includes(placeholder)
-      // );
-      // if (removedPlaceholders.length > 0) {
-      //   toast.error("You cannot remove existing variable placeholders.");
-      //   return; // Prevent state update
-      // }
-      // // Check for duplicates in the new content
-      // const duplicates = newPlaceholders.filter(
-      //   (placeholder, index) => newPlaceholders.indexOf(placeholder) !== index
-      // );
-      // // Check if the user has moved an existing placeholder to a position where it already exists
-      // const hasInvalidChange = newPlaceholders.some((placeholder) => {
-      //   return (
-      //     existingPlaceholders.includes(placeholder) &&
-      //     newPlaceholders.indexOf(placeholder) !==
-      //       existingPlaceholders.indexOf(placeholder)
-      //   );
-      // });
-      // if (duplicates.length > 0 || hasInvalidChange) {
-      //   toast.error("You cannot change the variable placeholders in the body.");
-      //   return; // Do not update the state
-      // }
-    }
-    // Update the body content if validation passes
-    setBodyContent(newValue);
-  };
-
-  //function to load body veriables
-  const loadVariables = () => {
-    const variablePattern = /{{(.*?)}}/g;
-    const contentToCheck =
-      bodyContent && bodyContent.trim() ? bodyContent : existingBodyContent;
-
-    const matches = contentToCheck
-      ? contentToCheck.match(variablePattern)
-      : null;
-
-    if (matches) {
-      // Extract variable names with curly braces
-      const allVariables = matches.map((variable) => variable);
-      // Pass all variables to addVariable for resetting and updating
-      addVariable(null, allVariables);
-    } else {
-      // If no variables are found, clear the variables array
-      addVariable(null, []);
-      //setErrorMessage("No variables found in the body content.");
-    }
-  };
-
-  //function to load header veriables
-  const loadheaderVariables = () => {
-    const variablePattern = /{{(.*?)}}/g;
-    const contentToCheck =
-      content && content.trim() ? content : existingContent;
-
-    const matches = contentToCheck
-      ? contentToCheck.match(variablePattern)
-      : null;
-
-    setheaderror("");
-    if (matches) {
-      if (matches.length === 1) {
-        // Extract variable names with curly braces
-        const allVariables = matches.map((variable) => variable);
-        // Pass all variables to addVariable for resetting and updating
-        onFunction(null, allVariables);
-      } else {
-        setheaderror("You can add only one header veriable");
-      }
-    } else {
-      // If no variables are found, clear the variables array
-      onFunction(null, []);
-      //setErrorMessage("No variables found in the body content.");
-    }
-  };
-
-  //function to handel head content change
-  const handleHeadChange = (e) => {
+   //function to handel head content change
+   const handleHeadChange = (e) => {
     const newValue = e.target.value;
     if (showaddvarbutton === true) {
       // // Extract all variable placeholders like {{1}}, {{2}}, etc.
@@ -273,6 +190,96 @@ const CustomMagicEditor = ({
       setContent(newValue);
     }
   };
+
+  //function to handkle body change
+  const handleBodyChange = (e) => {
+    const newValue = e.target.value;
+
+    if (showaddvarbutton === true) {
+      // // Extract all variable placeholders like {{1}}, {{2}}, etc.
+      // const existingPlaceholders = bodyContent.match(/\{\{\d+\}\}/g) || [];
+      // const newPlaceholders = newValue.match(/\{\{\d+\}\}/g) || [];
+      // // Check for removed placeholders
+      // const removedPlaceholders = existingPlaceholders.filter(
+      //   (placeholder) => !newPlaceholders.includes(placeholder)
+      // );
+      // if (removedPlaceholders.length > 0) {
+      //   toast.error("You cannot remove existing variable placeholders.");
+      //   return; // Prevent state update
+      // }
+      // // Check for duplicates in the new content
+      // const duplicates = newPlaceholders.filter(
+      //   (placeholder, index) => newPlaceholders.indexOf(placeholder) !== index
+      // );
+      // // Check if the user has moved an existing placeholder to a position where it already exists
+      // const hasInvalidChange = newPlaceholders.some((placeholder) => {
+      //   return (
+      //     existingPlaceholders.includes(placeholder) &&
+      //     newPlaceholders.indexOf(placeholder) !==
+      //       existingPlaceholders.indexOf(placeholder)
+      //   );
+      // });
+      // if (duplicates.length > 0 || hasInvalidChange) {
+      //   toast.error("You cannot change the variable placeholders in the body.");
+      //   return; // Do not update the state
+      // }
+    }
+    // Update the body content if validation passes
+    setBodyContent(newValue);
+  };
+
+  //function to load header veriables
+  const loadheaderVariables = () => {
+    const variablePattern = /{{(.*?)}}/g;
+    const contentToCheck =
+      content && content.trim() ? content : existingContent;
+
+    const matches = contentToCheck
+      ? contentToCheck.match(variablePattern)
+      : null;
+
+    setheaderror("");
+    if (matches) {
+      if (matches.length === 1) {
+        // Extract variable names with curly braces
+        const allVariables = matches.map((variable) => variable);
+        // Pass all variables to addVariable for resetting and updating
+        onFunction(null, allVariables);
+      } else {
+        setheaderror("You can add only one header veriable");
+      }
+    } else {
+      // If no variables are found, clear the variables array
+      onFunction(null, []);
+      //setErrorMessage("No variables found in the body content.");
+    }
+  };
+
+
+  //function to load body veriables
+  const loadVariables = () => {
+    const variablePattern = /{{(.*?)}}/g;
+    const contentToCheck =
+      bodyContent && bodyContent.trim() ? bodyContent : existingBodyContent;
+
+    const matches = contentToCheck
+      ? contentToCheck.match(variablePattern)
+      : null;
+
+    if (matches) {
+      // Extract variable names with curly braces
+      const allVariables = matches.map((variable) => variable);
+      // Pass all variables to addVariable for resetting and updating
+      addVariable(null, allVariables);
+    } else {
+      // If no variables are found, clear the variables array
+      addVariable(null, []);
+      //setErrorMessage("No variables found in the body content.");
+    }
+  };
+
+  
+ 
 
   return (
     <div>

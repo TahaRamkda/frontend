@@ -48,7 +48,8 @@ import EmojiPicker from "emoji-picker-react";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 import { extractTime } from "@/utils/constants";
 import { set } from "date-fns";
-import { NOTIFICATION_WARNING_INTERVAL } from "@/utils/constants";
+import { NOTIFICATION_WARNING_INTERVAL ,HEARTBEAT_CHECK_INTERVAL} from "@/utils/constants";
+
 import {
   HiZoomIn,
   HiZoomOut,
@@ -87,7 +88,7 @@ const ChatPage = () => {
   const [Activechat, setActiveChat] = useState(0);
   const [ActiveSenderId, setActiveSenderId] = useState(0);
   const fileInputRef = useRef(null); // Reference for the file input
-  const [Errordisconect, setErrordisconect] = useState(false);
+  const [Errordisconnect, setErrordisconnect] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const toggleModal = () => setModalOpen((prevState) => !prevState);
   const activeChatRef = useRef(Activechat);
@@ -106,6 +107,7 @@ const ChatPage = () => {
   const [pageNo, setPageNo] = useState(1);
   const [unrepliedChats, setUnrepliedChats] = useState([]);
   const [templateDetails, setTemplateDetails] = useState([]);
+  const [heartbeatAttempts , setheartbeatAttempts] = useState(0);
   const lastScrollTop = useRef(0);
   useEffect(() => {
     // Initialize the audio object only once
@@ -395,7 +397,7 @@ const ChatPage = () => {
         skipNegotiation: true,
         transport: signalR.HttpTransportType.WebSockets,
       })
-      .withAutomaticReconnect() // Automatically reconnect on failure
+      .withAutomaticReconnect(0,10,20,30) // Automatically reconnect on failure
       .build();
 
     setConnection(newConnection);
@@ -574,14 +576,46 @@ const ChatPage = () => {
       })
       .catch((err) => {
         console.error("Error while starting the connection:", err);
-        setErrordisconect(true);
+        setErrordisconnect(true);
       });
+      newConnection.onreconnecting((error) => {
+        console.warn("Connection lost. Attempting to reconnect...", error);
+        setErrordisconnect(true); // Notify user or set state as disconnected
+      });
+
+
+      setInterval(() => {
+        if (newConnection.state === signalR.HubConnectionState.Connected) {
+          newConnection.invoke("Heartbeat")
+            .then(() => {
+              console.log("Heartbeat sent successfully");
+              setheartbeatAttempts(); // Reset the counter on success
+            })
+            .catch((err) => {
+              setheartbeatAttempts(heartbeatAttempts + 1) // Increment the counter on failure
+              console.error(`Heartbeat error (${heartbeatAttempts} attempts):`, err);
+            });
+        } else {
+          setErrordisconnect(true);
+          console.warn("Connection is not in the connected state.");
+        }
+      }, HEARTBEAT_CHECK_INTERVAL); // Send heartbeat every 15 seconds
+      
+      
+     
 
     return () => {
       newConnection.stop().then(() => console.log("Connection stopped"));
-      setErrordisconect(true);
+      setErrordisconnect(true);
     };
   }, []);
+
+  useEffect(() => {
+   
+    if (heartbeatAttempts >=2) {
+      setErrordisconnect(true);
+    }
+  },[heartbeatAttempts])
 
   const startTimer = (messages) => {
     
@@ -1317,7 +1351,7 @@ const ChatPage = () => {
           </Col>
         </Row>
       </Container>
-      {Errordisconect && (
+      {Errordisconnect && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
           <div className="bg-red-500 p-8 rounded-lg shadow-md max-w-md w-full text-center">
             <div className="flex justify-center mb-4">
