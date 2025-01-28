@@ -27,6 +27,7 @@ const ChatsReport = () => {
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [showtransfer, setshowtransfer] = useState(false);
   const [activeChat, setActiveChat] = useState(0);
+  const [ChatLoading, setChatLoading] = useState(false)
   const [SenderId, setSenderId] = useState(0);
   const [oldAgentId, setoldAgentId] = useState(0);
   const [refreshpage, setrefreshpage] = useState(false);  // Track if page is refreshing
@@ -80,6 +81,7 @@ const ChatsReport = () => {
     }
 
     const timeout = setTimeout(() => {
+      setChatLoading(true)
       dispatch(fetchChatsMonitor({
         clientId: clientId,
         senderId: senderid,
@@ -91,7 +93,12 @@ const ChatsReport = () => {
 
     setSearchTimeout(timeout); // Save the timeout reference
   };
-
+ useEffect(() => {
+     if (!loading && chatsMonitor) {
+       setChatLoading(false);
+     }
+   }, [loading, chatsMonitor]);
+  
   const handleSenderChange = (e) => {
     const senderId = e.target.value;
     setsenderid(senderId);
@@ -152,6 +159,7 @@ const ChatsReport = () => {
 
   useEffect(() => {
     if (clientId) {
+      setChatLoading(true)
       dispatch(fetchChatsMonitor({
         clientId: clientId,
         senderId: senderid,
@@ -164,11 +172,12 @@ const ChatsReport = () => {
     return () => {
       dispatch(clearChatsMonitorState());
     };
-  }, [dispatch, clientId]);
+  }, [dispatch, clientId,senderid]);
 
   const handlePageSizeChange = async (newSize) => {
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1));  // Reset to first page
+    setChatLoading(true)
     await dispatch(fetchChatsMonitor({
       clientId: clientId,
       searchStr: srcStr,
@@ -180,6 +189,7 @@ const ChatsReport = () => {
 
   const handlePageChange = async (page) => {
     dispatch(setCurrentPage(page));
+    setChatLoading(true)
     await dispatch(fetchChatsMonitor({
       clientId: clientId,
       senderId: senderid,
@@ -220,7 +230,7 @@ const ChatsReport = () => {
   return (
     <App>
       <div className="flex items-center">
-        {loading && !refreshpage && <Loading />}  {/* Show loader only when page is not refreshing */}
+        { ChatLoading && <Loading />}  {/* Show loader only when page is not refreshing */}
         <div >
           <h4 className="font-bold ">Chats Report</h4>
         </div>

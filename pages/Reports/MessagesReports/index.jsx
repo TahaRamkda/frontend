@@ -39,6 +39,7 @@ const MessageReport = () => {
   ];
   useEffect(() => {
     if (clientId) {
+      setreportloading(true)
       dispatch(
         fetchMessageReport({
           clientId: clientId,
@@ -69,27 +70,48 @@ const MessageReport = () => {
     }
   }, []);
 
-  useEffect(() => {
-    const checkAndFetch = () => {
-      const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
+ 
+   useEffect(() => {
+        const checkAndFetch = async () => {
+          const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
+    
+          if (isLiveReporting && !loading) {
+            
+            try {
+               await dispatch(
+                fetchMessageReport({
+                  clientId: clientId,
+                  fromDate: fromDate,
+                  toDate: toDate,
+                  status: status,
+                  moduleId: ModuleId,
+                  senderid: senderid,
+                  srcStr: srcStr,
+                  sendernameId: sendernameId,
+                  pageSize: pageSize,
+                  pageNo: currentPage,
+                })
+              );
+              
+            } catch (error) {
+              console.error("Error fetching chat monitor:", error);
+            }
+          }
+        };
+    
+       
+    
+        const intervalId = setInterval(() => {
+          // Perform the periodic refresh (e.g., every 5 minutes) if page is loaded
+          if (!loading) {
+            checkAndFetch();
+          }
+        }, REFRESH_INTERVAL);
+    
+        // Cleanup interval on component unmount or when page is unloaded
+        return () => clearInterval(intervalId);
+      }, [ dispatch,senderid, srcStr,fromDate,toDate,status,ModuleId,sendernameId,pageSize,currentPage]);
   
-      if (isLiveReporting) {
-        setreportloading(true);
-        refreshpage()
-      } else {
-        // Handle the case when isLiveReporting is false
-      }
-    };
-  
-    // Run the function every 5 minutes
-    const intervalId = setInterval(checkAndFetch, REFRESH_INTERVAL);
-  
-    // Run the function once immediately
-    checkAndFetch();
-  
-    // Cleanup the interval when the component unmounts
-    return () => clearInterval(intervalId);
-  }, []);
 
 
   const handleSearchString = (setter) => (e) => {
@@ -104,6 +126,7 @@ const MessageReport = () => {
 
     // Set a new timeout for 0.5 seconds
     const timeout = setTimeout(() => {
+      setreportloading(true)
       dispatch(
         fetchMessageReport({
           clientId: clientId,
@@ -127,7 +150,12 @@ const MessageReport = () => {
     setshowfilterbutton(prevState => !prevState);  // Toggle showfilterbutton
 
   };
-
+ useEffect(() => {
+     if (!loading && messagereport) {
+       setreportloading(false);
+     }
+   }, [loading, messagereport]);
+  
 
 
 
@@ -135,20 +163,22 @@ const MessageReport = () => {
     // Update page size and reset to the first page
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to first page
+    setreportloading(true)
     // Fetch data with updated page size and reset to page 1
     await dispatch(fetchMessageReport({
       clientId: clientId, fromDate: fromDate, toDate: toDate, moduleId: ModuleId, status: status, sendernameId: sendernameId, senderid: senderid, srcStr: srcStr, pageSize : newSize, pageNo: 1 
     }));
   };
   const refreshpage = async () => {
+    setreportloading(true)
     await dispatch(fetchMessageReport({ clientId: localStorage.getItem("clientId"), fromDate: fromDate, toDate: toDate, moduleId: ModuleId, status: status, sendernameId: sendernameId, senderid: senderid, srcStr: srcStr, pageSize, pageNo: currentPage }));
-    return setreportloading(false);
+    return 
   };
 
   const handlePageChange = async (page) => {
     // Update current page state in Redux
     dispatch(setCurrentPage(page));
-
+    setreportloading(true)
     // Fetch clients for the new page
     await dispatch(fetchMessageReport({ clientId: clientId, fromDate: fromDate, toDate: toDate, moduleId: ModuleId, status: status, sendernameId: sendernameId, senderid: senderid, srcStr: srcStr, pageSize, pageNo: page }));
   };
@@ -216,7 +246,7 @@ const MessageReport = () => {
   return (
     <App>
       <div className="flex items-center">
-        {loading && !reportloading && <Loading />}
+        {reportloading &&  <Loading />}
         <div >
           <h4 className="font-bold ">Message Reports</h4>
         </div>

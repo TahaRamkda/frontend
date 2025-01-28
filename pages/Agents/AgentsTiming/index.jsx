@@ -3,7 +3,7 @@ import { HiTrash } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Table, Input } from "reactstrap";
 import dayjs from "dayjs";
-import { fetchAgentsTimingList, createAgentTiming } from "@/slices/AgentSlice";
+import { fetchAgentsTimingList, createAgentTiming, clearAgentsTimingListState } from "@/slices/AgentSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Layout/Loader";
 
@@ -36,10 +36,21 @@ const AgentTimingList = ({ agentId, isVisible, onClose }) => {
   const { agentsTiming, loading } = useSelector((state) => state.agents);
 
   useEffect(() => {
-    if (!agentId) return;
-    const clientId = localStorage.getItem("clientId");
-    dispatch(fetchAgentsTimingList({ clientId: clientId, agentId: agentId }));
+    if (agentId) {
+      // Clear the previous state when agentId changes
+      dispatch(clearAgentsTimingListState());
+  
+      // Fetch the timings for the new agentId
+      const clientId = localStorage.getItem("clientId");
+      dispatch(fetchAgentsTimingList({ clientId: clientId, agentId: agentId }));
+    }
+  
+    // Cleanup logic to prevent unwanted behavior if needed
+    return () => {
+      dispatch(clearAgentsTimingListState());
+    };
   }, [dispatch, agentId]);
+  
 
   useEffect(() => {
     if (agentsTiming) {
@@ -84,6 +95,7 @@ const AgentTimingList = ({ agentId, isVisible, onClose }) => {
     try {
       const response = await dispatch(createAgentTiming(requestBody)).unwrap();
       if (response.success) {
+        onClose()
         showSweetAlert({
           title: "Added Successfully",
           text: "",

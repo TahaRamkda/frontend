@@ -84,7 +84,7 @@ const TemplateList = () => {
   const handleDetailClick = (templates_Id) => {
     try {
       settemplateId(templates_Id);
-      router.push("/Templates/UpdateTemplate");
+      router.replace("/Templates/UpdateTemplate");
     } catch (error) {
       alert(t("Failed to fetch Template details: ") + error.message);
     }
@@ -282,7 +282,7 @@ const TemplateList = () => {
         />
       </div>
 
-      {isModalOpen && <UpdateTemplate Template_Id={templateId} />}
+      
     </App>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState, use } from 'react';
+import React, { useMemo, useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCampaign, clearCampaignListState, activateCampaign, clearCampaignActivateState, setPageSize, setCurrentPage } from "@/slices/campaignSlice";
 import { Card, CardBody, CardHeader, Col, Input, Label, Alert, Button, Modal, ModalBody, ModalHeader, Form, FormGroup, Row, Table, Pagination, PaginationItem, PaginationLink } from "reactstrap";
@@ -40,6 +40,7 @@ const CampaignsList = () => {
   const { campaigns, loading, error, currentPage, pageSize, totalRecords } =
     useSelector((state) => state.campaigns);
   const [clientId, setClientId] = useState(null);
+  const isLiveReporting = useRef(false); // UseRef to track live reporting state
   const setCampaignsId = useSetRecoilState(CampaignState);
  const [campaignloading, setcampaignloading] = useState(false);
   const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
@@ -55,18 +56,16 @@ const CampaignsList = () => {
       }));
   };
 
-  
-useState (() => {
-    if (campaigns) {
-      
-     setcampaignloading(false)
+  useEffect(() => {
+    if (!loading && campaigns) {
+      setcampaignloading(false);
     }
-  }, [campaigns]);
+  }, [loading, campaigns]);
  
 
 
   useEffect(() => {
-    const checkAndFetch = () => {
+    const checkAndFetch = async () => {
       const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
   
       if (isLiveReporting) {
@@ -79,14 +78,18 @@ useState (() => {
     };
   
     // Run the function every 5 minutes
-    const intervalId = setInterval(checkAndFetch, REFRESH_INTERVAL);
+    const intervalId = setInterval(() => {
+      // Perform the periodic refresh (e.g., every 5 minutes) if page is loaded
+      if (!loading) {
+        checkAndFetch();
+      }
+    }, REFRESH_INTERVAL);
   
     // Run the function once immediately
-    checkAndFetch();
-  
+
     // Cleanup the interval when the component unmounts
     return () => clearInterval(intervalId);
-  }, []);
+  }, [dispatch,FromDate,ToDate,status,templateId,currentPage,pageSize]);
 
 
  
@@ -112,6 +115,7 @@ useState (() => {
     
     // Set a new timeout for 0.5 seconds
     const timeout = setTimeout(() => {
+      setcampaignloading(true);
       dispatch(
         fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: searchValue, pageSize, PageNo: currentPage})
       );
@@ -122,15 +126,16 @@ useState (() => {
 
 
 
-  useEffect(() => {
-      dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
+ useEffect(() => {
+    
+      const clientId = localStorage.getItem("clientId");
+      setcampaignloading(true);
+      dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
+    
     return () => {
-      
-      dispatch(clearCampaignListState());
+      clearCampaignListState();
     };
-  }, [dispatch,FromDate,ToDate]);
-
-
+  }, [dispatch, FromDate, ToDate,templateId]);
 
   const handleCreate = () => {
     window.location.href = "/Campaigns/CreateCampaigns";
@@ -322,9 +327,12 @@ useState (() => {
   }, [keyword, FromDate, ToDate, templateId]);
 
   return (
+    
     <App>
+      
+      { campaignloading && <Loading />}
       <div className="flex items-center">
-      {loading && <Loading />}
+     
         <div className='mb-1'>
           <h4 className="font-bold mb-2">Campaign</h4>
         </div>
