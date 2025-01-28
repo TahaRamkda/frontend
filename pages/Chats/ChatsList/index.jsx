@@ -7,7 +7,7 @@ import {
   FaCheckCircle,
   FaTimesCircle,
   FaClock,
-  FaBan ,
+  FaBan,
 } from "react-icons/fa";
 
 import UserBadge from "@/public/images/User.jpg";
@@ -48,7 +48,10 @@ import EmojiPicker from "emoji-picker-react";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 import { extractTime } from "@/utils/constants";
 import { set } from "date-fns";
-import { NOTIFICATION_WARNING_INTERVAL ,HEARTBEAT_CHECK_INTERVAL} from "@/utils/constants";
+import {
+  NOTIFICATION_WARNING_INTERVAL,
+  HEARTBEAT_CHECK_INTERVAL,
+} from "@/utils/constants";
 
 import {
   HiZoomIn,
@@ -107,7 +110,8 @@ const ChatPage = () => {
   const [pageNo, setPageNo] = useState(1);
   const [unrepliedChats, setUnrepliedChats] = useState([]);
   const [templateDetails, setTemplateDetails] = useState([]);
-  const [heartbeatAttempts , setheartbeatAttempts] = useState(0);
+  const [heartbeatAttempts, setheartbeatAttempts] = useState(0);
+  const [tryReconnect , settryReconnect] = useState(false);
   const lastScrollTop = useRef(0);
   useEffect(() => {
     // Initialize the audio object only once
@@ -235,10 +239,10 @@ const ChatPage = () => {
 
   const handleScroll = () => {
     if (!hasMore || loading) return;
-  
+
     const container = scrollContainerRef.current;
     const buffer = 10; // Trigger API call 100px before reaching the top
-  
+
     // Detect upward scrolling and proximity to the top
     const currentScrollTop = container.scrollTop;
     if (
@@ -254,11 +258,11 @@ const ChatPage = () => {
         })
       );
     }
-  
+
     // Update last scroll position
     lastScrollTop.current = currentScrollTop;
   };
-  
+
   useEffect(() => {
     if (Activechat !== 0) {
       const container = scrollContainerRef.current;
@@ -266,7 +270,7 @@ const ChatPage = () => {
       return () => container.removeEventListener("scroll", handleScroll);
     }
   }, [currentPage, hasMore, loading, Activechat]);
-  
+
   const handleImageclose = () => {
     setMediaFile(null);
     setPreviewUrl(null);
@@ -274,9 +278,7 @@ const ChatPage = () => {
 
   //called each time to send message
   const HandleSendMessage = async () => {
-    setPreviewUrl(null);
-    setFileType(null);
-    setFileType(null);
+    
     if (!messageInput.trim() && !mediaFile) {
       toast.error("Message cannot be empty!");
       return;
@@ -297,11 +299,15 @@ const ChatPage = () => {
         messageId: Date.now(),
         typeId: 1,
         messageContent: messageInput.trim(),
-        contentType: mediaFile ? mediaFile.type : "", // Set content type if there's media
+        sentcontentType: fileType ? fileType : "", // Set content type if there's media
+        sentmediaPath: previewUrl ? previewUrl : "",
         createdDate: new Date().toLocaleString(),
       };
 
       setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
+      setPreviewUrl(null);
+      setFileType(null);
+      setFileType(null);
       setMessageInput("");
       await dispatch(NewAgentMessage(formData)).unwrap();
       //toast.success("Message sent successfully!");
@@ -346,7 +352,6 @@ const ChatPage = () => {
 
   useEffect(() => {
     if (AgentConversation && AgentConversation.length > 0) {
-      
       // Filter messages with unread count > 0
       const unreadMessages = AgentConversation.filter(
         (message) => message.unreadCount > 0
@@ -375,6 +380,7 @@ const ChatPage = () => {
   };
 
   useEffect(() => {
+    
     if (!Chatsloading && tempMessages.length > 0) {
       //debugger;
       // Append tempMessages to chatMessages when loading becomes false
@@ -397,7 +403,7 @@ const ChatPage = () => {
         skipNegotiation: true,
         transport: signalR.HttpTransportType.WebSockets,
       })
-      .withAutomaticReconnect(0,10,20,30) // Automatically reconnect on failure
+      .withAutomaticReconnect([0, 2000, 5000, 10000, 15000 , 20000 , 25000]) 
       .build();
 
     setConnection(newConnection);
@@ -527,7 +533,6 @@ const ChatPage = () => {
 
     // Handles unassignment of a conversation
     const handleConversationUnAssigned = (chatId) => {
-      
       if (
         agentChatRef.current.filter(
           (conversation) => conversation.id === chatId
@@ -559,8 +564,6 @@ const ChatPage = () => {
       clearTimer(chatId);
       agentChatRef.current = updatedConversations;
       setAgentConversation(updatedConversations);
-
-      
     };
 
     // Set up SignalR event listeners
@@ -578,31 +581,32 @@ const ChatPage = () => {
         console.error("Error while starting the connection:", err);
         setErrordisconnect(true);
       });
-      newConnection.onreconnecting((error) => {
-        console.warn("Connection lost. Attempting to reconnect...", error);
-        setErrordisconnect(true); // Notify user or set state as disconnected
-      });
+    newConnection.onreconnecting((error) => {
+      console.warn("Connection lost. Attempting to reconnect...", error);
+      //setErrordisconnect(true); // Notify user or set state as disconnected
+    });
 
-
-      setInterval(() => {
-        if (newConnection.state === signalR.HubConnectionState.Connected) {
-          newConnection.invoke("Heartbeat")
-            .then(() => {
-              console.log("Heartbeat sent successfully");
-              setheartbeatAttempts(); // Reset the counter on success
-            })
-            .catch((err) => {
-              setheartbeatAttempts(heartbeatAttempts + 1) // Increment the counter on failure
-              console.error(`Heartbeat error (${heartbeatAttempts} attempts):`, err);
-            });
-        } else {
-          setErrordisconnect(true);
-          console.warn("Connection is not in the connected state.");
-        }
-      }, HEARTBEAT_CHECK_INTERVAL); // Send heartbeat every 15 seconds
+    setInterval(() => {
       
-      
-     
+      if (newConnection.state === signalR.HubConnectionState.Connected) {
+        newConnection
+          .invoke("Heartbeat")
+          .then(() => {
+            console.log("Heartbeat sent successfully");
+            setheartbeatAttempts(0); // Reset the counter on success
+          })
+          .catch((err) => {
+            setheartbeatAttempts(heartbeatAttempts + 1); // Increment the counter on failure
+            console.error(
+              `Heartbeat error (${heartbeatAttempts} attempts):`,
+              err
+            );
+          });
+      } else {
+        setErrordisconnect(true);
+        console.warn("Connection is not in the connected state.");
+      }
+    }, HEARTBEAT_CHECK_INTERVAL); // Send heartbeat every 15 seconds
 
     return () => {
       newConnection.stop().then(() => console.log("Connection stopped"));
@@ -610,15 +614,17 @@ const ChatPage = () => {
     };
   }, []);
 
+  // useEffect(() => {
+  //   settryReconnect(true);
+  // },[Errordisconnect])
+
   useEffect(() => {
-   
-    if (heartbeatAttempts >=2) {
+    if (heartbeatAttempts >= 2) {
       setErrordisconnect(true);
     }
-  },[heartbeatAttempts])
+  }, [heartbeatAttempts]);
 
   const startTimer = (messages) => {
-    
     // Clear existing timer if any
     if (timersRef.current[messages.id]) {
       clearTimeout(timersRef.current[messages.id]);
@@ -631,7 +637,6 @@ const ChatPage = () => {
   };
 
   const handleTimerExpiry = (message) => {
-    
     toast.error(`Time expired for Phone number: ${message.phoneNumber}`);
 
     // Play alert sound
@@ -725,9 +730,9 @@ const ChatPage = () => {
                     </span>
                   </span>
                 </div>
-               {/* Abandoned */}
-               <div className="flex items-center space-x-2">
-                  <FaBan  size={20} className="text-red-500" />
+                {/* Abandoned */}
+                <div className="flex items-center space-x-2">
+                  <FaBan size={20} className="text-red-500" />
                   <span className="font-medium text-white">
                     Abandoned:{" "}
                     <span className="font-bold">
@@ -739,13 +744,13 @@ const ChatPage = () => {
                 <div className="flex items-center space-x-2">
                   <FaTimesCircle size={20} className="text-red-500" />
                   <span className="font-medium text-white">
-                     Closed:{" "}
+                    Closed:{" "}
                     <span className="font-bold">
                       {AgentStats.closedChat ?? "-/-"}
                     </span>
                   </span>
                 </div>
-               
+
                 {/* Expired */}
                 <div className="flex items-center space-x-2">
                   <AiOutlineHourglass size={20} className="text-yellow-100" />
@@ -956,14 +961,13 @@ const ChatPage = () => {
                     >
                       <img
                         src={`${BASE_URL}${conversation.logo}`}
-                        
                         alt="User Logo"
-                            className="rounded-circle me-2"
-                            style={{
-                              width: "40px",
-                              height: "40px",
-                              objectFit: "cover",
-                            }}
+                        className="rounded-circle me-2"
+                        style={{
+                          width: "40px",
+                          height: "40px",
+                          objectFit: "cover",
+                        }}
                       />
 
                       <div>{conversation.fullName}</div>
@@ -982,7 +986,6 @@ const ChatPage = () => {
                       ref={scrollContainerRef}
                       className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2"
                       style={{
-                       
                         overflowY: "auto",
                         display: "flex",
                         flexDirection: "column-reverse",
@@ -992,7 +995,6 @@ const ChatPage = () => {
                         <div className="text-center">Loading messages...</div>
                       )}
                       {chatMessages?.map((message) => (
-                        
                         <div
                           key={message.messageId}
                           className={`flex ${
@@ -1041,15 +1043,84 @@ const ChatPage = () => {
                                     />
                                   )}
                                   {message.contentType.startsWith("audio/") && (
-                                    
                                     <audio controls>
-                                    <source src={`${BASE_URL}${message.mediaPath}`} />
-                                    Your browser does not support the audio element.
-                                  </audio>
-                                  
-                                  )
-                                 
-                                  }
+                                      <source
+                                        src={`${BASE_URL}${message.mediaPath}`}
+                                      />
+                                      Your browser does not support the audio
+                                      element.
+                                    </audio>
+                                  )}
+                                </>
+                              )}
+                            {/* //for sent content */}
+                            {message.sentcontentType &&
+                              message.sentcontentType !== "" && (
+                                <>
+                                  {message.sentcontentType.startsWith("image") && (
+                                    <img
+                                      src={`${message.sentmediaPath}`}
+                                      alt="Image"
+                                      className="w-full h-auto rounded"
+                                    />
+                                  )}
+                                  {message.sentcontentType.startsWith("video") && (
+                                    <video
+                                      controls
+                                      src={`${message.sentmediaPath}`}
+                                      className="w-full h-auto rounded"
+                                    />
+                                  )}
+                                  {message.sentcontentType.startsWith("audio") && (
+                                    <audio controls>
+                                      <source
+                                        src={`${message.sentmediaPath}`}
+                                      />
+                                      Your browser does not support the audio
+                                      element.
+                                    </audio>
+                                  )}
+                                   {message.sentcontentType.startsWith("application") && (
+                                    <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      marginTop: "10px",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        backgroundColor: "#f0f0f0",
+                                        borderRadius: "50%",
+                                        width: "50px",
+                                        height: "50px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        marginRight: "10px",
+                                      }}
+                                    >
+                                      <i
+                                        className="fa fa-file"
+                                        style={{
+                                          fontSize: "24px",
+                                          color: "#555",
+                                        }}
+                                      ></i>
+                                    </div>
+                                    <div>
+                                      <p
+                                        style={{
+                                          margin: "0 0 5px",
+                                          fontWeight: "bold",
+                                          color: "#333",
+                                        }}
+                                      >
+                                        File
+                                      </p>
+                                    </div>
+                                  </div>
+                                  )}
                                 </>
                               )}
                             <div
@@ -1061,7 +1132,6 @@ const ChatPage = () => {
                                 style={{
                                   fontSize: "15px",
                                   display: "inline-block",
-                                  
                                 }}
                               >
                                 {message.messageContent
@@ -1085,7 +1155,6 @@ const ChatPage = () => {
                                 {extractTime(message.createdDate).slice(0, 5)}
                               </span>
                             </div>
-
                             {message.buttonJson &&
                               message.buttonJson.length > 0 && (
                                 <div className="mt-2">
@@ -1349,6 +1418,7 @@ const ChatPage = () => {
               </div>
             )}
           </Col>
+      
         </Row>
       </Container>
       {Errordisconnect && (
