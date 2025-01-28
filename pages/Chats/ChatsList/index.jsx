@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
+//import { ClipboardCopy } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   FaComments,
@@ -8,6 +9,7 @@ import {
   FaTimesCircle,
   FaClock,
   FaBan,
+  FaCopy,
 } from "react-icons/fa";
 
 import UserBadge from "@/public/images/User.jpg";
@@ -122,6 +124,13 @@ const ChatPage = () => {
     clearTimer(Activechat);
     setTemplateDetails(details); // Update parent state
     console.log("Received template details:", details);
+  };
+
+  const handleCopy = (text) => {
+    const phoneNumber = text.startsWith("965") ? text.slice(3) : text;
+    navigator.clipboard.writeText(phoneNumber);
+    //alert(`Copied: ${phoneNumber}`);
+    toast.success(`Copied: ${phoneNumber}`);
   };
 
   const handleLogout = () => {
@@ -410,7 +419,7 @@ const ChatPage = () => {
 
     // Handles incoming messages
     const handleIncomingMessage = (message) => {
-      //debugger;
+      debugger;
       // Play notification sound
       audioRef.current
         ?.play()
@@ -454,16 +463,15 @@ const ChatPage = () => {
 
       // If the message belongs to the active chat
       if (message.conversationId === activeChatRef.current) {
-        if (loading) {
-          setTempMessages((prevTemp) => [...prevTemp, message]);
-        } else {
+        // if (loading) {
+        //   setTempMessages((prevTemp) => [...prevTemp, message]);
+        // } else {
           setChatMessages((prevMessages) => [
             message,
-            ...tempMessages,
             ...prevMessages,
           ]);
           setTempMessages([]);
-        }
+        //}
       } else {
         // Show notification for new message
         //toast.success("Check message");
@@ -566,10 +574,16 @@ const ChatPage = () => {
       setAgentConversation(updatedConversations);
     };
 
+    const handlepong = () => {
+
+      console.log("pong");
+    };
+
     // Set up SignalR event listeners
     newConnection.on("MessageReceived", handleIncomingMessage);
     newConnection.on("ConversationAssigned", handleConversationAssigned);
     newConnection.on("ConversationUnAssigned", handleConversationUnAssigned);
+    newConnection.on("Pong", handlepong);
 
     newConnection
       .start()
@@ -637,7 +651,7 @@ const ChatPage = () => {
   };
 
   const handleTimerExpiry = (message) => {
-    toast.error(`Time expired for Phone number: ${message.phoneNumber}`);
+    toast.error(`Reply pending for : ${message.phoneNumber} for more than 5 mins`);
 
     // Play alert sound
     audioRef.current
@@ -971,7 +985,16 @@ const ChatPage = () => {
                       />
 
                       <div>{conversation.fullName}</div>
-                      <div>{conversation.phoneNumber}</div>
+                      <div>
+      <span>{conversation.phoneNumber}</span>
+      <button
+        onClick={() => handleCopy(conversation.phoneNumber)}
+        className="p-1 rounded hover:bg-gray-300 focus:outline-none"
+        aria-label="Copy Phone Number"
+      >
+        <FaCopy size={16} />
+      </button>
+    </div>
                     </div>
 
                     {/* Right Section */}
