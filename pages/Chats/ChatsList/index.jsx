@@ -27,6 +27,8 @@ import {
   TabContent,
   TabPane,
   Container,
+  Modal,
+  ModalHeader,
   Row,
   Button,
   CardHeader,
@@ -1228,47 +1230,31 @@ const ChatPage = () => {
                     </div>
 
                     {previewUrl && (
+                      <Modal isOpen={true} fade={false}>
                       <div
                         style={{
                           position: "relative",
+                          background: "white",
                           padding: "20px",
                           borderRadius: "8px",
                           boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                          maxWidth: "450px",
+                          maxWidth: "300px",
+                          
                           marginRight: "20px auto",
                         }}
                       >
-                        <button
-                          onClick={() => handleImageclose()}
-                          style={{
-                            position: "absolute",
-                            top: "10px",
-                            right: "10px",
-                            backgroundColor: "red",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "50%",
-                            width: "25px",
-                            height: "25px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            cursor: "pointer",
-                            boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
-                            fontSize: "16px",
-                            lineHeight: "1",
-                          }}
-                        >
-                          &times;
-                        </button>
+                        
+                        <ModalHeader onClick={() => handleImageclose()}></ModalHeader>
+                         
 
                         {fileType === "image" && (
                           <img
                             src={previewUrl}
                             alt="Preview"
                             style={{
-                              maxWidth: "100%",
+                             objectFit: "cover",
                               marginTop: "10px",
+                              maxHeight:"auto",
                               borderRadius: "8px",
                             }}
                           />
@@ -1280,6 +1266,7 @@ const ChatPage = () => {
                             src={previewUrl}
                             style={{
                               width: "100%",
+                              objectFit: "cover",
                               marginTop: "10px",
                               borderRadius: "8px",
                             }}
@@ -1292,6 +1279,7 @@ const ChatPage = () => {
                             src={previewUrl}
                             style={{
                               width: "100%",
+                              objectFit: "cover",
                               marginTop: "10px",
                             }}
                           />
@@ -1303,6 +1291,7 @@ const ChatPage = () => {
                               display: "flex",
                               alignItems: "center",
                               marginTop: "10px",
+                              objectFit: "cover",
                             }}
                           >
                             <div
@@ -1348,7 +1337,10 @@ const ChatPage = () => {
                             </div>
                           </div>
                         )}
+                       
                       </div>
+                      </Modal>
+                      
                     )}
 
                     <div className="msger-inputs px-4 py-3 flex items-center">
@@ -1444,7 +1436,7 @@ const ChatPage = () => {
       
         </Row>
       </Container>
-      {Errordisconnect && (
+      {/* {Errordisconnect && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
           <div className="bg-red-500 p-8 rounded-lg shadow-md max-w-md w-full text-center">
             <div className="flex justify-center mb-4">
@@ -1480,7 +1472,7 @@ const ChatPage = () => {
             </button>
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 };
