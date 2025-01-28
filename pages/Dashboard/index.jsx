@@ -47,6 +47,7 @@ const Dashboard = () => {
   //const clientId = localStorage.getItem("clientId");
   const fromDateRef = useRef("");
   const toDateRef = useRef("");
+  const isLiveReporting = useRef(false); // UseRef to track live reporting state
   useEffect(() => {
     const today = new Date();
     const lastWeek = new Date(today);
@@ -181,7 +182,10 @@ const Dashboard = () => {
 
   return (
     <App>
-      {dataloading && <Loader />}
+     {!isLiveReporting.current && dataloading && <Loader />}
+
+
+
       <div className="w-full">
         {/* Date Filters */}
         <div className="grid grid-cols-5 mb-4 gap-4">

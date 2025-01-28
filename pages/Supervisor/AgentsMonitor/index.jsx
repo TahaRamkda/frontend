@@ -18,6 +18,7 @@ const MessageSummary = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
   const [FromDate, setFromDate] = useState("");
+  const [AgentLoading, setAgentLoading] = useState(false)
   const [ToDate, setToDate] = useState("");
   const [srcStr, setsrcStr] = useState('');
 const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
@@ -109,7 +110,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
         const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
   
         if (isLiveReporting && !loading) {
-          setrefreshpage(true);  // Mark the page as refreshing
+          
           try {
              await dispatch(fetchAgentsMonitor({ clientId: localStorage.getItem("clientId"), senderId: senderid, srcStr:srcStr,pageSize, pageNo: currentPage, fromDate:FromDate, toDate:ToDate}));
             
@@ -132,26 +133,32 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
   
       // Cleanup interval on component unmount or when page is unloaded
       return () => clearInterval(intervalId);
-    }, [ senderid, srcStr, dispatch]);
+    }, [ senderid, srcStr,FromDate,ToDate, dispatch]);
 
 
 
 
   useEffect(() => {
-    if (clientId) {
-      dispatch(fetchAgentsMonitor({ clientId: clientId, senderId: senderid, srcStr:srcStr,pageSize, pageNo: currentPage, fromDate:FromDate, toDate:ToDate}));
-
-    }
-    return () => {
-      dispatch(clearAgentMonitorState());
-    };
-  }, [dispatch, clientId, senderid,FromDate,ToDate]);
+     if (!loading && agentsMonitor) {
+       setAgentLoading(false);
+     }
+   }, [loading, agentsMonitor]);
+  
+   useEffect(() => {
+        const clientId = localStorage.getItem("clientId");
+        setAgentLoading(true);
+        dispatch(fetchAgentsMonitor({ clientId: clientId, senderId: senderid, srcStr:srcStr,pageSize, pageNo: currentPage, fromDate:FromDate, toDate:ToDate}));
+      return () => {
+        clearAgentMonitorState();
+      };
+    }, [dispatch, FromDate, ToDate,senderid, clientId]);
 
   const handleSenderChange = (e) => {
     const senderId = e.target.value;
     setsenderid(senderId);
   };
  const refreshlist = () => {
+  setAgentLoading(true);
   dispatch(fetchAgentsMonitor({ clientId: clientId, senderId: senderid, srcStr:srcStr,pageSize, pageNo: currentPage, fromDate:FromDate, toDate:ToDate}));
 
  }
@@ -166,6 +173,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
 
     // Set a new timeout for 0.5 seconds
     const timeout = setTimeout(() => {
+      setAgentLoading(true);
       dispatch(
         fetchAgentsMonitor({ clientId: clientId, senderId: senderid,srcStr:searchValue, pageSize, pageNo: currentPage, fromDate:FromDate, toDate:ToDate}));
     }, 500);
@@ -177,7 +185,9 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
   const handlePageSizeChange = async (newSize) => {
     // Update page size and reset to the first page
     dispatch(setPageSize(newSize));
+    
     dispatch(setCurrentPage(1)); // Reset to first page
+    setAgentLoading(true);
     // Fetch data with updated page size and reset to page 1
     await dispatch(fetchAgentsMonitor({
       clientId: clientId,
@@ -230,6 +240,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
   const handlePageChange = async (page) => {
     // Update current page state in Redux
     dispatch(setCurrentPage(page));
+    setAgentLoading(true);
 
     // Fetch clients for the new page
     await dispatch(fetchAgentsMonitor({ clientId: clientId, fromDate: FromDate, toDate: ToDate, senderId: senderid, srcStr: srcStr, pageSize, pageNo: page }));
@@ -285,7 +296,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
   return (
     <App>
       <div className="flex items-center">
-        {loading && refreshpage === false&& <Loading />}
+        {AgentLoading && <Loading />}
         <div >
           <h4 className="font-bold ">Agents Report</h4>
         </div>
