@@ -732,6 +732,7 @@ const ChatPage = () => {
 
             {/* Action Buttons Section on the Right Side */}
             <div className="">
+              
               {/* Sidebar Toggle Button */}
               <div className="flex items-center space-x-4">
                 {/* Assigned */}
