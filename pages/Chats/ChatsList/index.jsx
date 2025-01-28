@@ -27,8 +27,6 @@ import {
   TabContent,
   TabPane,
   Container,
-  Modal,
-  ModalHeader,
   Row,
   Button,
   CardHeader,
@@ -115,7 +113,7 @@ const ChatPage = () => {
   const [unrepliedChats, setUnrepliedChats] = useState([]);
   const [templateDetails, setTemplateDetails] = useState([]);
   const [heartbeatAttempts, setheartbeatAttempts] = useState(0);
-  const [tryReconnect, settryReconnect] = useState(false);
+  const [tryReconnect , settryReconnect] = useState(false);
   const lastScrollTop = useRef(0);
   useEffect(() => {
     // Initialize the audio object only once
@@ -289,6 +287,7 @@ const ChatPage = () => {
 
   //called each time to send message
   const HandleSendMessage = async () => {
+    
     if (!messageInput.trim() && !mediaFile) {
       toast.error("Message cannot be empty!");
       return;
@@ -390,6 +389,7 @@ const ChatPage = () => {
   };
 
   useEffect(() => {
+    
     if (!Chatsloading && tempMessages.length > 0) {
       //debugger;
       // Append tempMessages to chatMessages when loading becomes false
@@ -412,7 +412,7 @@ const ChatPage = () => {
         skipNegotiation: true,
         transport: signalR.HttpTransportType.WebSockets,
       })
-      .withAutomaticReconnect([0, 2000, 5000, 10000, 15000, 20000, 25000])
+      .withAutomaticReconnect([0, 2000, 5000, 10000, 15000 , 20000 , 25000]) 
       .build();
 
     setConnection(newConnection);
@@ -466,8 +466,11 @@ const ChatPage = () => {
         // if (loading) {
         //   setTempMessages((prevTemp) => [...prevTemp, message]);
         // } else {
-        setChatMessages((prevMessages) => [message, ...prevMessages]);
-        setTempMessages([]);
+          setChatMessages((prevMessages) => [
+            message,
+            ...prevMessages,
+          ]);
+          setTempMessages([]);
         //}
       } else {
         // Show notification for new message
@@ -571,15 +574,16 @@ const ChatPage = () => {
       setAgentConversation(updatedConversations);
     };
 
-    const handleHeartbeatAcknowledged = () => {
-      console.log("Heartbeat acknowledged" + new Date());
+    const handlepong = () => {
+
+      console.log("pong");
     };
 
     // Set up SignalR event listeners
     newConnection.on("MessageReceived", handleIncomingMessage);
     newConnection.on("ConversationAssigned", handleConversationAssigned);
     newConnection.on("ConversationUnAssigned", handleConversationUnAssigned);
-    newConnection.on("HeartbeatAcknowledged", handleHeartbeatAcknowledged);
+    newConnection.on("Pong", handlepong);
 
     newConnection
       .start()
@@ -597,11 +601,12 @@ const ChatPage = () => {
     });
 
     setInterval(() => {
+      
       if (newConnection.state === signalR.HubConnectionState.Connected) {
         newConnection
           .invoke("Heartbeat")
           .then(() => {
-            console.log("Heartbeat sent successfully" + new Date());
+            console.log("Heartbeat sent successfully");
             setheartbeatAttempts(0); // Reset the counter on success
           })
           .catch((err) => {
@@ -646,9 +651,7 @@ const ChatPage = () => {
   };
 
   const handleTimerExpiry = (message) => {
-    toast.error(
-      `Reply pending for : ${message.phoneNumber} for more than 5 mins`
-    );
+    toast.error(`Reply pending for : ${message.phoneNumber} for more than 5 mins`);
 
     // Play alert sound
     audioRef.current
@@ -695,22 +698,6 @@ const ChatPage = () => {
   const handleReload = () => {
     // Reload the current page
     window.location.reload();
-  };
-
-  const handleDownload = (mediapath) => {
-    const imageUrl = `${BASE_URL}${mediapath}`;
-    const fileName = `file.${mediapath.split(".")[1]}`;
-
-    // Fetch the image as a blob
-    fetch(imageUrl)
-      .then((response) => response.blob())
-      .then((blob) => {
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob); // Create an object URL for the blob
-        link.download = fileName; // Specify the downloaded file's name
-        link.click(); // Trigger the download
-      })
-      .catch((error) => console.error("Download failed", error));
   };
 
   return (
@@ -999,15 +986,15 @@ const ChatPage = () => {
 
                       <div>{conversation.fullName}</div>
                       <div>
-                        <span>{conversation.phoneNumber}</span>
-                        <button
-                          onClick={() => handleCopy(conversation.phoneNumber)}
-                          className="p-1 rounded hover:bg-gray-300 focus:outline-none"
-                          aria-label="Copy Phone Number"
-                        >
-                          <FaCopy size={16} />
-                        </button>
-                      </div>
+      <span>{conversation.phoneNumber}</span>
+      <button
+        onClick={() => handleCopy(conversation.phoneNumber)}
+        className="p-1 rounded hover:bg-gray-300 focus:outline-none"
+        aria-label="Copy Phone Number"
+      >
+        <FaCopy size={16} />
+      </button>
+    </div>
                     </div>
 
                     {/* Right Section */}
@@ -1065,22 +1052,12 @@ const ChatPage = () => {
                               message.contentType !== "" && (
                                 <>
                                   {message.contentType.startsWith("image/") && (
-                                    <>
-                                      <img
-                                        src={`${BASE_URL}${message.mediaPath}`}
-                                        alt="Image"
-                                        className="w-full h-auto rounded"
-                                      />
-                                      <button
-                                        onClick={() =>
-                                          handleDownload(message.mediaPath)
-                                        } // Pass function reference here
-                                      >
-                                        Download
-                                      </button>
-                                    </>
+                                    <img
+                                      src={`${BASE_URL}${message.mediaPath}`}
+                                      alt="Image"
+                                      className="w-full h-auto rounded"
+                                    />
                                   )}
-
                                   {message.contentType.startsWith("video/") && (
                                     <video
                                       controls
@@ -1103,27 +1080,21 @@ const ChatPage = () => {
                             {message.sentcontentType &&
                               message.sentcontentType !== "" && (
                                 <>
-                                  {message.sentcontentType.startsWith(
-                                    "image"
-                                  ) && (
+                                  {message.sentcontentType.startsWith("image") && (
                                     <img
                                       src={`${message.sentmediaPath}`}
                                       alt="Image"
                                       className="w-full h-auto rounded"
                                     />
                                   )}
-                                  {message.sentcontentType.startsWith(
-                                    "video"
-                                  ) && (
+                                  {message.sentcontentType.startsWith("video") && (
                                     <video
                                       controls
                                       src={`${message.sentmediaPath}`}
                                       className="w-full h-auto rounded"
                                     />
                                   )}
-                                  {message.sentcontentType.startsWith(
-                                    "audio"
-                                  ) && (
+                                  {message.sentcontentType.startsWith("audio") && (
                                     <audio controls>
                                       <source
                                         src={`${message.sentmediaPath}`}
@@ -1132,48 +1103,46 @@ const ChatPage = () => {
                                       element.
                                     </audio>
                                   )}
-                                  {message.sentcontentType.startsWith(
-                                    "application"
-                                  ) && (
+                                   {message.sentcontentType.startsWith("application") && (
+                                    <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      marginTop: "10px",
+                                    }}
+                                  >
                                     <div
                                       style={{
+                                        backgroundColor: "#f0f0f0",
+                                        borderRadius: "50%",
+                                        width: "50px",
+                                        height: "50px",
                                         display: "flex",
                                         alignItems: "center",
-                                        marginTop: "10px",
+                                        justifyContent: "center",
+                                        marginRight: "10px",
                                       }}
                                     >
-                                      <div
+                                      <i
+                                        className="fa fa-file"
                                         style={{
-                                          backgroundColor: "#f0f0f0",
-                                          borderRadius: "50%",
-                                          width: "50px",
-                                          height: "50px",
-                                          display: "flex",
-                                          alignItems: "center",
-                                          justifyContent: "center",
-                                          marginRight: "10px",
+                                          fontSize: "24px",
+                                          color: "#555",
+                                        }}
+                                      ></i>
+                                    </div>
+                                    <div>
+                                      <p
+                                        style={{
+                                          margin: "0 0 5px",
+                                          fontWeight: "bold",
+                                          color: "#333",
                                         }}
                                       >
-                                        <i
-                                          className="fa fa-file"
-                                          style={{
-                                            fontSize: "24px",
-                                            color: "#555",
-                                          }}
-                                        ></i>
-                                      </div>
-                                      <div>
-                                        <p
-                                          style={{
-                                            margin: "0 0 5px",
-                                            fontWeight: "bold",
-                                            color: "#333",
-                                          }}
-                                        >
-                                          File
-                                        </p>
-                                      </div>
+                                        File
+                                      </p>
                                     </div>
+                                  </div>
                                   )}
                                 </>
                               )}
@@ -1259,7 +1228,6 @@ const ChatPage = () => {
                     </div>
 
                     {previewUrl && (
-                      <Modal isOpen={true} fade={false}>
                       <div
                         style={{
                           position: "relative",
@@ -1268,13 +1236,33 @@ const ChatPage = () => {
                           borderRadius: "8px",
                           boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
                           maxWidth: "300px",
-                          
+                          maxHeight:"300px",
                           marginRight: "20px auto",
                         }}
                       >
-                        
-                        <ModalHeader onClick={() => handleImageclose()}></ModalHeader>
-                         
+                        <button
+                          onClick={() => handleImageclose()}
+                          style={{
+                            position: "absolute",
+                            top: "10px",
+                            right: "10px",
+                            backgroundColor: "red",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "50%",
+                            width: "25px",
+                            height: "25px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            cursor: "pointer",
+                            boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+                            fontSize: "16px",
+                            lineHeight: "1",
+                          }}
+                        >
+                          &times;
+                        </button>
 
                         {fileType === "image" && (
                           <img
@@ -1320,7 +1308,7 @@ const ChatPage = () => {
                               display: "flex",
                               alignItems: "center",
                               marginTop: "10px",
-                              objectFit: "cover",
+                              objectFit: "contain",
                             }}
                           >
                             <div
@@ -1366,10 +1354,7 @@ const ChatPage = () => {
                             </div>
                           </div>
                         )}
-                       
                       </div>
-                      </Modal>
-                      
                     )}
 
                     <div className="msger-inputs px-4 py-3 flex items-center">
@@ -1462,6 +1447,7 @@ const ChatPage = () => {
               </div>
             )}
           </Col>
+      
         </Row>
       </Container>
       {/* {Errordisconnect && (
