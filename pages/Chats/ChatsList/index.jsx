@@ -1031,7 +1031,7 @@ const ChatPage = () => {
                       {chatMessages?.map((message) => (
                         <div
                           key={message.messageId}
-                          className={`flex ${
+                          className={`mt-2 flex ${
                             message.typeId === 1
                               ? "justify-end"
                               : "justify-start"
@@ -1047,7 +1047,7 @@ const ChatPage = () => {
                             {message.parentMessageContent &&
                               message.parentMessageContent.trim() !== "" && (
                                 <div
-                                  className="mb-2 p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis"
+                                  className=" p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis"
                                   style={{
                                     fontSize: "15px",
                                     display: "-webkit-box",
@@ -1066,8 +1066,8 @@ const ChatPage = () => {
                                     <>
                                       <img
                                         src={`${BASE_URL}${message.mediaPath}`}
-                                        alt="Image"
-                                        className="w-full h-auto rounded"
+                                        alt="Image" 
+                                        className=" max-h-50 w-80 rounded"
                                       />
                                       <button
                                         onClick={() =>
@@ -1176,7 +1176,7 @@ const ChatPage = () => {
                                 </>
                               )}
                             <div
-                              className="flex items-end justify-between p-2 rounded-lg"
+                              className="flex items-end justify-between p-2  rounded-lg"
                               style={{ width: "auto" }}
                             >
                               <p
@@ -1255,130 +1255,184 @@ const ChatPage = () => {
                       ))}
                       <div ref={messagesEndRef} />
                     </div>
-
                     {previewUrl && (
-                      <div
-                        style={{
-                          position: "relative",
-                          padding: "20px",
-                          borderRadius: "8px",
-                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                          maxWidth: "450px",
-                          marginRight: "20px auto",
-                        }}
-                      >
-                        <button
-                          onClick={() => handleImageclose()}
-                          style={{
-                            position: "absolute",
-                            top: "10px",
-                            right: "10px",
-                            backgroundColor: "red",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "50%",
-                            width: "25px",
-                            height: "25px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            cursor: "pointer",
-                            boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
-                            fontSize: "16px",
-                            lineHeight: "1",
-                          }}
-                        >
-                          &times;
-                        </button>
+  <div
+    style={{
+      position: "relative",
+      padding: "20px",
+      borderRadius: "12px",
+      boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.1)",
+      maxWidth: "500px",
+      width: "100%", // Full width within the max-width limit
+      margin: "20px auto", // Center the container
+      backgroundColor: "#ffffff",
+    }}
+  >
+    {/* Close Button */}
+    <button
+      onClick={() => handleImageclose()}
+      style={{
+        position: "absolute",
+        top: "15px",
+        right: "15px",
+        backgroundColor: "rgba(255, 0, 0, 0.8)",
+        color: "white",
+        border: "none",
+        borderRadius: "50%",
+        width: "30px",
+        height: "30px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+        boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+        fontSize: "18px",
+        lineHeight: "1",
+        transition: "background-color 0.3s ease",
+      }}
+      onMouseOver={(e) => (e.target.style.backgroundColor = "rgba(255, 0, 0, 1)")}
+      onMouseOut={(e) => (e.target.style.backgroundColor = "rgba(255, 0, 0, 0.8)")}
+    >
+      &times;
+    </button>
 
-                        {fileType === "image" && (
-                          <img
-                            src={previewUrl}
-                            alt="Preview"
-                            style={{
-                              maxWidth: "100%",
-                              marginTop: "10px",
-                              borderRadius: "8px",
-                            }}
-                          />
-                        )}
+    {/* Image Preview */}
+    {fileType === "image" && (
+      <div
+        style={{
+          width: "400px", // Fixed width
+          height: "300px", // Fixed height
+          borderRadius: "8px",
+          overflow: "hidden", // Hide overflow
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#f0f0f0", // Background for smaller images
+        }}
+      >
+        <img
+          src={previewUrl}
+          alt="Preview"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain", // Ensures the image fits within the container
+          }}
+        />
+      </div>
+    )}
 
-                        {fileType === "video" && (
-                          <video
-                            controls
-                            src={previewUrl}
-                            style={{
-                              width: "100%",
-                              marginTop: "10px",
-                              borderRadius: "8px",
-                            }}
-                          />
-                        )}
+    {/* Video Preview */}
+    {fileType === "video" && (
+      <div
+        style={{
+          width: "400px", // Fixed width
+          height: "300px", // Fixed height
+          borderRadius: "8px",
+          overflow: "hidden", // Hide overflow
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#f0f0f0", // Background for smaller videos
+        }}
+      >
+        <video
+          controls
+          src={previewUrl}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain", // Ensures the video fits within the container
+          }}
+        />
+      </div>
+    )}
 
-                        {fileType === "audio" && (
-                          <audio
-                            controls
-                            src={previewUrl}
-                            style={{
-                              width: "100%",
-                              marginTop: "10px",
-                            }}
-                          />
-                        )}
+    {/* Audio Preview */}
+    {fileType === "audio" && (
+      <div
+        style={{
+          width: "100%",
+          marginTop: "10px",
+          borderRadius: "8px",
+          backgroundColor: "#f0f0f0",
+          padding: "15px",
+        }}
+      >
+        <audio
+          controls
+          src={previewUrl}
+          style={{
+            width: "100%",
+          }}
+        />
+      </div>
+    )}
 
-                        {fileType === "application" && (
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              marginTop: "10px",
-                            }}
-                          >
-                            <div
-                              style={{
-                                backgroundColor: "#f0f0f0",
-                                borderRadius: "50%",
-                                width: "50px",
-                                height: "50px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                marginRight: "10px",
-                              }}
-                            >
-                              <i
-                                className="fa fa-file"
-                                style={{
-                                  fontSize: "24px",
-                                  color: "#555",
-                                }}
-                              ></i>
-                            </div>
-                            <div>
-                              <p
-                                style={{
-                                  margin: "0 0 5px",
-                                  fontWeight: "bold",
-                                  color: "#333",
-                                }}
-                              >
-                                {mediaFile.name}
-                              </p>
-                              <a
-                                href={previewUrl}
-                                download={mediaFile.name}
-                                style={{
-                                  color: "#007BFF",
-                                  textDecoration: "none",
-                                }}
-                              >
-                                Download
-                              </a>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
+    {/* Application/File Preview */}
+    {fileType === "application" && (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginTop: "10px",
+          padding: "15px",
+          borderRadius: "8px",
+          backgroundColor: "#f0f0f0",
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: "#ffffff",
+            borderRadius: "50%",
+            width: "50px",
+            height: "50px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginRight: "15px",
+            boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <i
+            className="fa fa-file"
+            style={{
+              fontSize: "24px",
+              color: "#555",
+            }}
+          ></i>
+        </div>
+        <div>
+          <p
+            style={{
+              margin: "0 0 5px",
+              fontWeight: "600",
+              color: "#333",
+              fontSize: "16px",
+            }}
+          >
+            {mediaFile.name}
+          </p>
+          <a
+            href={previewUrl}
+            download={mediaFile.name}
+            style={{
+              color: "#007BFF",
+              textDecoration: "none",
+              fontSize: "14px",
+              fontWeight: "500",
+              transition: "color 0.3s ease",
+            }}
+            onMouseOver={(e) => (e.target.style.color = "#0056b3")}
+            onMouseOut={(e) => (e.target.style.color = "#007BFF")}
+          >
+            Download
+          </a>
+        </div>
+      </div>
+    )}
+  </div>
+)}
 
                     <div className="msger-inputs px-4 py-3 flex items-center">
                       <Button
