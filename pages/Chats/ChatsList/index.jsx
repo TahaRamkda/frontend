@@ -1258,14 +1258,16 @@ const ChatPage = () => {
 
                     {previewUrl && (
                       <div
-                        style={{
-                          position: "relative",
-                          padding: "20px",
-                          borderRadius: "8px",
-                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                          maxWidth: "450px",
-                          marginRight: "20px auto",
-                        }}
+                      style={{
+                        position: "relative",
+                        padding: "20px",
+                        borderRadius: "8px",
+                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                        width: "auto", // auto width instead of 100%
+                        marginRight: "20px", // margin-right should be a single value
+                        marginLeft: "auto", // to center the div horizontally if needed
+                        marginBottom: "10px", // optional, just in case you want some space below the div
+                      }}
                       >
                         <button
                           onClick={() => handleImageclose()}
@@ -1296,6 +1298,7 @@ const ChatPage = () => {
                             src={previewUrl}
                             alt="Preview"
                             style={{
+                              width:"200px",
                               maxWidth: "100%",
                               marginTop: "10px",
                               borderRadius: "8px",
