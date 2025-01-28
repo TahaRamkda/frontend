@@ -1280,7 +1280,6 @@ const ChatPage = () => {
                         {fileType === "video" && (
                           <video
                             controls
-                            src={previewUrl}
                             style={{
                               width: "100%",
                               objectFit: "cover",
