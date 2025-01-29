@@ -536,6 +536,7 @@ const ChatPage = () => {
 
     // Handles unassignment of a conversation
     const handleConversationUnAssigned = (chatId) => {
+      debugger
       if (
         agentChatRef.current.filter(
           (conversation) => conversation.id === chatId
@@ -556,11 +557,9 @@ const ChatPage = () => {
       const updatedConversations = agentChatRef.current.filter(
         (conversation) => conversation.id !== chatId
       );
-      const matchingConversationIndex = agentChatRef.current.findIndex(
-        (conversation) => conversation.id === chatId
-      );
+      const Isactivechat = chatId===activeChatRef.current
 
-      if (matchingConversationIndex !== -1) {
+      if (Isactivechat === true) {
         setChatMessages([]);
         setActiveChat(0);
       }
