@@ -355,11 +355,11 @@ body {
 }
 .ChatPopUp {max-height: 350px;overflow-y: scroll;}
 .ChatPopUpFull {min-width: 500px; border: 1px solid #ddd; z-index: 999;}
-.headerchatmenu {padding: 10px;}
+.headerchatmenu {padding: 3px;}
 .menuitem {font-size: 15px;}
 .ButtonUserName{width: 100% !important; }
 .chat-item {border-bottom: 1px solid #eee; border-top: 1px solid #eee;}
-.MainContainer {margin-top: 35px;}
+.MainContainer {margin-top: 13px;}
 .right-sidebar-chat {padding: 0px;}
 .ChatHeader {background: #eee; border-bottom: 1px solid #ccc;}
 .messageText {margin-bottom: 0;}
@@ -390,7 +390,7 @@ body {
   .menuitem span {white-space: nowrap;}
   .menuitem svg {text-align: center;         margin: auto; }
   .menuitemButton {margin-left: 30px !important;}
-  .MainContainer {margin-top: 15px;}
+  .MainContainer {margin-top: 13px;}
 .ChatPopUp {max-height: 350px;overflow-y: scroll; height: 300px;}
   
 }

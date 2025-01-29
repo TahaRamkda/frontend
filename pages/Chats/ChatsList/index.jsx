@@ -536,7 +536,7 @@ const ChatPage = () => {
 
     // Handles unassignment of a conversation
     const handleConversationUnAssigned = (chatId) => {
-      debugger
+      debugger;
       if (
         agentChatRef.current.filter(
           (conversation) => conversation.id === chatId
@@ -557,7 +557,7 @@ const ChatPage = () => {
       const updatedConversations = agentChatRef.current.filter(
         (conversation) => conversation.id !== chatId
       );
-      const Isactivechat = chatId===activeChatRef.current
+      const Isactivechat = chatId === activeChatRef.current;
 
       if (Isactivechat === true) {
         setChatMessages([]);
@@ -723,7 +723,7 @@ const ChatPage = () => {
             {/* Logo Section on the Left Side */}
             <div className="flex items-center space-x-3">
               <img
-                className="h-8 w-auto"
+                className="m-l-10 h-10 w-auto"
                 src="/images/logo/Loader.svg"
                 alt="Logo"
               />
@@ -735,10 +735,10 @@ const ChatPage = () => {
               <div className="flex items-center space-x-4 HeaderChatmenuItemBar">
                 {/* Assigned */}
                 <div className="flex items-center space-x-2 menuitem">
-                  <FaComments size={20} className="text-blue-500" />
-                  <span className="font-medium text-white">
+                  <FaComments className="text-blue-500" />
+                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
                     Assigned:{" "}
-                    <span className="font-bold">
+                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
                       {AgentStats.assignedChat ?? "-/-"}
                     </span>
                   </span>
@@ -746,30 +746,30 @@ const ChatPage = () => {
 
                 {/* Active */}
                 <div className="flex items-center space-x-2 menuitem">
-                  <FaCheckCircle size={20} className="text-green-500" />
-                  <span className="font-medium text-white">
+                  <FaCheckCircle className="text-green-500" />
+                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
                     Active:{" "}
-                    <span className="font-bold">
+                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
                       {AgentStats.activeChat ?? "-/-"}
                     </span>
                   </span>
                 </div>
                 {/* Abandoned */}
                 <div className="flex items-center space-x-2 menuitem">
-                  <FaBan size={20} className="text-red-500" />
-                  <span className="font-medium text-white">
+                  <FaBan className="text-red-500" />
+                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
                     Abandoned:{" "}
-                    <span className="font-bold">
+                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
                       {AgentStats.abandonChat ?? "-/-"}
                     </span>
                   </span>
                 </div>
                 {/* Closed */}
                 <div className="flex items-center space-x-2 menuitem">
-                  <FaTimesCircle size={20} className="text-red-500" />
-                  <span className="font-medium text-white">
+                  <FaTimesCircle className="text-red-500" />
+                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
                     Closed:{" "}
-                    <span className="font-bold">
+                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
                       {AgentStats.closedChat ?? "-/-"}
                     </span>
                   </span>
@@ -777,41 +777,41 @@ const ChatPage = () => {
 
                 {/* Expired */}
                 <div className="flex items-center space-x-2 menuitem">
-                  <AiOutlineHourglass size={20} className="text-yellow-100" />
-                  <span className="font-medium text-white">
+                  <AiOutlineHourglass className="text-yellow-100" />
+                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
                     Expired:{" "}
-                    <span className="font-bold">
+                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
                       {AgentStats.expiredChat ?? "-/-"}
                     </span>
                   </span>
                 </div>
                 {/* Force Closed */}
                 <div className="flex items-center space-x-2 menuitem menuitem">
-                  <FaClock size={20} className="text-purple-500" />
-                  <span className="font-medium text-white">
+                  <FaClock className="text-purple-500" />
+                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
                     Force Closed:{" "}
-                    <span className="font-bold">
+                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
                       {AgentStats.forceClosedChat ?? "-/-"}
                     </span>
                   </span>
                 </div>
                 {/* Avg Duration */}
                 <div className="flex items-center space-x-2 menuitem">
-                  <MdOutlineTimer size={20} className="text-orange-500" />
-                  <span className="font-medium text-white">
+                  <MdOutlineTimer className="text-orange-500" />
+                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
                     Avg Duration:{" "}
-                    <span className="font-bold">
+                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
                       {AgentStats.avgChatTime ?? "-/-"}
                     </span>
                   </span>
                 </div>
                 {/* Response Time */}
                 <div className="flex items-center space-x-2 menuitem">
-                  <MdOutlineTimer size={20} className="text-green-500" />
-                  <span className="font-medium text-white">
+                  <MdOutlineTimer className="text-green-500" />
+                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
                     Response Time:{" "}
-                    <span className="font-bold">
-                      {AgentStats.avgResponseTime ?? "-/-"} min(s)
+                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
+                      {AgentStats.avgResponseTime ?? "-/-"}
                     </span>
                   </span>
                 </div>
@@ -851,10 +851,11 @@ const ChatPage = () => {
       <Container fluid className="h-100 MainContainer">
         <Row className="g-0 h-100">
           <Col
-            xxl="3"
-            xl="4"
-            md="5"
-            sm="12"
+            xxl="4"
+            xl="3"
+            lg="3"
+            md="3"
+            sm="3"
             className="p-0"
             style={{
               height: "calc(100vh - 100px)",
@@ -919,15 +920,12 @@ const ChatPage = () => {
                           />
 
                           <div className="flex-grow-1">
-                            <span className="d-block text-truncate fw-bold text-dark text-left">
-                              {conversation.fullName}
-                            </span>
                             <span className="d-block text-truncate text-muted  text-left">
                               {conversation.phoneNumber}
                             </span>
                             {conversation.lastMessageText !== "" ? (
                               <p
-                                className="d-block text-truncate text-muted text-left"
+                                className="d-block text-truncate mt-2 text-muted text-left"
                                 style={{
                                   maxWidth: "220px",
                                   fontSize: "14px",
@@ -962,10 +960,11 @@ const ChatPage = () => {
             </Card>
           </Col>
           <Col
-            xxl="9"
-            xl="8"
-            md="7"
-            sm="12"
+            xxl="8"
+            xl="9"
+            lg="9"
+            md="9"
+            sm="9"
             className="p-0"
             style={{ height: "calc(100vh - 100px)" }}
           >
@@ -1037,16 +1036,19 @@ const ChatPage = () => {
                           }`}
                         >
                           <div
-                            className={`max-w-xs p-2 rounded-2 shadow-sm ${
-                              message.typeId === 1
-                                ? "bg-[#ddffd9] text-black rounded-br-none"
-                                : "bg-[#ffffff] text-black rounded-bl-none"
-                            }`}
+                            className={`max-w-2xl p-2 rounded-lg shadow-sm 
+                md:max-w-xl md:p-1.5 md:rounded-md md:shadow-xs 
+                sm:max-w-md sm:p-1 sm:rounded-sm sm:shadow-none 
+                xs:max-w-full xs:p-0.5 xs:rounded-none xs:shadow-none ${
+                  message.typeId === 1
+                    ? "bg-[#ddffd9] text-black rounded-br-none"
+                    : "bg-[#ffffff] text-black rounded-bl-none"
+                }`}
                           >
                             {message.parentMessageContent &&
                               message.parentMessageContent.trim() !== "" && (
                                 <div
-                                  className=" p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis"
+                                  className=" p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis mb-1"
                                   style={{
                                     fontSize: "15px",
                                     display: "-webkit-box",
@@ -1487,10 +1489,16 @@ const ChatPage = () => {
                         value={messageInput}
                         onChange={(e) => setMessageInput(e.target.value)}
                         onKeyDown={(e) => {
-                          if (e.key === "Enter") {
+                          
+                          if ((e.shiftKey || e.altKey) && e.key === "Enter") {
+                            e.preventDefault();
+                            setMessageInput((prevMessage) => prevMessage + "\n");
+                          } else if (e.key === "Enter") {
+                            e.preventDefault();
                             HandleSendMessage();
                           }
                         }}
+                        
                         placeholder="Type a message..."
                         className="rounded-lg border-0 shadow-sm"
                       />
@@ -1519,9 +1527,13 @@ const ChatPage = () => {
                           />
                         )}
                       </div>
-                      <Button onClick={HandleSendMessage} color="primary">
+                      <button
+                        type="submit"
+                        onClick={HandleSendMessage}
+                        color="primary"
+                      >
                         <i className="fa fa-paper-plane"></i>
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1535,7 +1547,7 @@ const ChatPage = () => {
           </Col>
         </Row>
       </Container>
-       {Errordisconnect && (
+      {Errordisconnect && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
           <div className="bg-red-500 p-8 rounded-lg shadow-md max-w-md w-full text-center">
             <div className="flex justify-center mb-4">
@@ -1571,7 +1583,7 @@ const ChatPage = () => {
             </button>
           </div>
         </div>
-      )} 
+      )}
     </>
   );
 };
