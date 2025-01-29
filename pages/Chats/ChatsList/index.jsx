@@ -719,7 +719,7 @@ const ChatPage = () => {
             <title>BCT-Chat Portal</title>
             {/* <title>{props.title}</title> */}
           </Head>
-          <div className="flex justify-between items-center py-3 px-4">
+          <div className="flex justify-between items-center headerchatmenu">
             {/* Logo Section on the Left Side */}
             <div className="flex items-center space-x-3">
               <img
@@ -732,9 +732,9 @@ const ChatPage = () => {
             {/* Action Buttons Section on the Right Side */}
             <div className="">
               {/* Sidebar Toggle Button */}
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4 HeaderChatmenuItemBar">
                 {/* Assigned */}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 menuitem">
                   <FaComments size={20} className="text-blue-500" />
                   <span className="font-medium text-white">
                     Assigned:{" "}
@@ -745,7 +745,7 @@ const ChatPage = () => {
                 </div>
 
                 {/* Active */}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 menuitem">
                   <FaCheckCircle size={20} className="text-green-500" />
                   <span className="font-medium text-white">
                     Active:{" "}
@@ -755,7 +755,7 @@ const ChatPage = () => {
                   </span>
                 </div>
                 {/* Abandoned */}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 menuitem">
                   <FaBan size={20} className="text-red-500" />
                   <span className="font-medium text-white">
                     Abandoned:{" "}
@@ -765,7 +765,7 @@ const ChatPage = () => {
                   </span>
                 </div>
                 {/* Closed */}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 menuitem">
                   <FaTimesCircle size={20} className="text-red-500" />
                   <span className="font-medium text-white">
                     Closed:{" "}
@@ -776,7 +776,7 @@ const ChatPage = () => {
                 </div>
 
                 {/* Expired */}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 menuitem">
                   <AiOutlineHourglass size={20} className="text-yellow-100" />
                   <span className="font-medium text-white">
                     Expired:{" "}
@@ -786,7 +786,7 @@ const ChatPage = () => {
                   </span>
                 </div>
                 {/* Force Closed */}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 menuitem menuitem">
                   <FaClock size={20} className="text-purple-500" />
                   <span className="font-medium text-white">
                     Force Closed:{" "}
@@ -796,7 +796,7 @@ const ChatPage = () => {
                   </span>
                 </div>
                 {/* Avg Duration */}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 menuitem">
                   <MdOutlineTimer size={20} className="text-orange-500" />
                   <span className="font-medium text-white">
                     Avg Duration:{" "}
@@ -806,7 +806,7 @@ const ChatPage = () => {
                   </span>
                 </div>
                 {/* Response Time */}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 menuitem">
                   <MdOutlineTimer size={20} className="text-green-500" />
                   <span className="font-medium text-white">
                     Response Time:{" "}
@@ -816,9 +816,9 @@ const ChatPage = () => {
                   </span>
                 </div>
                 {/* User Badge with Name and Dropdown */}
-                <div className="relative">
+                <div className="relative menuitem menuitemButton">
                   <button
-                    className="flex items-center space-x-2 p-2 bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none"
+                    className="flex ButtonUserName items-center space-x-2 menuitem p-2 bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none"
                     onClick={() => setDropdownOpen(!dropdownOpen)}
                   >
                     <img
@@ -848,7 +848,7 @@ const ChatPage = () => {
         </nav>
       </div>
 
-      <Container fluid className="h-100  mt-[35px]">
+      <Container fluid className="h-100 MainContainer">
         <Row className="g-0 h-100">
           <Col
             xxl="3"
@@ -919,15 +919,15 @@ const ChatPage = () => {
                           />
 
                           <div className="flex-grow-1">
-                            <span className="d-block text-truncate fw-bold text-dark">
+                            <span className="d-block text-truncate fw-bold text-dark text-left">
                               {conversation.fullName}
                             </span>
-                            <span className="d-block text-truncate text-muted">
+                            <span className="d-block text-truncate text-muted  text-left">
                               {conversation.phoneNumber}
                             </span>
                             {conversation.lastMessageText !== "" ? (
                               <p
-                                className="d-block text-truncate text-muted"
+                                className="d-block text-truncate text-muted text-left"
                                 style={{
                                   maxWidth: "220px",
                                   fontSize: "14px",
@@ -976,7 +976,7 @@ const ChatPage = () => {
                 ).map((conversation) => (
                   <div
                     key={conversation.id}
-                    className="flex items-center justify-between text-black px-4 py-3 shadow-md"
+                    className="flex items-center justify-between text-black px-4 py-2 ChatHeader shadow-md"
                   >
                     {/* Left Section */}
                     <div
@@ -1013,7 +1013,7 @@ const ChatPage = () => {
                     </div>
                   </div>
                 ))}
-                <div className="right-sidebar-chat p-4 w-full height-chat-box overflow-y-auto chat-background h-100">
+                <div className="right-sidebar-chat w-full height-chat-box overflow-y-auto chat-background h-100">
                   <div className="msger flex flex-col h-full">
                     <div
                       ref={scrollContainerRef}
@@ -1037,7 +1037,7 @@ const ChatPage = () => {
                           }`}
                         >
                           <div
-                            className={`max-w-xs p-2 rounded-2xl shadow-sm ${
+                            className={`max-w-xs p-2 rounded-2 shadow-sm ${
                               message.typeId === 1
                                 ? "bg-[#ddffd9] text-black rounded-br-none"
                                 : "bg-[#ffffff] text-black rounded-bl-none"
@@ -1175,11 +1175,11 @@ const ChatPage = () => {
                                 </>
                               )}
                             <div
-                              className="flex items-end justify-between p-2  rounded-lg"
+                              className="flex items-end justify-between rounded-lg"
                               style={{ width: "auto" }}
                             >
                               <p
-                                className="whitespace-pre-wrap break-words overflow-hidden"
+                                className="whitespace-pre-wrap break-words overflow-hidden messageText"
                                 style={{
                                   fontSize: "15px",
                                   display: "inline-block",
@@ -1443,7 +1443,7 @@ const ChatPage = () => {
                       </div>
                     )}
 
-                    <div className="msger-inputs px-4 py-3 flex items-center">
+                    <div className="msger-inputs  flex items-center">
                       <Button
                         onClick={openFileManager}
                         className="text-xl text-gray-500 hover:text-gray-700 mr-2"
@@ -1535,7 +1535,7 @@ const ChatPage = () => {
           </Col>
         </Row>
       </Container>
-      {Errordisconnect && (
+       {Errordisconnect && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
           <div className="bg-red-500 p-8 rounded-lg shadow-md max-w-md w-full text-center">
             <div className="flex justify-center mb-4">
@@ -1571,7 +1571,7 @@ const ChatPage = () => {
             </button>
           </div>
         </div>
-      )}
+      )} 
     </>
   );
 };

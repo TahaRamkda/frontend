@@ -227,8 +227,8 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
     <>
       {isVisible && (
         <div
-          className="absolute bottom-[1.5rem] bg-white text-gray-800 shadow-2xl rounded-lg z-50"
-          style={{ minWidth: "800px", right: "-94px" }}
+          className="absolute bottom-[1.5rem] bg-white text-gray-800 shadow-2xl rounded-lg z-50 ChatPopUpFull"
+          style={{  right: "-20px", bottom:"50px" }}
         >
           <div
             className="absolute top-2 right-2 text-end w-full  cursor-pointer"
@@ -237,7 +237,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
             <i className="fa fa-times"></i>{" "}
             {/* You can change this to an "X" or another icon */}
           </div>
-          <div className="flex h-[550px] ">
+          <div className="flex ChatPopUp ">
             {/* Left Section (Search Bar and Template List) */}
             <div className="w-1/2 p-4">
               {/* Search Bar */}

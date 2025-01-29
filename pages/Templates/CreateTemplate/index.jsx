@@ -169,7 +169,7 @@ const TemplateCreationPage = () => {
       toast.error("Please Enter Body Text before proceeding.");
       return; // Prevent further execution if language is not selected
     }
-    
+
     //Replacing the words
     const result = headerPayloadDatawithVar.replace(/\*\*/g, "+");
     const subresult = result.replace(/\*/g, "`");
@@ -182,16 +182,16 @@ const TemplateCreationPage = () => {
     const bodysupresult = bodysubresult.replace(/<sub>.*?<\/sub>/g, "~");
     const bodyreplaceX = bodysupresult.replace(/`/g, "_");
     const bodyfinalReplace = bodyreplaceX.replace(/\+/g, "*");
-  
+
 
     const variablePattern = /{{(.*?)}}/g;
     const matches = bodyfinalReplace.match(variablePattern);
-    if(matches.length !== variables.length){
+    if (matches.length !== variables.length) {
       toast.error("Please load all body variables before proceeding.");
       return;
     }
     const headmatches = finalHeaderReplace.match(variablePattern);
-    if(headmatches && headmatches.length !== headerVariable.length){
+    if (headmatches && headmatches.length !== headerVariable.length) {
       toast.error("Please load all  header variables before proceeding.");
     }
 
@@ -212,7 +212,7 @@ const TemplateCreationPage = () => {
           acc.paramValue = variable.value;
           return acc;
         }, {}),
-        
+
       },
       body: {
         text: bodyfinalReplace,
@@ -227,9 +227,9 @@ const TemplateCreationPage = () => {
       buttons: messagePreview.buttons.map((button, index) => ({
         buttonType: button.type,
         buttonText: button.text,
-        buttonValue: button.type === "2" 
-        ? `${button.countryCode}${button.phoneNumber}` 
-        : button.websiteUrl,
+        buttonValue: button.type === "2"
+          ? `${button.countryCode}${button.phoneNumber}`
+          : button.websiteUrl,
         sequence: index,
         dynamicValue: {
           paramName: button.urlveriable,
@@ -280,18 +280,18 @@ const TemplateCreationPage = () => {
     seturlerror("");
     const updatedButtons = [...messagePreview.buttons];
     const variablePattern = /{{(.*?)}}/g;
-    const matches=updatedButtons[index].websiteUrl.match(variablePattern);
+    const matches = updatedButtons[index].websiteUrl.match(variablePattern);
     if (matches && matches.length === 1) {
       matches.forEach((variable) => {
         //const variableName = variable.replace(/{{|}}/g, '');
-        addURLVariable(index,variable);
+        addURLVariable(index, variable);
       });
     } else {
       seturlerror("Please enter only one variable in header");
     }
   };
 
-  const addURLVariable = (index,veriablename) => {
+  const addURLVariable = (index, veriablename) => {
     debugger
     const newIndex = 1;
 
@@ -473,7 +473,7 @@ const TemplateCreationPage = () => {
     });
   };
 
-  const addHeaderVariable = (variablename ,allVariables) => {
+  const addHeaderVariable = (variablename, allVariables) => {
     setHeaderVariable((prev) => {
       // Reset variables array if this is the first call with allVariables
       if (allVariables) {
@@ -486,16 +486,16 @@ const TemplateCreationPage = () => {
           };
         });
       }
-  
+
       // Add a new variable if it doesn't already exist
       const existingVariable = prev.find((v) => v.name === variablename);
       if (!existingVariable) {
         return [...prev, { name: variablename, value: "" }];
       }
-  
+
       return prev; // Return unchanged if the variable already exists
     });
-  
+
     setErrorMessage(""); // Clear error message after adding or updating variable
   };
 
@@ -513,21 +513,21 @@ const TemplateCreationPage = () => {
           };
         });
       }
-  
+
       // Add a new variable if it doesn't already exist
       const existingVariable = prev.find((v) => v.name === variablename);
       if (!existingVariable) {
         return [...prev, { name: variablename, value: "" }];
       }
-  
+
       return prev; // Return unchanged if the variable already exists
     });
-  
+
     setErrorMessage(""); // Clear error message after adding or updating variable
   };
-  
-  
-  
+
+
+
 
   const handleBodyChange = (value) => {
     // Allow typing without interruptions
@@ -913,8 +913,8 @@ const TemplateCreationPage = () => {
                                 values.headerType === "2"
                                   ? "image"
                                   : values.headerType === "3"
-                                  ? "video"
-                                  : "application"
+                                    ? "video"
+                                    : "application"
                               }
                               senderId={selectedSenderId}
                               onSelectMedia={(mediaId, mediaPath, mimeType) => {
@@ -938,8 +938,8 @@ const TemplateCreationPage = () => {
                                 {values.headerType === "2"
                                   ? "Image"
                                   : values.headerType === "3"
-                                  ? "Video"
-                                  : "Document"}
+                                    ? "Video"
+                                    : "Document"}
                               </button>
 
                               {showMediaPopup && (
@@ -950,8 +950,8 @@ const TemplateCreationPage = () => {
                                     values.headerType === "2"
                                       ? "image"
                                       : values.headerType === "3"
-                                      ? "video"
-                                      : "application"
+                                        ? "video"
+                                        : "application"
                                   }
                                   onSelectMedia={(
                                     mediaId,
@@ -1080,7 +1080,6 @@ const TemplateCreationPage = () => {
                             marginBottom: "10px",
                           }}
                         />
-
                         {/* Type-Specific Inputs */}
                         {button.type === "2" && (
                           <div
@@ -1193,9 +1192,8 @@ const TemplateCreationPage = () => {
                                             e.target.value
                                           )
                                         }
-                                        placeholder={`Enter Sample value for ${
-                                          index + 1
-                                        }`}
+                                        placeholder={`Enter Sample value for ${index + 1
+                                          }`}
                                         className="w-100"
                                       />
                                     </Col>
@@ -1204,12 +1202,12 @@ const TemplateCreationPage = () => {
                               )}
                             </div>
                             {urlerror && (
-                            <Alert color="danger" className="mt-2">
-                              {urlerror}
-                            </Alert>
-                          )}
+                              <Alert color="danger" className="mt-2">
+                                {urlerror}
+                              </Alert>
+                            )}
                           </div>
-                          
+
                         )}
 
                         {/* Action Button for Type 1 */}
@@ -1475,7 +1473,6 @@ const TemplateCreationPage = () => {
                         )}
                       </Button>
                     ))}
-
                   {TotalButtonCount > 3 && !Showallbutton && (
                     <Button
                       className="w-100 mb-2"
