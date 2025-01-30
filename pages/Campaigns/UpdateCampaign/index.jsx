@@ -164,21 +164,20 @@ const UpdateCampaigns = () => {
         if (campaigndetail.parameters) {
           // Update header and body variables
           campaigndetail.parameters.forEach((variable, i) => {
-            const { paramType, paramText } = variable || {};
+            const { paramType, paramValue,sequence } = variable || {};
   
             if (paramType === 1) {
-              handleheaderVariableChange(i, paramText || "");
+              handleheaderVariableChange(sequence, paramValue || "");
             } else if (paramType === 2) {
-              handleVariableChange(i, paramText || "");
+              handleVariableChange(sequence, paramValue || "");
             }
           });
   
           // Handle dynamic button values
           const filteredButtonValues = campaigndetail.parameters.filter(
             (item) =>
-              item.isDynamic === true &&
               item.paramType === 3 &&
-              item.paramDefaultValue !== null
+              item.paramValue !== null
           );
   
           setsenturlvariables(filteredButtonValues);

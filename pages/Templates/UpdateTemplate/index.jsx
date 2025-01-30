@@ -150,6 +150,7 @@ const TemplateUpdatePage = () => {
   }, [dispatch, Template_Id]);
 
   useEffect(() => {
+    debugger
     if (Loading || !template) return;
   
     // Map buttons with conditional logic for phoneNumber or URL
