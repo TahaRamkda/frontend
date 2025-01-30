@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
 import { Formik, Field, useFormikContext } from "formik";
 import {
   Form,
@@ -10,18 +9,10 @@ import {
   Row,
   Col,
   Button,
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  Alert,
 } from "reactstrap";
 //import ReactQuill from 'react-quill';
 import "react-quill/dist/quill.snow.css";
 import { useDispatch, useSelector } from "react-redux";
-
-import { FaTimes } from "react-icons/fa";
-import { FaRegTrashCan } from "react-icons/fa6";
 import {
   fetchTemplatesById,
   clearTemplateDetailState,
@@ -46,10 +37,6 @@ const CampaignCreate = () => {
   const dispatch = useDispatch();
   const [Loading, setLoading] = useState(true);
   const { template, loading, error } = useSelector((state) => state.templates);
-
-  const { loading: campaingCreating, error: campaignerror } = useSelector(
-    (state) => state.templates
-  );
   const [messagePreview, setMessagePreview] = useState({
     header: "",
     body: "",
@@ -58,43 +45,24 @@ const CampaignCreate = () => {
     buttons: [],
     visitWebsiteButtonCount: 0,
   });
-  const [bodyContent, setBodyContent] = useState("");
   const [showMediaPopup, setShowMediaPopup] = useState(false);
   const [campaignName, setcampaignName] = useState("");
   const [variables, setVariables] = useState([]);
-  const [urlvariables, seturlvariables] = useState([]);
   const [senturlvariables, setsenturlvariables] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [headContent, setHeadContent] = useState("");
-  const [APIheadContent, setAPIheadContent] = useState("");
   const [headerVariable, setHeaderVariable] = useState([]);
   const [bodyFinalContent, setBodyFinalContent] = useState("");
   const [selectedMediaId, setSelectedMediaId] = useState(0);
-  const [selectedSenderId, setSelectedSenderId] = useState(null);
   const [selectedMediaPath, setSelectedMediaPath] = useState("");
   const [selectedMediaType, setSelectedMediaType] = useState("");
-  const [headerTextCount, setheaderTextCount] = useState(0);
-  const [bodyTextCount, setbodyTextCount] = useState(0);
-  const [APIbodyContent, setAPIbodyContent] = useState("");
   const [TotalButtonCount, setTotalButtonCount] = useState(0);
   const [selectedGroups, setSelectedGroups] = useState([]);
   const [Showallbutton, setShowallbutton] = useState(false);
-  const [showaction, setshowaction] = useState(false);
-  const [headerPayloadDatawithVar, setheaderPayloaddatawithVar] = useState("");
-  const [typingTimeout, setTypingTimeout] = useState(null);
-  const [updatedvercontent, setupdatedvercontent] = useState("");
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
+  const [errorMessage, setErrorMessage] = useState("");
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
-  const replaceClosingPTagsWithNewline = (content) => {
-    return content
-      ?.replace(/<\/p>/gi, "\n ")
-      .replace(/<p.*?>/gi, "")
-      .replace(/\n /g, "\n  ");
-  };
-
-  const togglePopup = () => setshowaction(!showaction);
-
-  console.log("!@#$%^&", bodyFinalContent);
+  const [MessagePreviewupdated, setMessagePreviewupdated] = useState(false);
 
   const handleGroupSelection = (groupIds) => {
     setSelectedGroups(groupIds);
@@ -107,97 +75,206 @@ const CampaignCreate = () => {
   };
   useEffect(() => {
     if (selectedTemplateId) {
-      // Run only if a template is selected
       setLoading(true);
       dispatch(
         fetchTemplatesById({
           ClientId: localStorage.getItem("clientId"),
           templateId: selectedTemplateId,
         })
-      );
+      )
+        .then((response) => {
+          setTemplate(response); // Assuming response is the template object
+        })
+        .catch((error) => {
+          console.error("Error fetching template:", error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
   }, [dispatch, selectedTemplateId]);
 
   useEffect(() => {
-    if (!template) return;
+    if (Loading || !template) return;
 
+    // Map buttons with conditional logic for phoneNumber or URL
+    const customButtons =
+      template.buttons?.map((button) => ({
+        type: button.buttonType, // Copy over the type
+        text: button.buttonText, // Copy over the label
+        ...(button.buttonType === 2
+          ? { phoneNumber: button.buttonValue }
+          : button.buttonType === 3
+          ? { url: button.buttonValue }
+          : {}),
+      })) ?? [];
+
+    // Construct the complete message preview locally
     const updatedMessagePreview = {
       body: template.bodyText,
       footer: template.footerText,
       media: template.mediaURL,
-      buttons: template.buttonValues ?? [],
+      buttons: customButtons,
       templatename: template.templateName,
       visitWebsiteButtonCount: 0,
+      header: template.headerType === 1 ? template.headerText : undefined,
     };
 
-    // Update Header
+    // Set messagePreview state only if it has changed and not already set
+    setMessagePreview((prevPreview) =>
+      JSON.stringify(prevPreview) !== JSON.stringify(updatedMessagePreview)
+        ? updatedMessagePreview
+        : prevPreview
+    );
+
+    // Mark messagePreview as set
+    if (!MessagePreviewupdated) {
+      setMessagePreviewupdated(true);
+    }
+
+    // Update Header State
     if (template.headerType === 1) {
-      updatedMessagePreview.header = template.headerText;
       setHeadContent(template.headerText);
-      setheaderPayloaddatawithVar(template.headerText);
-      setheaderTextCount(template.headerParamCount);
-
-      if (template.headerValue) {
-        setHeaderVariable([template.headerValue]);
-
-        if (template.headerValue?.defaultValue !== undefined) {
-          handleheaderVariableChange(0, template.headerValue.defaultValue);
-        }
-      }
+      //setupdatedheadvercontent(template.headerText);
+      //setheaderTextCount(template.headerParamCount);
     } else {
-      //alert(template.mediaURL);
-      //alert(template.headerType);
       setSelectedMediaId(template.mediaId);
       setSelectedMediaPath(template.mediaURL);
       setSelectedMediaType(template.contentType);
     }
 
-    // Update Body
-    setupdatedvercontent(template.bodyText);
+    // Update Body State
     setBodyFinalContent(template.bodyText);
-    setbodyTextCount(template.bodyParamCount);
+    // Update Other Template-Related States
+    //setSelectedSenderId(template.senderId);
+    //setTemplatetype(template.category);
+    //setlanguage(template.language);
+    setTotalButtonCount(updatedMessagePreview.buttons.length);
+  }, [Loading, template]);
 
-    if (template.bodyValues) {
-      setVariables(template.bodyValues);
-      template.bodyValues.forEach((variable, i) => {
-        if (variable?.defaultValue !== undefined) {
-          handleVariableChange(i, variable.defaultValue);
+  useEffect(() => {
+    if (!MessagePreviewupdated || Loading || !template.parameters) return;
+
+    // Use a flag to ensure this runs only once
+    let parametersProcessed = false;
+    if (parametersProcessed) return;
+
+    // Process Parameters
+    const filteredHeaderValues = template.parameters.filter(
+      (variable) => variable?.paramType === 1
+    );
+    if (filteredHeaderValues.length > 0) {
+      const allVariables = filteredHeaderValues.map(
+        (variable) => variable.paramName
+      );
+      addHeaderVariable(null, allVariables);
+      filteredHeaderValues.forEach((variable) => {
+        if (variable?.paramDefaultValue !== undefined) {
+          handleheaderVariableChange(
+            variable.paramName,
+            variable.paramDefaultValue
+          );
         }
       });
     }
-    if (template.buttonValues.some((item) => item.value !== null)) {
-      const filteredButtonValues = template.buttonValues.filter(
-        (item) => item["isDynamic"] && item.value !== null
+
+    const filteredBodyValues = template.parameters.filter(
+      (variable) => variable?.paramType === 2
+    );
+    if (filteredBodyValues.length > 0) {
+      const allVariables = filteredBodyValues.map(
+        (variable) => variable.paramName
       );
-      setsenturlvariables(filteredButtonValues);
-      console.log("urlvariables", filteredButtonValues);
+      addVariable(null, allVariables);
+      filteredBodyValues.forEach((variable) => {
+        if (variable?.paramDefaultValue !== undefined) {
+          handleVariableChange(variable.paramName, variable.paramDefaultValue);
+        }
+      });
     }
 
-    setSelectedSenderId(template.senderId);
-    // Update Buttons
-    setTotalButtonCount(updatedMessagePreview.buttons.length);
+    const filteredURLValues = template.parameters.filter(
+      (variable) => variable?.paramType === 3
+    );
+    if (filteredURLValues.length > 0) {
+      debugger;
+      setsenturlvariables(filteredURLValues);
 
-    // Apply Message Preview Updates
-    setMessagePreview(updatedMessagePreview);
+      const allVariables = filteredURLValues.map(
+        (variable) => variable.paramName
+      );
 
-    // Finalize Template Update
-    setLoading(false);
+      filteredURLValues
+        .filter((variable) => variable?.paramDefaultValue !== undefined)
+        .map((variable, index) =>
+          handleurlVariableChange(index, variable.paramDefaultValue)
+        );
+    }
 
-    // Clear State
+    // Mark parameters as processed
+    parametersProcessed = true;
+
+    // Clear Template Detail State
     clearTemplateDetailState();
-  }, [template]);
+  }, [MessagePreviewupdated]);
 
-  useEffect(() => {
-    setAPIheadContent(replaceClosingPTagsWithNewline(headContent));
-  }, [headContent]); // Trigger only when headContent changes
+  const addHeaderVariable = (variablename, allVariables) => {
+    setHeaderVariable((prev) => {
+      // Reset variables array if this is the first call with allVariables
+      if (allVariables) {
+        return allVariables.map((variable) => {
+          // Check if the variable already exists and maintain its value, otherwise default to an empty string
+          const existingVariable = prev.find((v) => v.name === variable);
+          return {
+            name: variable,
+            value: existingVariable ? existingVariable.value : "", // If variable exists, retain its value
+          };
+        });
+      }
 
-  useEffect(() => {
-    setAPIbodyContent(replaceClosingPTagsWithNewline(bodyFinalContent));
-  }, [bodyFinalContent]);
+      // Add a new variable if it doesn't already exist
+      const existingVariable = prev.find((v) => v.name === variablename);
+      if (!existingVariable) {
+        return [...prev, { name: variablename, value: "" }];
+      }
 
+      return prev; // Return unchanged if the variable already exists
+    });
+
+    setErrorMessage(""); // Clear error message after adding or updating variable
+  };
+
+  const addVariable = (variablename, allVariables) => {
+    // If this is the first call, clear the existing array
+    setVariables((prev) => {
+      // Reset variables array if this is the first call with allVariables
+      if (allVariables) {
+        return allVariables.map((variable) => {
+          // Check if the variable already exists and maintain its value, otherwise default to an empty string
+          const existingVariable = prev.find((v) => v.name === variable);
+          return {
+            name: variable,
+            value: existingVariable ? existingVariable.value : "", // If variable exists, retain its value
+          };
+        });
+      }
+
+      // Add a new variable if it doesn't already exist
+      const existingVariable = prev.find((v) => v.name === variablename);
+      if (!existingVariable) {
+        return [...prev, { name: variablename, value: "" }];
+      }
+
+      return prev; // Return unchanged if the variable already exists
+    });
+
+    setErrorMessage(""); // Clear error message after adding or updating variable
+  };
+
+  //submit function to create campaign main request body creates here
   const handleSubmit = async (values) => {
     if (!campaignName) {
-      toast.error("Please select a campaign before proceeding");
+      toast.error("Please enter a campaign name before proceeding");
       return;
     }
     if (!Array.isArray(selectedGroups) || selectedGroups.length === 0) {
@@ -208,45 +285,33 @@ const CampaignCreate = () => {
       toast.error("Please select a template before proceeding");
       return;
     }
-    let trimmedBodyContent = APIbodyContent.trimEnd();
 
     const requestBody = {
       templateId: selectedTemplateId,
       clientId: localStorage.getItem("clientId"),
       campaignName: campaignName,
-      campaignType: "1",
-      status: "0",
       senderId: template.senderId,
       groupIds: selectedGroups.join(","),
       mediaId: selectedMediaId,
       actionBy: localStorage.getItem("userId"),
       campaignParameters: [
-        ...headerVariable.map((value, index) => ({
+        ...headerVariable.map((variable, index) => ({
           sequence: index + 1,
-          paramName: `${index + 1}`, // Dynamic name for header variables
-          paramText: value,
+          paramName: variable.name, // Dynamic name for header variables
+          paramValue: variable.value, // Use value from headerVariable
           paramType: 1,
-          paramDefaultValue: value,
-          isDynamic: true,
-          status: 0,
         })),
-        ...variables.map((value, index) => ({
+        ...variables.map((variable, index) => ({
           sequence: index + 1,
-          paramName: `${index + 1}`, // Dynamic name for header variables
-          paramText: value, // Use value from headerVariable
+          paramName: variable.name, // Dynamic name for header variables
+          paramValue: variable.value, // Use value from headerVariable
           paramType: 2, // Static type
-          paramDefaultValue: value, // Default value same as value
-          isDynamic: true, // Static boolean
-          status: 0, // Static status
         })),
-        ...senturlvariables.map((value, index) => ({
-          sequence: value.values.index,
-          paramName: `${index + 1}`, // Dynamic name for header variables
-          paramText: value.values.value, // Use value from headerVariable
+        ...senturlvariables.map((variable, index) => ({
+          sequence: index + 1,
+          paramName: variable.paramName, // Dynamic name for header variables
+          paramValue: variable.urlvalue,
           paramType: 3, // Static type
-          paramDefaultValue: value.values.value, // Default value same as value
-          isDynamic: true, // Static boolean
-          status: 0, // Static status
         })),
       ],
     };
@@ -254,13 +319,13 @@ const CampaignCreate = () => {
     try {
       const response = await dispatch(createCampaign(requestBody)).unwrap();
       if (response.success) {
-    dispatch(clearTemplateDetailState());
+        dispatch(clearTemplateDetailState());
         showSweetAlert({
           title: "Created Successfully",
           text: "",
           icon: "success",
         });
-         router.push("/Campaigns/CampaignsList");
+        router.push("/Campaigns/CampaignsList");
       } else {
         showSweetAlert({
           title: "Failed",
@@ -271,7 +336,7 @@ const CampaignCreate = () => {
         //window.location.reload();
       }
     } catch (err) {
-      console.error("Failed to create Template", err);
+      console.error("Failed to create Campaign", err);
       showSweetAlert({
         title: "Failed",
         text: err.message || "",
@@ -285,9 +350,6 @@ const CampaignCreate = () => {
     let updatedBody = bodyFinalContent;
 
     // Replace variables in the body content
-    variables.forEach((variable, index) => {
-      updatedBody = updatedBody?.replace(`{{${index + 1}}}`, variable);
-    });
 
     // Handle newlines and preserve the flow
     updatedBody = updatedBody?.replace(/\n/g, "<br/>"); // Convert newlines to <br/> tags for HTML rendering
@@ -302,7 +364,7 @@ const CampaignCreate = () => {
       ...prev,
       body: updatedBody, // HTML safe body with <br/> tags and replaced variables
     }));
-  }, [bodyFinalContent, variables]);
+  }, [bodyFinalContent]);
 
   useEffect(() => {
     setMessagePreview((prev) => ({
@@ -311,84 +373,87 @@ const CampaignCreate = () => {
         .replace(/\{{(\d+)\}}/g, (match, index) => headerVariable[index - 1])
         .replace(/\n/g, "<br />"),
     }));
-  }, [headContent, headerVariable]);
-  const handleVariableChange = (index, value) => {
+  }, [headContent]);
+
+  const handleVariableChange = (variableName, newValue) => {
     setVariables((prev) => {
-      const newVariables = [...prev];
-      newVariables[index] = value;
-      return newVariables;
+      // Update the variable's value in the array
+      const updatedVariables = prev.map((v) =>
+        v.name === variableName ? { ...v, value: newValue } : v
+      );
+
+      // Calculate the updated body content using the new variables
+      let updatedBody = bodyFinalContent;
+
+      updatedVariables.forEach((variable) => {
+        updatedBody = updatedBody.replace(
+          variable.name,
+          variable.value ? variable.value : variable.name
+        );
+      });
+
+      // Handle newlines and preserve the flow
+      updatedBody = updatedBody.replace(/\n/g, "<br/>"); // Convert newlines to <br/> tags for HTML rendering
+      updatedBody = updatedBody
+        .replace(/<\/p>/gi, "<br/>")
+        .replace(/<p.*?>/gi, ""); // Remove <p> tags
+      updatedBody = updatedBody?.replace(
+        /\*\*(.*?)\*\*/g,
+        "<strong>$1</strong>"
+      ); // Bold formatting
+      updatedBody = updatedBody.replace(/\*(.*?)\*/g, "<em>$1</em>"); // Italic formatting
+      updatedBody = updatedBody.replace(/~(.*?)~/g, "<sub>$1</sub>"); // Subscript formatting
+
+      // Update the message preview state in real time
+      setMessagePreview((prev) => ({
+        ...prev,
+        body: updatedBody, // Updated HTML content with variables replaced
+      }));
+
+      return updatedVariables; // Update the state
     });
   };
-  const handelCancel = () => {
-    router.push("/Campaigns/CampaignsList");
-  };
 
-  const handleBodyChange = (value) => {
-    // Allow typing without interruptions
-    setBodyContent(value);
-
-    // Clear previous validation timeout
-    if (typingTimeout) {
-      clearTimeout(typingTimeout);
-    }
-
-    // Validate placeholders with debounce
-    const timeout = setTimeout(() => {
-      validatePlaceholders(value);
-    }, 500); // Delay for smoother typing experience
-
-    setTypingTimeout(timeout);
-  };
-
-  const handleheaderVariableChange = (index, value) => {
+  const handleheaderVariableChange = (variableName, newValue) => {
     setHeaderVariable((prev) => {
-      const newHeaderVariable = [...prev];
-      newHeaderVariable[index] = value;
-      return newHeaderVariable;
+      // Update the variable's value in the array
+      const updatedVariables = prev.map((v) =>
+        v.name === variableName ? { ...v, value: newValue } : v
+      );
+
+      // Calculate the updated body content using the new variables
+      let updatedBody = headContent;
+
+      // Replace all variables with their values in the updatedBody
+      updatedVariables.forEach((variable) => {
+        updatedBody = updatedBody.replace(
+          variable.name,
+          variable.value ? variable.value : variable.name
+        );
+      });
+
+      // Update the message preview state in real-time
+      setMessagePreview((prev) => ({
+        ...prev,
+        header: updatedBody, // Updated HTML content with variables replaced
+      }));
+
+      // Return the updated variables to set the new state
+      return updatedVariables;
     });
   };
 
   const handleurlVariableChange = (index, value) => {
-    setsenturlvariables((prev) => {
-      const newurlVariable = [...prev];
-      // Create a new object for the `values` property
-      const updatedButton = {
-        ...newurlVariable[index],
-        values: { ...newurlVariable[index].values, value }, // Create a new `values` object
-      };
-      newurlVariable[index] = updatedButton; // Replace the button at index with the updated button
-      return newurlVariable;
-    });
+    setsenturlvariables((prevVariables) =>
+      prevVariables.map((variable, i) =>
+        i === index ? { ...variable, urlvalue: value } : variable
+      )
+    );
   };
 
-  const handleSenderChange = (e) => {
-    const role = e.target.value;
-    setSelectedSenderId(role);
+  const handelCancel = () => {
+    router.push("/Campaigns/CampaignsList");
   };
-
-  useEffect(() => {
-    let updatedBody = bodyFinalContent;
-    variables.forEach((variable, index) => {
-      updatedBody = updatedBody.replace(`{{${index + 1}}}`, variable);
-    });
-    updatedBody = updatedBody.replace(/\n/g, "<br/>"); // Convert newlines to <br/> tags for HTML rendering
-
-    // Replace <p> tags only if necessary, and ensure newlines are handled correctly
-    updatedBody = updatedBody
-      .replace(/<\/p>/gi, "<br/>")
-      .replace(/<p.*?>/gi, "");
-    updatedBody = updatedBody.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-
-    updatedBody = updatedBody.replace(/\*(.*?)\*/g, "<em>$1</em>");
-
-    updatedBody = updatedBody.replace(/~(.*?)~/g, "<sub>$1</sub>");
-
-    // Update the message preview body content
-    setMessagePreview((prev) => ({
-      ...prev,
-      body: updatedBody, // HTML safe body with <br/> tags and replaced variables
-    }));
-  }, [bodyFinalContent, variables]);
 
   return (
     <App>
@@ -396,7 +461,8 @@ const CampaignCreate = () => {
       <Container fluid className="mt-0">
         <Row style={{ height: "100vh" }}>
           <Col
-            md={6} lg={7}
+            md={6}
+            lg={7}
             className="campaign-leftsection overflow-auto "
             style={{ padding: "20px", background: "#fff" }}
           >
@@ -405,12 +471,8 @@ const CampaignCreate = () => {
 
             <Formik
               initialValues={{
-                // headerType: template.headerType,
-                // headerContent:template.headerText,
                 headerMedia: null,
                 body: "",
-                //footer: template.footerText,
-                //senderId: template.senderId,
                 buttons: [],
                 variables: [],
                 headerVariable: [],
@@ -500,14 +562,17 @@ const CampaignCreate = () => {
                     {headerVariable.length > 0 && <h5>Header Variables</h5>}
                     {headerVariable.map((variable, index) => (
                       <FormGroup key={index}>
-                        <Label>{`Value for {${index + 1}}`}</Label>
+                        <Label>{`Value for ${variable.name}`}</Label>
                         <Input
                           type="text"
-                          value={variable.defaultValue}
+                          value={variable.value}
                           onChange={(e) =>
-                            handleheaderVariableChange(index, e.target.value)
+                            handleheaderVariableChange(
+                              variable.name,
+                              e.target.value
+                            )
                           }
-                          placeholder={`Enter Sample Value for {${index + 1}}`}
+                          placeholder={`Enter Sample Value for  ${variable.name}`}
                           style={{ borderRadius: "8px" }}
                           className="mb-3"
                         />
@@ -516,14 +581,14 @@ const CampaignCreate = () => {
                     {variables.length > 0 && <h5>Body Variables</h5>}
                     {variables.map((variable, index) => (
                       <FormGroup key={index}>
-                        <Label>{`Body Value for {${index + 1}}`}</Label>
+                        <Label>{`Body Value for ${variable.name}`}</Label>
                         <Input
                           type="text"
-                          value={variable}
+                          value={variable.value}
                           onChange={(e) =>
-                            handleVariableChange(index, e.target.value)
+                            handleVariableChange(variable.name, e.target.value)
                           }
-                          placeholder={`Enter Sample Value for {${index + 1}}`}
+                          placeholder={`Enter Sample Value for ${variable.name}`}
                           style={{ borderRadius: "8px" }}
                           className="mb-3"
                         />
@@ -533,24 +598,22 @@ const CampaignCreate = () => {
                     {senturlvariables.length > 0 &&
                       senturlvariables.map(
                         (variable, index) =>
-                          variable.values !== null && (
+                          variable.paramName !== null && (
                             <FormGroup key={variable.index}>
-                              <Label>{`Url Value for {${index + 1}}`}</Label>
+                              <Label>{`Url Value for ${variable.paramName}`}</Label>
                               <Row>
                                 <Col>
                                   <Input
                                     className="w-90"
                                     type="text"
-                                    value={variable.values.value || ""}
+                                    value={variable.urlvalue || ""}
                                     onChange={(e) =>
                                       handleurlVariableChange(
                                         index,
                                         e.target.value
                                       )
                                     }
-                                    placeholder={`Enter Sample value for {${
-                                      index + 1
-                                    }}`}
+                                    placeholder={`Enter Sample value for {${variable.paramName}}`}
                                   />
                                 </Col>
                               </Row>
@@ -578,19 +641,7 @@ const CampaignCreate = () => {
               }}
             </Formik>
           </Col>
-          <Col
-            md={6} lg={5}
-            className="overflow-hidden h-screen  right-10"
-            // style={{
-            //   position: "fixed", // Fix the position
-            //   top: "-50", // Adjust to your layout
-            //   right: "0", // Align to the right side of the screen
-            //   height: "100vh", // Full viewport height to ensure scrollability
-            //   overflowY: "auto", // Enable vertical scrolling
-            //   backgroundColor: "#f8f9fa", // Optional: background color for contrast
-            //   boxShadow: "0 0 10px rgba(0,0,0,0.1)", // Optional: Add shadow for emphasis
-            // }}
-          >
+          <Col md={6} lg={5} className="overflow-hidden h-screen  right-10">
             <div
               style={{
                 position: "sticky",

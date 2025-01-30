@@ -112,11 +112,12 @@ export const fetchTemplatesById = createAsyncThunk(
   "template/fetchTemplatesById",
   async ({ templateId, ClientId }, { rejectWithValue }) => {
     
+    
     try {
       const response = await API.get(
         `${TEMPLATEDETAILS}?Id=${templateId}`
       );
-      return response.data;
+      return response.data.result;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -360,9 +361,9 @@ const templateSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchTemplatesById.fulfilled, (state, action) => {
-        
+        debugger
         state.loading = false;
-        state.template = action.payload.result;
+        state.template = action.payload;
         state.message = action.payload?.message || "";
       })
       .addCase(fetchTemplatesById.rejected, (state, action) => {
