@@ -77,9 +77,9 @@ export const DELETEUSER = "/User/deleteuser"
 // Report end points
 export const MESSAGESUMMARY = "/ApiMessage/getapimessagelist"
 export const MESSAGEREPORT = "/MessageSentLog/getmessagesentloglist"
-export const ACTIVECONVOLIST = "#"
-export const AGENTSSTATUSLIST = "#"
 export const TEMPLATEINSIGHT = "/Dashboard/gettemplateinsight"
+export const CHATSMONITOR ="/Conversation/getconversationreportlist"
+export const AGENTSMONITOR ="/Agents/getagentsupervisorreport"
 
 //agenst endpoints
 export const AGENTLIST = "/Agents/getagentlist"
@@ -92,14 +92,18 @@ export const DELETEAGENT = "/Agents/deleteagent"
 export const AGENTDROPDOWN = "/Agents/getagents"
 export const GETAGENTSTATS = "/Agents/GetAgentStats"
 export const ACTIVEAGENTS = "/Agents/getactiveagents"
+export const AGENTSHIFTBULKUPLOAD = "#"
 
-// Agnets Shift
+
+// Agents Shift
 export const AGENTSSHIFT = "#"
 export const CREATEAGENTSHIFT = "#"
 export const AGENTSHIFTDETAILS = "#"
 export const UPDATEAGENTSHIFT = "#"
 export const DELETEAGENTSHIFT = "#"
 
+// Agents Perfomance
+export const AGENTPERFORMANCE = "#"
 //convesration Endpoints
 export const CONVERSATIONLIST = "/Conversation/getagentconversationlist";
 export const CONVERSATIONMESSAGE = "/Conversation/getconversationmessagebyid";
@@ -111,8 +115,7 @@ export const AGENTDISABLE = "/Agents/setagentdisable"
 export const TEMPLATECATEGORY = "/Templates/gettemplatecategories";
 export const TEMPLATELANGUAGE = "/Templates/getlanguages";
 
-export const CHATSMONITOR ="/Conversation/getconversationreportlist"
-export const AGENTSMONITOR ="/Agents/getagentsupervisorreport"
+
 
 //interactive templates
 export const AGENTINTERACTIVETEMPLATLIST =  "/InteractiveTemplates/getagentinteractivetemplates";

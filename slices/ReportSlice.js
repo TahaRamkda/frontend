@@ -4,8 +4,6 @@ import handleError from "../utils/handleError";
 import {
   MESSAGESUMMARY,
   MESSAGEREPORT,
-  ACTIVECONVOLIST,
-  AGENTSSTATUSLIST,
   DASHBOARDSUMMARY,
   TEMPLATEINSIGHT,
 } from "@/utils/apiConstants";
@@ -136,51 +134,7 @@ export const fetchTemplateInsight = createAsyncThunk(
   }
 );
 
-export const fetchActiveConvo = createAsyncThunk(
-  "activeconvo /fetchActiveConvo",
-  async ({ clientId, startDate, endDate, status }, { rejectWithValue }) => {
-    try {
-      const response = await API.get(
-        `${ACTIVECONVOLIST}?startDate=${startDate}&endDate=${endDate}&status=${status}`
-      );
-      if (response?.status === 200 && response.data?.result) {
-        const obj = JSON.stringify(response.data, 2);
 
-        return {
-          activeconvo: response.data.result,
-        };
-      } else {
-        throw new Error("Failed to fetch details");
-      }
-    } catch (err) {
-      const handledError = handleError(err);
-      return rejectWithValue(handledError);
-    }
-  }
-);
-
-export const fetchAgentStatus = createAsyncThunk(
-  "agentstatus /fetchAgentStatus",
-  async ({ clientId, startDate, endDate, status }, { rejectWithValue }) => {
-    try {
-      //console.log('asd'+ searchString.length);
-
-      const response = await API.get(
-        `${AGENTSSTATUSLIST}?startDate=${startDate}&endDate=${endDate}&status=${status}`
-      );
-      if (response?.status === 200 && response.data?.result) {
-        return {
-          agentstatus: response.data.result,
-        };
-      } else {
-        throw new Error("Failed to fetch details");
-      }
-    } catch (err) {
-      const handledError = handleError(err);
-      return rejectWithValue(handledError);
-    }
-  }
-);
 
 // Slice
 const reportSlice = createSlice({
@@ -189,8 +143,6 @@ const reportSlice = createSlice({
     messageSummary: [],
     messagereport: [],
     templateInsight: [],
-    activeconvo: [],
-    agentstatus: [],
     loading: false,
     error: null,
     success: false,
@@ -252,18 +204,6 @@ const reportSlice = createSlice({
       state.totalPages = 1;
       state.pageSize = 10;
       state.totalRecords = 0;
-    },
-    clearActiveConvoState: (state) => {
-      state.activeconvo = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
-    },
-    clearAgentStatuState: (state) => {
-      state.agentstatus = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
     },
   },
   extraReducers: (builder) => {
@@ -337,38 +277,9 @@ const reportSlice = createSlice({
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
-      })
-
-      .addCase(fetchActiveConvo.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchActiveConvo.fulfilled, (state, action) => {
-        state.loading = false;
-        state.activeconvo = action.payload.activeconvo;
-
-        state.message = action.payload.message || "";
-      })
-      .addCase(fetchActiveConvo.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
-
-      .addCase(fetchAgentStatus.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchAgentStatus.fulfilled, (state, action) => {
-        state.loading = false;
-        state.agentstatus = action.payload.agentstatus;
-        state.message = action.payload.message || "";
-      })
-      .addCase(fetchAgentStatus.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
       });
+
+     
   },
 });
 
@@ -376,10 +287,8 @@ const reportSlice = createSlice({
 export const {
   setPageSize,
   setCurrentPage,
-  clearActiveConvoState,
   clearDashboardReportState,
   clearTemplateInsightState,
-  clearAgentStatuState,
   clearMessageSummaryState,
   clearMessageReportState,
 } = reportSlice.actions;
