@@ -32,7 +32,7 @@
 
 
   //to refresh the api call every 5 minutes
-export const REFRESH_INTERVAL=30000 ; // 5 minutes in milliseconds
+export const REFRESH_INTERVAL=3000 ; // 5 minutes in milliseconds
 
 export const NOTIFICATION_WARNING_INTERVAL=300000 ; // 5 minutes in milliseconds
 

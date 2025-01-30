@@ -1,249 +1,159 @@
-import {useMemo, useState, useEffect } from "react";
-import { Card, CardBody, CardHeader, Col, Input, Label, Alert, Button, Modal, ModalBody, ModalHeader, Form, FormGroup, Row, } from "reactstrap";
-import { useRouter } from "next/navigation";
-import SweetAlert from "sweetalert2";
-import DataTable from "react-data-table-component";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchInteractiveTemplates, clearInteractiveTemplateCreateState, setCurrentPage, setPageSize } from "@/slices/TemplateSlice";
-import showSweetAlert from "@/components/Sweetalert";
-import App from "@/components/Layout/App";
-import { HiPencilAlt, HiTrash, HiRefresh } from "react-icons/hi";
-import { useSetRecoilState } from "recoil";
-import { TemplateState } from "@/components/recoil";
-import Loading from "@/components/Layout/Loader";
-import { toDate } from "date-fns";
-const TemplateList = () => {
-    const router = useRouter();
-    const dispatch = useDispatch();
-    const [ToDate, settoDate] = useState("");
-    const [FromDate, setfromDate] = useState("");
-    const { interactiveTemplateList, loading, error, pageSize, totalRecords, currentPage } = useSelector((state) => state.templates);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    //const [templateId, settemplateId] = useState(0);
-    const [filterText, setFilterText] = useState('');
-    const settemplateId = useSetRecoilState(TemplateState);
-    const templateColumns = [
-        {
-            name: "Template Name",
-            selector: (row) => row.templateName,
-            sortable: true,
-        },
-        {
-            name: "Language",
-            selector: (row) => row.language,
-            sortable: true,
-        },
-        {
-            name: " Sender Name ",
-            selector: (row) => row.senderName,
-            sortable: true,
-        },
-        // { name: t("Template Language"), selector: (row) => row.language, sortable: true },
-        { name: "Status ", selector: (row) => row.statusName, sortable: true },
-        {
-            name: "Created Date",
-            selector: (row) => row.createdDate,
-            sortable: true,
-        },
-       
-    ];
- 
-    const handleDeleteClick = (templateId) => {
-        SweetAlert.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!",
-            cancelButtonText: "Cancel",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                try {
-                    dispatch(deleteTemplates({ templateId })).then(() => {
-                        showSweetAlert({
-                            title: "Deleted Successfully",
-                            text: "",
-                            icon: "success",
-                        });
-                        refreshTemplateList();
-                    });
-                } catch (error) {
-                    alert("An unexpected error occurred: " + error.message);
-                }
-            }
-        });
-    };
-    const handlePageSizeChange = async (newSize) => {
-        // Update page size and reset to the first page
-        dispatch(setPageSize(newSize));
-        dispatch(setCurrentPage(1)); // Reset to first page
-        // Fetch data with updated page size and reset to page 1
-        await dispatch(fetchInteractiveTemplates({
-            clientId: localStorage.getItem("clientId"),
-            toDate: ToDate,
-            fromDate: FromDate,
-            searchStr: filterText,
-            pageNo: 1, pageSize: newSize
-        }));
-    };
- 
-    const handlePageChange = async (page) => {
-        // Update current page state in Redux
-        dispatch(setCurrentPage(page));
- 
-        // Fetch clients for the new page
-        await dispatch(fetchInteractiveTemplates({
-            clientId: localStorage.getItem("clientId"),
-            toDate: ToDate,
-            fromDate: FromDate,
-            searchStr: filterText,
-            pageNo: page, pageSize
-        }));
-    };
-    const refreshTemplateList = () => {
-        dispatch(
-            fetchInteractiveTemplates({
-                clientId: localStorage.getItem("clientId"),
-                searchStr: filterText,
-                pageNo: currentPage, pageSize
-            })
-        );
-    };
- 
-    useEffect(() => {
-        dispatch(
-            fetchInteractiveTemplates({
-                clientId: localStorage.getItem("clientId"),
-                toDate: ToDate,
-                fromDate: FromDate,
-                searchStr: filterText,
-                pageNo: currentPage, pageSize
-            })
-        );
-        return () => {
-            dispatch(clearInteractiveTemplateCreateState());
-        };
-    }, [dispatch, filterText, ToDate, FromDate]);
- 
-   
- 
-    const subHeaderComponentMemo = useMemo(() => {
-        return (
-            <div className="w-full">
-                <div className="grid grid-cols-5 gap-4">
-                    <div className="flex flex-col text-start mb-1">
-                        <label className="font-medium text-gray-700 text-sm">Search</label>
-                        <input
-                            type="search"
-                            value={filterText}
-                            onChange={(e) => setFilterText(e.target.value)}
-                            className="border rounded"
-                            placeholder=""
-                        />
-                    </div>
-                    <div className='flex flex-col text-start mb-1'>
-                        <label className="font-medium text-gray-700 text-sm">From Date</label>
-                        <input
-                            type="date"
-                            id="fromDate"
-                            value={FromDate}
-                            onChange={(e) => setfromDate(e.target.value)}
-                            className="border rounded  w-100"
-                        />
-                    </div>
-                    <div className='flex flex-col text-start mb-1'>
-                        <label className="font-medium text-gray-700 text-sm">To Date</label>
-                        <input
-                            type="date"
-                            id="toDate"
-                            value={ToDate}
-                            onChange={(e) => settoDate(e.target.value)}
-                            className="border rounded  w-100"
-                        />
- 
-                    </div>
+import { useState } from 'react';
 
-                   
-                </div>
-            </div>
-        );
-    }, [filterText]);
- 
-    if (error) {
-        return <Alert color="danger">{error}</Alert>;
+export default function TreeFlowVisualization() {
+  // State to manage the current template and its children
+  const [currentTemplate, setCurrentTemplate] = useState({
+    id: 1,
+    header: 'Welcome!',
+    body: 'Hi {name}, welcome to our service. How can we assist you today?',
+    buttons: [
+      {
+        text: 'Order Confirmation',
+        action: 'template',
+        value: 2,
+        description: 'Clicking this button will show the Order Confirmation template.',
+      },
+      {
+        text: 'Promo Alert',
+        action: 'template',
+        value: 3,
+        description: 'Clicking this button will show the Promo Alert template.',
+      },
+    ],
+  });
+
+  // List of all templates
+  const templates = [
+    {
+      id: 1,
+      header: 'Welcome!',
+      body: 'Hi {name}, welcome to our service. How can we assist you today?',
+      buttons: [
+        {
+          text: 'Order Confirmation',
+          action: 'template',
+          value: 2,
+          description: 'Clicking this button will show the Order Confirmation template.',
+        },
+        {
+          text: 'Promo Alert',
+          action: 'template',
+          value: 3,
+          description: 'Clicking this button will show the Promo Alert template.',
+        },
+      ],
+    },
+    {
+      id: 2,
+      header: 'Order Confirmation',
+      body: 'Hello {name}, your order #{orderId} has been confirmed. Track your order here.',
+      buttons: [
+        {
+          text: 'Track Order',
+          action: 'url',
+          value: 'https://example.com/track',
+          description: 'Clicking this button will take you to the order tracking page.',
+        },
+        {
+          text: 'Contact Support',
+          action: 'message',
+          value: 'Support: Call us at +1234567890.',
+          description: 'Clicking this button will show our support contact information.',
+        },
+      ],
+    },
+    {
+      id: 3,
+      header: 'Promo Alert',
+      body: 'Hey {name}, we have a special offer for you! Use code PROMO20 for 20% off.',
+      buttons: [
+        {
+          text: 'Shop Now',
+          action: 'url',
+          value: 'https://example.com/shop',
+          description: 'Clicking this button will take you to our online store.',
+        },
+        {
+          text: 'Copy Code',
+          action: 'copy',
+          value: 'PROMO20',
+          description: 'Clicking this button will copy the promo code to your clipboard.',
+        },
+      ],
+    },
+  ];
+
+  // Function to handle button actions
+  const handleButtonAction = (action, value) => {
+    switch (action) {
+      case 'url':
+        window.open(value, '_blank');
+        break;
+      case 'copy':
+        navigator.clipboard.writeText(value);
+        alert('Copied to clipboard: ' + value);
+        break;
+      case 'message':
+        alert(value);
+        break;
+      case 'template':
+        const nextTemplate = templates.find((t) => t.id === value);
+        if (nextTemplate) {
+          setCurrentTemplate(nextTemplate);
+        }
+        break;
+      default:
+        break;
     }
- 
-    return (
-        <App>
-           <div className="flex items-center">
-        {loading && <Loading />}
-        <div className="mb-1">
-          <h4 className="font-bold mb-2"> Interactive Templates </h4>
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 py-8">
+      <div className="container mx-auto px-4">
+        <h1 className="text-3xl font-bold text-center mb-8">Tree Flow Visualization</h1>
+
+        {/* Current Template */}
+        <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300 mb-8">
+          {/* Template Header */}
+          <h2 className="text-xl font-semibold mb-2">{currentTemplate.header}</h2>
+
+          {/* Template Body */}
+          <p className="text-gray-600 mb-4">{currentTemplate.body}</p>
+
+          {/* Template Buttons */}
+          <div className="space-y-4">
+            {currentTemplate.buttons.map((button, index) => (
+              <div key={index} className="flex flex-col items-start">
+                {/* Button */}
+                <button
+                  className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-300"
+                  onClick={() => handleButtonAction(button.action, button.value)}
+                >
+                  {button.text}
+                </button>
+
+                {/* Flowchart Line and Description */}
+                <div className="mt-2 flex items-center">
+                  <div className="w-4 h-0.5 bg-gray-400 mr-2"></div>
+                  <span className="text-sm text-gray-600">{button.description}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="ml-auto mb-2">
-          <button
-            className="uniform_btn"
-            onClick={() => router.push("/InteractiveTemplate/CreateTemplate")}
-          >
-            Create Template
-          </button>
-        </div>
+
+        {/* Back Button (to navigate to the parent template) */}
+        {currentTemplate.id !== 1 && (
+          <div className="flex justify-center mt-8">
+            <button
+              className="bg-gray-500 text-white px-6 py-3 rounded-md hover:bg-gray-600 transition-colors duration-300"
+              onClick={() => setCurrentTemplate(templates[0])}
+            >
+              Back to Welcome
+            </button>
+          </div>
+        )}
       </div>
-
-
-        
- 
-            <div className="overflow-auto">
-                <DataTable
-                    data={interactiveTemplateList}
-                    columns={templateColumns}
-                    highlightOnHover
-                    striped
-                    pagination
-                    paginationServer
-                    paginationTotalRows={totalRecords}
-                    onChangePage={handlePageChange}
-                    onChangeRowsPerPage={handlePageSizeChange}
-                    subHeader
-                    subHeaderComponent={subHeaderComponentMemo}
-                    className="w-full border"
-                    customStyles={{
-                        table: {
-                            style: {
-                                width: "100%",
-                                borderCollapse: "collapse", // Ensures borders collapse for proper grid appearance
-                            },
-                        },
-                        headRow: {
-                            style: {
-                                borderBottom: "1px solid #ddd",
-                                padding: "0px",
-                                padding: "0px", // Grid line at the bottom of the header
-                            },
-                        },
-                        headCells: {
-                            style: {
-                                borderRight: "1px solid #ddd", // Grid line between columns
-                                fontWeight: "bold",
-                            },
-                        },
-                        rows: {
-                            style: {
-                                borderBottom: "1px solid #ddd", // Horizontal grid line between rows
-                            },
-                        },
-                        cells: {
-                            style: {
-                                borderRight: "1px solid #ddd", // Vertical grid line between cells
-                            },
-                        },
-                    }}
-                />
-            </div>
-        </App>
-    );
-};
- 
-export default TemplateList;
+    </div>
+  );
+}

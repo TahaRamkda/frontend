@@ -113,7 +113,7 @@ const CampaignCreate = () => {
     const updatedMessagePreview = {
       body: template.bodyText,
       footer: template.footerText,
-      media: template.mediaURL,
+      media: template.mediaPath,
       buttons: customButtons,
       templatename: template.templateName,
       visitWebsiteButtonCount: 0,
@@ -139,7 +139,7 @@ const CampaignCreate = () => {
       //setheaderTextCount(template.headerParamCount);
     } else {
       setSelectedMediaId(template.mediaId);
-      setSelectedMediaPath(template.mediaURL);
+      setSelectedMediaPath(template.mediaPath);
       setSelectedMediaType(template.contentType);
     }
 

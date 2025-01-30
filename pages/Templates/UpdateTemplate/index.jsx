@@ -155,6 +155,9 @@ const TemplateUpdatePage = () => {
   
     // Map buttons with conditional logic for phoneNumber or URL
     const customButtons = template.buttons?.map(button => ({
+      actionId: button.actionId,
+      actionType:button.actionType,
+      buttonValue:button.buttonValue,
       type: button.buttonType, // Copy over the type
       text: button.buttonText, // Copy over the label
       ...(button.buttonType === 2
@@ -168,7 +171,7 @@ const TemplateUpdatePage = () => {
     const updatedMessagePreview = {
       body: template.bodyText,
       footer: template.footerText,
-      media: template.mediaURL,
+      media: template.mediaPath,
       buttons: customButtons,
       templatename: template.templateName,
       visitWebsiteButtonCount: 0,
@@ -194,7 +197,7 @@ const TemplateUpdatePage = () => {
       setheaderTextCount(template.headerParamCount);
     } else {
       setSelectedMediaId(template.mediaId);
-      setSelectedMediaPath(template.mediaURL);
+      setSelectedMediaPath(template.mediaPath);
       setSelectedMediaType(template.contentType);
     }
   
@@ -997,23 +1000,7 @@ const TemplateUpdatePage = () => {
               //onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
-                // useEffect(() => {
-                //   const headerText = values.headerType === "1" ? values.headerContent : "";
-                //   const footer = values.footer || "";
-                //   let media = null;
-
-                //   if (["4", "2", "3",2,3,4].includes(values.headerType)) {
-                //     media = values.headerMedia || defaultimage.src;
-                //   }
-
-                //   setMessagePreview((prev) => ({
-                //     ...prev,
-                //     header: headerText,
-                //     footer: footer,
-                //     media: media,
-                //   }));
-                // }, [values]);
-
+                
                 return (
                   <Form>
                     <div style={{ background: "#fff" }}>
