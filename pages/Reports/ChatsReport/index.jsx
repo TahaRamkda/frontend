@@ -1,13 +1,9 @@
 "use client";
 import React, { useMemo, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchChatsMonitor, clearChatsMonitorState, setPageSize, setCurrentPage } from "@/slices/SuperwiseSlice";
-import { Container, Row, Col, Table, input, Button, Pagination, List, label, PaginationItem, PaginationLink, CardBody, Card } from 'reactstrap';
-import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
+import { fetchcoversationMonitor, clearConversationMonitorState, setPageSize, setCurrentPage } from "@/slices/SuperwiseSlice";
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
-import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import DataTable from "react-data-table-component";
-import { HiPencilAlt, HiTrash , HiEye } from "react-icons/hi";
 import Loading from '@/components/Layout/Loader';
 import App from '@/components/Layout/App';
 import Chatview from '@/pages/Chats/ChatView/indexPop-up';
@@ -15,17 +11,21 @@ import TransferChat from '../TransferChat';
 import { MdSwapHoriz } from "react-icons/md"; 
 import { REFRESH_INTERVAL } from '@/utils/constants';
 import SearchBar from '@/components/SearchBar/SearchComponent';
+import DateTimePicker from '@/components/Timepicker/datetimepicker';
 
 const ChatsReport = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
   const [DetailModal, setDetailModal] = useState(false);
-  const { chatsMonitor, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.Supervisor);
+  const { ConversationMonitor, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.Supervisor);
   const [clientId, setClientId] = useState(null);
   const [showchat, setshowchat] = useState(false);
   const [srcStr, setsrcStr] = useState('');
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [showtransfer, setshowtransfer] = useState(false);
+   const [FromDate, setFromDate] = useState("");
+   const [Status , setStatus] = useState('')
+    const [ToDate, setToDate] = useState("");
   const [activeChat, setActiveChat] = useState(0);
   const [ChatLoading, setChatLoading] = useState(false)
   const [SenderId, setSenderId] = useState(0);
@@ -38,30 +38,6 @@ const ChatsReport = () => {
     { name: "Status Name", selector: (row) => row.statusName, sortable: true },
     { name: "Agent Name", selector: (row) => row.agentName, sortable: true },
     { name: "Unread Count", selector: (row) => row.unreadCount, sortable: true },
-    {
-      name: "Action",
-      cell: (row) => (
-        <center>
-          <div className="flex gap-2">
-            <button title="View Chat"
-              className="uniform_icon_btn"
-              onClick={() => handleDetailClick(row.id)}
-            >
-              <HiEye style={{ fontSize: "15px" }} />
-            </button>
-            {row.status!==3 &&(
-               <button  title="Transfer Chat"
-               className="uniform_icon_btn"
-               onClick={() => handleTransferClick(row.id,row.senderId,row.agentId)}
-             >
-               <MdSwapHoriz style={{ fontSize: "15px" }} />
-             </button>
-            )}
-           
-          </div>
-        </center>
-      ),
-    },
   ];
 
   const handleCancel = () => {
@@ -82,9 +58,12 @@ const ChatsReport = () => {
 
     const timeout = setTimeout(() => {
       setChatLoading(true)
-      dispatch(fetchChatsMonitor({
+      dispatch(fetchcoversationMonitor({
         clientId: clientId,
         senderId: senderid,
+        status: Status,
+        ToDate:ToDate,
+        FromDate: FromDate,
         searchStr: searchValue,
         pageSize,
         pageNo: currentPage,
@@ -94,10 +73,10 @@ const ChatsReport = () => {
     setSearchTimeout(timeout); // Save the timeout reference
   };
  useEffect(() => {
-     if (!loading && chatsMonitor) {
+     if (!loading && ConversationMonitor) {
        setChatLoading(false);
      }
-   }, [loading, chatsMonitor]);
+   }, [loading, ConversationMonitor]);
   
   const handleSenderChange = (e) => {
     const senderId = e.target.value;
@@ -111,10 +90,13 @@ const ChatsReport = () => {
       if (isLiveReporting && !loading) {
         setrefreshpage(true);  // Mark the page as refreshing
         try {
-          await dispatch(fetchChatsMonitor({
+          await dispatch(fetchcoversationMonitor({
             clientId: localStorage.getItem("clientId"),
             senderId: senderid,
             searchStr: srcStr,
+            status: Status,
+            ToDate:ToDate,
+            FromDate: FromDate,
             pageSize, // Example page size
             pageNo: currentPage, // Example current page
           }));
@@ -137,7 +119,7 @@ const ChatsReport = () => {
 
     // Cleanup interval on component unmount or when page is unloaded
     return () => clearInterval(intervalId);
-  }, [ senderid, srcStr,currentPage,pageSize, dispatch]);
+  }, [ senderid, srcStr, dispatch,Status,ToDate,FromDate]);
 
   const handleDetailClick = async (id) => {
     setActiveChat(id);
@@ -160,9 +142,12 @@ const ChatsReport = () => {
   useEffect(() => {
     if (clientId) {
       setChatLoading(true)
-      dispatch(fetchChatsMonitor({
+      dispatch(fetchcoversationMonitor({
         clientId: clientId,
         senderId: senderid,
+        status: Status,
+        ToDate:ToDate,
+        FromDate: FromDate,
         searchStr: srcStr,
         pageSize,
         pageNo: currentPage,
@@ -170,7 +155,7 @@ const ChatsReport = () => {
     }
 
     return () => {
-      dispatch(clearChatsMonitorState());
+      dispatch(clearConversationMonitorState());
     };
   }, [dispatch, clientId,senderid]);
 
@@ -178,9 +163,12 @@ const ChatsReport = () => {
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1));  // Reset to first page
     setChatLoading(true)
-    await dispatch(fetchChatsMonitor({
+    await dispatch(fetchcoversationMonitor({
       clientId: clientId,
       searchStr: srcStr,
+      status: Status,
+      ToDate:ToDate,
+      FromDate: FromDate,
       senderId: senderid,
       pageSize: newSize,
       pageNo: 1,
@@ -190,9 +178,12 @@ const ChatsReport = () => {
   const handlePageChange = async (page) => {
     dispatch(setCurrentPage(page));
     setChatLoading(true)
-    await dispatch(fetchChatsMonitor({
+    await dispatch(fetchcoversationMonitor({
       clientId: clientId,
       senderId: senderid,
+      status: Status,
+      ToDate:ToDate,
+      FromDate: FromDate,
       searchStr: srcStr,
       pageSize,
       pageNo: page,
@@ -212,7 +203,6 @@ const ChatsReport = () => {
               value={srcStr}
               onChange={handleSearchString(setsrcStr)}
             />
-            
           </div>
           <div className='flex flex-col text-start mb-1'>
             <label className="font-medium text-gray-700 text-sm">Sender Names</label>
@@ -222,21 +212,49 @@ const ChatsReport = () => {
               className="border rounded w-100"
             />
           </div>
+          <div className='flex flex-col text-start mb-1'>
+  <label className="font-medium text-gray-700 text-sm">Status</label>
+  <select
+    className="border rounded p-2"
+    value={Status}
+    onChange={(e) => setStatus(e.target.value)}
+  >
+    <option value="0">All</option>
+    <option value="1">Open</option>
+    <option value="2">Closed</option>
+    <option value="3">Pending</option>
+    <option value="4">Resolved</option>
+  </select>
+</div>
+          <div className='flex flex-col text-start mb-1'>
+          <DateTimePicker
+              label="From Date"
+              value={FromDate}
+              onChange={setFromDate}
+            />
+          </div>
+          <div className='flex flex-col text-start mb-1'>
+          <DateTimePicker
+              label="To Date"
+              value={ToDate}
+              onChange={setToDate}
+            />
+          </div>
         </div>
       </div>
     );
-  }, [srcStr, senderid]);
+  }, [srcStr, senderid,FromDate,ToDate]);
 
   return (
     <App>
       <div className="flex items-center">
         { ChatLoading && <Loading />}  {/* Show loader only when page is not refreshing */}
         <div >
-          <h4 className="font-bold ">Chats Monitor</h4>
+          <h4 className="font-bold ">Chats Report</h4>
         </div>
       </div>
       <DataTable
-        data={chatsMonitor}
+        data={ConversationMonitor}
         columns={ChatsReportColumn}
         highlightOnHover
         striped
