@@ -308,7 +308,7 @@ const CampaignCreate = () => {
           paramType: 2, // Static type
         })),
         ...senturlvariables.map((variable, index) => ({
-          sequence: index,
+          sequence: variable.sequence,
           paramName: variable.paramName, // Dynamic name for header variables
           paramValue: variable.urlvalue,
           paramType: 3, // Static type

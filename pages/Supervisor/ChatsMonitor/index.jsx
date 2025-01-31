@@ -232,7 +232,7 @@ const ChatsReport = () => {
       <div className="flex items-center">
         { ChatLoading && <Loading />}  {/* Show loader only when page is not refreshing */}
         <div >
-          <h4 className="font-bold ">Chats Report</h4>
+          <h4 className="font-bold ">Chats Monitor</h4>
         </div>
       </div>
       <DataTable
