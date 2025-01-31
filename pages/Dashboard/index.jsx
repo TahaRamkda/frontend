@@ -283,7 +283,7 @@ const Dashboard = () => {
             </div>
           ))}
 
-          {dashboardsummary?.TotalConversationsInitiated?.map((tile, index) => (
+          {dashboardsummary?.TotalConversationsStatus?.map((tile, index) => (
             <div
               key={index}
               className="bg-white stats shadow-md rounded-lg col-lg-3 mb-5 col-md-4 p-3 text-left"
@@ -293,29 +293,35 @@ const Dashboard = () => {
               <hr className="h-1 d-hr" />
 
               <p className=" font-semibold">
-                Count: {tile.TotalConversation}
+                Total Conversation: {tile.TotalConversation}
               </p>
               <p className=" font-semibold">
-                Messages: {tile.TotalMessages}
+                Auto Chat: {tile.AutoChat}
+              </p>
+              <p className=" font-semibold">
+                Looking for agent: {tile.LookingForAgent}
+              </p>
+              <p className=" font-semibold">
+                Agent assigned: {tile.AgentAssigned}
               </p>
             </div>
           ))}
-          {dashboardsummary?.ActiveConversations.map((tile, index) => (
+          {dashboardsummary?.TotalConversationsStatus?.map((tile, index) => (
             <div
               key={index}
               className="bg-white stats shadow-md rounded-l col-lg-3 mb-5 col-md-4 g p-4 text-left"
               style={{ borderTop: `4px solid ${tile.Color}` }}
             >
-              <h3 className=" font-bold mb-0">{tile.Title}</h3>
+              <h3 className=" font-bold mb-0">Closed {tile.Title}</h3>
               <hr className="h-1 d-hr" />
 
               <p className=" font-semibold">
-                Count: {tile.TotalConversation}
+                Chat Closed: {tile.ChatClosed}
               </p>
               <p className=" font-semibold">
-                Not Assigned: {tile.NotAssigned}
+                Chat Expired: {tile.ChatExpired}
               </p>
-              <p className=" font-semibold">Assigned: {tile.Assigned}</p>
+              <p className=" font-semibold">Chat Force Closed: {tile.ChatForceClosed}</p>
             </div>
           ))}
         </div>

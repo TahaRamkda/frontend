@@ -18,7 +18,7 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
   const [chatMessages, setChatMessages] = useState([]);
   const [refreshpage, setrefreshpage] = useState(false);
   const messagesEndRef = useRef(null);
- const [scrolledown, setscrolledown] = useState (false)
+  const [scrolledown, setscrolledown] = useState(false);
   // Set active chat when ChatId changes
   useEffect(() => {
     if (ChatId) {
@@ -31,7 +31,10 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
     const ClientId = localStorage.getItem("clientId");
     if (ClientId && Activechat) {
       dispatch(
-        fetchConversationMessageReport({ clientId: ClientId, ChatId: Activechat })
+        fetchConversationMessageReport({
+          clientId: ClientId,
+          ChatId: Activechat,
+        })
       );
     }
   }, [Activechat, dispatch]);
@@ -39,15 +42,19 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
   // Auto-refresh chat messages at intervals
   useEffect(() => {
     const checkAndFetch = async () => {
-      const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
+      const isLiveReporting = JSON.parse(
+        localStorage.getItem("isLiveReporting")
+      );
 
       if (isLiveReporting && !loading) {
         setrefreshpage(true);
         try {
-          await dispatch(fetchConversationMessageReport({
-            clientId: localStorage.getItem("clientId"),
-            ChatId: Activechat,
-          }));
+          await dispatch(
+            fetchConversationMessageReport({
+              clientId: localStorage.getItem("clientId"),
+              ChatId: Activechat,
+            })
+          );
         } catch (error) {
           console.error("Error fetching chat monitor:", error);
         } finally {
@@ -82,7 +89,12 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
   }, [isVisible, chatMessages]);
 
   return (
-    <Modal isOpen={isVisible} toggle={onClose} fade={false} className="modal-responsive">
+    <Modal
+      isOpen={isVisible}
+      toggle={onClose}
+      fade={false}
+      className="modal-responsive"
+    >
       <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded shadow-lg w-full max-w-4xl h-full max-h-[90vh] flex flex-col">
           <ModalHeader toggle={onClose} className="border-b p-4">
@@ -95,12 +107,16 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
                 style={{ maxHeight: "calc(90vh - 120px)" }}
               >
                 {loading && !refreshpage && (
-                  <div className="text-center">Please wait while we load your chat!!</div>
+                  <div className="text-center">
+                    Please wait while we load your chat!!
+                  </div>
                 )}
                 {chatMessages?.map((message) => (
                   <div
                     key={message.messageId}
-                    className={`flex ${message.typeId === 1 ? "justify-end" : "justify-start"}`}
+                    className={`flex ${
+                      message.typeId === 1 ? "justify-end" : "justify-start"
+                    }`}
                   >
                     <div
                       className={`max-w-xs p-2 rounded-2xl shadow-sm ${
@@ -148,7 +164,10 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
                                 .map((line, index) => (
                                   <span key={index}>
                                     {line}
-                                    {index < message.messageContent.split("\n").length - 1 && <br />}
+                                    {index <
+                                      message.messageContent.split("\n")
+                                        .length -
+                                        1 && <br />}
                                   </span>
                                 ))
                             : null}
