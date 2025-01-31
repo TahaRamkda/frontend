@@ -110,6 +110,7 @@ export const CONVERSATIONMESSAGE = "/Conversation/getconversationmessagebyid";
 export const AGENTMESSAGE = "/Message/sendagentmessage";
 export const TRANSFERCHAT = "/Conversation/transferconversationtoagent";
 export const AGENTDISABLE = "/Agents/setagentdisable"
+export const CONVERSATIONREPORT ="/Conversation/getconversationreportlist"
 
 //MasterSlice Endpoints
 export const TEMPLATECATEGORY = "/Templates/gettemplatecategories";

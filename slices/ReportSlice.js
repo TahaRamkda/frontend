@@ -6,14 +6,14 @@ import {
   MESSAGEREPORT,
   DASHBOARDSUMMARY,
   TEMPLATEINSIGHT,
-  CONVERSATIONMONITOR,
+  CONVERSATIONREPORT,
 } from "@/utils/apiConstants";
 
 // Thunks
 
 // Fetch Clients
 export const fetchMessageSummary = createAsyncThunk(
-  "messagereport /fetchMessageSummary",
+  "messagesummary /fetchMessageSummary",
   async (
     {
       clientId,
@@ -89,14 +89,15 @@ export const fetchMessageReport = createAsyncThunk(
   }
 );
 export const fetchConversationReport = createAsyncThunk(
-  'chatsmonitor /fetchConversationReport',
-  async ({status, pageSize,pageNo,senderId, searchStr,FromDate,ToDate}, { rejectWithValue }) => {
+  'conversationreport /fetchConversationReport',
+  async ({status, pageSize,pageNo,senderId,FromDate,ToDate,srcStr}, { rejectWithValue }) => {
+    
     try {
 
-      const response = await API.get(`${CONVERSATIONMONITOR}?${searchStr? `searchStr=${searchStr}`: ''}&senderId=${senderId}&status=${status}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`);
+      const response = await API.get(`${CONVERSATIONREPORT}?${srcStr ? `searchStr=${srcStr}`: ''}&senderId=${senderId}&status=${status}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`);
       if (response?.status === 200 && response.data?.result) {
         return {
-        ConversationMonitor: response.data.result,
+        ConversationReport: response.data.result,
         totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
         };
       } else {
@@ -110,7 +111,7 @@ export const fetchConversationReport = createAsyncThunk(
 );
 
 export const fetchDashboardSummary = createAsyncThunk(
-  "messagereport /fetchDashboardSummary",
+  "dashboardsummary /fetchDashboardSummary",
   async ({ clientId, fromDate, toDate, senderid }, { rejectWithValue }) => {
     try {
       const response = await API.get(
@@ -133,7 +134,7 @@ export const fetchDashboardSummary = createAsyncThunk(
 );
 
 export const fetchTemplateInsight = createAsyncThunk(
-  "messagereport /fetchTemplateInsight",
+  "templateinsight /fetchTemplateInsight",
   async ({ clientId, fromDate, toDate, TemplateId }, { rejectWithValue }) => {
     try {
       const response = await API.get(
@@ -159,7 +160,7 @@ export const fetchTemplateInsight = createAsyncThunk(
 
 // Slice
 const reportSlice = createSlice({
-  name: "messagereport",
+  name: "report",
   initialState: {
     messageSummary: [],
     messagereport: [],
@@ -200,7 +201,7 @@ const reportSlice = createSlice({
       state.success = false;
     },
     clearConversationReportState: (state) => {
-      state.ConversationMonitor = [];
+      state.ConversationReport = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -280,6 +281,7 @@ const reportSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchConversationReport.fulfilled, (state, action) => {
+        
         state.loading = false;
         state.ConversationReport = action.payload.ConversationReport;
         state.totalRecords = action.payload.totalRecords;

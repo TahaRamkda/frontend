@@ -2,7 +2,7 @@ import CryptoJS from 'crypto-js';
 
 // Function to generate a random AES key (in Base64 format)
 export const generateAESKey = () => {
-    debugger
+    
   // Generate a random 256-bit key (32 bytes)
   const key = CryptoJS.lib.WordArray.random(32); // 32 bytes = 256 bits
   return key.toString(CryptoJS.enc.Base64); // Return the key as a Base64 string
@@ -10,7 +10,7 @@ export const generateAESKey = () => {
 
 // Function to encrypt data using AES encryption
 export const encryptData = (data, key) => {
-    debugger
+    
   // Parse the key from Base64 to WordArray
   const parsedKey = CryptoJS.enc.Base64.parse(key);
 

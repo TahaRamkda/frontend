@@ -50,7 +50,7 @@ const RoleList = () => {
 
   const handleDetailClick = async (roleId) => {
     try {
-      debugger
+      
       const response = await dispatch(fetchRoleById({roleId:roleId})).unwrap();
       if (response) {
         setRoleForm(response.result);

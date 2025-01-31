@@ -197,7 +197,7 @@ const CampaignCreate = () => {
       (variable) => variable?.paramType === 3
     );
     if (filteredURLValues.length > 0) {
-      debugger;
+      ;
       setsenturlvariables(filteredURLValues);
 
       const allVariables = filteredURLValues.map(

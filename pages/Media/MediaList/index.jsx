@@ -64,13 +64,13 @@ if(medias){
     });
   };
   const handlesenderchange = async(value) => {
-    debugger
+    
     setselectedsenderId(value);
     //await refreshList();
   }
 
    const refreshList = async () => {
-    debugger
+    
     const contentType = isPopup ? contentTypeStr : "";
     await dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType ,senderId:selectedsenderId}));
   };

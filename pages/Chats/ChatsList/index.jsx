@@ -389,7 +389,7 @@ const ChatPage = () => {
 
   useEffect(() => {
     if (!Chatsloading && tempMessages.length > 0) {
-      //debugger;
+      //;
       // Append tempMessages to chatMessages when loading becomes false
       setChatMessages((prevMessages) => [...tempMessages, ...prevMessages]);
       setTempMessages([]); // Clear tempMessages after appending
@@ -417,7 +417,7 @@ const ChatPage = () => {
 
     // Handles incoming messages
     const handleIncomingMessage = (message) => {
-      debugger;
+      ;
       // Play notification sound
       audioRef.current
         ?.play()
@@ -488,7 +488,7 @@ const ChatPage = () => {
 
     // Handles new conversation assignment to the agent
     const handleConversationAssigned = (notification) => {
-      //debugger;
+      //;
       audioRef.current
         ?.play()
         .catch((err) =>
@@ -536,7 +536,7 @@ const ChatPage = () => {
 
     // Handles unassignment of a conversation
     const handleConversationUnAssigned = (chatId) => {
-      debugger;
+      ;
       if (
         agentChatRef.current.filter(
           (conversation) => conversation.id === chatId

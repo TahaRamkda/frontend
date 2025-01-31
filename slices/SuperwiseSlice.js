@@ -1,15 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { CHATSMONITOR, AGENTSMONITOR,AGENTDISABLE,CONVERSATIONMONITOR} from '@/utils/apiConstants';
+import { CHATSMONITOR, AGENTSMONITOR,AGENTDISABLE} from '@/utils/apiConstants';
 
 // Fetch Clients
 export const fetchChatsMonitor = createAsyncThunk(
     'chatsmonitor /fetchChatsMonitor',
-    async ({status, pageSize,pageNo,senderId}, { rejectWithValue }) => {
+    async ({status, pageSize,pageNo,senderId,srcStr}, { rejectWithValue }) => {
       try {
 
-        const response = await API.get(`${CHATSMONITOR}?senderId=${senderId}&status=${status}&pageSize=${pageSize}&pageNo=${pageNo}`);
+        const response = await API.get(`${CHATSMONITOR}?senderId=${senderId}${srcStr? `&searchStr=${srcStr}`: ''}&status=${status}&pageSize=${pageSize}&pageNo=${pageNo}`);
         if (response?.status === 200 && response.data?.result) {
           return {
           chatsMonitor: response.data.result,

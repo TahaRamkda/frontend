@@ -277,7 +277,7 @@ const TemplateCreationPage = () => {
 
 
   const loadurlVariables = (index) => {
-    debugger
+    
     seturlerror("");
     const updatedButtons = [...messagePreview.buttons];
     const variablePattern = /{{(.*?)}}/g;
@@ -293,7 +293,7 @@ const TemplateCreationPage = () => {
   };
 
   const addURLVariable = (index, veriablename) => {
-    debugger
+    
     const newIndex = 1;
 
     const updatedButtons = [...messagePreview.buttons];
@@ -445,7 +445,7 @@ const TemplateCreationPage = () => {
   };
 
   const handleheaderVariableChange = (variableName, newValue) => {
-    debugger;
+    ;
     setHeaderVariable((prev) => {
       // Update the variable's value in the array
       const updatedVariables = prev.map((v) =>

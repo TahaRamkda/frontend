@@ -7,37 +7,49 @@ import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import DataTable from "react-data-table-component";
-import { HiPencilAlt, HiTrash , HiEye } from "react-icons/hi";
+  import { HiPencilAlt, HiTrash , HiEye } from "react-icons/hi";
 import Loading from '@/components/Layout/Loader';
 import App from '@/components/Layout/App';
 import Chatview from '@/pages/Chats/ChatView/indexPop-up';
 import TransferChat from '../TransferChat';
-import { MdSwapHoriz } from "react-icons/md"; 
+import { MdSwapHoriz } from "react-icons/md";
 import { REFRESH_INTERVAL } from '@/utils/constants';
 import SearchBar from '@/components/SearchBar/SearchComponent';
 import Select from "react-select";
-
-const ChatsReport = () => {
+ 
+const ChatsMonitor = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
   const [DetailModal, setDetailModal] = useState(false);
   const { chatsMonitor, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.Supervisor);
   const [clientId, setClientId] = useState(null);
   const [showchat, setshowchat] = useState(false);
+  const [srcStr, setsrcStr] = useState('');
   const [Status, setStatus] = useState("");
+  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [showtransfer, setshowtransfer] = useState(false);
   const [activeChat, setActiveChat] = useState(0);
   const [ChatLoading, setChatLoading] = useState(false)
   const [SenderId, setSenderId] = useState(0);
   const [oldAgentId, setoldAgentId] = useState(0);
   const [refreshpage, setrefreshpage] = useState(false);  // Track if page is refreshing
-
+ 
+  const statusOptions = [
+    { value: '0', label: "Auto Chat" },
+    { value: '1', label: "Looking For Agent" },
+    { value: '2', label: "Agent Assigned" },
+    { value: '3', label: "Chat Closed" },
+    { value: '4', label: "Chat Expired" },
+    { value: '5', label: "Chat Force Closed" },
+  ];
   const ChatsReportColumn = [
     { name: "Full Name", selector: (row) => row.fullName, sortable: true },
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
-    { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
+    { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
     { name: "Status Name", selector: (row) => row.statusName, sortable: true },
+    { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
     { name: "Agent Name", selector: (row) => row.agentName, sortable: true },
+    { name: "Total Messages", selector: (row) => row.totalMessages, sortable: true },
     { name: "Unread Count", selector: (row) => row.unreadCount, sortable: true },
     {
       name: "Action",
@@ -64,33 +76,38 @@ const ChatsReport = () => {
       ),
     },
   ];
-  const statusOptions = [
-    { value: 0, label: "Auto Chat" },
-    { value: 1, label: "Looking For Agent" },
-    { value: 2, label: "Agent Assigned" },
-    { value: 3, label: "Chat Closed" },
-    { value: 4, label: "Chat Expired" },
-    { value: 5, label: "Chat Force Closed" },
-  ];
-
+ 
   const handleCancel = () => {
     setshowchat(false);
   };
   const handleTransferCancel = () => {
     setshowtransfer(false);
   };
-
-  
- useEffect(() => {
-     if (!loading && chatsMonitor) {
-       setChatLoading(false);
-     }
-   }, [loading, chatsMonitor]);
-  
-  const handleSenderChange = (e) => {
-    const senderId = e.target.value;
-    setsenderid(senderId);
+ 
+  const handleSearchString = (setter) => (e) => {
+    const searchValue = e;
+    setsrcStr(searchValue);
+    setter(e)
+ 
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+ 
+    const timeout = setTimeout(() => {
+      setChatLoading(true)
+      dispatch(fetchChatsMonitor({
+        clientId: clientId,
+        senderId: senderid,
+        srcStr: searchValue,
+        status:Status,
+        pageSize,
+        pageNo: currentPage,
+      }));
+    }, 500);
+ 
+    setSearchTimeout(timeout); // Save the timeout reference
   };
+
   const handleStatusChange = (selectedOptions) => {
     if (Array.isArray(selectedOptions)) {
         const values = selectedOptions.map(option => option.value); // Extract values
@@ -100,16 +117,28 @@ const ChatsReport = () => {
     }
 };
 
+ useEffect(() => {
+     if (!loading && chatsMonitor) {
+       setChatLoading(false);
+     }
+   }, [loading, chatsMonitor]);
+ 
+  const handleSenderChange = (e) => {
+    const senderId = e.target.value;
+    setsenderid(senderId);
+  };
+ 
   useEffect(() => {
     const checkAndFetch = async () => {
       const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
-
+ 
       if (isLiveReporting && !loading) {
         setrefreshpage(true);  // Mark the page as refreshing
         try {
           await dispatch(fetchChatsMonitor({
             clientId: localStorage.getItem("clientId"),
             senderId: senderid,
+            srcStr:srcStr,
             status:Status,
             pageSize, // Example page size
             pageNo: currentPage, // Example current page
@@ -121,38 +150,38 @@ const ChatsReport = () => {
         }
       }
     };
-
+ 
    
-
+ 
     const intervalId = setInterval(() => {
       // Perform the periodic refresh (e.g., every 5 minutes) if page is loaded
       if (!loading) {
         checkAndFetch();
       }
     }, REFRESH_INTERVAL);
-
+ 
     // Cleanup interval on component unmount or when page is unloaded
     return () => clearInterval(intervalId);
-  }, [ senderid,currentPage,pageSize,Status, dispatch]);
-
+  }, [ senderid, srcStr, dispatch]);
+ 
   const handleDetailClick = async (id) => {
     setActiveChat(id);
     setshowchat(true);
   };
-
+ 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setClientId(localStorage.getItem('clientId'));
     }
   }, []);
-
+ 
   const handleTransferClick = async (id, SenderId, oldAgentId) => {
     setActiveChat(id);
     setSenderId(SenderId);
     setoldAgentId(oldAgentId);
     setshowtransfer(true);
   };
-
+ 
   useEffect(() => {
     if (clientId) {
       setChatLoading(true)
@@ -160,16 +189,17 @@ const ChatsReport = () => {
         clientId: clientId,
         senderId: senderid,
         status:Status,
+        srcStr:srcStr,
         pageSize,
         pageNo: currentPage,
       }));
     }
-
+ 
     return () => {
       dispatch(clearChatsMonitorState());
     };
-  }, [dispatch, clientId,senderid,Status,]);
-
+  }, [dispatch, clientId,senderid, Status]);
+ 
   const handlePageSizeChange = async (newSize) => {
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1));  // Reset to first page
@@ -177,12 +207,13 @@ const ChatsReport = () => {
     await dispatch(fetchChatsMonitor({
       clientId: clientId,
       status:Status,
+      srcStr:srcStr,
       senderId: senderid,
       pageSize: newSize,
       pageNo: 1,
     }));
   };
-
+ 
   const handlePageChange = async (page) => {
     dispatch(setCurrentPage(page));
     setChatLoading(true)
@@ -190,18 +221,27 @@ const ChatsReport = () => {
       clientId: clientId,
       senderId: senderid,
       status:Status,
+      srcStr:srcStr,
       pageSize,
       pageNo: page,
     }));
   };
-
+ 
   const customPageSizes = [1, 5, 10, 20, 50, 100];  // Custom page size options
   const defultpagessize = 10;
-
+ 
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className="w-full">
         <div className='grid grid-cols-5 gap-4'>
+          <div className='flex flex-col text-start mb-1 mt-2'>
+          <SearchBar
+              label="Search"
+              value={srcStr}
+              onChange={handleSearchString(setsrcStr)}
+            />
+           
+          </div>
           <div className='flex flex-col text-start '>
             <label className="font-medium text-gray-700 text-sm">Status</label>
             <Select
@@ -211,7 +251,7 @@ const ChatsReport = () => {
             className="border rounded "
           />
           </div>
-          <div className='flex flex-col text-start mb-1'>
+          <div className='flex flex-col text-start mb-1 mt-2'>
             <label className="font-medium text-gray-700 text-sm">Sender Names</label>
             <SendernameDropdown
               name="senderId"
@@ -222,8 +262,8 @@ const ChatsReport = () => {
         </div>
       </div>
     );
-  }, [ senderid]);
-
+  }, [srcStr, senderid,statusOptions]);
+ 
   return (
     <App>
       <div className="flex items-center">
@@ -300,5 +340,5 @@ const ChatsReport = () => {
     </App>
   );
 };
-
-export default ChatsReport;
+ 
+export default ChatsMonitor;
