@@ -242,6 +242,15 @@ const ChatsMonitor = () => {
             />
            
           </div>
+          
+          <div className='flex flex-col text-start mb-1 mt-2'>
+            <label className="font-medium text-gray-700 text-sm">Sender Names</label>
+            <SendernameDropdown
+              name="senderId"
+              onChange={handleSenderChange}
+              className="border rounded w-100"
+            />
+          </div>
           <div className='flex flex-col text-start '>
             <label className="font-medium text-gray-700 text-sm">Status</label>
             <Select
@@ -250,14 +259,6 @@ const ChatsMonitor = () => {
             onChange={handleStatusChange}
             className="border rounded "
           />
-          </div>
-          <div className='flex flex-col text-start mb-1 mt-2'>
-            <label className="font-medium text-gray-700 text-sm">Sender Names</label>
-            <SendernameDropdown
-              name="senderId"
-              onChange={handleSenderChange}
-              className="border rounded w-100"
-            />
           </div>
         </div>
       </div>

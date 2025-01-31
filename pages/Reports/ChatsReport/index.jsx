@@ -1,4 +1,4 @@
-"use client";
+
 import React, { useMemo, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchConversationReport, clearConversationReportState, setPageSize, setCurrentPage } from "@/slices/ReportSlice";
@@ -17,7 +17,7 @@ import { REFRESH_INTERVAL } from '@/utils/constants';
 import SearchBar from '@/components/SearchBar/SearchComponent';
 import DateTimePicker from '@/components/Timepicker/datetimepicker';
 import Select from "react-select";
- 
+import { FORMATEDATE } from '@/utils/constants';
 const ChatsReport = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
@@ -249,6 +249,15 @@ const ChatsReport = () => {
             />
            
           </div>
+         
+          <div className='flex flex-col text-start mb-1 mt-2'>
+            <label className="font-medium text-gray-700 text-sm">Sender Names</label>
+            <SendernameDropdown
+              name="senderId"
+              onChange={handleSenderChange}
+              className="border rounded w-100"
+            />
+          </div>
           <div className='flex flex-col text-start '>
             <label className="font-medium text-gray-700 text-sm">Status</label>
             <Select
@@ -257,14 +266,6 @@ const ChatsReport = () => {
             onChange={handleStatusChange}
             className="border rounded "
           />
-          </div>
-          <div className='flex flex-col text-start mb-1 mt-2'>
-            <label className="font-medium text-gray-700 text-sm">Sender Names</label>
-            <SendernameDropdown
-              name="senderId"
-              onChange={handleSenderChange}
-              className="border rounded w-100"
-            />
           </div>
           <div className='flex flex-col text-start mb-1 mt-2'>
                         <DateTimePicker
