@@ -296,19 +296,19 @@ const CampaignCreate = () => {
       actionBy: localStorage.getItem("userId"),
       campaignParameters: [
         ...headerVariable.map((variable, index) => ({
-          sequence: index + 1,
+          sequence: index,
           paramName: variable.name, // Dynamic name for header variables
           paramValue: variable.value, // Use value from headerVariable
           paramType: 1,
         })),
         ...variables.map((variable, index) => ({
-          sequence: index + 1,
+          sequence: index,
           paramName: variable.name, // Dynamic name for header variables
           paramValue: variable.value, // Use value from headerVariable
           paramType: 2, // Static type
         })),
         ...senturlvariables.map((variable, index) => ({
-          sequence: index + 1,
+          sequence: index,
           paramName: variable.paramName, // Dynamic name for header variables
           paramValue: variable.urlvalue,
           paramType: 3, // Static type
