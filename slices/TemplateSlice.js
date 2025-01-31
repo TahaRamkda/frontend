@@ -361,7 +361,7 @@ const templateSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchTemplatesById.fulfilled, (state, action) => {
-        debugger
+        
         state.loading = false;
         state.template = action.payload;
         state.message = action.payload?.message || "";

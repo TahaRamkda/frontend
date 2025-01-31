@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { AGENTLIST, AGENTDETAILS, CREATEAGENT, DELETEAGENT, UPDATEAGENT, AGENTSTIMINGLIST, ADDAGENTSTIMING, AGENTDROPDOWN ,GETAGENTSTATS,ACTIVEAGENTS } from '@/utils/apiConstants';
+import { AGENTLIST, AGENTDETAILS, CREATEAGENT, DELETEAGENT, UPDATEAGENT, AGENTSTIMINGLIST, ADDAGENTSTIMING, AGENTDROPDOWN ,GETAGENTSTATS,ACTIVEAGENTS, AGENTSHIFTBULKUPLOAD, AGENTPERFORMANCE } from '@/utils/apiConstants';
+
 
 
 // Thunks
@@ -16,6 +17,24 @@ export const fetchAgents = createAsyncThunk(
         return {
           agents: response.data.result,
           totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+        };
+      } else {
+        throw new Error('Failed to fetch details');
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+export const fetchAgentsPerfomance = createAsyncThunk(
+  'agent/fetchAgentsPerfomance',
+  async ({agentId}, { rejectWithValue }) => {
+    try {
+      const response = await API.get(`${AGENTLIST}?agentId=${agentId}`);
+      if (response?.status === 200 && response.data?.result) {
+        return {
+          agentsPerfomance: response.data.result,
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -124,6 +143,19 @@ export const createAgentTiming = createAsyncThunk(
     }
   }
 );
+
+export const agentShiftBulkUpload = createAsyncThunk(
+  'agent/agentShiftBulkUpload',
+  async (agentShiftUploadData, { rejectWithValue }) => {
+    try {
+      const response = await API.post(AGENTSHIFTBULKUPLOAD, agentShiftUploadData);
+      return response.data;
+    } catch (error) {
+      const handledError = handleError(error);
+      return rejectWithValue(handledError);
+    }
+  }
+);
 // Fetch Client by ID
 export const fetchAgentsById = createAsyncThunk(
   'agent/fetchAgentsById',
@@ -191,6 +223,7 @@ const agentSlice = createSlice({
     agentsTiming: [],
     AgentStats: [],
     activeAgentDrop:[],
+    agentsPerfomance:[],
     agent: null,
     loading: false,
     error: null,
@@ -241,6 +274,12 @@ const agentSlice = createSlice({
       state.error = null;
       state.success = false;
     },
+    clearAgentPerfomanceState: (state)=>{
+      state.agentsPerfomance = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    },
     cleaAgentStats: (state) => {
       state.AgentStats = [];
       state.loading = false;
@@ -269,10 +308,15 @@ const agentSlice = createSlice({
       state.error = null;
       state.success = false;
     },
+    clearBulkUploadState: (state) => {
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    },
   },
   extraReducers: (builder) => {
     builder
-      // Fetch Clients
+      // Fetch Agents 
       .addCase(fetchAgents.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -285,6 +329,21 @@ const agentSlice = createSlice({
         state.message = action.payload.message || '';
       })
       .addCase(fetchAgents.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+      // Fetch Agents Perfomance 
+      .addCase(fetchAgentsPerfomance.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAgentsPerfomance.fulfilled, (state, action) => {
+        state.loading = false;
+        state.agentsPerfomance = action.payload.agentsPerfomance;
+        state.message = action.payload.message || '';
+      })
+      .addCase(fetchAgentsPerfomance.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
@@ -305,6 +364,7 @@ const agentSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
+      // Active Agents Dropdown 
       .addCase(fetchActiveAgentsDrop.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -315,6 +375,23 @@ const agentSlice = createSlice({
         state.message = action.payload.message || '';
       })
       .addCase(fetchActiveAgentsDrop.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+
+      // Agents Shift Bulk Upload
+      .addCase(agentShiftBulkUpload.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(agentShiftBulkUpload.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.message = action.payload.message || 'Uploaded Successfully';
+      })
+      .addCase(agentShiftBulkUpload.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
@@ -336,7 +413,7 @@ const agentSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-
+      // Agents Stats
       .addCase(fetchAgentStats.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -354,7 +431,7 @@ const agentSlice = createSlice({
 
 
 
-
+      // Create Agents Timming
       .addCase(createAgentTiming.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -371,7 +448,7 @@ const agentSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      // Fetch Client by ID
+      // Fetch Agents by ID
       .addCase(fetchAgentsById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -387,7 +464,7 @@ const agentSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      // Create Client
+      // Create Agents
       .addCase(createAgent.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -405,7 +482,7 @@ const agentSlice = createSlice({
       })
       
 
-      // Update Client
+      // Update Agents
       .addCase(updateAgent.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -422,7 +499,7 @@ const agentSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      // Delete Client
+      // Delete Agents
       .addCase(deleteAgent.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -448,8 +525,10 @@ export const {
   cleaAgentState,
   clearAgentDetailState,
   clearAgentCreateState,
+  clearBulkUploadState,
   cleaAgentStats,
   clearAgentDeleteState,
+  clearAgentPerfomanceState,
   cleaActiveAgenDroptState,
   cleaAgenDroptState,
   clearAgentTimingCreateState,

@@ -40,7 +40,7 @@ import { sidebarItems } from '@/utils/sidebarItems';
     // useEffect(() => {
       
     //   if (authData) {
-    //     debugger
+    //     
     //     // Set login cookie
     //     blankAuthState();
     //     // Redirect to dashboard

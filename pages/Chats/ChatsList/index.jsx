@@ -389,7 +389,7 @@ const ChatPage = () => {
 
   useEffect(() => {
     if (!Chatsloading && tempMessages.length > 0) {
-      //debugger;
+      //;
       // Append tempMessages to chatMessages when loading becomes false
       setChatMessages((prevMessages) => [...tempMessages, ...prevMessages]);
       setTempMessages([]); // Clear tempMessages after appending
@@ -417,7 +417,7 @@ const ChatPage = () => {
 
     // Handles incoming messages
     const handleIncomingMessage = (message) => {
-      debugger;
+      ;
       // Play notification sound
       audioRef.current
         ?.play()
@@ -488,7 +488,7 @@ const ChatPage = () => {
 
     // Handles new conversation assignment to the agent
     const handleConversationAssigned = (notification) => {
-      //debugger;
+      //;
       audioRef.current
         ?.play()
         .catch((err) =>
@@ -536,7 +536,7 @@ const ChatPage = () => {
 
     // Handles unassignment of a conversation
     const handleConversationUnAssigned = (chatId) => {
-      debugger;
+      ;
       if (
         agentChatRef.current.filter(
           (conversation) => conversation.id === chatId
@@ -796,7 +796,7 @@ const ChatPage = () => {
                   </span>
                 </div>
                 {/* Avg Duration */}
-                <div className="flex items-center space-x-2 menuitem">
+                {/* <div className="flex items-center space-x-2 menuitem">
                   <MdOutlineTimer className="text-orange-500" />
                   <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
                     Avg Duration:{" "}
@@ -804,9 +804,9 @@ const ChatPage = () => {
                       {AgentStats.avgChatTime ?? "-/-"}
                     </span>
                   </span>
-                </div>
+                </div> */}
                 {/* Response Time */}
-                <div className="flex items-center space-x-2 menuitem">
+                {/* <div className="flex items-center space-x-2 menuitem">
                   <MdOutlineTimer className="text-green-500" />
                   <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
                     Response Time:{" "}
@@ -814,7 +814,7 @@ const ChatPage = () => {
                       {AgentStats.avgResponseTime ?? "-/-"}
                     </span>
                   </span>
-                </div>
+                </div> */}
                 {/* User Badge with Name and Dropdown */}
                 <div className="relative menuitem menuitemButton">
                   <button

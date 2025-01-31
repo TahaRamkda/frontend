@@ -52,7 +52,7 @@ const ActiveAgentDropdown = ({ name, value, onChange,SenderId }) => {
         onChange={onChange}
         required
       >
-        <option value="">Select</option>
+        <option value="0">Select</option>
         {activeAgentDrop && activeAgentDrop.length > 0 ? (
           activeAgentDrop.map((agent) => (
             <option key={agent.id} value={agent.id}>

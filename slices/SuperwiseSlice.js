@@ -6,10 +6,10 @@ import { CHATSMONITOR, AGENTSMONITOR,AGENTDISABLE} from '@/utils/apiConstants';
 // Fetch Clients
 export const fetchChatsMonitor = createAsyncThunk(
     'chatsmonitor /fetchChatsMonitor',
-    async ({clientId, pageSize,pageNo,senderId, searchStr}, { rejectWithValue }) => {
+    async ({status, pageSize,pageNo,senderId,srcStr}, { rejectWithValue }) => {
       try {
 
-        const response = await API.get(`${CHATSMONITOR}?${searchStr? `searchStr=${searchStr}`: ''}&senderId=${senderId}&pageSize=${pageSize}&pageNo=${pageNo}`);
+        const response = await API.get(`${CHATSMONITOR}?senderId=${senderId}${srcStr? `&searchStr=${srcStr}`: ''}&status=${status}&pageSize=${pageSize}&pageNo=${pageNo}`);
         if (response?.status === 200 && response.data?.result) {
           return {
           chatsMonitor: response.data.result,
@@ -93,6 +93,7 @@ const Supervisor = createSlice({
             state.pageSize = 10;
             state.totalRecords = 0;
           }, 
+       
         clearAgentMonitorState: (state) => {
             state.agentsMonitor = [];
             state.loading = false;
@@ -128,6 +129,7 @@ const Supervisor = createSlice({
                 state.error = action.payload || action.error.message;
                 state.message = action.payload?.message || action.error.message;
               })
+
               .addCase(fetchChatsMonitor.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -167,6 +169,7 @@ export const {
   setCurrentPage,
   clearAgentMonitorState,
   clearAgentDisableState,
+  clearConversationMonitorState,
   clearChatsMonitorState,
 } = Supervisor.actions;
 

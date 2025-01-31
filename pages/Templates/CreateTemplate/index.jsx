@@ -65,6 +65,7 @@ const TemplateCreationPage = () => {
   const [bodyContent, setBodyContent] = useState("");
   const [variables, setVariables] = useState([]);
   const [SendernamesData, setSendernamesData] = useState([]);
+  const [localLoading, setLocalLoading] = useState(false); // Renamed to avoid conflict
   const [showMediaPopup, setShowMediaPopup] = useState(false);
   const [urlerror, seturlerror] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -276,7 +277,7 @@ const TemplateCreationPage = () => {
 
 
   const loadurlVariables = (index) => {
-    debugger
+    
     seturlerror("");
     const updatedButtons = [...messagePreview.buttons];
     const variablePattern = /{{(.*?)}}/g;
@@ -292,7 +293,7 @@ const TemplateCreationPage = () => {
   };
 
   const addURLVariable = (index, veriablename) => {
-    debugger
+    
     const newIndex = 1;
 
     const updatedButtons = [...messagePreview.buttons];
@@ -444,7 +445,7 @@ const TemplateCreationPage = () => {
   };
 
   const handleheaderVariableChange = (variableName, newValue) => {
-    debugger;
+    ;
     setHeaderVariable((prev) => {
       // Update the variable's value in the array
       const updatedVariables = prev.map((v) =>
@@ -691,26 +692,31 @@ const TemplateCreationPage = () => {
   }, [sendername]);
   const handleSenderChange = async (e) => {
     const senderId = e.target.value;
-    console.log("Selected Sender ID:", senderId); // Debugging
+    console.log("Selected Sender ID:", senderId);
     setSelectedSenderId(senderId);
+    setLocalLoading(true); // Use local loading state
 
     try {
-      dispatch(
+      const response = await dispatch(
         fetchSendernameById({
           senderId: senderId,
           clientId: localStorage.getItem("clientId"),
         })
-      );
+      ).unwrap(); // Await response properly
+
       if (response) {
-        console.log("Fetched Sender Data:", response.result); // Debugging
+        console.log("Fetched Sender Data:", response.result);
         setSendernamesData(response.result);
       } else {
         console.error("Failed to fetch details");
       }
     } catch (error) {
       console.error("Error fetching sender details:", error);
+    } finally {
+      setLocalLoading(false);
     }
-  };
+};
+
 
   const handlebuttonaction = (index, actionId, actionType, buttonValue) => {
     setbuttonindex(index);
@@ -772,7 +778,8 @@ const TemplateCreationPage = () => {
   return (
     <App>
       <Container fluid className="mt-0">
-        {loading && <Loader />}
+      {(loading || localLoading) && <Loader />}
+
         <Row style={{ height: "100vh" }}>
           <Col
             md={6} lg={7}

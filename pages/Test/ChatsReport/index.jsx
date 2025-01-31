@@ -1,7 +1,7 @@
 "use client";
 import React, { useMemo, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchChatsMonitor, clearChatsMonitorState, setPageSize, setCurrentPage } from "@/slices/SuperwiseSlice";
+import { fetchConversationReport, clearConversationReportState, setPageSize, setCurrentPage } from "@/slices/ReportSlice";
 import { Container, Row, Col, Table, input, Button, Pagination, List, label, PaginationItem, PaginationLink, CardBody, Card } from 'reactstrap';
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
@@ -11,17 +11,18 @@ import DataTable from "react-data-table-component";
 import Loading from '@/components/Layout/Loader';
 import App from '@/components/Layout/App';
 import Chatview from '@/pages/Chats/ChatView/indexPop-up';
-import TransferChat from '../TransferChat';
+
 import { MdSwapHoriz } from "react-icons/md";
 import { REFRESH_INTERVAL } from '@/utils/constants';
 import SearchBar from '@/components/SearchBar/SearchComponent';
+import DateTimePicker from '@/components/Timepicker/datetimepicker';
 import Select from "react-select";
  
-const ChatsMonitor = () => {
+const ChatsReport = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
   const [DetailModal, setDetailModal] = useState(false);
-  const { chatsMonitor, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.Supervisor);
+  const { ConversationReport, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.reports);
   const [clientId, setClientId] = useState(null);
   const [showchat, setshowchat] = useState(false);
   const [srcStr, setsrcStr] = useState('');
@@ -30,6 +31,8 @@ const ChatsMonitor = () => {
   const [showtransfer, setshowtransfer] = useState(false);
   const [activeChat, setActiveChat] = useState(0);
   const [ChatLoading, setChatLoading] = useState(false)
+  const [FromDate, setFromDate] = useState("");
+  const [ToDate, setToDate] = useState("");
   const [SenderId, setSenderId] = useState(0);
   const [oldAgentId, setoldAgentId] = useState(0);
   const [refreshpage, setrefreshpage] = useState(false);  // Track if page is refreshing
@@ -45,36 +48,10 @@ const ChatsMonitor = () => {
   const ChatsReportColumn = [
     { name: "Full Name", selector: (row) => row.fullName, sortable: true },
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
     { name: "Status Name", selector: (row) => row.statusName, sortable: true },
-    { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
     { name: "Agent Name", selector: (row) => row.agentName, sortable: true },
-    { name: "Total Messages", selector: (row) => row.totalMessages, sortable: true },
     { name: "Unread Count", selector: (row) => row.unreadCount, sortable: true },
-    {
-      name: "Action",
-      cell: (row) => (
-        <center>
-          <div className="flex gap-2">
-            <button title="View Chat"
-              className="uniform_icon_btn"
-              onClick={() => handleDetailClick(row.id)}
-            >
-              <HiEye style={{ fontSize: "15px" }} />
-            </button>
-            {row.status!==3 &&(
-               <button  title="Transfer Chat"
-               className="uniform_icon_btn"
-               onClick={() => handleTransferClick(row.id,row.senderId,row.agentId)}
-             >
-               <MdSwapHoriz style={{ fontSize: "15px" }} />
-             </button>
-            )}
-           
-          </div>
-        </center>
-      ),
-    },
+  
   ];
  
   const handleCancel = () => {
@@ -95,10 +72,12 @@ const ChatsMonitor = () => {
  
     const timeout = setTimeout(() => {
       setChatLoading(true)
-      dispatch(fetchChatsMonitor({
+      dispatch(fetchConversationReport({
         clientId: clientId,
         senderId: senderid,
         srcStr: searchValue,
+        ToDate: ToDate,
+        FromDate: FromDate,
         status:Status,
         pageSize,
         pageNo: currentPage,
@@ -118,10 +97,10 @@ const ChatsMonitor = () => {
 };
 
  useEffect(() => {
-     if (!loading && chatsMonitor) {
+     if (!loading && ConversationReport) {
        setChatLoading(false);
      }
-   }, [loading, chatsMonitor]);
+   }, [loading, ConversationReport]);
  
   const handleSenderChange = (e) => {
     const senderId = e.target.value;
@@ -135,10 +114,12 @@ const ChatsMonitor = () => {
       if (isLiveReporting && !loading) {
         setrefreshpage(true);  // Mark the page as refreshing
         try {
-          await dispatch(fetchChatsMonitor({
+          await dispatch(fetchConversationReport({
             clientId: localStorage.getItem("clientId"),
             senderId: senderid,
             srcStr:srcStr,
+            ToDate: ToDate,
+            FromDate: FromDate,
             status:Status,
             pageSize, // Example page size
             pageNo: currentPage, // Example current page
@@ -185,10 +166,12 @@ const ChatsMonitor = () => {
   useEffect(() => {
     if (clientId) {
       setChatLoading(true)
-      dispatch(fetchChatsMonitor({
+      dispatch(fetchConversationReport({
         clientId: clientId,
         senderId: senderid,
         status:Status,
+        ToDate: ToDate,
+        FromDate: FromDate,
         srcStr:srcStr,
         pageSize,
         pageNo: currentPage,
@@ -196,18 +179,20 @@ const ChatsMonitor = () => {
     }
  
     return () => {
-      dispatch(clearChatsMonitorState());
+      dispatch(clearConversationReportState());
     };
-  }, [dispatch, clientId,senderid, Status]);
+  }, [dispatch, clientId,senderid, Status,ToDate,FromDate]);
  
   const handlePageSizeChange = async (newSize) => {
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1));  // Reset to first page
     setChatLoading(true)
-    await dispatch(fetchChatsMonitor({
+    await dispatch(fetchConversationReport({
       clientId: clientId,
       status:Status,
       srcStr:srcStr,
+      ToDate: ToDate,
+      FromDate: FromDate,
       senderId: senderid,
       pageSize: newSize,
       pageNo: 1,
@@ -217,10 +202,12 @@ const ChatsMonitor = () => {
   const handlePageChange = async (page) => {
     dispatch(setCurrentPage(page));
     setChatLoading(true)
-    await dispatch(fetchChatsMonitor({
+    await dispatch(fetchConversationReport({
       clientId: clientId,
       senderId: senderid,
       status:Status,
+      ToDate: ToDate,
+      FromDate: FromDate,
       srcStr:srcStr,
       pageSize,
       pageNo: page,
@@ -259,10 +246,24 @@ const ChatsMonitor = () => {
               className="border rounded w-100"
             />
           </div>
+          <div className='flex flex-col text-start mb-1 mt-2'>
+                        <DateTimePicker
+                            label="From Date"
+                            value={FromDate}
+                            onChange={setFromDate}
+                        />
+                    </div>
+                    <div className='flex flex-col text-start mb-1 mt-2'>
+                        <DateTimePicker
+                            label="To Date"
+                            value={ToDate}
+                            onChange={setToDate}
+                        />
+                    </div>
         </div>
       </div>
     );
-  }, [srcStr, senderid,statusOptions]);
+  }, [srcStr, senderid,FromDate,ToDate]);
  
   return (
     <App>
@@ -273,7 +274,7 @@ const ChatsMonitor = () => {
         </div>
       </div>
       <DataTable
-        data={chatsMonitor}
+        data={ConversationReport}
         columns={ChatsReportColumn}
         highlightOnHover
         striped
@@ -341,4 +342,4 @@ const ChatsMonitor = () => {
   );
 };
  
-export default ChatsMonitor;
+export default ChatsReport;

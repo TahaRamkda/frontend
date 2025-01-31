@@ -93,7 +93,6 @@ export const sidebarItems = [
       module: 1,
       submenu: [],
     },
-   
     {
       href: '#',
       icon: 'ti-bar-chart', // Chart icon for Reports
@@ -108,6 +107,11 @@ export const sidebarItems = [
         {
           href: '/Reports/MessageSummary',
           text: 'Message Summary',
+          icon: 'ti-pie-chart', // Pie chart icon for Message Summary
+        },
+        {
+          href: '/Reports/ChatsReport',
+          text: 'Chat Report',
           icon: 'ti-pie-chart', // Pie chart icon for Message Summary
         },
       ],

@@ -963,11 +963,12 @@ const TemplateUpdatePage = () => {
             <h4 className="mb-4">Update Template</h4>
             {/* <CustomEditor /> */}
             <label className="block mb-1 mt-1">Sender Names</label>
-            <Sendernames
-              name="senderId"
-              value={selectedSenderId}
-              disabled={true}
-            />
+            <div style={{ pointerEvents: "none" }}>
+  <Sendernames
+    name="senderId"
+    value={selectedSenderId}
+  />
+</div>
 
             <label className="block mb-1 mt-1">Template type</label>
             <TemplateCategoryDropdown
@@ -1040,6 +1041,7 @@ const TemplateUpdatePage = () => {
                         >
                           Header Type
                         </Label>
+                        <div  style={{ pointerEvents: "none" }}>
                         <Field
                           as={Input}
                           type="select"
@@ -1058,6 +1060,7 @@ const TemplateUpdatePage = () => {
                             )
                           )}
                         </Field>
+                        </div>
                       </FormGroup>
                       <div>
                         {(values.headerType === 1 ||
@@ -1069,6 +1072,9 @@ const TemplateUpdatePage = () => {
                             >
                               Header Content
                             </Label>
+                            <div style={{ pointerEvents: "none" }}>
+
+                            
                             <CustomMagicEditor
                               errorMessage={errorMessage}
                               variables={variables}
@@ -1087,6 +1093,7 @@ const TemplateUpdatePage = () => {
                               existingContent={updatedheadvercontent}
                               showaddvarbutton={false}
                             />
+                            </div>
                             {/* <ReactQuill
                               value={headContent}
                               onChange={handleHeadChange}
@@ -1107,6 +1114,7 @@ const TemplateUpdatePage = () => {
                         {/* {console.log("Value Mania", ["2", "3", "4"].includes(values.headerType))} */}
                         {["2", "3", "4"].includes(values.headerType) && (
                           <>
+                          
                             <Media
                               key={values.headerType} // This forces re-rendering when headerType changes
                               isPopup={["2", "3", "4"].includes(
@@ -1125,8 +1133,8 @@ const TemplateUpdatePage = () => {
                                 setSelectedMediaType(mimeType);
                               }}
                             />
-                            {/* New Button for Changing Media */}
-                            <div className="mt-3 text-sm">
+                           
+                            {/* <div className="mt-3 text-sm">
                               <button
                                 type="button" // Explicitly prevent form submission
                                 className="text-blue-500 hover:underline text-sm font-medium"
@@ -1165,7 +1173,7 @@ const TemplateUpdatePage = () => {
                                   }}
                                 />
                               )}
-                            </div>
+                            </div> */}
                           </>
                         )}
                       </div>
@@ -1189,6 +1197,7 @@ const TemplateUpdatePage = () => {
                           formats={['bold', 'underline', 'clean']} // Limit formats to avoid block tags
                           placeholder="Message body"
                         /> */}
+                        <div style={{ pointerEvents: "none" }}>
                           <CustomMagicEditor
                             errorMessage={errorMessage}
                             variables={variables}
@@ -1203,6 +1212,7 @@ const TemplateUpdatePage = () => {
                             existingBodyContent={updatedvercontent}
                             showaddvarbutton={false}
                           />
+                          </div>
                         </div>
                         {errorMessage && (
                           <Alert color="danger" className="mt-2">
@@ -1243,6 +1253,7 @@ const TemplateUpdatePage = () => {
                         <Label for="footer" className="text-sm font-semibold">
                           Footer
                         </Label>
+                        <div style={{ pointerEvents: "none" }}>
                         <Field
                           as={Input}
                           name="footer"
@@ -1250,6 +1261,7 @@ const TemplateUpdatePage = () => {
                           className="form-control"
                           maxLength="50"
                         />
+                        </div>
                       </FormGroup>
                       {/* Button dropdown */}
                       {/* <Dropdown
@@ -1303,6 +1315,7 @@ const TemplateUpdatePage = () => {
                         className="d-flex align-items-center my-3"
                       >
                         {/* Button Text Input */}
+                        <div style={{ pointerEvents: "none" }}>
                         <Input
                           type="text"
                           value={button.text }
@@ -1317,10 +1330,12 @@ const TemplateUpdatePage = () => {
                           }}
                           className="me-2"
                         />
+                        </div>
 
                         {/* Type 1 Action Button */}
                         {button.type === "1" ||
                           (button.type === 1 && (
+                            <div style={{ pointerEvents: "none" }}>
                             <Button
                               style={{
                                 backgroundColor: "grey",
@@ -1339,12 +1354,14 @@ const TemplateUpdatePage = () => {
                             >
                               <i className="fa fa-bolt"></i>
                             </Button>
+                            </div>
                           ))}
 
                         {/* Type 2: Phone Number Input */}
                         {button.type === "2" ||
                           (button.type === 2 && (
                             <div className="d-flex me-2">
+                              <div style={{ pointerEvents: "none" }}>
                               <Input
                                 type="select"
                                 value={button.countryCode}
@@ -1367,6 +1384,8 @@ const TemplateUpdatePage = () => {
                                 <option value="+1">US +1</option>
                                 <option value="+91">IN +91</option>
                               </Input>
+                              </div>
+                              <div style={{ pointerEvents: "none" }}>
                               <Input
                                 type="text"
                                 value={button.phoneNumber}
@@ -1385,6 +1404,7 @@ const TemplateUpdatePage = () => {
                                 className="me-2"
                                 style={{ minWidth: "220px" }}
                               />
+                              </div>
                             </div>
                           ))}
 
@@ -1395,6 +1415,7 @@ const TemplateUpdatePage = () => {
                               <div className="d-flex flex-column me-2">
                                 {/* Website URL Input */}
                                 <div className="d-flex">
+                                <div style={{ pointerEvents: "none" }}>
                                   <Input
                                     type="text"
                                     value={button.url}
@@ -1412,6 +1433,7 @@ const TemplateUpdatePage = () => {
                                     }}
                                     className="me-2"
                                   />
+                                  </div>
                                   {/* <Button
                                     onClick={() => loadurlVariables(index)}
                                     className="mt-0 mr-2 bg-transparent border-0"
@@ -1428,6 +1450,7 @@ const TemplateUpdatePage = () => {
                                   <div className="mt-3">
                                     <Row>
                                       <Col>
+                                      <div style={{ pointerEvents: "none" }}>
                                         <Input
                                           className="w-100"
                                           type="text"
@@ -1442,6 +1465,7 @@ const TemplateUpdatePage = () => {
                                             index + 1
                                           }}`}
                                         />
+                                        </div>
                                       </Col>
                                       {/* <Col xs="auto">
                                         <div

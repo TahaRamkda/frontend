@@ -24,6 +24,7 @@ import {
   clearInteractiveTemplateListState,
   setCurrentPage,
   setPageSize,
+
 } from "@/slices/InteractiveTemplateSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import App from "@/components/Layout/App";

@@ -64,7 +64,7 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (dashboardsummary) {
+    if (dashboardsummary || error) {
       setdataloading(false);
     }
   }, [dashboardsummary]);
@@ -183,9 +183,6 @@ const Dashboard = () => {
   return (
     <App>
      {!isLiveReporting.current && dataloading && <Loader />}
-
-
-
       <div className="w-full">
         {/* Date Filters */}
         <div className="grid grid-cols-5 mb-4 gap-4">
@@ -216,7 +213,7 @@ const Dashboard = () => {
           {dashboardsummary?.UtilityMessages?.map((tile, index) => (
             <div
               key={index}
-              className="bg-white stats shadow-md rounded-lg col-lg-3 mb-5 col-md-4 p-3 text-left"
+              className="bg-white stats shadow-md rounded-lg col-lg-3 mb-5 col-md-4 p-3 text-left "
               style={{ borderTop: `4px solid ${tile.Color}` }}
             >
               <h3 className=" font-bold mb-0 ">{tile.Title}</h3>

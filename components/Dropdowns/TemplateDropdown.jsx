@@ -69,7 +69,7 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
         onChange={onChange}
         required
       >
-        <option value="">Select</option>
+        <option value="0">Select</option>
         {templateDrop && templateDrop.length > 0 ? (
           templateDrop.map((template) => (
             <option key={template.id} value={template.id}>
