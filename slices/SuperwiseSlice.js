@@ -6,34 +6,13 @@ import { CHATSMONITOR, AGENTSMONITOR,AGENTDISABLE,CONVERSATIONMONITOR} from '@/u
 // Fetch Clients
 export const fetchChatsMonitor = createAsyncThunk(
     'chatsmonitor /fetchChatsMonitor',
-    async ({clientId, pageSize,pageNo,senderId, searchStr}, { rejectWithValue }) => {
+    async ({status, pageSize,pageNo,senderId}, { rejectWithValue }) => {
       try {
 
-        const response = await API.get(`${CHATSMONITOR}?${searchStr? `searchStr=${searchStr}`: ''}&senderId=${senderId}&pageSize=${pageSize}&pageNo=${pageNo}`);
+        const response = await API.get(`${CHATSMONITOR}?senderId=${senderId}&status=${status}&pageSize=${pageSize}&pageNo=${pageNo}`);
         if (response?.status === 200 && response.data?.result) {
           return {
           chatsMonitor: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
-          };
-        } else {
-          throw new Error('Failed to fetch details');
-        }
-      } catch (err) {
-        const handledError = handleError(err);
-        return rejectWithValue(handledError);
-      }
-    }
-  );
-  
-export const fetchcoversationMonitor = createAsyncThunk(
-    'chatsmonitor /fetchcoversationMonitor',
-    async ({status, pageSize,pageNo,senderId, searchStr,FromDate,ToDate}, { rejectWithValue }) => {
-      try {
-
-        const response = await API.get(`${CONVERSATIONMONITOR}?${searchStr? `searchStr=${searchStr}`: ''}&senderId=${senderId}&status=${status}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`);
-        if (response?.status === 200 && response.data?.result) {
-          return {
-          ConversationMonitor: response.data.result,
           totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
           };
         } else {
@@ -87,7 +66,6 @@ const Supervisor = createSlice({
     initialState: {
       chatsMonitor:[],
       agentsMonitor: [],
-      ConversationMonitor:[],
       loading: false,
       error: null,
       success: false,
@@ -115,16 +93,7 @@ const Supervisor = createSlice({
             state.pageSize = 10;
             state.totalRecords = 0;
           }, 
-        clearConversationMonitorState: (state) => {
-            state.ConversationMonitor = [];
-            state.loading = false;
-            state.error = null;
-            state.success = false;
-            state.currentPage = 1;
-            state.totalPages = 1;
-            state.pageSize = 10;
-            state.totalRecords = 0;
-          }, 
+       
         clearAgentMonitorState: (state) => {
             state.agentsMonitor = [];
             state.loading = false;
@@ -160,25 +129,6 @@ const Supervisor = createSlice({
                 state.error = action.payload || action.error.message;
                 state.message = action.payload?.message || action.error.message;
               })
-
-
-              .addCase(fetchcoversationMonitor.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-              })
-              .addCase(fetchcoversationMonitor.fulfilled, (state, action) => {
-                state.loading = false;
-                state.ConversationMonitor = action.payload.ConversationMonitor;
-                state.totalRecords = action.payload.totalRecords;
-                state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
-                state.message = action.payload.message || '';
-              })
-              .addCase(fetchcoversationMonitor.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload || action.error.message;
-                state.message = action.payload?.message || action.error.message;
-              })
-
 
               .addCase(fetchChatsMonitor.pending, (state) => {
                 state.loading = true;

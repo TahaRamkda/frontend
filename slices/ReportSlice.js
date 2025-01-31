@@ -6,6 +6,7 @@ import {
   MESSAGEREPORT,
   DASHBOARDSUMMARY,
   TEMPLATEINSIGHT,
+  CONVERSATIONMONITOR,
 } from "@/utils/apiConstants";
 
 // Thunks
@@ -87,6 +88,26 @@ export const fetchMessageReport = createAsyncThunk(
     }
   }
 );
+export const fetchConversationReport = createAsyncThunk(
+  'chatsmonitor /fetchConversationReport',
+  async ({status, pageSize,pageNo,senderId, searchStr,FromDate,ToDate}, { rejectWithValue }) => {
+    try {
+
+      const response = await API.get(`${CONVERSATIONMONITOR}?${searchStr? `searchStr=${searchStr}`: ''}&senderId=${senderId}&status=${status}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`);
+      if (response?.status === 200 && response.data?.result) {
+        return {
+        ConversationMonitor: response.data.result,
+        totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
+        };
+      } else {
+        throw new Error('Failed to fetch details');
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
 
 export const fetchDashboardSummary = createAsyncThunk(
   "messagereport /fetchDashboardSummary",
@@ -143,6 +164,7 @@ const reportSlice = createSlice({
     messageSummary: [],
     messagereport: [],
     templateInsight: [],
+    ConversationReport:[],
     loading: false,
     error: null,
     success: false,
@@ -177,7 +199,16 @@ const reportSlice = createSlice({
       state.error = null;
       state.success = false;
     },
-
+    clearConversationReportState: (state) => {
+      state.ConversationMonitor = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+      state.currentPage = 1;
+      state.totalPages = 1;
+      state.pageSize = 10;
+      state.totalRecords = 0;
+    }, 
     clearTemplateInsightState: (state) => {
       state.templateInsight = [];
       state.loading = false;
@@ -243,6 +274,23 @@ const reportSlice = createSlice({
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
+      // Chats Report
+      .addCase(fetchConversationReport.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchConversationReport.fulfilled, (state, action) => {
+        state.loading = false;
+        state.ConversationReport = action.payload.ConversationReport;
+        state.totalRecords = action.payload.totalRecords;
+        state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
+        state.message = action.payload.message || '';
+      })
+      .addCase(fetchConversationReport.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
 
       //dashboard summary
 
@@ -289,6 +337,7 @@ export const {
   setCurrentPage,
   clearDashboardReportState,
   clearTemplateInsightState,
+  clearConversationReportState,
   clearMessageSummaryState,
   clearMessageReportState,
 } = reportSlice.actions;

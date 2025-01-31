@@ -34,10 +34,10 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
     { name: "Unread Count", selector: (row) => row.unreadCount || 0, sortable: true, width: '10%' },
     { name: "Chats Assigned", selector: (row) => row.assignedChat, sortable: true, width: '10%' },
     { name: "Chats Unassigned", selector: (row) => row.unAssignedChat, sortable: true, width: '10%' },
-    { name: "Chats Abanded", selector: (row) => row.abandonChat, sortable: true, width: '10%' },
+    { name: "Chats Abandoned", selector: (row) => row.abandonChat, sortable: true, width: '10%' },
     { name: "Chats Force closed", selector: (row) => row.forceClosedChat, sortable: true, width: '10%' },
     { name: "Chats Closed", selector: (row) => row.closedChat, sortable: true, width: '10%' },
-    { name: "Exp[ired Chats", selector: (row) => row.forceClosedChat, sortable: true,width: '10%' },
+    { name: "Expired Chats", selector: (row) => row.forceClosedChat, sortable: true,width: '10%' },
 
      {
           name: "Action",
@@ -108,12 +108,9 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
     useEffect(() => {
       const checkAndFetch = async () => {
         const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
-  
         if (isLiveReporting && !loading) {
-          
           try {
              await dispatch(fetchAgentsMonitor({ clientId: localStorage.getItem("clientId"), senderId: senderid, srcStr:srcStr,pageSize, pageNo: currentPage, fromDate:FromDate, toDate:ToDate}));
-            
           } catch (error) {
             console.error("Error fetching chat monitor:", error);
           } finally {
@@ -121,16 +118,12 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
           }
         }
       };
-  
-     
-  
       const intervalId = setInterval(() => {
         // Perform the periodic refresh (e.g., every 5 minutes) if page is loaded
         if (!loading) {
           checkAndFetch();
         }
       }, REFRESH_INTERVAL);
-  
       // Cleanup interval on component unmount or when page is unloaded
       return () => clearInterval(intervalId);
     }, [ senderid, srcStr,FromDate,ToDate, dispatch]);

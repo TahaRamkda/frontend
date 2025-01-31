@@ -15,6 +15,7 @@ import TransferChat from '../TransferChat';
 import { MdSwapHoriz } from "react-icons/md"; 
 import { REFRESH_INTERVAL } from '@/utils/constants';
 import SearchBar from '@/components/SearchBar/SearchComponent';
+import Select from "react-select";
 
 const ChatsReport = () => {
   const dispatch = useDispatch();
@@ -23,8 +24,7 @@ const ChatsReport = () => {
   const { chatsMonitor, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.Supervisor);
   const [clientId, setClientId] = useState(null);
   const [showchat, setshowchat] = useState(false);
-  const [srcStr, setsrcStr] = useState('');
-  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
+  const [Status, setStatus] = useState("");
   const [showtransfer, setshowtransfer] = useState(false);
   const [activeChat, setActiveChat] = useState(0);
   const [ChatLoading, setChatLoading] = useState(false)
@@ -35,6 +35,7 @@ const ChatsReport = () => {
   const ChatsReportColumn = [
     { name: "Full Name", selector: (row) => row.fullName, sortable: true },
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
+    { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
     { name: "Status Name", selector: (row) => row.statusName, sortable: true },
     { name: "Agent Name", selector: (row) => row.agentName, sortable: true },
     { name: "Unread Count", selector: (row) => row.unreadCount, sortable: true },
@@ -63,6 +64,14 @@ const ChatsReport = () => {
       ),
     },
   ];
+  const statusOptions = [
+    { value: 0, label: "Auto Chat" },
+    { value: 1, label: "Looking For Agent" },
+    { value: 2, label: "Agent Assigned" },
+    { value: 3, label: "Chat Closed" },
+    { value: 4, label: "Chat Expired" },
+    { value: 5, label: "Chat Force Closed" },
+  ];
 
   const handleCancel = () => {
     setshowchat(false);
@@ -71,28 +80,7 @@ const ChatsReport = () => {
     setshowtransfer(false);
   };
 
-  const handleSearchString = (setter) => (e) => {
-    const searchValue = e;
-    setsrcStr(searchValue);
-    setter(e)
-
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
-    }
-
-    const timeout = setTimeout(() => {
-      setChatLoading(true)
-      dispatch(fetchChatsMonitor({
-        clientId: clientId,
-        senderId: senderid,
-        searchStr: searchValue,
-        pageSize,
-        pageNo: currentPage,
-      }));
-    }, 500);
-
-    setSearchTimeout(timeout); // Save the timeout reference
-  };
+  
  useEffect(() => {
      if (!loading && chatsMonitor) {
        setChatLoading(false);
@@ -103,6 +91,14 @@ const ChatsReport = () => {
     const senderId = e.target.value;
     setsenderid(senderId);
   };
+  const handleStatusChange = (selectedOptions) => {
+    if (Array.isArray(selectedOptions)) {
+        const values = selectedOptions.map(option => option.value); // Extract values
+        setStatus(values.join(",")); // Join as a comma-separated string
+    } else {
+        setStatus(""); // Reset if no selection
+    }
+};
 
   useEffect(() => {
     const checkAndFetch = async () => {
@@ -114,7 +110,7 @@ const ChatsReport = () => {
           await dispatch(fetchChatsMonitor({
             clientId: localStorage.getItem("clientId"),
             senderId: senderid,
-            searchStr: srcStr,
+            status:Status,
             pageSize, // Example page size
             pageNo: currentPage, // Example current page
           }));
@@ -137,7 +133,7 @@ const ChatsReport = () => {
 
     // Cleanup interval on component unmount or when page is unloaded
     return () => clearInterval(intervalId);
-  }, [ senderid, srcStr,currentPage,pageSize, dispatch]);
+  }, [ senderid,currentPage,pageSize,Status, dispatch]);
 
   const handleDetailClick = async (id) => {
     setActiveChat(id);
@@ -163,7 +159,7 @@ const ChatsReport = () => {
       dispatch(fetchChatsMonitor({
         clientId: clientId,
         senderId: senderid,
-        searchStr: srcStr,
+        status:Status,
         pageSize,
         pageNo: currentPage,
       }));
@@ -172,7 +168,7 @@ const ChatsReport = () => {
     return () => {
       dispatch(clearChatsMonitorState());
     };
-  }, [dispatch, clientId,senderid]);
+  }, [dispatch, clientId,senderid,Status,]);
 
   const handlePageSizeChange = async (newSize) => {
     dispatch(setPageSize(newSize));
@@ -180,7 +176,7 @@ const ChatsReport = () => {
     setChatLoading(true)
     await dispatch(fetchChatsMonitor({
       clientId: clientId,
-      searchStr: srcStr,
+      status:Status,
       senderId: senderid,
       pageSize: newSize,
       pageNo: 1,
@@ -193,7 +189,7 @@ const ChatsReport = () => {
     await dispatch(fetchChatsMonitor({
       clientId: clientId,
       senderId: senderid,
-      searchStr: srcStr,
+      status:Status,
       pageSize,
       pageNo: page,
     }));
@@ -206,13 +202,14 @@ const ChatsReport = () => {
     return (
       <div className="w-full">
         <div className='grid grid-cols-5 gap-4'>
-          <div className='flex flex-col text-start mb-1'>
-          <SearchBar
-              label="Search"
-              value={srcStr}
-              onChange={handleSearchString(setsrcStr)}
-            />
-            
+          <div className='flex flex-col text-start '>
+            <label className="font-medium text-gray-700 text-sm">Status</label>
+            <Select
+            options={statusOptions}
+            isMulti
+            onChange={handleStatusChange}
+            className="border rounded "
+          />
           </div>
           <div className='flex flex-col text-start mb-1'>
             <label className="font-medium text-gray-700 text-sm">Sender Names</label>
@@ -225,7 +222,7 @@ const ChatsReport = () => {
         </div>
       </div>
     );
-  }, [srcStr, senderid]);
+  }, [ senderid]);
 
   return (
     <App>

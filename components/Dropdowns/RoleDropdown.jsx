@@ -54,7 +54,7 @@ const RoleDropdown = ({ name, value, onChange }) => {
         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
         required
       >
-        <option value="">Select</option>
+        <option value="0">Select</option>
         {roleDrop && roleDrop.length > 0 ? (
           roleDrop.map((role) => (
             <option key={role.id} value={role.id}>

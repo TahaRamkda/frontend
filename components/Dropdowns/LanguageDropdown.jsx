@@ -53,7 +53,7 @@ const LanguageDropdown = ({ name, value, onChange, disabled }) => {
         required
         disabled={disabled}
       >
-        <option value="">Select</option>
+        <option value="0">Select</option>
         {languages && languages.length > 0 ? (
           languages.map((language) => (
             <option key={language.id} value={language.id}>

@@ -54,7 +54,7 @@ const TemplateCategoryDropdown = ({ name, value, onChange, disabled }) => {
         required
         disabled={disabled}
       >
-        <option value="">Select</option>
+        <option value="0">Select</option>
         {templatecategory && templatecategory.length > 0 ? (
           templatecategory.map((category) => (
             <option key={category.id} value={category.id}>

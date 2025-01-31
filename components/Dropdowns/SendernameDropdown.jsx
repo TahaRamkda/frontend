@@ -54,7 +54,7 @@ const SendernameDropdown = ({ name, value, onChange }) => {
         onChange={onChange}
         required
       >
-        <option value="">Select</option>
+        <option value="0">Select</option>
         {sendernameDrop && sendernameDrop.length > 0 ? (
           sendernameDrop.map((sendername) => (
             <option key={sendername.id} value={sendername.id}>
