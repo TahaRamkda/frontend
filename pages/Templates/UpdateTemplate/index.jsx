@@ -1335,7 +1335,7 @@ const TemplateUpdatePage = () => {
                         {/* Type 1 Action Button */}
                         {button.type === "1" ||
                           (button.type === 1 && (
-                            <div style={{ pointerEvents: "none" }}>
+                            <div >
                             <Button
                               style={{
                                 backgroundColor: "grey",

@@ -187,12 +187,13 @@ const TemplateCreationPage = () => {
 
     const variablePattern = /{{(.*?)}}/g;
     const matches = bodyfinalReplace.match(variablePattern);
-    if (matches.length !== variables.length) {
+    if (matches && variables && matches.length !== variables.length) {
+
       toast.error("Please load all body variables before proceeding.");
       return;
     }
     const headmatches = finalHeaderReplace.match(variablePattern);
-    if (headmatches && headmatches.length !== headerVariable.length) {
+    if (headmatches &&  headerVariable && headmatches.length !== headerVariable.length) {
       toast.error("Please load all  header variables before proceeding.");
     }
 
@@ -813,7 +814,7 @@ const TemplateCreationPage = () => {
             <Formik
               initialValues={{
                 templateName: "",
-                headerType: "0",
+                headerType: 0,
                 headerContent: "",
                 headerMedia: null,
                 body: "",
