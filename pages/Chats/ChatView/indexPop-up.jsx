@@ -127,7 +127,15 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
                     >
                       {message.parentMessageContent &&
                         message.parentMessageContent.trim() !== "" && (
-                          <div className="mb-2 p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis">
+                          <div className=" p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis mb-1"
+                          style={{
+                            fontSize: "15px",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            whiteSpace: "normal",
+                          }}
+                          >
                             {message.parentMessageContent}
                           </div>
                         )}
@@ -148,11 +156,10 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
                             />
                           )}
                           {message.contentType.startsWith("audio/") && (
-                            <audio
-                              controls
-                              src={`${BASE_URL}${message.mediaPath}`}
-                              className="w-full h-auto rounded"
-                            />
+                            <audio controls>
+                              <source src={`${BASE_URL}${message.mediaPath}`} />
+                              Your browser does not support the audio element.
+                            </audio>
                           )}
                         </>
                       )}
