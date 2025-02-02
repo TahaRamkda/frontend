@@ -14,6 +14,8 @@ const AgentsForm = ({ onClose, isVisible, onsuccess }) => {
     password: "",
     agentFName: "",
     agentLName: "",
+    agentFNameAR: "",
+    agentLNameAR: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -106,6 +108,29 @@ const AgentsForm = ({ onClose, isVisible, onsuccess }) => {
                     type="text"
                     name="agentLName"
                     value={formData.agentLName}
+                    onChange={handleChange}
+                    className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="font-medium text-gray-700 text-sm">First Name Arabic</label>
+                  <input
+                    required
+                    type="text"
+                    name="agentFNameAR"
+                    value={formData.agentFNameAR}
+                    onChange={handleChange}
+                    className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-medium text-gray-700 text-sm">Last Name Arabic</label>
+                  <input
+                    required
+                    type="text"
+                    name="agentLNameAR"
+                    value={formData.agentLNameAR}
                     onChange={handleChange}
                     className="border rounded py-1 px-2 w-full mt-1 text-sm"
                   />

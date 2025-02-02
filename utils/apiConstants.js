@@ -80,6 +80,7 @@ export const MESSAGEREPORT = "/MessageSentLog/getmessagesentloglist"
 export const TEMPLATEINSIGHT = "/Dashboard/gettemplateinsight"
 export const CHATSMONITOR ="/Conversation/getconversationreportlist"
 export const AGENTSMONITOR ="/Agents/getagentsupervisorreport"
+export const AGENTREPORT = "#"
 
 //agenst endpoints
 export const AGENTLIST = "/Agents/getagentlist"
@@ -92,7 +93,7 @@ export const DELETEAGENT = "/Agents/deleteagent"
 export const AGENTDROPDOWN = "/Agents/getagents"
 export const GETAGENTSTATS = "/Agents/GetAgentStats"
 export const ACTIVEAGENTS = "/Agents/getactiveagents"
-export const AGENTSHIFTBULKUPLOAD = "#"
+export const AGENTSHIFTBULKUPLOAD = "/Agents/importbulkagenttimings"
 
 
 // Agents Shift
