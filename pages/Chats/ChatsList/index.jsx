@@ -144,7 +144,12 @@ const ChatPage = () => {
       confirmButtonText: "Logout",
       cancelButtonText: "Cancel",
     }).then((result) => {
+      debugger;
       if (result.isConfirmed) {
+        AgentConversation.map((item) => {
+          clearTimer(item.id);
+        });
+
         localStorage.clear();
         router.push("/auth/login");
       }
@@ -417,7 +422,6 @@ const ChatPage = () => {
 
     // Handles incoming messages
     const handleIncomingMessage = (message) => {
-      ;
       // Play notification sound
       audioRef.current
         ?.play()
@@ -536,7 +540,6 @@ const ChatPage = () => {
 
     // Handles unassignment of a conversation
     const handleConversationUnAssigned = (chatId) => {
-      ;
       if (
         agentChatRef.current.filter(
           (conversation) => conversation.id === chatId
@@ -734,67 +737,76 @@ const ChatPage = () => {
               {/* Sidebar Toggle Button */}
               <div className="flex items-center space-x-4 HeaderChatmenuItemBar">
                 {/* Assigned */}
-                <div className="flex items-center space-x-2 menuitem">
-                  <FaComments className="text-blue-500" />
-                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
-                    Assigned:{" "}
-                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats.assignedChat ?? "-/-"}
-                    </span>
-                  </span>
-                </div>
+                {AgentStats && typeof AgentStats === "object" && (
+                  <>
+                    {/* Assigned */}
+                    <div className="flex items-center space-x-2 menuitem">
+                      <FaComments className="text-blue-500" />
+                      <span className="font-medium text-white text-xs">
+                        Assigned:{" "}
+                        <span className="font-bold text-sm">
+                          {AgentStats.assignedChat ?? "-/-"}
+                        </span>
+                      </span>
+                    </div>
 
-                {/* Active */}
-                <div className="flex items-center space-x-2 menuitem">
-                  <FaCheckCircle className="text-green-500" />
-                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
-                    Active:{" "}
-                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats.activeChat ?? "-/-"}
-                    </span>
-                  </span>
-                </div>
-                {/* Abandoned */}
-                <div className="flex items-center space-x-2 menuitem">
-                  <FaBan className="text-red-500" />
-                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
-                    Abandoned:{" "}
-                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats.abandonChat ?? "-/-"}
-                    </span>
-                  </span>
-                </div>
-                {/* Closed */}
-                <div className="flex items-center space-x-2 menuitem">
-                  <FaTimesCircle className="text-red-500" />
-                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
-                    Closed:{" "}
-                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats.closedChat ?? "-/-"}
-                    </span>
-                  </span>
-                </div>
+                    {/* Active */}
+                    <div className="flex items-center space-x-2 menuitem">
+                      <FaCheckCircle className="text-green-500" />
+                      <span className="font-medium text-white text-xs">
+                        Active:{" "}
+                        <span className="font-bold text-sm">
+                          {AgentStats.activeChat ?? "-/-"}
+                        </span>
+                      </span>
+                    </div>
 
-                {/* Expired */}
-                <div className="flex items-center space-x-2 menuitem">
-                  <AiOutlineHourglass className="text-yellow-100" />
-                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
-                    Expired:{" "}
-                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats.expiredChat ?? "-/-"}
-                    </span>
-                  </span>
-                </div>
-                {/* Force Closed */}
-                <div className="flex items-center space-x-2 menuitem menuitem">
-                  <FaClock className="text-purple-500" />
-                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
-                    Force Closed:{" "}
-                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats.forceClosedChat ?? "-/-"}
-                    </span>
-                  </span>
-                </div>
+                    {/* Abandoned */}
+                    <div className="flex items-center space-x-2 menuitem">
+                      <FaBan className="text-red-500" />
+                      <span className="font-medium text-white text-xs">
+                        Abandoned:{" "}
+                        <span className="font-bold text-sm">
+                          {AgentStats.abandonChat ?? "-/-"}
+                        </span>
+                      </span>
+                    </div>
+
+                    {/* Closed */}
+                    <div className="flex items-center space-x-2 menuitem">
+                      <FaTimesCircle className="text-red-500" />
+                      <span className="font-medium text-white text-xs">
+                        Closed:{" "}
+                        <span className="font-bold text-sm">
+                          {AgentStats.closedChat ?? "-/-"}
+                        </span>
+                      </span>
+                    </div>
+
+                    {/* Expired */}
+                    <div className="flex items-center space-x-2 menuitem">
+                      <AiOutlineHourglass className="text-yellow-100" />
+                      <span className="font-medium text-white text-xs">
+                        Expired:{" "}
+                        <span className="font-bold text-sm">
+                          {AgentStats.expiredChat ?? "-/-"}
+                        </span>
+                      </span>
+                    </div>
+
+                    {/* Force Closed */}
+                    <div className="flex items-center space-x-2 menuitem">
+                      <FaClock className="text-purple-500" />
+                      <span className="font-medium text-white text-xs">
+                        Force Closed:{" "}
+                        <span className="font-bold text-sm">
+                          {AgentStats.forceClosedChat ?? "-/-"}
+                        </span>
+                      </span>
+                    </div>
+                  </>
+                )}
+
                 {/* Avg Duration */}
                 {/* <div className="flex items-center space-x-2 menuitem">
                   <MdOutlineTimer className="text-orange-500" />
@@ -1068,13 +1080,15 @@ const ChatPage = () => {
                                       <img
                                         src={`${BASE_URL}${message.mediaPath}`}
                                         alt="Image"
-                                        className=" max-h-50 w-80 rounded"
+                                        className="RecievedImages  w-80 rounded"
                                       />
                                       <button
+                                        className="ImageDownloadBtn"
                                         onClick={() =>
                                           handleDownload(message.mediaPath)
                                         } // Pass function reference here
                                       >
+                                        <i className="fa fa-arrow-down"></i>
                                         Download
                                       </button>
                                     </>
@@ -1084,7 +1098,7 @@ const ChatPage = () => {
                                     <video
                                       controls
                                       src={`${BASE_URL}${message.mediaPath}`}
-                                      className="w-full h-auto rounded"
+                                      className="w-full RecievedVideos h-auto rounded"
                                     />
                                   )}
                                   {message.contentType.startsWith("audio/") && (
@@ -1108,7 +1122,7 @@ const ChatPage = () => {
                                     <img
                                       src={`${message.sentmediaPath}`}
                                       alt="Image"
-                                      className="w-full h-auto rounded"
+                                      className="w-full SentImages h-auto rounded"
                                     />
                                   )}
                                   {message.sentcontentType.startsWith(
@@ -1117,7 +1131,7 @@ const ChatPage = () => {
                                     <video
                                       controls
                                       src={`${message.sentmediaPath}`}
-                                      className="w-full h-auto rounded"
+                                      className="w-full SentVideos h-auto rounded"
                                     />
                                   )}
                                   {message.sentcontentType.startsWith(
@@ -1448,13 +1462,13 @@ const ChatPage = () => {
                     <div className="msger-inputs  flex items-center">
                       <Button
                         onClick={openFileManager}
-                        className="text-xl text-gray-500 hover:text-gray-700 mr-2"
+                        className="ClipButton  mr-2"
                       >
                         <i className="fa fa-paperclip"></i>
                       </Button>
                       {/* Emoji Picker Button */}
                       <button
-                        className="mr-2 p-2 hover:bg-gray-200 rounded-full"
+                        className="mr-2 chatBarEMoji  hover:bg-gray-200 rounded-full"
                         onClick={() => setShowEmojiPicker((prev) => !prev)}
                       >
                         <i className="fa fa-smile-o text-gray-600"></i>
@@ -1489,16 +1503,16 @@ const ChatPage = () => {
                         value={messageInput}
                         onChange={(e) => setMessageInput(e.target.value)}
                         onKeyDown={(e) => {
-                          
                           if ((e.shiftKey || e.altKey) && e.key === "Enter") {
                             e.preventDefault();
-                            setMessageInput((prevMessage) => prevMessage + "\n");
+                            setMessageInput(
+                              (prevMessage) => prevMessage + "\n"
+                            );
                           } else if (e.key === "Enter") {
                             e.preventDefault();
                             HandleSendMessage();
                           }
                         }}
-                        
                         placeholder="Type a message..."
                         className="rounded-lg border-0 shadow-sm"
                       />
@@ -1512,7 +1526,7 @@ const ChatPage = () => {
                       <div className="relative">
                         <button
                           onClick={handleAgentdefinetemplate}
-                          className="  rounded-full m-3 "
+                          className="CommentICon  rounded-full m-2 "
                         >
                           <i className="fa fa-comment"></i>
                         </button>
@@ -1531,6 +1545,7 @@ const ChatPage = () => {
                         type="submit"
                         onClick={HandleSendMessage}
                         color="primary"
+                        className="PlaneICon m-2"
                       >
                         <i className="fa fa-paper-plane"></i>
                       </button>

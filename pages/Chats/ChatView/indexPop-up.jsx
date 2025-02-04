@@ -95,8 +95,8 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
       fade={false}
       className="modal-responsive"
     >
-      <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded shadow-lg w-full max-w-4xl h-full max-h-[90vh] flex flex-col">
+      <div className="fixed inset-0 bg-gray bg-opacity-500 bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-gray-200 rounded shadow-lg w-full max-w-4xl h-full max-h-[90vh] flex flex-col">
           <ModalHeader toggle={onClose} className="border-b p-4">
             Chat Details
           </ModalHeader>
@@ -127,14 +127,15 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
                     >
                       {message.parentMessageContent &&
                         message.parentMessageContent.trim() !== "" && (
-                          <div className=" p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis mb-1"
-                          style={{
-                            fontSize: "15px",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                            whiteSpace: "normal",
-                          }}
+                          <div
+                            className=" p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis mb-1"
+                            style={{
+                              fontSize: "15px",
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                              whiteSpace: "normal",
+                            }}
                           >
                             {message.parentMessageContent}
                           </div>
@@ -163,7 +164,7 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
                           )}
                         </>
                       )}
-                      <div className="flex items-end justify-between min-w-[100px] p-2 rounded-lg">
+                      <div className="flex items-end justify-between min-w-[100px]  rounded-lg">
                         <p className="whitespace-pre-wrap break-words flex-grow">
                           {message.messageContent
                             ? message.messageContent
@@ -179,11 +180,17 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
                                 ))
                             : null}
                         </p>
-                        <span className="ml-2 text-gray-500 text-xs">
-                          {extractTime(message.createdDate).slice(0, 5)}
-                        </span>
+                      
                       </div>
+                      <div className="flex justify-end">
+  <span className="text-gray-500 text-xs">
+    {message.agentName && message.typeId === 1 ? `by-${message.agentName} ` : ""}
+    {extractTime(message.createdDate).slice(0, 5)}
+  </span>
+</div>
 
+
+                     
                       {message.buttonJson && message.buttonJson.length > 0 && (
                         <div className="mt-2">
                           {(typeof message.buttonJson === "string"
@@ -226,6 +233,7 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
                           ))}
                         </div>
                       )}
+                    
                     </div>
                   </div>
                 ))}

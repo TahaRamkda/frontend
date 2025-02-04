@@ -348,17 +348,7 @@ const ChatsReport = () => {
           />
         )
       }
-      {
-        showtransfer && (
-          <TransferChat
-            ChatId={activeChat}
-            SenderId={SenderId}
-            oldAgentId={oldAgentId}
-            isVisible={true}
-            onClose={handleTransferCancel}
-          />
-        )
-      }
+     
     </App>
   );
 };
