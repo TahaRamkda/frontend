@@ -18,7 +18,10 @@ import {
 } from "reactstrap";
 //import ReactQuill from 'react-quill';
 import "react-quill/dist/quill.snow.css";
+import { IoClose } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchSendernameById , clearSendernameState} from "@/slices/sendernameSlice";
+import {HiArrowNarrowLeft, HiEye } from "react-icons/hi";
 import { useRouter } from "next/navigation";
 import { FaTimes } from "react-icons/fa";
 import { FaRegTrashCan } from "react-icons/fa6";
@@ -56,6 +59,7 @@ const TemplateUpdatePage = () => {
   const Template_Id = useRecoilValue(TemplateState);
   const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
   const router = useRouter();
+  const { sendername } = useSelector((state) => state.sendernames);
   const dispatch = useDispatch();
   const [Loading, setLoading] = useState(true);
   const [actionbuttonvalues, setactionbuttonvalues] = useState([]);
@@ -150,7 +154,7 @@ const TemplateUpdatePage = () => {
   }, [dispatch, Template_Id]);
 
   useEffect(() => {
-    debugger
+    
     if (Loading || !template) return;
   
     // Map buttons with conditional logic for phoneNumber or URL
@@ -474,10 +478,39 @@ const TemplateUpdatePage = () => {
     setErrorMessage(""); // Clear error message after adding or updating variable
   };
 
+  useEffect(() => {
+    const fetchSenderName = async () => {
+      if (selectedSenderId) {
+        try {
+          await dispatch(
+            fetchSendernameById({
+              senderId: selectedSenderId,
+              clientId: localStorage.getItem("clientId"),
+            })
+          ).unwrap();
+        } catch (error) {
+          console.error("Error fetching sender name:", error);
+        }
+      }
+    };
+
+    // Clear state before fetching new data
+    dispatch(clearSendernameState());
+
+    fetchSenderName();
+
+    // Cleanup function to clear state when component unmounts
+    return () => {
+      dispatch(clearSendernameState());
+    };
+  }, [selectedSenderId, dispatch]);
+
+
+
 
  //function to add url veriable
   const addURLVariable = (index,veriablename) => {
-    debugger
+    
     const newIndex = 1;
 
     const updatedButtons = [...messagePreview.buttons];
@@ -953,6 +986,7 @@ const TemplateUpdatePage = () => {
   return (
     <App>
       <Container fluid className="mt-0">
+       
         <Row style={{ height: "100vh" }}>
           <Col
             md={6}
@@ -960,7 +994,7 @@ const TemplateUpdatePage = () => {
             className=" Updatetemplete-leftsection"
             style={{ padding: "20px", background: "#fff" }}
           >
-            <h4 className="mb-4">Update Template</h4>
+            <h4 className="mb-4">View Template</h4>
             {/* <CustomEditor /> */}
             <label className="block mb-1 mt-1">Sender Names</label>
             <div style={{ pointerEvents: "none" }}>
@@ -1507,12 +1541,13 @@ const TemplateUpdatePage = () => {
                     ))}
 
                     <div className="w-full flex justify-end gap-3">
-                      <Button
-                        className="uniform_btn_Cancel "
+                      <button type="button"
+                        className="flex items-center gap-2 text-gray-700 hover:text-whie font-medium transition-all Btn-Regular-1 mt-4"
                         onClick={handelCancel}
                       >
-                        Cancel
-                      </Button>
+                        <HiArrowNarrowLeft style={{ fontSize: "15px" }} /> 
+                        <span>Back</span>
+                      </button>
                       {/* <Button
                         className="uniform_btn  "
                         onClick={() => handleSubmit(values)}
@@ -1555,13 +1590,13 @@ const TemplateUpdatePage = () => {
             >
               <h4
                 className="mb-1 p-3 "
-                style={{ maxWidth: "600px", margin: "auto" }}
+                style={{ maxWidth: "100%", margin: "auto" }}
               >
                 Template Preview
               </h4>
             </div>
             <div
-              className="border p-3 rounded"
+              className="border "
               style={{
                 // maxHeight: "700px",
                 minHeight: "400px",
@@ -1574,17 +1609,58 @@ const TemplateUpdatePage = () => {
                 position: "relative", // Keep the container relative for positioning
               }}
             >
+              {sendername && (
+                  <div
+                    className="flex items-center justify-between text-black px-2 shadow-md bg-white"
+                    style={{
+                      position: "sticky", // Make this section sticky
+                      top: "0", // Stick it to the top
+                      zIndex: "10", // Ensure it stays above other content
+                      backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white for readability
+                    }}
+                  >
+                    {/* Left Section: Display sender's image, name, and phone number */}
+                    <div className="flex items-center space-x-3">
+                      {/* Display Image */}
+                      {sendername.mediaPath && (
+                        <img
+                          src={`${BASE_URL}${sendername.mediaPath}`}
+                          alt="Sender Logo"
+                          className="rounded-circle me-2 img-fluid"
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            objectFit: "cover",
+                          }}
+                        />
+                      )}
+                      {/* Display Name and Phone */}
+                      <div className="p-1">
+                        <div className=" ">{sendername.senderName}</div>
+                        <div className="text-xs text-gray-600">
+                          {sendername.phoneNumber}
+                        </div>
+                      </div>
+                    </div>
+                    {/* Right Section: Placeholder for future actions */}
+                    <div className="flex items-center space-x-4">
+                      {/* Add any buttons or actions here */}
+                    </div>
+                  </div>
+                )}
               <div
                 className="chat_bubble"
                 style={{
                   position: "relative",
-                  backgroundColor: "#ffff",
-                  borderRadius: "5px",
-                  padding: "20px 10px",
-                  wordWrap: "break-word",
-                  marginBottom: "10px",
-                  maxWidth: "400px", // Message body width stays the same
-                  marginRight: "0", // Remove any margin from the right side
+                    backgroundColor: "#ffff",
+                    borderRadius: "5px",
+                    padding: "20px 10px",
+                    wordWrap: "break-word",
+                    marginTop: "15px",
+                    marginBottom: "10px",
+                    marginRight: "0", // Remove any margin from the right side
+                    marginLeft: "22px",
+                    width: "60%",
                 }}
               >
                 <span className="time_bubble">

@@ -31,6 +31,7 @@ const CampaignsList = () => {
   const [keyword, setKeyword] = useState(null);
   const [isfilteropen, setisfilteropen] = useState(false);
   const [showfilterbutton, setshowfilterbutton] = useState(true);
+  const [Size, setSize] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ContactedModal, setContactedModaL] = useState(false);
   const [CampaignTestModal, setCampaignTestModal] = useState(false)
@@ -162,7 +163,7 @@ const CampaignsList = () => {
   }
 
   const handlePageSizeChange = async (newSize) => {
-
+    setSize(newSize);
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to the first page
     setcampaignloading(true)

@@ -25,7 +25,7 @@ import {
   createTemplates,
   clearTemplateCreateState,
 } from "@/slices/TemplateSlice";
-import { fetchSendernameById } from "@/slices/sendernameSlice";
+import { fetchSendernameById , clearSendernameState } from "@/slices/sendernameSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import defaultimage from "@/public/images/12.jpg";
 import bagroundimage from "@/public/images/baground.jpg";
@@ -529,8 +529,6 @@ const TemplateCreationPage = () => {
   };
 
 
-
-
   const handleBodyChange = (value) => {
     // Allow typing without interruptions
     setBodyContent(value);
@@ -694,8 +692,13 @@ const TemplateCreationPage = () => {
   const handleSenderChange = async (e) => {
     const senderId = e.target.value;
     console.log("Selected Sender ID:", senderId);
+
     setSelectedSenderId(senderId);
     setLocalLoading(true); // Use local loading state
+
+    // Clear sender name state before fetching new data
+    dispatch(clearSendernameState());
+    setSendernamesData(null); // Reset local state
 
     try {
       const response = await dispatch(
@@ -703,10 +706,10 @@ const TemplateCreationPage = () => {
           senderId: senderId,
           clientId: localStorage.getItem("clientId"),
         })
-      ).unwrap(); // Await response properly
+      ).unwrap();
 
       if (response) {
-        console.log("Fetched Sender Data:", response.result);
+        console.log("Fetched Sender Data:", response.result); // Debugging
         setSendernamesData(response.result);
       } else {
         console.error("Failed to fetch details");
@@ -717,6 +720,7 @@ const TemplateCreationPage = () => {
       setLocalLoading(false);
     }
 };
+
 
 
   const handlebuttonaction = (index, actionId, actionType, buttonValue) => {
@@ -1252,12 +1256,13 @@ const TemplateCreationPage = () => {
                     ))}
 
                     <div className="w-full flex justify-end gap-3">
-                      <Button
-                        className="uniform_btn_Cancel mt-4"
+                    <button
+                    type="button"
+                        className="Btn-Regular-1 mt-4"
                         onClick={handelCancel}
                       >
                         Cancel
-                      </Button>
+                      </button>
                       <Button
                         className="uniform_btn mt-4"
                         onClick={() => handleSubmit(values)}
@@ -1299,7 +1304,7 @@ const TemplateCreationPage = () => {
             >
               <h4
                 className="mb-1  p-3  "
-                style={{ maxWidth: "600px", margin: "auto" }}
+                style={{ maxWidth: "100%", margin: "auto" }}
               >
                 Template Preview
               </h4>
@@ -1323,12 +1328,12 @@ const TemplateCreationPage = () => {
               >
                 {sendername && (
                   <div
-                    className="flex items-center justify-between text-black px-2 shadow-md bg-white"
+                    className=""
                     style={{
                       position: "sticky", // Make this section sticky
                       top: "0", // Stick it to the top
                       zIndex: "10", // Ensure it stays above other content
-                      backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white for readability
+                      backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white 
                     }}
                   >
                     {/* Left Section: Display sender's image, name, and phone number */}
@@ -1374,7 +1379,7 @@ const TemplateCreationPage = () => {
                     marginBottom: "10px",
                     marginRight: "0", // Remove any margin from the right side
                     marginLeft: "22px",
-                    width: "85%",
+                    width: "60%",
                   }}
                 >
                   <span className="time_bubble">

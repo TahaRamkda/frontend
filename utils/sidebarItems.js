@@ -104,15 +104,20 @@ export const sidebarItems = [
           text: 'Message Reports',
           icon: 'ti-clipboard', // Clipboard icon for Message Reports
         },
-        {
-          href: '/Reports/MessageSummary',
-          text: 'Message Summary',
-          icon: 'ti-pie-chart', // Pie chart icon for Message Summary
-        },
+        // {
+        //   href: '/Reports/MessageSummary',
+        //   text: 'Message Summary',
+        //   icon: 'ti-clipboard', // Pie chart icon for Message Summary
+        // },
         {
           href: '/Reports/ChatsReport',
           text: 'Chat Report',
-          icon: 'ti-pie-chart', // Pie chart icon for Message Summary
+          icon: 'ti-clipboard', // Pie chart icon for Message Summary
+        },
+        {
+          href: '/Reports/AgentReport',
+          text: 'Agent Report',
+          icon: 'ti-clipboard', // Pie chart icon for Message Summary
         },
       ],
     },

@@ -34,6 +34,7 @@ import Media from "@/pages/Media/MediaList";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
 import App from "@/components/Layout/App";
 import ButtonAction from "@/pages/Templates/ButtonAction";
+import { fetchSendernameById , clearSendernameState } from "@/slices/sendernameSlice";
 import moment from "moment";
 import CustomMagicEditor from "@/components/CustomMagicEditor";
 import { BASE_URL } from "@/utils/apiConstants";
@@ -58,6 +59,7 @@ const InteractiveTemplateUpdate = () => {
   const { interactivetemplatedetail, loading, error } = useSelector(
     (state) => state.interactiveTemplates
   );
+  const { sendername } = useSelector((state) => state.sendernames);
   const stripHtml = (input) => input.replace(/<[^>]*>/g, "");
   const [messagePreview, setMessagePreview] = useState({
     header: "",
@@ -321,6 +323,35 @@ const InteractiveTemplateUpdate = () => {
       //window.location.reload();
     }
   };
+
+  useEffect(() => {
+    const fetchSenderName = async () => {
+      if (selectedSenderId) {
+        try {
+          await dispatch(
+            fetchSendernameById({
+              senderId: selectedSenderId,
+              clientId: localStorage.getItem("clientId"),
+            })
+          ).unwrap();
+        } catch (error) {
+          console.error("Error fetching sender name:", error);
+        }
+      }
+    };
+
+    // Clear state before fetching new data
+    dispatch(clearSendernameState());
+
+    fetchSenderName();
+
+    // Cleanup function to clear state when component unmounts
+    return () => {
+      dispatch(clearSendernameState());
+    };
+  }, [selectedSenderId, dispatch]);
+
+
 
   useEffect(() => {
     let updatedBody = bodyFinalContent;
@@ -593,7 +624,7 @@ const InteractiveTemplateUpdate = () => {
             className="UpdateInteractivetemplete-leftsection "
             style={{ padding: "20px", background: "#fff" }}
           >
-            <h4 className="mb-4">Update Template</h4>
+            <h4 className="mb-4">Update Interactive Template</h4>
             {/* <CustomEditor /> */}
             <label className="block mb-1 mt-1">Sender Names</label>
             <Sendernames
@@ -1071,14 +1102,15 @@ const InteractiveTemplateUpdate = () => {
                     ))}
 
                     <div className="w-full flex justify-end gap-3">
-                      <Button
-                        className="uniform_btn_Cancel "
+                      <button
+                      type="button"
+                        className="Btn-Regular-1 mt-4"
                         onClick={handelCancel}
                       >
                         Cancel
-                      </Button>
+                      </button>
                       <Button
-                        className="uniform_btn  "
+                        className="uniform_btn  mt-4"
                         onClick={() => handleSubmit(values)}
                       >
                         Submit
@@ -1106,43 +1138,84 @@ const InteractiveTemplateUpdate = () => {
             >
               <h4
                 className="mb-1  p-3 "
-                style={{ maxWidth: "600px", margin: "auto" }}
+                style={{ maxWidth: "100%", margin: "auto" }}
               >
                 Template Preview
               </h4>
             </div>
             <div
-              className="border p-3 rounded"
+              className="border "
               style={{
-                // maxHeight: "700px",
-                                                minHeight: "400px",
-                                                backgroundColor: "#e0e0e0",
-                                                backgroundImage: `url(${bagroundimage.src})`, // Update this path
-                                                backgroundSize: "cover",
-                                                backgroundPosition: "center",
-                                                boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-                                                maxWidth: "800px", // Increased width of preview container
-                                                position: "relative", // Keep the container relative for positioning
+               // maxHeight: "700px",
+                minHeight: "400px",
+                backgroundColor: "#e0e0e0",
+                backgroundImage: `url(${bagroundimage.src})`, // Update this path
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+                maxWidth: "800px", // Increased width of preview container
+                position: "relative", // Keep the container relative for positioning
               }}
             >
+              {sendername && (
+                  <div
+                    className="flex items-center justify-between text-black px-2 shadow-md bg-white"
+                    style={{
+                      position: "sticky", // Make this section sticky
+                      top: "0", // Stick it to the top
+                      zIndex: "10", // Ensure it stays above other content
+                      backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white for readability
+                    }}
+                  >
+                    {/* Left Section: Display sender's image, name, and phone number */}
+                    <div className="flex items-center space-x-3">
+                      {/* Display Image */}
+                      {sendername.mediaPath && (
+                        <img
+                          src={`${BASE_URL}${sendername.mediaPath}`}
+                          alt="Sender Logo"
+                          className="rounded-circle me-2 img-fluid"
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            objectFit: "cover",
+                          }}
+                        />
+                      )}
+                      {/* Display Name and Phone */}
+                      <div className="p-1">
+                        <div className=" ">{sendername.senderName}</div>
+                        <div className="text-xs text-gray-600">
+                          {sendername.phoneNumber}
+                        </div>
+                      </div>
+                    </div>
+                    {/* Right Section: Placeholder for future actions */}
+                    <div className="flex items-center space-x-4">
+                      {/* Add any buttons or actions here */}
+                    </div>
+                  </div>
+                )}
               <div
                 className="chat_bubble"
                 style={{
                   position: "relative",
-                  backgroundColor: "#ffff",
-                  borderRadius: "5px",
-                  padding: "20px 10px",
-                  wordWrap: "break-word",
-                  marginBottom: "10px",
-                  maxWidth: "400px", // Message body width stays the same
-                  marginRight: "0", // Remove any margin from the right side
+                    backgroundColor: "#ffff",
+                    borderRadius: "5px",
+                    padding: "20px 10px",
+                    wordWrap: "break-word",
+                    marginTop: "15px",
+                    marginBottom: "10px",
+                    marginRight: "0", // Remove any margin from the right side
+                    marginLeft: "22px",
+                    width: "60%",
                 }}
               >
                 <span className="time_bubble">
                   {moment(new Date()).format("LT")}
                 </span>
                 {messagePreview.media &&
-                  selectedMediaType.startsWith("image/") && (
+                  selectedMediaType?.startsWith("image/") && (
                     <img
                       src={`${BASE_URL}${selectedMediaPath}`}
                       alt="Media"
@@ -1157,7 +1230,7 @@ const InteractiveTemplateUpdate = () => {
                     />
                   )}
                 {messagePreview.media &&
-                  selectedMediaType.startsWith("video/") && (
+                  selectedMediaType?.startsWith("video/") && (
                     <video
                       src={`${BASE_URL}${selectedMediaPath}`}
                       autoPlay
@@ -1175,7 +1248,7 @@ const InteractiveTemplateUpdate = () => {
                   )}
 
                 {messagePreview.media &&
-                  selectedMediaType.startsWith("audio/") && (
+                  selectedMediaType?.startsWith("audio/") && (
                     <audio
                       src={`${BASE_URL}${selectedMediaPath}`}
                       controls

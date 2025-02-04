@@ -64,8 +64,9 @@ const InteractiveTemplateCreation = () => {
   const [urlvariables, seturlvariables] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [buttonType, setButtonType] = useState(null);
+  const [senderLoading, setSenderLoading] = useState(false);
   const [buttonText, setButtonText] = useState("");
-  const { sendername } = useSelector((state) => state.sendernames)
+  const { sendername } = useSelector((state) => state.sendernames);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [countryCode, setCountryCode] = useState("");
   const [websiteUrl, setwebsiteUrl] = useState("");
@@ -105,7 +106,7 @@ const InteractiveTemplateCreation = () => {
   const [Templatetype, setTemplatetype] = useState("");
   const [language, setlanguage] = useState("");
   const [typingTimeout, setTypingTimeout] = useState(null);
-  const[actionbuttonvalues ,setactionbuttonvalues] = useState([]);
+  const [actionbuttonvalues, setactionbuttonvalues] = useState([]);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const replaceClosingPTagsWithNewline = (content) => {
     return content
@@ -127,7 +128,6 @@ const InteractiveTemplateCreation = () => {
   }, [bodyFinalContent]);
 
   const handleSaveActionData = (data, index) => {
-    
     setMessagePreview((prev) => {
       const updatedButtons = [...prev.buttons];
       updatedButtons[index] = {
@@ -161,10 +161,7 @@ const InteractiveTemplateCreation = () => {
       return; // Prevent further execution if language is not selected
     }
 
-   
-
     messagePreview.buttons.forEach((button, index) => {
-
       // Common validation for button text
       if (!button.text || button.text.trim() === "") {
         toast.error(`Please enter button text for Button ${index + 1}.`);
@@ -187,8 +184,7 @@ const InteractiveTemplateCreation = () => {
             !button.countryCode
           ) {
             toast.error(
-              `Please enter a valid phone number for Button ${index + 1
-              }.`
+              `Please enter a valid phone number for Button ${index + 1}.`
             );
             isValid = false;
             return;
@@ -216,9 +212,6 @@ const InteractiveTemplateCreation = () => {
       console.log("Validation failed. Request will not be sent.");
       return; // Stop further execution
     }
-
-
-
 
     //Replacing the words
     const result = headerPayloadDatawithVar.replace(/\*\*/g, "+");
@@ -449,24 +442,29 @@ const InteractiveTemplateCreation = () => {
       setCallPhoneNumberButtonCount(callPhoneNumberButtonCount - 1);
     }
   };
-useEffect(() => {
+  useEffect(() => {
+    if (sendername) {
+      setSendernamesData(sendername);
+    }
+  }, [sendername]);
 
-  if(sendername){
-
-    setSendernamesData(sendername)
-  }
-},[sendername])
+  // Handle sender change
   const handleSenderChange = async (e) => {
+    
     const senderId = e.target.value;
     console.log("Selected Sender ID:", senderId); // Debugging
     setSelectedSenderId(senderId);
+    setSenderLoading(true);
 
     try {
-      dispatch(fetchSendernameById({
-        senderId: senderId,
-        clientId: localStorage.getItem("clientId"),
-      }));
+      const response = await dispatch(
+        fetchSendernameById({
+          senderId: senderId,
+          clientId: localStorage.getItem("clientId"),
+        })
+      ).unwrap()
       if (response) {
+        
         console.log("Fetched Sender Data:", response.result); // Debugging
         setSendernamesData(response.result);
       } else {
@@ -474,20 +472,18 @@ useEffect(() => {
       }
     } catch (error) {
       console.error("Error fetching sender details:", error);
+    } finally {
+      setSenderLoading(false);
     }
-
   };
 
-
-
-  const handlebuttonaction = (index,actionId,actionType,buttonValue) => {
-   
+  const handlebuttonaction = (index, actionId, actionType, buttonValue) => {
     setbuttonindex(index);
-    const buttonaction= {
-        actionId : actionId,
-        actionType: actionType,
-        buttonValue:buttonValue
-    }
+    const buttonaction = {
+      actionId: actionId,
+      actionType: actionType,
+      buttonValue: buttonValue,
+    };
     setactionbuttonvalues(buttonaction);
     setshowaction(true);
   };
@@ -541,10 +537,11 @@ useEffect(() => {
   return (
     <App>
       <Container fluid className="mt-0">
-        {loading && <Loader />}
+      {(loading ||  senderLoading) && <Loader />}
         <Row style={{ height: "100vh" }}>
           <Col
-            md={6} lg={7}
+            md={6}
+            lg={7}
             className="Interactivetemplete-leftsection"
             style={{ padding: "20px", background: "#fffff" }}
           >
@@ -575,7 +572,7 @@ useEffect(() => {
                 headerVariable: [],
                 bodyValues: [],
                 buttonValues: [],
-                usedByAgent:true,
+                usedByAgent: true,
               }}
               onSubmit={handleSubmit}
             >
@@ -602,31 +599,37 @@ useEffect(() => {
                               .replace(/[^a-zA-Z0-9_]/g, "")
                               .toLowerCase();
                             setFieldValue("templateName", value); // Update Formik's state
-                            setTemplateName(value)
+                            setTemplateName(value);
                           }}
                         />
                       </FormGroup>
                     </div>
                     <div className="mt-3">
-  <FormGroup className="d-flex align-items-center">
-    <Field name="usedByAgent">
-      {({ field, form }) => (
-        <Input
-          type="checkbox"
-          id="usedByAgent"
-          checked={field.value} // Ensure boolean value
-          onChange={(e) =>
-            form.setFieldValue("usedByAgent", e.target.checked)
-          }
-          className="me-2"
-        />
-      )}
-    </Field>
-    <Label for="usedByAgent" className="mb-0 text-sm font-semibold">
-      Used by agent?
-    </Label>
-  </FormGroup>
-</div>
+                      <FormGroup className="d-flex align-items-center">
+                        <Field name="usedByAgent">
+                          {({ field, form }) => (
+                            <Input
+                              type="checkbox"
+                              id="usedByAgent"
+                              checked={field.value} // Ensure boolean value
+                              onChange={(e) =>
+                                form.setFieldValue(
+                                  "usedByAgent",
+                                  e.target.checked
+                                )
+                              }
+                              className="me-2"
+                            />
+                          )}
+                        </Field>
+                        <Label
+                          for="usedByAgent"
+                          className="mb-0 text-sm font-semibold"
+                        >
+                          Used by agent?
+                        </Label>
+                      </FormGroup>
+                    </div>
 
                     <div className="mt-3 ">
                       <FormGroup>
@@ -680,57 +683,70 @@ useEffect(() => {
                         {/* {console.log("Value Mania", ["2", "3", "4"].includes(values.headerType))} */}
                         {["2", "3", "4"].includes(values.headerType) && (
                           <>
-                          <div>
-                            <Media
-                              key={values.headerType} // This forces re-rendering when headerType changes
-                              isPopup={["2", "3", "4"].includes(
-                                values.headerType
-                              )}
-                              contentTypeStr={
-                                values.headerType === "2"
-                                  ? "image"
-                                  : values.headerType === "3"
-                                  ? "video"
-                                  : "application"
-                              }
-                              onSelectMedia={(mediaId, mediaPath, mimeType) => {
-                                setSelectedMediaId(mediaId);
-                                setSelectedMediaPath(mediaPath);
-                                setSelectedMediaType(mimeType);
-                              }}
-                            />
-                             <div className="mt-3 text-sm">
-  <button
-    type="button" // Explicitly prevent form submission
-    className="text-blue-500 hover:underline text-sm font-medium"
-    onClick={(e) => {
-      e.preventDefault(); // Prevent default browser behavior
-      setShowMediaPopup(true); // Show the media popup
-    }}
-  >
-    Change {values.headerType === "2" ? "Image" : values.headerType === "3" ? "Video" : "Document"}
-  </button>
+                            <div>
+                              <Media
+                                key={values.headerType} // This forces re-rendering when headerType changes
+                                isPopup={["2", "3", "4"].includes(
+                                  values.headerType
+                                )}
+                                contentTypeStr={
+                                  values.headerType === "2"
+                                    ? "image"
+                                    : values.headerType === "3"
+                                    ? "video"
+                                    : "application"
+                                }
+                                onSelectMedia={(
+                                  mediaId,
+                                  mediaPath,
+                                  mimeType
+                                ) => {
+                                  setSelectedMediaId(mediaId);
+                                  setSelectedMediaPath(mediaPath);
+                                  setSelectedMediaType(mimeType);
+                                }}
+                              />
+                              <div className="mt-3 text-sm">
+                                <button
+                                  type="button" // Explicitly prevent form submission
+                                  className="text-blue-500 hover:underline text-sm font-medium"
+                                  onClick={(e) => {
+                                    e.preventDefault(); // Prevent default browser behavior
+                                    setShowMediaPopup(true); // Show the media popup
+                                  }}
+                                >
+                                  Change{" "}
+                                  {values.headerType === "2"
+                                    ? "Image"
+                                    : values.headerType === "3"
+                                    ? "Video"
+                                    : "Document"}
+                                </button>
 
-  {showMediaPopup && (
-    <Media
-      isPopup={true}
-      contentTypeStr={
-        values.headerType === "2"
-          ? "image"
-          : values.headerType === "3"
-          ? "video"
-          : "application"
-      }
-      onSelectMedia={(mediaId, mediaPath, mimeType) => {
-        setSelectedMediaId(mediaId);
-        setSelectedMediaPath(mediaPath);
-        setSelectedMediaType(mimeType);
-        setShowMediaPopup(false); // Close the popup after selection
-      }}
-    />
-  )}
-</div>
-</div>
+                                {showMediaPopup && (
+                                  <Media
+                                    isPopup={true}
+                                    contentTypeStr={
+                                      values.headerType === "2"
+                                        ? "image"
+                                        : values.headerType === "3"
+                                        ? "video"
+                                        : "application"
+                                    }
+                                    onSelectMedia={(
+                                      mediaId,
+                                      mediaPath,
+                                      mimeType
+                                    ) => {
+                                      setSelectedMediaId(mediaId);
+                                      setSelectedMediaPath(mediaPath);
+                                      setSelectedMediaType(mimeType);
+                                      setShowMediaPopup(false); // Close the popup after selection
+                                    }}
+                                  />
+                                )}
+                              </div>
+                            </div>
                           </>
                         )}
                       </div>
@@ -843,7 +859,14 @@ useEffect(() => {
                               color: "white",
                             }}
                             className="me-2"
-                            onClick={() => handlebuttonaction(index,button.actionId,button.actionType,button.buttonValue)}
+                            onClick={() =>
+                              handlebuttonaction(
+                                index,
+                                button.actionId,
+                                button.actionType,
+                                button.buttonValue
+                              )
+                            }
                           >
                             <i className="fa fa-bolt"></i>
                           </Button>
@@ -933,15 +956,15 @@ useEffect(() => {
                         </Button>
                       </div>
                     ))}
-                    
 
                     <div className="w-full flex justify-end gap-3">
-                      <Button
-                        className="uniform_btn_Cancel mt-4"
+                      <button
+                      type="button"
+                        className="Btn-Regular-1 mt-4"
                         onClick={handelCancel}
                       >
                         Cancel
-                      </Button>
+                      </button>
                       <Button
                         className="uniform_btn mt-4"
                         onClick={() => handleSubmit(values)}
@@ -959,233 +982,248 @@ useEffect(() => {
             </Formik>
           </Col>
 
-          <Col md={6} lg={5} className="h-screen right-10 Interactive_PreviewSection">
-             <div
-                         style={{
-                          position: "sticky",
-                          top: "0",
-                          zIndex: "10",
-                          backgroundColor: "white", // Ensure the background color covers the content behind it
-                          boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-                         }}
-                       >
-                         <h4
-                           className="mb-1  p-3 "
-                           style={{ maxWidth: "600px", margin: "auto" }}
-                         >
-                           Template Preview
-                         </h4>
-                       </div>
-                       <div>
-                         {/* Show the header and sender data only when selectedSenderId is set and data is fetched */}
-                        
-                         <div
-             className="border p-3 rounded"
-             style={{
-                // maxHeight: "700px",
-                                                minHeight: "400px",
-                                                backgroundColor: "#e0e0e0",
-                                                backgroundImage: `url(${bagroundimage.src})`, // Update this path
-                                                backgroundSize: "cover",
-                                                backgroundPosition: "center",
-                                                boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-                                                maxWidth: "800px", // Increased width of preview container
-                                                position: "relative", // Keep the container relative for positioning
-             }}
-           >
-             {sendername && (
-               <div
-                 className="flex items-center justify-between text-black px-2 shadow-md bg-white"
-                 style={{
-                   position: "sticky", // Make this section sticky
-                   top: "0", // Stick it to the top
-                   zIndex: "10", // Ensure it stays above other content
-                   backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white for readability
-                   padding: "10px", // Adjust padding as needed
-                 }}
-               >
-                 {/* Left Section: Display sender's image, name, and phone number */}
-                 <div className="flex items-center space-x-3">
-                   {/* Display Image */}
-                   {sendername.mediaPath && (
-                     <img
-                       src={`${BASE_URL}${sendername.mediaPath}`}
-                       alt="Sender Logo"
-                       className="rounded-circle me-2"
-                       style={{
-                         width: "40px",
-                         height: "40px",
-                         objectFit: "cover",
-                       }}
-                     />
-                   )}
-                   {/* Display Name and Phone */}
-                   <div>
-                     <div className="font-bold text-lg">{sendername.senderName}</div>
-                     <div className="text-sm text-gray-600">{sendername.phoneNumber}</div>
-                   </div>
-                 </div>
-                 {/* Right Section: Placeholder for future actions */}
-                 <div className="flex items-center space-x-4">
-                   {/* Add any buttons or actions here */}
-                 </div>
-               </div>
-             )}
-           
-             {/* Rest of the content (message preview, etc.) */}
-             <div
-               className="chat_bubble"
-               style={{
-                 position: "relative",
-                 backgroundColor: "#ffff",
-                 borderRadius: "5px",
-                 padding: "20px 10px",
-                 wordWrap: "break-word",
-                 marginTop: "15px",
-                 marginBottom: "10px",
-                 maxWidth: "400px", // Message body width stays the same
-                 marginRight: "0", // Remove any margin from the right side
-                 marginLeft: "22px",
-               }}
-             >
-               <span className="time_bubble">
-                 {moment(new Date()).format("LT")}
-               </span>
-               {messagePreview.media && selectedMediaType.startsWith("image/") && (
-                 <img
-                   src={`${BASE_URL}${selectedMediaPath}`}
-                   alt="Media"
-                   className="img-fluid"
-                   style={{
-                     width: "100%",
-                     height: "100%",
-                     objectFit: "contain",
-                     borderRadius: "8px",
-                     marginBottom: "5px",
-                   }}
-                 />
-               )}
-           
-               {messagePreview.media && selectedMediaType.startsWith("video/") && (
-                 <video
-                   src={`${BASE_URL}${selectedMediaPath}`}
-                   autoPlay
-                   muted
-                   loop
-                   className="img-fluid"
-                   style={{
-                     width: "100%",
-                     height: "auto",
-                     objectFit: "contain",
-                     borderRadius: "8px",
-                     marginBottom: "10px",
-                   }}
-                 />
-               )}
-           
-               {messagePreview.media && selectedMediaType.startsWith("audio/") && (
-                 <audio
-                   src={`${BASE_URL}${selectedMediaPath}`}
-                   controls
-                   controlsList="nodownload"
-                   style={{
-                     width: "100%",
-                     borderRadius: "8px",
-                     marginBottom: "10px",
-                   }}
-                 />
-               )}
-           
-               {messagePreview.header && (
-                 <h6 style={{ marginBottom: "5px" }} dangerouslySetInnerHTML={{ __html: messagePreview.header }} />
-               )}
-               <div dangerouslySetInnerHTML={{ __html: messagePreview.body }} />
-               {messagePreview.footer && (
-                 <p style={{ marginTop: "5px", fontSize: "0.9em" }}>{messagePreview.footer}</p>
-               )}
-           
-               {(Showallbutton || TotalButtonCount <= 3) &&
-                 messagePreview.buttons.map((button, index) => (
-                   <Button
-                     key={index}
-                     className="w-100 mb-2"
-                     style={{
-                       color: "#00a9ee",
-                       backgroundColor: "#ffffff",
-                       borderColor: "#ffffff",
-                       borderStyle: "solid",
-                       borderWidth: "1px 1px 1px 1px",
-                       borderTopWidth: "0.5px",
-                       borderTopStyle: "solid",
-                       borderTopColor: "#e1e1e1",
-                     }}
-                   >
-                     {button.type == 1 && (
-                       <span style={{ color: "#00a9ee" }}>
-                         <i className="fa fa-share fa-flip-horizontal me-2"></i>
-                         {button.text || "Button"}
-                       </span>
-                     )}
-                     {button.type == 2 && (
-                       <span style={{ color: "#00a9ee" }}>
-                         <i className="fa fa-phone me-2"></i>
-                         {button.text || "Button"}
-                       </span>
-                     )}
-                     {button.type == 3 && (
-                       <span style={{ color: "#00a9ee" }}>
-                         <i className="fa fa-external-link me-2"></i>
-                         {button.text || "Button"}
-                       </span>
-                     )}
-                   </Button>
-                 ))}
-           
-               {TotalButtonCount > 3 && !Showallbutton && (
-                 <Button
-                   className="w-100 mb-2"
-                   style={{
-                     color: "#00a9ee",
-                     backgroundColor: "#ffffff",
-                     borderColor: "#ffffff",
-                     borderStyle: "solid",
-                     borderWidth: "1px 1px 1px 1px",
-                     borderTopWidth: "0.5px",
-                     borderTopStyle: "solid",
-                     borderTopColor: "#e1e1e1",
-                   }}
-                   onClick={() => setShowallbutton(!Showallbutton)}
-                 >
-                   <i className="fa fa-list"></i>
-                   <span style={{ color: "#00a9ee" }}>See all options</span>
-                 </Button>
-               )}
-               {TotalButtonCount > 3 && Showallbutton && (
-                 <Button
-                   className="w-100 mb-2"
-                   style={{
-                     color: "#00a9ee",
-                     backgroundColor: "#ffffff",
-                     borderColor: "#ffffff",
-                     borderStyle: "solid",
-                     borderWidth: "1px 1px 1px 1px",
-                     borderTopWidth: "0.5px",
-                     borderTopStyle: "solid",
-                     borderTopColor: "#e1e1e1",
-                   }}
-                   onClick={() => setShowallbutton(false)}
-                 >
-                   <span style={{ color: "#00a9ee" }}>
-                     <i className="fa fa-bars me-2"></i>
-                     Hide All
-                   </span>
-                 </Button>
-               )}
-             </div>
-           </div>
-           
-                       </div>
-                     </Col>
+          <Col
+            md={6}
+            lg={5}
+            className="h-screen right-10 Interactive_PreviewSection"
+          >
+            <div
+              style={{
+                position: "sticky",
+                top: "0",
+                zIndex: "10",
+                backgroundColor: "white", // Ensure the background color covers the content behind it
+                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+              }}
+            >
+              <h4
+                className="mb-1  p-3 "
+                style={{ maxWidth: "100%", margin: "auto" }}
+              >
+                Template Preview
+              </h4>
+            </div>
+            <div>
+              {/* Show the header and sender data only when selectedSenderId is set and data is fetched */}
+
+              <div
+                className="border "
+                style={{
+                  // maxHeight: "700px",
+                  minHeight: "400px",
+                  backgroundColor: "#e0e0e0",
+                  backgroundImage: `url(${bagroundimage.src})`, // Update this path
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+                  maxWidth: "800px", // Increased width of preview container
+                  position: "relative", // Keep the container relative for positioning
+}}
+              >
+                {sendername && (
+                  <div
+                    style={{
+                      position: "sticky", // Make this section sticky
+                      top: "0", // Stick it to the top
+                      zIndex: "10", // Ensure it stays above other content
+                      backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white for readability  
+                    }}
+                  >
+                    {/* Left Section: Display sender's image, name, and phone number */}
+                    <div className="flex items-center space-x-3">
+                      {/* Display Image */}
+                      {sendername.mediaPath && (
+                        <img
+                          src={`${BASE_URL}${sendername.mediaPath}`}
+                          alt="Sender Logo"
+                          className="rounded-circle me-2 img-fluid"
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            objectFit: "cover",
+                          }}
+                        />
+                      )}
+                      {/* Display Name and Phone */}
+                      <div className="p-1 ">
+                        <div >
+                          {sendername.senderName}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          {sendername.phoneNumber}
+                        </div>
+                      </div>
+                    </div>
+                   
+                    
+                  </div>
+                )}
+   
+                {/* Rest of the content (message preview, etc.) */}
+                <div
+                  className="chat_bubble"
+                  style={{
+                    position: "relative",
+                    backgroundColor: "#ffff",
+                    borderRadius: "5px",
+                    padding: "20px 10px",
+                    wordWrap: "break-word",
+                    marginTop: "15px",
+                    marginBottom: "10px",
+                    marginRight: "0", // Remove any margin from the right side
+                    marginLeft: "22px",
+                    width: "60%",
+                  }}
+                >
+                  <span className="time_bubble">
+                    {moment(new Date()).format("LT")}
+                  </span>
+                  {messagePreview.media &&
+                    selectedMediaType.startsWith("image/") && (
+                      <img
+                        src={`${BASE_URL}${selectedMediaPath}`}
+                        alt="Media"
+                        className="img-fluid"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                          borderRadius: "8px",
+                          marginBottom: "5px",
+                        }}
+                      />
+                    )}
+
+                  {messagePreview.media &&
+                    selectedMediaType.startsWith("video/") && (
+                      <video
+                        src={`${BASE_URL}${selectedMediaPath}`}
+                        autoPlay
+                        muted
+                        loop
+                        className="img-fluid"
+                        style={{
+                          width: "100%",
+                          height: "auto",
+                          objectFit: "contain",
+                          borderRadius: "8px",
+                          marginBottom: "10px",
+                        }}
+                      />
+                    )}
+
+                  {messagePreview.media &&
+                    selectedMediaType.startsWith("audio/") && (
+                      <audio
+                        src={`${BASE_URL}${selectedMediaPath}`}
+                        controls
+                        controlsList="nodownload"
+                        style={{
+                          width: "100%",
+                          borderRadius: "8px",
+                          marginBottom: "10px",
+                        }}
+                      />
+                    )}
+
+                  {messagePreview.header && (
+                    <h6
+                      style={{ marginBottom: "5px" }}
+                      dangerouslySetInnerHTML={{
+                        __html: messagePreview.header,
+                      }}
+                    />
+                  )}
+                  <div
+                    dangerouslySetInnerHTML={{ __html: messagePreview.body }}
+                  />
+                  {messagePreview.footer && (
+                    <p style={{ marginTop: "5px", fontSize: "0.9em" }}>
+                      {messagePreview.footer}
+                    </p>
+                  )}
+
+                  {(Showallbutton || TotalButtonCount <= 3) &&
+                    messagePreview.buttons.map((button, index) => (
+                      <Button
+                        key={index}
+                        className="w-100 mb-2"
+                        style={{
+                          color: "#00a9ee",
+                          backgroundColor: "#ffffff",
+                          borderColor: "#ffffff",
+                          borderStyle: "solid",
+                          borderWidth: "1px 1px 1px 1px",
+                          borderTopWidth: "0.5px",
+                          borderTopStyle: "solid",
+                          borderTopColor: "#e1e1e1",
+                        }}
+                      >
+                        {button.type == 1 && (
+                          <span style={{ color: "#00a9ee" }}>
+                            <i className="fa fa-share fa-flip-horizontal me-2"></i>
+                            {button.text || "Button"}
+                          </span>
+                        )}
+                        {button.type == 2 && (
+                          <span style={{ color: "#00a9ee" }}>
+                            <i className="fa fa-phone me-2"></i>
+                            {button.text || "Button"}
+                          </span>
+                        )}
+                        {button.type == 3 && (
+                          <span style={{ color: "#00a9ee" }}>
+                            <i className="fa fa-external-link me-2"></i>
+                            {button.text || "Button"}
+                          </span>
+                        )}
+                      </Button>
+                    ))}
+
+                  {TotalButtonCount > 3 && !Showallbutton && (
+                    <Button
+                      className="w-100 mb-2"
+                      style={{
+                        color: "#00a9ee",
+                        backgroundColor: "#ffffff",
+                        borderColor: "#ffffff",
+                        borderStyle: "solid",
+                        borderWidth: "1px 1px 1px 1px",
+                        borderTopWidth: "0.5px",
+                        borderTopStyle: "solid",
+                        borderTopColor: "#e1e1e1",
+                      }}
+                      onClick={() => setShowallbutton(!Showallbutton)}
+                    >
+                      <i className="fa fa-list"></i>
+                      <span style={{ color: "#00a9ee" }}>See all options</span>
+                    </Button>
+                  )}
+                  {TotalButtonCount > 3 && Showallbutton && (
+                    <Button
+                      className="w-100 mb-2"
+                      style={{
+                        color: "#00a9ee",
+                        backgroundColor: "#ffffff",
+                        borderColor: "#ffffff",
+                        borderStyle: "solid",
+                        borderWidth: "1px 1px 1px 1px",
+                        borderTopWidth: "0.5px",
+                        borderTopStyle: "solid",
+                        borderTopColor: "#e1e1e1",
+                      }}
+                      onClick={() => setShowallbutton(false)}
+                    >
+                      <span style={{ color: "#00a9ee" }}>
+                        <i className="fa fa-bars me-2"></i>
+                        Hide All
+                      </span>
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </Col>
         </Row>
       </Container>
 

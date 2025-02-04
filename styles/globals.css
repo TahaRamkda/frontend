@@ -359,7 +359,7 @@ body {
   padding: 8px 20px;
   text-align: center;
   display: block;
-  width: 100%;
+  
 }
 .ChatPopUp {max-height: 350px;overflow-y: scroll;}
 .ChatPopUpFull {min-width: 500px; border: 1px solid #ddd; z-index: 999;}
@@ -465,7 +465,9 @@ body {
   top: 10px !important;
   display: none;
 }
-
+.pad{
+  padding: 0 !important;
+}
 .select2-container--default
   .select2-selection--single
   .select2-selection__clear {
