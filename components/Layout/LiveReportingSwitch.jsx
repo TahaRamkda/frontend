@@ -14,6 +14,7 @@ const LiveReportingSwitch = () => {
 
   const handleToggle = (checked) => {
     setIsLiveReporting(checked);
+    window.location.reload();
   };
 
   return (

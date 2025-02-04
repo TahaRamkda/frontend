@@ -27,24 +27,7 @@ export const fetchAgents = createAsyncThunk(
     }
   }
 );
-export const fetchAgentsPerfomance = createAsyncThunk(
-  'agent/fetchAgentsPerfomance',
-  async ({agentId}, { rejectWithValue }) => {
-    try {
-      const response = await API.get(`${AGENTLIST}?agentId=${agentId}`);
-      if (response?.status === 200 && response.data?.result) {
-        return {
-          agentsPerfomance: response.data.result,
-        };
-      } else {
-        throw new Error('Failed to fetch details');
-      }
-    } catch (err) {
-      const handledError = handleError(err);
-      return rejectWithValue(handledError);
-    }
-  }
-);
+
 
 export const fetchActiveAgentsDrop = createAsyncThunk(
   'agent/fetchActiveAgentsDrop',
@@ -223,7 +206,6 @@ const agentSlice = createSlice({
     agentsTiming: [],
     AgentStats: [],
     activeAgentDrop:[],
-    agentsPerfomance:[],
     agent: null,
     loading: false,
     error: null,
@@ -274,12 +256,7 @@ const agentSlice = createSlice({
       state.error = null;
       state.success = false;
     },
-    clearAgentPerfomanceState: (state)=>{
-      state.agentsPerfomance = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
-    },
+   
     cleaAgentStats: (state) => {
       state.AgentStats = [];
       state.loading = false;
@@ -334,20 +311,7 @@ const agentSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
       // Fetch Agents Perfomance 
-      .addCase(fetchAgentsPerfomance.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchAgentsPerfomance.fulfilled, (state, action) => {
-        state.loading = false;
-        state.agentsPerfomance = action.payload.agentsPerfomance;
-        state.message = action.payload.message || '';
-      })
-      .addCase(fetchAgentsPerfomance.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
+     
       // Agents Dropdown
       .addCase(fetchAgentsDrop.pending, (state) => {
         state.loading = true;
@@ -528,7 +492,6 @@ export const {
   clearBulkUploadState,
   cleaAgentStats,
   clearAgentDeleteState,
-  clearAgentPerfomanceState,
   cleaActiveAgenDroptState,
   cleaAgenDroptState,
   clearAgentTimingCreateState,

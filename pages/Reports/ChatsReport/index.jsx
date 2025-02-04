@@ -48,7 +48,7 @@ const ChatsReport = () => {
   const ChatsReportColumn = [
     { name: "Full Name", selector: (row) => row.fullName, sortable: true },
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
+    { name: "Created Date", selector: (row) => row.createdDate, sortable: true,  width: '17%'  },
     { name: "Expiry Date", selector: (row) => row.expiryDate, sortable: true },
     { name: "Status Name", selector: (row) => row.statusName, sortable: true },
     { name: "Sender Name", selector: (row) => row.senderName, sortable: true },

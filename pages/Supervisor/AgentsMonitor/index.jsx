@@ -126,7 +126,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
       }, REFRESH_INTERVAL);
       // Cleanup interval on component unmount or when page is unloaded
       return () => clearInterval(intervalId);
-    }, [ senderid, srcStr,FromDate,ToDate, dispatch]);
+    }, [pageSize,senderid,currentPage,srcStr,FromDate,ToDate, dispatch]);
 
 
 
@@ -291,7 +291,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
       <div className="flex items-center">
         {AgentLoading && <Loading />}
         <div >
-          <h4 className="font-bold ">Agents Report</h4>
+          <h4 className="font-bold ">Agents Monitor</h4>
         </div>
       </div>
       <DataTable

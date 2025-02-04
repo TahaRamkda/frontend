@@ -80,7 +80,7 @@ export const MESSAGEREPORT = "/MessageSentLog/getmessagesentloglist"
 export const TEMPLATEINSIGHT = "/Dashboard/gettemplateinsight"
 export const CHATSMONITOR ="/Conversation/getconversationreportlist"
 export const AGENTSMONITOR ="/Agents/getagentsupervisorreport"
-export const AGENTREPORT = "#"
+export const AGENTREPORT = "/Agents/getagentdetailsupervisorreport"
 
 //agenst endpoints
 export const AGENTLIST = "/Agents/getagentlist"

@@ -8,7 +8,7 @@ import { fetchTemplates, clearTemplateState, deleteTemplates, syncTemplates, upd
 import showSweetAlert from "@/components/Sweetalert";
 import UpdateTemplate from "../UpdateTemplate";
 import App from "@/components/Layout/App";
-import { HiPencilAlt, HiTrash, HiRefresh } from "react-icons/hi";
+import { HiPencilAlt, HiTrash, HiRefresh, HiEye } from "react-icons/hi";
 import { useSetRecoilState } from "recoil";
 import { TemplateState } from "@/components/recoil";
 import SearchBar from '@/components/SearchBar/SearchComponent';
@@ -66,7 +66,7 @@ const TemplateList = () => {
               className="uniform_icon_btn"
               onClick={() => handleDetailClick(row.id)}
             >
-              <HiPencilAlt style={{ fontSize: "15px" }} />
+              <HiEye style={{ fontSize: "15px" }} />
             </button>
             <button
             title="Delete Template"

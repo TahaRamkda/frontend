@@ -70,7 +70,7 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
     }, REFRESH_INTERVAL);
 
     return () => clearInterval(intervalId);
-  }, [Activechat, dispatch, loading]);
+  }, [Activechat, dispatch]);
 
   // Update chatMessages when conversationMessagereport changes
   useEffect(() => {

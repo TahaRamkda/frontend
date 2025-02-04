@@ -26,6 +26,7 @@ const ChatsMonitor = () => {
   const [showchat, setshowchat] = useState(false);
   const [srcStr, setsrcStr] = useState('');
   const [Status, setStatus] = useState("");
+  const [Size, setSize] = useState(10);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [showtransfer, setshowtransfer] = useState(false);
   const [activeChat, setActiveChat] = useState(0);
@@ -43,9 +44,10 @@ const ChatsMonitor = () => {
     { value: '5', label: "Chat Force Closed" },
   ];
   const ChatsReportColumn = [
+    
     { name: "Full Name", selector: (row) => row.fullName, sortable: true },
-    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
+    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true  },
+    { name: "Created Date", selector: (row) => row.createdDate, sortable: true, width: '17%' },
     { name: "Status Name", selector: (row) => row.statusName, sortable: true },
     { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
     { name: "Agent Name", selector: (row) => row.agentName, sortable: true },
@@ -128,41 +130,41 @@ const ChatsMonitor = () => {
     setsenderid(senderId);
   };
  
-  useEffect(() => {
-    const checkAndFetch = async () => {
-      const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
  
-      if (isLiveReporting && !loading) {
-        setrefreshpage(true);  // Mark the page as refreshing
-        try {
-          await dispatch(fetchChatsMonitor({
+
+ 
+   useEffect(() => {
+       const checkAndFetch = async () => {
+         const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
+     
+         if (isLiveReporting ) {
+          dispatch(fetchChatsMonitor({
             clientId: localStorage.getItem("clientId"),
             senderId: senderid,
             srcStr:srcStr,
             status:Status,
-            pageSize, // Example page size
+            pageSize:Size, // Example page size
             pageNo: currentPage, // Example current page
           }));
-        } catch (error) {
-          console.error("Error fetching chat monitor:", error);
-        } finally {
-          setrefreshpage(false); // Mark refresh completed
-        }
-      }
-    };
- 
+         } else {
+           // Handle the case when isLiveReporting is false
+         }
+       };
+     
+       // Run the function every 5 minutes
+       const intervalId = setInterval(() => {
+         // Perform the periodic refresh (e.g., every 5 minutes) if page is loaded
+         if (!loading) {
+           checkAndFetch();
+         }
+       }, REFRESH_INTERVAL);
+     
+       // Run the function once immediately
    
- 
-    const intervalId = setInterval(() => {
-      // Perform the periodic refresh (e.g., every 5 minutes) if page is loaded
-      if (!loading) {
-        checkAndFetch();
-      }
-    }, REFRESH_INTERVAL);
- 
-    // Cleanup interval on component unmount or when page is unloaded
-    return () => clearInterval(intervalId);
-  }, [ senderid, srcStr, dispatch]);
+       // Cleanup the interval when the component unmounts
+       return () => clearInterval(intervalId);
+     }, [dispatch,senderid,srcStr,Status,currentPage]);
+
  
   const handleDetailClick = async (id) => {
     setActiveChat(id);
@@ -201,6 +203,7 @@ const ChatsMonitor = () => {
   }, [dispatch, clientId,senderid, Status]);
  
   const handlePageSizeChange = async (newSize) => {
+    setSize(newSize);
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1));  // Reset to first page
     setChatLoading(true)
@@ -286,6 +289,7 @@ const ChatsMonitor = () => {
         paginationPerPage={defultpagessize}
         paginationRowsPerPageOptions={customPageSizes}
         subHeader
+        responsive
         subHeaderComponent={subHeaderComponentMemo}
         className="w-full border"
         customStyles={{

@@ -15,8 +15,12 @@ const AgentReport = () => {
   const [clientId, setClientId] = useState(null);
   const [srcStr, setsrcStr] = useState('');
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
-  const [FromDate, setFromDate] = useState("");
-  const [ToDate, setToDate] = useState("");
+  
+  const getTodayDate = () => {
+    return new Date().toISOString().split("T")[0]; // Format as "YYYY-MM-DD"
+  };
+  const [FromDate, setFromDate] = useState(getTodayDate);
+  const [ToDate, setToDate] = useState(getTodayDate);
 //   const statusOptions = [
 //     { value: '0', label: "Auto Chat" },
 //     { value: '1', label: "Looking For Agent" },
@@ -26,15 +30,16 @@ const AgentReport = () => {
 //     { value: '5', label: "Chat Force Closed" },
 //   ];
   const ChatsReportColumn = [
-    { name: "Full Name", selector: (row) => row.fullName, sortable: true },
-    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
-    { name: "Expiry Date", selector: (row) => row.expiryDate, sortable: true },
-    { name: "Status Name", selector: (row) => row.statusName, sortable: true },
-    { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
     { name: "Agent Name", selector: (row) => row.agentName, sortable: true },
-    { name: "Total Messages", selector: (row) => row.totalMessages, sortable: true },
-    { name: "Unread Count", selector: (row) => row.unreadCount, sortable: true },
+    { name: "Active Chat", selector: (row) => row.activeChat, sortable: true },
+    { name: "Assigned Chat", selector: (row) => row.assignedChat, sortable: true },
+    { name: "Unassigned Chat", selector: (row) => row.unAssignedChat, sortable: true },
+    { name: "Abandon Chat", selector: (row) => row.abandonChat, sortable: true },
+    { name: "Expired Chat", selector: (row) => row.expiredChat, sortable: true },
+    { name: "Force Closed Chat", selector: (row) => row.forceClosedChat, sortable: true },
+    { name: "Closed Chat", selector: (row) => row.closedChat, sortable: true },
+    { name: "Avg Response Time", selector: (row) => row.avgResponseTime, sortable: true },
+    { name: "Avg Chat Time", selector: (row) => row.avgChatTime, sortable: true },
   
   ];
 
