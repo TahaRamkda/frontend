@@ -13,7 +13,7 @@ export const fetchAgents = createAsyncThunk(
   async ({ searchStr,senderId,pageSize,pageNo}, { rejectWithValue }) => {
     try {
       const response = await API.get(`${AGENTLIST}?${searchStr?`searchStr=${searchStr}`:''}&senderId=${senderId}&pageNo=${pageNo}&pageSize=${pageSize}`);
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200) {
         return {
           agents: response.data.result,
           totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
@@ -33,11 +33,11 @@ export const fetchActiveAgentsDrop = createAsyncThunk(
   'agent/fetchActiveAgentsDrop',
   async ({clientId,senderId}, { rejectWithValue }) => {
     try {
+      debugger
       const response = await API.get(`${ACTIVEAGENTS}?senderId=${senderId}`);
-      if (response?.status === 200 ) {
+      if (response.status === 200) {
         return {
-          activeAgentDrop: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+          activeAgentDrop: response.data.result
         };
       } else {
         throw new Error('Failed to fetch details');

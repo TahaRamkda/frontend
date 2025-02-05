@@ -11,7 +11,7 @@ export const fetchClients = createAsyncThunk(
   async ({_,pageNo,pageSize,SearchStr}, { rejectWithValue }) => {
     try {
       const response = await API.get(`${CLIENTLIST}?PageNo=${pageNo}&PageSize=${pageSize}${SearchStr?`&SearchStr=${SearchStr}`:''}`);
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200) {
         return {
           clients: response.data.result,
           totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,

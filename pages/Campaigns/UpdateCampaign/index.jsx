@@ -254,10 +254,7 @@ const CampaignUpdate = () => {
   //setTemplatetype(template.category);
   //setlanguage(template.language);
   setTotalButtonCount(updatedMessagePreview.buttons.length);
-
-    }
-
-  }, [Loading, template]);
+  },[Loading, template]);
 
   // useEffect(() => {
   //   if (!MessagePreviewupdated || Loading || !template.parameters) return;

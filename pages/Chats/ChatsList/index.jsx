@@ -1277,7 +1277,8 @@ const ChatPage = () => {
                           padding: "20px",
                           borderRadius: "12px",
                           boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.1)",
-                          maxWidth: "500px",
+                          //maxWidth: "500px",
+                          height: "100%",
                           width: "100%", // Full width within the max-width limit
                           margin: "20px auto", // Center the container
                           backgroundColor: "#ffffff",

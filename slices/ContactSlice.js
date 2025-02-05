@@ -10,7 +10,7 @@ export const fetchContact = createAsyncThunk(
   async ({clientId,groupId,searchStr,pageNo,pageSize}, { rejectWithValue }) => {
     try {
      const response = await API.get(`${CONTACTLIST}?GroupId=${groupId}&PageNo=${pageNo}&PageSize=${pageSize}${searchStr ? `&SearchStr=${searchStr}` : ''}`);
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200) {
         console.log("Total Recordsssssss:", response.data.result[0]);
         return {
           contacts: response.data.result,

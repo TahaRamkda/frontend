@@ -11,7 +11,7 @@ export const fetchConversationList = createAsyncThunk(
   async ({clientId,AgentId}, { rejectWithValue }) => {
     try {
       const response = await API.get(`${CONVERSATIONLIST}?agentId=${AgentId}`);
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200) {
         return {
           conversations: response.data.result,
           totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
@@ -34,7 +34,7 @@ export const fetchConversationMessage = createAsyncThunk(
       const response = await API.get(
         `${CONVERSATIONMESSAGE}?id=${ChatId}&pageNo=${pageNo}&pageSize=15`
       );
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200 ) {
         return {
           conversationMessage: response.data.result,
           totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,

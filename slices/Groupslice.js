@@ -10,7 +10,7 @@ export const fetchGroup = createAsyncThunk(
     async ({clientId, pageNo, pageSize, SearchStr}, { rejectWithValue }) => {
       try {
         const response = await API.get(`${GROUPLIST}?${ SearchStr? `SearchStr=${SearchStr}`:''}&PageNo=${pageNo}&PageSize=${pageSize}`);
-        if (response?.status === 200 && response.data?.result) {
+        if (response?.status === 200) {
           return {
             groups: response.data.result,
             totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,

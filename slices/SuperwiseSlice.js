@@ -10,7 +10,7 @@ export const fetchChatsMonitor = createAsyncThunk(
       try {
 
         const response = await API.get(`${CHATSMONITOR}?senderId=${senderId}${srcStr? `&searchStr=${srcStr}`: ''}&status=${status}&pageSize=${pageSize}&pageNo=${pageNo}`);
-        if (response?.status === 200 && response.data?.result) {
+        if (response?.status === 200 ) {
           return {
           chatsMonitor: response.data.result,
           totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
@@ -30,7 +30,7 @@ export const fetchAgentsMonitor = createAsyncThunk(
     async ({clientId, fromDate, toDate, senderId, srcStr, pageSize,pageNo}, { rejectWithValue }) => {
       try {
         const response = await API.get(`${AGENTSMONITOR}?fromDate=${fromDate}&toDate=${toDate}&senderId=${senderId}&pageSize=${pageSize}&pageNo=${pageNo}${srcStr? `&searchStr=${srcStr}`:''}`);
-        if (response?.status === 200 && response.data?.result) {
+        if (response?.status === 200 ) {
           return {
           agentsMonitor: response.data.result,
           totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,

@@ -32,7 +32,7 @@ export const fetchMessageSummary = createAsyncThunk(
       const response = await API.get(
         `${MESSAGESUMMARY}?FromDate=${fromDate}&ToDate=${toDate}&Status=${status}&templateId=${templateId}&PageSize=${pageSize}&PageNo=${pageNo}&SearchStr=${srcStr}`
       );
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200) {
         return {
           messageSummary: response.data.result,
           totalRecords:
@@ -70,7 +70,7 @@ export const fetchMessageReport = createAsyncThunk(
       const response = await API.get(
         `${MESSAGEREPORT}?ModuleId=${moduleId}&SenderId=${senderid}&FromDate=${fromDate}&ToDate=${toDate}&CurrentStatus=${status}&SearchStr=${srcStr}&PageNo=${pageNo}&PageSize=${pageSize}`
       );
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200 ) {
         const obj = JSON.stringify(response.data, 2);
 
         return {
@@ -96,7 +96,7 @@ export const fetchConversationReport = createAsyncThunk(
     try {
 
       const response = await API.get(`${CONVERSATIONREPORT}?${srcStr ? `searchStr=${srcStr}`: ''}&senderId=${senderId}&status=${status}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`);
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200) {
         return {
         ConversationReport: response.data.result,
         totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,

@@ -180,17 +180,16 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
                                 ))
                             : null}
                         </p>
-                      
                       </div>
                       <div className="flex justify-end">
-  <span className="text-gray-500 text-xs">
-    {message.agentName && message.typeId === 1 ? `by-${message.agentName} ` : ""}
-    {extractTime(message.createdDate).slice(0, 5)}
-  </span>
-</div>
+                        <span className="text-gray-500 text-xs">
+                          {message.agentName && message.typeId === 1
+                            ? `by-${message.agentName} `
+                            : ""}
+                          {extractTime(message.createdDate).slice(0, 5)}
+                        </span>
+                      </div>
 
-
-                     
                       {message.buttonJson && message.buttonJson.length > 0 && (
                         <div className="mt-2">
                           {(typeof message.buttonJson === "string"
@@ -233,7 +232,6 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
                           ))}
                         </div>
                       )}
-                    
                     </div>
                   </div>
                 ))}
