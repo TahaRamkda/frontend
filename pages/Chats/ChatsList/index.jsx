@@ -30,6 +30,7 @@ import {
   Row,
   Button,
   CardHeader,
+  Modal,
 } from "reactstrap";
 import {
   fetchConversationList,
@@ -72,7 +73,7 @@ const ChatPage = () => {
   const { conversations, loading, error } = useSelector(
     (state) => state.conversations
   );
-
+  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const {
     messages,
@@ -281,6 +282,7 @@ const ChatPage = () => {
   }, [currentPage, hasMore, loading, Activechat]);
 
   const handleImageclose = () => {
+    
     setMediaFile(null);
     setPreviewUrl(null);
   };
@@ -375,15 +377,18 @@ const ChatPage = () => {
   }, [AgentConversation]);
 
   const handleFileChange = (e) => {
+    
     const file = e.target.files[0];
     if (file) {
       setMediaFile(file); // Store the selected fil
       setPreviewUrl(URL.createObjectURL(file)); // Generate a temporary URL for preview
       setFileType(file.type.split("/")[0]);
+      setIsImagePreviewOpen(true);
     }
   };
 
   const openFileManager = () => {
+    
     fileInputRef.current.click(); // Trigger the file input click event
   };
 
@@ -417,7 +422,6 @@ const ChatPage = () => {
 
     // Handles incoming messages
     const handleIncomingMessage = (message) => {
-      ;
       // Play notification sound
       audioRef.current
         ?.play()
@@ -536,7 +540,6 @@ const ChatPage = () => {
 
     // Handles unassignment of a conversation
     const handleConversationUnAssigned = (chatId) => {
-      ;
       if (
         agentChatRef.current.filter(
           (conversation) => conversation.id === chatId
@@ -739,7 +742,7 @@ const ChatPage = () => {
                   <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
                     Assigned:{" "}
                     <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats.assignedChat ?? "-/-"}
+                      {AgentStats?.assignedChat ?? "-/-"}
                     </span>
                   </span>
                 </div>
@@ -750,7 +753,7 @@ const ChatPage = () => {
                   <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
                     Active:{" "}
                     <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats.activeChat ?? "-/-"}
+                      {AgentStats?.activeChat ?? "-/-"}
                     </span>
                   </span>
                 </div>
@@ -760,7 +763,7 @@ const ChatPage = () => {
                   <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
                     Abandoned:{" "}
                     <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats.abandonChat ?? "-/-"}
+                      {AgentStats?.abandonChat ?? "-/-"}
                     </span>
                   </span>
                 </div>
@@ -770,7 +773,7 @@ const ChatPage = () => {
                   <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
                     Closed:{" "}
                     <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats.closedChat ?? "-/-"}
+                      {AgentStats?.closedChat ?? "-/-"}
                     </span>
                   </span>
                 </div>
@@ -781,7 +784,7 @@ const ChatPage = () => {
                   <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
                     Expired:{" "}
                     <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats.expiredChat ?? "-/-"}
+                      {AgentStats?.expiredChat ?? "-/-"}
                     </span>
                   </span>
                 </div>
@@ -791,7 +794,7 @@ const ChatPage = () => {
                   <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
                     Force Closed:{" "}
                     <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats.forceClosedChat ?? "-/-"}
+                      {AgentStats?.forceClosedChat ?? "-/-"}
                     </span>
                   </span>
                 </div>
@@ -992,7 +995,6 @@ const ChatPage = () => {
                           objectFit: "cover",
                         }}
                       />
-
                       <div>{conversation.fullName}</div>
                       <div>
                         <span>{conversation.phoneNumber}</span>
@@ -1013,370 +1015,381 @@ const ChatPage = () => {
                   </div>
                 ))}
                 <div className="right-sidebar-chat w-full height-chat-box overflow-y-auto chat-background h-100">
-                  <div className="msger flex flex-col h-full">
-                    <div
-                      ref={scrollContainerRef}
-                      className="msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2"
-                      style={{
-                        overflowY: "auto",
-                        display: "flex",
-                        flexDirection: "column-reverse",
-                      }}
-                    >
-                      {Chatsloading && (
-                        <div className="text-center">Loading messages...</div>
-                      )}
-                      {chatMessages?.map((message) => (
-                        <div
-                          key={message.messageId}
-                          className={`mt-2 flex ${
-                            message.typeId === 1
-                              ? "justify-end"
-                              : "justify-start"
-                          }`}
-                        >
-                          <div
-                            className={`max-w-2xl p-2 rounded-lg shadow-sm 
-                md:max-w-xl md:p-1.5 md:rounded-md md:shadow-xs 
-                sm:max-w-md sm:p-1 sm:rounded-sm sm:shadow-none 
-                xs:max-w-full xs:p-0.5 xs:rounded-none xs:shadow-none ${
-                  message.typeId === 1
-                    ? "bg-[#ddffd9] text-black rounded-br-none"
-                    : "bg-[#ffffff] text-black rounded-bl-none"
-                }`}
-                          >
-                            {message.parentMessageContent &&
-                              message.parentMessageContent.trim() !== "" && (
-                                <div
-                                  className=" p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis mb-1"
-                                  style={{
-                                    fontSize: "15px",
-                                    display: "-webkit-box",
-                                    WebkitLineClamp: 2,
-                                    WebkitBoxOrient: "vertical",
-                                    whiteSpace: "normal",
-                                  }}
-                                >
-                                  {message.parentMessageContent}
-                                </div>
-                              )}
-                            {message.contentType &&
-                              message.contentType !== "" && (
-                                <>
-                                  {message.contentType.startsWith("image/") && (
-                                    <>
-                                      <img
-                                        src={`${BASE_URL}${message.mediaPath}`}
-                                        alt="Image"
-                                        className=" max-h-50 w-80 rounded"
-                                      />
-                                      <button
-                                        onClick={() =>
-                                          handleDownload(message.mediaPath)
-                                        } // Pass function reference here
-                                      >
-                                        Download
-                                      </button>
-                                    </>
-                                  )}
-
-                                  {message.contentType.startsWith("video/") && (
-                                    <video
-                                      controls
-                                      src={`${BASE_URL}${message.mediaPath}`}
-                                      className="w-full h-auto rounded"
-                                    />
-                                  )}
-                                  {message.contentType.startsWith("audio/") && (
-                                    <audio controls>
-                                      <source
-                                        src={`${BASE_URL}${message.mediaPath}`}
-                                      />
-                                      Your browser does not support the audio
-                                      element.
-                                    </audio>
-                                  )}
-                                </>
-                              )}
-                            {/* //for sent content */}
-                            {message.sentcontentType &&
-                              message.sentcontentType !== "" && (
-                                <>
-                                  {message.sentcontentType.startsWith(
-                                    "image"
-                                  ) && (
-                                    <img
-                                      src={`${message.sentmediaPath}`}
-                                      alt="Image"
-                                      className="w-full h-auto rounded"
-                                    />
-                                  )}
-                                  {message.sentcontentType.startsWith(
-                                    "video"
-                                  ) && (
-                                    <video
-                                      controls
-                                      src={`${message.sentmediaPath}`}
-                                      className="w-full h-auto rounded"
-                                    />
-                                  )}
-                                  {message.sentcontentType.startsWith(
-                                    "audio"
-                                  ) && (
-                                    <audio controls>
-                                      <source
-                                        src={`${message.sentmediaPath}`}
-                                      />
-                                      Your browser does not support the audio
-                                      element.
-                                    </audio>
-                                  )}
-                                  {message.sentcontentType.startsWith(
-                                    "application"
-                                  ) && (
-                                    <div
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        marginTop: "10px",
-                                      }}
-                                    >
-                                      <div
-                                        style={{
-                                          backgroundColor: "#f0f0f0",
-                                          borderRadius: "50%",
-                                          width: "50px",
-                                          height: "50px",
-                                          display: "flex",
-                                          alignItems: "center",
-                                          justifyContent: "center",
-                                          marginRight: "10px",
-                                        }}
-                                      >
-                                        <i
-                                          className="fa fa-file"
-                                          style={{
-                                            fontSize: "24px",
-                                            color: "#555",
-                                          }}
-                                        ></i>
-                                      </div>
-                                      <div>
-                                        <p
-                                          style={{
-                                            margin: "0 0 5px",
-                                            fontWeight: "bold",
-                                            color: "#333",
-                                          }}
-                                        >
-                                          File
-                                        </p>
-                                      </div>
-                                    </div>
-                                  )}
-                                </>
-                              )}
-                            <div
-                              className="flex items-end justify-between rounded-lg"
-                              style={{ width: "auto" }}
-                            >
-                              <p
-                                className="whitespace-pre-wrap break-words overflow-hidden messageText"
-                                style={{
-                                  fontSize: "15px",
-                                  display: "inline-block",
-                                }}
-                              >
-                                {message.messageContent
-                                  ? message.messageContent
-                                      .split("\n")
-                                      .map((line, index) => (
-                                        <span key={index}>
-                                          {line}
-                                          {index <
-                                            message.messageContent.split("\n")
-                                              .length -
-                                              1 && <br />}
-                                        </span>
-                                      ))
-                                  : null}
-                              </p>
-                              <span
-                                className="ml-2 text-gray-500 text-xs"
-                                style={{ whiteSpace: "nowrap" }}
-                              >
-                                {extractTime(message.createdDate).slice(0, 5)}
-                              </span>
-                            </div>
-                            {message.buttonJson &&
-                              message.buttonJson.length > 0 && (
-                                <div className="mt-2">
-                                  {(typeof message.buttonJson === "string"
-                                    ? JSON.parse(message.buttonJson)
-                                    : message.buttonJson
-                                  ).map((button, index) => (
-                                    <Button
-                                      key={index}
-                                      className="w-100 mb-2"
-                                      style={{
-                                        color: "#00a9ee",
-                                        backgroundColor: "#ddffd9",
-                                        borderColor: "#ffffff",
-                                        borderStyle: "solid",
-                                        borderWidth: "2px 2px 2px 2px",
-                                        borderTopWidth: "0.5px",
-                                        borderTopStyle: "solid",
-                                        borderTopColor: "#e1e1e1",
-                                      }}
-                                    >
-                                      {button.ButtonType == 1 && (
-                                        <span>
-                                          <i className="fa fa-share fa-flip-horizontal me-2"></i>
-                                          {button.ButtonText || "Button"}
-                                        </span>
-                                      )}
-                                      {button.ButtonType == 2 && (
-                                        <span>
-                                          <i className="fa fa-phone me-2"></i>
-                                          {button.ButtonText || "Button"}
-                                        </span>
-                                      )}
-                                      {button.ButtonType == 3 && (
-                                        <span>
-                                          <i className="fa fa-external-link me-2"></i>
-                                          {button.ButtonText || "Button"}
-                                        </span>
-                                      )}
-                                    </Button>
-                                  ))}
-                                </div>
-                              )}
-                          </div>
-                        </div>
-                      ))}
-                      <div ref={messagesEndRef} />
-                    </div>
-                    {previewUrl && (
+                  <div className="msger flex flex-col  h-full">
+                    
                       <div
+                        ref={scrollContainerRef}
+                        className={`msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2 ${
+                          previewUrl ? "hide-messages" : ""
+                        }`}
                         style={{
-                          position: "relative",
-                          padding: "20px",
-                          borderRadius: "12px",
-                          boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.1)",
-                          maxWidth: "500px",
-                          width: "100%", // Full width within the max-width limit
-                          margin: "20px auto", // Center the container
-                          backgroundColor: "#ffffff",
+                          overflowY: "auto",
+                          display: "flex",
+                          flexDirection: "column-reverse",
                         }}
                       >
-                        {/* Close Button */}
-                        <button
-                          onClick={() => handleImageclose()}
-                          style={{
-                            position: "absolute",
-                            top: "15px",
-                            right: "15px",
-                            backgroundColor: "rgba(255, 0, 0, 0.8)",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "50%",
-                            width: "30px",
-                            height: "30px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            cursor: "pointer",
-                            boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
-                            fontSize: "18px",
-                            lineHeight: "1",
-                            transition: "background-color 0.3s ease",
-                          }}
-                          onMouseOver={(e) =>
-                            (e.target.style.backgroundColor =
-                              "rgba(255, 0, 0, 1)")
-                          }
-                          onMouseOut={(e) =>
-                            (e.target.style.backgroundColor =
-                              "rgba(255, 0, 0, 0.8)")
-                          }
-                        >
-                          &times;
-                        </button>
-
-                        {/* Image Preview */}
-                        {fileType === "image" && (
-                          <div
-                            style={{
-                              width: "400px", // Fixed width
-                              height: "300px", // Fixed height
-                              borderRadius: "8px",
-                              overflow: "hidden", // Hide overflow
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              backgroundColor: "#f0f0f0", // Background for smaller images
-                            }}
-                          >
-                            <img
-                              src={previewUrl}
-                              alt="Preview"
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "contain", // Ensures the image fits within the container
-                              }}
-                            />
-                          </div>
+                        {Chatsloading && (
+                          <div className="text-center">Loading messages...</div>
                         )}
-
-                        {/* Video Preview */}
-                        {fileType === "video" && (
+                        {chatMessages?.map((message) => (
                           <div
-                            style={{
-                              width: "400px", // Fixed width
-                              height: "300px", // Fixed height
-                              borderRadius: "8px",
-                              overflow: "hidden", // Hide overflow
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              backgroundColor: "#f0f0f0", // Background for smaller videos
-                            }}
+                            key={message.messageId}
+                            className={`mt-2 flex ${
+                              message.typeId === 1
+                                ? "justify-end"
+                                : "justify-start"
+                            }`}
                           >
-                            <video
-                              controls
-                              src={previewUrl}
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "contain", // Ensures the video fits within the container
-                              }}
-                            />
-                          </div>
-                        )}
+                            <div
+                              className={`max-w-2xl p-2 rounded-lg shadow-sm 
+                              md:max-w-xl md:p-1.5 md:rounded-md md:shadow-xs 
+                              sm:max-w-md sm:p-1 sm:rounded-sm sm:shadow-none 
+                              xs:max-w-full xs:p-0.5 xs:rounded-none xs:shadow-none ${
+                                message.typeId === 1
+                              ? "bg-[#ddffd9] text-black rounded-br-none"
+                              : "bg-[#ffffff] text-black rounded-bl-none"
+                          }`}
+                            >
+                              <div>
+                              {message.parentMessageContent &&
+                                message.parentMessageContent.trim() !== "" && (
+                                  <div
+                                    className=" p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis mb-1"
+                                    style={{
+                                      fontSize: "15px",
+                                      display: "-webkit-box",
+                                      WebkitLineClamp: 2,
+                                      WebkitBoxOrient: "vertical",
+                                      whiteSpace: "normal",
+                                    }}
+                                  >
+                                    {message.parentMessageContent}
+                                  </div>
+                                )}
+                              {message.contentType &&
+                                message.contentType !== "" && (
+                                  <>
+                                    {message.contentType.startsWith(
+                                      "image/"
+                                    ) && (
+                                      <>
+                                        <img
+                                          src={`${BASE_URL}${message.mediaPath}`}
+                                          alt="Image"
+                                          className=" max-h-50 w-80 rounded"
+                                        />
+                                        <button
+                                          onClick={() =>
+                                            handleDownload(message.mediaPath)
+                                          } // Pass function reference here
+                                        >
+                                          Download
+                                        </button>
+                                      </>
+                                    )}
 
-                        {/* Audio Preview */}
-                        {fileType === "audio" && (
-                          <div
-                            style={{
-                              width: "100%",
-                              marginTop: "10px",
-                              borderRadius: "8px",
-                              backgroundColor: "#f0f0f0",
-                              padding: "15px",
-                            }}
-                          >
-                            <audio
-                              controls
-                              src={previewUrl}
-                              style={{
-                                width: "100%",
-                              }}
-                            />
+                                    {message.contentType.startsWith(
+                                      "video/"
+                                    ) && (
+                                      <video
+                                        controls
+                                        src={`${BASE_URL}${message.mediaPath}`}
+                                        className="w-full h-auto rounded"
+                                      />
+                                    )}
+                                    {message.contentType.startsWith(
+                                      "audio/"
+                                    ) && (
+                                      <audio controls>
+                                        <source
+                                          src={`${BASE_URL}${message.mediaPath}`}
+                                        />
+                                        Your browser does not support the audio
+                                        element.
+                                      </audio>
+                                    )}
+                                  </>
+                                )}
+                              {/* //for sent content */}
+                              {message.sentcontentType &&
+                                message.sentcontentType !== "" && (
+                                  <>
+                                    {message.sentcontentType.startsWith(
+                                      "image"
+                                    ) && (
+                                      <img
+                                        src={`${message.sentmediaPath}`}
+                                        alt="Image"
+                                        className="w-full h-auto rounded"
+                                      />
+                                    )}
+                                    {message.sentcontentType.startsWith(
+                                      "video"
+                                    ) && (
+                                      <video
+                                        controls
+                                        src={`${message.sentmediaPath}`}
+                                        className="w-full h-auto rounded"
+                                      />
+                                    )}
+                                    {message.sentcontentType.startsWith(
+                                      "audio"
+                                    ) && (
+                                      <audio controls>
+                                        <source
+                                          src={`${message.sentmediaPath}`}
+                                        />
+                                        Your browser does not support the audio
+                                        element.
+                                      </audio>
+                                    )}
+                                    {message.sentcontentType.startsWith(
+                                      "application"
+                                    ) && (
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          marginTop: "10px",
+                                        }}
+                                      >
+                                        <div
+                                          style={{
+                                            backgroundColor: "#f0f0f0",
+                                            borderRadius: "50%",
+                                            width: "50px",
+                                            height: "50px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            marginRight: "10px",
+                                          }}
+                                        >
+                                          <i
+                                            className="fa fa-file"
+                                            style={{
+                                              fontSize: "24px",
+                                              color: "#555",
+                                            }}
+                                          ></i>
+                                        </div>
+                                        <div>
+                                          <p
+                                            style={{
+                                              margin: "0 0 5px",
+                                              fontWeight: "bold",
+                                              color: "#333",
+                                            }}
+                                          >
+                                            File
+                                          </p>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              <div
+                                className="flex items-end justify-between rounded-lg"
+                                style={{ width: "auto" }}
+                              >
+                                <p
+                                  className="whitespace-pre-wrap break-words overflow-hidden messageText"
+                                  style={{
+                                    fontSize: "15px",
+                                    display: "inline-block",
+                                  }}
+                                >
+                                  {message.messageContent
+                                    ? message.messageContent
+                                        .split("\n")
+                                        .map((line, index) => (
+                                          <span key={index}>
+                                            {line}
+                                            {index <
+                                              message.messageContent.split("\n")
+                                                .length -
+                                                1 && <br />}
+                                          </span>
+                                        ))
+                                    : null}
+                                </p>
+                                <span
+                                  className="ml-2 text-gray-500 text-xs"
+                                  style={{ whiteSpace: "nowrap" }}
+                                >
+                                  {extractTime(message.createdDate).slice(0, 5)}
+                                </span>
+                              </div>
+                              {message.buttonJson &&
+                                message.buttonJson.length > 0 && (
+                                  <div className="mt-2">
+                                    {(typeof message.buttonJson === "string"
+                                      ? JSON.parse(message.buttonJson)
+                                      : message.buttonJson
+                                    ).map((button, index) => (
+                                      <Button
+                                        key={index}
+                                        className="w-100 mb-2"
+                                        style={{
+                                          color: "#00a9ee",
+                                          backgroundColor: "#ddffd9",
+                                          borderColor: "#ffffff",
+                                          borderStyle: "solid",
+                                          borderWidth: "2px 2px 2px 2px",
+                                          borderTopWidth: "0.5px",
+                                          borderTopStyle: "solid",
+                                          borderTopColor: "#e1e1e1",
+                                        }}
+                                      >
+                                        {button.ButtonType == 1 && (
+                                          <span>
+                                            <i className="fa fa-share fa-flip-horizontal me-2"></i>
+                                            {button.ButtonText || "Button"}
+                                          </span>
+                                        )}
+                                        {button.ButtonType == 2 && (
+                                          <span>
+                                            <i className="fa fa-phone me-2"></i>
+                                            {button.ButtonText || "Button"}
+                                          </span>
+                                        )}
+                                        {button.ButtonType == 3 && (
+                                          <span>
+                                            <i className="fa fa-external-link me-2"></i>
+                                            {button.ButtonText || "Button"}
+                                          </span>
+                                        )}
+                                      </Button>
+                                    ))}
+                                  </div>
+                                )}
+                                </div>
+                            </div>
                           </div>
-                        )}
+                        ))}
+                        <div ref={messagesEndRef} />
+                      </div>
+                      {previewUrl && (
+                        <div className="absolute inset-0  flex items-center justify-center z-50">
+                          <div className="bg-transparent p-6 rounded w-2/5 ">
+                            <div
+                              style={{
+                                position: "relative",
+                                padding: "20px",
+                                borderRadius: "12px",
+                                maxWidth: "500px",
+                                width: "100%", // Full width within the max-width limit
+                                margin: "20px auto", // Center the container
+                              }}
+                            >
+                              {/* Close Button */}
+                              <button
+                                onClick={() => handleImageclose()}
+                                style={{
+                                  position: "absolute",
+                                  top: "15px",
+                                  right: "15px",
+                                  backgroundColor: "rgba(255, 0, 0, 0.8)",
+                                  color: "white",
+                                  border: "none",
+                                  borderRadius: "50%",
+                                  width: "30px",
+                                  height: "30px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  cursor: "pointer",
+                                  boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+                                  fontSize: "18px",
+                                  lineHeight: "1",
+                                  transition: "background-color 0.3s ease",
+                                }}
+                                onMouseOver={(e) =>
+                                  (e.target.style.backgroundColor =
+                                    "rgba(255, 0, 0, 1)")
+                                }
+                                onMouseOut={(e) =>
+                                  (e.target.style.backgroundColor =
+                                    "rgba(255, 0, 0, 0.8)")
+                                }
+                              >
+                                &times;
+                              </button>
 
-                        {/* Application/File Preview */}
+                              {/* Image Preview */}
+                              {fileType === "image" && (
+                                <div
+                                  style={{
+                                    width: "400px", // Fixed width
+                                    height: "300px", // Fixed height
+                                    borderRadius: "8px",
+                                    overflow: "hidden", // Hide overflow
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    backgroundColor: "#f0f0f0", // Background for smaller images
+                                  }}
+                                >
+                                  <img
+                                    src={previewUrl}
+                                    alt="Preview"
+                                    style={{
+                                      width: "100%",
+                                      height: "100%",
+                                      objectFit: "contain", // Ensures the image fits within the container
+                                    }}
+                                  />
+                                </div>
+                              )}
+
+                              {/* Video Preview */}
+                              {fileType === "video" && (
+                                <div
+                                  style={{
+                                    width: "400px", // Fixed width
+                                    height: "300px", // Fixed height
+                                    borderRadius: "8px",
+                                    overflow: "hidden", // Hide overflow
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    backgroundColor: "#f0f0f0", // Background for smaller videos
+                                  }}
+                                >
+                                  <video
+                                    controls
+                                    src={previewUrl}
+                                    style={{
+                                      width: "100%",
+                                      height: "100%",
+                                      objectFit: "contain", // Ensures the video fits within the container
+                                    }}
+                                  />
+                                </div>
+                              )}
+
+                              {/* Audio Preview */}
+                              {fileType === "audio" && (
+                                <div
+                                  style={{
+                                    width: "100%",
+                                    marginTop: "10px",
+                                    borderRadius: "8px",
+                                    backgroundColor: "#f0f0f0",
+                                    padding: "15px",
+                                  }}
+                                >
+                                  <audio
+                                    controls
+                                    src={previewUrl}
+                                    style={{
+                                      width: "100%",
+                                    }}
+                                  />
+                                </div>
+                              )}
+
+                             {/* Application/File Preview */}
                         {fileType === "application" && (
                           <div
                             style={{
@@ -1387,63 +1400,67 @@ const ChatPage = () => {
                               borderRadius: "8px",
                               backgroundColor: "#f0f0f0",
                             }}
-                          >
-                            <div
-                              style={{
-                                backgroundColor: "#ffffff",
-                                borderRadius: "50%",
-                                width: "50px",
-                                height: "50px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                marginRight: "15px",
-                                boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
-                              }}
-                            >
-                              <i
-                                className="fa fa-file"
-                                style={{
-                                  fontSize: "24px",
-                                  color: "#555",
-                                }}
-                              ></i>
-                            </div>
-                            <div>
-                              <p
-                                style={{
-                                  margin: "0 0 5px",
-                                  fontWeight: "600",
-                                  color: "#333",
-                                  fontSize: "16px",
-                                }}
-                              >
-                                {mediaFile.name}
-                              </p>
-                              <a
-                                href={previewUrl}
-                                download={mediaFile.name}
-                                style={{
-                                  color: "#007BFF",
-                                  textDecoration: "none",
-                                  fontSize: "14px",
-                                  fontWeight: "500",
-                                  transition: "color 0.3s ease",
-                                }}
-                                onMouseOver={(e) =>
-                                  (e.target.style.color = "#0056b3")
-                                }
-                                onMouseOut={(e) =>
-                                  (e.target.style.color = "#007BFF")
-                                }
-                              >
-                                Download
-                              </a>
+                                >
+                                  <div
+                                    style={{
+                                      backgroundColor: "#ffffff",
+                                      borderRadius: "50%",
+                                      width: "50px",
+                                      height: "50px",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      marginRight: "15px",
+                                      boxShadow:
+                                        "0px 2px 5px rgba(0, 0, 0, 0.1)",
+                                    }}
+                                  >
+                                    <i
+                                      className="fa fa-file"
+                                      style={{
+                                        fontSize: "24px",
+                                        color: "#555",
+                                      }}
+                                    ></i>
+                                  </div>
+                                  <div>
+                                    <p
+                                      style={{
+                                        margin: "0 0 5px",
+                                        fontWeight: "600",
+                                        color: "#333",
+                                        fontSize: "16px",
+                                      }}
+                                    >
+                                      {mediaFile.name}
+                                    </p>
+                                    <a
+                                      href={previewUrl}
+                                      download={mediaFile.name}
+                                      style={{
+                                        color: "#007BFF",
+                                        textDecoration: "none",
+                                        fontSize: "14px",
+                                        fontWeight: "500",
+                                        transition: "color 0.3s ease",
+                                      }}
+                                      onMouseOver={(e) =>
+                                        (e.target.style.color = "#0056b3")
+                                      }
+                                      onMouseOut={(e) =>
+                                        (e.target.style.color = "#007BFF")
+                                      }
+                                    >
+                                      Download
+                                    </a>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </div>
-                        )}
-                      </div>
-                    )}
+                        </div>
+                      )}
+                    
 
                     <div className="msger-inputs  flex items-center">
                       <Button
@@ -1456,6 +1473,7 @@ const ChatPage = () => {
                       <button
                         className="mr-2 p-2 hover:bg-gray-200 rounded-full"
                         onClick={() => setShowEmojiPicker((prev) => !prev)}
+                        style={{zIndex: '999'}}
                       >
                         <i className="fa fa-smile-o text-gray-600"></i>
                       </button>
@@ -1487,24 +1505,26 @@ const ChatPage = () => {
                       <Input
                         type="text"
                         value={messageInput}
+                        style={{zIndex: '999'}}
                         onChange={(e) => setMessageInput(e.target.value)}
                         onKeyDown={(e) => {
-                          
                           if ((e.shiftKey || e.altKey) && e.key === "Enter") {
                             e.preventDefault();
-                            setMessageInput((prevMessage) => prevMessage + "\n");
+                            setMessageInput(
+                              (prevMessage) => prevMessage + "\n"
+                            );
                           } else if (e.key === "Enter") {
                             e.preventDefault();
                             HandleSendMessage();
                           }
                         }}
-                        
                         placeholder="Type a message..."
                         className="rounded-lg border-0 shadow-sm"
                       />
 
                       <input
                         ref={fileInputRef}
+                        
                         type="file"
                         onChange={handleFileChange}
                         className="hidden"
@@ -1512,6 +1532,7 @@ const ChatPage = () => {
                       <div className="relative">
                         <button
                           onClick={handleAgentdefinetemplate}
+                          
                           className="  rounded-full m-3 "
                         >
                           <i className="fa fa-comment"></i>
@@ -1531,6 +1552,7 @@ const ChatPage = () => {
                         type="submit"
                         onClick={HandleSendMessage}
                         color="primary"
+                        style={{zIndex: '999'}}
                       >
                         <i className="fa fa-paper-plane"></i>
                       </button>
@@ -1547,7 +1569,7 @@ const ChatPage = () => {
           </Col>
         </Row>
       </Container>
-      {Errordisconnect && (
+      {/* {Errordisconnect && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
           <div className="bg-red-500 p-8 rounded-lg shadow-md max-w-md w-full text-center">
             <div className="flex justify-center mb-4">
@@ -1583,7 +1605,7 @@ const ChatPage = () => {
             </button>
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 };

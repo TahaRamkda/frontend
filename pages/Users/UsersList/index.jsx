@@ -207,6 +207,8 @@ const UserList = () => {
         striped
         pagination
         paginationServer
+        sortIcon
+        sortServer
         subHeader
         subHeaderComponent={subHeaderComponentMemo}
         paginationPerPage={defultpagessize} // Default number of rows per page

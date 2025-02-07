@@ -30,9 +30,22 @@ const ChatsReport = () => {
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [showtransfer, setshowtransfer] = useState(false);
   const [activeChat, setActiveChat] = useState(0);
+  
+
   const [ChatLoading, setChatLoading] = useState(false)
-  const [FromDate, setFromDate] = useState("");
-  const [ToDate, setToDate] = useState("");
+  const getMonthStart = () => {
+    const date = new Date();
+    return new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split("T")[0];
+  };
+  
+  const getMonthEnd = () => {
+    const date = new Date();
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString().split("T")[0];
+  };
+  
+  const [FromDate, setFromDate] = useState(getMonthStart());
+  const [ToDate, setToDate] = useState(getMonthEnd());
+  
   const [SenderId, setSenderId] = useState(0);
   const [oldAgentId, setoldAgentId] = useState(0);
   const [refreshpage, setrefreshpage] = useState(false);  // Track if page is refreshing
@@ -46,15 +59,15 @@ const ChatsReport = () => {
     { value: '5', label: "Chat Force Closed" },
   ];
   const ChatsReportColumn = [
-    { name: "Full Name", selector: (row) => row.fullName, sortable: true },
-    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true,  width: '17%'  },
-    { name: "Expiry Date", selector: (row) => row.expiryDate, sortable: true },
-    { name: "Status Name", selector: (row) => row.statusName, sortable: true },
+    { name: "Name", selector: (row) => row.fullName, sortable: true,  width: '10%' },
+    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true,  width: '10%'   },
+    { name: "Created Date", selector: (row) => row.createdDate, sortable: true,  width: '15%'  },
+    { name: "Expiry Date", selector: (row) => row.expiryDate, sortable: true,  width: '15%' },
+    { name: "Status", selector: (row) => row.statusName, sortable: true,  width: '12%' },
     { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
-    { name: "Agent Name", selector: (row) => row.agentName, sortable: true },
-    { name: "Total Messages", selector: (row) => row.totalMessages, sortable: true },
-    { name: "Unread Count", selector: (row) => row.unreadCount, sortable: true },
+    { name: "Agent", selector: (row) => row.agentName, sortable: true },
+    { name: "Total Messages", selector: (row) => row.totalMessages, sortable: true,  width: '10%'  },
+    { name: "Unread", selector: (row) => row.unreadCount, sortable: true },
      {
           name: "Action",
           cell: (row) => (
@@ -73,6 +86,8 @@ const ChatsReport = () => {
         },
   
   ];
+  
+
  
   const handleCancel = () => {
     setshowchat(false);
@@ -301,9 +316,12 @@ const ChatsReport = () => {
         striped
         pagination
         paginationServer
+        
         paginationTotalRows={totalRecords}
         onChangePage={handlePageChange}
         onChangeRowsPerPage={handlePageSizeChange}
+        sortIcon
+        sortServer
         paginationPerPage={defultpagessize}
         paginationRowsPerPageOptions={customPageSizes}
         subHeader

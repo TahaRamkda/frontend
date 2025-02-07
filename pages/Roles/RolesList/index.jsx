@@ -192,6 +192,8 @@ const RoleList = () => {
           columns={roleColumns}
           highlightOnHover
           striped
+          sortIcon
+          sortServer
           pagination
           className="w-full border"
           subHeader

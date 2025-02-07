@@ -227,27 +227,27 @@ const CampaignsList = () => {
     {
       name: "Campaign Name",
       selector: (row) => row.campaignName,
-      sortable: true,
+      sortable: true,width: '10%'
       
     },
     {
       name: "Schedule Date",
       selector: (row) => row.scheduleDate,
-      sortable: true,
+      sortable: true, width: '15%',
      
     },
     { name: "Status", selector: (row) => row.statusName, sortable: true },
     {
-      name: "Total Contacts",
+      name: "Contacts",
       selector: (row) => row.totalContacts,
-      sortable: true,
+      sortable: true
       
     },
-    { name: "Sent Count", selector: (row) => row.sentCount, sortable: true },
-    { name: "Delivered Count", selector: (row) => row.deliveredCount, sortable: true },
-    { name: "Read Count", selector: (row) => row.readCount, sortable: true },
-    { name: "Failed Count", selector: (row) => row.failedCount, sortable: true },
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true, },
+    { name: "Sent", selector: (row) => row.sentCount, sortable: true, },
+    { name: "Delivered", selector: (row) => row.deliveredCount, sortable: true},
+    { name: "Read", selector: (row) => row.readCount, sortable: true},
+    { name: "Failed", selector: (row) => row.failedCount, sortable: true},
+    { name: "Created Date", selector: (row) => row.createdDate, sortable: true,width: '15%' },
     {
       name: "Action", cell: (row) => {
         const scheduleDate = new Date(row.scheduleDate); // Convert scheduleDate to Date object
@@ -280,7 +280,7 @@ const CampaignsList = () => {
             ) : null}
           </div>
         );
-      },
+      }
     }
     
 
@@ -356,6 +356,8 @@ const CampaignsList = () => {
           columns={campaignColumns}
           highlightOnHover
           striped
+          sortIcon
+          sortServer
           pagination
           paginationServer
           paginationTotalRows={totalRecords}

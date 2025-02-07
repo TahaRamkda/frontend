@@ -200,6 +200,8 @@ const SendernameList = () => {
           highlightOnHover
           striped
           pagination
+          sortIcon
+          sortServer
           subHeader
           subHeaderComponent={subHeaderComponentMemo}
           className="w-full border"

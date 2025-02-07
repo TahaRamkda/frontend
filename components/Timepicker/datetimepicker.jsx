@@ -8,7 +8,7 @@ const DateTimePicker = ({ label, value, onChange, className = "", ...props }) =>
         type="date"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="border rounded py-1 px-2 w-full text-sm appearance-none focus:outline-none focus:ring focus:ring-blue-300"
+        className="border rounded py-1 px-2 w-full text-sm appearance-none "
         {...props}
       />
     </div>

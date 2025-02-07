@@ -215,6 +215,8 @@ const PermissionList = () => {
         columns={permissionColumns}
         highlightOnHover
         striped
+        sortIcon
+        sortServer
         pagination
         className="w-full border"
         subHeader

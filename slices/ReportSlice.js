@@ -95,7 +95,7 @@ export const fetchConversationReport = createAsyncThunk(
     
     try {
 
-      const response = await API.get(`${CONVERSATIONREPORT}?${srcStr ? `searchStr=${srcStr}`: ''}&senderId=${senderId}&status=${status}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`);
+      const response = await API.get(`${CONVERSATIONREPORT}?senderId=${senderId}${srcStr ? `&searchStr=${srcStr}`: ''}&status=${status}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`);
       if (response?.status === 200 && response.data?.result) {
         return {
         ConversationReport: response.data.result,

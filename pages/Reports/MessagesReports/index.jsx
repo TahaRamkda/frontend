@@ -28,14 +28,13 @@ const MessageReport = () => {
   const [clientId, setClientId] = useState(null);
  const [reportloading, setreportloading] = useState(false);
   const ReportColumns = [
-    { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
-    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
+    { name: "Sender Name", selector: (row) => row.senderName, sortable: true, width: '16%' },
+    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true, width: '12%' },
     { name: "Status", selector: (row) => row.currentStatusName, sortable: true },
     { name: "Category", selector: (row) => row.category, sortable: true },
-    { name: "Sent Time", selector: (row) => row.sentDate, sortable: true },
-    { name: "Delivered Time", selector: (row) => row.deliveredDate, sortable: true },
-    { name: "Read Time", selector: (row) => row.readDate, sortable: true },
-
+    { name: "Sent Time", selector: (row) => row.sentDate, sortable: true, width: '18%' },
+    { name: "Delivered Time", selector: (row) => row.deliveredDate, sortable: true, width: '18%' },
+    { name: "Read Time", selector: (row) => row.readDate, sortable: true, width: '18%' },
   ];
   useEffect(() => {
     if (clientId) {
@@ -258,6 +257,8 @@ const MessageReport = () => {
         striped
         pagination
         paginationServer
+        sortIcon
+        sortServer
         paginationTotalRows={totalRecords}
         onChangePage={handlePageChange}
         onChangeRowsPerPage={handlePageSizeChange}

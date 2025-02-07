@@ -64,10 +64,8 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (dashboardsummary || error) {
       setdataloading(false);
-    }
-  }, [dashboardsummary]);
+  }, [dashboardsummary, error]);
 
   //function for live reporting
   useEffect(() => {

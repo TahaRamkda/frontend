@@ -55,7 +55,7 @@ const TemplateList = () => {
   const settemplateId = useSetRecoilState(TemplateState);
   const templateColumns = [
     {
-      name: "Template Name",
+      name: "Template",
       selector: (row) => row.templateName,
       sortable: true,
     },
@@ -65,21 +65,21 @@ const TemplateList = () => {
       sortable: true,
     },
     {
-      name: " Sender Name ",
+      name: " Sender Name",
       selector: (row) => row.senderName,
-      sortable: true,
+      sortable: true,width: '17%'
     },
     // { name: t("Template Language"), selector: (row) => row.language, sortable: true },
     { name: "Status ", selector: (row) => row.statusName, sortable: true },
     {
       name: "Created Date",
       selector: (row) => row.createdDate,
-      sortable: true,
+      sortable: true,width: '20%'
     },
     {
       name: "System Template?",
       selector: (row) => (row.defaultTypeId === 0 ? "No" : "Yes"),
-      sortable: true,
+      sortable: true,width: '16%'
     },    
     {
       name: "Action",
@@ -286,6 +286,8 @@ const TemplateList = () => {
           columns={templateColumns}
           highlightOnHover
           striped
+          sortIcon
+          sortServer
           pagination
           paginationServer
           paginationTotalRows={totalRecords}

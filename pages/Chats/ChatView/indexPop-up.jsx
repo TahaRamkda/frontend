@@ -99,6 +99,7 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
         <div className="bg-white rounded shadow-lg w-full max-w-4xl h-full max-h-[90vh] flex flex-col">
           <ModalHeader toggle={onClose} className="border-b p-4">
             Chat Details
+            
           </ModalHeader>
           <ModalBody className="flex-grow overflow-y-auto p-4">
             <div className="right-sidebar-chat">

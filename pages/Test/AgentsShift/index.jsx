@@ -250,6 +250,8 @@ const AgentsShiftList = () => {
           highlightOnHover
           striped
           pagination
+          sortIcon
+          sortServer
           paginationServer
           paginationTotalRows={totalRecords}
           onChangePage={handlePageChange}
