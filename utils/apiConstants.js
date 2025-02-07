@@ -105,13 +105,13 @@ export const DELETEAGENTSHIFT = "#"
 
 // Agents Perfomance
 export const AGENTPERFORMANCE = "#"
-//convesration Endpoints
+//convesration <Endpoints></Endpoints>
 export const CONVERSATIONLIST = "/Conversation/getagentconversationlist";
 export const CONVERSATIONMESSAGE = "/Conversation/getconversationmessagebyid";
 export const AGENTMESSAGE = "/Message/sendagentmessage";
 export const TRANSFERCHAT = "/Conversation/transferconversationtoagent";
 export const AGENTDISABLE = "/Agents/setagentdisable"
-export const CONVERSATIONREPORT ="/Conversation/getconversationreportlist"
+export const CONVERSATIONREPORT ="/Conversation/getconversationdetailreportlist"
 
 //MasterSlice Endpoints
 export const TEMPLATECATEGORY = "/Templates/gettemplatecategories";

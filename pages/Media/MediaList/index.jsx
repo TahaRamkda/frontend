@@ -21,14 +21,9 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr,senderId }) => {
     const contentType = isPopup ? contentTypeStr : "";
     dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType,senderId:senderId?senderId:selectedsenderId }));
     return () => clearMediaState();
-  }, [dispatch, isPopup, contentTypeStr]);
+  }, [dispatch, isPopup, contentTypeStr,selectedMediaId]);
 
-  useEffect(() => {
-    const contentType = isPopup ? contentTypeStr : "";
-    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType,senderId:selectedsenderId }));
-    return () => clearMediaState();
-  }, [selectedsenderId]);
-
+  
   useEffect(() => {
     if (isPopup) {
       setIsModalOpen(true);

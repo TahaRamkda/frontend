@@ -250,6 +250,8 @@ const AgentsShiftList = () => {
           columns={agentColumn}
           highlightOnHover
           striped
+          sortIcon
+          sortServer
           pagination
           paginationServer
           paginationTotalRows={totalRecords}

@@ -144,6 +144,8 @@ const Messagereports = () => {
           columns={report2Columns}
           highlightOnHover
           striped
+          sortIcon
+          sortServer
           pagination
           paginationServer
           paginationTotalRows={totalRecords}

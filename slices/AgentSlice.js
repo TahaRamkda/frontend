@@ -37,7 +37,7 @@ export const fetchActiveAgentsDrop = createAsyncThunk(
       const response = await API.get(`${ACTIVEAGENTS}?senderId=${senderId}`);
       if (response.status === 200) {
         return {
-          activeAgentDrop: response.data.result
+          activeAgentDrop: response.data.result,
         };
       } else {
         throw new Error('Failed to fetch details');

@@ -30,16 +30,16 @@ const AgentReport = () => {
 //     { value: '5', label: "Chat Force Closed" },
 //   ];
   const ChatsReportColumn = [
-    { name: "Agent Name", selector: (row) => row.agentName, sortable: true },
-    { name: "Active Chat", selector: (row) => row.activeChat, sortable: true },
-    { name: "Assigned Chat", selector: (row) => row.assignedChat, sortable: true },
-    { name: "Unassigned Chat", selector: (row) => row.unAssignedChat, sortable: true },
-    { name: "Abandon Chat", selector: (row) => row.abandonChat, sortable: true },
-    { name: "Expired Chat", selector: (row) => row.expiredChat, sortable: true },
-    { name: "Force Closed Chat", selector: (row) => row.forceClosedChat, sortable: true },
-    { name: "Closed Chat", selector: (row) => row.closedChat, sortable: true },
-    { name: "Avg Response Time", selector: (row) => row.avgResponseTime, sortable: true },
-    { name: "Avg Chat Time", selector: (row) => row.avgChatTime, sortable: true },
+    { name: "Agent ", selector: (row) => row.agentName, sortable: true },
+    { name: "Active", selector: (row) => row.activeChat, sortable: true },
+    { name: "Assigned", selector: (row) => row.assignedChat, sortable: true },
+    { name: "Unassigned", selector: (row) => row.unAssignedChat, sortable: true },
+    { name: "Abandon", selector: (row) => row.abandonChat, sortable: true },
+    { name: "Expired", selector: (row) => row.expiredChat, sortable: true },
+    { name: "Force Closed", selector: (row) => row.forceClosedChat, sortable: true, width: '11%' },
+    { name: "Closed", selector: (row) => row.closedChat, sortable: true },
+    { name: "Avg Response Time", selector: (row) => row.avgResponseTime, sortable: true, width: '14%' }, 
+    { name: "Avg Chat Time", selector: (row) => row.avgChatTime, sortable: true, width: '11%' },
   
   ];
 
@@ -242,6 +242,8 @@ const AgentReport = () => {
         columns={ChatsReportColumn}
         highlightOnHover
         striped
+        sortIcon
+        sortServer
         pagination
         paginationServer
         paginationTotalRows={totalRecords}

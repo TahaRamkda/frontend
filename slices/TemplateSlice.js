@@ -94,8 +94,6 @@ export const fetchTemplatesDrop = createAsyncThunk(
       if (response?.status === 200 ) {
         return {
           templateDrop: response.data.result,
-          totalRecords:
-            response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -346,7 +344,6 @@ const templateSlice = createSlice({
       .addCase(fetchTemplatesDrop.fulfilled, (state, action) => {
         state.loading = false;
         state.templateDrop = action.payload.templateDrop;
-        state.totalRecords = action.payload.totalRecords;
         state.message = action.payload.message || "";
       })
       .addCase(fetchTemplatesDrop.rejected, (state, action) => {

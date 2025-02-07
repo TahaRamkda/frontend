@@ -29,15 +29,15 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
   const [clientId, setClientId] = useState(null);
   const [refreshpage, setrefreshpage] = useState(false);  // Track if page is refreshing
   const ChatsReportColumn = [
-    { name: "Agent Name", selector: (row) => row.agentName, sortable: true,width: '10%' },
-    { name: "Status", selector: (row) => row.statusName, sortable: true,width: '10%' },
-    { name: "Unread Count", selector: (row) => row.unreadCount || 0, sortable: true, width: '10%' },
-    { name: "Chats Assigned", selector: (row) => row.assignedChat, sortable: true, width: '10%' },
-    { name: "Chats Unassigned", selector: (row) => row.unAssignedChat, sortable: true, width: '10%' },
-    { name: "Chats Abandoned", selector: (row) => row.abandonChat, sortable: true, width: '10%' },
-    { name: "Chats Force closed", selector: (row) => row.forceClosedChat, sortable: true, width: '10%' },
-    { name: "Chats Closed", selector: (row) => row.closedChat, sortable: true, width: '10%' },
-    { name: "Expired Chats", selector: (row) => row.forceClosedChat, sortable: true,width: '10%' },
+    { name: "Agent", selector: (row) => row.agentName, sortable: true},
+    { name: "Status", selector: (row) => row.statusName, sortable: true },
+    { name: "Unread", selector: (row) => row.unreadCount || 0, sortable: true },
+    { name: "Assigned", selector: (row) => row.assignedChat, sortable: true},
+    { name: "Unassigned", selector: (row) => row.unAssignedChat, sortable: true, width: '11%' },
+    { name: "Abandoned", selector: (row) => row.abandonChat, sortable: true, width: '11%' },
+    { name: "Force closed", selector: (row) => row.forceClosedChat, sortable: true, width: '11%' },
+    { name: "Closed", selector: (row) => row.closedChat, sortable: true, width: '10%' },
+    { name: "Expired", selector: (row) => row.forceClosedChat, sortable: true,width: '10%' },
 
      {
           name: "Action",
@@ -301,6 +301,8 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
         striped
         pagination
         paginationServer
+        sortIcon
+        sortServer
         paginationTotalRows={totalRecords}
         onChangePage={handlePageChange}
         onChangeRowsPerPage={handlePageSizeChange}

@@ -25,19 +25,19 @@ const TemplateList = () => {
   const settemplateId = useSetRecoilState(TemplateState);
   const templateColumns = [
     {
-      name: "Template Name",
+      name: "Template",
       selector: (row) => row.templateName,
       sortable: true,
     },
     {
       name: "Category",
       selector: (row) => row.category,
-      sortable: true,
+      sortable: true,width: '11%'
     },
     {
       name: "Whatsapp Id",
       selector: (row) => row.templateId,
-      sortable: true,
+      sortable: true, width: '15%'
     },
     {
       name: "Language",
@@ -47,14 +47,14 @@ const TemplateList = () => {
     {
       name: " Sender Name ",
       selector: (row) => row.senderName,
-      sortable: true,
+      sortable: true,width: '18%'
     },
     // { name: t("Template Language"), selector: (row) => row.language, sortable: true },
     { name: "Status ", selector: (row) => row.status, sortable: true },
     {
       name: "Created Date",
       selector: (row) => row.createdDate,
-      sortable: true,
+      sortable: true,width: '18%'
     },
     {
       name: "Action",
@@ -239,6 +239,8 @@ const TemplateList = () => {
           highlightOnHover
           striped
           pagination
+          sortIcon
+          sortServer
           paginationServer
           paginationTotalRows={totalRecords}
           onChangePage={handlePageChange}

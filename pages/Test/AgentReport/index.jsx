@@ -244,6 +244,8 @@ const AgentReport = () => {
         striped
         pagination
         paginationServer
+        sortIcon
+        sortServer
         paginationTotalRows={totalRecords}
         onChangePage={handlePageChange}
         onChangeRowsPerPage={handlePageSizeChange}

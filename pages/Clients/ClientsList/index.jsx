@@ -232,6 +232,8 @@ const ClientList = () => {
             columns={clientColumns}
             highlightOnHover
             striped
+            sortIcon
+            sortServer
             pagination
             paginationServer
             paginationTotalRows={totalRecords}

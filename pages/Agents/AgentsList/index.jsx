@@ -69,16 +69,17 @@ const AgentsList = () => {
   const agentColumn = [
     { name: "User Name", selector: (row) => row.userName, sortable: true },
     { name: "First Name", selector: (row) => row.agentFName, sortable: true },
-    { name: "Last Name", selector: (row) => row.agentLName, sortable: true },
     {
-      name: "First Name Arabic",
+      name: "First Name AR",
       selector: (row) => row.agentFNameAR,
       sortable: true,
+      cell: (row) => <div style={{ textAlign: "right", direction: "rtl", width: "100%" }}>{row.agentFNameAR}</div>,
     },
     {
-      name: "Last Name Arabic",
+      name: "Last Name AR",
       selector: (row) => row.agentLNameAR,
       sortable: true,
+      cell: (row) => <div style={{ textAlign: "right", direction: "rtl", width: "100%" }}>{row.agentLNameAR}</div>,
     },
     { name: "Status", selector: (row) => row.statusName, sortable: true },
     {
@@ -425,6 +426,8 @@ const AgentsList = () => {
           striped
           pagination
           paginationServer
+          sortIcon
+          sortServer
           paginationTotalRows={totalRecords}
           onChangePage={handlePageChange}
           onChangeRowsPerPage={handlePageSizeChange}

@@ -237,6 +237,8 @@ const GroupList = () => {
           pagination
           paginationServer
           paginationTotalRows={totalRecords}
+          sortIcon
+          sortServer
           onChangePage={handlePageChange}
           onChangeRowsPerPage={handlePageSizeChange}
           paginationPerPage={defultpagessize} // Default number of rows per page

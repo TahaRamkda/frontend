@@ -458,7 +458,11 @@ body {
 .select2-container .select2-selection--single {
   height: 46px !important;
 }
-
+.hide-messages {
+  visibility: hidden; /* Hides the messages but keeps the space */
+  opacity: 0; /* Makes the messages transparent */
+  transition: opacity 0.3s ease;
+}
 .select2-container--default
   .select2-selection--single
   .select2-selection__arrow {

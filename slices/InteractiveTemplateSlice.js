@@ -40,11 +40,9 @@ export const fetchInteractiveTemplateDrop = createAsyncThunk(
   async ({clientId = localStorage.getItem("clientId")}, { rejectWithValue }) => {
     try {
       const response = await API.get(`${INRERACTIVETEMPLATELIST}`);
-      if (response?.status === 200 ) {
+      if (response?.status === 200) {
         return {
           interactiveTemplateList: response.data.result,
-          totalRecords:
-            response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
         };
       } else {
         throw new Error("Failed to fetch details");

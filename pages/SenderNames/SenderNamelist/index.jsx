@@ -166,6 +166,8 @@ const SendernameList = () => {
           columns={sendernameColumns}
           highlightOnHover
           striped
+          sortIcon
+          sortServer
           pagination
           subHeader
           subHeaderComponent={subHeaderComponentMemo}
