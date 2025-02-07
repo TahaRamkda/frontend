@@ -1633,7 +1633,6 @@ const ChatPage = () => {
         </Row>
       </Container>
       {/* {Errordisconnect && (
-      {/* {Errordisconnect && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
           <div className="bg-red-500 p-8 rounded-lg shadow-md max-w-md w-full text-center">
             <div className="flex justify-center mb-4">
@@ -1669,7 +1668,6 @@ const ChatPage = () => {
             </button>
           </div>
         </div>
-      )} */}
       )} */}
     </>
   );
