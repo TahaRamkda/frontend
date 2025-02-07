@@ -230,7 +230,7 @@ const TemplateCreationPage = () => {
         buttonType: button.type,
         buttonText: button.text,
         buttonValue: button.type === "2"
-          ? `${button.countryCode}${button.phoneNumber}`
+          ? `${button.countryCode}-${button.phoneNumber}`
           : button.websiteUrl,
         sequence: index,
         dynamicValue: {
@@ -818,7 +818,7 @@ const TemplateCreationPage = () => {
             <Formik
               initialValues={{
                 templateName: "",
-                headerType: 0,
+                headerType: "0",
                 headerContent: "",
                 headerMedia: null,
                 body: "",

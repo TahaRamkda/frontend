@@ -203,58 +203,58 @@ const CampaignUpdate = () => {
     setSelectedSenderId(template.senderId);
     // Map buttons with conditional logic for phoneNumber or URL
     const customButtons =
-      template.buttons?.map((button) => ({
-        type: button.buttonType, // Copy over the type
-        text: button.buttonText, // Copy over the label
-        ...(button.buttonType === 2
-          ? { phoneNumber: button.buttonValue }
-          : button.buttonType === 3
-          ? { url: button.buttonValue }
-          : {}),
-      })) ?? [];
+    template.buttons?.map((button) => ({
+      type: button.buttonType, // Copy over the type
+      text: button.buttonText, // Copy over the label
+      ...(button.buttonType === 2
+        ? { phoneNumber: button.buttonValue }
+        : button.buttonType === 3
+        ? { url: button.buttonValue }
+        : {}),
+    })) ?? [];
 
-    // Construct the complete message preview locally
-    const updatedMessagePreview = {
-      body: template.bodyText,
-      footer: template.footerText,
-      media: template.mediaPath,
-      buttons: customButtons,
-      templatename: template.templateName,
-      visitWebsiteButtonCount: 0,
-      header: template.headerType === 1 ? template.headerText : undefined,
-    };
+  // Construct the complete message preview locally
+  const updatedMessagePreview = {
+    body: template.bodyText,
+    footer: template.footerText,
+    media: template.mediaPath,
+    buttons: customButtons,
+    templatename: template.templateName,
+    visitWebsiteButtonCount: 0,
+    header: template.headerType === 1 ? template.headerText : undefined,
+  };
 
-    // Set messagePreview state only if it has changed and not already set
-    setMessagePreview((prevPreview) =>
-      JSON.stringify(prevPreview) !== JSON.stringify(updatedMessagePreview)
-        ? updatedMessagePreview
-        : prevPreview
-    );
+  // Set messagePreview state only if it has changed and not already set
+  setMessagePreview((prevPreview) =>
+    JSON.stringify(prevPreview) !== JSON.stringify(updatedMessagePreview)
+      ? updatedMessagePreview
+      : prevPreview
+  );
 
-    // Mark messagePreview as set
-    if (!MessagePreviewupdated) {
-      setMessagePreviewupdated(true);
-    }
+  // Mark messagePreview as set
+  if (!MessagePreviewupdated) {
+    setMessagePreviewupdated(true);
+  }
 
-    // Update Header State
-    if (template.headerType === 1) {
-      setHeadContent(template.headerText);
-      //setupdatedheadvercontent(template.headerText);
-      //setheaderTextCount(template.headerParamCount);
-    } else {
-      setSelectedMediaId(template.mediaId);
-      setSelectedMediaPath(template.mediaPath);
-      setSelectedMediaType(template.contentType);
-    }
+  // Update Header State
+  if (template.headerType === 1) {
+    setHeadContent(template.headerText);
+    //setupdatedheadvercontent(template.headerText);
+    //setheaderTextCount(template.headerParamCount);
+  } else {
+    setSelectedMediaId(template.mediaId);
+    setSelectedMediaPath(template.mediaPath);
+    setSelectedMediaType(template.contentType);
+  }
 
-    // Update Body State
-    setBodyFinalContent(template.bodyText);
-    // Update Other Template-Related States
-    //setSelectedSenderId(template.senderId);
-    //setTemplatetype(template.category);
-    //setlanguage(template.language);
-    setTotalButtonCount(updatedMessagePreview.buttons.length);
-  }, [Loading, template]);
+  // Update Body State
+  setBodyFinalContent(template.bodyText);
+  // Update Other Template-Related States
+  //setSelectedSenderId(template.senderId);
+  //setTemplatetype(template.category);
+  //setlanguage(template.language);
+  setTotalButtonCount(updatedMessagePreview.buttons.length);
+  },[Loading, template]);
 
   // useEffect(() => {
   //   if (!MessagePreviewupdated || Loading || !template.parameters) return;
@@ -546,6 +546,7 @@ const CampaignUpdate = () => {
   };
 
   const handelCancel = () => {
+    setMessagePreview([])
     router.push("/Campaigns/CampaignsList");
   };
 

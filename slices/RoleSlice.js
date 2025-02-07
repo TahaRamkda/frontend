@@ -12,7 +12,7 @@ export const  fetchRoles = createAsyncThunk(
       try {
       
         const response = await API.get(`${ROLELIST}`);
-        if (response?.status === 200 && response.data?.result) { 
+        if (response?.status === 200 ) { 
           return {
              roles: response.data.result,
             totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,

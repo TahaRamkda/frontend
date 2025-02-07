@@ -9,7 +9,7 @@ export const fetchtemplatecategory = createAsyncThunk(
   async ({}, { rejectWithValue }) => {
     try {
       const response = await API.get(`${TEMPLATECATEGORY}`);
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200) {
         return {
           templatecategory: response.data.result
         };
@@ -29,7 +29,7 @@ export const fetchlanguage = createAsyncThunk(
   async ({}, { rejectWithValue }) => {
     try {
       const response = await API.get(`${TEMPLATELANGUAGE}`);
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200) {
         return {
           languages: response.data.result
         };

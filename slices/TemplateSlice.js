@@ -25,7 +25,7 @@ export const fetchTemplates = createAsyncThunk(
     
     try {
       const response = await API.get(`${TEMPLATELIST}?TransactionType=${TransactonType ? TransactonType : 1}${searchStr?`&searchStr=${searchStr}`:''}&pageNo=${pageNo}&pageSize=${pageSize}`);
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200 ) {
         return {
           templates: response.data.result,
           totalRecords:
@@ -45,7 +45,7 @@ export const fetchInteractiveTemplates = createAsyncThunk(
   async ({clientId = localStorage.getItem("clientId"),fromDate,searchStr,toDate,pageNo,pageSize}, { rejectWithValue }) => {
     try {
       const response = await API.get(`${INRERACTIVETEMPLATELIST}?${searchStr?`searchStr=${searchStr}`:''}&fromDate=${fromDate}&toDate=${toDate}&pageNo=${pageNo}&pageSize=${pageSize}`);
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200) {
         return {
           interactiveTemplateList: response.data.result,
           totalRecords:
@@ -66,7 +66,7 @@ export const fetchInteractiveTemplateDrop = createAsyncThunk(
   async ({clientId = localStorage.getItem("clientId")}, { rejectWithValue }) => {
     try {
       const response = await API.get(`${INRERACTIVETEMPLATELIST}`);
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200) {
         return {
           interactiveTemplateList: response.data.result,
           totalRecords:

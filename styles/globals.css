@@ -252,6 +252,16 @@ body {
 .chart-dashboard {
   width: 100% !important;
 }
+
+.msger-inputs{padding: 7px 10px; background: #e6e6e6;}
+.chatBarEMoji i {font-size: 27px;}
+.msger-inputs .fa-paperclip{font-size: 22px;}
+.ClipButton {padding: 0; min-width: 40px; height: 40px; text-align: center; background-color: #333; border-radius: 5px;}
+.CommentICon i, .PlaneICon i{font-size: 21px;}
+.RecievedImages, .SentImages, .RecievedVideos, .SentVideos {max-height: 250px;}
+.ImageDownloadBtn {background: #13af4c; border-radius: 5px; padding: 4px 8px; color: #fff; margin-top: 2px;}
+.ImageDownloadBtn i {color: #fff; margin-right: 5px;}
+
 .d-hr {
   margin-top: 10px;
   margin-bottom: 10px;
@@ -280,9 +290,7 @@ body {
 ::-webkit-scrollbar {
   display: none;
 }
-.pcoded-content {
-  margin-left: 210px !important;
-}
+
 
 .popup_img_container {
   min-height: 170px;
@@ -380,9 +388,7 @@ body {
   .pcoded-wrapper {
     width: 210px !important;
   }
-  .pcoded-content {
-    margin-left: 210px !important;
-  }
+ 
   .aside li {
     font-size: 14px;
   }

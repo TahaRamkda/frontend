@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import OneSignal from "react-onesignal";
 //import { ClipboardCopy } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -116,6 +117,9 @@ const ChatPage = () => {
   const [heartbeatAttempts, setheartbeatAttempts] = useState(0);
   const [tryReconnect, settryReconnect] = useState(false);
   const lastScrollTop = useRef(0);
+  const [UserId , setuserId ] = useState(0);
+  const [isInitialized, setIsInitialized] = useState(false);
+ const [IsOneSignalLoaded ,setIsOneSignalLoaded] = useState(false); 
   useEffect(() => {
     // Initialize the audio object only once
     audioRef.current = new Audio("/assets/Notification/chatassigned.mp3");
@@ -145,12 +149,68 @@ const ChatPage = () => {
       confirmButtonText: "Logout",
       cancelButtonText: "Cancel",
     }).then((result) => {
+      debugger;
       if (result.isConfirmed) {
+        window.OneSignal.logout();
+        AgentConversation.map((item) => {
+          clearTimer(item.id);
+        });
+
         localStorage.clear();
         router.push("/auth/login");
       }
     });
   };
+
+  //onesignal hook
+  //useOneSignal(localStorage.getItem("userId"));
+ 
+
+
+  useEffect(() => {
+    // Initialize OneSignal
+    const initializeOneSignal = async () => {
+      debugger
+      if (typeof window !== "undefined" && window.OneSignal) {
+        await OneSignal.init({
+          appId: "2b6362f1-b706-4087-bfaf-0d625c02110b",
+          //safari_web_id: "web.onesignal.auto.0f5ba526-5606-4a7b-90fa-69fc66b30a70",
+          notifyButton: {
+            enable: true,
+          },
+          allowLocalhostAsSecureOrigin: true,
+        }).then(() => {
+          setIsOneSignalLoaded(true);
+          
+          // Set External User ID after initialization
+          const externalUserId = localStorage.getItem("userId") ; // Replace with dynamic external user ID
+          window.OneSignal.login(externalUserId)
+            .then(() => {
+              console.log(`External User ID set to: ${externalUserId}`);
+            })
+            .catch((error) => {
+              console.error("Error setting external user ID:", error);
+            });
+
+          // Show the prompt after setting the external user ID
+          window.OneSignal.Slidedown.promptPush();
+        });
+      }
+    };
+     // Call the initialize function
+     initializeOneSignal();
+
+     const externalUserId = localStorage.getItem("userId") ; // Replace with dynamic external user ID
+     window.OneSignal.login(externalUserId)
+       .then(() => {
+         console.log(`External User ID set to: ${externalUserId}`);
+       })
+       .catch((error) => {
+         console.error("Error setting external user ID:", error);
+       });
+    }, []);
+
+
 
   useEffect(() => {
     if (templateDetails) {
@@ -408,7 +468,7 @@ const ChatPage = () => {
       console.error("UserId not found in localStorage");
       return;
     }
-
+   setuserId(userId);
     // Initialize SignalR connection
     const newConnection = new signalR.HubConnectionBuilder()
       .withUrl(`${BASE_URL}/conversation?AgentId=${userId}`, {
@@ -1465,13 +1525,13 @@ const ChatPage = () => {
                     <div className="msger-inputs  flex items-center">
                       <Button
                         onClick={openFileManager}
-                        className="text-xl text-gray-500 hover:text-gray-700 mr-2"
+                        className="ClipButton  mr-2"
                       >
                         <i className="fa fa-paperclip"></i>
                       </Button>
                       {/* Emoji Picker Button */}
                       <button
-                        className="mr-2 p-2 hover:bg-gray-200 rounded-full"
+                        className="mr-2 chatBarEMoji  hover:bg-gray-200 rounded-full"
                         onClick={() => setShowEmojiPicker((prev) => !prev)}
                         style={{zIndex: '999'}}
                       >
@@ -1510,6 +1570,9 @@ const ChatPage = () => {
                         onKeyDown={(e) => {
                           if ((e.shiftKey || e.altKey) && e.key === "Enter") {
                             e.preventDefault();
+                            setMessageInput(
+                              (prevMessage) => prevMessage + "\n"
+                            );
                             setMessageInput(
                               (prevMessage) => prevMessage + "\n"
                             );
@@ -1570,6 +1633,7 @@ const ChatPage = () => {
         </Row>
       </Container>
       {/* {Errordisconnect && (
+      {/* {Errordisconnect && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
           <div className="bg-red-500 p-8 rounded-lg shadow-md max-w-md w-full text-center">
             <div className="flex justify-center mb-4">
@@ -1605,6 +1669,7 @@ const ChatPage = () => {
             </button>
           </div>
         </div>
+      )} */}
       )} */}
     </>
   );
