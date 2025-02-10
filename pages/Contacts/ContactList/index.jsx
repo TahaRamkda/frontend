@@ -19,6 +19,7 @@ const ContactList = () => {
   const { contacts, loading, error, pageSize, totalRecords, currentPage } = useSelector((state) => state.contacts);
   const { client } = useSelector((state) => state.clients);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [ContactLoading, setContactLoading] = useState(false);
   const [contactForm, setcontactForm] = useState({});
   const [filterText, setFilterText] = useState('');
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
@@ -55,6 +56,7 @@ const ContactList = () => {
     },
   ];
   const handleDetailClick = async (contactId) => {
+    setContactLoading(true);
     try {
       const response = await dispatch(fetchContactById({contactId:contactId})).unwrap();
       if (response.success) {
@@ -230,8 +232,9 @@ const ContactList = () => {
   }
   return (
     <App>
+       {loading && <Loading />}
       <div className="flex items-center">
-        {loading && <Loading />}
+       
         <div >
           <h4 className="font-bold ">Contact</h4>
         </div>

@@ -629,6 +629,7 @@ const TemplateCreationPage = () => {
     }
   };
   const handelCancel = () => {
+    setLocalLoading(true);
     router.push("/Templates/TemplatesList");
   };
 

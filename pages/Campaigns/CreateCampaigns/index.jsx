@@ -36,7 +36,7 @@ import { toast } from "react-toastify";
 const CampaignCreate = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const [Loading, setLoading] = useState(true);
+  const [CampaignLoading, setCampaignLoading] = useState(false);
   const { template, loading, error } = useSelector((state) => state.templates);
   const [messagePreview, setMessagePreview] = useState({
     header: "",
@@ -78,7 +78,7 @@ const CampaignCreate = () => {
   };
   useEffect(() => {
     if (selectedTemplateId) {
-      setLoading(true);
+      setCampaignLoading(true);
       dispatch(
         fetchTemplatesById({
           ClientId: localStorage.getItem("clientId"),
@@ -92,7 +92,7 @@ const CampaignCreate = () => {
           console.error("Error fetching template:", error);
         })
         .finally(() => {
-          setLoading(false);
+          setCampaignLoading(false);
         });
     }
   }, [dispatch, selectedTemplateId]);
@@ -125,7 +125,7 @@ const CampaignCreate = () => {
   }, [selectedSenderId, dispatch]);
 
   useEffect(() => {
-    if (Loading || !template) return;
+    if (CampaignLoading || !template) return;
     setSelectedSenderId(template.senderId);
     // Map buttons with conditional logic for phoneNumber or URL
     const customButtons =
@@ -180,10 +180,10 @@ const CampaignCreate = () => {
     //setTemplatetype(template.category);
     //setlanguage(template.language);
     setTotalButtonCount(updatedMessagePreview.buttons.length);
-  }, [Loading, template]);
+  }, [CampaignLoading, template]);
 
   useEffect(() => {
-    if (!MessagePreviewupdated || Loading || !template.parameters) return;
+    if (!MessagePreviewupdated || CampaignLoading || !template.parameters) return;
 
     // Use a flag to ensure this runs only once
     let parametersProcessed = false;
@@ -484,12 +484,15 @@ const CampaignCreate = () => {
   };
 
   const handelCancel = () => {
+    setCampaignLoading(true)
     router.push("/Campaigns/CampaignsList");
   };
 
   return (
     <App>
-      {loading && <Loader />}
+      {(CampaignLoading || loading) ? <Loader /> : null}
+
+
       <Container fluid className="mt-0">
         <Row style={{ height: "100vh" }}>
           <Col

@@ -2,7 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import $ from 'jquery';
 import Select from 'react-select';
-import { fetchClientsDrop, clearClientDropState } from "@/slices/ClientSlice";
+import Loader from "../Layout/Loader";
+import { fetchClientsDrop, clearClientDropState } from "@/slices/clientSlice";
 
 export const ClientsDropdown = ({ onChange }) => {
   const dispatch = useDispatch();
@@ -34,7 +35,7 @@ export const ClientsDropdown = ({ onChange }) => {
     setSelectedClientId(selectedIds);
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loader />;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
 
 

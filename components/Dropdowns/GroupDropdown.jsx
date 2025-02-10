@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import $ from 'jquery';
 import { Input } from 'reactstrap';
+import Loader from '../Layout/Loader';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
 import { fetchGroupsDrop, clearGroupDropState } from "@/slices/Groupslice";
@@ -40,7 +41,7 @@ const GroupDropdown = ({ name, value, onChange }) => {
     };
   }, [groupDrop, onChange]);
 
-  if (loading) return <p className="text-center text-gray-500">Loading...</p>;
+  if (loading) return <Loader />;
   if (error) return <p className="text-center text-red-500">Error loading: {error}</p>;
 
   return (

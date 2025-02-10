@@ -91,7 +91,7 @@ const ChatPage = () => {
   const [ShowDetailedTemplate, setShowDetailedTemplate] = useState(false);
   const [messageInput, setMessageInput] = useState("");
   const [mediaFile, setMediaFile] = useState(null); // To store the selected media file
-  const [connection, setConnection] = useState(null);
+  const connectionRef = useRef(null); // ✅ Store connection persistently
   const [Activechat, setActiveChat] = useState(0);
   const [ActiveSenderId, setActiveSenderId] = useState(0);
   const fileInputRef = useRef(null); // Reference for the file input
@@ -149,7 +149,7 @@ const ChatPage = () => {
       confirmButtonText: "Logout",
       cancelButtonText: "Cancel",
     }).then((result) => {
-      debugger;
+      ;
       if (result.isConfirmed) {
         window.OneSignal.logout();
         AgentConversation.map((item) => {
@@ -170,7 +170,7 @@ const ChatPage = () => {
   useEffect(() => {
     // Initialize OneSignal
     const initializeOneSignal = async () => {
-      debugger
+      
       if (typeof window !== "undefined" && window.OneSignal) {
         await OneSignal.init({
           appId: "2b6362f1-b706-4087-bfaf-0d625c02110b",
@@ -201,7 +201,7 @@ const ChatPage = () => {
      initializeOneSignal();
 
      const externalUserId = localStorage.getItem("userId") ; // Replace with dynamic external user ID
-     window.OneSignal.login(externalUserId)
+     window.OneSignal?.login(externalUserId)
        .then(() => {
          console.log(`External User ID set to: ${externalUserId}`);
        })
@@ -209,8 +209,6 @@ const ChatPage = () => {
          console.error("Error setting external user ID:", error);
        });
     }, []);
-
-
 
   useEffect(() => {
     if (templateDetails) {
@@ -463,12 +461,13 @@ const ChatPage = () => {
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
-
     if (!userId) {
       console.error("UserId not found in localStorage");
       return;
     }
-   setuserId(userId);
+  
+    setuserId(userId);
+  
     // Initialize SignalR connection
     const newConnection = new signalR.HubConnectionBuilder()
       .withUrl(`${BASE_URL}/conversation?AgentId=${userId}`, {
@@ -477,222 +476,189 @@ const ChatPage = () => {
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 15000, 20000, 25000])
       .build();
-
-    setConnection(newConnection);
-
-    // Handles incoming messages
+  
+    // Store connection in ref to avoid unnecessary re-renders
+    connectionRef.current = newConnection;
+  
+    // Message received handler
     const handleIncomingMessage = (message) => {
-      // Play notification sound
       audioRef.current
         ?.play()
-        .catch((err) =>
-          console.error("Failed to play notification sound:", err)
-        );
-
-      // Show success toast notification
-      //toast.success("You have a new message");
-      // Find if the message belongs to an existing conversation
+        .catch((err) => console.error("Failed to play notification sound:", err));
+  
       const matchingConversationIndex = agentChatRef.current.findIndex(
         (conversation) => conversation.id === message.conversationId
       );
-
+  
       if (matchingConversationIndex !== -1) {
         const updatedConversations = [...agentChatRef.current];
-        const matchingConversation =
-          updatedConversations[matchingConversationIndex];
-
-        // Start timer for unread message if no unread messages exist
+        const matchingConversation = updatedConversations[matchingConversationIndex];
+  
         if ((matchingConversation.unreadCount || 0) <= 0) {
           startTimer(message);
         }
-
-        // Update the conversation with the latest message and unread count
+  
         updatedConversations[matchingConversationIndex] = {
           ...matchingConversation,
           lastMessageText: message.messageContent,
           updatedDate: message.createdDate,
           unreadCount: (matchingConversation.unreadCount || 0) + 1,
         };
-
+  
         agentChatRef.current = updatedConversations;
         setAgentConversation(updatedConversations);
       } else {
-        console.warn(
-          "No matching conversation found for message.conversationId:",
-          message.conversationId
-        );
+        console.warn("No matching conversation found for message.conversationId:", message.conversationId);
       }
-
-      // If the message belongs to the active chat
+  
       if (message.conversationId === activeChatRef.current) {
-        // if (loading) {
-        //   setTempMessages((prevTemp) => [...prevTemp, message]);
-        // } else {
         setChatMessages((prevMessages) => [message, ...prevMessages]);
         setTempMessages([]);
-        //}
       } else {
-        // Show notification for new message
-        //toast.success("Check message");
-
         if (matchingConversationIndex !== -1) {
           const updatedConversations = [...agentChatRef.current];
-          const matchingConversation =
-            updatedConversations[matchingConversationIndex];
-
-          // Move the updated conversation to the top of the list
+          const matchingConversation = updatedConversations[matchingConversationIndex];
+  
           updatedConversations.splice(matchingConversationIndex, 1);
           updatedConversations.unshift(matchingConversation);
-
+  
           agentChatRef.current = updatedConversations;
           setAgentConversation(updatedConversations);
         }
       }
     };
-
-    // Handles new conversation assignment to the agent
+  
+    // Handles conversation assignment
     const handleConversationAssigned = (notification) => {
-      //;
       audioRef.current
         ?.play()
-        .catch((err) =>
-          console.error("Failed to play notification sound:", err)
-        );
-      //console.log("notification :", notification);
-      //toast.success("You have a new message request");
-
-      // Update agent statistics
+        .catch((err) => console.error("Failed to play notification sound:", err));
+  
       dispatch(
         fetchAgentStats({
           clientId: localStorage.getItem("clientId"),
           agentId: userId,
         })
       );
-
+  
       startTimer(notification);
-
-      // Find if the conversation already exists
+  
       const matchingConversationIndex = agentChatRef.current.findIndex(
         (conversation) => conversation.id === notification.id
       );
-
+  
       if (matchingConversationIndex !== -1) {
         const updatedConversations = [...agentChatRef.current];
         updatedConversations[matchingConversationIndex] = {
           ...updatedConversations[matchingConversationIndex],
           lastMessageText: notification.lastMessageText,
-          unreadCount:
-            (updatedConversations[matchingConversationIndex].unreadCount || 0) +
-            1,
+          unreadCount: (updatedConversations[matchingConversationIndex].unreadCount || 0) + 1,
         };
-
+  
         agentChatRef.current = updatedConversations;
         setAgentConversation(updatedConversations);
       } else {
-        // Add the new conversation to the list
         const newNotification = { ...notification, unreadCount: 1 };
-        setAgentConversation((prevMessages) => [
-          newNotification,
-          ...prevMessages,
-        ]);
+        setAgentConversation((prevMessages) => [newNotification, ...prevMessages]);
       }
     };
-
-    // Handles unassignment of a conversation
+  
+    // Handles conversation unassignment
     const handleConversationUnAssigned = (chatId) => {
-      if (
-        agentChatRef.current.filter(
-          (conversation) => conversation.id === chatId
-        ).length === 0
-      )
-        return;
-
-      //toast.warning("A conversation has been unassigned");
-
-      // Update agent statistics
+      if (!agentChatRef.current.some((conversation) => conversation.id === chatId)) return;
+  
       dispatch(
         fetchAgentStats({
           clientId: localStorage.getItem("clientId"),
           agentId: userId,
         })
       );
-      // Remove the conversation from the list
-      const updatedConversations = agentChatRef.current.filter(
-        (conversation) => conversation.id !== chatId
-      );
-      const Isactivechat = chatId === activeChatRef.current;
-
-      if (Isactivechat === true) {
+  
+      const updatedConversations = agentChatRef.current.filter((conversation) => conversation.id !== chatId);
+      const isActiveChat = chatId === activeChatRef.current;
+  
+      if (isActiveChat) {
         setChatMessages([]);
         setActiveChat(0);
       }
+  
       clearTimer(chatId);
       agentChatRef.current = updatedConversations;
       setAgentConversation(updatedConversations);
     };
-
+  
     const handleHeartbeatAcknowledged = () => {
-      console.log("Heartbeat acknowledged" + new Date());
+      console.log("Heartbeat acknowledged", new Date());
     };
-
-    // Set up SignalR event listeners
+  
+    // Setup event listeners
     newConnection.on("MessageReceived", handleIncomingMessage);
     newConnection.on("ConversationAssigned", handleConversationAssigned);
     newConnection.on("ConversationUnAssigned", handleConversationUnAssigned);
     newConnection.on("HeartbeatAcknowledged", handleHeartbeatAcknowledged);
-
+  
+    // Start connection
     newConnection
       .start()
       .then(() => {
         console.log("Connected to SignalR");
-        console.log("Connection ID: ", newConnection.connectionId);
       })
       .catch((err) => {
         console.error("Error while starting the connection:", err);
         setErrordisconnect(true);
       });
+  
+    // Handle connection loss and attempt to reconnect
     newConnection.onreconnecting((error) => {
       console.warn("Connection lost. Attempting to reconnect...", error);
-      //setErrordisconnect(true); // Notify user or set state as disconnected
     });
-
-    setInterval(() => {
+  
+    newConnection.onclose(() => {
+      console.error("SignalR connection lost. Retrying in 5 seconds...");
+      setTimeout(() => setErrordisconnect(true), 5000);
+    });
+  
+    // Heartbeat logic
+    const heartbeatInterval = setInterval(() => {
       if (newConnection.state === signalR.HubConnectionState.Connected) {
         newConnection
           .invoke("Heartbeat")
           .then(() => {
-            console.log("Heartbeat sent successfully" + new Date());
-            setheartbeatAttempts(0); // Reset the counter on success
+            console.log("Heartbeat sent successfully", new Date());
+            setheartbeatAttempts(0);
           })
           .catch((err) => {
-            setheartbeatAttempts(heartbeatAttempts + 1); // Increment the counter on failure
-            console.error(
-              `Heartbeat error (${heartbeatAttempts} attempts):`,
-              err
-            );
+            setheartbeatAttempts((prev) => prev + 1);
+            console.error(`Heartbeat error (${heartbeatAttempts} attempts):`, err);
           });
       } else {
         setErrordisconnect(true);
         console.warn("Connection is not in the connected state.");
       }
-    }, HEARTBEAT_CHECK_INTERVAL); // Send heartbeat every 15 seconds
-
+    }, HEARTBEAT_CHECK_INTERVAL);
+  
     return () => {
-      newConnection.stop().then(() => console.log("Connection stopped"));
+      newConnection.stop().catch((err) => console.error("Error stopping connection:", err));
+      clearInterval(heartbeatInterval);
       setErrordisconnect(true);
     };
   }, []);
-
-  // useEffect(() => {
-  //   settryReconnect(true);
-  // },[Errordisconnect])
-
+  
+  useEffect(() => {
+    if (Errordisconnect) {
+      console.warn("Reconnecting SignalR...");
+      
+        setErrordisconnect(false);
+     
+    }
+  }, [Errordisconnect]);
+  
   useEffect(() => {
     if (heartbeatAttempts >= 2) {
       setErrordisconnect(true);
     }
   }, [heartbeatAttempts]);
-
+  
   const startTimer = (messages) => {
     // Clear existing timer if any
     if (timersRef.current[messages.id]) {
@@ -718,7 +684,7 @@ const ChatPage = () => {
       );
 
     // Trigger another 5-minute timer if no action is taken
-    if (!isMessageReplied(message.id)) {
+    if (!isMessageReplied(message.id) ) {
       console.warn(`No reply for ID: ${message.id}, rescheduling timer.`);
       markChatAsUnreplied(message.id);
       startTimer(message); // Restart the timer
@@ -1632,7 +1598,7 @@ const ChatPage = () => {
           </Col>
         </Row>
       </Container>
-      {/* {Errordisconnect && (
+       {Errordisconnect && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
           <div className="bg-red-500 p-8 rounded-lg shadow-md max-w-md w-full text-center">
             <div className="flex justify-center mb-4">
@@ -1668,7 +1634,7 @@ const ChatPage = () => {
             </button>
           </div>
         </div>
-      )} */}
+      )}
     </>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
+import Loader from '../Layout/Loader';
 import { fetchAgentsDrop } from '@/slices/AgentSlice';
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
@@ -35,7 +36,7 @@ const AgentsDropdown = ({ name, value, onChange }) => {
     setSelectedAgentId(selectedIds);
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loader />;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
 
   return (

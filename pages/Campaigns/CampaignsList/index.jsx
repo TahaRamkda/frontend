@@ -97,6 +97,7 @@ const CampaignsList = () => {
 
 
   const HandleUpdateCampaign = (CampaignId) => {
+    setcampaignloading(true)
     setCampaignsId(CampaignId);
     router.push("/Campaigns/UpdateCampaign");
   };
@@ -139,6 +140,7 @@ const CampaignsList = () => {
   }, [dispatch, FromDate, ToDate,templateId]);
 
   const handleCreate = () => {
+    setcampaignloading(true)
     window.location.href = "/Campaigns/CreateCampaigns";
   }
 

@@ -30,6 +30,8 @@ const ChatsReport = () => {
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [showtransfer, setshowtransfer] = useState(false);
   const [activeChat, setActiveChat] = useState(0);
+  const [CustomerName, setCustomerName] = useState('');
+  const [PhoneNumber, setPhoneNumber] = useState('');
   
 
   const [ChatLoading, setChatLoading] = useState(false)
@@ -75,7 +77,7 @@ const ChatsReport = () => {
               <div className="flex gap-2">
                 <button title="View Chat"
                   className="uniform_icon_btn"
-                  onClick={() => handleDetailClick(row.id)}
+                  onClick={() => handleDetailClick(row)}
                 >
                   <HiEye style={{ fontSize: "15px" }} />
                 </button>
@@ -180,8 +182,10 @@ const ChatsReport = () => {
 //     return () => clearInterval(intervalId);
 //   }, [ senderid, srcStr, dispatch]);
  
-  const handleDetailClick = async (id) => {
-    setActiveChat(id);
+  const handleDetailClick = async (row) => {
+    setActiveChat(row.id);
+    setCustomerName(row.fullName);
+    setPhoneNumber(row.phoneNumber);
     setshowchat(true);
   };
  
@@ -362,6 +366,8 @@ const ChatsReport = () => {
           <Chatview
             ChatId={activeChat}
             isVisible={true}
+            PhNo={PhoneNumber}
+            CustomerName={CustomerName}
             onClose={handleCancel}
           />
         )

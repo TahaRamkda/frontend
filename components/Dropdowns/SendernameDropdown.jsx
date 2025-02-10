@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
+import Loader from '../Layout/Loader';
 import { fetchSendernamesDrop, clearSendernameDropState } from "@/slices/sendernameSlice";
 import { Input } from 'reactstrap';
 
@@ -40,7 +41,7 @@ const SendernameDropdown = ({ name, value, onChange }) => {
     };
   }, [sendernameDrop, onChange]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loader />;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
 
   return (

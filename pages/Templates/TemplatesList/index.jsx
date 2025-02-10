@@ -18,6 +18,7 @@ const TemplateList = () => {
   const dispatch = useDispatch();
   const { templates, loading, error, pageSize, totalRecords, currentPage } = useSelector((state) => state.templates);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [TemplateLoading, setTemplateLoading] = useState(false);
   //const [templateId, settemplateId] = useState(0);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [filterText, setFilterText] = useState('');
@@ -82,6 +83,7 @@ const TemplateList = () => {
   ];
 
   const handleDetailClick = (templates_Id) => {
+    setTemplateLoading(true);
     try {
       settemplateId(templates_Id);
       router.replace("/Templates/UpdateTemplate");
@@ -170,6 +172,11 @@ const TemplateList = () => {
   const filteredSendernames = templates.filter((template) =>
     template.templateName.toLowerCase().includes(filterText.toLowerCase())
   );
+
+  const handleCreateClick = () => {
+    setTemplateLoading(true);
+    router.push("/Templates/CreateTemplate");
+  }; // Placeholder for handleCreateClick
   const handleSearchString = (setter) => (e) => {
     const searchValue = e;
     setFilterText(searchValue);
@@ -218,14 +225,14 @@ const TemplateList = () => {
   return (
     <App>
       <div className="flex items-center">
-        {loading && <Loading />}
+        {(loading || TemplateLoading)? <Loading /> : null}
         <div className="mb-1">
           <h4 className="font-bold mb-2">Templates </h4>
         </div>
         <div className="ml-auto mb-2">
           <button
             className="uniform_btn"
-            onClick={() => router.push("/Templates/CreateTemplate")}
+            onClick={handleCreateClick}
           >
             Create Template
           </button>

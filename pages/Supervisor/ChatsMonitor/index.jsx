@@ -30,9 +30,11 @@ const ChatsMonitor = () => {
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [showtransfer, setshowtransfer] = useState(false);
   const [activeChat, setActiveChat] = useState(0);
+  const [PhoneNumber, setPhoneNumber] = useState('');
   const [ChatLoading, setChatLoading] = useState(false)
   const [SenderId, setSenderId] = useState(0);
   const [oldAgentId, setoldAgentId] = useState(0);
+  const [CustomerName, setCustomerName] = useState('');
   const [refreshpage, setrefreshpage] = useState(false);  // Track if page is refreshing
  
   const statusOptions = [
@@ -60,7 +62,7 @@ const ChatsMonitor = () => {
               <button
                 title="View Chat"
                 className="uniform_icon_btn"
-                onClick={() => handleDetailClick(row.id)}
+                onClick={() => handleDetailClick(row)}
               >
                 <HiEye style={{ fontSize: "15px" }} />
               </button>
@@ -168,8 +170,11 @@ const ChatsMonitor = () => {
      }, [dispatch,senderid,srcStr,Status,currentPage]);
 
  
-  const handleDetailClick = async (id) => {
-    setActiveChat(id);
+  const handleDetailClick = async (row) => {
+    debugger
+    setActiveChat(row.id);
+    setCustomerName(row.fullName);
+    setPhoneNumber(row.phoneNumber);
     setshowchat(true);
   };
  
@@ -331,6 +336,8 @@ const ChatsMonitor = () => {
           <Chatview
             ChatId={activeChat}
             isVisible={true}
+            CustomerName = {CustomerName}
+            PhNo={PhoneNumber}
             onClose={handleCancel}
           />
         )
@@ -341,6 +348,7 @@ const ChatsMonitor = () => {
             ChatId={activeChat}
             SenderId={SenderId}
             oldAgentId={oldAgentId}
+            
             isVisible={true}
             onClose={handleTransferCancel}
           />

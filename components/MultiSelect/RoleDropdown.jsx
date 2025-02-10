@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Input } from "reactstrap";
 import $ from 'jquery';
+import Loader from "../Layout/Loader";
 import Select from 'react-select';
 import { fetchRolesDrop, clearRoleDropState } from "@/slices/RoleSlice";
 
@@ -42,7 +43,7 @@ export const RolesDropdown = ({ onChange, error,existingdata }) => {
     setselectedRoleId(selectedIds);
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loader />;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
 
   // Filter out the selected groups from the available options

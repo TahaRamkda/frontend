@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Input } from "reactstrap";
+import Loader from "../Layout/Loader";
 import $ from 'jquery';
 import Select from 'react-select';
 import { fetchTemplatesDrop, clearTemplateDropState } from "@/slices/TemplateSlice";
@@ -35,7 +36,7 @@ export const TemplatesDropdown = ({ onChange }) => {
     label: template.name
   })) || [];
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loader />;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
 
   // Filter out the selected templates from the available options

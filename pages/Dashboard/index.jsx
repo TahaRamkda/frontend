@@ -96,7 +96,7 @@ const Dashboard = () => {
       if (!loading) {
         checkAndFetch();
       }
-    }, REFRESH_INTERVAL);
+    }, [REFRESH_INTERVAL]);
 
     // Cleanup interval on component unmount or when page is unloaded
     return () => clearInterval(intervalId);

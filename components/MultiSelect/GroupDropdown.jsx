@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Input } from "reactstrap";
+import Loader from "../Layout/Loader";
 import $ from 'jquery';
 import Select from 'react-select';
 import { fetchGroupsDrop, clearGroupDropState } from "@/slices/Groupslice";
@@ -44,7 +45,7 @@ export const GroupsDropdown = ({ onChange ,existingdata}) => {
     setSelectedGroupId(selectedIds);
   };
   
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loader />;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
   
 

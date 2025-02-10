@@ -3,13 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { Modal, ModalHeader, ModalBody, Button } from "reactstrap";
 import { BASE_URL } from "@/utils/apiConstants";
 import { extractTime } from "@/utils/constants";
+import Loader from "@/components/Layout/Loader";
 import { REFRESH_INTERVAL } from "@/utils/constants";
 import {
   fetchConversationMessageReport,
   clearMessagesReportState,
 } from "@/slices/ConversationSlice";
 
-const Chatview = ({ ChatId, onClose, isVisible }) => {
+const Chatview = ({ ChatId, onClose, isVisible, PhNo, CustomerName }) => {
   const dispatch = useDispatch();
   const [Activechat, setActiveChat] = useState(0);
   const { conversationMessagereport, loading } = useSelector(
@@ -28,6 +29,7 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
 
   // Fetch chat messages when Activechat changes
   useEffect(() => {
+    debugger
     const ClientId = localStorage.getItem("clientId");
     if (ClientId && Activechat) {
       dispatch(
@@ -98,8 +100,16 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
       <div className="fixed inset-0 bg-gray bg-opacity-500 bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-gray-200 rounded shadow-lg w-full max-w-4xl h-full max-h-[90vh] flex flex-col">
           <ModalHeader toggle={onClose} className="border-b p-4">
-            Chat Details
-            
+            <div className="">
+           <div className="text-xl">Chat Details</div> 
+            <div className="">
+              <div className="text-sm">{CustomerName}</div>
+              <div className="text-xs text-gray-600">
+                {PhNo}
+              </div>
+            </div>
+            </div>
+
           </ModalHeader>
           <ModalBody className="flex-grow overflow-y-auto p-4">
             <div className="right-sidebar-chat">
@@ -108,9 +118,7 @@ const Chatview = ({ ChatId, onClose, isVisible }) => {
                 style={{ maxHeight: "calc(90vh - 120px)" }}
               >
                 {loading && !refreshpage && (
-                  <div className="text-center">
-                    Please wait while we load your chat!!
-                  </div>
+                 <Loader/>
                 )}
                 {chatMessages?.map((message) => (
                   <div

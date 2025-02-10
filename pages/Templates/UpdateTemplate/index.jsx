@@ -313,6 +313,7 @@ const TemplateUpdatePage = () => {
     });
   };
   const handelCancel = () => {
+    setLoading(true);
     router.push("/Templates/TemplatesList");
   };
   // const handleSubmit = async (values) => {
@@ -977,14 +978,10 @@ const TemplateUpdatePage = () => {
     }));
   }, [bodyFinalContent]);
 
-  if (Loading)
-    return (
-      <App>
-        <Loader />
-      </App>
-    );
+  
   return (
     <App>
+      {(Loading || loading) && <Loader />}
       <Container fluid className="mt-0">
        
         <Row style={{ height: "100vh" }}>
@@ -1019,13 +1016,13 @@ const TemplateUpdatePage = () => {
             />
             <Formik
               initialValues={{
-                templateName: template.templateName,
-                headerType: template.headerType,
-                headerContent: template.headerText,
+                templateName: template?.templateName,
+                headerType: template?.headerType,
+                headerContent: template?.headerText,
                 headerMedia: null,
                 body: "",
-                footer: template.footerText,
-                senderId: template.senderId,
+                footer: template?.footerText,
+                senderId: template?.senderId,
                 buttons: [],
                 variables: [],
                 headerVariable: [],

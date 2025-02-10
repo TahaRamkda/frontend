@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
+
 import {
   fetchInteractiveTemplates,
   clearInteractiveTemplateListState,
@@ -31,7 +32,7 @@ import App from "@/components/Layout/App";
 import { HiPencilAlt, HiTrash, HiRefresh } from "react-icons/hi";
 import { useSetRecoilState } from "recoil";
 import { TemplateState } from "@/components/recoil";
-import Loading from "@/components/Layout/Loader";
+import Loader from "@/components/Layout/Loader";
 import SearchBar from '@/components/SearchBar/SearchComponent';
 import { toDate } from "date-fns";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
@@ -52,6 +53,7 @@ const TemplateList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   //const [templateId, settemplateId] = useState(0);
   const [filterText, setFilterText] = useState("");
+  const [TemplateLoading, setTemplateLoading  ] = useState(false);
   const settemplateId = useSetRecoilState(TemplateState);
   const templateColumns = [
     {
@@ -211,6 +213,10 @@ const TemplateList = () => {
 
     setSearchTimeout(timeout); // Save the timeout reference
   };
+ const handleCreateClick = () => {
+  setTemplateLoading(true);
+    router.push("/InteractiveTemplates/CreateTemplate")
+  };
   useEffect(() => {
     dispatch(
       fetchInteractiveTemplates({
@@ -266,14 +272,14 @@ const TemplateList = () => {
   return (
     <App>
       <div className="flex items-center">
-        {loading && <Loading />}
+        {(loading || TemplateLoading )&& <Loader />}
         <div className="mb-1">
           <h4 className="font-bold mb-2"> Interactive Templates </h4>
         </div>
         <div className="ml-auto mb-2">
           <button
             className="uniform_btn"
-            onClick={() => router.push("/InteractiveTemplates/CreateTemplate")}
+            onClick={handleCreateClick}
           >
             Create Template
           </button>

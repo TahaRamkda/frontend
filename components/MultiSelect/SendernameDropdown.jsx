@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
+import Loader from '../Layout/Loader';        
 import { fetchSendernamesDrop, clearSendernameDropState } from "@/slices/sendernameSlice";
 
 
@@ -39,7 +40,7 @@ const SendernamesDropdown = ({ name, value, onChange, error, existingdata  }) =>
 
   // Handle select/deselect seder (via select2)
  
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loader />;
   if (error) return <p className="text-danger">Error loading  {error}</p>;
 
   // Filter out the selected groups from the available options

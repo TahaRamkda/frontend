@@ -546,7 +546,15 @@ const CampaignUpdate = () => {
   };
 
   const handelCancel = () => {
-    setMessagePreview([])
+    setMessagePreview({
+      header: "",
+      body: "",
+      footer: "",
+      media: null,
+      buttons: [],
+      visitWebsiteButtonCount: 0,
+    });
+    
     router.push("/Campaigns/CampaignsList");
   };
 

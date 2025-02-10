@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Line } from "react-chartjs-2";
+import Loader from "@/components/Layout/Loader";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -110,6 +111,7 @@ const TemplateInsight = () => {
 
   return (
     <App>
+      {loading && <Loader />}
       <div className="w-full">
         {/* Date Filters */}
         <div className="grid grid-cols-5 mb-4 gap-4">

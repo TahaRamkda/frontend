@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import $ from "jquery";
 import "select2/dist/css/select2.min.css";
 import "select2/dist/js/select2.min.js";
+import Loader from "../Layout/Loader";
 import { fetchInteractiveTemplateDropWithoutParam,clearInteractiveTemplateDropStateState } from "@/slices/InteractiveTemplateSlice";
 import { FormGroup, Label, Input, FormText } from "reactstrap";
 
@@ -52,7 +53,7 @@ const InteractiveTemplateDropdown = ({ name, value, onChange, TransactionType, S
     };
   }, [interactiveTemplateDropList, onChange]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loader />;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
 
   return (

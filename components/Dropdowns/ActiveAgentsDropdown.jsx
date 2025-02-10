@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
+import Loader from '../Layout/Loader';
 import 'select2/dist/js/select2.min.js';
 import { fetchActiveAgentsDrop, cleaActiveAgenDroptState } from '@/slices/AgentSlice';
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
@@ -39,7 +40,7 @@ const ActiveAgentDropdown = ({ name, value, onChange,SenderId }) => {
     };
   }, [activeAgentDrop, onChange]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loader />;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
 
   return (
