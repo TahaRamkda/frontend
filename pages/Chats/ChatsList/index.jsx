@@ -117,9 +117,9 @@ const ChatPage = () => {
   const [heartbeatAttempts, setheartbeatAttempts] = useState(0);
   const [tryReconnect, settryReconnect] = useState(false);
   const lastScrollTop = useRef(0);
-  const [UserId , setuserId ] = useState(0);
+  const [UserId, setuserId] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
- const [IsOneSignalLoaded ,setIsOneSignalLoaded] = useState(false); 
+  const [IsOneSignalLoaded, setIsOneSignalLoaded] = useState(false);
   useEffect(() => {
     // Initialize the audio object only once
     audioRef.current = new Audio("/assets/Notification/chatassigned.mp3");
@@ -130,7 +130,17 @@ const ChatPage = () => {
     setTemplateDetails(details); // Update parent state
     console.log("Received template details:", details);
   };
+// useEffect(() => {
+//   const handleBeforeUnload = () => {
+//     toast.dismiss(); // Dismiss all active toasts when the window is closed or refreshed
+//   };
 
+//   window.addEventListener("beforeunload", handleBeforeUnload);
+
+//   return () => {
+//     window.removeEventListener("beforeunload", handleBeforeUnload);
+//   };
+// }, []);
   const handleCopy = (text) => {
     const phoneNumber = text.startsWith("965") ? text.slice(3) : text;
     navigator.clipboard.writeText(phoneNumber);
@@ -149,7 +159,6 @@ const ChatPage = () => {
       confirmButtonText: "Logout",
       cancelButtonText: "Cancel",
     }).then((result) => {
-      ;
       if (result.isConfirmed) {
         window.OneSignal.logout();
         AgentConversation.map((item) => {
@@ -164,13 +173,10 @@ const ChatPage = () => {
 
   //onesignal hook
   //useOneSignal(localStorage.getItem("userId"));
- 
-
 
   useEffect(() => {
     // Initialize OneSignal
     const initializeOneSignal = async () => {
-      
       if (typeof window !== "undefined" && window.OneSignal) {
         await OneSignal.init({
           appId: "2b6362f1-b706-4087-bfaf-0d625c02110b",
@@ -181,9 +187,9 @@ const ChatPage = () => {
           allowLocalhostAsSecureOrigin: true,
         }).then(() => {
           setIsOneSignalLoaded(true);
-          
+
           // Set External User ID after initialization
-          const externalUserId = localStorage.getItem("userId") ; // Replace with dynamic external user ID
+          const externalUserId = localStorage.getItem("userId"); // Replace with dynamic external user ID
           window.OneSignal.login(externalUserId)
             .then(() => {
               console.log(`External User ID set to: ${externalUserId}`);
@@ -197,18 +203,18 @@ const ChatPage = () => {
         });
       }
     };
-     // Call the initialize function
-     initializeOneSignal();
+    // Call the initialize function
+    initializeOneSignal();
 
-     const externalUserId = localStorage.getItem("userId") ; // Replace with dynamic external user ID
-     window.OneSignal?.login(externalUserId)
-       .then(() => {
-         console.log(`External User ID set to: ${externalUserId}`);
-       })
-       .catch((error) => {
-         console.error("Error setting external user ID:", error);
-       });
-    }, []);
+    const externalUserId = localStorage.getItem("userId"); // Replace with dynamic external user ID
+    window.OneSignal?.login(externalUserId)
+      .then(() => {
+        console.log(`External User ID set to: ${externalUserId}`);
+      })
+      .catch((error) => {
+        console.error("Error setting external user ID:", error);
+      });
+  }, []);
 
   useEffect(() => {
     if (templateDetails) {
@@ -340,7 +346,6 @@ const ChatPage = () => {
   }, [currentPage, hasMore, loading, Activechat]);
 
   const handleImageclose = () => {
-    
     setMediaFile(null);
     setPreviewUrl(null);
   };
@@ -435,7 +440,6 @@ const ChatPage = () => {
   }, [AgentConversation]);
 
   const handleFileChange = (e) => {
-    
     const file = e.target.files[0];
     if (file) {
       setMediaFile(file); // Store the selected fil
@@ -446,7 +450,6 @@ const ChatPage = () => {
   };
 
   const openFileManager = () => {
-    
     fileInputRef.current.click(); // Trigger the file input click event
   };
 
@@ -465,9 +468,9 @@ const ChatPage = () => {
       console.error("UserId not found in localStorage");
       return;
     }
-  
+
     setuserId(userId);
-  
+
     // Initialize SignalR connection
     const newConnection = new signalR.HubConnectionBuilder()
       .withUrl(`${BASE_URL}/conversation?AgentId=${userId}`, {
@@ -476,127 +479,146 @@ const ChatPage = () => {
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 15000, 20000, 25000])
       .build();
-  
+
     // Store connection in ref to avoid unnecessary re-renders
     connectionRef.current = newConnection;
-  
+
     // Message received handler
     const handleIncomingMessage = (message) => {
       audioRef.current
         ?.play()
-        .catch((err) => console.error("Failed to play notification sound:", err));
-  
+        .catch((err) =>
+          console.error("Failed to play notification sound:", err)
+        );
+
       const matchingConversationIndex = agentChatRef.current.findIndex(
         (conversation) => conversation.id === message.conversationId
       );
-  
+
       if (matchingConversationIndex !== -1) {
         const updatedConversations = [...agentChatRef.current];
-        const matchingConversation = updatedConversations[matchingConversationIndex];
-  
+        const matchingConversation =
+          updatedConversations[matchingConversationIndex];
+
         if ((matchingConversation.unreadCount || 0) <= 0) {
           startTimer(message);
         }
-  
+
         updatedConversations[matchingConversationIndex] = {
           ...matchingConversation,
           lastMessageText: message.messageContent,
           updatedDate: message.createdDate,
           unreadCount: (matchingConversation.unreadCount || 0) + 1,
         };
-  
+
         agentChatRef.current = updatedConversations;
         setAgentConversation(updatedConversations);
       } else {
-        console.warn("No matching conversation found for message.conversationId:", message.conversationId);
+        console.warn(
+          "No matching conversation found for message.conversationId:",
+          message.conversationId
+        );
       }
-  
+
       if (message.conversationId === activeChatRef.current) {
         setChatMessages((prevMessages) => [message, ...prevMessages]);
         setTempMessages([]);
       } else {
         if (matchingConversationIndex !== -1) {
           const updatedConversations = [...agentChatRef.current];
-          const matchingConversation = updatedConversations[matchingConversationIndex];
-  
+          const matchingConversation =
+            updatedConversations[matchingConversationIndex];
+
           updatedConversations.splice(matchingConversationIndex, 1);
           updatedConversations.unshift(matchingConversation);
-  
+
           agentChatRef.current = updatedConversations;
           setAgentConversation(updatedConversations);
         }
       }
     };
-  
+
     // Handles conversation assignment
     const handleConversationAssigned = (notification) => {
       audioRef.current
         ?.play()
-        .catch((err) => console.error("Failed to play notification sound:", err));
-  
+        .catch((err) =>
+          console.error("Failed to play notification sound:", err)
+        );
+
       dispatch(
         fetchAgentStats({
           clientId: localStorage.getItem("clientId"),
           agentId: userId,
         })
       );
-  
+
       startTimer(notification);
-  
+
       const matchingConversationIndex = agentChatRef.current.findIndex(
         (conversation) => conversation.id === notification.id
       );
-  
+
       if (matchingConversationIndex !== -1) {
         const updatedConversations = [...agentChatRef.current];
         updatedConversations[matchingConversationIndex] = {
           ...updatedConversations[matchingConversationIndex],
           lastMessageText: notification.lastMessageText,
-          unreadCount: (updatedConversations[matchingConversationIndex].unreadCount || 0) + 1,
+          unreadCount:
+            (updatedConversations[matchingConversationIndex].unreadCount || 0) +
+            1,
         };
-  
+
         agentChatRef.current = updatedConversations;
         setAgentConversation(updatedConversations);
       } else {
         const newNotification = { ...notification, unreadCount: 1 };
-        setAgentConversation((prevMessages) => [newNotification, ...prevMessages]);
+        setAgentConversation((prevMessages) => [
+          newNotification,
+          ...prevMessages,
+        ]);
       }
     };
-  
+
     // Handles conversation unassignment
     const handleConversationUnAssigned = (chatId) => {
-      if (!agentChatRef.current.some((conversation) => conversation.id === chatId)) return;
-  
+      if (
+        !agentChatRef.current.some((conversation) => conversation.id === chatId)
+      )
+        return;
+
       dispatch(
         fetchAgentStats({
           clientId: localStorage.getItem("clientId"),
           agentId: userId,
         })
       );
-  
-      const updatedConversations = agentChatRef.current.filter((conversation) => conversation.id !== chatId);
+
+      const updatedConversations = agentChatRef.current.filter(
+        (conversation) => conversation.id !== chatId
+      );
       const isActiveChat = chatId === activeChatRef.current;
-  
+
       if (isActiveChat) {
         setChatMessages([]);
         setActiveChat(0);
       }
-  
+
       clearTimer(chatId);
       agentChatRef.current = updatedConversations;
       setAgentConversation(updatedConversations);
     };
-  
+
     const handleHeartbeatAcknowledged = () => {
       console.log("Heartbeat acknowledged", new Date());
     };
-  
+
     // Setup event listeners
     newConnection.on("MessageReceived", handleIncomingMessage);
     newConnection.on("ConversationAssigned", handleConversationAssigned);
     newConnection.on("ConversationUnAssigned", handleConversationUnAssigned);
     newConnection.on("HeartbeatAcknowledged", handleHeartbeatAcknowledged);
-  
+
     // Start connection
     newConnection
       .start()
@@ -607,17 +629,17 @@ const ChatPage = () => {
         console.error("Error while starting the connection:", err);
         setErrordisconnect(true);
       });
-  
+
     // Handle connection loss and attempt to reconnect
     newConnection.onreconnecting((error) => {
       console.warn("Connection lost. Attempting to reconnect...", error);
     });
-  
+
     newConnection.onclose(() => {
       console.error("SignalR connection lost. Retrying in 5 seconds...");
       setTimeout(() => setErrordisconnect(true), 5000);
     });
-  
+
     // Heartbeat logic
     const heartbeatInterval = setInterval(() => {
       if (newConnection.state === signalR.HubConnectionState.Connected) {
@@ -629,36 +651,40 @@ const ChatPage = () => {
           })
           .catch((err) => {
             setheartbeatAttempts((prev) => prev + 1);
-            console.error(`Heartbeat error (${heartbeatAttempts} attempts):`, err);
+            console.error(
+              `Heartbeat error (${heartbeatAttempts} attempts):`,
+              err
+            );
           });
       } else {
         setErrordisconnect(true);
         console.warn("Connection is not in the connected state.");
       }
     }, HEARTBEAT_CHECK_INTERVAL);
-  
+
     return () => {
-      newConnection.stop().catch((err) => console.error("Error stopping connection:", err));
+      newConnection
+        .stop()
+        .catch((err) => console.error("Error stopping connection:", err));
       clearInterval(heartbeatInterval);
       setErrordisconnect(true);
     };
   }, []);
-  
+
   useEffect(() => {
     if (Errordisconnect) {
       console.warn("Reconnecting SignalR...");
-      
-        setErrordisconnect(false);
-     
+
+      setErrordisconnect(false);
     }
   }, [Errordisconnect]);
-  
+
   useEffect(() => {
     if (heartbeatAttempts >= 2) {
       setErrordisconnect(true);
     }
   }, [heartbeatAttempts]);
-  
+
   const startTimer = (messages) => {
     // Clear existing timer if any
     if (timersRef.current[messages.id]) {
@@ -672,19 +698,19 @@ const ChatPage = () => {
   };
 
   const handleTimerExpiry = (message) => {
-    toast.error(
-      `Reply pending for : ${message.phoneNumber} for more than 5 mins`
-    );
+    // toast.error(
+    //   `Reply pending for : ${message.phoneNumber} for more than 5 mins`
+    // );
 
     // Play alert sound
-    audioRef.current
-      ?.play()
-      .catch((err) =>
-        console.error("Failed to play alert sound on timer expiry:", err)
-      );
+    // audioRef.current
+    //   ?.play()
+    //   .catch((err) =>
+    //     console.error("Failed to play alert sound on timer expiry:", err)
+    //   );
 
     // Trigger another 5-minute timer if no action is taken
-    if (!isMessageReplied(message.id) ) {
+    if (!isMessageReplied(message.id)) {
       console.warn(`No reply for ID: ${message.id}, rescheduling timer.`);
       markChatAsUnreplied(message.id);
       startTimer(message); // Restart the timer
@@ -1042,41 +1068,40 @@ const ChatPage = () => {
                 ))}
                 <div className="right-sidebar-chat w-full height-chat-box overflow-y-auto chat-background h-100">
                   <div className="msger flex flex-col  h-full">
-                    
-                      <div
-                        ref={scrollContainerRef}
-                        className={`msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2 ${
-                          previewUrl ? "hide-messages" : ""
-                        }`}
-                        style={{
-                          overflowY: "auto",
-                          display: "flex",
-                          flexDirection: "column-reverse",
-                        }}
-                      >
-                        {Chatsloading && (
-                          <div className="text-center">Loading messages...</div>
-                        )}
-                        {chatMessages?.map((message) => (
+                    <div
+                      ref={scrollContainerRef}
+                      className={`msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2 ${
+                        previewUrl ? "hide-messages" : ""
+                      }`}
+                      style={{
+                        overflowY: "auto",
+                        display: "flex",
+                        flexDirection: "column-reverse",
+                      }}
+                    >
+                      {Chatsloading && (
+                        <div className="text-center">Loading messages...</div>
+                      )}
+                      {chatMessages?.map((message) => (
+                        <div
+                          key={message.messageId}
+                          className={`mt-2 flex ${
+                            message.typeId === 1
+                              ? "justify-end"
+                              : "justify-start"
+                          }`}
+                        >
                           <div
-                            key={message.messageId}
-                            className={`mt-2 flex ${
-                              message.typeId === 1
-                                ? "justify-end"
-                                : "justify-start"
-                            }`}
-                          >
-                            <div
-                              className={`max-w-2xl p-2 rounded-lg shadow-sm 
+                            className={`max-w-2xl p-2 rounded-lg shadow-sm 
                               md:max-w-xl md:p-1.5 md:rounded-md md:shadow-xs 
                               sm:max-w-md sm:p-1 sm:rounded-sm sm:shadow-none 
                               xs:max-w-full xs:p-0.5 xs:rounded-none xs:shadow-none ${
                                 message.typeId === 1
-                              ? "bg-[#ddffd9] text-black rounded-br-none"
-                              : "bg-[#ffffff] text-black rounded-bl-none"
-                          }`}
-                            >
-                              <div>
+                                  ? "bg-[#ddffd9] text-black rounded-br-none"
+                                  : "bg-[#ffffff] text-black rounded-bl-none"
+                              }`}
+                          >
+                            <div>
                               {message.parentMessageContent &&
                                 message.parentMessageContent.trim() !== "" && (
                                   <div
@@ -1289,204 +1314,202 @@ const ChatPage = () => {
                                     ))}
                                   </div>
                                 )}
-                                </div>
-                            </div>
-                          </div>
-                        ))}
-                        <div ref={messagesEndRef} />
-                      </div>
-                      {previewUrl && (
-                        <div className="absolute inset-0  flex items-center justify-center z-50">
-                          <div className="bg-transparent p-6 rounded w-2/5 ">
-                            <div
-                              style={{
-                                position: "relative",
-                                padding: "20px",
-                                borderRadius: "12px",
-                                maxWidth: "500px",
-                                width: "100%", // Full width within the max-width limit
-                                margin: "20px auto", // Center the container
-                              }}
-                            >
-                              {/* Close Button */}
-                              <button
-                                onClick={() => handleImageclose()}
-                                style={{
-                                  position: "absolute",
-                                  top: "15px",
-                                  right: "15px",
-                                  backgroundColor: "rgba(255, 0, 0, 0.8)",
-                                  color: "white",
-                                  border: "none",
-                                  borderRadius: "50%",
-                                  width: "30px",
-                                  height: "30px",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  cursor: "pointer",
-                                  boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
-                                  fontSize: "18px",
-                                  lineHeight: "1",
-                                  transition: "background-color 0.3s ease",
-                                }}
-                                onMouseOver={(e) =>
-                                  (e.target.style.backgroundColor =
-                                    "rgba(255, 0, 0, 1)")
-                                }
-                                onMouseOut={(e) =>
-                                  (e.target.style.backgroundColor =
-                                    "rgba(255, 0, 0, 0.8)")
-                                }
-                              >
-                                &times;
-                              </button>
-
-                              {/* Image Preview */}
-                              {fileType === "image" && (
-                                <div
-                                  style={{
-                                    width: "400px", // Fixed width
-                                    height: "300px", // Fixed height
-                                    borderRadius: "8px",
-                                    overflow: "hidden", // Hide overflow
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    backgroundColor: "#f0f0f0", // Background for smaller images
-                                  }}
-                                >
-                                  <img
-                                    src={previewUrl}
-                                    alt="Preview"
-                                    style={{
-                                      width: "100%",
-                                      height: "100%",
-                                      objectFit: "contain", // Ensures the image fits within the container
-                                    }}
-                                  />
-                                </div>
-                              )}
-
-                              {/* Video Preview */}
-                              {fileType === "video" && (
-                                <div
-                                  style={{
-                                    width: "400px", // Fixed width
-                                    height: "300px", // Fixed height
-                                    borderRadius: "8px",
-                                    overflow: "hidden", // Hide overflow
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    backgroundColor: "#f0f0f0", // Background for smaller videos
-                                  }}
-                                >
-                                  <video
-                                    controls
-                                    src={previewUrl}
-                                    style={{
-                                      width: "100%",
-                                      height: "100%",
-                                      objectFit: "contain", // Ensures the video fits within the container
-                                    }}
-                                  />
-                                </div>
-                              )}
-
-                              {/* Audio Preview */}
-                              {fileType === "audio" && (
-                                <div
-                                  style={{
-                                    width: "100%",
-                                    marginTop: "10px",
-                                    borderRadius: "8px",
-                                    backgroundColor: "#f0f0f0",
-                                    padding: "15px",
-                                  }}
-                                >
-                                  <audio
-                                    controls
-                                    src={previewUrl}
-                                    style={{
-                                      width: "100%",
-                                    }}
-                                  />
-                                </div>
-                              )}
-
-                             {/* Application/File Preview */}
-                        {fileType === "application" && (
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              marginTop: "10px",
-                              padding: "15px",
-                              borderRadius: "8px",
-                              backgroundColor: "#f0f0f0",
-                            }}
-                                >
-                                  <div
-                                    style={{
-                                      backgroundColor: "#ffffff",
-                                      borderRadius: "50%",
-                                      width: "50px",
-                                      height: "50px",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      marginRight: "15px",
-                                      boxShadow:
-                                        "0px 2px 5px rgba(0, 0, 0, 0.1)",
-                                    }}
-                                  >
-                                    <i
-                                      className="fa fa-file"
-                                      style={{
-                                        fontSize: "24px",
-                                        color: "#555",
-                                      }}
-                                    ></i>
-                                  </div>
-                                  <div>
-                                    <p
-                                      style={{
-                                        margin: "0 0 5px",
-                                        fontWeight: "600",
-                                        color: "#333",
-                                        fontSize: "16px",
-                                      }}
-                                    >
-                                      {mediaFile.name}
-                                    </p>
-                                    <a
-                                      href={previewUrl}
-                                      download={mediaFile.name}
-                                      style={{
-                                        color: "#007BFF",
-                                        textDecoration: "none",
-                                        fontSize: "14px",
-                                        fontWeight: "500",
-                                        transition: "color 0.3s ease",
-                                      }}
-                                      onMouseOver={(e) =>
-                                        (e.target.style.color = "#0056b3")
-                                      }
-                                      onMouseOut={(e) =>
-                                        (e.target.style.color = "#007BFF")
-                                      }
-                                    >
-                                      Download
-                                    </a>
-                                  </div>
-                                </div>
-                              )}
                             </div>
                           </div>
                         </div>
-                      )}
-                    
+                      ))}
+                      <div ref={messagesEndRef} />
+                    </div>
+                    {previewUrl && (
+                      <div className="absolute inset-0  flex items-center justify-center z-50">
+                        <div className="bg-transparent p-6 rounded w-2/5 ">
+                          <div
+                            style={{
+                              position: "relative",
+                              padding: "20px",
+                              borderRadius: "12px",
+                              maxWidth: "500px",
+                              width: "100%", // Full width within the max-width limit
+                              margin: "20px auto", // Center the container
+                            }}
+                          >
+                            {/* Close Button */}
+                            <button
+                              onClick={() => handleImageclose()}
+                              style={{
+                                position: "absolute",
+                                top: "15px",
+                                right: "15px",
+                                backgroundColor: "rgba(255, 0, 0, 0.8)",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "50%",
+                                width: "30px",
+                                height: "30px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                cursor: "pointer",
+                                boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+                                fontSize: "18px",
+                                lineHeight: "1",
+                                transition: "background-color 0.3s ease",
+                              }}
+                              onMouseOver={(e) =>
+                                (e.target.style.backgroundColor =
+                                  "rgba(255, 0, 0, 1)")
+                              }
+                              onMouseOut={(e) =>
+                                (e.target.style.backgroundColor =
+                                  "rgba(255, 0, 0, 0.8)")
+                              }
+                            >
+                              &times;
+                            </button>
+
+                            {/* Image Preview */}
+                            {fileType === "image" && (
+                              <div
+                                style={{
+                                  width: "400px", // Fixed width
+                                  height: "300px", // Fixed height
+                                  borderRadius: "8px",
+                                  overflow: "hidden", // Hide overflow
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  backgroundColor: "#f0f0f0", // Background for smaller images
+                                }}
+                              >
+                                <img
+                                  src={previewUrl}
+                                  alt="Preview"
+                                  style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "contain", // Ensures the image fits within the container
+                                  }}
+                                />
+                              </div>
+                            )}
+
+                            {/* Video Preview */}
+                            {fileType === "video" && (
+                              <div
+                                style={{
+                                  width: "400px", // Fixed width
+                                  height: "300px", // Fixed height
+                                  borderRadius: "8px",
+                                  overflow: "hidden", // Hide overflow
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  backgroundColor: "#f0f0f0", // Background for smaller videos
+                                }}
+                              >
+                                <video
+                                  controls
+                                  src={previewUrl}
+                                  style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "contain", // Ensures the video fits within the container
+                                  }}
+                                />
+                              </div>
+                            )}
+
+                            {/* Audio Preview */}
+                            {fileType === "audio" && (
+                              <div
+                                style={{
+                                  width: "100%",
+                                  marginTop: "10px",
+                                  borderRadius: "8px",
+                                  backgroundColor: "#f0f0f0",
+                                  padding: "15px",
+                                }}
+                              >
+                                <audio
+                                  controls
+                                  src={previewUrl}
+                                  style={{
+                                    width: "100%",
+                                  }}
+                                />
+                              </div>
+                            )}
+
+                            {/* Application/File Preview */}
+                            {fileType === "application" && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  marginTop: "10px",
+                                  padding: "15px",
+                                  borderRadius: "8px",
+                                  backgroundColor: "#f0f0f0",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    backgroundColor: "#ffffff",
+                                    borderRadius: "50%",
+                                    width: "50px",
+                                    height: "50px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    marginRight: "15px",
+                                    boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
+                                  }}
+                                >
+                                  <i
+                                    className="fa fa-file"
+                                    style={{
+                                      fontSize: "24px",
+                                      color: "#555",
+                                    }}
+                                  ></i>
+                                </div>
+                                <div>
+                                  <p
+                                    style={{
+                                      margin: "0 0 5px",
+                                      fontWeight: "600",
+                                      color: "#333",
+                                      fontSize: "16px",
+                                    }}
+                                  >
+                                    {mediaFile.name}
+                                  </p>
+                                  <a
+                                    href={previewUrl}
+                                    download={mediaFile.name}
+                                    style={{
+                                      color: "#007BFF",
+                                      textDecoration: "none",
+                                      fontSize: "14px",
+                                      fontWeight: "500",
+                                      transition: "color 0.3s ease",
+                                    }}
+                                    onMouseOver={(e) =>
+                                      (e.target.style.color = "#0056b3")
+                                    }
+                                    onMouseOut={(e) =>
+                                      (e.target.style.color = "#007BFF")
+                                    }
+                                  >
+                                    Download
+                                  </a>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     <div className="msger-inputs  flex items-center">
                       <Button
@@ -1499,7 +1522,7 @@ const ChatPage = () => {
                       <button
                         className="mr-2 chatBarEMoji  hover:bg-gray-200 rounded-full"
                         onClick={() => setShowEmojiPicker((prev) => !prev)}
-                        style={{zIndex: '999'}}
+                        style={{ zIndex: "999" }}
                       >
                         <i className="fa fa-smile-o text-gray-600"></i>
                       </button>
@@ -1531,7 +1554,7 @@ const ChatPage = () => {
                       <Input
                         type="text"
                         value={messageInput}
-                        style={{zIndex: '999'}}
+                        style={{ zIndex: "999" }}
                         onChange={(e) => setMessageInput(e.target.value)}
                         onKeyDown={(e) => {
                           if ((e.shiftKey || e.altKey) && e.key === "Enter") {
@@ -1553,7 +1576,6 @@ const ChatPage = () => {
 
                       <input
                         ref={fileInputRef}
-                        
                         type="file"
                         onChange={handleFileChange}
                         className="hidden"
@@ -1561,7 +1583,6 @@ const ChatPage = () => {
                       <div className="relative">
                         <button
                           onClick={handleAgentdefinetemplate}
-                          
                           className="  rounded-full m-3 "
                         >
                           <i className="fa fa-comment"></i>
@@ -1581,7 +1602,7 @@ const ChatPage = () => {
                         type="submit"
                         onClick={HandleSendMessage}
                         color="primary"
-                        style={{zIndex: '999'}}
+                        style={{ zIndex: "999" }}
                       >
                         <i className="fa fa-paper-plane"></i>
                       </button>
@@ -1598,7 +1619,7 @@ const ChatPage = () => {
           </Col>
         </Row>
       </Container>
-       {Errordisconnect && (
+      {Errordisconnect && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
           <div className="bg-red-500 p-8 rounded-lg shadow-md max-w-md w-full text-center">
             <div className="flex justify-center mb-4">

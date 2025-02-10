@@ -34,7 +34,7 @@
   //to refresh the api call every 5 minutes
 export const REFRESH_INTERVAL=1200000 ; // 5 minutes in milliseconds
 
-export const NOTIFICATION_WARNING_INTERVAL=300000 ; // 5 minutes in milliseconds
+export const NOTIFICATION_WARNING_INTERVAL=28800000  ; // 5 minutes in milliseconds
 
 export const HEARTBEAT_CHECK_INTERVAL=100000 ; // 5 minutes in milliseconds
 
