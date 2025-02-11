@@ -174,47 +174,47 @@ const ChatPage = () => {
   //onesignal hook
   //useOneSignal(localStorage.getItem("userId"));
 
-  useEffect(() => {
-    // Initialize OneSignal
-    const initializeOneSignal = async () => {
-      if (typeof window !== "undefined" && window.OneSignal) {
-        await OneSignal.init({
-          appId: "2b6362f1-b706-4087-bfaf-0d625c02110b",
-          //safari_web_id: "web.onesignal.auto.0f5ba526-5606-4a7b-90fa-69fc66b30a70",
-          notifyButton: {
-            enable: true,
-          },
-          allowLocalhostAsSecureOrigin: true,
-        }).then(() => {
-          setIsOneSignalLoaded(true);
+  // useEffect(() => {
+  //   // Initialize OneSignal
+  //   const initializeOneSignal = async () => {
+  //     if (typeof window !== "undefined" && window.OneSignal) {
+  //       await OneSignal.init({
+  //         appId: "2b6362f1-b706-4087-bfaf-0d625c02110b",
+  //         //safari_web_id: "web.onesignal.auto.0f5ba526-5606-4a7b-90fa-69fc66b30a70",
+  //         notifyButton: {
+  //           enable: true,
+  //         },
+  //         allowLocalhostAsSecureOrigin: true,
+  //       }).then(() => {
+  //         setIsOneSignalLoaded(true);
 
-          // Set External User ID after initialization
-          const externalUserId = localStorage.getItem("userId"); // Replace with dynamic external user ID
-          window.OneSignal.login(externalUserId)
-            .then(() => {
-              console.log(`External User ID set to: ${externalUserId}`);
-            })
-            .catch((error) => {
-              console.error("Error setting external user ID:", error);
-            });
+  //         // Set External User ID after initialization
+  //         const externalUserId = localStorage.getItem("userId"); // Replace with dynamic external user ID
+  //         window.OneSignal.login(externalUserId)
+  //           .then(() => {
+  //             console.log(`External User ID set to: ${externalUserId}`);
+  //           })
+  //           .catch((error) => {
+  //             console.error("Error setting external user ID:", error);
+  //           });
 
-          // Show the prompt after setting the external user ID
-          window.OneSignal.Slidedown.promptPush();
-        });
-      }
-    };
-    // Call the initialize function
-    initializeOneSignal();
+  //         // Show the prompt after setting the external user ID
+  //         window.OneSignal.Slidedown.promptPush();
+  //       });
+  //     }
+  //   };
+  //   // Call the initialize function
+  //   initializeOneSignal();
 
-    const externalUserId = localStorage.getItem("userId"); // Replace with dynamic external user ID
-    window.OneSignal?.login(externalUserId)
-      .then(() => {
-        console.log(`External User ID set to: ${externalUserId}`);
-      })
-      .catch((error) => {
-        console.error("Error setting external user ID:", error);
-      });
-  }, []);
+  //   const externalUserId = localStorage.getItem("userId"); // Replace with dynamic external user ID
+  //   window.OneSignal?.login(externalUserId)
+  //     .then(() => {
+  //       console.log(`External User ID set to: ${externalUserId}`);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error setting external user ID:", error);
+  //     });
+  // }, []);
 
   useEffect(() => {
     if (templateDetails) {
