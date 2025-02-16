@@ -8,6 +8,8 @@ import {
   TEMPLATEINSIGHT,
   CONVERSATIONREPORT,
   AGENTREPORT,
+  CHATREPORTSTATS,
+  CHATREPORTLOGS,
 } from "@/utils/apiConstants";
 
 // Thunks
@@ -91,11 +93,11 @@ export const fetchMessageReport = createAsyncThunk(
 );
 export const fetchConversationReport = createAsyncThunk(
   'conversationreport /fetchConversationReport',
-  async ({status, pageSize,pageNo,senderId,FromDate,ToDate,srcStr}, { rejectWithValue }) => {
+  async ({status, pageSize,pageNo,senderId,FromDate,ToDate,srcStr,fChatInitiated}, { rejectWithValue }) => {
     
     try {
 
-      const response = await API.get(`${CONVERSATIONREPORT}?senderId=${senderId}${srcStr ? `&searchStr=${srcStr}`: ''}&status=${status}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`);
+      const response = await API.get(`${CONVERSATIONREPORT}?senderId=${senderId}${srcStr ? `&searchStr=${srcStr}`: ''}&status=${status}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}&fChatInitiated=${fChatInitiated}`);
       if (response?.status === 200 && response.data?.result) {
         return {
         ConversationReport: response.data.result,
@@ -111,11 +113,32 @@ export const fetchConversationReport = createAsyncThunk(
   }
 );
 
+export const fetchChatLogs = createAsyncThunk(
+  'chatlogs /fetchChatLogs',
+  async ({conversationId}, { rejectWithValue }) => {
+    
+    try {
+
+      const response = await API.get(`${CHATREPORTLOGS}?conversationId=${conversationId}`);
+      if (response?.status === 200 && response.data?.result) {
+        return {
+        chatLogs: response.data.result
+        };
+      } else {
+        throw new Error('Failed to fetch details');
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
 export const fetchAgentReport = createAsyncThunk(
   'agentreport /fetchAgentReport',
   async ({status, pageSize,pageNo,senderId,FromDate,ToDate,srcStr}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${AGENTREPORT}?${srcStr ? `searchStr=${srcStr}`: ''}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`);
+      const response = await API.get(`${AGENTREPORT}?pageSize=${pageSize}&senderId=${senderId}${srcStr ? `&searchStr=${srcStr}`: ''}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`);
       if (response?.status === 200 && response.data?.result) {
         return {
         AgentReportList: response.data.result,
@@ -130,6 +153,28 @@ export const fetchAgentReport = createAsyncThunk(
     }
   }
 );
+
+export const fetchChatReportStats = createAsyncThunk(
+  'chatreportstats /fetchChatReportStats',
+  
+  async ({ pageSize,pageNo,senderId,FromDate,ToDate,srcStr,agentId,fChatInitiated}, { rejectWithValue }) => {
+    
+    try {
+      const response = await API.get(`${CHATREPORTSTATS}?pageSize=${pageSize}&senderId=${senderId}${srcStr ? `&searchStr=${srcStr}`: ''}&fChatInitiated=${fChatInitiated}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}&agentId=${agentId}`);
+      if (response?.status === 200 && response.data?.result) {
+        return {
+        chatReportStats: response.data.result,
+        };
+      } else {
+        throw new Error('Failed to fetch details');
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
 
 export const fetchDashboardSummary = createAsyncThunk(
   "dashboardsummary /fetchDashboardSummary",
@@ -188,6 +233,7 @@ const reportSlice = createSlice({
     templateInsight: [],
     ConversationReport:[],
     AgentReportList:[],
+    chatReportStats:[],
     loading: false,
     error: null,
     success: false,
@@ -222,6 +268,19 @@ const reportSlice = createSlice({
       state.error = null;
       state.success = false;
     },
+    clearChatLogsState: (state) => {
+      state.chatLogs = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    },
+    clearChatReportStatsState: (state) => {
+      state.chatReportStats = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    },
+    
     clearConversationReportState: (state) => {
       state.ConversationReport = [];
       state.loading = false;
@@ -307,13 +366,27 @@ const reportSlice = createSlice({
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
+
+      .addCase(fetchChatLogs.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchChatLogs.fulfilled, (state, action) => {
+        state.loading = false;
+        state.chatLogs = action.payload.chatLogs;
+        state.message = action.payload.message || "";
+      })
+      .addCase(fetchChatLogs.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
       // Chats Report
       .addCase(fetchConversationReport.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchConversationReport.fulfilled, (state, action) => {
-        
         state.loading = false;
         state.ConversationReport = action.payload.ConversationReport;
         state.totalRecords = action.payload.totalRecords;
@@ -364,6 +437,22 @@ const reportSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
+      .addCase(fetchChatReportStats.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchChatReportStats.fulfilled, (state, action) => {
+        
+        state.loading = false;
+        state.chatReportStats = action.payload.chatReportStats; //action.payload.messagereportsummary;
+        state.message = action.payload.message || "";
+      })
+      .addCase(fetchChatReportStats.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+
       //Template Insight
       .addCase(fetchTemplateInsight.pending, (state) => {
         state.loading = true;
@@ -393,7 +482,9 @@ export const {
   clearConversationReportState,
   clearMessageSummaryState,
   clearMessageReportState,
+  clearChatReportStatsState,
   clearAgentReportState,
+  clearChatLogsState,
 } = reportSlice.actions;
 
 export default reportSlice.reducer;

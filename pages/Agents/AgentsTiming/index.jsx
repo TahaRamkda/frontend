@@ -30,7 +30,7 @@ const weekDays = [
 
 ];
 
-const AgentTimingList = ({ agentId, isVisible, onClose }) => {
+const AgentTimingList = ({ agentId, isVisible, onClose, AgentFirstName, AgentLastName }) => {
   const [rows, setRows] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -123,8 +123,12 @@ const AgentTimingList = ({ agentId, isVisible, onClose }) => {
     <Modal isOpen={isVisible} toggle={onClose} fade={false} >
       <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white p-6 rounded shadow-lg w-2/5  relative">
-
-          <ModalHeader toggle={onClose}>Agent Shifts</ModalHeader>
+           <ModalHeader toggle={onClose} className="border-b p-1">
+                      <div className="">
+                     <div className="text-xl">Agent Shifts - [{AgentFirstName} {AgentLastName}]</div> 
+                      </div>
+          
+                    </ModalHeader>
           <ModalBody className="overflow-y-auto max-h-[75vh]">
             {loading && <Loading />}
             <div className=" mb-5">

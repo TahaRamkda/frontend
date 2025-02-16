@@ -79,6 +79,8 @@ export const MESSAGESUMMARY = "/ApiMessage/getapimessagelist";
 export const MESSAGEREPORT = "/MessageSentLog/getmessagesentloglist";
 export const TEMPLATEINSIGHT = "/Dashboard/gettemplateinsight";
 export const CHATSMONITOR ="/Conversation/getconversationreportlist";
+export const CHATREPORTSTATS = "/Conversation/getconversationstatistics"
+export const CHATREPORTLOGS = "/Conversation/getconversationlogslist"
 export const AGENTSMONITOR ="/Agents/getagentsupervisorreport";
 export const AGENTREPORT = "/Agents/getagentdetailsupervisorreport";
 
@@ -125,3 +127,11 @@ export const AGENTINTERACTIVETEMPLATLISTDETAIL = "/InteractiveTemplates/getinter
 export const SENDAGENTINTERACTIVETEMPLATLIS = "/Message/sendagentinteractivemessage";
 
 
+// Export Excel Endpoints
+export const EXCELEXPORTCHATREPORT = "/Conversation/getexportconversationdetailreportlist"
+export const EXCELEXPORTCHATMONITOR = "/Conversation/exportconversationreportlist"
+export const EXCELEXPORTAGENTMONITOR = "/Agents/exportagentsupervisorreport"
+export const EXCELEXPORTAGENTREPORT = "/Agents/getexportagentdetailsupervisorreport"
+
+// close chat template By supervisor
+export const SENDCLOSECHATTEMPLATE = "/Conversation/closechatbysupervisor"

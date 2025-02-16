@@ -36,6 +36,12 @@ export const REFRESH_INTERVAL=1200000 ; // 5 minutes in milliseconds
 
 export const NOTIFICATION_WARNING_INTERVAL=28800000  ; // 5 minutes in milliseconds
 
-export const HEARTBEAT_CHECK_INTERVAL=100000 ; // 5 minutes in milliseconds
+export const HEARTBEAT_CHECK_INTERVAL=10000 ; // 5 minutes in milliseconds
+
+export const ExpireTime_AssignedChat=30000 ; // 30 Seconds
+
+export const ExpireTime_Message=300000 ; // 5 minutes in milliseconds
+
+export const HeartBeat_Interval=100000 ; // 5 minutes in milliseconds
 
   

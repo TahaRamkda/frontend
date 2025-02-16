@@ -1,318 +1,516 @@
-
-import React, { useMemo, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchConversationReport, clearConversationReportState, setPageSize, setCurrentPage } from "@/slices/ReportSlice";
-import { Container, Row, Col, Table, input, Button, Pagination, List, label, PaginationItem, PaginationLink, CardBody, Card } from 'reactstrap';
-import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
-import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
-import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import React, { useMemo, useEffect, useState, use } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchConversationReport,
+  clearConversationReportState,
+  setPageSize,
+  setCurrentPage,
+  fetchChatReportStats,
+  fetchChatLogs,
+  clearChatLogsState,
+  clearChatReportStatsState,
+} from "@/slices/ReportSlice";
+import TemplateDropdown from "@/components/Dropdowns/TemplateDropdown";
+import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
+import { Modal, ModalHeader, ModalBody, Input } from "reactstrap";
 import DataTable from "react-data-table-component";
-  import { HiPencilAlt, HiTrash , HiEye } from "react-icons/hi";
-import Loading from '@/components/Layout/Loader';
-import App from '@/components/Layout/App';
-import Chatview from '@/pages/Chats/ChatView/indexPop-up';
-
+import {
+  HiPencilAlt,
+  HiTrash,
+  HiEye,
+  HiInformationCircle,
+} from "react-icons/hi";
+import Loading from "@/components/Layout/Loader";
+import App from "@/components/Layout/App";
+import Chatview from "@/pages/Chats/ChatView/indexPop-up";
+import AgentDropdown from "@/components/Dropdowns/AgentDropdown";
 import { MdSwapHoriz } from "react-icons/md";
-import { REFRESH_INTERVAL } from '@/utils/constants';
-import SearchBar from '@/components/SearchBar/SearchComponent';
-import DateTimePicker from '@/components/Timepicker/datetimepicker';
+import { REFRESH_INTERVAL } from "@/utils/constants";
+import SearchBar from "@/components/SearchBar/SearchComponent";
+import { excelExportChatReport } from "@/slices/ExportExcel";
+import DateTimePicker from "@/components/Timepicker/datetimepicker";
 import Select from "react-select";
-import { FORMATEDATE } from '@/utils/constants';
+import { FORMATEDATE } from "@/utils/constants";
+import Loader from "@/components/Layout/Loader";
 const ChatsReport = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
   const [DetailModal, setDetailModal] = useState(false);
-  const { ConversationReport, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.reports);
+  const {
+    ConversationReport,
+    chatReportStats, chatLogs,
+    loading,
+    error,
+    currentPage,
+    pageSize,
+    totalRecords,
+  } = useSelector((state) => state.reports);
+  
   const [clientId, setClientId] = useState(null);
   const [showchat, setshowchat] = useState(false);
-  const [srcStr, setsrcStr] = useState('');
+  const [srcStr, setsrcStr] = useState("");
   const [Status, setStatus] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [showtransfer, setshowtransfer] = useState(false);
   const [activeChat, setActiveChat] = useState(0);
-  const [CustomerName, setCustomerName] = useState('');
-  const [PhoneNumber, setPhoneNumber] = useState('');
-  
+  const [CustomerName, setCustomerName] = useState("");
+  const [PhoneNumber, setPhoneNumber] = useState("");
+  const [agentId, SetAgentId] = useState(0);
+  const [initiated, SetInitiated] = useState(0);
 
-  const [ChatLoading, setChatLoading] = useState(false)
+  const [ChatLoading, setChatLoading] = useState(false);
   const getMonthStart = () => {
     const date = new Date();
-    return new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split("T")[0];
+    return new Date(date.getFullYear(), date.getMonth(), 1)
+      .toISOString()
+      .split("T")[0];
   };
-  
+
   const getMonthEnd = () => {
     const date = new Date();
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString().split("T")[0];
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0)
+      .toISOString()
+      .split("T")[0];
   };
-  
+  useEffect(() => {
+    if (ConversationReport) {
+      setChatLoading(false);
+    }
+  });
   const [FromDate, setFromDate] = useState(getMonthStart());
   const [ToDate, setToDate] = useState(getMonthEnd());
-  
+  const [modalOpen, SetModalOpen] = useState(false);
   const [SenderId, setSenderId] = useState(0);
   const [oldAgentId, setoldAgentId] = useState(0);
-  const [refreshpage, setrefreshpage] = useState(false);  // Track if page is refreshing
- 
+  const [refreshpage, setrefreshpage] = useState(false); // Track if page is refreshing
+
   const statusOptions = [
-    { value: '0', label: "Auto Chat" },
-    { value: '1', label: "Looking For Agent" },
-    { value: '2', label: "Agent Assigned" },
-    { value: '3', label: "Chat Closed" },
-    { value: '4', label: "Chat Expired" },
-    { value: '5', label: "Chat Force Closed" },
+    { value: "0", label: "Auto Chat" },
+    { value: "1", label: "Looking For Agent" },
+    { value: "2", label: "Agent Assigned" },
+    { value: "3", label: "Chat Closed" },
+    { value: "4", label: "Chat Expired" },
+    { value: "5", label: "Chat Force Closed" },
   ];
   const ChatsReportColumn = [
-    { name: "Name", selector: (row) => row.fullName, sortable: true,  width: '10%' },
-    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true,  width: '10%'   },
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true,  width: '15%'  },
-    { name: "Expiry Date", selector: (row) => row.expiryDate, sortable: true,  width: '15%' },
-    { name: "Status", selector: (row) => row.statusName, sortable: true,  width: '12%' },
+    {
+      name: "Name",
+      selector: (row) => row.fullName,
+      sortable: true,
+      width: "10%",
+    },
+    {
+      name: "Phone Number",
+      selector: (row) => row.phoneNumber,
+      sortable: true,
+      width: "10%",
+    },
+    {
+      name: "Created Date",
+      selector: (row) => row.createdDate,
+      sortable: true,
+      width: "15%",
+    },
+    {
+      name: "Expiry Date",
+      selector: (row) => row.expiryDate,
+      sortable: true,
+      width: "15%",
+    },
+    {
+      name: "Status",
+      selector: (row) => row.statusName,
+      sortable: true,
+      width: "12%",
+    },
     { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
     { name: "Agent", selector: (row) => row.agentName, sortable: true },
-    { name: "Total Messages", selector: (row) => row.totalMessages, sortable: true,  width: '10%'  },
+    {
+      name: "Total Messages",
+      selector: (row) => row.totalMessages,
+      sortable: true,
+      width: "10%",
+    },
     { name: "Unread", selector: (row) => row.unreadCount, sortable: true },
-     {
-          name: "Action",
-          cell: (row) => (
-            <center>
-              <div className="flex gap-2">
-                <button title="View Chat"
-                  className="uniform_icon_btn"
-                  onClick={() => handleDetailClick(row)}
-                >
-                  <HiEye style={{ fontSize: "15px" }} />
-                </button>
-               
-              </div>
-            </center>
-          ),
-        },
-  
+    {
+      name: "Action",
+      cell: (row) => (
+        <center>
+          <div className="flex gap-2">
+            <button
+              title="View Chat"
+              className="uniform_icon_btn"
+              onClick={() => handleDetailClick(row)}
+            >
+              <HiEye style={{ fontSize: "15px" }} />
+            </button>
+            <button
+              title="Chat Logs"
+              className="uniform_icon_btn"
+              onClick={()=>HandleInfoClick(row)}
+            >
+              <HiInformationCircle style={{ fontSize: "15px" }} />
+            </button>
+          </div>
+        </center>
+      ),
+    },
   ];
-  
 
- 
   const handleCancel = () => {
     setshowchat(false);
   };
   const handleTransferCancel = () => {
     setshowtransfer(false);
   };
- 
+
+  const HandleInfoClick = (row) => {
+    setActiveChat(row.id)
+    dispatch(fetchChatLogs({conversationId:row.id}))
+    SetModalOpen(true);
+    
+  };
+  const HandleCloseInfoClick = () => {
+    SetModalOpen(false);
+    dispatch(clearChatLogsState())
+  };
+
   const handleSearchString = (setter) => (e) => {
     const searchValue = e;
     setsrcStr(searchValue);
-    setter(e)
- 
+    setter(e);
+
     if (searchTimeout) {
       clearTimeout(searchTimeout);
     }
- 
+
     const timeout = setTimeout(() => {
-      setChatLoading(true)
-      dispatch(fetchConversationReport({
-        clientId: clientId,
-        senderId: senderid,
-        srcStr: searchValue,
-        ToDate: ToDate,
-        FromDate: FromDate,
-        status:Status,
-        pageSize,
-        pageNo: currentPage,
-      }));
+      setChatLoading(true);
+      dispatch(
+        fetchConversationReport({
+          clientId: clientId,
+          senderId: senderid,
+          srcStr: searchValue,
+          ToDate: ToDate,
+          fChatInitiated:initiated,
+          FromDate: FromDate,
+          status: Status,
+          pageSize,
+          pageNo: currentPage,
+        })
+      );
     }, 500);
- 
+
     setSearchTimeout(timeout); // Save the timeout reference
   };
 
   const handleStatusChange = (selectedOptions) => {
     if (Array.isArray(selectedOptions)) {
-        const values = selectedOptions.map(option => option.value); // Extract values
-        setStatus(values.join(",")); // Join as a comma-separated string
+      const values = selectedOptions.map((option) => option.value); // Extract values
+      setStatus(values.join(",")); // Join as a comma-separated string
     } else {
-        setStatus(""); // Reset if no selection
+      setStatus(""); // Reset if no selection
     }
-};
+  };
 
- useEffect(() => {
-     if (!loading && ConversationReport) {
-       setChatLoading(false);
-     }
-   }, [loading, ConversationReport]);
- 
+  useEffect(() => {
+    if (!loading && ConversationReport) {
+      setChatLoading(false);
+    }
+  }, [loading, ConversationReport]);
+
   const handleSenderChange = (e) => {
     const senderId = e.target.value;
     setsenderid(senderId);
   };
- 
-//   useEffect(() => {
-//     const checkAndFetch = async () => {
-//       const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
- 
-//       if (isLiveReporting && !loading) {
-//         setrefreshpage(true);  // Mark the page as refreshing
-//         try {
-//           await dispatch(fetchConversationReport({
-//             clientId: localStorage.getItem("clientId"),
-//             senderId: senderid,
-//             srcStr:srcStr,
-//             ToDate: ToDate,
-//             FromDate: FromDate,
-//             status:Status,
-//             pageSize, // Example page size
-//             pageNo: currentPage, // Example current page
-//           }));
-//         } catch (error) {
-//           console.error("Error fetching chat monitor:", error);
-//         } finally {
-//           setrefreshpage(false); // Mark refresh completed
-//         }
-//       }
-//     };
- 
-   
- 
-//     const intervalId = setInterval(() => {
-//       // Perform the periodic refresh (e.g., every 5 minutes) if page is loaded
-//       if (!loading) {
-//         checkAndFetch();
-//       }
-//     }, REFRESH_INTERVAL);
- 
-//     // Cleanup interval on component unmount or when page is unloaded
-//     return () => clearInterval(intervalId);
-//   }, [ senderid, srcStr, dispatch]);
- 
+
+  const handleAgentChange = (e) => {
+    const senderId = e.target.value;
+    SetAgentId(senderId);
+  };
+
+  //   useEffect(() => {
+  //     const checkAndFetch = async () => {
+  //       const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
+
+  //       if (isLiveReporting && !loading) {
+  //         setrefreshpage(true);  // Mark the page as refreshing
+  //         try {
+  //           await dispatch(fetchConversationReport({
+  //             clientId: localStorage.getItem("clientId"),
+  //             senderId: senderid,
+  //             fChatInitiated:initiated,
+  //             srcStr:srcStr,
+  //             ToDate: ToDate,
+  //             FromDate: FromDate,
+  //             status:Status,
+  //             pageSize, // Example page size
+  //             pageNo: currentPage, // Example current page
+  //           }));
+  //         } catch (error) {
+  //           console.error("Error fetching chat monitor:", error);
+  //         } finally {
+  //           setrefreshpage(false); // Mark refresh completed
+  //         }
+  //       }
+  //     };
+
+  //     const intervalId = setInterval(() => {
+  //       // Perform the periodic refresh (e.g., every 5 minutes) if page is loaded
+  //       if (!loading) {
+  //         checkAndFetch();
+  //       }
+  //     }, REFRESH_INTERVAL);
+
+  //     // Cleanup interval on component unmount or when page is unloaded
+  //     return () => clearInterval(intervalId);
+  //   }, [ senderid, srcStr, dispatch]);
+
   const handleDetailClick = async (row) => {
     setActiveChat(row.id);
     setCustomerName(row.fullName);
     setPhoneNumber(row.phoneNumber);
     setshowchat(true);
   };
- 
+
+  const handleExportToExcel = () => {
+    dispatch(
+      excelExportChatReport({ senderId: senderid, chatId: activeChat, agentId })
+    );
+  };
+
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setClientId(localStorage.getItem('clientId'));
+    if (typeof window !== "undefined") {
+      setClientId(localStorage.getItem("clientId"));
     }
   }, []);
- 
+
   const handleTransferClick = async (id, SenderId, oldAgentId) => {
     setActiveChat(id);
     setSenderId(SenderId);
     setoldAgentId(oldAgentId);
     setshowtransfer(true);
   };
- 
+
   useEffect(() => {
     if (clientId) {
-      setChatLoading(true)
-      dispatch(fetchConversationReport({
-        clientId: clientId,
-        senderId: senderid,
-        status:Status,
-        ToDate: ToDate,
-        FromDate: FromDate,
-        srcStr:srcStr,
-        pageSize,
-        pageNo: currentPage,
-      }));
+      setChatLoading(true);
+      dispatch(
+        fetchConversationReport({
+          clientId: clientId,
+          senderId: senderid,
+          status: Status,
+          fChatInitiated:initiated,
+          ToDate: ToDate,
+          FromDate: FromDate,
+          srcStr: srcStr,
+          pageSize,
+          pageNo: currentPage,
+        })
+      );
     }
- 
+
     return () => {
       dispatch(clearConversationReportState());
     };
-  }, [dispatch, clientId,senderid, Status,ToDate,FromDate]);
- 
+  }, [dispatch, clientId, senderid, Status, ToDate, FromDate, pageSize, currentPage,initiated]);
+  
+
+  useEffect(() => {
+   
+      setChatLoading(true);
+      dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize:pageSize,pageNo:currentPage,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated,}));
+
+    return () => {
+      dispatch(clearChatReportStatsState());
+    };
+  }, [dispatch,senderid,agentId,pageSize,currentPage,FromDate,ToDate,initiated]);
+
   const handlePageSizeChange = async (newSize) => {
     dispatch(setPageSize(newSize));
-    dispatch(setCurrentPage(1));  // Reset to first page
-    setChatLoading(true)
-    await dispatch(fetchConversationReport({
-      clientId: clientId,
-      status:Status,
-      srcStr:srcStr,
-      ToDate: ToDate,
-      FromDate: FromDate,
-      senderId: senderid,
-      pageSize: newSize,
-      pageNo: 1,
-    }));
+    dispatch(setCurrentPage(1)); // Reset to first page
+    setChatLoading(true);
+    await dispatch(
+      fetchConversationReport({
+        clientId: clientId,
+        status: Status,
+        srcStr: srcStr,
+        ToDate: ToDate,
+        fChatInitiated:initiated,
+        FromDate: FromDate,
+        senderId: senderid,
+        pageSize: newSize,
+        pageNo: 1,
+      })
+    );
   };
- 
+
   const handlePageChange = async (page) => {
     dispatch(setCurrentPage(page));
-    setChatLoading(true)
-    await dispatch(fetchConversationReport({
-      clientId: clientId,
-      senderId: senderid,
-      status:Status,
-      ToDate: ToDate,
-      FromDate: FromDate,
-      srcStr:srcStr,
-      pageSize,
-      pageNo: page,
-    }));
+    setChatLoading(true);
+    await dispatch(
+      fetchConversationReport({
+        clientId: clientId,
+        senderId: senderid,
+        status: Status,
+        fChatInitiated:initiated,
+        ToDate: ToDate,
+        FromDate: FromDate,
+        srcStr: srcStr,
+        pageSize,
+        pageNo: page,
+      })
+    );
   };
- 
-  const customPageSizes = [1, 5, 10, 20, 50, 100];  // Custom page size options
+
+  const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10;
- 
+
   const subHeaderComponentMemo = useMemo(() => {
+    
     return (
       <div className="w-full">
-        <div className='grid grid-cols-5 gap-4'>
-          <div className='flex flex-col text-start mb-1 mt-2'>
-          <SearchBar
+        <div className="grid grid-cols-5 gap-4 mb-3">
+          <div className="flex flex-col text-start ">
+            <SearchBar
               label="Search"
               value={srcStr}
               onChange={handleSearchString(setsrcStr)}
             />
-           
           </div>
-         
-          <div className='flex flex-col text-start mb-1 mt-2'>
-            <label className="font-medium text-gray-700 text-sm">Sender Names</label>
+          <div className="flex flex-col text-start ">
+            <label className="font-medium text-gray-700 text-sm mt-1">
+              Initiated
+            </label>
+            <select
+              id="initiated"
+              value={initiated}
+              onChange={(e) => SetInitiated(e.target.value)}
+              className="border rounded  w-100 h-12 "
+            >
+              <option value="0">Conversations </option>
+              <option value="1">Campaigns</option>
+              <option value="2">API message</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col text-start ">
+            <label className="font-medium text-gray-700 text-sm">
+              Sender Names
+            </label>
             <SendernameDropdown
               name="senderId"
               onChange={handleSenderChange}
               className="border rounded w-100"
             />
           </div>
-          <div className='flex flex-col text-start '>
+          <div className="flex flex-col text-start ">
+            <label className="font-medium text-gray-700 text-sm">Agents </label>
+            <AgentDropdown
+              name="agentId"
+              onChange={handleAgentChange}
+              className="border rounded w-100"
+            />
+          </div>
+          <div className="flex flex-col text-start ">
             <label className="font-medium text-gray-700 text-sm">Status</label>
             <Select
-            options={statusOptions}
-            isMulti
-            onChange={handleStatusChange}
-            className="border rounded "
-          />
+              options={statusOptions}
+              isMulti
+              onChange={handleStatusChange}
+              className="border rounded "
+            />
           </div>
-          <div className='flex flex-col text-start mb-1 mt-2'>
-                        <DateTimePicker
-                            label="From Date"
-                            value={FromDate}
-                            onChange={setFromDate}
-                        />
-                    </div>
-                    <div className='flex flex-col text-start mb-1 mt-2'>
-                        <DateTimePicker
-                            label="To Date"
-                            value={ToDate}
-                            onChange={setToDate}
-                        />
-                    </div>
+          <div className="flex flex-col text-start mb-1 mt-2">
+            <DateTimePicker
+              label="From Date"
+              value={FromDate}
+              onChange={setFromDate}
+            />
+          </div>
+          <div className="flex flex-col text-start mb-1 mt-2">
+            <DateTimePicker
+              label="To Date"
+              value={ToDate}
+              onChange={setToDate}
+            />
+          </div>
         </div>
+        <div>
+          
+    <div className="grid grid-cols-4 gap-2">
+    
+
+      <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
+        <h3 className="font-bold mb-0">
+          Total Conversation: {chatReportStats.totalConversation ?? "-/-"}
+        </h3>
+      </div>
+    
+
+      <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
+        <h3 className="font-bold mb-0">
+          Marketing Conversation: {chatReportStats.marketingConversation ?? "-/-"}
+        </h3>
+      </div>
+
+      <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
+        <h3 className="font-bold mb-0">
+          Utility Conversation: {chatReportStats.utilityConversation ?? "-/-"}
+        </h3>
+      </div>
+
+      <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
+        <h3 className="font-bold mb-0">
+          Initiated Conversation: {chatReportStats.TotalConversationsStatus?.[0]?.initiatedConversation ?? "-/-"}
+        </h3>
+      </div>
+
+      <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
+        <h3 className="font-bold mb-0">
+          Force Closed: {chatReportStats.forceClosed ?? "-/-"}
+        </h3>
+      </div>
+
+      <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
+        <h3 className="font-bold mb-0">
+          Closed: {chatReportStats.closed ?? "-/-"}
+        </h3>
+      </div>
+
+      <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
+        <h3 className="font-bold mb-0">
+          Abandon: {chatReportStats.abandon ?? "-/-"}
+        </h3>
+      </div>
+
+      <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
+        <h3 className="font-bold mb-0">
+          Looking for Agent: {chatReportStats.lookingforAgent ?? "-/-"}
+        </h3>
+      </div>
+     
+  </div>
+</div>
+
       </div>
     );
-  }, [srcStr, senderid,FromDate,ToDate]);
- 
+  }, [srcStr, senderid, FromDate, ToDate]);
+
   return (
     <App>
       <div className="flex items-center">
-        { ChatLoading && <Loading />}  {/* Show loader only when page is not refreshing */}
-        <div >
+        {ChatLoading && <Loading />}
+        <div className="">
           <h4 className="font-bold ">Chats Report</h4>
         </div>
+        <div className="flex ml-auto mb-1 gap-4">
+          <button className="uniform_btn" onClick={handleExportToExcel}>
+            Export Report
+          </button>
+        </div>
       </div>
+
       <DataTable
         data={ConversationReport}
         columns={ChatsReportColumn}
@@ -320,7 +518,6 @@ const ChatsReport = () => {
         striped
         pagination
         paginationServer
-        
         paginationTotalRows={totalRecords}
         onChangePage={handlePageChange}
         onChangeRowsPerPage={handlePageSizeChange}
@@ -334,47 +531,80 @@ const ChatsReport = () => {
         customStyles={{
           table: {
             style: {
-              width: '100%',
-              borderCollapse: 'collapse',
+              width: "100%",
+              borderCollapse: "collapse",
             },
           },
           headRow: {
             style: {
-              borderBottom: '1px solid #ddd', padding: '0px',
+              borderBottom: "1px solid #ddd",
+              padding: "0px",
             },
           },
           headCells: {
             style: {
-              borderRight: '1px solid #ddd',
-              fontWeight: 'bold',
+              borderRight: "1px solid #ddd",
+              fontWeight: "bold",
             },
           },
           rows: {
             style: {
-              borderBottom: '1px solid #ddd',
+              borderBottom: "1px solid #ddd",
             },
           },
           cells: {
             style: {
-              borderRight: '1px solid #ddd',
+              borderRight: "1px solid #ddd",
             },
           },
         }}
       />
-      {
-        showchat && (
-          <Chatview
-            ChatId={activeChat}
-            isVisible={true}
-            PhNo={PhoneNumber}
-            CustomerName={CustomerName}
-            onClose={handleCancel}
-          />
-        )
-      }
-     
+      {modalOpen && (
+        <Modal isOpen={true} toggle={HandleCloseInfoClick} fade={false}>
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded shadow-lg w-1/3 relative">
+              <ModalHeader toggle={HandleCloseInfoClick}>
+                Chat Details
+              </ModalHeader>
+
+              <ModalBody>
+              {loading && <Loader/>}
+                <table className="min-w-full bg-white border border-gray-200 rounded-md">
+                <thead>
+                  <tr className="bg-gray-100 text-left text-sm uppercase text-gray-600">
+                    <th className="py-2 px-4">Agent Full Name</th>
+                    <th className="py-2 px-4">Status</th>
+                    <th className="py-2 px-4">Created Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {chatLogs?.map((message, index) => (
+                    <tr key={index} className="border-b hover:bg-gray-50">
+                      <td className="py-2 px-4">{message.agentFullName || "-"}</td>
+                      <td className="py-2 px-4">{message.name || "-"}</td>
+                      <td className="py-2 px-4">{message.createdDate || "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              
+                 
+              </ModalBody>
+            </div>
+          </div>
+        </Modal>
+      )}
+      {showchat && (
+        <Chatview
+          ChatId={activeChat}
+          isVisible={true}
+          PhNo={PhoneNumber}
+          CustomerName={CustomerName}
+          onClose={handleCancel}
+        />
+      )}
     </App>
   );
 };
- 
+
 export default ChatsReport;

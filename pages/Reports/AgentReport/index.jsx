@@ -7,14 +7,15 @@ import Loading from '@/components/Layout/Loader';
 import App from '@/components/Layout/App';
 import SearchBar from '@/components/SearchBar/SearchComponent';
 import DateTimePicker from '@/components/Timepicker/datetimepicker';
-
- 
+import { excelExportAgentReport } from '@/slices/ExportExcel';
+ import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 const AgentReport = () => {
   const dispatch = useDispatch();
   const { AgentReportList, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.reports);
   const [clientId, setClientId] = useState(null);
   const [srcStr, setsrcStr] = useState('');
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
+  const [senderId, SetSenderId]= useState(0)
   
   const getTodayDate = () => {
     return new Date().toISOString().split("T")[0]; // Format as "YYYY-MM-DD"
@@ -57,7 +58,7 @@ const AgentReport = () => {
   
       dispatch(fetchAgentReport({
         clientId: clientId,
-       
+       senderId:senderId,
         srcStr: searchValue,
         ToDate: ToDate,
         FromDate: FromDate,
@@ -127,15 +128,20 @@ const AgentReport = () => {
     }
   }, []);
  
-  
- 
+   const handleExportToExcel = () => {
+      dispatch(excelExportAgentReport({senderId}))
+    };
+    const handleSenderChange = (e) => {
+      const senderId = e.target.value;
+      SetSenderId(senderId);
+    };
   useEffect(() => {
     if (clientId) {
       
       dispatch(fetchAgentReport({
         clientId: clientId,
         
-        
+        senderId:senderId,
         ToDate: ToDate,
         FromDate: FromDate,
         srcStr:srcStr,
@@ -147,7 +153,7 @@ const AgentReport = () => {
     return () => {
       dispatch(clearAgentReportState());
     };
-  }, [dispatch, clientId,ToDate,FromDate]);
+  }, [dispatch, clientId,ToDate,FromDate,senderId]);
  
   const handlePageSizeChange = async (newSize) => {
     dispatch(setPageSize(newSize));
@@ -156,6 +162,7 @@ const AgentReport = () => {
     await dispatch(fetchAgentReport({
       clientId: clientId,
       srcStr:srcStr,
+      senderId:senderId,
       ToDate: ToDate,
       FromDate: FromDate,
       pageSize: newSize,
@@ -169,7 +176,7 @@ const AgentReport = () => {
     await dispatch(fetchAgentReport({
       clientId: clientId,
       
-      
+      senderId:senderId,
       ToDate: ToDate,
       FromDate: FromDate,
       srcStr:srcStr,
@@ -202,14 +209,14 @@ const AgentReport = () => {
             className="border rounded "
           />
           </div> */}
-          {/* <div className='flex flex-col text-start mb-1 mt-2'>
+          <div className='flex flex-col text-start mb-1 mt-2'>
             <label className="font-medium text-gray-700 text-sm">Sender Names</label>
             <SendernameDropdown
               name="senderId"
               onChange={handleSenderChange}
               className="border rounded w-100"
             />
-          </div> */}
+          </div> 
           <div className='flex flex-col text-start mb-1 mt-2'>
                         <DateTimePicker
                             label="From Date"
@@ -231,10 +238,19 @@ const AgentReport = () => {
  
   return (
     <App>
+      
       <div className="flex items-center">
-        { loading && <Loading />}  {/* Show loader only when page is not refreshing */}
-        <div >
+        {loading && <Loading />}
+        <div className="">
           <h4 className="font-bold ">Agents Report</h4>
+        </div>
+        <div className="flex ml-auto mb-1 gap-4">
+          <button
+            className="uniform_btn"
+            onClick={ handleExportToExcel}
+          >
+            Export Report
+          </button>
         </div>
       </div>
       <DataTable

@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+// #region All imports
+import React, { useState, useEffect, useRef, useCallback, use } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import OneSignal from "react-onesignal";
-//import { ClipboardCopy } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
+import { AddChat, AddMessage, CheckExpiredNotification,GetConversations,GetConversationMessage,fetchExpiredNotifications } from "@/slices/ChatTest";
 import {
   FaComments,
   FaCheckCircle,
@@ -11,211 +11,152 @@ import {
   FaClock,
   FaBan,
   FaCopy,
+  FaHourglass,
+  FaUser,
 } from "react-icons/fa";
 
-import UserBadge from "@/public/images/User.jpg";
-import Link from "next/link";
-import { MdOutlineTimer } from "react-icons/md";
-import { AiOutlineHourglass } from "react-icons/ai";
+import {HiLogout} from "react-icons/hi";
+// import UserBadge from "@/public/images/User.jpg";
+// import { AiOutlineHourglass } from "react-icons/ai";
+
 import {
   Card,
   Col,
   Input,
-  InputGroup,
-  InputGroupText,
-  Nav,
-  NavItem,
   TabContent,
   TabPane,
   Container,
   Row,
   Button,
-  CardHeader,
-  Modal,
+
 } from "reactstrap";
 import {
-  fetchConversationList,
-  fetchConversationMessage,
-  resetMessages,
-  clearconversationstate,
   NewAgentMessage,
 } from "@/slices/ConversationSlice";
 import SweetAlert from "sweetalert2";
 import { fetchAgentStats, cleaAgentStats } from "@/slices/AgentSlice";
 import * as signalR from "@microsoft/signalr";
-import DefinedTemplates from "../AgentDefinedTemplate";
+import DefinedTemplates from "@/pages/Chats/AgentDefinedTemplate/index.jsx";
 import { toast } from "react-toastify";
 import { BASE_URL } from "@/utils/apiConstants";
 import Loader from "@/components/Layout/Loader";
-import App from "@/components/Layout/App";
 import EmojiPicker from "emoji-picker-react";
-import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
-import { extractTime } from "@/utils/constants";
-import { set } from "date-fns";
-import {
-  NOTIFICATION_WARNING_INTERVAL,
-  HEARTBEAT_CHECK_INTERVAL,
-} from "@/utils/constants";
+import { extractTime,HeartBeat_Interval } from "@/utils/constants";
 
-import {
-  HiZoomIn,
-  HiZoomOut,
-  HiLogout,
-  HiMoon,
-  HiSun,
-  HiMenu,
-  HiShieldExclamation,
-} from "react-icons/hi";
+// #endregion
+
+
 const ChatPage = () => {
-  const router = useRouter();
-  const [modalOpen, setModalOpen] = useState(false);
-  const [tempMessages, setTempMessages] = useState([]);
+
+  // #region Variables
+
+  // #region React variables
   const dispatch = useDispatch();
+  const router = useRouter();
+  //  #endregion
+  
+  // #region conversations Related Variables
+  const [chatData, setChatData] = useState([]);
+  const [conversationsData, SetConversationsData] = useState([]);
+  const [Activechat, setActiveChat] = useState(0);
+  const lastScrollTop = useRef(0);
+  const activeChatRef = useRef(Activechat);
+  const [Conversations, setConversations] = useState([]);
+  const agentChatRef = useRef([Conversations]);
+  const messagesEndRef = useRef(null);
+  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
+ //const chatData = useSelector((state) => state.chatTest.items); // Access the items array
+  const playAlertSound = useSelector((state) => state.chatTest.playAlertSound);
+  const [unrepliedChats, setUnrepliedChats] = useState([]);
   const { conversations, loading, error } = useSelector(
     (state) => state.conversations
   );
-  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const {
-    messages,
-    currentPage,
-    hasMore,
-    loading: messageLoading,
-  } = useSelector((state) => state.conversations);
+  // #endregion
+
+  // #region Chat Messages Related Variables
+  const [conversationMessages, setConversationMessages] = useState([]); 
+    const {
+      
+      currentPage,
+      hasMore
+    } = useSelector((state) => state.conversations);
+    const [messagesLoading, SetMessagesLoading] = useState(false);
+    // #endregion
+
+  // #region For Agents to see options like name and logout and reset password
+  const [drpUserProfileMenu, setUserProfileMenu] = useState(false);
+  // #endregion
+
+  // #region for Agent PreDefine Templates
+  const [ShowDetailedTemplate, setShowDetailedTemplate] = useState(false);
+  const [tempMessages, setTempMessages] = useState([]);
+  //#endregion
+
+  // #region For Agents Stats
   const { AgentStats, loading: statsLoading } = useSelector(
     (state) => state.agents
   );
-  const inputRef = useRef(null);
-  const [chatMessages, setChatMessages] = useState([]);
-  const [AgentConversation, setAgentConversation] = useState([]);
-  const [ShowDetailedTemplate, setShowDetailedTemplate] = useState(false);
-  const [messageInput, setMessageInput] = useState("");
-  const [mediaFile, setMediaFile] = useState(null); // To store the selected media file
-  const connectionRef = useRef(null); // ✅ Store connection persistently
-  const [Activechat, setActiveChat] = useState(0);
-  const [ActiveSenderId, setActiveSenderId] = useState(0);
-  const fileInputRef = useRef(null); // Reference for the file input
-  const [Errordisconnect, setErrordisconnect] = useState(false);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const toggleModal = () => setModalOpen((prevState) => !prevState);
-  const activeChatRef = useRef(Activechat);
-  const agentChatRef = useRef([AgentConversation]);
-  const containerRef = useRef(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [Contactsloading, setContactsloading] = useState(false);
-  const [Chatsloading, setChatsloading] = useState(false);
-  const [fileType, setFileType] = useState(null);
-  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
-  const isManualScroll = useRef(false);
-  const audioRef = useRef(null);
-  const scrollContainerRef = useRef(null);
-  const messagesEndRef = useRef(null);
-  const timersRef = useRef({});
-  const [pageNo, setPageNo] = useState(1);
-  const [unrepliedChats, setUnrepliedChats] = useState([]);
-  const [templateDetails, setTemplateDetails] = useState([]);
-  const [heartbeatAttempts, setheartbeatAttempts] = useState(0);
-  const [tryReconnect, settryReconnect] = useState(false);
-  const lastScrollTop = useRef(0);
-  const [UserId, setuserId] = useState(0);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [IsOneSignalLoaded, setIsOneSignalLoaded] = useState(false);
-  useEffect(() => {
-    // Initialize the audio object only once
-    audioRef.current = new Audio("/assets/Notification/chatassigned.mp3");
-  }, []);
+  //#endregion
 
+  // #region Send Message Variables
+  const [messageInput, setMessageInput] = useState("");
+  const [mediaFile, setMediaFile] = useState(null); 
+  const [fileType, setFileType] = useState(null);
+  const [ActiveSenderId, setActiveSenderId] = useState(0);
+  const fileInputRef = useRef(null); 
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [mediaPreviewUrl, SetMediaPreviewUrl] = useState(null);
+
+  //#endregion
+
+  // #region SignalR Variables
+  const connectionRef = useRef(null); 
+  const [Errordisconnect, setErrordisconnect] = useState(false);
+  const [heartbeatAttempts, setheartbeatAttempts] = useState(0);
+  //#endregion
+
+  // #region Other Variable
+   const expireAudioRef = useRef(null); 
+  const scrollContainerRef = useRef(null);
+  const [templateDetails, setTemplateDetails] = useState([]);
+  //#endregion
+
+  // #endregion
+
+  // #region Functions
+
+  // #region Chat Message Related Functions
+
+
+
+
+  // #region LoadChats
+  useEffect(() => {
+    if (conversations && conversations.length > 0) {
+      
+      setConversations(conversations);
+    } 
+  }, [conversations]);
+  // #endregion
+
+
+
+
+  // #region Function for sending templates
   const handleTemplateSend = (details) => {
     clearTimer(Activechat);
     setTemplateDetails(details); // Update parent state
     console.log("Received template details:", details);
   };
-// useEffect(() => {
-//   const handleBeforeUnload = () => {
-//     toast.dismiss(); // Dismiss all active toasts when the window is closed or refreshed
-//   };
+  // #endregion
+  
 
-//   window.addEventListener("beforeunload", handleBeforeUnload);
 
-//   return () => {
-//     window.removeEventListener("beforeunload", handleBeforeUnload);
-//   };
-// }, []);
-  const handleCopy = (text) => {
-    const phoneNumber = text.startsWith("965") ? text.slice(3) : text;
-    navigator.clipboard.writeText(phoneNumber);
-    //alert(`Copied: ${phoneNumber}`);
-    toast.success(`Copied: ${phoneNumber}`);
-  };
+useEffect(() => {
+  dispatch(fetchExpiredNotifications)
+})
 
-  const handleLogout = () => {
-    SweetAlert.fire({
-      title: "Are you sure you want to logout?",
-      text: "",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Logout",
-      cancelButtonText: "Cancel",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        window.OneSignal.logout();
-        AgentConversation.map((item) => {
-          clearTimer(item.id);
-        });
-
-        localStorage.clear();
-        router.push("/auth/login");
-      }
-    });
-  };
-
-  //onesignal hook
-  //useOneSignal(localStorage.getItem("userId"));
-
-  // useEffect(() => {
-  //   // Initialize OneSignal
-  //   const initializeOneSignal = async () => {
-  //     if (typeof window !== "undefined" && window.OneSignal) {
-  //       await OneSignal.init({
-  //         appId: "2b6362f1-b706-4087-bfaf-0d625c02110b",
-  //         //safari_web_id: "web.onesignal.auto.0f5ba526-5606-4a7b-90fa-69fc66b30a70",
-  //         notifyButton: {
-  //           enable: true,
-  //         },
-  //         allowLocalhostAsSecureOrigin: true,
-  //       }).then(() => {
-  //         setIsOneSignalLoaded(true);
-
-  //         // Set External User ID after initialization
-  //         const externalUserId = localStorage.getItem("userId"); // Replace with dynamic external user ID
-  //         window.OneSignal.login(externalUserId)
-  //           .then(() => {
-  //             console.log(`External User ID set to: ${externalUserId}`);
-  //           })
-  //           .catch((error) => {
-  //             console.error("Error setting external user ID:", error);
-  //           });
-
-  //         // Show the prompt after setting the external user ID
-  //         window.OneSignal.Slidedown.promptPush();
-  //       });
-  //     }
-  //   };
-  //   // Call the initialize function
-  //   initializeOneSignal();
-
-  //   const externalUserId = localStorage.getItem("userId"); // Replace with dynamic external user ID
-  //   window.OneSignal?.login(externalUserId)
-  //     .then(() => {
-  //       console.log(`External User ID set to: ${externalUserId}`);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error setting external user ID:", error);
-  //     });
-  // }, []);
-
+  // #region UseEffect for templates
   useEffect(() => {
     if (templateDetails) {
       const newMessage = {
@@ -232,111 +173,149 @@ const ChatPage = () => {
         createdDate: new Date().toLocaleString(),
       };
 
-      setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
+      setConversationMessages((prevMessages) => [newMessage, ...prevMessages]);
     }
   }, [templateDetails]);
+  // #endregion
 
-  //call the fetchConversationList action to fetch agents conversations
-  useEffect(() => {
-    const ClientId = localStorage.getItem("clientId");
-    const AgentId = localStorage.getItem("userId");
-
-    if (ClientId) {
-      dispatch(fetchConversationList({ clientId: ClientId, AgentId: AgentId }));
-      dispatch(fetchAgentStats({ clientId: ClientId, agentId: AgentId }));
-      setContactsloading(true);
-    }
-
-    return () => {
-      dispatch(clearconversationstate());
-    };
-  }, [dispatch]);
-
-  //triggered each time when conversations changes and assign to local state
-  useEffect(() => {
-    if (conversations && conversations.length > 0) {
-      setContactsloading(false);
-      setAgentConversation(conversations);
-    } else {
-      setContactsloading(false);
-    }
-  }, [conversations]);
-
-  //called each time to get conversation messages
-  const HandleConversationDetail = async (id) => {
-    setChatsloading(true);
-    dispatch(resetMessages());
-    setActiveChat(id); // Update Activechat state
-    const ClientId = localStorage.getItem("clientId");
-    if (ClientId && id) {
-      await dispatch(
-        fetchConversationMessage({
-          clientId: ClientId,
-          ChatId: id,
-          pageNo: pageNo,
-        })
+ const handleLoadMessages = async(id) => {
+    
+    setActiveChat(id);
+     const conversation =  await dispatch(
+        GetConversationMessage(id)
       );
-    }
-    return () => {
-      dispatch(resetMessages());
-    };
+      
+      SetConversationsData(conversation);
   };
+
+
+
+  // #region To Open and Close Agent Defined Templates
   const handleAgentdefinetemplate = () => {
     setShowDetailedTemplate(true);
   };
+
   const handleAgenttemplateclose = () => {
     setShowDetailedTemplate(false);
   };
+  // #endregion
 
-  //to set the activechat
+  // #region Function for copy 
+  const handleCopy = (text) => {
+    const phoneNumber = text.startsWith("965") ? text.slice(3) : text;
+    navigator.clipboard.writeText(phoneNumber);
+    toast.success(`Copied: ${phoneNumber}`);
+  };
+  // #endregion
+
+  useEffect(() => {
+    
+  })
+
+  useEffect(() => {
+    const fetchChats = async () => {
+      const items = await dispatch(GetConversations());
+      ;
+      setChatData(Array.isArray(items) ? items : []); // Ensure it's always an array
+    };
+  
+    fetchChats();
+  }, [dispatch]);
+
+
+  // #region Function for logout 
+  const handleLogout = () => {
+    SweetAlert.fire({
+      title: "Are you sure you want to logout?",
+      text: "",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Logout",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.OneSignal.logout();
+        Conversations.map((item) => {
+          clearTimer(item.id);
+        });
+
+        localStorage.clear();
+        router.push("/auth/login");
+      }
+    });
+  };
+  // #endregion
+
+  // #region Function for download
+  const handleDownload = (mediapath) => {
+    const imageUrl = `${BASE_URL}${mediapath}`;
+    const fileName = `file.${mediapath.split(".")[1]}`;
+
+    // Fetch the image as a blob
+    fetch(imageUrl)
+      .then((response) => response.blob())
+      .then((blob) => {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob); // Create an object URL for the blob
+        link.download = fileName; // Specify the downloaded file's name
+        link.click(); // Trigger the download
+      })
+      .catch((error) => console.error("Download failed", error));
+  };
+  // #endregion
+  
+  const handleScroll = () => {
+      if (!hasMore || loading) return;
+  
+      const container = scrollContainerRef.current;
+      const buffer = 10; // Trigger API call 100px before reaching the top
+  
+      // Detect upward scrolling and proximity to the top
+      const currentScrollTop = container.scrollTop;
+      if (
+        currentScrollTop < lastScrollTop.current && // Scrolling up
+        currentScrollTop <= buffer // Within 100px of the top
+      ) {
+        
+        // Fetch older chats when scrolling up near the top
+        dispatch(
+          GetConversationMessage()
+        );
+        
+      }
+  
+      // Update last scroll position
+      lastScrollTop.current = currentScrollTop;
+    };
+  // #region UseEffect for ----
   useEffect(() => {
     activeChatRef.current = Activechat;
   }, [Activechat]);
 
   useEffect(() => {
-    agentChatRef.current = AgentConversation;
-  }, [AgentConversation]);
+    agentChatRef.current = Conversations;
+  }, [Conversations]);
+  // #endregion
 
-  //triggered each time when messages changes and assign to local state
+  // #region triggered each time when conversationsData changes and assign to local state
   useEffect(() => {
-    if (messages && messages.length > 0) {
-      setChatsloading(false);
-      setChatMessages(messages);
-      setActiveSenderId(messages[0].senderId);
+    if (conversationsData && conversationsData.length > 0) {
+      SetMessagesLoading(false);
+      setConversationMessages(conversationsData);
+      setActiveSenderId(conversationsData[0].senderId);
     }
-  }, [messages]);
+  }, [conversationsData]);
+  // #endregion
 
-  //Add emoji function
+  // #region Add emoji function
   const addEmoji = (emoji) => {
     setMessageInput((prevMessage) => prevMessage + emoji);
   };
+  // #endregion 
 
-  const handleScroll = () => {
-    if (!hasMore || loading) return;
-
-    const container = scrollContainerRef.current;
-    const buffer = 10; // Trigger API call 100px before reaching the top
-
-    // Detect upward scrolling and proximity to the top
-    const currentScrollTop = container.scrollTop;
-    if (
-      currentScrollTop < lastScrollTop.current && // Scrolling up
-      currentScrollTop <= buffer // Within 100px of the top
-    ) {
-      // Fetch older chats when scrolling up near the top
-      dispatch(
-        fetchConversationMessage({
-          clientId: localStorage.getItem("clientId"),
-          ChatId: Activechat,
-          pageNo: currentPage + 1,
-        })
-      );
-    }
-
-    // Update last scroll position
-    lastScrollTop.current = currentScrollTop;
-  };
-
+  // #region UseEffect for ----
   useEffect(() => {
     if (Activechat !== 0) {
       const container = scrollContainerRef.current;
@@ -344,13 +323,16 @@ const ChatPage = () => {
       return () => container.removeEventListener("scroll", handleScroll);
     }
   }, [currentPage, hasMore, loading, Activechat]);
+  // #endregion
 
+  // #region Function for image close
   const handleImageclose = () => {
     setMediaFile(null);
-    setPreviewUrl(null);
+    SetMediaPreviewUrl(null);
   };
+  // #endregion
 
-  //called each time to send message
+  // #region Send Message Function !important
   const HandleSendMessage = async () => {
     if (!messageInput.trim() && !mediaFile) {
       toast.error("Message cannot be empty!");
@@ -359,7 +341,7 @@ const ChatPage = () => {
 
     const formData = new FormData();
     formData.append("ClientId", localStorage.getItem("clientId"));
-    formData.append("SenderId", messages[0].senderId);
+    formData.append("SenderId", conversationsData[0].senderId);
     formData.append("Message", messageInput.trim());
     formData.append("ConversationId", Activechat);
 
@@ -373,23 +355,18 @@ const ChatPage = () => {
         typeId: 1,
         messageContent: messageInput.trim(),
         sentcontentType: fileType ? fileType : "", // Set content type if there's media
-        sentmediaPath: previewUrl ? previewUrl : "",
+        sentmediaPath: mediaPreviewUrl ? mediaPreviewUrl : "",
         createdDate: new Date().toLocaleString(),
       };
 
-      setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
-      setPreviewUrl(null);
+      setConversationMessages((prevMessages) => [newMessage, ...prevMessages]);
+      SetMediaPreviewUrl(null);
       setFileType(null);
-      setFileType(null);
+      setMediaFile(null);
       setMessageInput("");
       await dispatch(NewAgentMessage(formData)).unwrap();
-      //toast.success("Message sent successfully!");
-      setMediaFile(null); // Clear the selected file after sending the message
-      setPreviewUrl(null);
-      setFileType(null); //get the file type
-      clearTimer(Activechat);
       removeUnrepliedMark(Activechat);
-      // Shift the active conversation to the top of the list and reset unread count
+     
       const matchingConversationIndex = agentChatRef.current.findIndex(
         (conversation) => conversation.id === Activechat
       );
@@ -410,7 +387,7 @@ const ChatPage = () => {
         });
 
         agentChatRef.current = updatedConversations;
-        setAgentConversation(updatedConversations);
+        setConversations(updatedConversations);
       } else {
         console.warn(
           "No matching conversation found for Activechat:",
@@ -423,27 +400,28 @@ const ChatPage = () => {
     }
   };
 
+  // #endregion
+
+  // #region UseEffect to check weather a conversation has unread messages or not
   useEffect(() => {
-    if (AgentConversation && AgentConversation.length > 0) {
-      // Filter messages with unread count > 0
-      const unreadMessages = AgentConversation.filter(
+    if (Conversations && Conversations.length > 0) {
+      const unreadMessages = Conversations.filter(
         (message) => message.unreadCount > 0
       );
-      //const unreadMessageIds = unreadMessages.map((message) => message.id);
-
-      // Assign the unread message IDs to the desired functions
       unreadMessages.map((message) => {
-        startTimer(message);
         markChatAsUnreplied(message.id);
       });
     }
-  }, [AgentConversation]);
+  }, [Conversations]);
+  // #endregion
+  
 
+  // #region Functions for file change 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setMediaFile(file); // Store the selected fil
-      setPreviewUrl(URL.createObjectURL(file)); // Generate a temporary URL for preview
+      SetMediaPreviewUrl(URL.createObjectURL(file)); // Generate a temporary URL for preview
       setFileType(file.type.split("/")[0]);
       setIsImagePreviewOpen(true);
     }
@@ -452,225 +430,238 @@ const ChatPage = () => {
   const openFileManager = () => {
     fileInputRef.current.click(); // Trigger the file input click event
   };
-
+  // #endregion
+  
+  // #region UseEffect for ----
   useEffect(() => {
-    if (!Chatsloading && tempMessages.length > 0) {
-      //;
-      // Append tempMessages to chatMessages when loading becomes false
-      setChatMessages((prevMessages) => [...tempMessages, ...prevMessages]);
+    if (!messagesLoading && tempMessages.length > 0) {
+      setConversationMessages((prevMessages) => [...tempMessages, ...prevMessages]);
       setTempMessages([]); // Clear tempMessages after appending
     }
-  }, [Chatsloading, tempMessages]);
+  }, [messagesLoading, tempMessages]);
+  // #endregion
 
-  useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      console.error("UserId not found in localStorage");
-      return;
-    }
+  // #region UseEffect for SignalR
 
-    setuserId(userId);
+  // #region UseEffect for setting up SignalR
+  // useEffect(() => {
+  //   const userId = localStorage.getItem("userId");
+  //   if (!userId) {
+  //     console.error("UserId not found in localStorage");
+  //     return;
+  //   }
 
-    // Initialize SignalR connection
-    const newConnection = new signalR.HubConnectionBuilder()
-      .withUrl(`${BASE_URL}/conversation?AgentId=${userId}`, {
-        skipNegotiation: true,
-        transport: signalR.HttpTransportType.WebSockets,
-      })
-      .withAutomaticReconnect([0, 2000, 5000, 10000, 15000, 20000, 25000])
-      .build();
+   
 
-    // Store connection in ref to avoid unnecessary re-renders
-    connectionRef.current = newConnection;
+  //   // Initialize SignalR connection
+  //   const newConnection = new signalR.HubConnectionBuilder()
+  //     .withUrl(`${BASE_URL}/conversation?AgentId=${userId}`, {
+  //       skipNegotiation: true,
+  //       transport: signalR.HttpTransportType.WebSockets,
+  //     })
+  //     .withAutomaticReconnect([0, 2000, 5000, 10000, 15000, 20000, 25000])
+  //     .build();
 
-    // Message received handler
-    const handleIncomingMessage = (message) => {
-      audioRef.current
-        ?.play()
-        .catch((err) =>
-          console.error("Failed to play notification sound:", err)
-        );
+  //   // Store connection in ref to avoid unnecessary re-renders
+  //   connectionRef.current = newConnection;
 
-      const matchingConversationIndex = agentChatRef.current.findIndex(
-        (conversation) => conversation.id === message.conversationId
-      );
+  //   // #region Message received handler
+  //   const handleIncomingMessage = (message) => {
+  //     expireAudioRef.current
+  //       ?.play()
+  //       .catch((err) =>
+  //         console.error("Failed to play notification sound:", err)
+  //       );
 
-      if (matchingConversationIndex !== -1) {
-        const updatedConversations = [...agentChatRef.current];
-        const matchingConversation =
-          updatedConversations[matchingConversationIndex];
+  //     const matchingConversationIndex = agentChatRef.current.findIndex(
+  //       (conversation) => conversation.id === message.conversationId
+  //     );
 
-        if ((matchingConversation.unreadCount || 0) <= 0) {
-          startTimer(message);
-        }
+  //     if (matchingConversationIndex !== -1) {
+  //       const updatedConversations = [...agentChatRef.current];
+  //       const matchingConversation =
+  //         updatedConversations[matchingConversationIndex];
 
-        updatedConversations[matchingConversationIndex] = {
-          ...matchingConversation,
-          lastMessageText: message.messageContent,
-          updatedDate: message.createdDate,
-          unreadCount: (matchingConversation.unreadCount || 0) + 1,
-        };
+  //       if ((matchingConversation.unreadCount || 0) <= 0) {
+  //         startTimer(message);
+  //       }
 
-        agentChatRef.current = updatedConversations;
-        setAgentConversation(updatedConversations);
-      } else {
-        console.warn(
-          "No matching conversation found for message.conversationId:",
-          message.conversationId
-        );
-      }
+  //       updatedConversations[matchingConversationIndex] = {
+  //         ...matchingConversation,
+  //         lastMessageText: message.messageContent,
+  //         updatedDate: message.createdDate,
+  //         unreadCount: (matchingConversation.unreadCount || 0) + 1,
+  //       };
 
-      if (message.conversationId === activeChatRef.current) {
-        setChatMessages((prevMessages) => [message, ...prevMessages]);
-        setTempMessages([]);
-      } else {
-        if (matchingConversationIndex !== -1) {
-          const updatedConversations = [...agentChatRef.current];
-          const matchingConversation =
-            updatedConversations[matchingConversationIndex];
+  //       agentChatRef.current = updatedConversations;
+  //       setConversations(updatedConversations);
+  //     } else {
+  //       console.warn(
+  //         "No matching conversation found for message.conversationId:",
+  //         message.conversationId
+  //       );
+  //     }
 
-          updatedConversations.splice(matchingConversationIndex, 1);
-          updatedConversations.unshift(matchingConversation);
+  //     if (message.conversationId === activeChatRef.current) {
+  //       setConversationMessages((prevMessages) => [message, ...prevMessages]);
+  //       setTempMessages([]);
+  //     } else {
+  //       if (matchingConversationIndex !== -1) {
+  //         const updatedConversations = [...agentChatRef.current];
+  //         const matchingConversation =
+  //           updatedConversations[matchingConversationIndex];
 
-          agentChatRef.current = updatedConversations;
-          setAgentConversation(updatedConversations);
-        }
-      }
-    };
+  //         updatedConversations.splice(matchingConversationIndex, 1);
+  //         updatedConversations.unshift(matchingConversation);
 
-    // Handles conversation assignment
-    const handleConversationAssigned = (notification) => {
-      audioRef.current
-        ?.play()
-        .catch((err) =>
-          console.error("Failed to play notification sound:", err)
-        );
+  //         agentChatRef.current = updatedConversations;
+  //         setConversations(updatedConversations);
+  //       }
+  //     }
+  //   };
+  //   // #endregion
+    
+  //   // #region Handles conversation assigned
+  //   const handleConversationAssigned = (notification) => {
+  //     expireAudioRef.current
+  //       ?.play()
+  //       .catch((err) =>
+  //         console.error("Failed to play notification sound:", err)
+  //       );
 
-      dispatch(
-        fetchAgentStats({
-          clientId: localStorage.getItem("clientId"),
-          agentId: userId,
-        })
-      );
+  //     dispatch(
+  //       fetchAgentStats({
+  //         clientId: localStorage.getItem("clientId"),
+  //         agentId: userId,
+  //       })
+  //     );
 
-      startTimer(notification);
+  //     startTimer(notification);
 
-      const matchingConversationIndex = agentChatRef.current.findIndex(
-        (conversation) => conversation.id === notification.id
-      );
+  //     const matchingConversationIndex = agentChatRef.current.findIndex(
+  //       (conversation) => conversation.id === notification.id
+  //     );
 
-      if (matchingConversationIndex !== -1) {
-        const updatedConversations = [...agentChatRef.current];
-        updatedConversations[matchingConversationIndex] = {
-          ...updatedConversations[matchingConversationIndex],
-          lastMessageText: notification.lastMessageText,
-          unreadCount:
-            (updatedConversations[matchingConversationIndex].unreadCount || 0) +
-            1,
-        };
+  //     if (matchingConversationIndex !== -1) {
+  //       const updatedConversations = [...agentChatRef.current];
+  //       updatedConversations[matchingConversationIndex] = {
+  //         ...updatedConversations[matchingConversationIndex],
+  //         lastMessageText: notification.lastMessageText,
+  //         unreadCount:
+  //           (updatedConversations[matchingConversationIndex].unreadCount || 0) +
+  //           1,
+  //       };
 
-        agentChatRef.current = updatedConversations;
-        setAgentConversation(updatedConversations);
-      } else {
-        const newNotification = { ...notification, unreadCount: 1 };
-        setAgentConversation((prevMessages) => [
-          newNotification,
-          ...prevMessages,
-        ]);
-      }
-    };
+  //       agentChatRef.current = updatedConversations;
+  //       setConversations(updatedConversations);
+  //     } else {
+  //       const newNotification = { ...notification, unreadCount: 1 };
+  //       setConversations((prevMessages) => [
+  //         newNotification,
+  //         ...prevMessages,
+  //       ]);
+  //     }
+  //   };
+  //   // #endregion
+    
+  //   // #region Handles conversation unassigned
+  //   const handleConversationUnAssigned = (chatId) => {
+  //     if (
+  //       !agentChatRef.current.some((conversation) => conversation.id === chatId)
+  //     )
+  //       return;
 
-    // Handles conversation unassignment
-    const handleConversationUnAssigned = (chatId) => {
-      if (
-        !agentChatRef.current.some((conversation) => conversation.id === chatId)
-      )
-        return;
+  //     dispatch(
+  //       fetchAgentStats({
+  //         clientId: localStorage.getItem("clientId"),
+  //         agentId: userId,
+  //       })
+  //     );
 
-      dispatch(
-        fetchAgentStats({
-          clientId: localStorage.getItem("clientId"),
-          agentId: userId,
-        })
-      );
+  //     const updatedConversations = agentChatRef.current.filter(
+  //       (conversation) => conversation.id !== chatId
+  //     );
+  //     const isActiveChat = chatId === activeChatRef.current;
 
-      const updatedConversations = agentChatRef.current.filter(
-        (conversation) => conversation.id !== chatId
-      );
-      const isActiveChat = chatId === activeChatRef.current;
+  //     if (isActiveChat) {
+  //       setConversationMessages([]);
+  //       setActiveChat(0);
+  //     }
 
-      if (isActiveChat) {
-        setChatMessages([]);
-        setActiveChat(0);
-      }
+  //     clearTimer(chatId);
+  //     agentChatRef.current = updatedConversations;
+  //     setConversations(updatedConversations);
+  //   };
+  //   // #endregion
+    
+  //   // #region Handles heartbeat 
+  //   const handleHeartbeatAcknowledged = () => {
+  //     console.log("Heartbeat acknowledged", new Date());
+  //   };
+  //   // #endregion
+    
+  //   // #region Setup event listeners
+  //   newConnection.on("MessageReceived", handleIncomingMessage);
+  //   newConnection.on("ConversationAssigned", handleConversationAssigned);
+  //   newConnection.on("ConversationUnAssigned", handleConversationUnAssigned);
+  //   newConnection.on("HeartbeatAcknowledged", handleHeartbeatAcknowledged);
+  //   // #endregion
+    
+  //   // #region Start connection
+  //   newConnection
+  //     .start()
+  //     .then(() => {
+  //       console.log("Connected to SignalR");
+  //     })
+  //     .catch((err) => {
+  //       console.error("Error while starting the connection:", err);
+  //       setErrordisconnect(true);
+  //     });
 
-      clearTimer(chatId);
-      agentChatRef.current = updatedConversations;
-      setAgentConversation(updatedConversations);
-    };
+  //   // Handle connection loss and attempt to reconnect
+  //   newConnection.onreconnecting((error) => {
+  //     console.warn("Connection lost. Attempting to reconnect...", error);
+  //   });
 
-    const handleHeartbeatAcknowledged = () => {
-      console.log("Heartbeat acknowledged", new Date());
-    };
-
-    // Setup event listeners
-    newConnection.on("MessageReceived", handleIncomingMessage);
-    newConnection.on("ConversationAssigned", handleConversationAssigned);
-    newConnection.on("ConversationUnAssigned", handleConversationUnAssigned);
-    newConnection.on("HeartbeatAcknowledged", handleHeartbeatAcknowledged);
-
-    // Start connection
-    newConnection
-      .start()
-      .then(() => {
-        console.log("Connected to SignalR");
-      })
-      .catch((err) => {
-        console.error("Error while starting the connection:", err);
-        setErrordisconnect(true);
-      });
-
-    // Handle connection loss and attempt to reconnect
-    newConnection.onreconnecting((error) => {
-      console.warn("Connection lost. Attempting to reconnect...", error);
-    });
-
-    newConnection.onclose(() => {
-      console.error("SignalR connection lost. Retrying in 5 seconds...");
-      setTimeout(() => setErrordisconnect(true), 5000);
-    });
-
-    // Heartbeat logic
-    const heartbeatInterval = setInterval(() => {
-      if (newConnection.state === signalR.HubConnectionState.Connected) {
-        newConnection
-          .invoke("Heartbeat")
-          .then(() => {
-            console.log("Heartbeat sent successfully", new Date());
-            setheartbeatAttempts(0);
-          })
-          .catch((err) => {
-            setheartbeatAttempts((prev) => prev + 1);
-            console.error(
-              `Heartbeat error (${heartbeatAttempts} attempts):`,
-              err
-            );
-          });
-      } else {
-        setErrordisconnect(true);
-        console.warn("Connection is not in the connected state.");
-      }
-    }, HEARTBEAT_CHECK_INTERVAL);
-
-    return () => {
-      newConnection
-        .stop()
-        .catch((err) => console.error("Error stopping connection:", err));
-      clearInterval(heartbeatInterval);
-      setErrordisconnect(true);
-    };
-  }, []);
-
+  //   newConnection.onclose(() => {
+  //     console.error("SignalR connection lost. Retrying in 5 seconds...");
+  //     setTimeout(() => setErrordisconnect(true), 5000);
+  //   });
+  //   // #endregion
+    
+  //   // #region Heartbeat logic
+  //   const heartbeatInterval = setInterval(() => {
+  //     if (newConnection.state === signalR.HubConnectionState.Connected) {
+  //       newConnection
+  //         .invoke("Heartbeat")
+  //         .then(() => {
+  //           console.log("Heartbeat sent successfully", new Date());
+  //           setheartbeatAttempts(0);
+  //         })
+  //         .catch((err) => {
+  //           setheartbeatAttempts((prev) => prev + 1);
+  //           console.error(
+  //             `Heartbeat error (${heartbeatAttempts} attempts):`,
+  //             err
+  //           );
+  //         });
+  //     } else {
+  //       setErrordisconnect(true);
+  //       console.warn("Connection is not in the connected state.");
+  //     }
+  //   }, heartbeatAttempts);
+  //   // #endregion
+  //   return () => {
+  //     newConnection
+  //       .stop()
+  //       .catch((err) => console.error("Error stopping connection:", err));
+  //     clearInterval(heartbeatInterval);
+  //     setErrordisconnect(true);
+  //   };
+  // }, []);
+  // // #endregion
+  
+  // #region UseEffect for handling disconnection
   useEffect(() => {
     if (Errordisconnect) {
       console.warn("Reconnecting SignalR...");
@@ -678,95 +669,37 @@ const ChatPage = () => {
       setErrordisconnect(false);
     }
   }, [Errordisconnect]);
-
+  // #endregion
+  
+  // #region UseEffect for handling heart beat disconnection
   useEffect(() => {
     if (heartbeatAttempts >= 2) {
       setErrordisconnect(true);
     }
   }, [heartbeatAttempts]);
+  // #endregion
+  // #endregion
 
-  const startTimer = (messages) => {
-    // Clear existing timer if any
-    if (timersRef.current[messages.id]) {
-      clearTimeout(timersRef.current[messages.id]);
-    }
-
-    // Set a new 5-minute timer
-    timersRef.current[messages.id] = setTimeout(() => {
-      handleTimerExpiry(messages);
-    }, NOTIFICATION_WARNING_INTERVAL); // 5 minutes
-  };
-
-  const handleTimerExpiry = (message) => {
-    // toast.error(
-    //   `Reply pending for : ${message.phoneNumber} for more than 5 mins`
-    // );
-
-    // Play alert sound
-    // audioRef.current
-    //   ?.play()
-    //   .catch((err) =>
-    //     console.error("Failed to play alert sound on timer expiry:", err)
-    //   );
-
-    // Trigger another 5-minute timer if no action is taken
-    if (!isMessageReplied(message.id)) {
-      console.warn(`No reply for ID: ${message.id}, rescheduling timer.`);
-      markChatAsUnreplied(message.id);
-      startTimer(message); // Restart the timer
-    } else {
-      console.info(`Reply received for ID: ${message.id}, stopping timer.`);
-      clearTimer(message.id); // Stop the timer if replied
-    }
-  };
-
-  const clearTimer = (id) => {
-    if (timersRef.current[id]) {
-      clearTimeout(timersRef.current[id]);
-      delete timersRef.current[id];
-    }
-  };
-
-  // Function to check if the message was replied
-  const isMessageReplied = (id) => {
-    // Example condition: Check active chat messages or a specific state
-    return (
-      activeChatRef.current === id && chatMessages.some((msg) => msg.reply)
-    );
-  };
-
+  // #region Function for marking chat as unreplied
   const markChatAsUnreplied = async (id) => {
     setUnrepliedChats((prev) => [...prev, id]);
-    //console.log("Marked chat as unreplied:", unrepliedChats);
   };
-
+  // #endregion
+  
+  // #region Function for remove the chat that are marked as unreplied
   const removeUnrepliedMark = (id) => {
     setUnrepliedChats((prev) => prev.filter((chatId) => chatId !== id));
   };
-
-  const handleReload = () => {
-    // Reload the current page
-    window.location.reload();
-  };
-
-  const handleDownload = (mediapath) => {
-    const imageUrl = `${BASE_URL}${mediapath}`;
-    const fileName = `file.${mediapath.split(".")[1]}`;
-
-    // Fetch the image as a blob
-    fetch(imageUrl)
-      .then((response) => response.blob())
-      .then((blob) => {
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob); // Create an object URL for the blob
-        link.download = fileName; // Specify the downloaded file's name
-        link.click(); // Trigger the download
-      })
-      .catch((error) => console.error("Download failed", error));
-  };
-
+  // #endregion
+  
+  // #endregion
+  
+  // #endregion
+  
   return (
+    // #region Main code
     <>
+    
       <div className="flex flex-wrap items-center justify-between bg-gray-900 p-4 rounded shadow-md space-x-4">
         {/* Assigned */}
         <nav className="text-white bg-gray-900 fixed top-0 left-0 right-0 z-50 shadow-md w-full">
@@ -832,7 +765,7 @@ const ChatPage = () => {
 
                 {/* Expired */}
                 <div className="flex items-center space-x-2 menuitem">
-                  <AiOutlineHourglass className="text-yellow-100" />
+                  <FaHourglass className="text-yellow-100" />
                   <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
                     Expired:{" "}
                     <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
@@ -874,18 +807,16 @@ const ChatPage = () => {
                 <div className="relative menuitem menuitemButton">
                   <button
                     className="flex ButtonUserName items-center space-x-2 menuitem p-2 bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none"
-                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    onClick={() => setUserProfileMenu(!drpUserProfileMenu)}
                   >
-                    <img
-                      src={UserBadge.src}
-                      alt="User"
-                      className="w-8 h-8 rounded-full"
+                    <FaUser
+                     
                     />
                     <span>{localStorage.getItem("userName")}</span>
                   </button>
 
                   {/* Dropdown Menu */}
-                  {dropdownOpen && (
+                  {drpUserProfileMenu && (
                     <div className="absolute right-0 mt-2 w-48 bg-gray-700 shadow-lg rounded-md">
                       <button
                         onClick={handleLogout}
@@ -931,85 +862,84 @@ const ChatPage = () => {
 
               <TabContent id="chat-options-tabContent">
                 <TabPane id="chats">
-                  <ul
-                    className="list-unstyled chats-user overflow-auto"
-                    style={{ height: "80vh", margin: "0" }}
-                  >
-                    {AgentConversation?.length === 0 && !loading && (
-                      <div className="text-center">No Chats Found</div>
-                    )}
-                    {AgentConversation?.map((conversation) => (
-                      <li
-                        key={conversation.id}
-                        className={`d-flex justify-content-between align-items-center p-2 mb-1 chat-item ${
-                          Activechat === conversation.id ? " text-white" : ""
-                        }`}
-                        style={
-                          Activechat !== conversation.id &&
-                          unrepliedChats.includes(conversation.id)
-                            ? {
-                                animation: "blink 1s infinite",
-                                backgroundColor: "#ffcccc",
-                              }
-                            : Activechat === conversation.id
-                            ? {
-                                backgroundColor: "#ddffd9", // Dark gray color
-                                color: "white",
-                              }
-                            : { minHeight: "60px" }
-                        }
-                        onClick={() =>
-                          HandleConversationDetail(conversation.id)
-                        }
-                      >
-                        <div className="d-flex align-items-center w-75">
-                          <img
-                            src={`${BASE_URL}${conversation.logo}`}
-                            alt="User Logo"
-                            className="rounded-circle me-2"
-                            style={{
-                              width: "40px",
-                              height: "40px",
-                              objectFit: "cover",
-                            }}
-                          />
+                <ul
+  className="list-unstyled chats-user overflow-auto"
+  style={{ height: "80vh", margin: "0" }}
+>
+  {chatData?.length === 0 && !loading && (
+    <div className="text-center">No Chats Found</div>
+  )}
+  {chatData?.map((conversation) => (
+    <li
+      key={conversation.id}
+      className={`d-flex justify-content-between align-items-center p-2 mb-1 chat-item ${
+        Activechat === conversation.id ? " text-white" : ""
+      }`}
+      style={
+        Activechat !== conversation.id &&
+        unrepliedChats.includes(conversation.id)
+          ? {
+              animation: "blink 1s infinite",
+              backgroundColor: "#ffcccc",
+            }
+          : Activechat === conversation.id
+          ? {
+              backgroundColor: "#ddffd9", 
+              color: "white",
+            }
+          : { minHeight: "60px" }
+      }
+      onClick={() => handleLoadMessages(conversation.id)}
+    >
+      <div className="d-flex align-items-center w-75">
+        <img
+          src={`${BASE_URL}${conversation.logo}`}
+          alt="User Logo"
+          className="rounded-circle me-2"
+          style={{
+            width: "40px",
+            height: "40px",
+            objectFit: "cover",
+          }}
+        />
 
-                          <div className="flex-grow-1">
-                            <span className="d-block text-truncate text-muted  text-left">
-                              {conversation.phoneNumber}
-                            </span>
-                            {conversation.lastMessageText !== "" ? (
-                              <p
-                                className="d-block text-truncate mt-2 text-muted text-left"
-                                style={{
-                                  maxWidth: "220px",
-                                  fontSize: "14px",
-                                  marginBottom: "0",
-                                }}
-                              >
-                                {conversation.lastMessageText}
-                              </p>
-                            ) : (
-                              <div className="d-flex align-items-center text-muted">
-                                <i className="fa fa-photo me-1"></i>
-                                <span style={{ fontSize: "12px" }}>Media</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="d-flex flex-column align-items-end justify-content-between">
-                          <p className="text-xs text-gray-400">
-                            {extractTime(conversation.updatedDate)}
-                          </p>
-                          {conversation.unreadCount > 0 && (
-                            <span className="inline-block bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">
-                              @{conversation.unreadCount}
-                            </span>
-                          )}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+        <div className="flex-grow-1">
+          <span className="d-block text-truncate text-muted  text-left">
+            {conversation.phoneNumber}
+          </span>
+          {conversation.lastMessageText !== "" ? (
+            <p
+              className="d-block text-truncate mt-2 text-muted text-left"
+              style={{
+                maxWidth: "220px",
+                fontSize: "14px",
+                marginBottom: "0",
+              }}
+            >
+              {conversation.lastMessageText}
+            </p>
+          ) : (
+            <div className="d-flex align-items-center text-muted">
+              <i className="fa fa-photo me-1"></i>
+              <span style={{ fontSize: "12px" }}>Media</span>
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="d-flex flex-column align-items-end justify-content-between">
+        <p className="text-xs text-gray-400">
+          {/* {extractTime(conversation.updatedDate)} */}
+        </p>
+        {conversation.unreadCount > 0 && (
+          <span className="inline-block bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">
+            @{conversation.unreadCount}
+          </span>
+        )}
+      </div>
+    </li>
+  ))}
+</ul>
+
                 </TabPane>
               </TabContent>
             </Card>
@@ -1025,7 +955,7 @@ const ChatPage = () => {
           >
             {Activechat !== 0 && (
               <Card className="right-sidebar-chat h-100">
-                {AgentConversation.filter(
+                {Conversations.filter(
                   (conversation) => conversation.id === Activechat
                 ).map((conversation) => (
                   <div
@@ -1071,7 +1001,7 @@ const ChatPage = () => {
                     <div
                       ref={scrollContainerRef}
                       className={`msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2 ${
-                        previewUrl ? "hide-messages" : ""
+                        mediaPreviewUrl ? "hide-messages" : ""
                       }`}
                       style={{
                         overflowY: "auto",
@@ -1079,10 +1009,10 @@ const ChatPage = () => {
                         flexDirection: "column-reverse",
                       }}
                     >
-                      {Chatsloading && (
+                      {messagesLoading && (
                        <Loader/>
                       )}
-                      {chatMessages?.map((message) => (
+                      {conversationsData?.map((message) => (
                         <div
                           key={message.messageId}
                           className={`mt-2 flex ${
@@ -1268,7 +1198,7 @@ const ChatPage = () => {
                                   className="ml-2 text-gray-500 text-xs"
                                   style={{ whiteSpace: "nowrap" }}
                                 >
-                                  {extractTime(message.createdDate).slice(0, 5)}
+                                  {/* {extractTime(message.createdDate).slice(0, 5)} */}
                                 </span>
                               </div>
                               {message.buttonJson &&
@@ -1320,7 +1250,7 @@ const ChatPage = () => {
                       ))}
                       <div ref={messagesEndRef} />
                     </div>
-                    {previewUrl && (
+                    {mediaPreviewUrl && (
                       <div className="absolute inset-0  flex items-center justify-center z-50">
                         <div className="bg-transparent p-6 rounded w-2/5 ">
                           <div
@@ -1382,7 +1312,7 @@ const ChatPage = () => {
                                 }}
                               >
                                 <img
-                                  src={previewUrl}
+                                  src={mediaPreviewUrl}
                                   alt="Preview"
                                   style={{
                                     width: "100%",
@@ -1409,7 +1339,7 @@ const ChatPage = () => {
                               >
                                 <video
                                   controls
-                                  src={previewUrl}
+                                  src={mediaPreviewUrl}
                                   style={{
                                     width: "100%",
                                     height: "100%",
@@ -1432,7 +1362,7 @@ const ChatPage = () => {
                               >
                                 <audio
                                   controls
-                                  src={previewUrl}
+                                  src={mediaPreviewUrl}
                                   style={{
                                     width: "100%",
                                   }}
@@ -1485,7 +1415,7 @@ const ChatPage = () => {
                                     {mediaFile.name}
                                   </p>
                                   <a
-                                    href={previewUrl}
+                                    href={mediaPreviewUrl}
                                     download={mediaFile.name}
                                     style={{
                                       color: "#007BFF",
@@ -1619,7 +1549,7 @@ const ChatPage = () => {
           </Col>
         </Row>
       </Container>
-      {Errordisconnect && (
+      {/* {Errordisconnect && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
           <div className="bg-red-500 p-8 rounded-lg shadow-md max-w-md w-full text-center">
             <div className="flex justify-center mb-4">
@@ -1655,8 +1585,9 @@ const ChatPage = () => {
             </button>
           </div>
         </div>
-      )}
+      )} */}
     </>
+    // #endregion
   );
 };
 

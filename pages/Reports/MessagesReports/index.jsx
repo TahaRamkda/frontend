@@ -221,7 +221,6 @@ const MessageReport = () => {
           <div className='flex flex-col text-start mb-1'>
             <label className="font-medium text-gray-700 text-sm">Message Type</label>
             <select
-
               id="ModuleId"
               value={ModuleId}
               onChange={(e) => setmoduleId(e.target.value)}

@@ -58,6 +58,8 @@ const AgentsList = () => {
   const [agentForm, setagentForm] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [SenderId, setSenderId] = useState(0);
+  const [AgentFirstName, setAgentFirstName] = useState("");
+  const [AgentLastName, setAgentLastName] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [AgentId, setAgentId] = useState(null);
   const [filterText, setFilterText] = useState("");
@@ -68,18 +70,26 @@ const AgentsList = () => {
 
   const agentColumn = [
     { name: "User Name", selector: (row) => row.userName, sortable: true },
-    { name: "First Name", selector: (row) => row.agentFName, sortable: true },
     {
-      name: "First Name AR",
-      selector: (row) => row.agentFNameAR,
+      name: "Agent Name",
+      selector: (row) => `${row.agentFName} ${row.agentLName}`,
       sortable: true,
-      cell: (row) => <div style={{ textAlign: "right", direction: "rtl", width: "100%" }}>{row.agentFNameAR}</div>,
+      cell: (row) => (
+        <div style={{ width: "100%" }}>
+          {row.agentFName} {row.agentLName}
+        </div>
+      ),
     },
+    
     {
-      name: "Last Name AR",
-      selector: (row) => row.agentLNameAR,
+      name: "Agent Name AR",
+      selector: (row) => `${row.agentFNameAR} ${row.agentLNameAR}`,
       sortable: true,
-      cell: (row) => <div style={{ textAlign: "right", direction: "rtl", width: "100%" }}>{row.agentLNameAR}</div>,
+      cell: (row) => (
+        <div style={{ textAlign: "right", direction: "rtl", width: "100%" }}>
+          {row.agentFNameAR} {row.agentLNameAR}
+        </div>
+      ),
     },
     { name: "Status", selector: (row) => row.statusName, sortable: true },
     {
@@ -95,7 +105,7 @@ const AgentsList = () => {
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
             <button
-              onClick={() => handleTime(row.id)}
+              onClick={() => handleTime(row)}
               title="Agents Timming"
               className="uniform_icon_btn"
             >
@@ -170,7 +180,9 @@ const AgentsList = () => {
   };
 
   const handleTime = (agentId) => {
-    setAgentId(agentId);
+    setAgentId(agentId.id);
+    setAgentFirstName(agentId.agentFName);
+    setAgentLastName(agentId.agentLName);
     setshowagenttiming(true);
   };
 
@@ -554,7 +566,7 @@ const AgentsList = () => {
         </Modal>
       )}
       {showagenttiming && (
-        <AgentTiming agentId={AgentId} isVisible={true} onClose={handleClose} />
+        <AgentTiming agentId={AgentId} isVisible={true} onClose={handleClose} AgentFirstName={AgentFirstName} AgentLastName={AgentLastName} />
       )}
 
       {CreateModalOpen && (

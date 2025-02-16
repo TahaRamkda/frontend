@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { CHATSMONITOR, AGENTSMONITOR,AGENTDISABLE} from '@/utils/apiConstants';
+import { CHATSMONITOR, AGENTSMONITOR,AGENTDISABLE, SENDCLOSECHATTEMPLATE} from '@/utils/apiConstants';
 
 // Fetch Clients
 export const fetchChatsMonitor = createAsyncThunk(
@@ -47,7 +47,7 @@ export const fetchAgentsMonitor = createAsyncThunk(
   );
   
   export const agentDisable = createAsyncThunk(
-    'media/agentDisable',
+    'agent/agentDisable',
     async ({agentId, disable,clientId}, { rejectWithValue }) => {
       try {
         const response = await API.get(`${AGENTDISABLE}?agentId=${agentId}&disable=${disable}`);
@@ -59,6 +59,18 @@ export const fetchAgentsMonitor = createAsyncThunk(
     }
   );
   
+  export const sendCloseChatTemplate = createAsyncThunk(
+    'chat/sendCloseChatTemplate',
+    async (closeChatTemplateData, { rejectWithValue }) => {
+      try {
+        const response = await API.post(SENDCLOSECHATTEMPLATE, closeChatTemplateData);
+        return response.data;
+      } catch (error) {
+        const handledError = handleError(error);
+        return rejectWithValue(handledError);
+      }
+    }
+  );
 
   // Slice
 const Supervisor = createSlice({
@@ -146,6 +158,7 @@ const Supervisor = createSlice({
                 state.error = action.payload || action.error.message;
                 state.message = action.payload?.message || action.error.message;
               })
+
               
               .addCase(agentDisable.pending, (state) => {
                 state.loading = true;
@@ -161,7 +174,25 @@ const Supervisor = createSlice({
                 state.loading = false;
                 state.error = action.payload || action.error.message;
                 state.message = action.payload?.message || action.error.message;
-              });
+              })
+              
+              
+                    // upload Media
+                    .addCase(sendCloseChatTemplate.pending, (state) => {
+                      state.loading = true;
+                      state.error = null;
+                      state.success = false;
+                    })
+                    .addCase(sendCloseChatTemplate.fulfilled, (state, action) => {
+                      state.loading = false;
+                      state.success = true;
+                      state.message = action.payload.message || 'Closed Successfully';
+                    })
+                    .addCase(sendCloseChatTemplate.rejected, (state, action) => {
+                      state.loading = false;
+                      state.error = action.payload || action.error.message;
+                      state.message = action.payload?.message || action.error.message;
+                    });
             },
         });
 export const {

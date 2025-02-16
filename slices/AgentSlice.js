@@ -33,7 +33,7 @@ export const fetchActiveAgentsDrop = createAsyncThunk(
   'agent/fetchActiveAgentsDrop',
   async ({clientId,senderId}, { rejectWithValue }) => {
     try {
-      debugger
+      
       const response = await API.get(`${ACTIVEAGENTS}?senderId=${senderId}`);
       if (response.status === 200) {
         return {

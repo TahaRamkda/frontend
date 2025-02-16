@@ -40,6 +40,8 @@ const Dashboard = () => {
   const [fromDate, setfromDate] = useState("");
   const [toDate, settoDate] = useState("");
   const [SenderId, setSenderId] = useState(0);
+  const [isPageActive, setIsPageActive] = useState(false);
+
   const [clientId, setclientId] = useState(0);
   const { dashboardsummary, loading, error } = useSelector(
     (state) => state.reports
@@ -64,61 +66,69 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-      setdataloading(false);
-  }, [dashboardsummary, error]);
+    if (isPageActive) {
+      setdataloading(false);  // Stop loader when data is loaded or error occurs
+    }
+  }, [dashboardsummary, error, isPageActive]);
+  
 
   //function for live reporting
-  useEffect(() => {
-    const checkAndFetch = async () => {
-      const isLiveReporting = JSON.parse(
-        localStorage.getItem("isLiveReporting")
-      );
-      const fromDate = fromDateRef.current;
-      const toDate = toDateRef.current;
-      if (isLiveReporting && !loading) {
-        try {
-          await dispatch(
-            fetchDashboardSummary({
-              clientId: localStorage.getItem("clientId"),
-              fromDate: fromDate,
-              toDate: toDate,
-              senderid: SenderId,
-            })
-          );
-        } catch (error) {
-          console.error("Error fetching chat monitor:", error);
-        }
+  // useEffect for live reporting
+useEffect(() => {
+  if (!isPageActive) return; // Only run when page is active
+
+  const checkAndFetch = async () => {
+    const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
+    const fromDate = fromDateRef.current;
+    const toDate = toDateRef.current;
+
+    if (isLiveReporting && !loading) {
+      try {
+        await dispatch(
+          fetchDashboardSummary({
+            clientId: localStorage.getItem("clientId"),
+            fromDate: fromDate,
+            toDate: toDate,
+            senderid: SenderId,
+          })
+        );
+      } catch (error) {
+        console.error("Error fetching chat monitor:", error);
       }
-    };
-
-    const intervalId = setInterval(() => {
-      // Perform the periodic refresh (e.g., every 5 minutes) if page is loaded
-      if (!loading) {
-        checkAndFetch();
-      }
-    }, [REFRESH_INTERVAL]);
-
-    // Cleanup interval on component unmount or when page is unloaded
-    return () => clearInterval(intervalId);
-  }, [dispatch, SenderId]);
-
-  useEffect(() => {
-    if (fromDate && toDate) {
-      const clientId = localStorage.getItem("clientId");
-      setdataloading(true);
-      dispatch(
-        fetchDashboardSummary({
-          clientId: clientId,
-          fromDate,
-          toDate,
-          senderid: SenderId,
-        })
-      );
     }
-    return () => {
-      clearDashboardReportState();
-    };
-  }, [dispatch, fromDate, toDate, SenderId]);
+  };
+
+  const intervalId = setInterval(() => {
+    if (!loading) {
+      checkAndFetch();
+    }
+  }, REFRESH_INTERVAL);
+
+  return () => clearInterval(intervalId);
+}, [dispatch, SenderId, isPageActive]);
+
+  
+
+useEffect(() => {
+  if (!isPageActive) return;
+
+  if (fromDate && toDate ) {
+    const clientId = localStorage.getItem("clientId");
+    setdataloading(true);
+    dispatch(
+      fetchDashboardSummary({
+        clientId: clientId,
+        fromDate,
+        toDate,
+        senderid: SenderId,
+      })
+    );
+  }
+  return () => {
+    clearDashboardReportState();
+  };
+}, [dispatch, fromDate, toDate, SenderId, isPageActive]);
+
 
   const handlefromDateChange = (setter) => (e) => {
     fromDateRef.current = e;
@@ -180,10 +190,30 @@ const Dashboard = () => {
 
   return (
     <App>
-     {!isLiveReporting.current && dataloading && <Loader />}
+     {!isLiveReporting.current && isPageActive && dataloading && <Loader />}
+     <div className="dashboard-container relative">
+  {!isPageActive && (
+    <div className="popup-overlay">
+      <div className="popup-content">
+        <h2>Page Paused</h2>
+        <p>Click below to reload data and activate the page.</p>
+        <button
+          className="load-page-button"
+          onClick={() => setIsPageActive(true)}
+        >
+          Load Page
+        </button>
+      </div>
+    </div>
+  )}
+  <div className={`dashboard-content ${isPageActive ? '' : 'blurred'}`}>
+    {/* All your dashboard components */}
+  </div>
+</div>
+
       <div className="w-full">
-        {/* Date Filters */}
-        <div className="grid grid-cols-5 mb-4 gap-4">
+      <div className={`dashboard-content ${isPageActive ? '' : 'blurred'}`}>
+      <div className="grid grid-cols-5 mb-4 gap-4">
           <div className="flex flex-col space-y-1 text-start mb-1">
             <DateTimePicker
               label="From Date"
@@ -203,7 +233,10 @@ const Dashboard = () => {
             <label className="font-medium text-gray-700 text-sm">
               Sender Names
             </label>
-            <SendernameDropdown name="senderId" onChange={handleChange} />
+            {isPageActive && (
+              <SendernameDropdown name="senderId" onChange={handleChange} />
+            )}
+            
           </div>
         </div>
         {/* Tiles */}
@@ -336,6 +369,10 @@ const Dashboard = () => {
             />
           </div>
         </div>
+      </div>
+
+        {/* Date Filters */}
+       
       </div>
     </App>
   );

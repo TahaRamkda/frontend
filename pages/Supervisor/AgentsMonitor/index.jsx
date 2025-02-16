@@ -5,6 +5,7 @@ import {fetchAgentsMonitor,clearAgentMonitorState, setPageSize, setCurrentPage, 
 import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input ,CustomInput} from "reactstrap";
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
+import { excelExportAgentMonitor } from '@/slices/ExportExcel';
 import DataTable from "react-data-table-component";
 import Loading from '@/components/Layout/Loader';
 import { MdEdit } from "react-icons/md"; 
@@ -96,6 +97,9 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
 
 
 
+ const handleExportToExcel = () => {
+    dispatch(excelExportAgentMonitor({senderId:senderid}))
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -290,8 +294,16 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
     <App>
       <div className="flex items-center">
         {AgentLoading && <Loading />}
-        <div >
+        <div className="">
           <h4 className="font-bold ">Agents Monitor</h4>
+        </div>
+        <div className="flex ml-auto mb-1 gap-4">
+          <button
+            className="uniform_btn"
+            onClick={ handleExportToExcel}
+          >
+            Export Report
+          </button>
         </div>
       </div>
       <DataTable

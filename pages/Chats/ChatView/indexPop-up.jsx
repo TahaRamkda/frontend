@@ -29,7 +29,7 @@ const Chatview = ({ ChatId, onClose, isVisible, PhNo, CustomerName }) => {
 
   // Fetch chat messages when Activechat changes
   useEffect(() => {
-    debugger
+    
     const ClientId = localStorage.getItem("clientId");
     if (ClientId && Activechat) {
       dispatch(

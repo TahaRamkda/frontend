@@ -1,7 +1,7 @@
 import authSlice from "@/slices/AuthSlice";
 import testSlice from "@/slices/test.slice";
 import ContactSlice from "@/slices/ContactSlice";
-import clientSlice from "@/slices/ClientSlice";
+import clientSlice from "@/slices/clientSlice";
 import sendernameSlice from "@/slices/sendernameSlice";
 import GroupSlice from "@/slices/Groupslice";
 import templateSlice from "@/slices/TemplateSlice";
@@ -18,6 +18,7 @@ import MasterSlice from "@/slices/MasterSlice";
 import SuperwiserSlice from "@/slices/SuperwiseSlice";
 import agentTemplateSlice from "@/slices/AgentTemplateSlice";
 import agentShiftSlice from "@/slices/AgentsShift"
+import chatTestSlice from "@/slices/ChatTest"
 import { configureStore } from "@reduxjs/toolkit";
 
 export const store = configureStore({
@@ -42,6 +43,7 @@ export const store = configureStore({
     agenttemplates:agentTemplateSlice,
     interactiveTemplates:interactiveTemplateSlice,
     agentShifts: agentShiftSlice,
+    chatTest: chatTestSlice,
 
     }
 })

@@ -1,13 +1,11 @@
 "use client";
 import React, { useMemo, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchChatsMonitor, clearChatsMonitorState, setPageSize, setCurrentPage } from "@/slices/SuperwiseSlice";
-import { Container, Row, Col, Table, input, Button, Pagination, List, label, PaginationItem, PaginationLink, CardBody, Card } from 'reactstrap';
-import TemplateDropdown from '@/components/Dropdowns/TemplateDropdown';
+import { fetchChatsMonitor, clearChatsMonitorState, setPageSize, setCurrentPage, sendCloseChatTemplate } from "@/slices/SuperwiseSlice";
+import { excelExportChatMonitor } from '@/slices/ExportExcel';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
-import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import DataTable from "react-data-table-component";
-  import { HiPencilAlt, HiTrash , HiEye } from "react-icons/hi";
+import {HiEye} from "react-icons/hi";
 import Loading from '@/components/Layout/Loader';
 import App from '@/components/Layout/App';
 import Chatview from '@/pages/Chats/ChatView/indexPop-up';
@@ -16,7 +14,7 @@ import { MdSwapHoriz } from "react-icons/md";
 import { REFRESH_INTERVAL } from '@/utils/constants';
 import SearchBar from '@/components/SearchBar/SearchComponent';
 import Select from "react-select";
- 
+import AgentDropdown from '@/components/Dropdowns/AgentDropdown';
 const ChatsMonitor = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
@@ -34,8 +32,10 @@ const ChatsMonitor = () => {
   const [ChatLoading, setChatLoading] = useState(false)
   const [SenderId, setSenderId] = useState(0);
   const [oldAgentId, setoldAgentId] = useState(0);
+  const [agentId, SetAgentId] = useState(0);
   const [CustomerName, setCustomerName] = useState('');
   const [refreshpage, setrefreshpage] = useState(false);  // Track if page is refreshing
+  const [initiated , SetInitiated] = useState(null);
  
   const statusOptions = [
     { value: '0', label: "Auto Chat" },
@@ -66,6 +66,13 @@ const ChatsMonitor = () => {
               >
                 <HiEye style={{ fontSize: "15px" }} />
               </button>
+              <button
+                title="View Chat"
+                className="uniform_icon_btn"
+                onClick={() => HandleCloseChat(row)}
+              >
+                <i class="fa fa-window-close-o" aria-hidden="true" style={{ fontSize: "15px" }}></i>
+              </button>
               {row.status !== 3 && (
                 <button
                   title="Transfer Chat"
@@ -89,7 +96,47 @@ const ChatsMonitor = () => {
   const handleTransferCancel = () => {
     setshowtransfer(false);
   };
- 
+  const handleAgentChange = (e) => {
+    const senderId = e.target.value;
+    SetAgentId(senderId);
+  };
+ const HandleCloseChat = async (row) => {
+  const confirmClose = await showSweetAlert({
+    title: "Are you sure?",
+    text: "Do you really want to close this chat?",
+    icon: "warning",
+    buttons: ["Cancel", "Yes, Close it"],
+    dangerMode: true,
+  });
+  if (confirmClose) {
+    const formData = new FormData();
+    formData.append("id", row.id);
+    try {
+      const response = await dispatch(sendCloseChatTemplate(formData)).unwrap();
+      if (response.success) {
+        showSweetAlert({
+          title: "Closed Successfully",
+          text: "",
+          icon: "success",
+        });
+        onUploadSuccess();
+      } else {
+        showSweetAlert({
+          title: "Failed",
+          text: response.result.message || "",
+          icon: "error",
+        });
+      }
+    } catch (err) {
+      console.error("Failed to Upload", err);
+      showSweetAlert({
+        title: "Failed",
+        text: err.message || "",
+        icon: "error",
+      });
+    }
+  }
+};
   const handleSearchString = (setter) => (e) => {
     const searchValue = e;
     setsrcStr(searchValue);
@@ -134,7 +181,10 @@ const ChatsMonitor = () => {
     setsenderid(senderId);
   };
  
- 
+  const handleExportToExcel = () => {
+  dispatch(excelExportChatMonitor({ senderId:senderid, chatId: activeChat, agentId }));
+};
+
 
  
    useEffect(() => {
@@ -171,7 +221,7 @@ const ChatsMonitor = () => {
 
  
   const handleDetailClick = async (row) => {
-    debugger
+    
     setActiveChat(row.id);
     setCustomerName(row.fullName);
     setPhoneNumber(row.phoneNumber);
@@ -252,7 +302,24 @@ const ChatsMonitor = () => {
             />
            
           </div>
-          
+         <div className='flex flex-col text-start '>
+            <label className="font-medium text-gray-700 text-sm mt-1">Initiated</label>
+          <select  id="initiated" value={initiated} onChange={(e) => SetInitiated(e.target.value)}  className='border rounded  w-100 h-12 '> 
+            <option value="0">Select  </option>
+            <option value="1">Option 1</option>
+            <option value="2">Option 2</option>
+            <option value="3">Option 3</option>
+          </select>
+          </div>
+
+          <div className='flex flex-col text-start '>
+            <label className="font-medium text-gray-700 text-sm">Agents</label>
+            <AgentDropdown
+              name="agentId"
+              onChange={handleAgentChange}
+              className="border rounded w-100"
+            />
+          </div>
           <div className='flex flex-col text-start mb-1 mt-2'>
             <label className="font-medium text-gray-700 text-sm">Sender Names</label>
             <SendernameDropdown
@@ -278,9 +345,17 @@ const ChatsMonitor = () => {
   return (
     <App>
       <div className="flex items-center">
-        { ChatLoading && <Loading />}  {/* Show loader only when page is not refreshing */}
-        <div >
+        {ChatLoading && <Loading />}
+        <div className="">
           <h4 className="font-bold ">Chats Monitor</h4>
+        </div>
+        <div className="flex ml-auto mb-1 gap-4">
+          <button
+            className="uniform_btn"
+            onClick={ handleExportToExcel}
+          >
+            Export Report
+          </button>
         </div>
       </div>
       <DataTable
