@@ -5,6 +5,7 @@ import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, La
 import SweetAlert from "sweetalert2";
 import App from '@/components/Layout/App';
 import UploadMedia from "../UploadMedia";
+
 import Loader from "@/components/Layout/Loader";
 import { BASE_URL } from "@/utils/apiConstants";
 
@@ -14,21 +15,14 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr,senderId }) => {
   const [selectedMediaId, setSelectedMediaId] = useState(null);
   const [selectedsenderId, setselectedsenderId] = useState(0);
   const { medias, loading, error } = useSelector((state) => state.media);
- const[Medialist,setmediaList] = useState([]);
+  const[Medialist,setmediaList] = useState([]);
   useEffect(() => {
     setmediaList(null)
     // Send contentTypeStr only when isPopup is true, otherwise send an empty string
-    const contentType = isPopup ? contentTypeStr : "";
-    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType,senderId:senderId?senderId:selectedsenderId }));
+    const contentType = contentTypeStr  ;
+    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType,senderId:selectedsenderId }));
     return () => clearMediaState();
-  }, [dispatch, isPopup, contentTypeStr,selectedMediaId]);
-
-  
-  useEffect(() => {
-    if (isPopup) {
-      setIsModalOpen(true);
-    }
-  }, [isPopup]);
+  }, [dispatch, contentTypeStr,selectedMediaId]);
 
   const toggleModal = () => {
   setmediaList([]);
@@ -66,7 +60,7 @@ if(medias){
 
    const refreshList = async () => {
     
-    const contentType = isPopup ? contentTypeStr : "";
+    const contentType =   contentTypeStr ;
     await dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType ,senderId:selectedsenderId}));
   };
 
@@ -146,99 +140,35 @@ if(medias){
  
   return (
     <>
-      {
-        isPopup ? (
-          <Modal isOpen={isModalOpen} toggle={() => toggleModal()} fade={false}>
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white p-6 rounded shadow-lg w-50 relative">
-         <ModalHeader toggle={() => toggleModal()}>Media Gallery</ModalHeader>
-         <ModalBody>
-            <div className={`w-full ${isPopup ? 'max-h-[40vh] overflow-y-auto' : ''}`}>
-      <div>
-        {loading && <div className="text-center text-blue-500"><Loader /></div>}
-        {error && <div className="text-center text-red-500">{error}</div>}
-
-        <UploadMedia
-          onUploadSuccess={refreshList}
-        />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 lg:grid-cols-5 gap-4">
-          {Medialist.map((media) => (
-            <div key={media.mediaId} className="flex flex-col items-center space-y-2">
-              <div className="w-full  overflow-hidden">
-                {renderMediaPreview(media.mediaPath, media.contentType || "application/pdf")}
-              </div>
-              {isPopup ? (
-                <button
-                  type="button"
-                  className={` Btn-Regular  ${selectedMediaId === media.id ? "bg-green-500" : ""}`}
-                  onClick={() =>
-                    handleSelectImage(media.id, media.mediaPath, media.contentType)
-                  }
-                >
-                  {selectedMediaId === media.mediaId ? "Selected" : "Select"}
-                </button>
-              ) : (
-                <button
-                  className="w-full px-4 py-2 rounded  bg-red-500 text-white"
-                  onClick={() => handleDeleteClick(media.id)}
-                >
-                  Delete
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-    </ModalBody>
-            </div>
-          </div>
-        </Modal>
-        ) : (
           <App>
-             <div className={`w-full mt-4 ${isPopup ? 'max-h-[40vh] overflow-y-auto' : ''}`}>
+             <div className={"w-full mt-4"}>
       <div>
         {loading && <div className="text-center text-blue-500"><Loader /></div>}
         {error && <div className="text-center text-red-500">{error}</div>}
-
         <UploadMedia
           onUploadSuccess={refreshList}
           onsenderChange={handlesenderchange}
+          ispopUp={isPopup}
         />
-
         <div className="row">
           {Medialist.map((media) => (
             <div key={media.mediaId} className="flex flex-col items-center space-y-2 col-lg-2 col-md-3 mb-5">
               <div className="w-full overflow-hidden">
                 {renderMediaPreview(media.mediaPath, media.contentType || "application/pdf")}
               </div>
-              {isPopup ? (
-                <button
-                  type="button"
-                  className={`Btn-Regular ${selectedMediaId === media.id ? "bg-green-500" : ""}`}
-                  onClick={() =>
-                    handleSelectImage(media.id, media.mediaPath, media.contentType)
-                  }
-                >
-                  {selectedMediaId === media.mediaId ? "Selected" : "Select"}
-                </button>
-              ) : (
                 <button
                   className="Btn-Regular-3"
                   onClick={() => handleDeleteClick(media.id)}
                 ><i className="fa fa-trash mr-2"></i>
                   Delete
                 </button>
-              )}
             </div>
           ))}
         </div>
       </div>
     </div>
           </App>
-        )
-      }
+       
     </>
   );
 };

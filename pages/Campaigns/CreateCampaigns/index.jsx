@@ -27,7 +27,7 @@ import Templates from "@/components/Dropdowns/TemplateDropdown";
 import App from "@/components/Layout/App";
 import moment from "moment";
 import { useRouter } from "next/router";
-import Media from "@/pages/Media/MediaList";
+import MediaPopUp from "@/pages/Media/MediaPopUp";
 import { fetchSendernameById, clearSendernameState } from "@/slices/sendernameSlice";
 import Loader from "@/components/Layout/Loader";
 import bagroundimage from "@/public/images/baground.jpg";
@@ -574,7 +574,7 @@ const CampaignCreate = () => {
                         </button>
 
                         {showMediaPopup && (
-                          <Media
+                          <MediaPopUp
                             isPopup={true}
                             contentTypeStr={
                               template.headerType === 2

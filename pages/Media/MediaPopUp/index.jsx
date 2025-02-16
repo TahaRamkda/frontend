@@ -1,0 +1,175 @@
+import { useState, useEffect, useRef } from "react";
+import { Formik, Form, ErrorMessage } from "formik";
+import * as Yup from "yup"; 
+import { useDispatch, useSelector } from "react-redux";
+import { uploadMedia, clearMediaUploadState, fetchMedia, deleteMedia } from "@/slices/MediaSlice";
+import showSweetAlert from "@/components/Sweetalert";
+import { Modal, ModalHeader, ModalBody, Button } from "reactstrap";
+import Loader from "@/components/Layout/Loader";
+import { BASE_URL } from "@/utils/apiConstants";
+import UploadMedia from "../UploadMedia";
+const MediaPopUp = ({ isPopup, onSelectMedia, contentTypeStr,senderId }) => {
+  const dispatch = useDispatch();
+  const [selectedSenderId, setSelectedSenderId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [selectedMediaId, setSelectedMediaId] = useState(null);
+  const [Medialist, setmediaList] = useState([]);
+const fileInputRef = useRef(null);
+  const { medias, loading, error } = useSelector((state) => state.media);
+const [ispopUp, setispopUp] = useState(true);
+  useEffect(() => {
+    setmediaList([null]);
+    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), senderId: selectedSenderId,contentTypeStr: contentTypeStr}));
+    return () => clearMediaUploadState();
+  }, [dispatch, selectedSenderId,contentTypeStr]);
+
+  useEffect(() => {
+    if (medias) {
+      setmediaList(medias);
+    }
+  }, [medias]);
+
+  const validationSchema = Yup.object().shape({
+    senderId: Yup.string().required("Sender name is required"),
+    MediaFile: Yup.mixed().required("Media file is required"),
+  });
+
+  const handleSubmit = async (values) => {
+    const formData = new FormData();
+    formData.append("ClientId", localStorage.getItem("clientId"));
+    formData.append("SenderNameId", values.selectedSenderId);
+    formData.append("File", values.MediaFile);
+    formData.append("ActionBy", localStorage.getItem("userId"));
+
+    try {
+      const response = await dispatch(uploadMedia(formData)).unwrap();
+      if (response.success) {
+        dispatch(clearMediaUploadState());
+        setSubmitting(false);
+        showSweetAlert({
+          title: "Uploaded Successfully",
+          text: "",
+          icon: "success",
+        });
+        onUploadSuccess();
+        refreshList(); // Refresh the list after upload
+      } else {
+        showSweetAlert({
+          title: "Failed",
+          text: response.result.message || "",
+          icon: "error",
+        });
+      }
+    } catch (err) {
+      console.error("Failed to Upload", err);
+      showSweetAlert({
+        title: "Failed",
+        text: err.message || "",
+        icon: "error",
+      });
+    }
+  };
+
+  const handleSenderChange = (e) => {
+    setSelectedSenderId(e.target.value);
+    if (onsenderChange) {
+      onsenderChange(e.target.value);
+    }
+  };
+
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
+  const handleSelectImage = (mediaId, mediaPath, mimeType) => {
+
+    setSelectedMediaId(mediaId);
+    onSelectMedia(mediaId, mediaPath, mimeType);
+    toggleModal();
+  };
+  const handleDeleteClick = (mediaId) => {
+    showSweetAlert({
+      title: "Are you sure?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(deleteMedia({ mediaId })).then(() => {
+          showSweetAlert("Deleted!", "The media has been deleted.", "success");
+          refreshList();
+        });
+      }
+    });
+  };
+
+  const refreshList = () => {
+    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), senderId: selectedSenderId }));
+  };
+
+  const renderMediaPreview = (mediaPath, mimeType) => {
+    const previewStyle = "w-full popup_img_container overflow-hidden flex justify-center items-center rounded-lg bg-gray-100";
+
+    if (mimeType.startsWith("image/")) {
+      return <img src={`${BASE_URL}${mediaPath}`} alt="Image" className="w-full h-full object-cover rounded-lg" />;
+    } else if (mimeType.startsWith("video/")) {
+      return <video controls className="w-full h-full object-cover"><source src={`${BASE_URL}${mediaPath}`} type={mimeType} /></video>;
+    } else {
+      return <p>Preview not available for this file type.</p>;
+    }
+  };
+
+  return (
+    <>
+          <Modal isOpen={isModalOpen} toggle={() => toggleModal()} fade={false}>
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded shadow-lg w-50 relative">
+         <ModalHeader toggle={() => toggleModal()}>Media Gallery</ModalHeader>
+         <ModalBody>
+            <div className={`w-full ${isPopup ? 'max-h-[40vh] overflow-y-auto' : ''}`}>
+      <div>
+        {loading && <div className="text-center text-blue-500"><Loader /></div>}
+        {error && <div className="text-center text-red-500">{error}</div>}
+        <UploadMedia
+          onUploadSuccess={refreshList}
+          ispopUp={isPopup}
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 lg:grid-cols-5 gap-4">
+          {Medialist.map((media) => (
+            <div key={media.mediaId} className="flex flex-col items-center space-y-2">
+              <div className="w-full  overflow-hidden">
+                {renderMediaPreview(media.mediaPath, media.contentType || "application/pdf")}
+              </div>
+              {isPopup ? (
+                <button
+                  type="button"
+                  className={` Btn-Regular  ${selectedMediaId === media.id ? "bg-green-500" : ""}`}
+                  onClick={() =>
+                    handleSelectImage(media.id, media.mediaPath, media.contentType)
+                  }
+                >
+                  {selectedMediaId === media.mediaId ? "Selected" : "Select"}
+                </button>
+              ) : (
+                <button
+                  className="w-full px-4 py-2 rounded  bg-red-500 text-white"
+                  onClick={() => handleDeleteClick(media.id)}
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+    </ModalBody>
+            </div>
+          </div>
+        </Modal>
+
+    </>
+  );
+};
+
+export default MediaPopUp;
+
