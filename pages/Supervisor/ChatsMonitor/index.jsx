@@ -7,6 +7,7 @@ import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import DataTable from "react-data-table-component";
 import {HiEye} from "react-icons/hi";
 import Loading from '@/components/Layout/Loader';
+import showSweetAlert from '@/components/Sweetalert';
 import App from '@/components/Layout/App';
 import Chatview from '@/pages/Chats/ChatView/indexPop-up';
 import TransferChat from '../TransferChat';
@@ -15,6 +16,7 @@ import { REFRESH_INTERVAL } from '@/utils/constants';
 import SearchBar from '@/components/SearchBar/SearchComponent';
 import Select from "react-select";
 import AgentDropdown from '@/components/Dropdowns/AgentDropdown';
+import SweetAlert from 'sweetalert2';
 const ChatsMonitor = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
@@ -67,9 +69,9 @@ const ChatsMonitor = () => {
                 <HiEye style={{ fontSize: "15px" }} />
               </button>
               <button
-                title="View Chat"
+                title="Close Chat"
                 className="uniform_icon_btn"
-                onClick={() => HandleCloseChat(row)}
+                onClick={() => HandleCloseChat(row.id)}
               >
                 <i class="fa fa-window-close-o" aria-hidden="true" style={{ fontSize: "15px" }}></i>
               </button>
@@ -100,43 +102,49 @@ const ChatsMonitor = () => {
     const senderId = e.target.value;
     SetAgentId(senderId);
   };
- const HandleCloseChat = async (row) => {
-  const confirmClose = await showSweetAlert({
-    title: "Are you sure?",
-    text: "Do you really want to close this chat?",
-    icon: "warning",
-    buttons: ["Cancel", "Yes, Close it"],
-    dangerMode: true,
-  });
-  if (confirmClose) {
-    const formData = new FormData();
-    formData.append("id", row.id);
+  const HandleCloseChat = async (Id) => {
     try {
-      const response = await dispatch(sendCloseChatTemplate(formData)).unwrap();
-      if (response.success) {
-        showSweetAlert({
-          title: "Closed Successfully",
-          text: "",
-          icon: "success",
-        });
-        onUploadSuccess();
-      } else {
-        showSweetAlert({
-          title: "Failed",
-          text: response.result.message || "",
-          icon: "error",
-        });
+      const result = await SweetAlert.fire({
+        title: "Are you sure you want to logout?",
+        text: "",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Logout",
+        cancelButtonText: "Cancel",
+      });
+  
+      if (result.isConfirmed) {
+        const formData = new FormData();
+        formData.append("id", Id);
+  
+        const response = await dispatch(sendCloseChatTemplate(formData)).unwrap();
+  
+        if (response.success) {
+          showSweetAlert({
+            title: "Closed Successfully",
+            text: "",
+            icon: "success",
+          });
+          onUploadSuccess();
+        } else {
+          showSweetAlert({
+            title: "Failed",
+            text: response.result.message || "Something went wrong.",
+            icon: "error",
+          });
+        }
       }
     } catch (err) {
-      console.error("Failed to Upload", err);
+      console.error("Failed to upload", err);
       showSweetAlert({
         title: "Failed",
-        text: err.message || "",
+        text: err.message || "An unexpected error occurred.",
         icon: "error",
       });
     }
-  }
-};
+  };
   const handleSearchString = (setter) => (e) => {
     const searchValue = e;
     setsrcStr(searchValue);
