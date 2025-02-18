@@ -24,7 +24,7 @@ export const getAgentConversations = createAsyncThunk(
 export const getAgentMessages = createAsyncThunk(
   "bridge/getAgentMessages",
   async (conversationId, { dispatch, getState }) => {
-    debugger
+    
     const { bridge } = getState();
     const conversation = bridge.conversations.find(c => c.id === conversationId);
     if (conversation && conversation.messages?.length > 0) {
@@ -40,17 +40,24 @@ const bridgeSlice = createSlice({
   initialState,
   reducers: {
     addConversation: (state, action) => {
+      debugger
       const newConversation = action.payload;
       const existingConversation = state.conversations.find((c) => c.id === newConversation.id);
       if (!existingConversation) {
         state.conversations.push({ ...newConversation, messages: newConversation.messages || [] });
       }
     },
+
+    removeConversation: (state, action) => {
+     debugger
+      state.conversations = state.conversations.filter((c) => c.id !== action.payload);
+    },
+    
     addMessageToConversation: (state, action) => {
-      const { conversationId, message } = action.payload;
-      const conversation = state.conversations.find((c) => c.id === conversationId);
+      debugger
+      const conversation = state.conversations.find((c) => c.id === action.payload.id);
       if (conversation) {
-        conversation.messages.push(message);
+        conversation.messages.unshift(action.payload);
       }
     },
   },
@@ -61,7 +68,7 @@ const bridgeSlice = createSlice({
         state.error = null;
       })
       .addCase(getAgentConversations.fulfilled, (state, action) => {
-        debugger
+        
         state.loading = false;
         state.conversations = action.payload.conversations.map(conv => ({ ...conv, messages: [] }));
       })
@@ -78,5 +85,6 @@ const bridgeSlice = createSlice({
       });
   },
 });
+export const { addConversation, addMessageToConversation ,removeConversation } = bridgeSlice.actions;
 
 export default bridgeSlice.reducer;

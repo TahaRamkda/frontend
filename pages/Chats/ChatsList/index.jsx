@@ -66,6 +66,7 @@ import {
   HiMenu,
   HiShieldExclamation,
 } from "react-icons/hi";
+import { AppId } from "@/utils/constants";
 const ChatPage = () => {
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
@@ -159,7 +160,7 @@ const ChatPage = () => {
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
-        window.OneSignal.logout();
+        //window.OneSignal.logout(localStorage.getItem("userId"));
         AgentConversation.map((item) => {
           clearTimer(item.id);
         });
@@ -185,7 +186,7 @@ const ChatPage = () => {
 
         try {
           await window.OneSignal.init({
-            appId: "2b6362f1-b706-4087-bfaf-0d625c02110b",
+            appId: AppId,
             notifyButton: { enable: true },
             allowLocalhostAsSecureOrigin: true,
           });

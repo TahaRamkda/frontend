@@ -44,4 +44,6 @@ export const ExpireTime_Message=300000 ; // 5 minutes in milliseconds
 
 export const HeartBeat_Interval=100000 ; // 5 minutes in milliseconds
 
-  
+export const AppId = "a06956a9-aab6-4bff-9465-dc19f5f2a33b";
+
+export const StagAppId="2b6362f1-b706-4087-bfaf-0d625c02110b";
