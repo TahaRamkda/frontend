@@ -14,7 +14,7 @@ import {
 } from "react-icons/fa";
 
 import { AddChat, AddMessage, CheckExpiredNotification,GetConversations,GetConversationMessage,fetchExpiredNotifications } from "@/slices/ChatTest";
-import { getAgentConversations ,getAgentMessages,ad } from "@/slices/ChatBridgeSlice";
+import { getAgentConversations ,getAgentMessages,addConversation, addMessageToConversation ,removeConversation} from "@/slices/ChatBridgeSlice";
 import UserBadge from "@/public/images/User.jpg";
 import Link from "next/link";
 import { MdOutlineTimer } from "react-icons/md";
@@ -274,7 +274,7 @@ const ChatPage = () => {
 
 
   const handleFetchMessages = (conversationId) => {
-    debugger
+    
     setActiveChat(conversationId);
     const conversation = conversations.find(
       (conv) => conv.id === conversationId
@@ -283,7 +283,7 @@ const ChatPage = () => {
       setChatMessages(conversation.messages); // Use cached messages
     } else {
       dispatch(getAgentMessages(conversationId)).then((response) => {
-        debugger
+        
         setChatMessages(response.payload.messages); // Store in local state
       });
     }
@@ -485,61 +485,63 @@ const ChatPage = () => {
 
     // Message received handler
     const handleIncomingMessage = (message) => {
+      debugger
       audioRef.current
         ?.play()
         .catch((err) =>
           console.error("Failed to play notification sound:", err)
         );
+        dispatch(addMessageToConversation(message));
+      // const matchingConversationIndex = agentChatRef.current.findIndex(
+      //   (conversation) => conversation.id === message.conversationId
+      // );
 
-      const matchingConversationIndex = agentChatRef.current.findIndex(
-        (conversation) => conversation.id === message.conversationId
-      );
+      // if (matchingConversationIndex !== -1) {
+      //   const updatedConversations = [...agentChatRef.current];
+      //   const matchingConversation =
+      //     updatedConversations[matchingConversationIndex];
 
-      if (matchingConversationIndex !== -1) {
-        const updatedConversations = [...agentChatRef.current];
-        const matchingConversation =
-          updatedConversations[matchingConversationIndex];
+      //   if ((matchingConversation.unreadCount || 0) <= 0) {
+      //     startTimer(message);
+      //   }
 
-        if ((matchingConversation.unreadCount || 0) <= 0) {
-          startTimer(message);
-        }
+      //   updatedConversations[matchingConversationIndex] = {
+      //     ...matchingConversation,
+      //     lastMessageText: message.messageContent,
+      //     updatedDate: message.createdDate,
+      //     unreadCount: (matchingConversation.unreadCount || 0) + 1,
+      //   };
 
-        updatedConversations[matchingConversationIndex] = {
-          ...matchingConversation,
-          lastMessageText: message.messageContent,
-          updatedDate: message.createdDate,
-          unreadCount: (matchingConversation.unreadCount || 0) + 1,
-        };
+      //   agentChatRef.current = updatedConversations;
+      //   setAgentConversation(updatedConversations);
+      // } else {
+      //   console.warn(
+      //     "No matching conversation found for message.conversationId:",
+      //     message.conversationId
+      //   );
+      // }
 
-        agentChatRef.current = updatedConversations;
-        setAgentConversation(updatedConversations);
-      } else {
-        console.warn(
-          "No matching conversation found for message.conversationId:",
-          message.conversationId
-        );
-      }
+      // if (message.conversationId === activeChatRef.current) {
+      //   setChatMessages((prevMessages) => [message, ...prevMessages]);
+      //   setTempMessages([]);
+      // } else {
+      //   if (matchingConversationIndex !== -1) {
+      //     const updatedConversations = [...agentChatRef.current];
+      //     const matchingConversation =
+      //       updatedConversations[matchingConversationIndex];
 
-      if (message.conversationId === activeChatRef.current) {
-        setChatMessages((prevMessages) => [message, ...prevMessages]);
-        setTempMessages([]);
-      } else {
-        if (matchingConversationIndex !== -1) {
-          const updatedConversations = [...agentChatRef.current];
-          const matchingConversation =
-            updatedConversations[matchingConversationIndex];
+      //     updatedConversations.splice(matchingConversationIndex, 1);
+      //     updatedConversations.unshift(matchingConversation);
 
-          updatedConversations.splice(matchingConversationIndex, 1);
-          updatedConversations.unshift(matchingConversation);
-
-          agentChatRef.current = updatedConversations;
-          setAgentConversation(updatedConversations);
-        }
-      }
+      //     agentChatRef.current = updatedConversations;
+      //     setAgentConversation(updatedConversations);
+      //   }
+      // }
     };
 
     // Handles conversation assignment
     const handleConversationAssigned = (notification) => {
+      debugger
       audioRef.current
         ?.play()
         .catch((err) =>
@@ -552,32 +554,32 @@ const ChatPage = () => {
           agentId: userId,
         })
       );
-
+      dispatch(addConversation(notification));
       startTimer(notification);
 
-      const matchingConversationIndex = agentChatRef.current.findIndex(
-        (conversation) => conversation.id === notification.id
-      );
+      // const matchingConversationIndex = agentChatRef.current.findIndex(
+      //   (conversation) => conversation.id === notification.id
+      // );
 
-      if (matchingConversationIndex !== -1) {
-        const updatedConversations = [...agentChatRef.current];
-        updatedConversations[matchingConversationIndex] = {
-          ...updatedConversations[matchingConversationIndex],
-          lastMessageText: notification.lastMessageText,
-          unreadCount:
-            (updatedConversations[matchingConversationIndex].unreadCount || 0) +
-            1,
-        };
+      // if (matchingConversationIndex !== -1) {
+      //   const updatedConversations = [...agentChatRef.current];
+      //   updatedConversations[matchingConversationIndex] = {
+      //     ...updatedConversations[matchingConversationIndex],
+      //     lastMessageText: notification.lastMessageText,
+      //     unreadCount:
+      //       (updatedConversations[matchingConversationIndex].unreadCount || 0) +
+      //       1,
+      //   };
 
-        agentChatRef.current = updatedConversations;
-        setAgentConversation(updatedConversations);
-      } else {
-        const newNotification = { ...notification, unreadCount: 1 };
-        setAgentConversation((prevMessages) => [
-          newNotification,
-          ...prevMessages,
-        ]);
-      }
+      //   agentChatRef.current = updatedConversations;
+      //   setAgentConversation(updatedConversations);
+      // } else {
+      //   const newNotification = { ...notification, unreadCount: 1 };
+      //   setAgentConversation((prevMessages) => [
+      //     newNotification,
+      //     ...prevMessages,
+      //   ]);
+      // }
     };
 
     // Handles conversation unassignment
@@ -593,10 +595,11 @@ const ChatPage = () => {
           agentId: userId,
         })
       );
+      dispatch(removeConversation(chatId));
 
-      const updatedConversations = agentChatRef.current.filter(
-        (conversation) => conversation.id !== chatId
-      );
+      // const updatedConversations = agentChatRef.current.filter(
+      //   (conversation) => conversation.id !== chatId
+      // );
       const isActiveChat = chatId === activeChatRef.current;
 
       if (isActiveChat) {
@@ -605,8 +608,8 @@ const ChatPage = () => {
       }
 
       clearTimer(chatId);
-      agentChatRef.current = updatedConversations;
-      setAgentConversation(updatedConversations);
+      // agentChatRef.current = updatedConversations;
+      // setAgentConversation(updatedConversations);
     };
 
     const handleHeartbeatAcknowledged = (info) => {
