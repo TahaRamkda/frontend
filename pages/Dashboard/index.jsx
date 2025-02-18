@@ -195,13 +195,12 @@ useEffect(() => {
   {!isPageActive && (
     <div className="popup-overlay">
       <div className="popup-content">
-        <h2>Page Paused</h2>
-        <p>Click below to reload data and activate the page.</p>
+        
         <button
           className="load-page-button"
           onClick={() => setIsPageActive(true)}
         >
-          Load Page
+          Show Statistics
         </button>
       </div>
     </div>
