@@ -28,7 +28,7 @@ import App from "@/components/Layout/App";
 import moment from "moment";
 import { useRouter } from "next/router";
 import { fetchSendernameById, clearSendernameState } from "@/slices/sendernameSlice";
-import Media from "@/pages/Media/MediaList";
+import MediaPopUp from "@/pages/Media/MediaPopUp";
 import Loader from "@/components/Layout/Loader";
 import bagroundimage from "@/public/images/baground.jpg";
 import { BASE_URL } from "@/utils/apiConstants";
@@ -643,7 +643,7 @@ const CampaignUpdate = () => {
                         </button>
 
                         {showMediaPopup && (
-                          <Media
+                          <MediaPopUp
                             isPopup={true}
                             contentTypeStr={
                               template.headerType === 2

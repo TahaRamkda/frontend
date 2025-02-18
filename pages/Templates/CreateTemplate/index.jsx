@@ -29,7 +29,8 @@ import { fetchSendernameById , clearSendernameState } from "@/slices/sendernameS
 import showSweetAlert from "@/components/Sweetalert";
 import defaultimage from "@/public/images/12.jpg";
 import bagroundimage from "@/public/images/baground.jpg";
-import Media from "@/pages/Media/MediaList";
+import MediaPopUp from "@/pages/Media/MediaPopUp";
+
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
 import App from "@/components/Layout/App";
 import ButtonAction from "../ButtonAction";
@@ -919,7 +920,7 @@ const TemplateCreationPage = () => {
 
                         {["2", "3", "4"].includes(values.headerType) && (
                           <div>
-                            <Media
+                            <MediaPopUp
                               key={values.headerType}
                               isPopup={true}
                               contentTypeStr={
@@ -937,7 +938,7 @@ const TemplateCreationPage = () => {
                               }}
                             />
 
-                            {/* New Button for Changing Media */}
+                            {/* New Button for Changing MediaPopUp */}
                             <div className="mt-3 text-sm">
                               <button
                                 type="button" // Explicitly prevent form submission
@@ -956,7 +957,7 @@ const TemplateCreationPage = () => {
                               </button>
 
                               {showMediaPopup && (
-                                <Media
+                                <MediaPopUp
                                   isPopup={true}
                                   senderId={selectedSenderId}
                                   contentTypeStr={

@@ -30,7 +30,7 @@ import {
 import showSweetAlert from "@/components/Sweetalert";
 import defaultimage from "@/public/images/12.jpg";
 import bagroundimage from "@/public/images/baground.jpg";
-import Media from "@/pages/Media/MediaList";
+import MediaPopUp from "@/pages/Media/MediaPopUp";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
 import App from "@/components/Layout/App";
 import ButtonAction from "@/pages/Templates/ButtonAction";
@@ -775,7 +775,7 @@ const InteractiveTemplateUpdate = () => {
                         {["2", "3", "4"].includes(values.headerType) && (
                           <>
                           <div>
-                            <Media
+                            <MediaPopUp
                               key={values.headerType} // This forces re-rendering when headerType changes
                               isPopup={["2", "3", "4"].includes(
                                 values.headerType
@@ -806,7 +806,7 @@ const InteractiveTemplateUpdate = () => {
   </button>
 
   {showMediaPopup && (
-    <Media
+    <MediaPopUp
       isPopup={true}
       contentTypeStr={
         values.headerType === "2"

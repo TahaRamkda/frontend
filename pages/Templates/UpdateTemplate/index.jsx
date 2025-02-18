@@ -37,7 +37,7 @@ import {
 import showSweetAlert from "@/components/Sweetalert";
 import defaultimage from "@/public/images/12.jpg";
 import bagroundimage from "@/public/images/baground.jpg";
-import Media from "@/pages/Media/MediaList";
+import MediaPopUp from "@/pages/Media/MediaPopUp";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
 import App from "@/components/Layout/App";
 import ButtonAction from "../ButtonAction";
@@ -1146,7 +1146,7 @@ const TemplateUpdatePage = () => {
                         {["2", "3", "4"].includes(values.headerType) && (
                           <>
                           
-                            <Media
+                            <MediaPopUp
                               key={values.headerType} // This forces re-rendering when headerType changes
                               isPopup={["2", "3", "4"].includes(
                                 values.headerType
@@ -1183,7 +1183,7 @@ const TemplateUpdatePage = () => {
                               </button>
 
                               {showMediaPopup && (
-                                <Media
+                                <MediaPopUp
                                   isPopup={true}
                                   contentTypeStr={
                                     values.headerType === "2"
@@ -1667,7 +1667,7 @@ const TemplateUpdatePage = () => {
                   selectedMediaType.startsWith("image/") && (
                     <img
                       src={`${BASE_URL}${selectedMediaPath}`}
-                      alt="Media"
+                      alt="MediaPopUp"
                       className="img-fluid"
                       style={{
                         width: "100%",
