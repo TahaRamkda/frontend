@@ -118,7 +118,6 @@ const ChatPage = () => {
   const [tryReconnect, settryReconnect] = useState(false);
   const lastScrollTop = useRef(0);
   const [UserId, setuserId] = useState(0);
-  const [isInitialized, setIsInitialized] = useState(false);
   const [IsOneSignalLoaded, setIsOneSignalLoaded] = useState(false);
   useEffect(() => {
     // Initialize the audio object only once
@@ -174,48 +173,44 @@ const ChatPage = () => {
   //onesignal hook
   //useOneSignal(localStorage.getItem("userId"));
 
-  // useEffect(() => {
-  //   // Initialize OneSignal
-  //   const initializeOneSignal = async () => {
-  //     if (typeof window !== "undefined" && window.OneSignal) {
-  //       await OneSignal.init({
-  //         appId: "2b6362f1-b706-4087-bfaf-0d625c02110b",
-  //         //safari_web_id: "web.onesignal.auto.0f5ba526-5606-4a7b-90fa-69fc66b30a70",
-  //         notifyButton: {
-  //           enable: true,
-  //         },
-  //         allowLocalhostAsSecureOrigin: true,
-  //       }).then(() => {
-  //         setIsOneSignalLoaded(true);
+  useEffect(() => {
+    const initializeOneSignal = async () => {
+      
+      if (typeof window !== "undefined" && window.OneSignal) {
+        // Prevent multiple initializations
+        if (window.OneSignal.isInitialized) {
+          console.log("OneSignal is already initialized. Skipping initialization.");
+          return;
+        }
 
-  //         // Set External User ID after initialization
-  //         const externalUserId = localStorage.getItem("userId"); // Replace with dynamic external user ID
-  //         window.OneSignal.login(externalUserId)
-  //           .then(() => {
-  //             console.log(`External User ID set to: ${externalUserId}`);
-  //           })
-  //           .catch((error) => {
-  //             console.error("Error setting external user ID:", error);
-  //           });
+        try {
+          await window.OneSignal.init({
+            appId: "2b6362f1-b706-4087-bfaf-0d625c02110b",
+            notifyButton: { enable: true },
+            allowLocalhostAsSecureOrigin: true,
+          });
 
-  //         // Show the prompt after setting the external user ID
-  //         window.OneSignal.Slidedown.promptPush();
-  //       });
-  //     }
-  //   };
-  //   // Call the initialize function
-  //   initializeOneSignal();
+          // Set flag to prevent re-initialization
+          window.OneSignal.isInitialized = true;
+          setIsOneSignalLoaded(true);
 
-  //   const externalUserId = localStorage.getItem("userId"); // Replace with dynamic external user ID
-  //   window.OneSignal?.login(externalUserId)
-  //     .then(() => {
-  //       console.log(`External User ID set to: ${externalUserId}`);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error setting external user ID:", error);
-  //     });
-  // }, []);
+          // Set External User ID
+          const externalUserId = localStorage.getItem("userId");
+          if (externalUserId) {
+            await window.OneSignal.login(externalUserId);
+            console.log("External User ID set to:", externalUserId);
+          }
 
+          // Show push notification prompt
+          window.OneSignal.Slidedown.promptPush();
+        } catch (error) {
+          console.error("Error initializing OneSignal:", error);
+        }
+      }
+    };
+
+    initializeOneSignal();
+  }, []);
   useEffect(() => {
     if (templateDetails) {
       const newMessage = {
@@ -609,15 +604,28 @@ const ChatPage = () => {
       setAgentConversation(updatedConversations);
     };
 
-    const handleHeartbeatAcknowledged = () => {
-      console.log("Heartbeat acknowledged", new Date());
+    const handleHeartbeatAcknowledged = (info) => {
+      console.log(info);
     };
+
+    const handleConnected = (info) => {
+      debugger
+      console.log(info);
+    };
+
+    const handleDisconnect = (info) => {
+      debugger
+      console.log(info);
+    };
+
 
     // Setup event listeners
     newConnection.on("MessageReceived", handleIncomingMessage);
     newConnection.on("ConversationAssigned", handleConversationAssigned);
     newConnection.on("ConversationUnAssigned", handleConversationUnAssigned);
     newConnection.on("HeartbeatAcknowledged", handleHeartbeatAcknowledged);
+    newConnection.on("Connected", handleConnected);
+    newConnection.on("DisConnected", handleDisconnect);
 
     // Start connection
     newConnection

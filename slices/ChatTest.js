@@ -1,20 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { store } from "@/store/store";
-import {
-  ExpireTime_Message,
-  ExpireTime_AssignedChat,
-} from "@/utils/constants";
+import {  ExpireTime_Message, ExpireTime_AssignedChat} from "@/utils/constants";
 import {
   fetchConversationList,
   fetchConversationMessage,
 } from "./ConversationSlice";
 
 const initialState = {
-  items: [],
-  MessageContent: {},
-  LoadedMessages: [],
-  MessageType: "Customer",
-
+  conversationData: [],
   loading: false,
   error: null,
   data: null,
@@ -27,12 +20,12 @@ const chatTestSlice = createSlice({
     CheckAndUpdateExpiredNotification: (state) => {
       const currentTime = Date.now();
 
-      // Get expired items and also update their expiry and try count
-      const expiredRecords = state.items.filter(
+      // Get expired conversationData and also update their expiry and try count
+      const expiredRecords = state.conversationData.filter(
         (item) => item.expireTime < currentTime
       );
 
-      state.items = state.items.map((item) => {
+      state.conversationData = state.conversationData.map((item) => {
         if (item.expireTime < currentTime) {
           return {
             ...item,
@@ -49,8 +42,6 @@ const chatTestSlice = createSlice({
       // Return expired records as payload
       return expiredRecords;
     },
-    
-
     ResetAlertSound: (state) => {
       state.playAlertSound = false;
       state.alertphoneNumber = "";
@@ -60,9 +51,8 @@ const chatTestSlice = createSlice({
     },
 
     addCustomer: (state, action) => {
-      
       const { phoneNumber, fullName, brandName, id, agentId } = action.payload;
-      const existingCustomer = state.items.find(
+      const existingCustomer = state.conversationData.find(
         (customer) => customer.phoneNumber === phoneNumber
       );
 
@@ -91,36 +81,37 @@ const chatTestSlice = createSlice({
           totalRecords: 0,
         };
         
-        state.items.push(newCustomer);
+        state.conversationData.push(newCustomer);
         
       }
     },
     addMultipleCustomers: (state, newCustomers) => {
     
       const filteredCustomers = newCustomers.payload.filter((newCustomer) => {
-        return !state.items.some(
-          (existing) => existing.phoneNumber === newCustomer.phoneNumber
+        return !state.conversationData.some(
+          (existingdata) => existingdata.phoneNumber === newCustomer.phoneNumber
         );
       });
-      state.items.push(...filteredCustomers);
+      state.conversationData.push(...filteredCustomers);
     
       ;
     },
-    addMultipleMessage: (state, newCustomers) => {
-      
-      const filteredCustomers = newCustomers.payload.filter((newCustomer) => {
-        return !state.items.some(
-          (existing) => existing.phoneNumber === newCustomer.phoneNumber
-        );
-      });
-      state.items.push(...filteredCustomers);
+    addMultipleMessage: (state,Messages) => {
+      debugger
+      const existingConversation = state.conversationData.find(
+        (convo) => convo.id === Messages.payload[0]?.id
+      );
     
-      ;
+      if (existingConversation) {
+        existingConversation.message = [...(existingConversation.message || []), ...Messages];
+      }
     },
-    addMessage: (state, action) => {
+    
+    
+    addMessage: (state, message,conversationId) => {
       
       const { phoneNumber, messageContent, messageTypeId, id } = action.payload;
-      state.items = state.items.map((customer) => {
+      state.conversationData = state.conversationData.map((customer) => {
         if (customer.phoneNumber === phoneNumber) {
           const newMessage = {
             agentId: 0,
@@ -186,22 +177,23 @@ export const {
 export const fetchExpiredNotifications = () => (dispatch, getState) => {
   
   // Dispatch action to update state and get expired notifications
-  const expired = CheckAndUpdateExpiredNotification(getState().chatTest.items);
+  const expired = CheckAndUpdateExpiredNotification(getState().chatTest.conversationData);
   return expired;
 };
 
-export const GetConversations = () => async (dispatch, getState) => {
+export const GetConversations = (AgentId) => async (dispatch, getState) => {
   try {
-    const result = await dispatch(fetchConversationList({ AgentId: 21 })).unwrap();
+    debugger
+    const result = await dispatch(fetchConversationList({ AgentId: AgentId })).unwrap();
 
     // Ensure the result is an array of conversations
-    if (result.conversations.length > 0) {
+    if (result.conversations) {
       // Dispatch the action properly
       await dispatch(addMultipleCustomers(result.conversations));
     }
 
     // Return the updated state
-    return getState().chatTest.items;
+    //return getState().chatTest.conversationData;
   } catch (error) {
     console.error("Error fetching conversations:", error);
     return [];
@@ -209,20 +201,32 @@ export const GetConversations = () => async (dispatch, getState) => {
 };
 
 
-export const GetConversationMessage = (id) => async (dispatch,getState) => {
-  
+export const GetConversationMessage = (id) => async (dispatch, getState) => {
+  debugger
+  const { conversationData } = getState().chatTest;
+
+  const existingConversation = conversationData.find(convo => convo.id === id);
+
+  if (existingConversation) {
+    if (existingConversation.message && existingConversation.message.length > 0) {
+      return existingConversation.message;
+    }
+  }
+
   try {
-    const result = await dispatch(fetchConversationMessage({ ChatId: 42 })).unwrap();
-    ;
+    const result = await dispatch(fetchConversationMessage({ ChatId: id })).unwrap();
+    
     if (result.conversationMessage.length > 0) {
       dispatch(addMultipleMessage(result.conversationMessage));
-    }   
-    return getState().chatTest.items;
+    }
+
+    return result.conversationMessage;
   } catch (error) {
     console.error("Error fetching conversations:", error);
     return [];
   }
 };
+
 
 
 
@@ -232,7 +236,7 @@ export const AddChat = (params) => async (dispatch, getState) => {
   // Fetch conversation list from API
   const result = await dispatch(fetchConversationList({ AgentId: 32 })).unwrap();
 
-  // Check if result is an array and has items
+  // Check if result is an array and has conversationData
   if (Array.isArray(result) && result.length > 0) {
     result.forEach((conversation) => {
       // Dispatch addCustomer for each conversation object
@@ -253,7 +257,7 @@ export const AddChat = (params) => async (dispatch, getState) => {
   }
 ;
   // Return the updated state
-  const updatedItems = getState().chatTest.items;
+  const updatedItems = getState().chatTest.conversationData;
   return updatedItems;
 };
 
