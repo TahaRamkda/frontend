@@ -69,7 +69,7 @@ const ChatsMonitor = () => {
               <button
                 title="View Chat"
                 className="uniform_icon_btn"
-                onClick={() => HandleCloseChat(row)}
+                onClick={() => HandleCloseChat(row.id)}
               >
                 <i class="fa fa-window-close-o" aria-hidden="true" style={{ fontSize: "15px" }}></i>
               </button>
@@ -100,7 +100,7 @@ const ChatsMonitor = () => {
     const senderId = e.target.value;
     SetAgentId(senderId);
   };
- const HandleCloseChat = async (row) => {
+ const HandleCloseChat = async (Id) => {
   const confirmClose = await showSweetAlert({
     title: "Are you sure?",
     text: "Do you really want to close this chat?",

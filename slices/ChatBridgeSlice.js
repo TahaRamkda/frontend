@@ -54,10 +54,9 @@ const bridgeSlice = createSlice({
     },
     
     addMessageToConversation: (state, action) => {
-      debugger
       const conversation = state.conversations.find((c) => c.id === action.payload.id);
       if (conversation) {
-        conversation.messages.unshift(action.payload);
+        conversation.messages = [action.payload, ...conversation.messages]; // Add message at the beginning
       }
     },
   },
