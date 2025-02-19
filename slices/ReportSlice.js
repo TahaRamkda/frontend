@@ -93,11 +93,11 @@ export const fetchMessageReport = createAsyncThunk(
 );
 export const fetchConversationReport = createAsyncThunk(
   'conversationreport /fetchConversationReport',
-  async ({status, pageSize,pageNo,senderId,FromDate,ToDate,srcStr,fChatInitiated}, { rejectWithValue }) => {
+  async ({status, pageSize,pageNo,senderId,FromDate,ToDate,agentId,srcStr,fChatInitiated}, { rejectWithValue }) => {
     
     try {
 
-      const response = await API.get(`${CONVERSATIONREPORT}?senderId=${senderId}${srcStr ? `&searchStr=${srcStr}`: ''}&status=${status}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}&fChatInitiated=${fChatInitiated}`);
+      const response = await API.get(`${CONVERSATIONREPORT}?senderId=${senderId}${srcStr ? `&searchStr=${srcStr}`: ''}&status=${status}&agentId=${agentId}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}&fChatInitiated=${fChatInitiated}`);
       if (response?.status === 200 && response.data?.result) {
         return {
         ConversationReport: response.data.result,

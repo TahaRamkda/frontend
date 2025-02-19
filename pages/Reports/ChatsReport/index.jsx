@@ -188,6 +188,7 @@ const ChatsReport = () => {
           senderId: senderid,
           srcStr: searchValue,
           ToDate: ToDate,
+          agentId:agentId,
           fChatInitiated:initiated,
           FromDate: FromDate,
           status: Status,
@@ -237,6 +238,7 @@ const ChatsReport = () => {
   //             senderId: senderid,
   //             fChatInitiated:initiated,
   //             srcStr:srcStr,
+  //             agentId:agentId,
   //             ToDate: ToDate,
   //             FromDate: FromDate,
   //             status:Status,
@@ -296,6 +298,7 @@ const ChatsReport = () => {
           clientId: clientId,
           senderId: senderid,
           status: Status,
+          agentId:agentId,
           fChatInitiated:initiated,
           ToDate: ToDate,
           FromDate: FromDate,
@@ -309,7 +312,7 @@ const ChatsReport = () => {
     return () => {
       dispatch(clearConversationReportState());
     };
-  }, [dispatch, clientId, senderid, Status, ToDate, FromDate, pageSize, currentPage,initiated]);
+  }, [dispatch, clientId, senderid, Status, ToDate, FromDate, pageSize,agentId, currentPage,initiated]);
   
 
   useEffect(() => {
@@ -331,6 +334,7 @@ const ChatsReport = () => {
         clientId: clientId,
         status: Status,
         srcStr: srcStr,
+        agentId:agentId,
         ToDate: ToDate,
         fChatInitiated:initiated,
         FromDate: FromDate,
@@ -349,6 +353,7 @@ const ChatsReport = () => {
         clientId: clientId,
         senderId: senderid,
         status: Status,
+        agentId:agentId,
         fChatInitiated:initiated,
         ToDate: ToDate,
         FromDate: FromDate,
