@@ -6,10 +6,10 @@ import { CHATSMONITOR, AGENTSMONITOR,AGENTDISABLE, SENDCLOSECHATTEMPLATE} from '
 // Fetch Clients
 export const fetchChatsMonitor = createAsyncThunk(
     'chatsmonitor /fetchChatsMonitor',
-    async ({status, pageSize,pageNo,senderId,srcStr}, { rejectWithValue }) => {
+    async ({status, pageSize,pageNo,senderId,srcStr,fChatInitiated,agentId}, { rejectWithValue }) => {
       try {
 
-        const response = await API.get(`${CHATSMONITOR}?senderId=${senderId}${srcStr? `&searchStr=${srcStr}`: ''}&status=${status}&pageSize=${pageSize}&pageNo=${pageNo}`);
+        const response = await API.get(`${CHATSMONITOR}?senderId=${senderId}&agentId=${agentId}${srcStr? `&searchStr=${srcStr}`: ''}&status=${status}&fChatInitiated=${fChatInitiated}&pageSize=${pageSize}&pageNo=${pageNo}`);
         if (response?.status === 200 ) {
           return {
           chatsMonitor: response.data.result,
@@ -177,7 +177,7 @@ const Supervisor = createSlice({
               })
               
               
-                    // upload Media
+                    // Close Chat
                     .addCase(sendCloseChatTemplate.pending, (state) => {
                       state.loading = true;
                       state.error = null;

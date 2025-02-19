@@ -162,6 +162,7 @@ export const fetchChatReportStats = createAsyncThunk(
     try {
       const response = await API.get(`${CHATREPORTSTATS}?pageSize=${pageSize}&senderId=${senderId}${srcStr ? `&searchStr=${srcStr}`: ''}&fChatInitiated=${fChatInitiated}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}&agentId=${agentId}`);
       if (response?.status === 200 && response.data?.result) {
+        
         return {
         chatReportStats: response.data.result,
         };
