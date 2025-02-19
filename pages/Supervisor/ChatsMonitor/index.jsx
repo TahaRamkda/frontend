@@ -1,7 +1,7 @@
 "use client";
 import React, { useMemo, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchChatsMonitor, clearChatsMonitorState, setPageSize, setCurrentPage, sendCloseChatTemplate } from "@/slices/SuperwiseSlice";
+import { fetchChatsMonitor, clearChatsMonitorState, setPageSize, setCurrentPage, SupervisorCloseChat } from "@/slices/SuperwiseSlice";
 import { excelExportChatMonitor } from '@/slices/ExportExcel';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import DataTable from "react-data-table-component";
@@ -102,8 +102,9 @@ const ChatsMonitor = () => {
     const agentId = e.target.value;
     SetAgentId(agentId);
   };
-  const HandleCloseChat = async (Id) => {
+  const HandleCloseChat = async (ChatId) => {
     try {
+      debugger
       const result = await SweetAlert.fire({
         title: "Are you sure you want to close this chat?",
         text: "",
@@ -114,12 +115,10 @@ const ChatsMonitor = () => {
         confirmButtonText: "Yes",
         cancelButtonText: "Cancel",
       });
-  
       if (result.isConfirmed) {
-        const formData = new FormData();
-        formData.append("id", Id);
+        
   
-        const response = await dispatch(sendCloseChatTemplate(formData)).unwrap();
+        const response = await dispatch(SupervisorCloseChat(ChatId)).unwrap();
   
         if (response.success) {
           showSweetAlert({
@@ -131,7 +130,7 @@ const ChatsMonitor = () => {
         } else {
           showSweetAlert({
             title: "Failed",
-            text: response.result.message || "Something went wrong.",
+            text: response.message || "Something went wrong.",
             icon: "error",
           });
         }
