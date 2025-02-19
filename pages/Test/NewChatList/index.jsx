@@ -122,6 +122,15 @@ const ChatPage = () => {
   const [tryReconnect, settryReconnect] = useState(false);
   const lastScrollTop = useRef(0);
   const [UserId, setuserId] = useState(0);
+
+  const message = useSelector((state) =>
+    state.bridge.conversations.find((c) => c.id === Activechat)?.messages || []
+  );
+  
+  useEffect(() => {
+    setChatMessages([...message]); // Update local state when Redux state updates
+  }, [message]);
+
   const [isInitialized, setIsInitialized] = useState(false);
   const [IsOneSignalLoaded, setIsOneSignalLoaded] = useState(false);
   useEffect(() => {
@@ -274,7 +283,6 @@ const ChatPage = () => {
 
 
   const handleFetchMessages = (conversationId) => {
-    
     setActiveChat(conversationId);
     const conversation = conversations.find(
       (conv) => conv.id === conversationId
@@ -376,6 +384,7 @@ const ChatPage = () => {
 
     try {
       const newMessage = {
+        id: Activechat,
         messageId: Date.now(),
         typeId: 1,
         messageContent: messageInput.trim(),
@@ -384,7 +393,8 @@ const ChatPage = () => {
         createdDate: new Date().toLocaleString(),
       };
 
-      setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
+      //setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
+      dispatch(addMessageToConversation(newMessage));
       setPreviewUrl(null);
       setFileType(null);
       setFileType(null);
