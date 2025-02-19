@@ -59,11 +59,12 @@ export const fetchAgentsMonitor = createAsyncThunk(
     }
   );
   
-  export const sendCloseChatTemplate = createAsyncThunk(
+  export const SupervisorCloseChat = createAsyncThunk(
     'chat/sendCloseChatTemplate',
-    async (closeChatTemplateData, { rejectWithValue }) => {
+    async (ChatId, { rejectWithValue }) => {
       try {
-        const response = await API.post(SENDCLOSECHATTEMPLATE, closeChatTemplateData);
+        debugger
+        const response = await API.get(`${SENDCLOSECHATTEMPLATE}?id=${ChatId}`);
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -178,17 +179,17 @@ const Supervisor = createSlice({
               
               
                     // Close Chat
-                    .addCase(sendCloseChatTemplate.pending, (state) => {
+                    .addCase(SupervisorCloseChat.pending, (state) => {
                       state.loading = true;
                       state.error = null;
                       state.success = false;
                     })
-                    .addCase(sendCloseChatTemplate.fulfilled, (state, action) => {
+                    .addCase(SupervisorCloseChat.fulfilled, (state, action) => {
                       state.loading = false;
                       state.success = true;
                       state.message = action.payload.message || 'Closed Successfully';
                     })
-                    .addCase(sendCloseChatTemplate.rejected, (state, action) => {
+                    .addCase(SupervisorCloseChat.rejected, (state, action) => {
                       state.loading = false;
                       state.error = action.payload || action.error.message;
                       state.message = action.payload?.message || action.error.message;
