@@ -198,7 +198,7 @@ const CampaignUpdate = () => {
     }, [selectedSenderId, dispatch]);
   
   useEffect(() => {
-    
+    debugger
     if (Loading || !template) return;
     setSelectedSenderId(template.senderId);
     // Map buttons with conditional logic for phoneNumber or URL

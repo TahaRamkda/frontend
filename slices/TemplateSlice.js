@@ -112,6 +112,7 @@ export const fetchTemplatesById = createAsyncThunk(
     
     
     try {
+      debugger
       const response = await API.get(
         `${TEMPLATEDETAILS}?Id=${templateId}`
       );
