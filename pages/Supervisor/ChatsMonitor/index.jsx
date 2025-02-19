@@ -126,6 +126,7 @@ const ChatsMonitor = () => {
             text: "",
             icon: "success",
           });
+          refreshPage()
           onUploadSuccess();
         } else {
           showSweetAlert({
@@ -178,6 +179,19 @@ const ChatsMonitor = () => {
         setStatus(""); // Reset if no selection
     }
 };
+const refreshPage = () => {
+    dispatch(fetchChatsMonitor({
+      clientId: localStorage.getItem("clientId"),
+      senderId: senderid,
+      srcStr:srcStr,
+      fChatInitiated:initiated,
+      agentId: agentId,
+      status:Status,
+      pageSize:Size, // Example page size
+      pageNo: currentPage, // Example current page
+    }));
+}
+    
 
  useEffect(() => {
      if (!loading && chatsMonitor) {
