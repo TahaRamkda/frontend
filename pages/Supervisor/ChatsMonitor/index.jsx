@@ -127,7 +127,6 @@ const ChatsMonitor = () => {
             icon: "success",
           });
           refreshPage()
-          onUploadSuccess();
         } else {
           showSweetAlert({
             title: "Failed",
