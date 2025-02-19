@@ -37,7 +37,7 @@ const ChatsMonitor = () => {
   const [agentId, SetAgentId] = useState(0);
   const [CustomerName, setCustomerName] = useState('');
   const [refreshpage, setrefreshpage] = useState(false);  // Track if page is refreshing
-  const [initiated , SetInitiated] = useState(null);
+  const [initiated , SetInitiated] = useState(0);
  
   const statusOptions = [
     { value: '0', label: "Auto Chat" },
@@ -99,19 +99,19 @@ const ChatsMonitor = () => {
     setshowtransfer(false);
   };
   const handleAgentChange = (e) => {
-    const senderId = e.target.value;
-    SetAgentId(senderId);
+    const agentId = e.target.value;
+    SetAgentId(agentId);
   };
   const HandleCloseChat = async (Id) => {
     try {
       const result = await SweetAlert.fire({
-        title: "Are you sure you want to logout?",
+        title: "Are you sure you want to close this chat?",
         text: "",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "Logout",
+        confirmButtonText: "Yes",
         cancelButtonText: "Cancel",
       });
   
@@ -159,6 +159,8 @@ const ChatsMonitor = () => {
       dispatch(fetchChatsMonitor({
         clientId: clientId,
         senderId: senderid,
+        agentId: agentId,
+        fChatInitiated:initiated,
         srcStr: searchValue,
         status:Status,
         pageSize,
@@ -204,6 +206,8 @@ const ChatsMonitor = () => {
             clientId: localStorage.getItem("clientId"),
             senderId: senderid,
             srcStr:srcStr,
+            fChatInitiated:initiated,
+            agentId: agentId,
             status:Status,
             pageSize:Size, // Example page size
             pageNo: currentPage, // Example current page
@@ -225,7 +229,7 @@ const ChatsMonitor = () => {
    
        // Cleanup the interval when the component unmounts
        return () => clearInterval(intervalId);
-     }, [dispatch,senderid,srcStr,Status,currentPage]);
+     }, [dispatch,senderid,srcStr,Status,currentPage,initiated,agentId]);
 
  
   const handleDetailClick = async (row) => {
@@ -256,6 +260,8 @@ const ChatsMonitor = () => {
         clientId: clientId,
         senderId: senderid,
         status:Status,
+        agentId: agentId,
+        fChatInitiated:initiated,
         srcStr:srcStr,
         pageSize,
         pageNo: currentPage,
@@ -265,7 +271,7 @@ const ChatsMonitor = () => {
     return () => {
       dispatch(clearChatsMonitorState());
     };
-  }, [dispatch, clientId,senderid, Status]);
+  }, [dispatch, clientId,senderid, Status,initiated,agentId]);
  
   const handlePageSizeChange = async (newSize) => {
     setSize(newSize);
@@ -276,6 +282,8 @@ const ChatsMonitor = () => {
       clientId: clientId,
       status:Status,
       srcStr:srcStr,
+      agentId: agentId,
+      fChatInitiated:initiated,
       senderId: senderid,
       pageSize: newSize,
       pageNo: 1,
@@ -289,6 +297,8 @@ const ChatsMonitor = () => {
       clientId: clientId,
       senderId: senderid,
       status:Status,
+      agentId: agentId,
+      fChatInitiated:initiated,
       srcStr:srcStr,
       pageSize,
       pageNo: page,
@@ -313,10 +323,9 @@ const ChatsMonitor = () => {
          <div className='flex flex-col text-start '>
             <label className="font-medium text-gray-700 text-sm mt-1">Initiated</label>
           <select  id="initiated" value={initiated} onChange={(e) => SetInitiated(e.target.value)}  className='border rounded  w-100 h-12 '> 
-            <option value="0">Select  </option>
-            <option value="1">Option 1</option>
-            <option value="2">Option 2</option>
-            <option value="3">Option 3</option>
+            <option value="0">Conversations  </option>
+            <option value="1">Campaigns</option>
+            <option value="2">API Messages</option>
           </select>
           </div>
 

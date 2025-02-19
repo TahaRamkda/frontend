@@ -20,7 +20,7 @@ import {
   HiEye,
   HiInformationCircle,
 } from "react-icons/hi";
-import Loading from "@/components/Layout/Loader";
+
 import App from "@/components/Layout/App";
 import Chatview from "@/pages/Chats/ChatView/indexPop-up";
 import AgentDropdown from "@/components/Dropdowns/AgentDropdown";
@@ -72,11 +72,7 @@ const ChatsReport = () => {
       .toISOString()
       .split("T")[0];
   };
-  useEffect(() => {
-    if (ConversationReport) {
-      setChatLoading(false);
-    }
-  });
+  
   const [FromDate, setFromDate] = useState(getMonthStart());
   const [ToDate, setToDate] = useState(getMonthEnd());
   const [modalOpen, SetModalOpen] = useState(false);
@@ -443,14 +439,14 @@ const ChatsReport = () => {
 
       <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
         <h3 className="font-bold mb-0">
-          Total Conversation: {chatReportStats.totalConversation ?? "-/-"}
+          Total Conversation: {chatReportStats.totalConversation ?? "-/-"  }
         </h3>
       </div>
     
 
       <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
         <h3 className="font-bold mb-0">
-          Marketing Conversation: {chatReportStats.marketingConversation ?? "-/-"}
+          Marketing Conversation: {chatReportStats.marketingConversation ?? "-/-" }
         </h3>
       </div>
 
@@ -462,7 +458,7 @@ const ChatsReport = () => {
 
       <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
         <h3 className="font-bold mb-0">
-          Initiated Conversation: {chatReportStats.TotalConversationsStatus?.[0]?.initiatedConversation ?? "-/-"}
+          Initiated Conversation: {chatReportStats.initiatedConversation ?? "-/-" }
         </h3>
       </div>
 
@@ -495,12 +491,13 @@ const ChatsReport = () => {
 
       </div>
     );
-  }, [srcStr, senderid, FromDate, ToDate]);
+  }, [srcStr, senderid, FromDate, ToDate, chatReportStats]);
 
   return (
     <App>
       <div className="flex items-center">
-        {ChatLoading && <Loading />}
+      {ChatLoading && <Loader />}
+
         <div className="">
           <h4 className="font-bold ">Chats Report</h4>
         </div>
