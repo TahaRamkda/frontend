@@ -188,6 +188,7 @@ const ChatsReport = () => {
           senderId: senderid,
           srcStr: searchValue,
           ToDate: ToDate,
+          agentId:agentId,
           fChatInitiated:initiated,
           FromDate: FromDate,
           status: Status,
@@ -237,6 +238,7 @@ const ChatsReport = () => {
   //             senderId: senderid,
   //             fChatInitiated:initiated,
   //             srcStr:srcStr,
+  //             agentId:agentId,
   //             ToDate: ToDate,
   //             FromDate: FromDate,
   //             status:Status,
@@ -296,6 +298,7 @@ const ChatsReport = () => {
           clientId: clientId,
           senderId: senderid,
           status: Status,
+          agentId:agentId,
           fChatInitiated:initiated,
           ToDate: ToDate,
           FromDate: FromDate,
@@ -309,7 +312,7 @@ const ChatsReport = () => {
     return () => {
       dispatch(clearConversationReportState());
     };
-  }, [dispatch, clientId, senderid, Status, ToDate, FromDate, pageSize, currentPage,initiated]);
+  }, [dispatch, clientId, senderid, Status, ToDate, FromDate, pageSize,agentId, currentPage,initiated]);
   
 
   useEffect(() => {
@@ -331,6 +334,7 @@ const ChatsReport = () => {
         clientId: clientId,
         status: Status,
         srcStr: srcStr,
+        agentId:agentId,
         ToDate: ToDate,
         fChatInitiated:initiated,
         FromDate: FromDate,
@@ -349,6 +353,7 @@ const ChatsReport = () => {
         clientId: clientId,
         senderId: senderid,
         status: Status,
+        agentId:agentId,
         fChatInitiated:initiated,
         ToDate: ToDate,
         FromDate: FromDate,
@@ -437,50 +442,50 @@ const ChatsReport = () => {
     <div className="grid grid-cols-4 gap-2">
     
 
-      <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
+      <div className="bg-white stats shadow-md mb-3 p-2 text-left" >
         <h3 className="font-bold mb-0">
           Total Conversation: {chatReportStats.totalConversation ?? "-/-"  }
         </h3>
       </div>
     
 
-      <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
+      <div className="bg-white stats shadow-md mb-3 p-2 text-left" >
         <h3 className="font-bold mb-0">
           Marketing Conversation: {chatReportStats.marketingConversation ?? "-/-" }
         </h3>
       </div>
 
-      <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
+      <div className="bg-white stats shadow-md mb-3 p-2 text-left" >
         <h3 className="font-bold mb-0">
           Utility Conversation: {chatReportStats.utilityConversation ?? "-/-"}
         </h3>
       </div>
 
-      <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
+      <div className="bg-white stats shadow-md mb-3 p-2 text-left" >
         <h3 className="font-bold mb-0">
           Initiated Conversation: {chatReportStats.initiatedConversation ?? "-/-" }
         </h3>
       </div>
 
-      <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
+      <div className="bg-white stats shadow-md mb-3 p-2 text-left" >
         <h3 className="font-bold mb-0">
           Force Closed: {chatReportStats.forceClosed ?? "-/-"}
         </h3>
       </div>
 
-      <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
+      <div className="bg-white stats shadow-md mb-3 p-2 text-left" >
         <h3 className="font-bold mb-0">
           Closed: {chatReportStats.closed ?? "-/-"}
         </h3>
       </div>
 
-      <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
+      <div className="bg-white stats shadow-md mb-3 p-2 text-left">
         <h3 className="font-bold mb-0">
           Abandon: {chatReportStats.abandon ?? "-/-"}
         </h3>
       </div>
 
-      <div className="bg-white stats shadow-md mb-5 p-2 text-left" style={{ borderTop: "4px solid #e5e7eb" }}>
+      <div className="bg-white stats shadow-md mb-3 p-2 text-left">
         <h3 className="font-bold mb-0">
           Looking for Agent: {chatReportStats.lookingforAgent ?? "-/-"}
         </h3>
@@ -561,7 +566,7 @@ const ChatsReport = () => {
           <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded shadow-lg w-1/3 relative">
               <ModalHeader toggle={HandleCloseInfoClick}>
-                Chat Details
+                Chat Logs
               </ModalHeader>
 
               <ModalBody>
