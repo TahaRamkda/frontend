@@ -43,8 +43,12 @@ const bridgeSlice = createSlice({
       debugger
       const newConversation = action.payload;
       const existingConversation = state.conversations.find((c) => c.id === newConversation.id);
+      const currentTime = Date.now();
       if (!existingConversation) {
-        state.conversations.push({ ...newConversation, messages: newConversation.messages || [] });
+        state.conversations.unshift({ ...newConversation,
+           messages: newConversation.messages || [] ,
+           expiryTime: currentTime + 30 * 1000,
+          });
       }
     },
 
@@ -54,11 +58,35 @@ const bridgeSlice = createSlice({
     },
     
     addMessageToConversation: (state, action) => {
-      const conversation = state.conversations.find((c) => c.id === action.payload.id);
-      if (conversation) {
-        conversation.messages = [action.payload, ...conversation.messages]; // Add message at the beginning
+      const conversationIndex = state.conversations.findIndex((c) => c.id === action.payload.id);
+    
+      if (conversationIndex !== -1) {
+        // Extract the conversation
+        const conversation = state.conversations[conversationIndex];
+    
+        // Update the messages array and metadata
+        conversation.messages.unshift(action.payload); // Add message at the beginning
+        conversation.lastMessageText = action.payload.messageContent;
+    
+        if (action.payload.typeId === 2) {
+          conversation.unreadCount = (conversation.unreadCount || 0) + 1;
+          if(conversation.expiryTime === 0){
+            conversation.expiryTime = Date.now() + 5 * 60 * 1000;
+          }
+          
+        } else {
+          conversation.unreadCount = 0;
+          conversation.expiryTime = 0;
+        }
+    
+        // Remove the conversation from its current position
+        state.conversations.splice(conversationIndex, 1);
+    
+        // Insert the updated conversation at the beginning of the array
+        state.conversations.unshift(conversation);
       }
     },
+    
   },
   extraReducers: (builder) => {
     builder

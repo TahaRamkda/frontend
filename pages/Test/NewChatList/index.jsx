@@ -129,6 +129,7 @@ const ChatPage = () => {
   
   useEffect(() => {
     setChatMessages([...message]); // Update local state when Redux state updates
+    setActiveSenderId(message[0]?.senderId);
   }, [message]);
 
   const [isInitialized, setIsInitialized] = useState(false);
@@ -223,6 +224,8 @@ const ChatPage = () => {
     if (templateDetails) {
       const newMessage = {
         messageId: Date.now(),
+        id : templateDetails.ChatId,
+        senderId: message[0]?.senderId,
         typeId: 1,
         messageContent: templateDetails.bodyText,
         contentType: templateDetails.contentType
@@ -234,8 +237,8 @@ const ChatPage = () => {
           : "",
         createdDate: new Date().toLocaleString(),
       };
-
-      setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
+       dispatch(addMessageToConversation(newMessage));
+      //setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
     }
   }, [templateDetails]);
 
@@ -374,7 +377,7 @@ const ChatPage = () => {
 
     const formData = new FormData();
     formData.append("ClientId", localStorage.getItem("clientId"));
-    formData.append("SenderId", messages[0].senderId);
+    formData.append("SenderId", message[0].senderId);
     formData.append("Message", messageInput.trim());
     formData.append("ConversationId", Activechat);
 
@@ -385,6 +388,7 @@ const ChatPage = () => {
     try {
       const newMessage = {
         id: Activechat,
+        senderId: message[0].senderId,
         messageId: Date.now(),
         typeId: 1,
         messageContent: messageInput.trim(),
