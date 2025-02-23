@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { AGENTLIST, AGENTDETAILS, CREATEAGENT, DELETEAGENT, UPDATEAGENT, AGENTSTIMINGLIST, ADDAGENTSTIMING, AGENTDROPDOWN ,GETAGENTSTATS,ACTIVEAGENTS, AGENTSHIFTBULKUPLOAD, AGENTPERFORMANCE } from '@/utils/apiConstants';
+import { AGENTLIST, AGENTDETAILS, CREATEAGENT, DELETEAGENT, UPDATEAGENT, AGENTSTIMINGLIST, ADDAGENTSTIMING, AGENTDROPDOWN ,GETAGENTSTATS,ACTIVEAGENTS, AGENTSHIFTBULKUPLOAD, MASTERDATA, AGENTSTATUS } from '@/utils/apiConstants';
 
 
 
@@ -50,6 +50,7 @@ export const fetchActiveAgentsDrop = createAsyncThunk(
 );
 
 
+
 export const fetchAgentsDrop = createAsyncThunk(
   'agent/fetchAgentsDrop',
   async ({clientId,senderId,pageNo,pageSize,searchStr}, { rejectWithValue }) => {
@@ -60,6 +61,43 @@ export const fetchAgentsDrop = createAsyncThunk(
           agentDrop: response.data.result,
          
         };
+      } else {
+        throw new Error('Failed to fetch details');
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
+export const fetchMasterData = createAsyncThunk(
+  'agent/fetchMasterData',
+  async ({type}, { rejectWithValue }) => {
+    try {
+      const response = await API.get(`${MASTERDATA}?type=${type}`);
+      if (response?.status === 200) {
+        return {
+          masterData: response.data.result,
+        };
+      } else {
+        throw new Error('Failed to fetch details');
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
+export const setAgentStatus = createAsyncThunk(
+  'agent/setAgentStatus',
+  async ({agentId,statusId}, { rejectWithValue }) => {
+    try {
+      
+      const response = await API.get(`${AGENTSTATUS}?agentId=${agentId}&status=${statusId}`);
+      if (response.status === 200) {
+        return response.data
       } else {
         throw new Error('Failed to fetch details');
       }
@@ -205,6 +243,8 @@ const agentSlice = createSlice({
     agentDrop:[],
     agentsTiming: [],
     AgentStats: [],
+    masterData: [],
+    agentTagsDropdown: [],
     activeAgentDrop:[],
     agent: null,
     loading: false,
@@ -245,6 +285,20 @@ const agentSlice = createSlice({
     },
     cleaActiveAgenDroptState: (state) => {
       state.activeAgentDrop = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+      
+    },
+    clearAgentTagsDroptState: (state) => {
+      state.activeAgentDrop = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+      
+    },
+    clearMasterDataState: (state) => {
+      state.masterData = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -339,6 +393,21 @@ const agentSlice = createSlice({
         state.message = action.payload.message || '';
       })
       .addCase(fetchActiveAgentsDrop.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+      // Active Agents Reasons Dropdown 
+      .addCase(fetchMasterData.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchMasterData.fulfilled, (state, action) => {
+        state.loading = false;
+        state.masterData = action.payload.masterData;
+        state.message = action.payload.message || '';
+      })
+      .addCase(fetchMasterData.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
@@ -491,8 +560,10 @@ export const {
   clearAgentCreateState,
   clearBulkUploadState,
   cleaAgentStats,
+  clearMasterDataState,
   clearAgentDeleteState,
   cleaActiveAgenDroptState,
+  clearAgentTagsDroptState,
   cleaAgenDroptState,
   clearAgentTimingCreateState,
   clearAgentsTimingListState,

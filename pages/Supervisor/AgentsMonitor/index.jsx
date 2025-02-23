@@ -32,6 +32,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
   const ChatsReportColumn = [
     { name: "Agent", selector: (row) => row.agentName, sortable: true},
     { name: "Status", selector: (row) => row.statusName, sortable: true },
+    { name: "Active Chat", selector: (row) => row.activeChat, sortable: true },
     { name: "Unread", selector: (row) => row.unreadCount || 0, sortable: true },
     { name: "Assigned", selector: (row) => row.assignedChat, sortable: true},
     { name: "Unassigned", selector: (row) => row.unAssignedChat, sortable: true, width: '11%' },
@@ -87,9 +88,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
               }
             />
           </div>
-          
-          
-          
+
           ),
           width: '10%' 
         },

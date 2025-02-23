@@ -40,7 +40,7 @@ const bridgeSlice = createSlice({
   initialState,
   reducers: {
     addConversation: (state, action) => {
-      debugger
+      
       const newConversation = action.payload;
       const existingConversation = state.conversations.find((c) => c.id === newConversation.id);
       if (!existingConversation) {
@@ -49,7 +49,7 @@ const bridgeSlice = createSlice({
     },
 
     removeConversation: (state, action) => {
-     debugger
+     
       state.conversations = state.conversations.filter((c) => c.id !== action.payload);
     },
     

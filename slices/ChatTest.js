@@ -97,7 +97,7 @@ const chatTestSlice = createSlice({
       ;
     },
     addMultipleMessage: (state,Messages) => {
-      debugger
+      
       const existingConversation = state.conversationData.find(
         (convo) => convo.id === Messages.payload[0]?.id
       );
@@ -183,7 +183,7 @@ export const fetchExpiredNotifications = () => (dispatch, getState) => {
 
 export const GetConversations = (AgentId) => async (dispatch, getState) => {
   try {
-    debugger
+    
     const result = await dispatch(fetchConversationList({ AgentId: AgentId })).unwrap();
 
     // Ensure the result is an array of conversations
@@ -202,7 +202,7 @@ export const GetConversations = (AgentId) => async (dispatch, getState) => {
 
 
 export const GetConversationMessage = (id) => async (dispatch, getState) => {
-  debugger
+  
   const { conversationData } = getState().chatTest;
 
   const existingConversation = conversationData.find(convo => convo.id === id);

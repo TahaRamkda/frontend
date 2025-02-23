@@ -63,7 +63,9 @@ const TemplateUpdatePage = () => {
   const dispatch = useDispatch();
   const [Loading, setLoading] = useState(true);
   const [actionbuttonvalues, setactionbuttonvalues] = useState([]);
+  
   const { template, loading, error } = useSelector((state) => state.templates);
+  
   const stripHtml = (input) => input.replace(/<[^>]*>/g, "");
   const [messagePreview, setMessagePreview] = useState({
     header: "",
@@ -131,6 +133,7 @@ const TemplateUpdatePage = () => {
   console.log("!@#$%^&", bodyFinalContent);
 
   useEffect(() => {
+    
     if (Template_Id) {
       setLoading(true);
       dispatch(
@@ -1029,6 +1032,7 @@ const TemplateUpdatePage = () => {
                 bodyValues: [],
                 buttonValues: [],
               }}
+              enableReinitialize={true}  // ✅ Add this
               //onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
@@ -1280,20 +1284,23 @@ const TemplateUpdatePage = () => {
                     ))} */}
 
                     <div>
-                      <FormGroup>
-                        <Label for="footer" className="text-sm font-semibold">
-                          Footer
-                        </Label>
-                        <div style={{ pointerEvents: "none" }}>
-                        <Field
-                          as={Input}
-                          name="footer"
-                          placeholder="Add footer text"
-                          className="form-control"
-                          maxLength="50"
-                        />
-                        </div>
-                      </FormGroup>
+                      {values.footer && (
+ <FormGroup>
+ <Label for="footer" className="text-sm font-semibold">
+   Footer
+ </Label>
+ <div style={{ pointerEvents: "none" }}>
+ <Field
+   as={Input}
+   name="footer"
+   placeholder="Add footer text"
+   className="form-control"
+   maxLength="50"
+ />
+ </div>
+</FormGroup>
+                      )}
+                     
                       {/* Button dropdown */}
                       {/* <Dropdown
                         isOpen={dropdownOpen}

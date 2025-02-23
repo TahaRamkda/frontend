@@ -63,7 +63,7 @@ export const fetchAgentsMonitor = createAsyncThunk(
     'chat/sendCloseChatTemplate',
     async (ChatId, { rejectWithValue }) => {
       try {
-        debugger
+        
         const response = await API.get(`${SENDCLOSECHATTEMPLATE}?id=${ChatId}`);
         return response.data;
       } catch (error) {

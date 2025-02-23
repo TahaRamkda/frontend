@@ -495,7 +495,7 @@ const ChatPage = () => {
 
     // Message received handler
     const handleIncomingMessage = (message) => {
-      debugger
+      
       audioRef.current
         ?.play()
         .catch((err) =>
@@ -551,7 +551,7 @@ const ChatPage = () => {
 
     // Handles conversation assignment
     const handleConversationAssigned = (notification) => {
-      debugger
+      
       audioRef.current
         ?.play()
         .catch((err) =>

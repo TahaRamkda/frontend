@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Formik, Field, useFormikContext } from "formik";
 import {
   Form,
@@ -48,6 +48,7 @@ const CampaignUpdate = () => {
   const CampaignID = useRecoilValue(CampaignState);
   const [Loading, setLoading] = useState(true);
   const { template, loading, error } = useSelector((state) => state.templates);
+  const formikRef = useRef(); // Add ref for Formik
   const [messagePreview, setMessagePreview] = useState({
     header: "",
     body: "",
@@ -56,6 +57,7 @@ const CampaignUpdate = () => {
     buttons: [],
     visitWebsiteButtonCount: 0,
   });
+  
   const { sendername } = useSelector((state) => state.sendernames);
   const [showMediaPopup, setShowMediaPopup] = useState(false);
   const [campaignName, setcampaignName] = useState("");
@@ -65,7 +67,6 @@ const CampaignUpdate = () => {
   const [headContent, setHeadContent] = useState("");
   const [headerVariable, setHeaderVariable] = useState([]);
   const [bodyFinalContent, setBodyFinalContent] = useState("");
-  
   const [selectedSenderId, setSelectedSenderId] = useState(null);
   const [selectedMediaId, setSelectedMediaId] = useState(0);
   const [selectedMediaPath, setSelectedMediaPath] = useState("");
@@ -74,6 +75,7 @@ const CampaignUpdate = () => {
   const [TotalButtonCount, setTotalButtonCount] = useState(0);
   const [selectedGroups, setSelectedGroups] = useState([]);
   const [Showallbutton, setShowallbutton] = useState(false);
+  
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
   const [existinggroupId, setexistinggroupId] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
@@ -90,6 +92,7 @@ const CampaignUpdate = () => {
   };
 
   const handleTemplateChange = (e) => {
+    
     const templateId = e.target.value;
     setSelectedTemplateId(templateId);
   };
@@ -97,7 +100,6 @@ const CampaignUpdate = () => {
   useEffect(() => {
     if (CampaignID) {
       // Run only if a template is selected
-
       setSelectedCampaign(CampaignID);
     } else {
       router.back();
@@ -117,6 +119,7 @@ const CampaignUpdate = () => {
   }, [dispatch, SelectedCampaign]);
 
   useEffect(() => {
+    
     if (selectedTemplateId) {
       // Run only if a template is selected
       setLoading(true);
@@ -130,7 +133,9 @@ const CampaignUpdate = () => {
   }, [dispatch, selectedTemplateId]);
 
   useEffect(() => {
+    
     const initializeCampaignDetails = async () => {
+      
       if (campaigndetail) {
         setSelectedTemplateId(campaigndetail.templateId);
         setcampaignName(campaigndetail.campaignName);
@@ -199,7 +204,7 @@ const CampaignUpdate = () => {
   
   useEffect(() => {
     
-    if (Loading || !template) return;
+    if (loading || !template) return;
     setSelectedSenderId(template.senderId);
     // Map buttons with conditional logic for phoneNumber or URL
     const customButtons =
@@ -212,9 +217,10 @@ const CampaignUpdate = () => {
         ? { url: button.buttonValue }
         : {}),
     })) ?? [];
-
+    
   // Construct the complete message preview locally
   const updatedMessagePreview = {
+   
     body: template.bodyText,
     footer: template.footerText,
     media: template.mediaPath,
@@ -222,6 +228,7 @@ const CampaignUpdate = () => {
     templatename: template.templateName,
     visitWebsiteButtonCount: 0,
     header: template.headerType === 1 ? template.headerText : undefined,
+    
   };
 
   // Set messagePreview state only if it has changed and not already set
@@ -349,7 +356,6 @@ const CampaignUpdate = () => {
   };
 
   const addVariable = (variablename, allVariables) => {
-    // If this is the first call, clear the existing array
     setVariables((prev) => {
       // Reset variables array if this is the first call with allVariables
       if (allVariables) {
@@ -412,7 +418,6 @@ const CampaignUpdate = () => {
     try {
       const response = await dispatch(UpdateCampaign(requestBody)).unwrap();
       if (response.success) {
-        dispatch(clearCampaignDetailState());
         dispatch(clearTemplateDetailState());
         showSweetAlert({
           title: "Updated Successfully",
@@ -507,6 +512,9 @@ const CampaignUpdate = () => {
       return updatedVariables; // Update the state
     });
   };
+  useEffect(() => {
+    setSelectedTemplateId(0);
+  }, [CampaignID]);
 
   const handleheaderVariableChange = (variableName, newValue) => {
     setHeaderVariable((prev) => {
@@ -546,15 +554,12 @@ const CampaignUpdate = () => {
   };
 
   const handelCancel = () => {
-    setMessagePreview({
-      header: "",
-      body: "",
-      footer: "",
-      media: null,
-      buttons: [],
-      visitWebsiteButtonCount: 0,
-    });
-    
+    // Clear Redux states
+    dispatch(clearTemplateDetailState());
+    dispatch(clearCampaignUpdateState());
+    dispatch(clearCampaignDetailState());
+    dispatch(clearSendernameState());
+    // Navigate back
     router.push("/Campaigns/CampaignsList");
   };
 
@@ -571,7 +576,6 @@ const CampaignUpdate = () => {
           >
             <h4 className="mb-4">Update Campaign</h4>
             {/* <CustomEditor /> */}
-
             <Formik
               initialValues={{
                 headerMedia: null,
@@ -582,6 +586,7 @@ const CampaignUpdate = () => {
                 bodyValues: [],
                 buttonValues: [],
               }}
+              
               onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
@@ -604,7 +609,7 @@ const CampaignUpdate = () => {
                       <FormGroup>
                         <Label>Select Template</Label>
                         <Templates
-                          name="senderId"
+                          name="templateId"
                           value={selectedTemplateId}
                           onChange={handleTemplateChange}
                           className="mb-3"

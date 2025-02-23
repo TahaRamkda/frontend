@@ -98,7 +98,6 @@ const Flow = () => {
           <SearchBar
               label="Search"
               value={filterText}
-              
             />
           </div>
         </div>
