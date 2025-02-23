@@ -162,7 +162,7 @@ const ChatPage = () => {
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
-        //window.OneSignal.logout(localStorage.getItem("userId"));
+        //window.OneSignal.logout();
         AgentConversation.map((item) => {
           clearTimer(item.id);
         });
@@ -177,10 +177,9 @@ const ChatPage = () => {
   //useOneSignal(localStorage.getItem("userId"));
 
   useEffect(() => {
+    debugger
     const initializeOneSignal = async () => {
-      
       if (typeof window !== "undefined" && window.OneSignal) {
-        // Prevent multiple initializations
         if (window.OneSignal.isInitialized) {
           console.log("OneSignal is already initialized. Skipping initialization.");
           return;
@@ -193,19 +192,23 @@ const ChatPage = () => {
             allowLocalhostAsSecureOrigin: true,
           });
 
-          // Set flag to prevent re-initialization
           window.OneSignal.isInitialized = true;
           setIsOneSignalLoaded(true);
 
-          // Set External User ID
           const externalUserId = localStorage.getItem("userId");
           if (externalUserId) {
             await window.OneSignal.login(externalUserId);
             console.log("External User ID set to:", externalUserId);
           }
 
-          // Show push notification prompt
-          window.OneSignal.Slidedown.promptPush();
+          // Check if user is already subscribed
+          const isSubscribed = await window.OneSignal.isPushNotificationsEnabled();
+          if (!isSubscribed) {
+            console.log("User is not subscribed. Prompting for push notifications...");
+            window.OneSignal.Slidedown.promptPush();
+          } else {
+            console.log("User is already subscribed.");
+          }
         } catch (error) {
           console.error("Error initializing OneSignal:", error);
         }

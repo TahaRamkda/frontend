@@ -153,7 +153,9 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
         // Invoke the onSend callback with agenttemplatedetail
         if (onSend && typeof onSend === "function") {
           // Make a copy of the agenttemplatedetail object
-          const updatedTemplateDetail = { ...agenttemplatedetail };
+          const updatedTemplateDetail = { ...agenttemplatedetail,
+            ChatId: ChatId
+           };
 
           // Update the messageContent directly
           updatedTemplateDetail.bodyText = templateView;
