@@ -7,12 +7,13 @@ import {
   Button,
   Input,
 } from "reactstrap";
+import Loader from "@/components/Layout/Loader";
 import App from "@/components/Layout/App";
 import Agentsdrop from "@/components/Dropdowns/ActiveAgentsDropdown";
 import { Transferchat } from "@/slices/ConversationSlice";
 import Sweetalert from "sweetalert2";
 
-const TransferChat = ({ ChatId, onClose, isVisible ,SenderId ,oldAgentId}) => {
+const TransferChat = ({ ChatId, onClose, isVisible ,SenderId ,oldAgentId , refreshPage}) => {
   const dispatch = useDispatch();
   const { loading ,message} = useSelector((state) => state.conversations);
   const [agentId, setAgentId] = useState(0);
@@ -39,6 +40,7 @@ const TransferChat = ({ ChatId, onClose, isVisible ,SenderId ,oldAgentId}) => {
           text: "Chat transferred successfully!",
         });
         onClose(); // Close the modal
+        refreshPage()
       } else {
         Sweetalert.fire({
           icon: "error",
@@ -56,6 +58,7 @@ const TransferChat = ({ ChatId, onClose, isVisible ,SenderId ,oldAgentId}) => {
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
             <ModalHeader toggle={onClose}>Transfer Chat</ModalHeader>
+            {loading && <Loader />}
             <ModalBody>
               <form onSubmit={handleTransfer}>
               <div className="p-4 w-full h-full">

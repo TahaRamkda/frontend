@@ -453,7 +453,7 @@ const refreshPage = () => {
             ChatId={activeChat}
             SenderId={SenderId}
             oldAgentId={oldAgentId}
-            
+            refreshPage={refreshPage}
             isVisible={true}
             onClose={handleTransferCancel}
           />
