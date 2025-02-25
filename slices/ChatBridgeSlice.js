@@ -1,5 +1,5 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import {  ExpireTime_Message, ExpireTime_AssignedChat} from "@/utils/constants";
+import { createSlice, createAsyncThunk ,createSelector } from "@reduxjs/toolkit";
+import { ExpireTime_Message, ExpireTime_Message_TRY1,ExpireTime_Message_TRY2,ExpireTime_Message_TRY3,ExpireTime_Message_TRY4,ExpireTime_Message_TRY5, ExpireTime_AssignedChat} from "@/utils/constants";
 import {
   fetchConversationList,
   fetchConversationMessage,
@@ -35,20 +35,79 @@ export const getAgentMessages = createAsyncThunk(
   }
 );
 
+export const checkForExpiredConversations = createAsyncThunk(
+  "bridge/checkForExpiredConversations",
+  async (_, { getState }) => {
+    //debugger
+    const state = getState();
+    const currentTime = Date.now();
+    const expiredConversationIds = [];
+
+    const updatedConversations = state.bridge.conversations.map(
+      (conversation) => {
+        // Parse expireTime if it's an ISO date string
+        const expireTime =
+          typeof conversation.expireTime === "string"
+            ? Date.parse(conversation.expireTime)
+            : conversation.expireTime;
+
+        if (expireTime !== 0 && expireTime <= currentTime) {
+          const newRetryCount = (conversation.expireTryCount || 0) + 1;
+          let newExpireTime = 0; // Default to no further retries
+
+          switch (newRetryCount) {
+            case 1:
+              newExpireTime = currentTime + ExpireTime_Message_TRY1;
+              break;
+            case 2:
+              newExpireTime = currentTime + ExpireTime_Message_TRY2;
+              break;
+            case 3:
+              newExpireTime = currentTime + ExpireTime_Message_TRY3;
+              break;
+            case 4:
+              newExpireTime = currentTime + ExpireTime_Message_TRY4;
+              break;
+            case 5:
+              newExpireTime = currentTime + ExpireTime_Message_TRY5;
+              break;
+            default:
+              newExpireTime = currentTime;
+              break;
+          }
+
+          expiredConversationIds.push(conversation.id);
+
+          return {
+            ...conversation,
+            expireTryCount: newRetryCount,
+            expireTime: newExpireTime,
+          };
+        }
+        return conversation;
+      }
+    );
+
+    return   { expiredConversationIds, updatedConversations} ;
+  }
+);
+
+
 const bridgeSlice = createSlice({
   name: "bridge",
   initialState,
   reducers: {
     addConversation: (state, action) => {
-      debugger
       const newConversation = action.payload;
-      const existingConversation = state.conversations.find((c) => c.id === newConversation.id);
-      const currentTime = Date.now();
+      const existingConversation = state.conversations.find(c => c.id === newConversation.id);
+      //const currentTime = Date.now();
+      
       if (!existingConversation) {
-        state.conversations.unshift({ ...newConversation,
-           messages: newConversation.messages || [] ,
-           expiryTime: currentTime + 30 * 1000,
-          });
+        state.conversations.unshift({
+          ...newConversation,
+          messages: newConversation.messages || [],
+          //expiryTime: currentTime + ExpireTime_AssignedChat,
+        });
       }
     },
 
@@ -58,34 +117,47 @@ const bridgeSlice = createSlice({
     },
     
     addMessageToConversation: (state, action) => {
-      const conversationIndex = state.conversations.findIndex((c) => c.id === action.payload.id);
+      const { id, messageContent, typeId } = action.payload;
+      const conversation = state.conversations.find(c => c.id === id);
     
-      if (conversationIndex !== -1) {
-        // Extract the conversation
-        const conversation = state.conversations[conversationIndex];
+      if (conversation) {
+        // Update the last message text
+        conversation.lastMessageText = messageContent;
     
-        // Update the messages array and metadata
-        conversation.messages.unshift(action.payload); // Add message at the beginning
-        conversation.lastMessageText = action.payload.messageContent;
-    
-        if (action.payload.typeId === 2) {
-          conversation.unreadCount = (conversation.unreadCount || 0) + 1;
-          if(conversation.expiryTime === 0){
-            conversation.expiryTime = Date.now() + 5 * 60 * 1000;
-          }
-          
-        } else {
-          conversation.unreadCount = 0;
-          conversation.expiryTime = 0;
+        // Check if the messages array exists and is not empty
+        if (Array.isArray(conversation.messages) && conversation.messages.length > 0) {
+          // Add the new message to the beginning of the messages array
+          conversation.messages.unshift(action.payload);
         }
     
-        // Remove the conversation from its current position
-        state.conversations.splice(conversationIndex, 1);
+        // Update unread count and expireTime based on message type
+        if (typeId === 2) {
+          // Customer message
+          conversation.unreadCount = (conversation.unreadCount || 0) + 1;
+          if (!conversation.expireTime || conversation.expireTime === 0) {
+            conversation.expireTime = Date.now() + ExpireTime_Message;
+          }
+        } else {
+          // Agent message
+          conversation.unreadCount = 0;
+          conversation.expireTime = 0;
+        }
     
-        // Insert the updated conversation at the beginning of the array
-        state.conversations.unshift(conversation);
+        // Move the updated conversation to the top of the list
+        state.conversations = [
+          conversation,
+          ...state.conversations.filter(c => c.id !== id),
+        ];
       }
     },
+    
+    // getExpiredConversations: (state) => {
+    //   debugger
+    //   const currentTime = Date.now();
+    //   return state.conversations.filter(
+    //     (conversation) => conversation.expiryTime !== 0 && conversation.expiryTime <= currentTime
+    //   );
+    // },
     
   },
   extraReducers: (builder) => {
@@ -109,9 +181,37 @@ const bridgeSlice = createSlice({
         if (conversation) {
           conversation.messages = messages;
         }
-      });
+      })
+      .addCase(checkForExpiredConversations.fulfilled, (state, action) => {
+        
+        const {expiredConversationIds, updatedConversations} = action.payload;
+          state.expiredConversationIds = expiredConversationIds;
+          state.conversations = updatedConversations;
+        });
   },
 });
-export const { addConversation, addMessageToConversation ,removeConversation } = bridgeSlice.actions;
+
+//const selectConversations = (state) => state.bridge.conversations;
+
+// // Selector to get expired conversations
+// export const selectExpiredConversations = createSelector(
+  
+//   [selectConversations],
+//   (conversations) => {
+//     debugger
+//     const currentTime = Date.now();
+//     return conversations.filter(
+//       (conversation) =>
+//         conversation.expiryTime !== 0 && conversation.expiryTime <= currentTime
+//     );
+//   }
+// );
+
+export const selectExpiredConversations = (state) =>
+  state.bridge.conversations.filter((conversation) =>
+    state.bridge.expiredConversationIds.includes(conversation.id)
+  );
+
+export const { addConversation, addMessageToConversation ,removeConversation  } = bridgeSlice.actions;
 
 export default bridgeSlice.reducer;

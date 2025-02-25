@@ -3,7 +3,7 @@ import { Modal, ModalBody, Input, FormGroup, Label, Button } from "reactstrap";
 import { FaTimes } from "react-icons/fa";
 import TemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropdown";
 
-const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData }) => {
+const ButonAction = ({ isOpen, toggle, onSubmit, index, existingData }) => {
   const [actionType, setActionType] = useState(0);
   const [buttonValue, setButtonValue] = useState("");
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
@@ -106,4 +106,4 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData }) => {
   );
 };
 
-export default SimplePopup;
+export default ButonAction;
