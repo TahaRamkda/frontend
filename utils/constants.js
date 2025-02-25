@@ -14,22 +14,22 @@
   };
   
 
-  export const extractTime = (datetimeString) => {
-    const date = new Date(datetimeString);
-  
-    if (isNaN(date.getTime())) {
-      throw new Error("Invalid datetime string");
-    }
-  
-    let hours = date.getHours();
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    const period = hours >= 12 ? "PM" : "AM";
-  
-    hours = hours % 12 || 12; // Convert to 12-hour format; '0' becomes '12'
-  
-    return `${String(hours).padStart(2, "0")}:${minutes} ${period}`;
-  };
-  
+ export const extractTime = (datetimeString) => {
+  const date = new Date(datetimeString);
+
+  if (isNaN(date.getTime())) {
+    throw new Error("Invalid datetime string");
+  }
+
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const period = hours >= 12 ? "PM" : "AM";
+
+  hours = hours % 12 || 12; // Convert to 12-hour format; '0' becomes '12'
+
+  return `${String(hours).padStart(2, "0")}:${minutes} ${period}`;
+};
+
 
   //to refresh the api call every 5 minutes
 export const REFRESH_INTERVAL=1200000 ; // 5 minutes in milliseconds
@@ -40,7 +40,7 @@ export const HEARTBEAT_CHECK_INTERVAL=10000 ; // 5 minutes in milliseconds
 
 export const ExpireTime_AssignedChat=30000 ; // 30 Seconds
 export const ExpireTime_Message=300000 ;
-export const ExpireTime_Message_TRY1=60000 ; // 5 minutes in milliseconds
+export const ExpireTime_Message_TRY1=300000 ; // 5 minutes in milliseconds
 
 export const ExpireTime_Message_TRY2=240000 ;
 export const ExpireTime_Message_TRY3=180000 ;

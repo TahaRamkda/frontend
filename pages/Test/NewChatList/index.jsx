@@ -73,18 +73,14 @@ const ChatPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [tempMessages, setTempMessages] = useState([]);
   const dispatch = useDispatch();
-  const { conversationData,error,loading } = useSelector(
-    (state) => state.chatTest
-  );
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
   const { conversations } = useSelector(state => state.bridge);
   const {
     messages,
     currentPage,
     hasMore,
-    loading: messageLoading,
+    loading,
   } = useSelector((state) => state.conversations);
   const { AgentStats, loading: statsLoading } = useSelector(
     (state) => state.agents
@@ -145,7 +141,7 @@ const ChatPage = () => {
   useEffect(() => {
     // Handle expired conversations
     expiredConversations.forEach((conversation) => {
-
+    debugger
       audioRef.current
       ?.play()
       .catch((err) =>
@@ -153,7 +149,7 @@ const ChatPage = () => {
       );
       toast.error(`Person with Phone number : ${conversation.phoneNumber} is waiting for your reply.`);
     });
-  }, [expiredConversations, dispatch]);
+  }, [expiredConversations]);
 
 
  useEffect(() => {
@@ -194,7 +190,7 @@ const ChatPage = () => {
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
-        window.OneSignal.logout();
+        //window.OneSignal.logout();
         AgentConversation.map((item) => {
           //clearTimer(item.id);
         });
@@ -267,6 +263,7 @@ const ChatPage = () => {
           : "",
         createdDate: new Date().toLocaleString(),
       };
+      removeUnrepliedMark(templateDetails.ChatId);
        dispatch(addMessageToConversation(newMessage));
       //setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
     }
@@ -532,7 +529,7 @@ const ChatPage = () => {
 
     // Message received handler
     const handleIncomingMessage = (message) => {
-      
+      debugger
       audioRef.current
         ?.play()
         .catch((err) =>
@@ -588,7 +585,7 @@ const ChatPage = () => {
 
     // Handles conversation assignment
     const handleConversationAssigned = (notification) => {
-      
+      debugger
       audioRef.current
         ?.play()
         .catch((err) =>

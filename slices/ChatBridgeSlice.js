@@ -24,7 +24,7 @@ export const getAgentConversations = createAsyncThunk(
 export const getAgentMessages = createAsyncThunk(
   "bridge/getAgentMessages",
   async (conversationId, { dispatch, getState }) => {
-    
+    debugger
     const { bridge } = getState();
     const conversation = bridge.conversations.find(c => c.id === conversationId);
     if (conversation && conversation.messages?.length > 0) {
@@ -38,7 +38,7 @@ export const getAgentMessages = createAsyncThunk(
 export const checkForExpiredConversations = createAsyncThunk(
   "bridge/checkForExpiredConversations",
   async (_, { getState }) => {
-    //debugger
+    debugger
     const state = getState();
     const currentTime = Date.now();
     const expiredConversationIds = [];
@@ -51,7 +51,7 @@ export const checkForExpiredConversations = createAsyncThunk(
             ? Date.parse(conversation.expireTime)
             : conversation.expireTime;
 
-        if (expireTime !== 0 && expireTime <= currentTime) {
+        if (expireTime !== 0 && expireTime <= currentTime && conversation.expireType !==0) {
           const newRetryCount = (conversation.expireTryCount || 0) + 1;
           let newExpireTime = 0; // Default to no further retries
 
@@ -118,14 +118,19 @@ const bridgeSlice = createSlice({
     },
     
     addMessageToConversation: (state, action) => {
-      
-      const { id, messageContent, typeId } = action.payload;
+      const { id, messageContent, typeId, createdDate } = action.payload;
       const conversation = state.conversations.find(c => c.id === id);
     
       if (conversation) {
-        // Update the last message text
+        // Initialize expireTime if it's undefined
+        if (conversation.expireTime === undefined) {
+          conversation.expireTime = 0;
+        }
+    
+        // Update the last message text and updated date
         conversation.lastMessageText = messageContent;
-        conversation.updatedDate= action.payload.createdDate;
+        conversation.updatedDate = createdDate;
+    
         // Check if the messages array exists and is not empty
         if (Array.isArray(conversation.messages) && conversation.messages.length > 0) {
           // Add the new message to the beginning of the messages array
@@ -136,13 +141,19 @@ const bridgeSlice = createSlice({
         if (typeId === 2) {
           // Customer message
           conversation.unreadCount = (conversation.unreadCount || 0) + 1;
-          if (!conversation.expireTime || conversation.expireTime === 0) {
+          if (conversation.expireTime === 0) {
+            conversation.expireType = 1
+            conversation.expireTime = Date.now() + ExpireTime_Message;
+          }
+          else if (conversation.expireTime && conversation.expireType === 0 ){
+            conversation.expireType = 1
             conversation.expireTime = Date.now() + ExpireTime_Message;
           }
         } else {
           // Agent message
           conversation.unreadCount = 0;
           conversation.expireTime = 0;
+          conversation.expireType = 0;
         }
     
         // Move the updated conversation to the top of the list
@@ -150,16 +161,10 @@ const bridgeSlice = createSlice({
           conversation,
           ...state.conversations.filter(c => c.id !== id),
         ];
+        console.log("Added message to conversation:", state.conversations);
       }
     },
     
-    // getExpiredConversations: (state) => {
-    //   debugger
-    //   const currentTime = Date.now();
-    //   return state.conversations.filter(
-    //     (conversation) => conversation.expiryTime !== 0 && conversation.expiryTime <= currentTime
-    //   );
-    // },
     
   },
   extraReducers: (builder) => {
@@ -193,21 +198,6 @@ const bridgeSlice = createSlice({
   },
 });
 
-//const selectConversations = (state) => state.bridge.conversations;
-
-// // Selector to get expired conversations
-// export const selectExpiredConversations = createSelector(
-  
-//   [selectConversations],
-//   (conversations) => {
-//     debugger
-//     const currentTime = Date.now();
-//     return conversations.filter(
-//       (conversation) =>
-//         conversation.expiryTime !== 0 && conversation.expiryTime <= currentTime
-//     );
-//   }
-// );
 
 export const selectExpiredConversations = (state) =>
   state.bridge.conversations.filter((conversation) =>
