@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import showSweetAlert from "@/components/Sweetalert";
 import OneSignal from "react-onesignal";
 //import { ClipboardCopy } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,6 +15,7 @@ import {
 } from "react-icons/fa";
 
 import UserBadge from "@/public/images/User.jpg";
+import AgentStatusDropdown from "@/components/Dropdowns/AgentStatusDropdown";
 import Link from "next/link";
 import { MdOutlineTimer } from "react-icons/md";
 import { AiOutlineHourglass } from "react-icons/ai";
@@ -41,7 +43,7 @@ import {
   NewAgentMessage,
 } from "@/slices/ConversationSlice";
 import SweetAlert from "sweetalert2";
-import { fetchAgentStats, cleaAgentStats } from "@/slices/AgentSlice";
+import { fetchAgentStats, cleaAgentStats, setAgentStatus } from "@/slices/AgentSlice";
 import * as signalR from "@microsoft/signalr";
 import DefinedTemplates from "../AgentDefinedTemplate";
 import { toast } from "react-toastify";
@@ -613,12 +615,12 @@ const ChatPage = () => {
     };
 
     const handleConnected = (info) => {
-      debugger
+      
       console.log(info);
     };
 
     const handleDisconnect = (info) => {
-      debugger
+      
       console.log(info);
     };
 
@@ -777,6 +779,19 @@ const ChatPage = () => {
       .catch((error) => console.error("Download failed", error));
   };
 
+  const HandleAgentStatus = (e) => {
+    const StatusId = e.target.value;
+    setChatsloading(true);
+   const response = dispatch(setAgentStatus({ agentId: UserId, statusId: StatusId }));
+   if(response){
+    showSweetAlert({
+      title: "Status Set Successfully",
+      text: "",
+      icon: "success",
+    });
+   }
+  };
+
   return (
     <>
       <div className="flex flex-wrap items-center justify-between bg-gray-900 p-4 rounded shadow-md space-x-4">
@@ -788,13 +803,26 @@ const ChatPage = () => {
           </Head>
           <div className="flex justify-between items-center headerchatmenu">
             {/* Logo Section on the Left Side */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 gap-5">
               <img
                 className="m-l-10 h-10 w-auto"
                 src="/images/logo/Loader.svg"
                 alt="Logo"
               />
+              <div className="grid grid-cols-3  items-center  ">
+                    <div className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
+                    <label htmlFor="agentStatusId">Select Agent Status : </label>
+                    </div>
+                    <div className="col-span-2">
+                    <AgentStatusDropdown onChange={HandleAgentStatus} name={'agentStatusId'}/>
+                    </div>
+                    
+                    </div>
             </div>
+            
+                  
+                
+           
 
             {/* Action Buttons Section on the Right Side */}
             <div className="">

@@ -98,6 +98,7 @@ const bridgeSlice = createSlice({
   initialState,
   reducers: {
     addConversation: (state, action) => {
+      
       const newConversation = action.payload;
       const existingConversation = state.conversations.find(c => c.id === newConversation.id);
       //const currentTime = Date.now();
@@ -112,7 +113,7 @@ const bridgeSlice = createSlice({
     },
 
     removeConversation: (state, action) => {
-     debugger
+     
       state.conversations = state.conversations.filter((c) => c.id !== action.payload);
     },
     

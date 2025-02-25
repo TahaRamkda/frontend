@@ -857,18 +857,21 @@ const InteractiveTemplateUpdate = () => {
                     </div>
 
                     <div className="">
-                      <FormGroup>
-                        <Label for="footer" className="text-sm font-semibold">
-                          Footer
-                        </Label>
-                        <Field
-                          as={Input}
-                          name="footer"
-                          placeholder="Add footer text"
-                          className="form-control"
-                          maxLength="50"
-                        />
-                      </FormGroup>
+                      { interactivetemplatedetail.footerText && (
+ <FormGroup>
+ <Label for="footer" className="text-sm font-semibold">
+   Footer
+ </Label>
+ <Field
+   as={Input}
+   name="footer"
+   placeholder="Add footer text"
+   className="form-control"
+   maxLength="50"
+ />
+</FormGroup>
+                      )}
+                     
                       {/* Button dropdown */}
                       <Dropdown
                         isOpen={dropdownOpen}

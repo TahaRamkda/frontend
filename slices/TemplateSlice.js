@@ -108,15 +108,18 @@ export const fetchTemplatesDrop = createAsyncThunk(
 // Fetch Template by ID
 export const fetchTemplatesById = createAsyncThunk(
   "template/fetchTemplatesById",
+ 
   async ({ templateId, ClientId }, { rejectWithValue }) => {
     
     
     try {
+      
       debugger
       const response = await API.get(
         `${TEMPLATEDETAILS}?Id=${templateId}`
       );
       return response.data.result;
+      
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -275,6 +278,7 @@ const templateSlice = createSlice({
       state.totalRecords = 0;
     },
     clearTemplateDetailState: (state) => {
+      
       state.template = null;
       state.loading = false;
       state.error = null;
@@ -355,6 +359,7 @@ const templateSlice = createSlice({
 
       // Fetch Template by ID
       .addCase(fetchTemplatesById.pending, (state) => {
+        
         state.loading = true;
         state.error = null;
       })
@@ -365,6 +370,7 @@ const templateSlice = createSlice({
         state.message = action.payload?.message || "";
       })
       .addCase(fetchTemplatesById.rejected, (state, action) => {
+        
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;

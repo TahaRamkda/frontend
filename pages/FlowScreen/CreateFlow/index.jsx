@@ -4,11 +4,10 @@ import { createAgent, clearAgentCreateState } from "@/slices/AgentSlice"; // Ass
 import showSweetAlert from "@/components/Sweetalert"; // Import your SweetAlert utility
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Table, Input } from "reactstrap";
 import { useRouter } from "next/navigation";
-import ChatReasonDropdown from "@/components/MultiSelect/ChatReasonDropdown";
 import App from '@/components/Layout/App';
 import SendernameDropdown from "@/components/MultiSelect/SendernameDropdown";
 
-const AgentsForm = ({ onClose, isVisible, onsuccess }) => {
+const FlowForm = ({ onClose, isVisible, onsuccess }) => {
   const [selectedSenderId, setSelectedSenderId] = useState("");
   const [formData, setFormData] = useState({
     userName: "",
@@ -19,7 +18,6 @@ const AgentsForm = ({ onClose, isVisible, onsuccess }) => {
     agentLNameAR: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [ChatRason, SetChatReason] = useState(0);
 
   const dispatch = useDispatch();
   const router = useRouter();
@@ -39,13 +37,6 @@ const AgentsForm = ({ onClose, isVisible, onsuccess }) => {
       setSelectedSenderId(value);
     }
   };
-  const HandleChatReason = (value) => {
-    if (Array.isArray(value)) {
-      SetChatReason(value.join(",")); // Join the array into a comma-separated string
-    } else {
-      SetChatReason(value);
-    }
-  };
   const handleSubmit = async (e) => {
 
     e.preventDefault();
@@ -56,7 +47,6 @@ const AgentsForm = ({ onClose, isVisible, onsuccess }) => {
       actionBy: localStorage.getItem("userId"),
       clientId: localStorage.getItem("clientId"),
       senderIds: selectedSenderId,
-      chatReasonIds: ChatRason
     };
 
     try {
@@ -98,10 +88,6 @@ const AgentsForm = ({ onClose, isVisible, onsuccess }) => {
                 <div>
                   <label className="font-medium text-gray-700 text-sm">Sender Name</label>
                   <SendernameDropdown name="senderIds" value={formData.senderIds} onChange={handleSenderChange} />
-                </div>
-                <div>
-                  <label className="font-medium text-gray-700 text-sm">Chat Reason</label>
-                  <ChatReasonDropdown name="agentTagsDropdown" value={formData.chatReasons} onChange={HandleChatReason} />
                 </div>
                 <div>
                   <label className="font-medium text-gray-700 text-sm">First Name</label>
@@ -194,4 +180,4 @@ const AgentsForm = ({ onClose, isVisible, onsuccess }) => {
   );
 };
 
-export default AgentsForm;
+export default FlowForm;

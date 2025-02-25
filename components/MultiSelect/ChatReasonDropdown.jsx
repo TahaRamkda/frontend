@@ -2,38 +2,44 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
 import Loader from '../Layout/Loader';
-import { fetchAgentsDrop } from '@/slices/AgentSlice';
+import { fetchMasterData  } from '@/slices/AgentSlice';
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
-const AgentsDropdown = ({ name, value, onChange }) => {
+const ChatReasonDropdown = ({ name, value, onChange, existingdata }) => {
   const dispatch = useDispatch();
-  const { agentTagsDropdown, loading, error } = useSelector((state) => state.agents);
-  const [selectedAgentId, setSelectedAgentId] = useState([]);
-  const [searchString, setSearchString] = useState('');
+  const { masterData, loading, error } = useSelector((state) => state.agents);
+  const [selectedId, setSelectedId] = useState([]);
+  
   const [senderId, setSenderId] = useState(0);
+  
 
-  // Effect to fetch agents when search string or senderId changes
+  // Effect to fetch agents when search string or senderId changes                                                                             
   useEffect(() => {
-    dispatch(fetchAgentsDrop({ clientId: localStorage.getItem("clientId"), searchStr: searchString, senderId: senderId }));
-  }, [dispatch, searchString, senderId]);
+    dispatch(fetchMasterData({ type: 'ChatReason' }));
+  }, [dispatch]);
 
   // Effect to notify parent component when selected agent changes
   useEffect(() => {
     if (onChange) {
-      onChange(selectedAgentId);
+      onChange(selectedId);
     }
-  }, [selectedAgentId, onChange]);
+  }, [selectedId, onChange]);
 
+   useEffect(() => {
+        if(existingdata){
+          setSelectedId(existingdata || [])
+        }
+      }, [existingdata]);
   // Mapping the fetched agent data into the format that react-select expects
-  const Options = agentTagsDropdown?.map(agent => ({
-    value: agent.id,
-    label: agent.name
+  const Options = masterData.map(reason => ({
+    value: reason.id,
+    label: reason.name,
   })) || [];
 
   // Handle when selection changes
   const handleSelectChange = (selectedOptions) => {
     const selectedIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
-    setSelectedAgentId(selectedIds);
+    setSelectedId(selectedIds);
   };
 
   if (loading) return <Loader />;
@@ -42,9 +48,9 @@ const AgentsDropdown = ({ name, value, onChange }) => {
   return (
     <div>
       <Select
-        id="agentTagsSelect"
+        id="reasonSelect"
         name={name}
-        value={Options.filter(option => selectedAgentId.includes(option.value))}
+        value={Options.filter(option => selectedId.includes(option.value))}
         onChange={handleSelectChange}
         options={Options}
         isMulti
@@ -58,4 +64,4 @@ const AgentsDropdown = ({ name, value, onChange }) => {
   );
 };
 
-export default AgentsDropdown;
+export default ChatReasonDropdown;

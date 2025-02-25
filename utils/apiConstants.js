@@ -79,8 +79,8 @@ export const MESSAGESUMMARY = "/ApiMessage/getapimessagelist";
 export const MESSAGEREPORT = "/MessageSentLog/getmessagesentloglist";
 export const TEMPLATEINSIGHT = "/Dashboard/gettemplateinsight";
 export const CHATSMONITOR ="/Conversation/getconversationreportlist";
-export const CHATREPORTSTATS = "/Conversation/getconversationstatistics"
-export const CHATREPORTLOGS = "/Conversation/getconversationlogslist"
+export const CHATREPORTSTATS = "/Conversation/getconversationstatistics";
+export const CHATREPORTLOGS = "/Conversation/getconversationlogslist";
 export const AGENTSMONITOR ="/Agents/getagentsupervisorreport";
 export const AGENTREPORT = "/Agents/getagentdetailsupervisorreport";
 
@@ -96,24 +96,26 @@ export const AGENTDROPDOWN = "/Agents/getagents";
 export const GETAGENTSTATS = "/Agents/GetAgentStats";
 export const ACTIVEAGENTS = "/Agents/getactiveagents";
 export const AGENTSHIFTBULKUPLOAD = "/Agents/importbulkagenttimings";
+export const MASTERDATA = "/getmasterdatalist";
+export const AGENTSTATUS = "/Agents/setagentstatus";
 
 
 // Agents Shift
-export const AGENTSSHIFT = "#"
-export const CREATEAGENTSHIFT = "#"
-export const AGENTSHIFTDETAILS = "#"
-export const UPDATEAGENTSHIFT = "#"
-export const DELETEAGENTSHIFT = "#"
+export const AGENTSSHIFT = "#";
+export const CREATEAGENTSHIFT = "#";
+export const AGENTSHIFTDETAILS = "#";
+export const UPDATEAGENTSHIFT = "#";
+export const DELETEAGENTSHIFT = "#";
 
 // Agents Perfomance
-export const AGENTPERFORMANCE = "#"
+export const AGENTPERFORMANCE = "#";
 //convesration <Endpoints></Endpoints>
 export const CONVERSATIONLIST = "/Conversation/getagentconversationlist";
 export const CONVERSATIONMESSAGE = "/Conversation/getconversationmessagebyid";
 export const AGENTMESSAGE = "/Message/sendagentmessage";
 export const TRANSFERCHAT = "/Conversation/transferconversationtoagent";
-export const AGENTDISABLE = "/Agents/setagentdisable"
-export const CONVERSATIONREPORT ="/Conversation/getconversationdetailreportlist"
+export const AGENTDISABLE = "/Agents/setagentdisable";
+export const CONVERSATIONREPORT ="/Conversation/getconversationdetailreportlist";
 
 //MasterSlice Endpoints
 export const TEMPLATECATEGORY = "/Templates/gettemplatecategories";
@@ -128,10 +130,18 @@ export const SENDAGENTINTERACTIVETEMPLATLIS = "/Message/sendagentinteractivemess
 
 
 // Export Excel Endpoints
-export const EXCELEXPORTCHATREPORT = "/Conversation/getexportconversationdetailreportlist"
-export const EXCELEXPORTCHATMONITOR = "/Conversation/exportconversationreportlist"
-export const EXCELEXPORTAGENTMONITOR = "/Agents/exportagentsupervisorreport"
-export const EXCELEXPORTAGENTREPORT = "/Agents/getexportagentdetailsupervisorreport"
+export const EXCELEXPORTCHATREPORT = "/Conversation/getexportconversationdetailreportlist";
+export const EXCELEXPORTCHATMONITOR = "/Conversation/exportconversationreportlist";
+export const EXCELEXPORTAGENTMONITOR = "/Agents/exportagentsupervisorreport";
+export const EXCELEXPORTAGENTREPORT = "/Agents/getexportagentdetailsupervisorreport";
 
 // close chat template By supervisor
-export const SENDCLOSECHATTEMPLATE = "/Conversation/closechatbysupervisor"
+export const SENDCLOSECHATTEMPLATE = "/Conversation/closechatbysupervisor";
+
+// flows
+export const FLOWSLIST = "#";
+export const CREATEFLOW = "#";
+export const FLOWDETAILS = "#";
+export const UPDATEFLOW = "#";
+export const DELETEFLOW = "#";
+export const FLOWDROPDOWN = "#";

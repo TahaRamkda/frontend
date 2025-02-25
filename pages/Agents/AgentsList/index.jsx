@@ -6,6 +6,7 @@ import Loading from "@/components/Layout/Loader";
 import { Formik } from "formik";
 import dynamic from "next/dynamic";
 import { useDispatch, useSelector } from "react-redux";
+import chatReasonDropdown from "@/components/MultiSelect/ChatReasonDropdown";
 import {
   fetchAgents,
   cleaAgentState,
@@ -35,6 +36,7 @@ import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 import AgentsForm from "../CreateAgents";
 import App from "@/components/Layout/App";
 import SearchBar from "@/components/SearchBar/SearchComponent";
+import ChatReasonDropdown from "@/components/MultiSelect/ChatReasonDropdown";
 //import AgentTiming from "../AgentsTiming/index";
 const AgentTiming = dynamic(() => import("../AgentsTiming"), { ssr: false });
 const AgentsList = () => {
@@ -62,11 +64,13 @@ const AgentsList = () => {
   const [AgentLastName, setAgentLastName] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [AgentId, setAgentId] = useState(null);
+  const [chatReasonIds, SetAgentChatReasonId] = useState(null);
   const [filterText, setFilterText] = useState("");
   const [showagenttiming, setshowagenttiming] = useState("");
   const [FieldValue, setFieldValue] = useState(null); // Track uploaded file URL
   const [CreateModalOpen, setCreateModalOpen] = useState("");
   const [existinSenderId, setexistingSenderId] = useState([]);
+  const [existingChatReasonId, SetExistingChatReasonId] = useState([]);
 
   const agentColumn = [
     { name: "User Name", selector: (row) => row.userName, sortable: true },
@@ -100,7 +104,7 @@ const AgentsList = () => {
             <button
               onClick={() => handleDetailClick(row.id)}
               title="Edit Agent"
-              className="uniform_icon_btn "
+              className="uniform_icon_btn"
             >
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
@@ -118,7 +122,7 @@ const AgentsList = () => {
             >
               <HiTrash style={{ fontSize: "15px" }} />
             </button>
-          </div>{" "}
+          </div>
         </>
       ),
     },
@@ -128,11 +132,13 @@ const AgentsList = () => {
     if (agent) {
       setagentForm(agent);
       setexistingSenderId(
-        agent.senderIds.replace(/['"]+/g, "").split(",").map(Number)
+        agent.senderIds?.replace(/['"]+/g, "").split(",").map(Number)
+      );
+      SetExistingChatReasonId(
+        agent.chatReasonIds?.replace(/['"]+/g, "").split(",").map(Number)
       );
     }
   }, [dispatch, agent]);
-
   const handleDetailClick = async (agentId) => {
     try {
       // Dispatch the action to fetch agent by ID
@@ -179,6 +185,7 @@ const AgentsList = () => {
     });
   };
 
+
   const handleTime = (agentId) => {
     setAgentId(agentId.id);
     setAgentFirstName(agentId.agentFName);
@@ -208,12 +215,15 @@ const AgentsList = () => {
     setshowagenttiming(false);
   };
   const handleDropdownChange = (selectedValues) => {
-    setagentForm({ ...agentForm, senderIds: selectedValues.join(",") }); // Join selected values back into a comma-separated string
+    setagentForm({ ...agentForm, senderIds: selectedValues.join(",") });
   };
+  const HandleChatReasonChange = (selectedValues) => {
+    setagentForm({ ...agentForm, chatReasonIds: selectedValues.join(",") });
+  };
+
   const handlePageChange = async (page) => {
     // Update current page state in Redux
     dispatch(setCurrentPage(page));
-
     // Fetch clients for the new page
     await dispatch(
       fetchAgents({
@@ -251,6 +261,7 @@ const AgentsList = () => {
         userName: agentForm.userName || "",
         password: agentForm.password || "",
         agentFName: agentForm.agentFName || "",
+        chatReasonIds: agentForm.chatReasonIds || "",
         agentLName: agentForm.agentLName || "",
         agentFNameAR: agentForm.agentFNameAR || "",
         agentLNameAR: agentForm.agentLNameAR || "",
@@ -502,6 +513,19 @@ const AgentsList = () => {
                       existingdata={existinSenderId}
                     />
                   </div>
+                  <div>
+                    <label className="font-medium text-gray-700 text-sm">
+                      Chat Reason
+                    </label>
+                    <ChatReasonDropdown
+                      name="chatReasonIds"
+                      // Ensure senderIds is split into an array for multi-select
+                      value={agentForm.chatReasonIds || []} // Split string to array
+                      onChange={(value) => HandleChatReasonChange(value)} // Handle value change
+                      className="border rounded py-1 px-2 w-full text-sm"
+                      existingdata={existingChatReasonId}
+                    />
+                  </div> 
                   <div>
                     <label className="font-medium text-gray-700 text-sm">
                       First Name Arabic

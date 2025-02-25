@@ -104,7 +104,7 @@ const ChatsMonitor = () => {
   };
   const HandleCloseChat = async (ChatId) => {
     try {
-      debugger
+      
       const result = await SweetAlert.fire({
         title: "Are you sure you want to close this chat?",
         text: "",
@@ -374,7 +374,7 @@ const refreshPage = () => {
   return (
     <App>
       <div className="flex items-center">
-        {ChatLoading && <Loading />}
+        {ChatLoading && loading && <Loading />}
         <div className="">
           <h4 className="font-bold ">Chats Monitor</h4>
         </div>
