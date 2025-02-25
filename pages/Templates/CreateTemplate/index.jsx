@@ -1540,6 +1540,7 @@ const TemplateCreationPage = () => {
         toggle={togglePopup}
         onSubmit={handleSaveActionData}
         index={buttonindex}
+        SenderId={selectedSenderId}
         existingData={actionbuttonvalues}
       />
     </App>

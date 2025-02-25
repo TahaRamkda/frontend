@@ -261,6 +261,7 @@ const refreshPage = () => {
   const handleTransferClick = async (id, SenderId, oldAgentId) => {
     setActiveChat(id);
     setSenderId(SenderId);
+    setChatLoading(true)
     setoldAgentId(oldAgentId);
     setshowtransfer(true);
   };

@@ -43,6 +43,7 @@ export const UPDATETEMPLATE = "/Templates/updatetemplate";
 export const UPDATEINTERACTIVETEMPLATE = "/InteractiveTemplates/updateinteractivetemplate";
 export const DELETETEMPLATE = "/Templates/deletetemplate";
 export const TEMPLATEDROPDOWN = "/Templates/gettemplates";
+export const INTERACTIVETEMPLATEDROPWITHOUTPARAM = "/InteractiveTemplates/getinteractivetemplatewithoutparams";
 //Role endpoints
 export const ROLELIST = "/Role/getRolelist";
 export const ROLEDETAILS = "/Role/getRolebyid";
