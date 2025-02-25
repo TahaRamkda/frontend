@@ -172,6 +172,7 @@ const CampaignsList = () => {
     await dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize: newSize, PageNo: 1 }));
   };
 
+  
   const handlePageChange = async (page) => {
     setcampaignloading(true)
     dispatch(setCurrentPage(page));
@@ -335,6 +336,7 @@ const CampaignsList = () => {
           <DateTimePicker
               label="To Date"
               value={ToDate}
+              minDate={FromDate}
               onChange={setToDate}
             />
           </div>

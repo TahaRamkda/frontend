@@ -256,6 +256,7 @@ const TemplateList = () => {
           <DateTimePicker
               label="To Date"
               value={toDate}
+              minDate={FromDate}
               onChange={settoDate}
             />
           </div>

@@ -126,6 +126,7 @@ const TemplateInsight = () => {
           <DateTimePicker
               label="To Date"
               value={toDate}
+              minDate={fromDate}
               onChange={handleDateChange(setToDate)}
             />
           </div>

@@ -124,6 +124,7 @@ const Messagereports = () => {
           <DateTimePicker
               label="To Date"
               value={toDate}
+              minDate={fromDate}
               onChange={setToDate}
             />
           </div>

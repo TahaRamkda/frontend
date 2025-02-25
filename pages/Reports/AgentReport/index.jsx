@@ -228,6 +228,7 @@ const AgentReport = () => {
                         <DateTimePicker
                             label="To Date"
                             value={ToDate}
+                            minDate={FromDate}
                             onChange={setToDate}
                         />
                     </div>

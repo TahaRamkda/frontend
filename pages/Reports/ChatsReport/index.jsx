@@ -65,16 +65,12 @@ const ChatsReport = () => {
       .toISOString()
       .split("T")[0];
   };
-
-  const getMonthEnd = () => {
+  const getToday = () => {
     const date = new Date();
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0)
-      .toISOString()
-      .split("T")[0];
+    return date.toISOString().split("T")[0];
   };
-  
   const [FromDate, setFromDate] = useState(getMonthStart());
-  const [ToDate, setToDate] = useState(getMonthEnd());
+  const [ToDate, setToDate] = useState(getToday());
   const [modalOpen, SetModalOpen] = useState(false);
   const [SenderId, setSenderId] = useState(0);
   const [oldAgentId, setoldAgentId] = useState(0);
@@ -433,6 +429,7 @@ const ChatsReport = () => {
             <DateTimePicker
               label="To Date"
               value={ToDate}
+              minDate={FromDate}
               onChange={setToDate}
             />
           </div>

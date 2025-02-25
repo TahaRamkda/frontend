@@ -225,6 +225,7 @@ useEffect(() => {
             <DateTimePicker
               label="To Date"
               value={toDate}
+              minDate={fromDate}
               onChange={handletoDateChange(settoDate)}
             />
           </div>
