@@ -109,6 +109,7 @@ const ChatPage = () => {
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const isManualScroll = useRef(false);
   const audioRef = useRef(null);
+  const audioRef2 = useRef(null);
   const scrollContainerRef = useRef(null);
   const messagesEndRef = useRef(null);
   const timersRef = useRef({});
@@ -143,12 +144,24 @@ const ChatPage = () => {
     // Handle expired conversations
     expiredConversations.forEach((conversation) => {
     debugger
-      audioRef.current
-      ?.play()
-      .catch((err) =>
-        console.error("Failed to play notification sound:", err)
-      );
-      toast.error(`Person with Phone number : ${conversation.phoneNumber} is waiting for your reply.`);
+    
+      if(conversation.expireType === 1){
+        audioRef.current
+        ?.play()
+        .catch((err) =>
+          console.error("Failed to play notification sound:", err)
+        );
+        toast.error(`Chat with Phone number : ${conversation.phoneNumber} is waiting for your reply.`);
+      }
+      else if (conversation.expireType === 2){
+        audioRef.current
+        ?.play()
+        .catch((err) =>
+          console.error("Failed to play notification sound:", err)
+        );
+        toast.error(`Person with Phone number : ${conversation.phoneNumber} is waiting for your reply.`);
+      }
+     
     });
   }, [expiredConversations]);
 
@@ -164,6 +177,9 @@ const ChatPage = () => {
   useEffect(() => {
     // Initialize the audio object only once
     audioRef.current = new Audio("/assets/Notification/chatassigned.mp3");
+    
+    audioRef2.current = new Audio("/assets/Notification/alertsound.mp3");
+
   }, []);
 
   const handleTemplateSend = (details) => {
@@ -357,39 +373,39 @@ const ChatPage = () => {
     setMessageInput((prevMessage) => prevMessage + emoji);
   };
 
-  const handleScroll = () => {
-    if (!hasMore || loading) return;
+  // const handleScroll = () => {
+  //   if (!hasMore || loading) return;
 
-    const container = scrollContainerRef.current;
-    const buffer = 10; // Trigger API call 100px before reaching the top
+  //   const container = scrollContainerRef.current;
+  //   const buffer = 10; // Trigger API call 100px before reaching the top
 
-    // Detect upward scrolling and proximity to the top
-    const currentScrollTop = container.scrollTop;
-    if (
-      currentScrollTop < lastScrollTop.current && // Scrolling up
-      currentScrollTop <= buffer // Within 100px of the top
-    ) {
-      // Fetch older chats when scrolling up near the top
-      dispatch(
-        fetchConversationMessage({
-          clientId: localStorage.getItem("clientId"),
-          ChatId: Activechat,
-          pageNo: currentPage + 1,
-        })
-      );
-    }
+  //   // Detect upward scrolling and proximity to the top
+  //   const currentScrollTop = container.scrollTop;
+  //   if (
+  //     currentScrollTop < lastScrollTop.current && // Scrolling up
+  //     currentScrollTop <= buffer // Within 100px of the top
+  //   ) {
+  //     // Fetch older chats when scrolling up near the top
+  //     dispatch(
+  //       fetchConversationMessage({
+  //         clientId: localStorage.getItem("clientId"),
+  //         ChatId: Activechat,
+  //         pageNo: currentPage + 1,
+  //       })
+  //     );
+  //   }
 
-    // Update last scroll position
-    lastScrollTop.current = currentScrollTop;
-  };
+  //   // Update last scroll position
+  //   lastScrollTop.current = currentScrollTop;
+  // };
 
-  useEffect(() => {
-    if (Activechat !== 0) {
-      const container = scrollContainerRef.current;
-      container.addEventListener("scroll", handleScroll);
-      return () => container.removeEventListener("scroll", handleScroll);
-    }
-  }, [currentPage, hasMore,loading, Activechat]);
+  // useEffect(() => {
+  //   if (Activechat !== 0) {
+  //     const container = scrollContainerRef.current;
+  //     container.addEventListener("scroll", handleScroll);
+  //     return () => container.removeEventListener("scroll", handleScroll);
+  //   }
+  // }, [currentPage, hasMore,loading, Activechat]);
 
   const handleImageclose = () => {
     setMediaFile(null);

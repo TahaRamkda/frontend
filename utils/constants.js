@@ -38,8 +38,10 @@ export const NOTIFICATION_WARNING_INTERVAL=28800000  ; // 5 minutes in milliseco
 
 export const HEARTBEAT_CHECK_INTERVAL=10000 ; // 5 minutes in milliseconds
 
-export const ExpireTime_AssignedChat=30000 ; // 30 Seconds
-export const ExpireTime_Message=300000 ;
+export const ExpireTime_AssignedChat=60000 ; // 30 Seconds
+export const ExpireTime_AssignedChat_TRY1=180000 ;
+export const ExpireTime_AssignedChat_TRY2=180000 ;
+export const ExpireTime_Message=120000 ;
 export const ExpireTime_Message_TRY1=300000 ; // 5 minutes in milliseconds
 
 export const ExpireTime_Message_TRY2=240000 ;
