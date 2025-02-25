@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Modal, ModalBody, Input, FormGroup, Label, Button } from "reactstrap";
 import { FaTimes } from "react-icons/fa";
-import TemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropWithoutParam";
+import InteractiveTemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropWithoutParam";
 
 const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }) => {
   const [actionType, setActionType] = useState(0);
@@ -77,7 +77,7 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }
         {(actionType === 1 || actionType === "1") && (
           <FormGroup>
             <Label for="templateDropdown">Select Template</Label>
-            <TemplateDropdown
+            <InteractiveTemplateDropdown
               id="templateDropdown"
               value={selectedTemplateId}
               onChange={handleTemplateChange}
@@ -107,4 +107,4 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }
   );
 };
 
-export default ButonAction;
+export default SimplePopup;
