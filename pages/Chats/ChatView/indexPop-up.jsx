@@ -195,7 +195,7 @@ const Chatview = ({ ChatId, onClose, isVisible, PhNo, CustomerName }) => {
                           {message.agentName && message.typeId === 1
                             ? `by-${message.agentName} `
                             : ""}
-                          {extractTime(message.createdDate).slice(0, 5)}
+                          {extractTime(message.createdDate)}
                         </span>
                       </div>
 
