@@ -78,7 +78,7 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }
           <FormGroup>
             <Label for="templateDropdown">Select Template</Label>
             <InteractiveTemplateDropdown
-              id="InteractiveTemplateDropdown"
+              id="templateDropdown"
               value={selectedTemplateId}
               onChange={handleTemplateChange}
               TransactionType="0"
@@ -107,4 +107,4 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }
   );
 };
 
-export default ButonAction;
+export default SimplePopup;
