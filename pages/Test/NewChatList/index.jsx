@@ -73,8 +73,8 @@ const ChatPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [tempMessages, setTempMessages] = useState([]);
   const dispatch = useDispatch();
-  const { conversationData,error,loading } = useSelector(
-    (state) => state.chatTest
+  const { loading } = useSelector(
+    (state) => state.bridge
   );
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);

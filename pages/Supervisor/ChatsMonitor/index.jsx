@@ -103,6 +103,7 @@ const ChatsMonitor = () => {
     SetAgentId(agentId);
   };
   const HandleCloseChat = async (ChatId) => {
+    setChatLoading(true)
     try {
       
       const result = await SweetAlert.fire({
@@ -116,8 +117,6 @@ const ChatsMonitor = () => {
         cancelButtonText: "Cancel",
       });
       if (result.isConfirmed) {
-        
-  
         const response = await dispatch(SupervisorCloseChat(ChatId)).unwrap();
   
         if (response.success) {
@@ -259,6 +258,7 @@ const refreshPage = () => {
   }, []);
  
   const handleTransferClick = async (id, SenderId, oldAgentId) => {
+    debugger
     setActiveChat(id);
     setSenderId(SenderId);
     setChatLoading(true)

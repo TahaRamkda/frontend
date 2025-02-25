@@ -32,15 +32,15 @@
   
 
   //to refresh the api call every 5 minutes
-export const REFRESH_INTERVAL=1200000 ; // 5 minutes in milliseconds
+export const REFRESH_INTERVAL=3000 ; // 5 minutes in milliseconds
 
 export const NOTIFICATION_WARNING_INTERVAL=28800000  ; // 5 minutes in milliseconds
 
 export const HEARTBEAT_CHECK_INTERVAL=10000 ; // 5 minutes in milliseconds
 
 export const ExpireTime_AssignedChat=30000 ; // 30 Seconds
-export const ExpireTime_Message=300000 ;
-export const ExpireTime_Message_TRY1=60000 ; // 5 minutes in milliseconds
+export const ExpireTime_Message=300000 ; // 5 minutes in milliseconds
+export const ExpireTime_Message_TRY1=60000 ; // 1 minutes in milliseconds
 
 export const ExpireTime_Message_TRY2=240000 ;
 export const ExpireTime_Message_TRY3=180000 ;
