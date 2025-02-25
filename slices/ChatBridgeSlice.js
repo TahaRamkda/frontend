@@ -118,13 +118,14 @@ const bridgeSlice = createSlice({
     },
     
     addMessageToConversation: (state, action) => {
+      
       const { id, messageContent, typeId } = action.payload;
       const conversation = state.conversations.find(c => c.id === id);
     
       if (conversation) {
         // Update the last message text
         conversation.lastMessageText = messageContent;
-    
+        conversation.updatedDate= action.payload.createdDate;
         // Check if the messages array exists and is not empty
         if (Array.isArray(conversation.messages) && conversation.messages.length > 0) {
           // Add the new message to the beginning of the messages array
