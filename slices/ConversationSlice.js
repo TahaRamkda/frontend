@@ -32,7 +32,7 @@ export const fetchConversationMessage = createAsyncThunk(
     try {
       
       const response = await API.get(
-        `${CONVERSATIONMESSAGE}?id=${ChatId}&pageNo=${pageNo}&pageSize=15`
+        `${CONVERSATIONMESSAGE}?id=${ChatId}&pageNo=${pageNo}&pageSize=30`
       );
       if (response?.status === 200 ) {
         return {
