@@ -14,7 +14,7 @@ import {
 } from "react-icons/fa";
 
 import { AddChat, AddMessage, CheckExpiredNotification,GetConversations,GetConversationMessage,fetchExpiredNotifications } from "@/slices/ChatTest";
-import { getAgentConversations ,getAgentMessages,addConversation, addMessageToConversation ,removeConversation} from "@/slices/ChatBridgeSlice";
+import { getAgentConversations ,getAgentMessages,addConversation, addMessageToConversation ,removeConversation , selectExpiredConversations ,checkForExpiredConversations} from "@/slices/ChatBridgeSlice";
 import UserBadge from "@/public/images/User.jpg";
 import Link from "next/link";
 import { MdOutlineTimer } from "react-icons/md";
@@ -122,25 +122,55 @@ const ChatPage = () => {
   const [tryReconnect, settryReconnect] = useState(false);
   const lastScrollTop = useRef(0);
   const [UserId, setuserId] = useState(0);
-
+  const expiredConversations = useSelector(selectExpiredConversations);
   const message = useSelector((state) =>
     state.bridge.conversations.find((c) => c.id === Activechat)?.messages || []
   );
   
-  useEffect(() => {
-    setChatMessages([...message]); // Update local state when Redux state updates
-    setActiveSenderId(message[0]?.senderId);
-  }, [message]);
 
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [IsOneSignalLoaded, setIsOneSignalLoaded] = useState(false);
+
+  useEffect(() => {
+    // Dispatch an initial check
+    dispatch(checkForExpiredConversations());
+
+    // Set up the interval to dispatch the check every 10 seconds
+    const intervalId = setInterval(() => {
+      dispatch(checkForExpiredConversations());
+    }, 10000); // 10 seconds
+
+    // Clear the interval on component unmount
+    return () => clearInterval(intervalId);
+  }, [dispatch]);
+
+  useEffect(() => {
+    // Handle expired conversations
+    expiredConversations.forEach((conversation) => {
+
+      audioRef.current
+      ?.play()
+      .catch((err) =>
+        console.error("Failed to play notification sound:", err)
+      );
+      toast.error(`Person with Phone number : ${conversation.phoneNumber} is waiting for your reply.`);
+    });
+  }, [expiredConversations, dispatch]);
+
+
+ useEffect(() => {
+  if (message.length > 0) {
+    setChatMessages([...message]);
+    setActiveSenderId(message[0].senderId);
+  }
+}, [message]);
+
+ 
   useEffect(() => {
     // Initialize the audio object only once
     audioRef.current = new Audio("/assets/Notification/chatassigned.mp3");
   }, []);
 
   const handleTemplateSend = (details) => {
-    clearTimer(Activechat);
+    //clearTimer(Activechat);
     setTemplateDetails(details); // Update parent state
     console.log("Received template details:", details);
   };
@@ -166,7 +196,7 @@ const ChatPage = () => {
       if (result.isConfirmed) {
         window.OneSignal.logout();
         AgentConversation.map((item) => {
-          clearTimer(item.id);
+          //clearTimer(item.id);
         });
 
         localStorage.clear();
@@ -260,7 +290,7 @@ const ChatPage = () => {
   // //triggered each time when conversations changes and assign to local state
   useEffect(() => {
     
-    if (conversations && conversations.length > 0) {
+    if (conversations) {
       setContactsloading(false);
       setAgentConversation(conversations);
     } else {
@@ -283,8 +313,7 @@ const ChatPage = () => {
   //     dispatch(resetMessages());
   //   };
   // };
-
-
+ 
   const handleFetchMessages = (conversationId) => {
     setActiveChat(conversationId);
     const conversation = conversations.find(
@@ -292,6 +321,7 @@ const ChatPage = () => {
     );
     if (conversation?.messages?.length > 0) {
       setChatMessages(conversation.messages); // Use cached messages
+      setActiveSenderId(conversation.messages[0].senderId);
     } else {
       dispatch(getAgentMessages(conversationId)).then((response) => {
         
@@ -322,7 +352,7 @@ const ChatPage = () => {
   //     setChatMessages(messages);
   //     setActiveSenderId(messages[0].senderId);
   //   }
-  // }, [messages]);
+  // }, [messages]);-
 
   //Add emoji function
   const addEmoji = (emoji) => {
@@ -408,36 +438,36 @@ const ChatPage = () => {
       setMediaFile(null); // Clear the selected file after sending the message
       setPreviewUrl(null);
       setFileType(null); //get the file type
-      clearTimer(Activechat);
+      //clearTimer(Activechat);
       removeUnrepliedMark(Activechat);
       // Shift the active conversation to the top of the list and reset unread count
-      const matchingConversationIndex = agentChatRef.current.findIndex(
-        (conversation) => conversation.id === Activechat
-      );
+      // const matchingConversationIndex = agentChatRef.current.findIndex(
+      //   (conversation) => conversation.id === Activechat
+      // );
 
-      if (matchingConversationIndex !== -1) {
-        const updatedConversations = [...agentChatRef.current];
-        const matchingConversation =
-          updatedConversations[matchingConversationIndex];
+      // if (matchingConversationIndex !== -1) {
+      //   const updatedConversations = [...agentChatRef.current];
+      //   const matchingConversation =
+      //     updatedConversations[matchingConversationIndex];
 
-        // Remove from current position
-        updatedConversations.splice(matchingConversationIndex, 1);
+      //   // Remove from current position
+      //   updatedConversations.splice(matchingConversationIndex, 1);
 
-        // Add to the top with updated lastMessageText and reset unreadCount
-        updatedConversations.unshift({
-          ...matchingConversation,
-          lastMessageText: messageInput.trim(),
-          unreadCount: 0, // Reset unread count for sent messages
-        });
+      //   // Add to the top with updated lastMessageText and reset unreadCount
+      //   updatedConversations.unshift({
+      //     ...matchingConversation,
+      //     lastMessageText: messageInput.trim(),
+      //     unreadCount: 0, // Reset unread count for sent messages
+      //   });
 
-        agentChatRef.current = updatedConversations;
-        setAgentConversation(updatedConversations);
-      } else {
-        console.warn(
-          "No matching conversation found for Activechat:",
-          Activechat
-        );
-      }
+      //   agentChatRef.current = updatedConversations;
+      //   setAgentConversation(updatedConversations);
+      // } else {
+      //   console.warn(
+      //     "No matching conversation found for Activechat:",
+      //     Activechat
+      //   );
+      // }
     } catch (error) {
       console.error("Error sending message:", error);
       toast.error("Failed to send message. Please try again.");
@@ -454,7 +484,7 @@ const ChatPage = () => {
 
       // Assign the unread message IDs to the desired functions
       unreadMessages.map((message) => {
-        startTimer(message);
+        //startTimer(message);
         markChatAsUnreplied(message.id);
       });
     }
@@ -473,6 +503,9 @@ const ChatPage = () => {
   const openFileManager = () => {
     fileInputRef.current.click(); // Trigger the file input click event
   };
+
+
+
 
   
 
@@ -569,7 +602,7 @@ const ChatPage = () => {
         })
       );
       dispatch(addConversation(notification));
-      startTimer(notification);
+      //startTimer(notification);
 
       // const matchingConversationIndex = agentChatRef.current.findIndex(
       //   (conversation) => conversation.id === notification.id
@@ -598,6 +631,7 @@ const ChatPage = () => {
 
     // Handles conversation unassignment
     const handleConversationUnAssigned = (chatId) => {
+      debugger
       if (
         !agentChatRef.current.some((conversation) => conversation.id === chatId)
       )
@@ -621,7 +655,7 @@ const ChatPage = () => {
         setActiveChat(0);
       }
 
-      clearTimer(chatId);
+      //clearTimer(chatId);
       // agentChatRef.current = updatedConversations;
       // setAgentConversation(updatedConversations);
     };
@@ -715,55 +749,55 @@ const ChatPage = () => {
     }
   }, [heartbeatAttempts]);
 
-  const startTimer = (messages) => {
-    // Clear existing timer if any
-    if (timersRef.current[messages.id]) {
-      clearTimeout(timersRef.current[messages.id]);
-    }
+  // const startTimer = (messages) => {
+  //   // Clear existing timer if any
+  //   if (timersRef.current[messages.id]) {
+  //     clearTimeout(timersRef.current[messages.id]);
+  //   }
 
-    // Set a new 5-minute timer
-    timersRef.current[messages.id] = setTimeout(() => {
-      handleTimerExpiry(messages);
-    }, NOTIFICATION_WARNING_INTERVAL); // 5 minutes
-  };
+  //   // Set a new 5-minute timer
+  //   timersRef.current[messages.id] = setTimeout(() => {
+  //     handleTimerExpiry(messages);
+  //   }, NOTIFICATION_WARNING_INTERVAL); // 5 minutes
+  // };
 
-  const handleTimerExpiry = (message) => {
-    // toast.error(
-    //   `Reply pending for : ${message.phoneNumber} for more than 5 mins`
-    // );
+  // const handleTimerExpiry = (message) => {
+  //   // toast.error(
+  //   //   `Reply pending for : ${message.phoneNumber} for more than 5 mins`
+  //   // );
 
-    // Play alert sound
-    // audioRef.current
-    //   ?.play()
-    //   .catch((err) =>
-    //     console.error("Failed to play alert sound on timer expiry:", err)
-    //   );
+  //   // Play alert sound
+  //   // audioRef.current
+  //   //   ?.play()
+  //   //   .catch((err) =>
+  //   //     console.error("Failed to play alert sound on timer expiry:", err)
+  //   //   );
 
-    // Trigger another 5-minute timer if no action is taken
-    if (!isMessageReplied(message.id)) {
-      console.warn(`No reply for ID: ${message.id}, rescheduling timer.`);
-      markChatAsUnreplied(message.id);
-      startTimer(message); // Restart the timer
-    } else {
-      console.info(`Reply received for ID: ${message.id}, stopping timer.`);
-      clearTimer(message.id); // Stop the timer if replied
-    }
-  };
+  //   // Trigger another 5-minute timer if no action is taken
+  //   if (!isMessageReplied(message.id)) {
+  //     console.warn(`No reply for ID: ${message.id}, rescheduling timer.`);
+  //     markChatAsUnreplied(message.id);
+  //     startTimer(message); // Restart the timer
+  //   } else {
+  //     console.info(`Reply received for ID: ${message.id}, stopping timer.`);
+  //     clearTimer(message.id); // Stop the timer if replied
+  //   }
+  // };
 
-  const clearTimer = (id) => {
-    if (timersRef.current[id]) {
-      clearTimeout(timersRef.current[id]);
-      delete timersRef.current[id];
-    }
-  };
+  // const clearTimer = (id) => {
+  //   if (timersRef.current[id]) {
+  //     clearTimeout(timersRef.current[id]);
+  //     delete timersRef.current[id];
+  //   }
+  // };
 
   // Function to check if the message was replied
-  const isMessageReplied = (id) => {
-    // Example condition: Check active chat messages or a specific state
-    return (
-      activeChatRef.current === id && chatMessages.some((msg) => msg.reply)
-    );
-  };
+  // const isMessageReplied = (id) => {
+  //   // Example condition: Check active chat messages or a specific state
+  //   return (
+  //     activeChatRef.current === id && chatMessages.some((msg) => msg.reply)
+  //   );
+  // };
 
   const markChatAsUnreplied = async (id) => {
     setUnrepliedChats((prev) => [...prev, id]);

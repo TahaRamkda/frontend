@@ -107,4 +107,4 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }
   );
 };
 
-export default SimplePopup;
+export default ButonAction;
