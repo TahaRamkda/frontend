@@ -265,22 +265,37 @@ const CampaignsList = () => {
       
         return (
           <div className='Action_table' id='InfoIcon'>
-            <button title="Schedule Campaign" className="uniform_icon_btn Action_Button" onClick={() => handleActivateClick(row.campaignId)}>
-              <HiLightningBolt style={{ fontSize: "15px" }} />
-            </button>
-            <button title="Last Contacted People" className="uniform_icon_btn Action_Button" onClick={() => handelClick(row.campaignId)}>
-              <MdGroupRemove style={{ fontSize: "15px" }} />
-            </button>
-            <button title="Test Campaign" className="uniform_icon_btn Action_Button" onClick={() => handleTestCampaign(row.campaignId)}>
-              <HiBeaker style={{ fontSize: "15px" }} />
-            </button>
-             {/* Conditionally render the Edit button */}
-             {(isSameDay && timeDifference > 3) || !isSameDay ? (
-              <button title="Edit Campaign" className="uniform_icon_btn Action_Button" onClick={() => HandleUpdateCampaign(row.campaignId)}>
-                <HiPencilAlt style={{ fontSize: "15px" }} />
-              </button>
-            ) : null}
-          </div>
+  <button 
+    title="Schedule Campaign" 
+    className="uniform_icon_btn Action_Button w-fulljustify-center items-center p-2" 
+    onClick={() => handleActivateClick(row.campaignId)}
+  >
+    <HiLightningBolt style={{ fontSize: "15px" }} />
+  </button>
+  <button 
+    title="Last Contacted People" 
+    className="uniform_icon_btn Action_Button w-full  justify-center items-center p-2" 
+    onClick={() => handelClick(row.campaignId)}
+  >
+    <MdGroupRemove style={{ fontSize: "15px" }} />
+  </button>
+  <button 
+    title="Test Campaign" 
+    className="uniform_icon_btn Action_Button w-full  justify-center items-center p-2" 
+    onClick={() => handleTestCampaign(row.campaignId)}
+  >
+    <HiBeaker style={{ fontSize: "15px" }} />
+  </button>
+  {(isSameDay && timeDifference > 3) || !isSameDay ? (
+    <button 
+      title="Edit Campaign" 
+      className="uniform_icon_btn Action_Button w-full  justify-center items-center p-2" 
+      onClick={() => HandleUpdateCampaign(row.campaignId)}
+    >
+      <HiPencilAlt style={{ fontSize: "15px" }} />
+    </button>
+  ) : null}
+</div>
         );
       }
     }

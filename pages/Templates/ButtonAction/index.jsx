@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Modal, ModalBody, Input, FormGroup, Label, Button } from "reactstrap";
 import { FaTimes } from "react-icons/fa";
-import TemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropdown";
+import TemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropWithoutParam";
 
-const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData }) => {
+const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }) => {
   const [actionType, setActionType] = useState(0);
   const [buttonValue, setButtonValue] = useState("");
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
@@ -82,6 +82,7 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData }) => {
               value={selectedTemplateId}
               onChange={handleTemplateChange}
               TransactionType="0"
+              SenderId={SenderId}
             />
           </FormGroup>
         )}
