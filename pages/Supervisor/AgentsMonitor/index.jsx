@@ -275,6 +275,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
           <DateTimePicker
               label="To Date"
               value={ToDate}
+              minDate={FromDate}
               onChange={setToDate}
             />
 

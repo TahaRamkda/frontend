@@ -215,6 +215,7 @@ const MessageReport = () => {
               label="To Date"
               value={toDate}
               onChange={settoDate}
+              minDate={fromDate}
             />
 
           </div>
