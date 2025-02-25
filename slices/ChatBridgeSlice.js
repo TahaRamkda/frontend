@@ -122,7 +122,6 @@ const bridgeSlice = createSlice({
     
     addMessageToConversation: (state, action) => {
       debugger
-      const { id, messageContent, typeId } = action.payload;
       const { id, messageContent, typeId, createdDate } = action.payload;
       const conversation = state.conversations.find(c => c.id === id);
     
