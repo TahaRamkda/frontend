@@ -14,7 +14,7 @@ import {
 } from "react-icons/fa";
 import AgentStatusDropdown from "@/components/Dropdowns/AgentStatusDropdown";
 import { AddChat, AddMessage, CheckExpiredNotification,GetConversations,GetConversationMessage,fetchExpiredNotifications } from "@/slices/ChatTest";
-import { getAgentConversations ,getAgentMessages,addConversation, addMessageToConversation ,removeConversation , selectExpiredConversations ,checkForExpiredConversations} from "@/slices/ChatBridgeSlice";
+import { getAgentConversations ,getAgentMessages,addConversation, addMessageToConversation ,removeConversation , selectExpiredConversations ,checkForExpiredConversations ,setAgentstatus} from "@/slices/ChatBridgeSlice";
 import UserBadge from "@/public/images/User.jpg";
 import Link from "next/link";
 import { MdOutlineTimer } from "react-icons/md";
@@ -44,7 +44,7 @@ import {
 } from "@/slices/ConversationSlice";
 import SweetAlert from "sweetalert2";
 import showSweetAlert from "@/components/Sweetalert";
-import { fetchAgentStats, cleaAgentStats, setAgentStatus } from "@/slices/AgentSlice";
+import { fetchAgentStats } from "@/slices/AgentSlice";
 import * as signalR from "@microsoft/signalr";
 import DefinedTemplates from "../../Chats/AgentDefinedTemplate";
 import { toast } from "react-toastify";
@@ -69,6 +69,7 @@ import {
   HiMenu,
   HiShieldExclamation,
 } from "react-icons/hi";
+import { sendPushNotification } from "@/components/SendPushNotification";
 const ChatPage = () => {
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
@@ -87,18 +88,8 @@ const ChatPage = () => {
   const { AgentStats, loading: statsLoading } = useSelector(
     (state) => state.agents
   );
-  const HandleAgentStatus = (e) => {
-    const StatusId = e.target.value;
-    setChatsloading(true);
-   const response = dispatch(setAgentStatus({ agentId: UserId, statusId: StatusId }));
-   if(response){
-    showSweetAlert({
-      title: "Status Set Successfully",
-      text: "",
-      icon: "success",
-    });
-   }
-  };
+
+  
   const inputRef = useRef(null);
   const [chatMessages, setChatMessages] = useState([]);
   const [AgentConversation, setAgentConversation] = useState([]);
@@ -140,6 +131,42 @@ const ChatPage = () => {
   );
   
 
+  const HandleAgentStatus = async (e) => {
+    const StatusId = e.target.value;
+    setChatsloading(true);
+  
+    try {
+      debugger
+      // Dispatch the thunk and unwrap the result to get the actual payload
+      const response = await dispatch(setAgentstatus({ agentId: UserId, statusId: StatusId })).unwrap();
+       if(response.success){
+        showSweetAlert({
+          title: response.message || "Status updated successfully",
+          text: "",
+          icon: "success",
+        });
+       }
+       else{
+        showSweetAlert({
+          title: response.message || "Status updated successfully",
+          text: "",
+          icon: "danger",
+        });
+       }
+      
+    } catch (error) {
+      // Handle any errors that occurred during the thunk execution
+      showSweetAlert({
+        title: error.message || "Failed to update status",
+        text: "",
+        icon: "error",
+      });
+    } finally {
+      setChatsloading(false);
+    }
+  };
+
+
 
   useEffect(() => {
     // Dispatch an initial check
@@ -166,6 +193,7 @@ const ChatPage = () => {
           console.error("Failed to play notification sound:", err)
         );
         toast.error(`Chat with Phone number : ${conversation.phoneNumber} is waiting for your reply.`);
+        sendPushNotification({ message: `Chat with Phone number : ${conversation.phoneNumber} is waiting for your reply.`, userID: UserId });
       }
       else if (conversation.expireType === 2){
         audioRef.current
@@ -174,6 +202,7 @@ const ChatPage = () => {
           console.error("Failed to play notification sound:", err)
         );
         toast.error(`Person with Phone number : ${conversation.phoneNumber} is waiting for your reply.`);
+        sendPushNotification({ message: `Person with Phone number : ${conversation.phoneNumber} is waiting for your reply.`, userID: UserId });
       }
      
     });
@@ -210,6 +239,7 @@ const ChatPage = () => {
   };
 
   const handleLogout = () => {
+    
     SweetAlert.fire({
       title: "Are you sure you want to logout?",
       text: "",
@@ -221,10 +251,9 @@ const ChatPage = () => {
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
-        //window.OneSignal.logout();
-        AgentConversation.map((item) => {
-          //clearTimer(item.id);
-        });
+        debugger
+        const mockEvent = { target: { value: "0" } };
+        HandleAgentStatus(mockEvent);
 
         localStorage.clear();
         router.push("/auth/login");
@@ -235,7 +264,7 @@ const ChatPage = () => {
   //onesignal hook
    //onesignal hook
    useEffect(() => {
-     debugger
+     
      const initializeOneSignal = async () => {
        if (typeof window !== "undefined" && window.OneSignal) {
          if (window.OneSignal.isInitialized) {

@@ -4,7 +4,8 @@ import {
   fetchConversationList,
   fetchConversationMessage,
 } from "./ConversationSlice";
-
+import {setAgentStatus} from './AgentSlice';
+import { date } from "yup";
 const initialState = {
   conversations: [],
   loading: false,
@@ -38,19 +39,17 @@ export const getAgentMessages = createAsyncThunk(
 );
 
 export const checkForExpiredConversations = createAsyncThunk(
-  "bridge/checkForExpiredConversations",
+  'bridge/checkForExpiredConversations',
   async (_, { getState }) => {
-    
-    
     const state = getState();
     const currentTime = Date.now();
     const expiredConversationIds = [];
-
     const updatedConversations = state.bridge.conversations.map((conversation) => {
       const { expireTime, expireType, expireTryCount = 0, id } = conversation;
+      const timestamp = typeof expireTime === 'string' ? new Date(expireTime).getTime() : expireTime;
 
       // Check if the conversation has expired
-      if (expireTime && Date.now(expireTime)  <= currentTime && expireType !== 0) {
+      if (timestamp !== 0 && timestamp <= currentTime && expireType !== 0) {
         let newExpireTime = null;
         const newRetryCount = expireTryCount + 1;
 
@@ -58,7 +57,6 @@ export const checkForExpiredConversations = createAsyncThunk(
           case 1:
             // No retries; expire immediately
             expiredConversationIds.push(id);
-            newExpireTime = currentTime;
             break;
 
           case 2:
@@ -73,10 +71,11 @@ export const checkForExpiredConversations = createAsyncThunk(
 
             if (newRetryCount <= retryIntervals.length) {
               newExpireTime = currentTime + retryIntervals[newRetryCount - 1];
+             
             } else {
-              // All retries exhausted; mark as expired
-              expiredConversationIds.push(id);
+              newExpireTime = currentTime;
             }
+            expiredConversationIds.push(id);
             break;
 
           default:
@@ -98,6 +97,15 @@ export const checkForExpiredConversations = createAsyncThunk(
   }
 );
 
+export const setAgentstatus = createAsyncThunk(
+  "bridge/setAgentstatus",
+  async ({agentId,statusId}, { rejectWithValue ,dispatch }) => {
+    
+    const response = await dispatch(setAgentStatus({ agentId: agentId, statusId: statusId })).unwrap();
+    //console.log("set status response", response)
+    return response;
+  }
+);
 
 
 const bridgeSlice = createSlice({
@@ -166,11 +174,13 @@ const bridgeSlice = createSlice({
             conversation.expireType = 2
             conversation.expireTime = Date.now() + ExpireTime_Message;
           }
+         
         } else {
           // Agent message
           conversation.unreadCount = 0;
           conversation.expireTime = 0;
           conversation.expireType = 0;
+          conversation.expireTryCount = 0;
         }
     
         // Move the updated conversation to the top of the list
