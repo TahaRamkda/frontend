@@ -91,6 +91,7 @@ export const fetchMessageReport = createAsyncThunk(
     }
   }
 );
+
 export const fetchConversationReport = createAsyncThunk(
   'conversationreport /fetchConversationReport',
   async ({status, pageSize,pageNo,senderId,FromDate,ToDate,agentId,srcStr,fChatInitiated}, { rejectWithValue }) => {
@@ -137,6 +138,7 @@ export const fetchChatLogs = createAsyncThunk(
 export const fetchAgentReport = createAsyncThunk(
   'agentreport /fetchAgentReport',
   async ({status, pageSize,pageNo,senderId,FromDate,ToDate,srcStr}, { rejectWithValue }) => {
+   
     try {
       const response = await API.get(`${AGENTREPORT}?pageSize=${pageSize}&senderId=${senderId}${srcStr ? `&searchStr=${srcStr}`: ''}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`);
       if (response?.status === 200 && response.data?.result) {
@@ -158,6 +160,7 @@ export const fetchChatReportStats = createAsyncThunk(
   'chatreportstats /fetchChatReportStats',
   
   async ({ pageSize,pageNo,senderId,FromDate,ToDate,srcStr,agentId,fChatInitiated}, { rejectWithValue }) => {
+    
     
     try {
       const response = await API.get(`${CHATREPORTSTATS}?pageSize=${pageSize}&senderId=${senderId}${srcStr ? `&searchStr=${srcStr}`: ''}&fChatInitiated=${fChatInitiated}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}&agentId=${agentId}`);
@@ -388,6 +391,7 @@ const reportSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchConversationReport.fulfilled, (state, action) => {
+        
         state.loading = false;
         state.ConversationReport = action.payload.ConversationReport;
         state.totalRecords = action.payload.totalRecords;
@@ -438,6 +442,7 @@ const reportSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
+      // Chat Report Stats
       .addCase(fetchChatReportStats.pending, (state) => {
         state.loading = true;
         state.error = null;

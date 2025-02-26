@@ -157,7 +157,7 @@ const ChatPage = () => {
   useEffect(() => {
     // Handle expired conversations
     expiredConversations.forEach((conversation) => {
-    debugger
+    
     
       if(conversation.expireType === 1){
         audioRef.current
@@ -235,7 +235,7 @@ const ChatPage = () => {
   //onesignal hook
    //onesignal hook
    useEffect(() => {
-     debugger
+     
      const initializeOneSignal = async () => {
        if (typeof window !== "undefined" && window.OneSignal) {
          if (window.OneSignal.isInitialized) {

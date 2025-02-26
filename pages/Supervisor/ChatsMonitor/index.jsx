@@ -37,7 +37,7 @@ const ChatsMonitor = () => {
   const [agentId, SetAgentId] = useState(0);
   const [CustomerName, setCustomerName] = useState('');
   const [refreshpage, setrefreshpage] = useState(false);  // Track if page is refreshing
-  const [initiated , SetInitiated] = useState(0);
+  const [initiated , SetInitiated] = useState('');
  
   const statusOptions = [
     { value: '0', label: "Auto Chat" },
@@ -209,7 +209,7 @@ const refreshPage = () => {
 
  
    useEffect(() => {
-    debugger
+    
        const checkAndFetch = async () => {
          const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
      
@@ -337,6 +337,7 @@ const refreshPage = () => {
          <div className='flex flex-col text-start '>
             <label className="font-medium text-gray-700 text-sm mt-1">Initiated</label>
           <select  id="initiated" value={initiated} onChange={(e) => SetInitiated(e.target.value)}  className='border rounded  w-100 h-12 '> 
+            <option value="">Select  </option>
             <option value="0">Conversations  </option>
             <option value="1">Campaigns</option>
             <option value="2">API Messages</option>
