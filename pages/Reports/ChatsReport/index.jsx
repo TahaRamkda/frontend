@@ -56,7 +56,9 @@ const ChatsReport = () => {
   const [CustomerName, setCustomerName] = useState("");
   const [PhoneNumber, setPhoneNumber] = useState("");
   const [agentId, SetAgentId] = useState(0);
-  const [initiated, SetInitiated] = useState(0);
+  const [PageNum, SetPageNum] = useState(0)
+  const [initiated, SetInitiated] = useState('');
+  const [page, SetPageSize] = useState(0)
 
   const [ChatLoading, setChatLoading] = useState(false);
   const getMonthStart = () => {
@@ -166,10 +168,11 @@ const ChatsReport = () => {
     SetModalOpen(false);
     dispatch(clearChatLogsState())
   };
-
+ 
   const handleSearchString = (setter) => (e) => {
     const searchValue = e;
     setsrcStr(searchValue);
+    
     setter(e);
 
     if (searchTimeout) {
@@ -188,8 +191,8 @@ const ChatsReport = () => {
           fChatInitiated:initiated,
           FromDate: FromDate,
           status: Status,
-          pageSize,
-          pageNo: currentPage,
+          pageSize:page,
+          pageNo: PageNum,
         })
       );
     }, 500);
@@ -198,6 +201,7 @@ const ChatsReport = () => {
   };
 
   const handleStatusChange = (selectedOptions) => {
+    
     if (Array.isArray(selectedOptions)) {
       const values = selectedOptions.map((option) => option.value); // Extract values
       setStatus(values.join(",")); // Join as a comma-separated string
@@ -214,6 +218,7 @@ const ChatsReport = () => {
 
   const handleSenderChange = (e) => {
     const senderId = e.target.value;
+    
     setsenderid(senderId);
   };
 
@@ -285,6 +290,7 @@ const ChatsReport = () => {
     setoldAgentId(oldAgentId);
     setshowtransfer(true);
   };
+ 
 
   useEffect(() => {
     
@@ -300,8 +306,8 @@ const ChatsReport = () => {
           ToDate: ToDate,
           FromDate: FromDate,
           srcStr: srcStr,
-          pageSize,
-          pageNo: currentPage,
+          pageSize:page,
+          pageNo: PageNum,
         })
       );
     }
@@ -314,7 +320,7 @@ const ChatsReport = () => {
   useEffect(() => {
     
       setChatLoading(true);
-      dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize,pageNo:currentPage,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated,}));
+      dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize:page,pageNo:PageNum,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated,}));
 
     return () => {
       dispatch(clearChatReportStatsState());
@@ -322,7 +328,7 @@ const ChatsReport = () => {
   }, [dispatch,senderid,agentId,FromDate,ToDate,initiated]);
 
   const handlePageSizeChange = async (newSize) => {
-    
+    SetPageSize(newSize)
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to first page
     setChatLoading(true);
@@ -341,12 +347,12 @@ const ChatsReport = () => {
         pageNo: 1,
       })
     );
-   await dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize:newSize,pageNo:1,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated,}));
+   await dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize:newSize,pageNo:1,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated}));
   };
 
-  const handlePageChange = async (page) => {
-    
-    dispatch(setCurrentPage(page));
+  const handlePageChange = async (pageNo) => {
+    SetPageNum(pageNo)
+    dispatch(setCurrentPage(pageNo));
     setChatLoading(true);
     await dispatch(
       fetchConversationReport({
@@ -358,18 +364,23 @@ const ChatsReport = () => {
         ToDate: ToDate,
         FromDate: FromDate,
         srcStr: srcStr,
-        pageSize,
-        pageNo: page,
+        pageSize:page,
+        pageNo: pageNo,
       })
     );
-    await dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize,pageNo:page,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated,}));
+    await dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize:page,pageNo:pageNo,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated}));
   };
-
+  const handleInitiateChange = (e) =>{
+    SetInitiated(e.target.value)
+    
+  }
 
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
   
 
   const subHeaderComponentMemo = useMemo(() => {
+   
+
     
     return (
       <div className="w-full">
@@ -388,9 +399,10 @@ const ChatsReport = () => {
             <select
               id="initiated"
               value={initiated}
-              onChange={(e) => SetInitiated(e.target.value)}
+              onChange={handleInitiateChange}
               className="border rounded  w-100 h-12 "
             >
+              <option value="">Select </option>
               <option value="0">Conversations </option>
               <option value="1">Campaigns</option>
               <option value="2">API message</option>
