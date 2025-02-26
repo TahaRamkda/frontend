@@ -52,13 +52,13 @@ const ChatsReport = () => {
   const [Status, setStatus] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [showtransfer, setshowtransfer] = useState(false);
-  const defultPageSize = 10
-  const defultPageNo = 1
   const [activeChat, setActiveChat] = useState(0);
   const [CustomerName, setCustomerName] = useState("");
   const [PhoneNumber, setPhoneNumber] = useState("");
   const [agentId, SetAgentId] = useState(0);
+  const [PageNum, SetPageNum] = useState(0)
   const [initiated, SetInitiated] = useState('');
+  const [page, SetPageSize] = useState(0)
 
   const [ChatLoading, setChatLoading] = useState(false);
   const getMonthStart = () => {
@@ -168,11 +168,11 @@ const ChatsReport = () => {
     SetModalOpen(false);
     dispatch(clearChatLogsState())
   };
-
+ 
   const handleSearchString = (setter) => (e) => {
     const searchValue = e;
     setsrcStr(searchValue);
-    resetPagination();
+    
     setter(e);
 
     if (searchTimeout) {
@@ -191,8 +191,8 @@ const ChatsReport = () => {
           fChatInitiated:initiated,
           FromDate: FromDate,
           status: Status,
-          pageSize,
-          pageNo: currentPage,
+          pageSize:page,
+          pageNo: PageNum,
         })
       );
     }, 500);
@@ -201,7 +201,7 @@ const ChatsReport = () => {
   };
 
   const handleStatusChange = (selectedOptions) => {
-    resetPagination();
+    
     if (Array.isArray(selectedOptions)) {
       const values = selectedOptions.map((option) => option.value); // Extract values
       setStatus(values.join(",")); // Join as a comma-separated string
@@ -218,12 +218,11 @@ const ChatsReport = () => {
 
   const handleSenderChange = (e) => {
     const senderId = e.target.value;
-    resetPagination();
+    
     setsenderid(senderId);
   };
 
   const handleAgentChange = (e) => {
-    resetPagination();
     const senderId = e.target.value;
     SetAgentId(senderId);
   };
@@ -291,11 +290,7 @@ const ChatsReport = () => {
     setoldAgentId(oldAgentId);
     setshowtransfer(true);
   };
-  const resetPagination = () => {
-    
-    dispatch(setPageSize(defultPageSize));
-    dispatch(setCurrentPage(defultPageNo));
-  };
+ 
 
   useEffect(() => {
     
@@ -311,8 +306,8 @@ const ChatsReport = () => {
           ToDate: ToDate,
           FromDate: FromDate,
           srcStr: srcStr,
-          pageSize,
-          pageNo: currentPage,
+          pageSize:page,
+          pageNo: PageNum,
         })
       );
     }
@@ -325,7 +320,7 @@ const ChatsReport = () => {
   useEffect(() => {
     
       setChatLoading(true);
-      dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize,pageNo:currentPage,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated,}));
+      dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize:page,pageNo:PageNum,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated,}));
 
     return () => {
       dispatch(clearChatReportStatsState());
@@ -333,7 +328,7 @@ const ChatsReport = () => {
   }, [dispatch,senderid,agentId,FromDate,ToDate,initiated]);
 
   const handlePageSizeChange = async (newSize) => {
-    
+    SetPageSize(newSize)
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to first page
     setChatLoading(true);
@@ -355,9 +350,9 @@ const ChatsReport = () => {
    await dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize:newSize,pageNo:1,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated}));
   };
 
-  const handlePageChange = async (page) => {
-    
-    dispatch(setCurrentPage(page));
+  const handlePageChange = async (pageNo) => {
+    SetPageNum(pageNo)
+    dispatch(setCurrentPage(pageNo));
     setChatLoading(true);
     await dispatch(
       fetchConversationReport({
@@ -369,15 +364,15 @@ const ChatsReport = () => {
         ToDate: ToDate,
         FromDate: FromDate,
         srcStr: srcStr,
-        pageSize,
-        pageNo: page,
+        pageSize:page,
+        pageNo: pageNo,
       })
     );
-    await dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize,pageNo:page,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated}));
+    await dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize:page,pageNo:pageNo,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated}));
   };
   const handleInitiateChange = (e) =>{
     SetInitiated(e.target.value)
-    resetPagination()
+    
   }
 
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options

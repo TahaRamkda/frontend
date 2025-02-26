@@ -91,7 +91,6 @@ export const fetchMessageReport = createAsyncThunk(
     }
   }
 );
-
 export const fetchConversationReport = createAsyncThunk(
   'conversationreport /fetchConversationReport',
   async ({status, pageSize,pageNo,senderId,FromDate,ToDate,agentId,srcStr,fChatInitiated}, { rejectWithValue }) => {
@@ -391,7 +390,7 @@ const reportSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchConversationReport.fulfilled, (state, action) => {
-        
+
         state.loading = false;
         state.ConversationReport = action.payload.ConversationReport;
         state.totalRecords = action.payload.totalRecords;
@@ -448,7 +447,7 @@ const reportSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchChatReportStats.fulfilled, (state, action) => {
-        
+
         state.loading = false;
         state.chatReportStats = action.payload.chatReportStats; //action.payload.messagereportsummary;
         state.message = action.payload.message || "";
