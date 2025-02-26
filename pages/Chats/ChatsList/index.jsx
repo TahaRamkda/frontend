@@ -166,7 +166,7 @@ const ChatPage = () => {
         AgentConversation.map((item) => {
           clearTimer(item.id);
         });
-
+       
         localStorage.clear();
         router.push("/auth/login");
       }
@@ -174,8 +174,6 @@ const ChatPage = () => {
   };
 
   //onesignal hook
-  //useOneSignal(localStorage.getItem("userId"));
-
   useEffect(() => {
     
     const initializeOneSignal = async () => {

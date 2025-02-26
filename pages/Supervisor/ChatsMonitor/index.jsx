@@ -209,7 +209,7 @@ const refreshPage = () => {
 
  
    useEffect(() => {
-    
+    debugger
        const checkAndFetch = async () => {
          const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
      

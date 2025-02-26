@@ -122,6 +122,7 @@ const ChatPage = () => {
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const isManualScroll = useRef(false);
   const audioRef = useRef(null);
+  const audioRef2 = useRef(null);
   const scrollContainerRef = useRef(null);
   const messagesEndRef = useRef(null);
   const timersRef = useRef({});
@@ -132,6 +133,7 @@ const ChatPage = () => {
   const [tryReconnect, settryReconnect] = useState(false);
   const lastScrollTop = useRef(0);
   const [UserId, setuserId] = useState(0);
+    const [IsOneSignalLoaded, setIsOneSignalLoaded] = useState(false);
   const expiredConversations = useSelector(selectExpiredConversations);
   const message = useSelector((state) =>
     state.bridge.conversations.find((c) => c.id === Activechat)?.messages || []
@@ -155,13 +157,25 @@ const ChatPage = () => {
   useEffect(() => {
     // Handle expired conversations
     expiredConversations.forEach((conversation) => {
+    debugger
     
-      audioRef.current
-      ?.play()
-      .catch((err) =>
-        console.error("Failed to play notification sound:", err)
-      );
-      toast.error(`Person with Phone number : ${conversation.phoneNumber} is waiting for your reply.`);
+      if(conversation.expireType === 1){
+        audioRef.current
+        ?.play()
+        .catch((err) =>
+          console.error("Failed to play notification sound:", err)
+        );
+        toast.error(`Chat with Phone number : ${conversation.phoneNumber} is waiting for your reply.`);
+      }
+      else if (conversation.expireType === 2){
+        audioRef.current
+        ?.play()
+        .catch((err) =>
+          console.error("Failed to play notification sound:", err)
+        );
+        toast.error(`Person with Phone number : ${conversation.phoneNumber} is waiting for your reply.`);
+      }
+     
     });
   }, [expiredConversations]);
 
@@ -177,6 +191,9 @@ const ChatPage = () => {
   useEffect(() => {
     // Initialize the audio object only once
     audioRef.current = new Audio("/assets/Notification/chatassigned.mp3");
+    
+    audioRef2.current = new Audio("/assets/Notification/alertsound.mp3");
+
   }, []);
 
   const handleTemplateSend = (details) => {
@@ -216,49 +233,48 @@ const ChatPage = () => {
   };
 
   //onesignal hook
-  //useOneSignal(localStorage.getItem("userId"));
-
-  // useEffect(() => {
-  //   // Initialize OneSignal
-  //   const initializeOneSignal = async () => {
-  //     if (typeof window !== "undefined" && window.OneSignal) {
-  //       await OneSignal.init({
-  //         appId: "2b6362f1-b706-4087-bfaf-0d625c02110b",
-  //         //safari_web_id: "web.onesignal.auto.0f5ba526-5606-4a7b-90fa-69fc66b30a70",
-  //         notifyButton: {
-  //           enable: true,
-  //         },
-  //         allowLocalhostAsSecureOrigin: true,
-  //       }).then(() => {
-  //         setIsOneSignalLoaded(true);
-
-  //         // Set External User ID after initialization
-  //         const externalUserId = localStorage.getItem("userId"); // Replace with dynamic external user ID
-  //         window.OneSignal.login(externalUserId)
-  //           .then(() => {
-  //             console.log(`External User ID set to: ${externalUserId}`);
-  //           })
-  //           .catch((error) => {
-  //             console.error("Error setting external user ID:", error);
-  //           });
-
-  //         // Show the prompt after setting the external user ID
-  //         window.OneSignal.Slidedown.promptPush();
-  //       });
-  //     }
-  //   };
-  //   // Call the initialize function
-  //   initializeOneSignal();
-
-  //   const externalUserId = localStorage.getItem("userId"); // Replace with dynamic external user ID
-  //   window.OneSignal?.login(externalUserId)
-  //     .then(() => {
-  //       console.log(`External User ID set to: ${externalUserId}`);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error setting external user ID:", error);
-  //     });
-  // }, []);
+   //onesignal hook
+   useEffect(() => {
+     debugger
+     const initializeOneSignal = async () => {
+       if (typeof window !== "undefined" && window.OneSignal) {
+         if (window.OneSignal.isInitialized) {
+           console.log("OneSignal is already initialized. Skipping initialization.");
+           return;
+         }
+ 
+         try {
+           await window.OneSignal.init({
+             appId: AppId,
+             notifyButton: { enable: true },
+             allowLocalhostAsSecureOrigin: true,
+           });
+ 
+           window.OneSignal.isInitialized = true;
+           setIsOneSignalLoaded(true);
+ 
+           const externalUserId = localStorage.getItem("userId");
+           if (externalUserId) {
+             await window.OneSignal.login(externalUserId);
+             console.log("External User ID set to:", externalUserId);
+           }
+ 
+           // Check if user is already subscribed
+           const isSubscribed = await window.OneSignal.isPushNotificationsEnabled();
+           if (!isSubscribed) {
+             console.log("User is not subscribed. Prompting for push notifications...");
+             window.OneSignal.Slidedown.promptPush();
+           } else {
+             console.log("User is already subscribed.");
+           }
+         } catch (error) {
+           console.error("Error initializing OneSignal:", error);
+         }
+       }
+     };
+ 
+     initializeOneSignal();
+   }, []);
 
   useEffect(() => {
     if (templateDetails) {
@@ -370,39 +386,39 @@ const ChatPage = () => {
     setMessageInput((prevMessage) => prevMessage + emoji);
   };
 
-  const handleScroll = () => {
-    if (!hasMore || loading) return;
+  // const handleScroll = () => {
+  //   if (!hasMore || loading) return;
 
-    const container = scrollContainerRef.current;
-    const buffer = 10; // Trigger API call 100px before reaching the top
+  //   const container = scrollContainerRef.current;
+  //   const buffer = 10; // Trigger API call 100px before reaching the top
 
-    // Detect upward scrolling and proximity to the top
-    const currentScrollTop = container.scrollTop;
-    if (
-      currentScrollTop < lastScrollTop.current && // Scrolling up
-      currentScrollTop <= buffer // Within 100px of the top
-    ) {
-      // Fetch older chats when scrolling up near the top
-      dispatch(
-        fetchConversationMessage({
-          clientId: localStorage.getItem("clientId"),
-          ChatId: Activechat,
-          pageNo: currentPage + 1,
-        })
-      );
-    }
+  //   // Detect upward scrolling and proximity to the top
+  //   const currentScrollTop = container.scrollTop;
+  //   if (
+  //     currentScrollTop < lastScrollTop.current && // Scrolling up
+  //     currentScrollTop <= buffer // Within 100px of the top
+  //   ) {
+  //     // Fetch older chats when scrolling up near the top
+  //     dispatch(
+  //       fetchConversationMessage({
+  //         clientId: localStorage.getItem("clientId"),
+  //         ChatId: Activechat,
+  //         pageNo: currentPage + 1,
+  //       })
+  //     );
+  //   }
 
-    // Update last scroll position
-    lastScrollTop.current = currentScrollTop;
-  };
+  //   // Update last scroll position
+  //   lastScrollTop.current = currentScrollTop;
+  // };
 
-  useEffect(() => {
-    if (Activechat !== 0) {
-      const container = scrollContainerRef.current;
-      container.addEventListener("scroll", handleScroll);
-      return () => container.removeEventListener("scroll", handleScroll);
-    }
-  }, [currentPage, hasMore,loading, Activechat]);
+  // useEffect(() => {
+  //   if (Activechat !== 0) {
+  //     const container = scrollContainerRef.current;
+  //     container.addEventListener("scroll", handleScroll);
+  //     return () => container.removeEventListener("scroll", handleScroll);
+  //   }
+  // }, [currentPage, hasMore,loading, Activechat]);
 
   const handleImageclose = () => {
     setMediaFile(null);
