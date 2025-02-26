@@ -14,7 +14,7 @@ const initialState = {
 export const getAgentConversations = createAsyncThunk(
   "bridge/getAgentConversations",
   async (agentId, { dispatch, getState }) => {
-    debugger
+    
     const { bridge } = getState();
     //if (bridge.conversations.length > 0) return bridge.conversations;
     const response = await dispatch(fetchConversationList({ AgentId: agentId })).unwrap();
@@ -25,8 +25,8 @@ export const getAgentConversations = createAsyncThunk(
 export const getAgentMessages = createAsyncThunk(
   "bridge/getAgentMessages",
   async (conversationId, { dispatch, getState }) => {
-    debugger
-    debugger
+    
+    
     const { bridge } = getState();
     const conversation = bridge.conversations.find(c => c.id === conversationId);
     if (conversation && conversation.messages?.length > 0) {
@@ -40,8 +40,8 @@ export const getAgentMessages = createAsyncThunk(
 export const checkForExpiredConversations = createAsyncThunk(
   "bridge/checkForExpiredConversations",
   async (_, { getState }) => {
-    debugger
-    debugger
+    
+    
     const state = getState();
     const currentTime = Date.now();
     const expiredConversationIds = [];
@@ -101,7 +101,7 @@ const bridgeSlice = createSlice({
   initialState,
   reducers: {
     addConversation: (state, action) => {
-      debugger
+      
       const newConversation = action.payload;
       const existingConversation = state.conversations.find(c => c.id === newConversation.id);
       //const currentTime = Date.now();
@@ -116,12 +116,12 @@ const bridgeSlice = createSlice({
     },
 
     removeConversation: (state, action) => {
-     debugger
+     
       state.conversations = state.conversations.filter((c) => c.id !== action.payload);
     },
     
     addMessageToConversation: (state, action) => {
-      debugger
+      
       const { id, messageContent, typeId, createdDate } = action.payload;
       const conversation = state.conversations.find(c => c.id === id);
     

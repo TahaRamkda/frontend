@@ -177,7 +177,7 @@ const ChatPage = () => {
   //useOneSignal(localStorage.getItem("userId"));
 
   useEffect(() => {
-    debugger
+    
     const initializeOneSignal = async () => {
       if (typeof window !== "undefined" && window.OneSignal) {
         if (window.OneSignal.isInitialized) {

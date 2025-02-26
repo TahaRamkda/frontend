@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState, use } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchConversationReport,
@@ -269,7 +269,7 @@ const ChatsReport = () => {
 
   const handleExportToExcel = () => {
     dispatch(
-      excelExportChatReport({ senderId: senderid, chatId: activeChat, agentId })
+      excelExportChatReport({ senderId: senderid, chatId: activeChat, agentId,searchStr:srcStr,fChatInitiated:initiated, fromDate:FromDate, toDate:ToDate, status:Status })
     );
   };
 
@@ -287,6 +287,7 @@ const ChatsReport = () => {
   };
 
   useEffect(() => {
+    
     if (clientId) {
       setChatLoading(true);
       dispatch(
@@ -308,25 +309,26 @@ const ChatsReport = () => {
     return () => {
       dispatch(clearConversationReportState());
     };
-  }, [dispatch, clientId, senderid, Status, ToDate, FromDate, pageSize,agentId, currentPage,initiated]);
-  
+  }, [dispatch,clientId, senderid, Status, ToDate, FromDate,agentId,initiated]);
 
   useEffect(() => {
-   
+    
       setChatLoading(true);
-      dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize:pageSize,pageNo:currentPage,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated,}));
+      dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize,pageNo:currentPage,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated,}));
 
     return () => {
       dispatch(clearChatReportStatsState());
     };
-  }, [dispatch,senderid,agentId,pageSize,currentPage,FromDate,ToDate,initiated]);
+  }, [dispatch,senderid,agentId,FromDate,ToDate,initiated]);
 
   const handlePageSizeChange = async (newSize) => {
+    
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to first page
     setChatLoading(true);
     await dispatch(
       fetchConversationReport({
+        
         clientId: clientId,
         status: Status,
         srcStr: srcStr,
@@ -339,9 +341,11 @@ const ChatsReport = () => {
         pageNo: 1,
       })
     );
+   await dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize:newSize,pageNo:1,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated,}));
   };
 
   const handlePageChange = async (page) => {
+    
     dispatch(setCurrentPage(page));
     setChatLoading(true);
     await dispatch(
@@ -358,10 +362,12 @@ const ChatsReport = () => {
         pageNo: page,
       })
     );
+    await dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize,pageNo:page,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated,}));
   };
 
+
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
-  const defultpagessize = 10;
+  
 
   const subHeaderComponentMemo = useMemo(() => {
     
@@ -493,7 +499,7 @@ const ChatsReport = () => {
 
       </div>
     );
-  }, [srcStr, senderid, FromDate, ToDate, chatReportStats]);
+  }, [srcStr, senderid, FromDate, ToDate, chatReportStats, agentId, initiated]);
 
   return (
     <App>
@@ -522,7 +528,7 @@ const ChatsReport = () => {
         onChangeRowsPerPage={handlePageSizeChange}
         sortIcon
         sortServer
-        paginationPerPage={defultpagessize}
+        
         paginationRowsPerPageOptions={customPageSizes}
         subHeader
         subHeaderComponent={subHeaderComponentMemo}

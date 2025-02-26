@@ -129,7 +129,10 @@ const AgentReport = () => {
   }, []);
  
    const handleExportToExcel = () => {
-      dispatch(excelExportAgentReport({senderId}))
+      dispatch(excelExportAgentReport({senderId:senderId,
+        toDate: ToDate,
+        fromDate: FromDate,
+        searchStr:srcStr,}))
     };
     const handleSenderChange = (e) => {
       const senderId = e.target.value;

@@ -6,11 +6,11 @@ import { EXCELEXPORTCHATREPORT, EXCELEXPORTCHATMONITOR, EXCELEXPORTAGENTMONITOR,
 
 // Thunk for exporting chat report as Excel
 export const excelExportChatReport = createAsyncThunk(
-  'chatMonitor/excelExportChatReport',
-  async ({ senderId, chatId, agentId }, { rejectWithValue }) => {
+  'chatReport/excelExportChatReport',
+  async ({ senderId, chatId, agentId, searchStr,fChatInitiated, fromDate, toDate,status }, { rejectWithValue }) => {
     
     try {
-      const chatReportExportUrl = `${EXCELEXPORTCHATREPORT}?senderId=${senderId}&id=${chatId}&agentId=${agentId}`;
+      const chatReportExportUrl = `${EXCELEXPORTCHATREPORT}?senderId=${senderId}&id=${chatId}&agentId=${agentId}&searchStr=${searchStr}&status=${status}&fChatInitiated=${fChatInitiated}&fromDate=${fromDate}&toDate=${toDate}`;
       // Make API request and get blob data for Excel file
       const response = await API.get(chatReportExportUrl, { responseType: 'blob' });
       const fileBlob = new Blob([response.data], { type: response.headers['content-type'] });
@@ -42,14 +42,13 @@ export const excelExportChatReport = createAsyncThunk(
 );
 export const excelExportChatMonitor = createAsyncThunk(
   'chatMonitor/excelExportChatMonitor',
-  async ({ senderId, chatId, agentId }, { rejectWithValue }) => {
+  async ({ senderId, chatId, agentId, searchStr,fChatInitiated,status }, { rejectWithValue }) => {
     
     try {
-      const chatMonitorExportUrl = `${EXCELEXPORTCHATMONITOR}?senderId=${senderId}&id=${chatId}&agentId=${agentId}`;
+      const chatMonitorExportUrl = `${EXCELEXPORTCHATMONITOR}?senderId=${senderId}&id=${chatId}&agentId=${agentId}&searchStr=${searchStr}&fChatInitiated=${fChatInitiated}&status=${status}`;
       // Make API request and get blob data for Excel file
       const response = await API.get(chatMonitorExportUrl, { responseType: 'blob' });
       const fileBlob = new Blob([response.data], { type: response.headers['content-type'] });
-      
       // Create download link for Excel file
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(fileBlob);
@@ -76,11 +75,11 @@ export const excelExportChatMonitor = createAsyncThunk(
 );
 
 export const excelExportAgentReport = createAsyncThunk(
-  'chatMonitor/excelExportAgentReport',
-  async ({ senderId, chatId, agentId }, { rejectWithValue }) => {
+  'agentReport/excelExportAgentReport',
+  async ({ senderId, fromDate, toDate, searchStr }, { rejectWithValue }) => {
     
     try {
-      const agentMonitorExportUrl = `${EXCELEXPORTAGENTREPORT}?senderId=${senderId}`;
+      const agentMonitorExportUrl = `${EXCELEXPORTAGENTREPORT}?senderId=${senderId}&searchStr=${searchStr}&fromDate=${fromDate}&toDate=${toDate}`;
       // Make API request and get blob data for Excel file
       const response = await API.get(agentMonitorExportUrl, { responseType: 'blob' });
       const fileBlob = new Blob([response.data], { type: response.headers['content-type'] });
@@ -110,11 +109,11 @@ export const excelExportAgentReport = createAsyncThunk(
   }
 );
 export const excelExportAgentMonitor = createAsyncThunk(
-  'chatMonitor/excelExportChatMonitor',
-  async ({ senderId }, { rejectWithValue }) => {
+  'agentMonitor/excelExportAgentMonitor',
+  async ({ senderId, fromDate, toDate, searchStr }, { rejectWithValue }) => {
     
     try {
-      const agentReportUrl = `${EXCELEXPORTAGENTMONITOR}?senderId=${senderId}`;
+      const agentReportUrl = `${EXCELEXPORTAGENTMONITOR}?senderId=${senderId}&searchStr=${searchStr}&fromDate=${fromDate}&toDate=${toDate}`;
       // Make API request and get blob data for Excel file
       const response = await API.get(agentReportUrl, { responseType: 'blob' });
       const fileBlob = new Blob([response.data], { type: response.headers['content-type'] });

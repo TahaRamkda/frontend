@@ -12,7 +12,7 @@ import {
   FaBan,
   FaCopy,
 } from "react-icons/fa";
-
+import AgentStatusDropdown from "@/components/Dropdowns/AgentStatusDropdown";
 import { AddChat, AddMessage, CheckExpiredNotification,GetConversations,GetConversationMessage,fetchExpiredNotifications } from "@/slices/ChatTest";
 import { getAgentConversations ,getAgentMessages,addConversation, addMessageToConversation ,removeConversation , selectExpiredConversations ,checkForExpiredConversations} from "@/slices/ChatBridgeSlice";
 import UserBadge from "@/public/images/User.jpg";
@@ -43,7 +43,8 @@ import {
   NewAgentMessage,
 } from "@/slices/ConversationSlice";
 import SweetAlert from "sweetalert2";
-import { fetchAgentStats, cleaAgentStats } from "@/slices/AgentSlice";
+import showSweetAlert from "@/components/Sweetalert";
+import { fetchAgentStats, cleaAgentStats, setAgentStatus } from "@/slices/AgentSlice";
 import * as signalR from "@microsoft/signalr";
 import DefinedTemplates from "../../Chats/AgentDefinedTemplate";
 import { toast } from "react-toastify";
@@ -86,6 +87,18 @@ const ChatPage = () => {
   const { AgentStats, loading: statsLoading } = useSelector(
     (state) => state.agents
   );
+  const HandleAgentStatus = (e) => {
+    const StatusId = e.target.value;
+    setChatsloading(true);
+   const response = dispatch(setAgentStatus({ agentId: UserId, statusId: StatusId }));
+   if(response){
+    showSweetAlert({
+      title: "Status Set Successfully",
+      text: "",
+      icon: "success",
+    });
+   }
+  };
   const inputRef = useRef(null);
   const [chatMessages, setChatMessages] = useState([]);
   const [AgentConversation, setAgentConversation] = useState([]);
@@ -142,7 +155,7 @@ const ChatPage = () => {
   useEffect(() => {
     // Handle expired conversations
     expiredConversations.forEach((conversation) => {
-    debugger
+    
       audioRef.current
       ?.play()
       .catch((err) =>
@@ -530,7 +543,7 @@ const ChatPage = () => {
 
     // Message received handler
     const handleIncomingMessage = (message) => {
-      debugger
+      
       audioRef.current
         ?.play()
         .catch((err) =>
@@ -586,7 +599,7 @@ const ChatPage = () => {
 
     // Handles conversation assignment
     const handleConversationAssigned = (notification) => {
-      debugger
+      
       audioRef.current
         ?.play()
         .catch((err) =>
@@ -629,7 +642,7 @@ const ChatPage = () => {
 
     // Handles conversation unassignment
     const handleConversationUnAssigned = (chatId) => {
-      debugger
+      
       if (
         !agentChatRef.current.some((conversation) => conversation.id === chatId)
       )
@@ -838,12 +851,21 @@ const ChatPage = () => {
           </Head>
           <div className="flex justify-between items-center headerchatmenu">
             {/* Logo Section on the Left Side */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 gap-5">
               <img
                 className="m-l-10 h-10 w-auto"
                 src="/images/logo/Loader.svg"
                 alt="Logo"
               />
+              <div className="grid grid-cols-3  items-center  ">
+                    <div className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
+                    <label htmlFor="agentStatusId">Select Agent Status : </label>
+                    </div>
+                    <div className="col-span-2">
+                    <AgentStatusDropdown onChange={HandleAgentStatus} name={'agentStatusId'}/>
+                    </div>
+                    
+                    </div>
             </div>
 
             {/* Action Buttons Section on the Right Side */}

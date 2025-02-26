@@ -22,7 +22,7 @@ const TransferChat = ({ ChatId, onClose, isVisible ,SenderId ,oldAgentId , refre
 
   const handleTransfer = async (e) => {
     e.preventDefault(); // Prevent the form from refreshing the page
-    debugger
+    
     const clientId = localStorage.getItem("clientId");
   
     if (agentId) {

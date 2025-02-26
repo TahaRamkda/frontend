@@ -203,12 +203,13 @@ const refreshPage = () => {
   };
  
   const handleExportToExcel = () => {
-  dispatch(excelExportChatMonitor({ senderId:senderid, chatId: activeChat, agentId }));
+  dispatch(excelExportChatMonitor({ senderId:senderid, chatId: activeChat, agentId, searchStr:srcStr,fChatInitiated:initiated, status:Status }));
 };
 
 
  
    useEffect(() => {
+    
        const checkAndFetch = async () => {
          const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
      
@@ -258,7 +259,7 @@ const refreshPage = () => {
   }, []);
  
   const handleTransferClick = async (id, SenderId, oldAgentId) => {
-    debugger
+    
     setActiveChat(id);
     setSenderId(SenderId);
     setChatLoading(true)
@@ -319,7 +320,7 @@ const refreshPage = () => {
   };
  
   const customPageSizes = [1, 5, 10, 20, 50, 100];  // Custom page size options
-  const defultpagessize = 10;
+ 
  
   const subHeaderComponentMemo = useMemo(() => {
     return (
@@ -400,7 +401,6 @@ const refreshPage = () => {
         paginationTotalRows={totalRecords}
         onChangePage={handlePageChange}
         onChangeRowsPerPage={handlePageSizeChange}
-        paginationPerPage={defultpagessize}
         paginationRowsPerPageOptions={customPageSizes}
         subHeader
         responsive

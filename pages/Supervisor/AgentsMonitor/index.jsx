@@ -97,7 +97,7 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
 
 
  const handleExportToExcel = () => {
-    dispatch(excelExportAgentMonitor({senderId:senderid}))
+    dispatch(excelExportAgentMonitor({senderId:senderid, fromDate:FromDate, toDate:ToDate, searchStr:srcStr})); 
   };
 
   useEffect(() => {
