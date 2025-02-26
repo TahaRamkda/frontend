@@ -49,7 +49,7 @@ export const checkForExpiredConversations = createAsyncThunk(
       const { expireTime, expireType, expireTryCount = 0, id } = conversation;
 
       // Check if the conversation has expired
-      if (expireTime && expireTime <= currentTime && expireType !== 0) {
+      if (expireTime && Date.now(expireTime)  <= currentTime && expireType !== 0) {
         let newExpireTime = null;
         const newRetryCount = expireTryCount + 1;
 
@@ -142,12 +142,6 @@ const bridgeSlice = createSlice({
     
       if (conversation) {
         // Update the last message text
-        
-        // Initialize expireTime if it's undefined
-        if (conversation.expireTime === undefined) {
-          conversation.expireTime = 0;
-        }
-    
         // Update the last message text and updated date
         conversation.lastMessageText = messageContent;
         conversation.updatedDate = createdDate;
@@ -211,7 +205,6 @@ const bridgeSlice = createSlice({
         }
       })
       .addCase(checkForExpiredConversations.fulfilled, (state, action) => {
-        
         const {expiredConversationIds, updatedConversations} = action.payload;
           state.expiredConversationIds = expiredConversationIds;
           state.conversations = updatedConversations;
