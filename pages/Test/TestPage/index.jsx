@@ -139,9 +139,9 @@ const Flow = () => {
           </button>
         </div>
       </div>
-
+      
       <div className="overflow-auto">
-        <DataTable
+        {/* <DataTable
           data={filteredFlows}
           columns={flowColumn}
           highlightOnHover
@@ -181,9 +181,9 @@ const Flow = () => {
               },
             },
           }}
-        />
+        /> */}
       </div>
-
+     
       {isModalOpen && (
         <Modal isOpen={true} toggle={() => setIsModalOpen(false)} fade={false}>
           <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">

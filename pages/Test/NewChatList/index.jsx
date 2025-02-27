@@ -13,7 +13,6 @@ import {
   FaCopy,
 } from "react-icons/fa";
 import AgentStatusDropdown from "@/components/Dropdowns/AgentStatusDropdown";
-import { AddChat, AddMessage, CheckExpiredNotification,GetConversations,GetConversationMessage,fetchExpiredNotifications } from "@/slices/ChatTest";
 import { getAgentConversations ,getAgentMessages,addConversation, addMessageToConversation ,removeConversation , selectExpiredConversations ,checkForExpiredConversations ,setAgentstatus} from "@/slices/ChatBridgeSlice";
 import UserBadge from "@/public/images/User.jpg";
 import Link from "next/link";
@@ -50,9 +49,7 @@ import DefinedTemplates from "../../Chats/AgentDefinedTemplate";
 import { toast } from "react-toastify";
 import { BASE_URL } from "@/utils/apiConstants";
 import Loader from "@/components/Layout/Loader";
-import App from "@/components/Layout/App";
 import EmojiPicker from "emoji-picker-react";
-import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 import { extractTime } from "@/utils/constants";
 import { set } from "date-fns";
 import {

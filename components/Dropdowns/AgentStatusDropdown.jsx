@@ -46,7 +46,9 @@ const AgentStatusDropdown = ({ name, value, onChange }) => {
 
   return (
     <div>
-      <Input
+      
+ 
+      {/* <Input
         type="select"
         innerRef={selectRef}
         name={name}
@@ -63,8 +65,8 @@ const AgentStatusDropdown = ({ name, value, onChange }) => {
           ))
         ) : (
           <option disabled>No records found</option>
-        )}
-      </Input>
+        )}      
+      </Input> */}
     </div>
   );
 };
