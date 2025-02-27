@@ -12,6 +12,7 @@ import {
   FaBan,
   FaCopy,
 } from "react-icons/fa";
+
 import AgentStatusDropdown from "@/components/Dropdowns/AgentStatusDropdown";
 import { getAgentConversations ,getAgentMessages,addConversation, addMessageToConversation ,removeConversation , selectExpiredConversations ,checkForExpiredConversations ,setAgentstatus} from "@/slices/ChatBridgeSlice";
 import UserBadge from "@/public/images/User.jpg";
@@ -134,7 +135,7 @@ const ChatPage = () => {
   const HandleAgentStatus = async (e) => {
     const StatusId = e.target.value;
     setChatsloading(true);
-    setAgentStatus(agent?.status)
+    setAgentStatus(StatusId)
     try {
       debugger
       // Dispatch the thunk and unwrap the result to get the actual payload
@@ -328,18 +329,29 @@ const ChatPage = () => {
 
   //call the fetchConversationList action to fetch agents conversations
   useEffect(() => {
-    const AgentId = localStorage.getItem("userId");
-    const ClientId = localStorage.getItem("clientId");
-    if (AgentId) {
-      dispatch(getAgentConversations(AgentId));
-      dispatch(fetchAgentStats({ clientId: ClientId, agentId: AgentId }));
-      setContactsloading(true);
-    }
-
-    return () => {
-      dispatch(clearconversationstate());
+    const fetchData = async () => {
+        try {
+            const AgentId = localStorage.getItem("userId");
+            const ClientId = localStorage.getItem("clientId");
+            if (AgentId) {
+                dispatch(getAgentConversations(AgentId));
+                dispatch(fetchAgentStats({ clientId: ClientId, agentId: AgentId }));
+                setContactsloading(true);
+                const response = await dispatch(fetchAgentsById({ agentId: AgentId })).unwrap();
+                if (response) {
+                    setAgentStatus(response.result.status);
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            // Optionally handle the error further here, e.g., set an error state
+        }
     };
-  }, [dispatch]);
+    fetchData();
+    return () => {
+        dispatch(clearconversationstate());
+    };
+}, [dispatch]);
 
   // //triggered each time when conversations changes and assign to local state
   useEffect(() => {

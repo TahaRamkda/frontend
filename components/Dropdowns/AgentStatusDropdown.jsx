@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMasterData } from '@/slices/AgentSlice';
 
-const AgentStatusDropdown = ({ name, value, onChange }) => {
+const AgentStatusDropdown = ({ name, value, onChange}) => {
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);

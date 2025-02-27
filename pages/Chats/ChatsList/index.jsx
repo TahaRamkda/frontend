@@ -271,7 +271,7 @@ const ChatPage = () => {
     });
   };
 
-  //onesignal hook
+ 
    //onesignal hook
    useEffect(() => {
      
@@ -569,12 +569,7 @@ const ChatPage = () => {
   const openFileManager = () => {
     fileInputRef.current.click(); // Trigger the file input click event
   };
-
-
-
-
   
-
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (!userId) {
@@ -598,7 +593,7 @@ const ChatPage = () => {
 
     // Message received handler
     const handleIncomingMessage = (message) => {
-      
+      console.log("Received new message:", message);
       audioRef.current
         ?.play()
         .catch((err) =>
@@ -654,7 +649,7 @@ const ChatPage = () => {
 
     // Handles conversation assignment
     const handleConversationAssigned = (notification) => {
-      
+      console.log(" New Conversation assigned:", notification);
       audioRef.current
         ?.play()
         .catch((err) =>
@@ -697,7 +692,7 @@ const ChatPage = () => {
 
     // Handles conversation unassignment
     const handleConversationUnAssigned = (chatId) => {
-      
+      console.log("Conversation unassigned for chat Id:", chatId);
       if (
         !agentChatRef.current.some((conversation) => conversation.id === chatId)
       )
