@@ -1,70 +1,47 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import $ from 'jquery';
-import 'select2/dist/css/select2.min.css';
-import Loader from '../Layout/Loader';
-import 'select2/dist/js/select2.min.js';
 import { fetchMasterData } from '@/slices/AgentSlice';
-import { FormGroup, Label, Input, FormText } from 'reactstrap';
-
 
 const AgentStatusDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
-  const selectRef = useRef(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const { masterData, loading, error } = useSelector((state) => state.agents);
-  const [searchString, setsearchString] = useState("")
-  const [SenderId, setSenderId] = useState(0)
 
-   useEffect(() => {
-      dispatch(fetchMasterData({ type: 'AgentStatus' }));
-    }, [dispatch]);
-    useEffect(() => {
-      if (selectRef.current) {
-        $(selectRef.current).select2({
-          placeholder: 'Select',
-          allowClear: true,
-        });
+  // Fetch master data on mount
+  useEffect(() => {
+    dispatch(fetchMasterData({ type: 'AgentStatus' }));
+  }, [dispatch]);
+
+  // Handle click outside to close dropdown
+ 
+
   
-        $(selectRef.current).on('change', (e) => {
-          let selectedValue = e.target.value;
-          if (!selectedValue) {
-            selectedValue = "0";
-          }
-          onChange({ target: { name, value: selectedValue } });
-        });
-      }
+  if (error) return <p className="text-red-500">Error loading: {error}</p>;
 
-    return () => {
-      if (selectRef.current) {
-        $(selectRef.current).off('change');
-      }
-    };
-  }, [masterData, onChange]);
-
-  if (loading) return <Loader />;
-  if (error) return <p className="text-danger">Error loading: {error}</p>;
+  const handleStatusChange = (selectedId) => {
+    onChange({ target: { name, value: selectedId } });
+    
+  };
 
   return (
-    <div>
-      <Input
-        type="select"
-        innerRef={selectRef}
-        name={name}
-        value={value}
-        onChange={onChange}
-        required
-      >
-        <option value="">Select</option>
-        {masterData && masterData.length > 0 ? (
-          masterData?.map((agent) => (
-            <option key={agent.id} value={agent.id}>
-              {agent.name}
-            </option>
-          ))
-        ) : (
-          <option disabled>No records found</option>
-        )}
-      </Input>
+    <div className="relative" ref={dropdownRef}>
+     
+
+      {/* Dropdown menu */}
+      
+        <div className="absolute right-0 mt-2 w-48 bg-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-10">
+          {masterData.map((option) => (
+            <button
+              key={option.id}
+              onClick={() => handleStatusChange(option.id)}
+              className="flex items-center w-full px-4 py-2 text-sm text-white hover:bg-gray-600 dark:hover:bg-gray-600 focus:outline-none"
+            >
+              <span>{option.name}</span>
+            </button>
+          ))}
+        </div>
+    
     </div>
   );
 };

@@ -13,8 +13,23 @@ import {
   FaCopy,
 } from "react-icons/fa";
 import AgentStatusDropdown from "@/components/Dropdowns/AgentStatusDropdown";
-import { AddChat, AddMessage, CheckExpiredNotification,GetConversations,GetConversationMessage,fetchExpiredNotifications } from "@/slices/ChatTest";
-import { getAgentConversations ,getAgentMessages,addConversation, addMessageToConversation ,removeConversation , selectExpiredConversations ,checkForExpiredConversations} from "@/slices/ChatBridgeSlice";
+import {
+  AddChat,
+  AddMessage,
+  CheckExpiredNotification,
+  GetConversations,
+  GetConversationMessage,
+  fetchExpiredNotifications,
+} from "@/slices/ChatTest";
+import {
+  getAgentConversations,
+  getAgentMessages,
+  addConversation,
+  addMessageToConversation,
+  removeConversation,
+  selectExpiredConversations,
+  checkForExpiredConversations,
+} from "@/slices/ChatBridgeSlice";
 import UserBadge from "@/public/images/User.jpg";
 import Link from "next/link";
 import { MdOutlineTimer } from "react-icons/md";
@@ -44,7 +59,11 @@ import {
 } from "@/slices/ConversationSlice";
 import SweetAlert from "sweetalert2";
 import showSweetAlert from "@/components/Sweetalert";
-import { fetchAgentStats, cleaAgentStats, setAgentStatus } from "@/slices/AgentSlice";
+import {
+  fetchAgentStats,
+  cleaAgentStats,
+  setAgentStatus,
+} from "@/slices/AgentSlice";
 import * as signalR from "@microsoft/signalr";
 import DefinedTemplates from "../../Chats/AgentDefinedTemplate";
 import { toast } from "react-toastify";
@@ -74,30 +93,30 @@ const ChatPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [tempMessages, setTempMessages] = useState([]);
   const dispatch = useDispatch();
-  
+  const [StatusClicked, SetStatusClicked] = useState(false);
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { conversations } = useSelector(state => state.bridge);
-  const {
-    messages,
-    currentPage,
-    hasMore,
-    loading,
-  } = useSelector((state) => state.conversations);
+  const { conversations } = useSelector((state) => state.bridge);
+  const { messages, currentPage, hasMore, loading } = useSelector(
+    (state) => state.conversations
+  );
   const { AgentStats, loading: statsLoading } = useSelector(
     (state) => state.agents
   );
   const HandleAgentStatus = (e) => {
     const StatusId = e.target.value;
     setChatsloading(true);
-   const response = dispatch(setAgentStatus({ agentId: UserId, statusId: StatusId }));
-   if(response){
-    showSweetAlert({
-      title: "Status Set Successfully",
-      text: "",
-      icon: "success",
-    });
-   }
+    const response = dispatch(
+      setAgentStatus({ agentId: UserId, statusId: StatusId })
+    );
+    if (response) {
+      handleStatusClose();
+      showSweetAlert({
+        title: "Status Set Successfully",
+        text: "",
+        icon: "success",
+      });
+    }
   };
   const inputRef = useRef(null);
   const [chatMessages, setChatMessages] = useState([]);
@@ -133,13 +152,13 @@ const ChatPage = () => {
   const [tryReconnect, settryReconnect] = useState(false);
   const lastScrollTop = useRef(0);
   const [UserId, setuserId] = useState(0);
-    const [IsOneSignalLoaded, setIsOneSignalLoaded] = useState(false);
+  const [IsOneSignalLoaded, setIsOneSignalLoaded] = useState(false);
   const expiredConversations = useSelector(selectExpiredConversations);
-  const message = useSelector((state) =>
-    state.bridge.conversations.find((c) => c.id === Activechat)?.messages || []
+  const message = useSelector(
+    (state) =>
+      state.bridge.conversations.find((c) => c.id === Activechat)?.messages ||
+      []
   );
-  
-
 
   useEffect(() => {
     // Dispatch an initial check
@@ -157,43 +176,40 @@ const ChatPage = () => {
   useEffect(() => {
     // Handle expired conversations
     expiredConversations.forEach((conversation) => {
-    
-    
-      if(conversation.expireType === 1){
+      if (conversation.expireType === 1) {
         audioRef.current
-        ?.play()
-        .catch((err) =>
-          console.error("Failed to play notification sound:", err)
+          ?.play()
+          .catch((err) =>
+            console.error("Failed to play notification sound:", err)
+          );
+        toast.error(
+          `Chat with Phone number : ${conversation.phoneNumber} is waiting for your reply.`
         );
-        toast.error(`Chat with Phone number : ${conversation.phoneNumber} is waiting for your reply.`);
-      }
-      else if (conversation.expireType === 2){
+      } else if (conversation.expireType === 2) {
         audioRef.current
-        ?.play()
-        .catch((err) =>
-          console.error("Failed to play notification sound:", err)
+          ?.play()
+          .catch((err) =>
+            console.error("Failed to play notification sound:", err)
+          );
+        toast.error(
+          `Person with Phone number : ${conversation.phoneNumber} is waiting for your reply.`
         );
-        toast.error(`Person with Phone number : ${conversation.phoneNumber} is waiting for your reply.`);
       }
-     
     });
   }, [expiredConversations]);
 
+  useEffect(() => {
+    if (message.length > 0) {
+      setChatMessages([...message]);
+      setActiveSenderId(message[0].senderId);
+    }
+  }, [message]);
 
- useEffect(() => {
-  if (message.length > 0) {
-    setChatMessages([...message]);
-    setActiveSenderId(message[0].senderId);
-  }
-}, [message]);
-
- 
   useEffect(() => {
     // Initialize the audio object only once
     audioRef.current = new Audio("/assets/Notification/chatassigned.mp3");
-    
-    audioRef2.current = new Audio("/assets/Notification/alertsound.mp3");
 
+    audioRef2.current = new Audio("/assets/Notification/alertsound.mp3");
   }, []);
 
   const handleTemplateSend = (details) => {
@@ -233,54 +249,58 @@ const ChatPage = () => {
   };
 
   //onesignal hook
-   //onesignal hook
-   useEffect(() => {
-     
-     const initializeOneSignal = async () => {
-       if (typeof window !== "undefined" && window.OneSignal) {
-         if (window.OneSignal.isInitialized) {
-           console.log("OneSignal is already initialized. Skipping initialization.");
-           return;
-         }
- 
-         try {
-           await window.OneSignal.init({
-             appId: AppId,
-             notifyButton: { enable: true },
-             allowLocalhostAsSecureOrigin: true,
-           });
- 
-           window.OneSignal.isInitialized = true;
-           setIsOneSignalLoaded(true);
- 
-           const externalUserId = localStorage.getItem("userId");
-           if (externalUserId) {
-             await window.OneSignal.login(externalUserId);
-             console.log("External User ID set to:", externalUserId);
-           }
- 
-           // Check if user is already subscribed
-           const isSubscribed = await window.OneSignal.isPushNotificationsEnabled();
-           if (!isSubscribed) {
-             console.log("User is not subscribed. Prompting for push notifications...");
-             window.OneSignal.Slidedown.promptPush();
-           } else {
-             console.log("User is already subscribed.");
-           }
-         } catch (error) {
-           console.error("Error initializing OneSignal:", error);
-         }
-       }
-     };
- 
-     initializeOneSignal();
-   }, []);
+  //onesignal hook
+  useEffect(() => {
+    const initializeOneSignal = async () => {
+      if (typeof window !== "undefined" && window.OneSignal) {
+        if (window.OneSignal.isInitialized) {
+          console.log(
+            "OneSignal is already initialized. Skipping initialization."
+          );
+          return;
+        }
+
+        try {
+          await window.OneSignal.init({
+            appId: AppId,
+            notifyButton: { enable: true },
+            allowLocalhostAsSecureOrigin: true,
+          });
+
+          window.OneSignal.isInitialized = true;
+          setIsOneSignalLoaded(true);
+
+          const externalUserId = localStorage.getItem("userId");
+          if (externalUserId) {
+            await window.OneSignal.login(externalUserId);
+            console.log("External User ID set to:", externalUserId);
+          }
+
+          // Check if user is already subscribed
+          const isSubscribed =
+            await window.OneSignal.isPushNotificationsEnabled();
+          if (!isSubscribed) {
+            console.log(
+              "User is not subscribed. Prompting for push notifications..."
+            );
+            window.OneSignal.Slidedown.promptPush();
+          } else {
+            console.log("User is already subscribed.");
+          }
+        } catch (error) {
+          console.error("Error initializing OneSignal:", error);
+        }
+      }
+    };
+
+    initializeOneSignal();
+  }, []);
 
   useEffect(() => {
     if (templateDetails) {
       const newMessage = {
         messageId: Date.now(),
-        id : templateDetails.ChatId,
+        id: templateDetails.ChatId,
         senderId: message[0]?.senderId,
         typeId: 1,
         messageContent: templateDetails.bodyText,
@@ -294,7 +314,7 @@ const ChatPage = () => {
         createdDate: new Date().toLocaleString(),
       };
       removeUnrepliedMark(templateDetails.ChatId);
-       dispatch(addMessageToConversation(newMessage));
+      dispatch(addMessageToConversation(newMessage));
       //setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
     }
   }, [templateDetails]);
@@ -316,7 +336,6 @@ const ChatPage = () => {
 
   // //triggered each time when conversations changes and assign to local state
   useEffect(() => {
-    
     if (conversations) {
       setContactsloading(false);
       setAgentConversation(conversations);
@@ -340,7 +359,7 @@ const ChatPage = () => {
   //     dispatch(resetMessages());
   //   };
   // };
- 
+
   const handleFetchMessages = (conversationId) => {
     setActiveChat(conversationId);
     const conversation = conversations.find(
@@ -351,7 +370,6 @@ const ChatPage = () => {
       setActiveSenderId(conversation.messages[0].senderId);
     } else {
       dispatch(getAgentMessages(conversationId)).then((response) => {
-        
         setChatMessages(response.payload.messages); // Store in local state
       });
     }
@@ -384,6 +402,12 @@ const ChatPage = () => {
   //Add emoji function
   const addEmoji = (emoji) => {
     setMessageInput((prevMessage) => prevMessage + emoji);
+  };
+  const handleStatusClicked = () => {
+    SetStatusClicked(true);
+  };
+  const handleStatusClose = () => {
+    SetStatusClicked(false);
   };
 
   // const handleScroll = () => {
@@ -531,11 +555,6 @@ const ChatPage = () => {
     fileInputRef.current.click(); // Trigger the file input click event
   };
 
-
-
-
-  
-
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (!userId) {
@@ -559,13 +578,12 @@ const ChatPage = () => {
 
     // Message received handler
     const handleIncomingMessage = (message) => {
-      
       audioRef.current
         ?.play()
         .catch((err) =>
           console.error("Failed to play notification sound:", err)
         );
-        dispatch(addMessageToConversation(message));
+      dispatch(addMessageToConversation(message));
       // const matchingConversationIndex = agentChatRef.current.findIndex(
       //   (conversation) => conversation.id === message.conversationId
       // );
@@ -615,7 +633,6 @@ const ChatPage = () => {
 
     // Handles conversation assignment
     const handleConversationAssigned = (notification) => {
-      
       audioRef.current
         ?.play()
         .catch((err) =>
@@ -658,7 +675,6 @@ const ChatPage = () => {
 
     // Handles conversation unassignment
     const handleConversationUnAssigned = (chatId) => {
-      
       if (
         !agentChatRef.current.some((conversation) => conversation.id === chatId)
       )
@@ -692,15 +708,12 @@ const ChatPage = () => {
     };
 
     const handleConnected = (info) => {
-      
       console.log(info);
     };
 
     const handleDisconnect = (info) => {
-      
       console.log(info);
     };
-
 
     // Setup event listeners
     newConnection.on("MessageReceived", handleIncomingMessage);
@@ -863,8 +876,8 @@ const ChatPage = () => {
         <nav className="text-white bg-gray-900 fixed top-0 left-0 right-0 z-50 shadow-md w-full">
           <Head>
             <title>BCT-Chat Portal</title>
-            {/* <title>{props.title}</title> */}
           </Head>
+
           <div className="flex justify-between items-center headerchatmenu">
             {/* Logo Section on the Left Side */}
             <div className="flex items-center space-x-3 gap-5">
@@ -874,14 +887,10 @@ const ChatPage = () => {
                 alt="Logo"
               />
               <div className="grid grid-cols-3  items-center  ">
-                    <div className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
-                    <label htmlFor="agentStatusId">Select Agent Status : </label>
-                    </div>
-                    <div className="col-span-2">
-                    <AgentStatusDropdown onChange={HandleAgentStatus} name={'agentStatusId'}/>
-                    </div>
-                    
-                    </div>
+                <div className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
+                  <label htmlFor="agentStatusId">Select Agent Status : </label>
+                </div>
+              </div>
             </div>
 
             {/* Action Buttons Section on the Right Side */}
@@ -972,17 +981,36 @@ const ChatPage = () => {
                 </div> */}
                 {/* User Badge with Name and Dropdown */}
                 <div className="relative menuitem menuitemButton">
-                  <button
-                    className="flex ButtonUserName items-center space-x-2 menuitem p-2 bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none"
-                    onClick={() => setDropdownOpen(!dropdownOpen)}
-                  >
-                    <img
-                      src={UserBadge.src}
-                      alt="User"
-                      className="w-8 h-8 rounded-full"
-                    />
-                    <span>{localStorage.getItem("userName")}</span>
-                  </button>
+                  <div className="flex ButtonUserName items-center gap-3 space-x-2 menuitem ">
+                   
+                      <button
+                        className="flex  bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md items-center hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none   p-3"
+                        onClick={() => SetStatusClicked(!StatusClicked)}
+                      >
+                        <i class="fa fa-circle-o-notch" aria-hidden="true">
+                          {" "}
+                          Select Status{" "}
+                        </i>
+                      </button>
+                      {StatusClicked && (
+                        <AgentStatusDropdown
+                          name="agentStatusId"
+                          onChange={HandleAgentStatus}
+                        />
+                      )}
+                   
+                    <button
+                      className="flex  bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md items-center hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none   p-2"
+                      onClick={() => setDropdownOpen(!dropdownOpen)}
+                    >
+                      <img
+                        src={UserBadge.src}
+                        alt="User"
+                        className="w-8 h-8 rounded-full mr-2"
+                      />
+                      <span>{localStorage.getItem("userName")}</span>
+                    </button>
+                  </div>
 
                   {/* Dropdown Menu */}
                   {dropdownOpen && (
@@ -1058,9 +1086,7 @@ const ChatPage = () => {
                               }
                             : { minHeight: "60px" }
                         }
-                        onClick={() =>
-                          handleFetchMessages(conversation.id)
-                        }
+                        onClick={() => handleFetchMessages(conversation.id)}
                       >
                         <div className="d-flex align-items-center w-75">
                           <img
@@ -1179,9 +1205,7 @@ const ChatPage = () => {
                         flexDirection: "column-reverse",
                       }}
                     >
-                      {Chatsloading && (
-                       <Loader/>
-                      )}
+                      {Chatsloading && <Loader />}
                       {chatMessages?.map((message) => (
                         <div
                           key={message.messageId}
