@@ -43,7 +43,7 @@ import {
 } from "@/slices/ConversationSlice";
 import SweetAlert from "sweetalert2";
 import showSweetAlert from "@/components/Sweetalert";
-import { fetchAgentStats } from "@/slices/AgentSlice";
+import { fetchAgentsById,fetchAgentStats } from "@/slices/AgentSlice";
 import * as signalR from "@microsoft/signalr";
 import DefinedTemplates from "../../Chats/AgentDefinedTemplate";
 import { toast } from "react-toastify";
@@ -102,6 +102,7 @@ const ChatPage = () => {
   const toggleModal = () => setModalOpen((prevState) => !prevState);
   const activeChatRef = useRef(Activechat);
   const agentChatRef = useRef([AgentConversation]);
+  const [AgentStatus, setAgentStatus] = useState(0);
   const containerRef = useRef(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [Contactsloading, setContactsloading] = useState(false);
@@ -131,7 +132,7 @@ const ChatPage = () => {
   const HandleAgentStatus = async (e) => {
     const StatusId = e.target.value;
     setChatsloading(true);
-  
+    setAgentStatus(StatusId)
     try {
       debugger
       // Dispatch the thunk and unwrap the result to get the actual payload
@@ -340,13 +341,30 @@ const ChatPage = () => {
 
   //call the fetchConversationList action to fetch agents conversations
   useEffect(() => {
-    const AgentId = localStorage.getItem("userId");
-    const ClientId = localStorage.getItem("clientId");
-    if (AgentId) {
-      dispatch(getAgentConversations(AgentId));
-      dispatch(fetchAgentStats({ clientId: ClientId, agentId: AgentId }));
-      setContactsloading(true);
-    }
+    const fetchData = async () => {
+      const AgentId = localStorage.getItem("userId");
+      const ClientId = localStorage.getItem("clientId");
+
+      if (AgentId) {
+        try {
+          dispatch(getAgentConversations(AgentId));
+          dispatch(fetchAgentStats({ clientId: ClientId, agentId: AgentId }));
+          setContactsloading(true);
+
+          const response = await dispatch(fetchAgentsById({ agentId: AgentId })).unwrap();
+          if (response && response.result) {
+            setAgentStatus(response.result.status);
+          }
+        } catch (error) {
+          console.error('Failed to fetch data:', error);
+          // Optionally set an error state or handle the error (e.g., setContactsloading(false))
+        } finally {
+          setContactsloading(false); // Ensure loading state is reset, even on error
+        }
+      }
+    };
+
+    fetchData();
 
     return () => {
       dispatch(clearconversationstate());
@@ -907,15 +925,7 @@ const ChatPage = () => {
                 src="/images/logo/Loader.svg"
                 alt="Logo"
               />
-              <div className="grid grid-cols-3  items-center  ">
-                    <div className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
-                    <label htmlFor="agentStatusId">Select Agent Status : </label>
-                    </div>
-                    <div className="col-span-2">
-                    <AgentStatusDropdown onChange={HandleAgentStatus} name={'agentStatusId'}/>
-                    </div>
-                    
-                    </div>
+                   
             </div>
 
             {/* Action Buttons Section on the Right Side */}
@@ -1006,17 +1016,34 @@ const ChatPage = () => {
                 </div> */}
                 {/* User Badge with Name and Dropdown */}
                 <div className="relative menuitem menuitemButton">
-                  <button
-                    className="flex ButtonUserName items-center space-x-2 menuitem p-2 bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none"
-                    onClick={() => setDropdownOpen(!dropdownOpen)}
-                  >
-                    <img
-                      src={UserBadge.src}
-                      alt="User"
-                      className="w-8 h-8 rounded-full"
-                    />
-                    <span>{localStorage.getItem("userName")}</span>
-                  </button>
+                  <div className="flex ButtonUserName items-center gap-3 space-x-2 menuitem ">
+                   
+                     <div className="relative">
+                    
+                        <AgentStatusDropdown
+                          name="agentStatusId"
+                          onChange={HandleAgentStatus}
+                          value={AgentStatus}
+                        />
+                      
+                     </div>
+                        
+                   
+                     
+                      
+                    <button
+                      className="flex  bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md items-center hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none   p-2"
+                      onClick={() => setDropdownOpen(!dropdownOpen)}
+                    >
+                      <img
+                        src={UserBadge.src}
+                        alt="User"
+                        className="w-8 h-8 rounded-full mr-2"
+                      />
+                      <span>{localStorage.getItem("userName")}</span>
+                    </button>
+                  {/* User Badge with Name and Dropdown */}
+                  </div>
 
                   {/* Dropdown Menu */}
                   {dropdownOpen && (

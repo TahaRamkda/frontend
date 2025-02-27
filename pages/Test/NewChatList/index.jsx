@@ -422,12 +422,8 @@ const ChatPage = () => {
   const addEmoji = (emoji) => {
     setMessageInput((prevMessage) => prevMessage + emoji);
   };
-  const handleStatusClicked = () => {
-    SetStatusClicked(true);
-  };
-  const handleStatusClose = () => {
-    SetStatusClicked(false);
-  };
+  
+
 
   // const handleScroll = () => {
   //   if (!hasMore || loading) return;
@@ -1000,23 +996,18 @@ const ChatPage = () => {
                 <div className="relative menuitem menuitemButton">
                   <div className="flex ButtonUserName items-center gap-3 space-x-2 menuitem ">
                    
-                      <button
-                        className="flex relative bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none   p-3 transition duration-200 ease-in-out"
-                        onClick={() => SetStatusClicked(!StatusClicked)}
-                      >
-                        <i class="fa fa-circle-o-notch" aria-hidden="true">
-                          {" "}
-                          Select Status{" "}
-                        </i>
-                        {StatusClicked && (
+                     <div className="relative">
+                    
                         <AgentStatusDropdown
                           name="agentStatusId"
                           onChange={HandleAgentStatus}
                           value={AgentStatus}
                         />
-                      )}
+                      
+                     </div>
+                        
                    
-                      </button>
+                     
                       
                     <button
                       className="flex  bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md items-center hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none   p-2"
