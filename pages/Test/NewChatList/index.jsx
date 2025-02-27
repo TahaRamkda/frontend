@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, use } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import OneSignal from "react-onesignal";
@@ -43,7 +43,7 @@ import {
 } from "@/slices/ConversationSlice";
 import SweetAlert from "sweetalert2";
 import showSweetAlert from "@/components/Sweetalert";
-import { fetchAgentStats } from "@/slices/AgentSlice";
+import { fetchAgentsById, fetchAgentStats } from "@/slices/AgentSlice";
 import * as signalR from "@microsoft/signalr";
 import DefinedTemplates from "../../Chats/AgentDefinedTemplate";
 import { toast } from "react-toastify";
@@ -82,6 +82,9 @@ const ChatPage = () => {
   const { AgentStats, loading: statsLoading } = useSelector(
     (state) => state.agents
   );
+  const { agent } = useSelector(
+    (state) => state.agents
+  );
 
   
   const inputRef = useRef(null);
@@ -106,6 +109,7 @@ const ChatPage = () => {
   const [fileType, setFileType] = useState(null);
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const isManualScroll = useRef(false);
+  const [AgentStatus, setAgentStatus] = useState(0);
   const audioRef = useRef(null);
   const audioRef2 = useRef(null);
   const scrollContainerRef = useRef(null);
@@ -130,7 +134,7 @@ const ChatPage = () => {
   const HandleAgentStatus = async (e) => {
     const StatusId = e.target.value;
     setChatsloading(true);
-  
+    setAgentStatus(agent?.status)
     try {
       debugger
       // Dispatch the thunk and unwrap the result to get the actual payload
@@ -736,7 +740,6 @@ const ChatPage = () => {
         console.error("Error while starting the connection:", err);
         setErrordisconnect(true);
       });
-
     // Handle connection loss and attempt to reconnect
     newConnection.onreconnecting((error) => {
       console.warn("Connection lost. Attempting to reconnect...", error);
@@ -778,6 +781,10 @@ const ChatPage = () => {
     };
   }, []);
 
+  useEffect(() => {
+    dispatch(fetchAgentsById({ clientId: localStorage.getItem("clientId"), agentId:UserId  }));
+    
+  },[dispatch,UserId]);
   useEffect(() => {
     if (Errordisconnect) {
       console.warn("Reconnecting SignalR...");
@@ -889,11 +896,7 @@ const ChatPage = () => {
                 src="/images/logo/Loader.svg"
                 alt="Logo"
               />
-              <div className="grid grid-cols-3  items-center  ">
-                <div className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
-                  <label htmlFor="agentStatusId">Select Agent Status : </label>
-                </div>
-              </div>
+              
             </div>
 
             {/* Action Buttons Section on the Right Side */}
@@ -982,26 +985,27 @@ const ChatPage = () => {
                     </span>
                   </span>
                 </div> */}
-                {/* User Badge with Name and Dropdown */}
                 <div className="relative menuitem menuitemButton">
                   <div className="flex ButtonUserName items-center gap-3 space-x-2 menuitem ">
                    
                       <button
-                        className="flex  bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md items-center hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none   p-3"
+                        className="flex relative bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none   p-3 transition duration-200 ease-in-out"
                         onClick={() => SetStatusClicked(!StatusClicked)}
                       >
                         <i class="fa fa-circle-o-notch" aria-hidden="true">
                           {" "}
                           Select Status{" "}
                         </i>
-                      </button>
-                      {StatusClicked && (
+                        {StatusClicked && (
                         <AgentStatusDropdown
                           name="agentStatusId"
                           onChange={HandleAgentStatus}
+                          value={AgentStatus}
                         />
                       )}
                    
+                      </button>
+                      
                     <button
                       className="flex  bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md items-center hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none   p-2"
                       onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -1013,6 +1017,7 @@ const ChatPage = () => {
                       />
                       <span>{localStorage.getItem("userName")}</span>
                     </button>
+                  {/* User Badge with Name and Dropdown */}
                   </div>
 
                   {/* Dropdown Menu */}

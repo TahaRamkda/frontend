@@ -4,6 +4,7 @@ import {
   fetchConversationList,
   fetchConversationMessage,
 } from "./ConversationSlice";
+import { fetchAgentsById } from "./AgentSlice";
 import {setAgentStatus} from './AgentSlice';
 import { date } from "yup";
 const initialState = {
@@ -94,6 +95,13 @@ export const checkForExpiredConversations = createAsyncThunk(
     });
 
     return { expiredConversationIds, updatedConversations };
+  }
+);
+
+export const setAgentById = createAsyncThunk(
+  "bridge/setAgentById",
+  async ({agentId}, { dispatch }) => {
+    const response = await dispatch(fetchAgentsById({ agentId: agentId })).unwrap();
   }
 );
 

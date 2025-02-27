@@ -13,35 +13,41 @@ const AgentStatusDropdown = ({ name, value, onChange }) => {
     dispatch(fetchMasterData({ type: 'AgentStatus' }));
   }, [dispatch]);
 
-  // Handle click outside to close dropdown
- 
-
-  
   if (error) return <p className="text-red-500">Error loading: {error}</p>;
 
   const handleStatusChange = (selectedId) => {
     onChange({ target: { name, value: selectedId } });
-    
   };
 
-  return (
-    <div className="relative" ref={dropdownRef}>
-     
-
-      {/* Dropdown menu */}
-      
-        <div className="absolute right-0 mt-2 w-48 bg-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-10">
-          {masterData.map((option) => (
-            <button
-              key={option.id}
-              onClick={() => handleStatusChange(option.id)}
-              className="flex items-center w-full px-4 py-2 text-sm text-white hover:bg-gray-600 dark:hover:bg-gray-600 focus:outline-none"
-            >
-              <span>{option.name}</span>
-            </button>
-          ))}
-        </div>
+  // Reorder the options: selected option first, then the rest
+  const sortedOptions = () => {
+    if (!value || !masterData.length) return masterData;
     
+    const selectedOption = masterData.find((option) => option.id === value);
+    const otherOptions = masterData.filter((option) => option.id !== value);
+    
+    return selectedOption ? [selectedOption, ...otherOptions] : masterData;
+  };
+
+  const orderedOptions = sortedOptions();
+
+  return (
+    <div
+      className="absolute mt-9 -right-10 w-48 bg-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-10"
+      ref={dropdownRef}
+    >
+      {orderedOptions.map((option) => (
+        <button
+          key={option.id}
+          onClick={() => handleStatusChange(option.id)}
+          className={`flex items-center w-full px-4 py-2 text-sm text-white hover:bg-gray-600 dark:hover:bg-gray-600 focus:outline-none ${
+            option.id === value ? 'bg-gray-600' : ''
+          }`}
+        >
+          <i className="fa fa-check-circle-o mr-2" aria-hidden="true"></i>
+          <span>{option.name}</span>
+        </button>
+      ))}
     </div>
   );
 };
