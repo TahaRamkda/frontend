@@ -925,9 +925,9 @@ const ChatPage = () => {
                 src="/images/logo/Loader.svg"
                 alt="Logo"
               />
-                   
-            </div>
 
+            </div>
+            
             {/* Action Buttons Section on the Right Side */}
             <div className="">
               {/* Sidebar Toggle Button */}

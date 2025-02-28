@@ -52,6 +52,7 @@ const TemplateCategoryDropdown = ({ name, value, onChange, disabled }) => {
         name={name}
         value={value}
         onChange={onChange}
+        className='focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
         required
         disabled={disabled}
       >

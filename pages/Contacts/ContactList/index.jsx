@@ -212,7 +212,8 @@ const ContactList = () => {
 
           {/* Group Dropdown Section */}
           <div className="flex flex-col mb-1  text-start">
-            <label className="font-medium text-gray-700 text-sm">Group</label>
+            
+            <label className="font-medium text-gray-700 text-sm mb-1">Group</label>
             <GroupDropdown
               name="Group"
               value={GroupId}

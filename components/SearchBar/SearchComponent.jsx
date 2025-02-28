@@ -8,7 +8,7 @@ const SearchBar = ({ label, value, onChange, className = "", ...props }) => {
         type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="border rounded py-1 px-2 w-full mt-1 text-sm" 
+        className="border rounded py-1 px-2 w-full mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
         {...props}
       />
     </div>

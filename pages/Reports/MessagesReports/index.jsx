@@ -188,7 +188,7 @@ const MessageReport = () => {
       <div className="w-full">
         <div className='grid grid-cols-5 gap-4'>
           <div className='flex flex-col text-start mb-1'>
-            <label className="font-medium text-gray-700 text-sm">Sender Names</label>
+            <label className="font-medium text-gray-700 text-sm mb-1">Sender Names</label>
             <SendernameDropdown
               name="senderId"
               onChange={handleSenderChange}
@@ -219,19 +219,19 @@ const MessageReport = () => {
             />
 
           </div>
-          <div className='flex flex-col text-start mb-1'>
-            <label className="font-medium text-gray-700 text-sm">Message Type</label>
-            <select
-              id="ModuleId"
-              value={ModuleId}
-              onChange={(e) => setmoduleId(e.target.value)}
-              className="border rounded  w-100"
-            >  <option value={0}>Select</option>
-              <option value={1}>Campaings</option>
-              <option value={2}>API</option>
-            </select>
-
-          </div>
+          <div className="flex flex-col text-start mb-1">
+  <label className="font-medium text-gray-700 text-sm mb-1">Message Type</label>
+  <select
+    id="ModuleId"
+    value={ModuleId}
+    onChange={(e) => setmoduleId(e.target.value)}
+    className="border border-gray-300 rounded-md w-full py-1 px-3 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+  >
+    <option value={0}>Select</option>
+    <option value={1}>Campaigns</option>
+    <option value={2}>API</option>
+  </select>
+</div>
         </div>
 
 
