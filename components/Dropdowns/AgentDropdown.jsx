@@ -52,6 +52,7 @@ const AgentDropdown = ({ name, value, onChange }) => {
         innerRef={selectRef}
         name={name}
         value={value}
+        className='focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
         onChange={onChange}
         required
       >

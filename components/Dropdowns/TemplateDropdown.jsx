@@ -68,6 +68,7 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
         name={name}
         value={value}
         onChange={onChange}
+        
         required
       >
         <option value="0">Select</option>

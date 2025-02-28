@@ -265,7 +265,7 @@ const CampaignsList = () => {
         const timeDifference = (scheduleDate - currentTime) / (1000 * 60 * 60); // Difference in hours
       
         return (
-          <div className='Action_table' id='InfoIcon'>
+          <div className='Action_table flex-wrap' id='InfoIcon'>
   <button 
     title="Schedule Campaign" 
     className="uniform_icon_btn Action_Button w-fulljustify-center items-center p-2" 
@@ -298,7 +298,7 @@ const CampaignsList = () => {
   ) : null}
 </div>
         );
-      }
+      },width: '10%'
     }
     
 
@@ -310,13 +310,16 @@ const CampaignsList = () => {
         <div className="grid grid-cols-5 gap-4 justify-start">
         
           <div className="flex flex-col text-start mb-1">
-            <Label className="font-medium text-sm mb-0">Select Templates</Label>
+            
+            <Label className="font-medium text-sm mb-1">Select Templates</Label>
             <TemplateDropdown
               name="role_Id"
               onChange={handleTemplateChange}
               className="border rounded w-100 MarginBOt"
               TransactionType={1}
             />
+           
+           
           </div>
           <div className="flex flex-col text-start mb-1">
           <SearchBar

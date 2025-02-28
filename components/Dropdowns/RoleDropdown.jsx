@@ -46,16 +46,17 @@ const RoleDropdown = ({ name, value, onChange }) => {
   return (
     <div className="">
 
-      <select
+      <Input
+        type="select"
         id={name}
+        innerRef={selectRef}
         name={name}
-        ref={selectRef}
         value={value}
         onChange={onChange}
-        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
+        className='focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
         required
       >
-        <option value="0">Select</option>
+         <option value="0">Select</option>
         {roleDrop && roleDrop.length > 0 ? (
           roleDrop.map((role) => (
             <option key={role.id} value={role.id}>
@@ -65,7 +66,8 @@ const RoleDropdown = ({ name, value, onChange }) => {
         ) : (
           <option disabled>No records found</option>
         )}
-      </select>
+      </Input>  
+     
     </div>
   );
 };

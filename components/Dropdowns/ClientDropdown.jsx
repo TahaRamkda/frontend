@@ -50,6 +50,7 @@ const ClientDropdown = ({ name, value, onChange }) => {
         type="select"
         innerRef={selectRef}
         name={name}
+        className='focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
         value={value}
         onChange={onChange}
         required

@@ -53,6 +53,7 @@ const SendernameDropdown = ({ name, value, onChange }) => {
         name={name}
         value={value}
         onChange={onChange}
+        className='focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
         required
       >
         <option value="0">Select</option>

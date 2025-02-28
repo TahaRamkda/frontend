@@ -52,6 +52,7 @@ const LanguageDropdown = ({ name, value, onChange, disabled }) => {
         value={value}
         onChange={onChange}
         required
+        className='focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
         disabled={disabled}
       >
         <option value="0">Select</option>
