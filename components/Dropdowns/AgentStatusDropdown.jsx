@@ -4,10 +4,21 @@ import { fetchMasterData } from '@/slices/AgentSlice';
 
 const AgentStatusDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
-  const [isOpen, setIsOpen] = useState(false); // Renamed for clarity, can be removed if not used
-  const dropdownRef = useRef(null);
   const [StatusClicked, SetStatusClicked] = useState(false);
+  const dropdownRef = useRef(null);
   const { masterData, loading, error } = useSelector((state) => state.agents);
+
+  // Function to determine the icon based on status ID
+  const getStatusIcon = (id) => {
+    switch (id) {
+      case 0:
+        return 'fa fa-circle'; // Red circle with gap for Offline
+      case 1:
+        return 'fa fa-circle text-green-500';    // Green chat icon for ReadyToChat
+      default:
+        return 'fa fa-circle text-red-500';       // Default red circle for all other statuses
+    }
+  };
 
   // Fetch master data on mount
   useEffect(() => {
@@ -38,10 +49,10 @@ const AgentStatusDropdown = ({ name, value, onChange }) => {
     SetStatusClicked(!StatusClicked);
   };
 
-  // Get the name of the selected option or default to "Select Status"
-  const buttonText = masterData
-    ? masterData.find((option) => option.id === value)?.name || "Select Status"
-    : "Select Status";
+  // Get the name and icon of the selected option
+  const selectedOption = masterData?.find((option) => option.id === value);
+  const buttonText = selectedOption?.name || "Select Status";
+  const buttonIcon = getStatusIcon(value); // Use the function to get the icon
 
   return (
     <div className="relative">
@@ -49,10 +60,9 @@ const AgentStatusDropdown = ({ name, value, onChange }) => {
         className="flex bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none p-3 transition duration-200 ease-in-out"
         onClick={handleButtonClick}
       >
-        <i className="fa fa-circle-o-notch" aria-hidden="true">
-          {" "}
-          {buttonText}{" "}
-        </i>
+        <i className={`${buttonIcon} mt-1`} aria-hidden="true"></i>
+        
+        <span className="ml-2">{buttonText}</span>
       </button>
       {StatusClicked && (
         <div
@@ -70,8 +80,8 @@ const AgentStatusDropdown = ({ name, value, onChange }) => {
                   option.id === value ? 'bg-gray-600' : ''
                 }`}
               >
-                <i className="fa fa-check-circle-o mr-2" aria-hidden="true"></i>
-                <span>{option.name}</span>
+                <i className={getStatusIcon(option.id)} aria-hidden="true"></i>
+                <span className="ml-2">{option.name}</span>
               </button>
             ))
           )}
