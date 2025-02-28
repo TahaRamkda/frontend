@@ -70,7 +70,7 @@ const AgentStatusDropdown = ({ name, value, onChange }) => {
                   option.id === value ? 'bg-gray-600' : ''
                 }`}
               >
-                <i className="fa fa-check-circle-o mr-2" aria-hidden="true"></i>
+              <i className={`${option.icon || 'fa fa-circle-o-notch'} mr-2`} aria-hidden="true"></i>
                 <span>{option.name}</span>
               </button>
             ))

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, use } from "react";
 import Head from "next/head";
+import { log } from 'next-axiom';
 import { useRouter } from "next/router";
 import OneSignal from "react-onesignal";
 //import { ClipboardCopy } from "lucide-react";
@@ -222,6 +223,7 @@ const ChatPage = () => {
 
   const handleTemplateSend = (details) => {
     //clearTimer(Activechat);
+    log.info("Sent template details:", details); 
     setTemplateDetails(details); // Update parent state
     console.log("Received template details:", details);
   };
