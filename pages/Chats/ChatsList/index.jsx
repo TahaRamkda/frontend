@@ -587,6 +587,19 @@ const ChatPage = () => {
   const openFileManager = () => {
     fileInputRef.current.click(); // Trigger the file input click event
   };
+
+
+  const startSignalRConnection = async (connection, userId) => {
+    try {
+      await connection.start();
+      console.log("Connected to SignalR");
+      setErrordisconnect(false);
+      setheartbeatAttempts(0);
+    } catch (err) {
+      console.error("Error starting SignalR connection:", err);
+      setErrordisconnect(true);
+    }
+  };
   
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -762,46 +775,63 @@ const ChatPage = () => {
     newConnection.on("Connected", handleConnected);
     newConnection.on("DisConnected", handleDisconnect);
 
-    // Start connection
-    newConnection
-      .start()
-      .then(() => {
-        console.log("Connected to SignalR");
-      })
-      .catch((err) => {
-        console.error("Error while starting the connection:", err);
+    
+
+      newConnection.onreconnecting((error) => {
+        console.warn("Reconnecting SignalR...", error);
+        setErrordisconnect(true);
+      });
+    
+      newConnection.onreconnected(() => {
+        console.log("SignalR reconnected successfully");
+        dispatch(getAgentConversations({ AgentId: userId }));
+        setErrordisconnect(false);
+        setheartbeatAttempts(0);
+      });
+    
+      newConnection.onclose((error) => {
+        console.error("SignalR connection closed:", error);
         setErrordisconnect(true);
       });
 
-    // Handle connection loss and attempt to reconnect
-    newConnection.onreconnecting((error) => {
-      console.warn("Connection lost. Attempting to reconnect...", error);
-    });
-
-    newConnection.onclose(() => {
-      console.error("SignalR connection lost. Retrying in 5 seconds...");
-      setTimeout(() => setErrordisconnect(true), 5000);
-    });
-
     // Heartbeat logic
+    // const heartbeatInterval = setInterval(() => {
+    //   if (newConnection.state === signalR.HubConnectionState.Connected) {
+    //     newConnection
+    //       .invoke("Heartbeat")
+    //       .then(() => {
+    //         console.log("Heartbeat sent successfully", new Date());
+    //         setheartbeatAttempts(0);
+    //       })
+    //       .catch((err) => {
+    //         setheartbeatAttempts((prev) => prev + 1);
+    //         console.error(
+    //           `Heartbeat error (${heartbeatAttempts} attempts):`,
+    //           err
+    //         );
+    //       });
+    //   } else {
+    //     setErrordisconnect(true);
+    //     console.warn("Connection is not in the connected state.");
+    //   }
+    // }, HEARTBEAT_CHECK_INTERVAL);
+
+    // Start connection
+    startSignalRConnection(newConnection, userId);
+
+
     const heartbeatInterval = setInterval(() => {
       if (newConnection.state === signalR.HubConnectionState.Connected) {
         newConnection
           .invoke("Heartbeat")
           .then(() => {
-            console.log("Heartbeat sent successfully", new Date());
+            console.log("Heartbeat sent:", new Date());
             setheartbeatAttempts(0);
           })
           .catch((err) => {
             setheartbeatAttempts((prev) => prev + 1);
-            console.error(
-              `Heartbeat error (${heartbeatAttempts} attempts):`,
-              err
-            );
+            console.error(`Heartbeat failed (${heartbeatAttempts}):`, err);
           });
-      } else {
-        setErrordisconnect(true);
-        console.warn("Connection is not in the connected state.");
       }
     }, HEARTBEAT_CHECK_INTERVAL);
 
@@ -814,13 +844,14 @@ const ChatPage = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (Errordisconnect) {
-      console.warn("Reconnecting SignalR...");
+  
 
-      setErrordisconnect(false);
-    }
-  }, [Errordisconnect]);
+ useEffect(() => {
+  if (Errordisconnect && connectionRef.current) {
+    console.warn("Attempting to reconnect SignalR...");
+    startSignalRConnection(connectionRef.current, UserId);
+  }
+}, [Errordisconnect]);
 
   useEffect(() => {
     if (heartbeatAttempts >= 2) {
