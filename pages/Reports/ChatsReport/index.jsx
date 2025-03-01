@@ -63,10 +63,16 @@ const ChatsReport = () => {
   const [ChatLoading, setChatLoading] = useState(false);
   const getMonthStart = () => {
     const date = new Date();
-    return new Date(date.getFullYear(), date.getMonth(), 1)
-      .toISOString()
-      .split("T")[0];
-  };
+    console.log("Raw Current Date:", date.toString());
+    console.log("Year:", date.getFullYear());
+    console.log("Month (0-indexed):", date.getMonth());
+    console.log("Day:", date.getDate());
+    const startDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), 1))
+        .toISOString()
+        .split("T")[0];
+    console.log("Month Start:", startDate);
+    return startDate;
+};
   const getToday = () => {
     const date = new Date();
     return date.toISOString().split("T")[0];
@@ -393,14 +399,14 @@ const ChatsReport = () => {
             />
           </div>
           <div className="flex flex-col text-start ">
-            <label className="font-medium text-gray-700 text-sm mt-1">
-              Initiated
+            <label className="font-medium text-gray-700 text-sm mb-1">
+              Source
             </label>
             <select
               id="initiated"
               value={initiated}
               onChange={handleInitiateChange}
-              className="border rounded  w-100 h-12 "
+              className="border rounded  w-100 h-[47px]"
             >
               <option value="">Select </option>
               <option value="0">Conversations </option>
@@ -410,7 +416,7 @@ const ChatsReport = () => {
           </div>
 
           <div className="flex flex-col text-start ">
-            <label className="font-medium text-gray-700 text-sm">
+            <label className="font-medium text-gray-700 text-sm mb-1">
               Sender Names
             </label>
             <SendernameDropdown
@@ -420,7 +426,7 @@ const ChatsReport = () => {
             />
           </div>
           <div className="flex flex-col text-start ">
-            <label className="font-medium text-gray-700 text-sm">Agents </label>
+            <label className="font-medium text-gray-700 text-sm mb-1">Agents </label>
             <AgentDropdown
               name="agentId"
               onChange={handleAgentChange}
@@ -428,7 +434,7 @@ const ChatsReport = () => {
             />
           </div>
           <div className="flex flex-col text-start ">
-            <label className="font-medium text-gray-700 text-sm">Status</label>
+            <label className="font-medium text-gray-700 text-sm mb-1">Status</label>
             <Select
               options={statusOptions}
               isMulti

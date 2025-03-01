@@ -138,7 +138,7 @@ const ChatPage = () => {
     setChatsloading(true);
     setAgentStatus(StatusId)
     try {
-      debugger
+      
       // Dispatch the thunk and unwrap the result to get the actual payload
       const response = await dispatch(setAgentstatus({ agentId: UserId, statusId: StatusId })).unwrap();
        if(response.success){
@@ -248,7 +248,7 @@ const ChatPage = () => {
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
-        debugger
+        
         const mockEvent = { target: { value: "0" } };
         HandleAgentStatus(mockEvent);
 
