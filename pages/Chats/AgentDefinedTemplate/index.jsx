@@ -463,7 +463,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
 
               {/* Send Button */}
               {selectedOption && (
-                <div className="text-end">
+                <div className="text-end mt-2">
                   <button
                     type="submit"
                     className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600"
