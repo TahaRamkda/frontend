@@ -165,8 +165,8 @@ const SendernameList = () => {
               type="search"
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
-              className="border rounded"
-            //  placeholder=" "
+              className="border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+           
             />
           </div>
         </div>

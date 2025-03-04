@@ -834,6 +834,9 @@ const TemplateCreationPage = () => {
               onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
+                const ToggleModal = () => {
+                  setShowMediaPopup(false)
+                }
                 return (
                   <Form>
                     <div className="">
@@ -959,6 +962,7 @@ const TemplateCreationPage = () => {
                               {showMediaPopup && (
                                 <MediaPopUp
                                   isPopup={true}
+                                  ToggleModal={ToggleModal}
                                   senderId={selectedSenderId}
                                   contentTypeStr={
                                     values.headerType === "2"

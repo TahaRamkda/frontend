@@ -7,6 +7,7 @@ import {
   DASHBOARDSUMMARY,
   TEMPLATEINSIGHT,
   CONVERSATIONREPORT,
+  SUPERVISORDASHBOARD,
   AGENTREPORT,
   CHATREPORTSTATS,
   CHATREPORTLOGS,
@@ -105,6 +106,29 @@ export const fetchConversationReport = createAsyncThunk(
         };
       } else {
         throw new Error('Failed to fetch details');
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
+export const fetchSupervisorDashboard = createAsyncThunk(
+  "supervisordashboard /fetchSupervisorDashboard",
+  async ({senderid }, { rejectWithValue }) => {
+    try {
+      const response = await API.get(
+        `${SUPERVISORDASHBOARD}?SenderId=${senderid}`
+      );
+      if (response?.status === 200) {
+        // const parseddata= JSON.parse(response.data, 2);
+
+        return {
+          supervisorDashboard: response.data.result,
+        };
+      } else {
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -235,6 +259,7 @@ const reportSlice = createSlice({
     messagereport: [],
     templateInsight: [],
     ConversationReport:[],
+    supervisorDashboard:[],
     AgentReportList:[],
     chatReportStats:[],
     loading: false,
@@ -264,6 +289,12 @@ const reportSlice = createSlice({
       state.totalPages = 1;
       state.pageSize = 10;
       state.totalRecords = 0;
+    },
+    clearSupervisorDashboardState: (state) => {
+      state.supervisorDashboard = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
     },
     clearDashboardReportState: (state) => {
       state.dashboardsummary = [];
@@ -441,6 +472,22 @@ const reportSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
+      // Supervisor Dashboard
+      .addCase(fetchSupervisorDashboard.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSupervisorDashboard.fulfilled, (state, action) => {
+        state.loading = false;
+        state.supervisorDashboard = JSON.parse(action.payload.supervisorDashboard); //action.payload.messagereportsummary
+        state.message = action.payload.message || "";
+      })
+      .addCase(fetchSupervisorDashboard.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+
       // Chat Report Stats
       .addCase(fetchChatReportStats.pending, (state) => {
         state.loading = true;
@@ -486,6 +533,7 @@ export const {
   clearTemplateInsightState,
   clearConversationReportState,
   clearMessageSummaryState,
+  clearSupervisorDashboardState,
   clearMessageReportState,
   clearChatReportStatsState,
   clearAgentReportState,

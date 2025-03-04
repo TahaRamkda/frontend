@@ -517,6 +517,9 @@ const CampaignCreate = () => {
               onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
+                const ToggleModal = () => {
+                  setShowMediaPopup(false)
+                }
                 return (
                   <Form>
                     <div>
@@ -576,6 +579,7 @@ const CampaignCreate = () => {
                         {showMediaPopup && (
                           <MediaPopUp
                             isPopup={true}
+                            ToggleModal={ToggleModal}
                             contentTypeStr={
                               template.headerType === 2
                                 ? "image"

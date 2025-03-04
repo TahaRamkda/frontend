@@ -2,13 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import { Formik, Form, ErrorMessage } from "formik";
 import * as Yup from "yup"; 
 import { useDispatch, useSelector } from "react-redux";
-import { uploadMedia, clearMediaUploadState, fetchMedia, deleteMedia } from "@/slices/MediaSlice";
+import { uploadMedia, clearMediaUploadState, fetchMedia, deleteMedia, clearMediaState } from "@/slices/MediaSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import { Modal, ModalHeader, ModalBody, Button } from "reactstrap";
 import Loader from "@/components/Layout/Loader";
 import { BASE_URL } from "@/utils/apiConstants";
 import UploadMedia from "../UploadMedia";
-const MediaPopUp = ({ isPopup, onSelectMedia, contentTypeStr,senderId }) => {
+const MediaPopUp = ({ isPopup, onSelectMedia, contentTypeStr,senderId, ToggleModal }) => {
   const dispatch = useDispatch();
   const [selectedSenderId, setSelectedSenderId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(true);
@@ -79,9 +79,13 @@ const [ispopUp, setispopUp] = useState(true);
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
+    if (ToggleModal) {
+      ToggleModal();
+    }
+    dispatch(clearMediaState())
   };
   const handleSelectImage = (mediaId, mediaPath, mimeType) => {
-
+    dispatch(clearMediaState())
     setSelectedMediaId(mediaId);
     onSelectMedia(mediaId, mediaPath, mimeType);
     toggleModal();
@@ -135,24 +139,24 @@ const [ispopUp, setispopUp] = useState(true);
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 lg:grid-cols-5 gap-4">
           {Medialist.map((media) => (
-            <div key={media.mediaId} className="flex flex-col items-center space-y-2">
+            <div key={media?.mediaId} className="flex flex-col items-center space-y-2">
               <div className="w-full  overflow-hidden">
-                {renderMediaPreview(media.mediaPath, media.contentType || "application/pdf")}
+                {renderMediaPreview(media?.mediaPath, media?.contentType || "application/pdf")}
               </div>
               {isPopup ? (
                 <button
                   type="button"
-                  className={` Btn-Regular  ${selectedMediaId === media.id ? "bg-green-500" : ""}`}
+                  className={` Btn-Regular  ${selectedMediaId === media?.id ? "bg-green-500" : ""}`}
                   onClick={() =>
-                    handleSelectImage(media.id, media.mediaPath, media.contentType)
+                    handleSelectImage(media?.id, media?.mediaPath, media?.contentType)
                   }
                 >
-                  {selectedMediaId === media.mediaId ? "Selected" : "Select"}
+                  {selectedMediaId === media?.mediaId ? "Selected" : "Select"}
                 </button>
               ) : (
                 <button
                   className="w-full px-4 py-2 rounded  bg-red-500 text-white"
-                  onClick={() => handleDeleteClick(media.id)}
+                  onClick={() => handleDeleteClick(media?.id)}
                 >
                   Delete
                 </button>

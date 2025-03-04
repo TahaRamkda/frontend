@@ -640,7 +640,7 @@ const InteractiveTemplateUpdate = () => {
               value={language}
               disabled={true}
             />
-            <Formik
+           <Formik
               initialValues={{
                 templateName: interactivetemplatedetail.templateName,
                 headerType: interactivetemplatedetail.headerType,
@@ -659,6 +659,32 @@ const InteractiveTemplateUpdate = () => {
               onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
+                const handleHeaderTypeChange = (e) => {
+                  const newValue = e.target.value;
+                  setFieldValue("headerType", newValue);
+                  if (["2", "3", "4"].includes(newValue)) {
+                    setShowMediaPopup(true);
+                  }
+                };
+
+                const ToggleModal =() =>{
+                  setShowMediaPopup(false)
+                }
+                const getMediaTypeText = (headerType) => {
+                  switch (headerType) {
+                    case "2":
+                    case 2:
+                      return "Image";
+                    case "3":
+                    case 3:
+                      return "Video";
+                    case "4":
+                    case 4:
+                      return "Document";
+                    default:
+                      return "";
+                  }
+                };
                 return (
                   <Form>
                     <div style={{ background: "#fff" }} className="">
@@ -728,6 +754,7 @@ const InteractiveTemplateUpdate = () => {
                           as={Input}
                           type="select"
                           name="headerType"
+                          onChange={handleHeaderTypeChange} // Added custom handler
                           className="form-control"
                           style={{ height: "46px" }}
                         >
@@ -767,33 +794,31 @@ const InteractiveTemplateUpdate = () => {
                           </FormGroup>
                         )}
                         {/* {console.log("Value Mania", ["2", "3", "4"].includes(values.headerType))} */}
-                        {interactivetemplatedetail && [2, 3, 4].includes(values.headerType) && (
-                          <>
+                        {interactivetemplatedetail &&
+                          [2, 3, 4].includes(Number(values.headerType)) && (
                             <div>
                               <div className="mt-3 text-sm">
                                 <button
-                                  type="button" // Explicitly prevent form submission
+                                  type="button"
                                   className="text-blue-500 hover:underline text-sm font-medium"
                                   onClick={(e) => {
-                                    e.preventDefault(); // Prevent default browser behavior
-                                    setShowMediaPopup(true); // Show the media popup
+                                    e.preventDefault();
+                                    setShowMediaPopup(true);
                                   }}
                                 >
-                                  Change{" "}
-                                  {values.headerType === 2
-                                    ? "Image"
-                                    : values.headerType === 3
-                                    ? "Video"
-                                    : "Document"}
+                                  Change {getMediaTypeText(values.headerType)}{" "}
+                                  {/* Updated text */}
                                 </button>
-
                                 {showMediaPopup && (
                                   <MediaPopUp
                                     isPopup={true}
+                                    ToggleModal={ToggleModal}
                                     contentTypeStr={
+                                      values.headerType === "2" ||
                                       values.headerType === 2
                                         ? "image"
-                                        : values.headerType === 3
+                                        : values.headerType === "3" ||
+                                          values.headerType === 3
                                         ? "video"
                                         : "application"
                                     }
@@ -805,14 +830,13 @@ const InteractiveTemplateUpdate = () => {
                                       setSelectedMediaId(mediaId);
                                       setSelectedMediaPath(mediaPath);
                                       setSelectedMediaType(mimeType);
-                                      setShowMediaPopup(false); // Close the popup after selection
+                                      setShowMediaPopup(false);
                                     }}
                                   />
                                 )}
                               </div>
                             </div>
-                          </>
-                        )}
+                          )}
                       </div>
                     </div>
 
@@ -1265,7 +1289,7 @@ const InteractiveTemplateUpdate = () => {
                   />
                 )}
                 <div
-                  dangerouslySetInnerHTML={{ __html: messagePreview?.body }}
+                  dangerouslySetInnerHTML={{ __html: messagePreview.body }}
                 />
                 {messagePreview.footer && (
                   <p style={{ marginTop: "5px", fontSize: "0.9em" }}>

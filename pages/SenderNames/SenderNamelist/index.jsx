@@ -70,7 +70,6 @@ const SendernameList = () => {
   };
 
 
-
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -135,9 +134,10 @@ const SendernameList = () => {
               type="search"
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
-              className="border rounded"
+              className="border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             //  placeholder=" "
             />
+            
           </div>
         </div>
       </div>

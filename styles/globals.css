@@ -56,6 +56,9 @@ input[readonly] {
   width: 100%;
 }
 
+.jWAaK {
+  position: unset !important;
+}
 
 .load-page-button {
   padding: 0.5rem 1rem;

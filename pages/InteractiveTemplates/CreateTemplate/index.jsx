@@ -577,6 +577,9 @@ const InteractiveTemplateCreation = () => {
               onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
+                const ToggleModal = ()=>{
+                  setShowMediaPopup(false)
+                }
                 return (
                   <Form>
                     <div className="">
@@ -726,6 +729,7 @@ const InteractiveTemplateCreation = () => {
                                 {showMediaPopup && (
                                   <MediaPopUp
                                     isPopup={true}
+                                    ToggleModal={ToggleModal}
                                     contentTypeStr={
                                       values.headerType === "2"
                                         ? "image"
