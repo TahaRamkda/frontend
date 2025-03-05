@@ -17,6 +17,7 @@ import AgentStatusDropdown from "@/components/Dropdowns/AgentStatusDropdown";
 import { getAgentConversations ,getAgentMessages,addConversation, addMessageToConversation ,removeConversation , selectExpiredConversations ,checkForExpiredConversations ,setAgentstatus} from "@/slices/ChatBridgeSlice";
 import UserBadge from "@/public/images/User.jpg";
 import Link from "next/link";
+import { useLogger } from "next-axiom"; // Import Axiom logger
 import { MdOutlineTimer } from "react-icons/md";
 import { AiOutlineHourglass } from "react-icons/ai";
 import {
@@ -70,6 +71,7 @@ import {
 import { sendPushNotification } from "@/components/SendPushNotification";
 const ChatPage = () => {
   const router = useRouter();
+  const log = useLogger(); // Initialize Axiom logger
   const [modalOpen, setModalOpen] = useState(false);
   const [tempMessages, setTempMessages] = useState([]);
   const dispatch = useDispatch();
@@ -536,7 +538,7 @@ const ChatPage = () => {
       //   );
       // }
     } catch (error) {
-      console.error("Error sending message:", error);
+      log.error("Error sending message:", error);
       toast.error("Failed to send message. Please try again.");
     }
   };

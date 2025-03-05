@@ -1,320 +1,267 @@
-'use client'; // Mark as client-side component
-
-import React from 'react';
+import React, { useState, useEffect, useCallback } from "react";
+import Head from "next/head";
+import { toast } from "react-toastify";
 import {
+  Card,
   Container,
   Row,
   Col,
-  Card,
-  CardBody,
-  CardTitle,
+  Button,
+  Spinner,
+  Input,
+  FormGroup,
+  Label,
+  Modal,
+  ModalHeader,
+  ModalBody,
   Table,
-  Badge,
-  Alert,
-  Nav,
-  NavItem,
-} from 'reactstrap';
-import { Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+} from "reactstrap";
+import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 
-// Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
-// Dummy data
-const agentStatusData = [
-  { status: 'Online', count: 25, color: '#4caf50', icon: 'bi-headset' }, // Green
-  { status: 'Not Ready to Chat', count: 8, color: '#2196f3', icon: 'bi-pause' }, // Blue
-  { status: 'Offline', count: 12, color: '#f44336', icon: 'bi-person' }, // Red
-  { status: 'On Training', count: 5, color: '#ff9800', icon: 'bi-book' }, // Yellow
-];
-
-const chatStatusData = [
-  { id: 'C001', customer: 'John Doe', status: 'Waiting for Agent', waitTime: '5 min', icon: 'bi-hourglass-split' },
-  { id: 'C002', customer: 'Jane Smith', status: 'Assigned', agent: 'Agent A', waitTime: '2 min', icon: 'bi-person-check' },
-  { id: 'C003', customer: 'Mike Johnson', status: 'In Progress', agent: 'Agent B', waitTime: '8 min', icon: 'bi-chat-dots' },
-  { id: 'C004', customer: 'Sara Lee', status: 'Resolved', agent: 'Agent C', waitTime: '1 min', icon: 'bi-check-circle' },
-  { id: 'C005', customer: 'Tom Brown', status: 'Waiting for Agent', waitTime: '10 min', icon: 'bi-hourglass-split' },
-];
-
-const alertsData = [
-  { message: 'Chat C005 looking for agent for 10 minutes', severity: 'danger', time: 'Now' },
-  { message: 'Agent D offline for last 1 hour', severity: 'warning', time: '1 hr ago' },
-  { message: 'High chat volume detected', severity: 'info', time: '15 min ago' },
-  { message: 'Chat C003 escalated to supervisor', severity: 'warning', time: '5 min ago' },
-];
-
-const agentDetailsData = [
-  { name: 'Agent A', status: 'Online', since: '2 hr ago', color: '#4caf50' },
-  { name: 'Agent B', status: 'Online', since: '1 hr ago', color: '#4caf50' },
-  { name: 'Agent C', status: 'Offline', since: '30 min ago', color: '#f44336' },
-  { name: 'Agent D', status: 'Offline', since: '1 hr ago', color: '#f44336' },
-  { name: 'Agent E', status: 'Not Ready to Chat', since: '45 min ago', color: '#2196f3' },
-  { name: 'Agent F', status: 'On Training', since: '3 hr ago', color: '#ff9800' },
-];
-
-// Chart data preparation
-const chatsReceivedVsAssigned = {
-  labels: ['Chats Received', 'Agents Assigned'],
-  datasets: [
-    {
-      label: 'Count',
-      data: [chatStatusData.length, chatStatusData.filter(chat => chat.agent).length],
-      backgroundColor: ['#36A2EB', '#FF6384'],
-    },
-  ],
-};
-
-const chatsPerAgent = () => {
-  const agentChatCount = chatStatusData.reduce((acc, chat) => {
-    if (chat.agent) {
-      acc[chat.agent] = (acc[chat.agent] || 0) + 1;
-    }
-    return acc;
-  }, {});
-  const agents = Object.keys(agentChatCount);
-  return {
-    labels: agents,
-    datasets: [
-      {
-        label: 'Chats Handled',
-        data: agents.map(agent => agentChatCount[agent]),
-        backgroundColor: agents.map(() => '#FFCE56'),
-      },
-    ],
-  };
-};
-
-const agentStatusDistribution = {
-  labels: agentStatusData.map(status => status.status),
-  datasets: [
-    {
-      label: 'Agents',
-      data: agentStatusData.map(status => status.count),
-      backgroundColor: agentStatusData.map(status => status.color),
-    },
-  ],
-};
-
-const chartOptions = {
-  responsive: true,
-  plugins: {
-    legend: { position: 'top' },
-    title: { display: true, text: '' }, // Set dynamically in component
-  },
-};
-
-const DashboardPage = () => {
-  const agentChatCount = chatStatusData.reduce((acc, chat) => {
-    if (chat.agent) {
-      acc[chat.agent] = (acc[chat.agent] || 0) + 1;
-    }
-    return acc;
-  }, {});
-  const leastChatsAgent = Object.entries(agentChatCount).reduce(
-    (min, [agent, count]) => (count < min.count ? { agent, count } : min),
-    { agent: Object.keys(agentChatCount)[0], count: agentChatCount[Object.keys(agentChatCount)[0]] }
+const LogsPage = () => {
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [startDate, setStartDate] = useState(
+    new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split("T")[0]
   );
+  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
+  const [logLevel, setLogLevel] = useState("");
+  const [selectedLog, setSelectedLog] = useState(null); // Track selected log for modal
+  const [modalOpen, setModalOpen] = useState(false); // Control modal visibility
+
+  // Fetch logs from Axiom API
+  const fetchLogs = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      let query = "[] | limit 100";
+      if (logLevel) {
+        query = `['${logLevel}'] | limit 100`;
+      }
+
+      const response = await axios.post(
+        `https://api.axiom.co/v1/datasets/${process.env.NEXT_PUBLIC_AXIOM_DATASET}/query`,
+        {
+          query,
+          startTime: `${startDate}T00:00:00Z`,
+          endTime: `${endDate}T23:59:59Z`,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_AXIOM_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      setLogs(response.data.matches || []);
+    } catch (err) {
+      setError(err.message || "Failed to fetch logs");
+      toast.error(`Error fetching logs: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLogs();
+  }, [logLevel, startDate, endDate]);
+
+  const handleRefresh = useCallback(() => {
+    fetchLogs();
+  }, [fetchLogs]);
+
+  // Open modal with selected log details
+  const openLogDetails = useCallback((index) => {
+    console.log("Opening log details for index:", index);
+    setSelectedLog(logs[index]);
+    setModalOpen(true);
+  }, [logs]);
+
+  // Close modal
+  const closeModal = useCallback(() => {
+    console.log("Closing modal");
+    setModalOpen(false);
+    setSelectedLog(null);
+  }, []);
 
   return (
-    <Container fluid className="py-4 d-flex">
-      {/* Side Panel (Always Open) */}
-      <div className="bg-light border-right" style={{ width: '250px', minWidth: '250px' }}>
-        <Nav vertical className="w-100">
-          <NavItem className="w-100">
-            <h5 className="p-3 border-bottom">Agent Details</h5>
-            {agentDetailsData.map((agent) => (
-              <div key={agent.name} className="p-2 border-bottom">
-                <div className="d-flex align-items-center">
-                  <span
-                    style={{
-                      width: '10px',
-                      height: '10px',
-                      backgroundColor: agent.color,
-                      borderRadius: '50%',
-                      marginRight: '10px',
-                    }}
-                  ></span>
-                  <div>
-                    <strong>{agent.name}</strong>
-                    <p className="mb-0 text-muted">
-                      {agent.status} ({agent.since})
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </NavItem>
-        </Nav>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-grow-1">
+    <>
+      <Head>
+        <title>Logs Viewer - BCT-Chat Portal</title>
+      </Head>
+      <Container fluid className="h-100 py-4">
         <Row>
-          <Col xs={12} className="mb-3">
-            <h1 className="font-weight-bold">Call Center Dashboard</h1>
-          </Col>
-        </Row>
-
-        {/* Section 1: Agent Status */}
-        <Row className="mb-4">
-          <Col xs={12}>
-            <h4 className="mb-3">Agent Status</h4>
-            <div className="d-flex flex-wrap">
-              {agentStatusData.map((status) => (
-                <Card
-                  key={status.status}
-                  className="mb-2 mr-2"
-                  style={{ borderLeft: `5px solid ${status.color}`, minWidth: '200px' }}
+          <Col>
+            <Card className="p-4 shadow-sm">
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h2 className="mb-0">Logs Viewer</h2>
+                <Button
+                  color="primary"
+                  onClick={handleRefresh}
+                  disabled={loading}
                 >
-                  <CardBody className="d-flex align-items-center">
-                    <i
-                      className={`${status.icon} mr-3`}
-                      style={{ color: status.color, fontSize: '2rem' }}
-                    ></i>
-                    <div>
-                      <CardTitle tag="h6" className="mb-0">
-                        {status.status}
-                      </CardTitle>
-                      <h3>{status.count}</h3>
-                    </div>
-                  </CardBody>
-                </Card>
-              ))}
-            </div>
-          </Col>
-        </Row>
+                  {loading ? <Spinner size="sm" /> : "Refresh Logs"}
+                </Button>
+              </div>
 
-        {/* Section 2: Chat Status Table and Charts */}
-        <Row className="mb-4">
-          <Col xs={12}>
-            <h4 className="mb-3">Chat Status</h4>
-            <Table bordered responsive>
-              <thead className="thead-dark">
-                <tr>
-                  <th>Chat ID</th>
-                  <th>Customer</th>
-                  <th>Status</th>
-                  <th>Agent</th>
-                  <th>Wait Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                {chatStatusData.map((chat) => (
-                  <tr key={chat.id}>
-                    <td>{chat.id}</td>
-                    <td>{chat.customer}</td>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <i
-                          className={`${chat.icon} mr-2`}
-                          style={{
-                            color:
-                              chat.status === 'Waiting for Agent'
-                                ? '#ffc107'
-                                : chat.status === 'Assigned'
-                                ? '#007bff'
-                                : chat.status === 'In Progress'
-                                ? '#17a2b8'
-                                : '#28a745',
-                            fontSize: '1.2rem',
-                          }}
-                        ></i>
-                        <Badge
-                          color={
-                            chat.status === 'Waiting for Agent'
-                              ? 'warning'
-                              : chat.status === 'Assigned'
-                              ? 'primary'
-                              : chat.status === 'In Progress'
-                              ? 'info'
-                              : 'success'
-                          }
-                        >
-                          {chat.status}
-                        </Badge>
-                      </div>
-                    </td>
-                    <td>{chat.agent || 'N/A'}</td>
-                    <td>{chat.waitTime}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </Col>
-          {/* Chart 1: Chats Received vs. Agents Assigned */}
-          <Col xs={12} md={6} className="mt-4">
-            <Card>
-              <CardBody>
-                <Bar
-                  data={chatsReceivedVsAssigned}
-                  options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: 'Chats Received vs. Agents Assigned' } } }}
-                />
-              </CardBody>
-            </Card>
-          </Col>
-          {/* Chart 2: Chats per Agent */}
-          <Col xs={12} md={6} className="mt-4">
-            <Card>
-              <CardBody>
-                <Bar
-                  data={chatsPerAgent()}
-                  options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: `Chats per Agent (Least: ${leastChatsAgent.agent} - ${leastChatsAgent.count})` } } }}
-                />
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
+              {/* Filters */}
+              <Row className="mb-3">
+                <Col md="4">
+                  <FormGroup>
+                    <Label for="startDate">Start Date</Label>
+                    <Input
+                      type="date"
+                      id="startDate"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      max={endDate}
+                    />
+                  </FormGroup>
+                </Col>
+                <Col md="4">
+                  <FormGroup>
+                    <Label for="endDate">End Date</Label>
+                    <Input
+                      type="date"
+                      id="endDate"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      min={startDate}
+                      max={new Date().toISOString().split("T")[0]}
+                    />
+                  </FormGroup>
+                </Col>
+                <Col md="4">
+                  <FormGroup>
+                    <Label for="logLevel">Log Level</Label>
+                    <Input
+                      type="select"
+                      id="logLevel"
+                      value={logLevel}
+                      onChange={(e) => setLogLevel(e.target.value)}
+                    >
+                      <option value="">All Levels</option>
+                      <option value="info">Info</option>
+                      <option value="error">Error</option>
+                      <option value="debug">Debug</option>
+                      <option value="warn">Warn</option>
+                    </Input>
+                  </FormGroup>
+                </Col>
+              </Row>
 
-        {/* Section 3: Alerts and Additional Chart */}
-        <Row className="mb-4">
-          <Col xs={12} md={6}>
-            <h4 className="mb-3">Alerts</h4>
-            {alertsData.map((alert, index) => (
-              <Alert key={index} color={alert.severity} className="mb-2">
-                <div className="d-flex align-items-center">
-                  <i
-                    className="bi-exclamation-triangle-fill mr-2"
-                    style={{
-                      color:
-                        alert.severity === 'danger'
-                          ? '#dc3545'
-                          : alert.severity === 'warning'
-                          ? '#ffc107'
-                          : '#17a2b8',
-                      fontSize: '1.2rem',
-                    }}
-                  ></i>
-                  <div>
-                    <p className="mb-0">{alert.message}</p>
-                    <small>{alert.time}</small>
-                  </div>
+              {error && (
+                <div className="alert alert-danger" role="alert">
+                  {error}
                 </div>
-              </Alert>
-            ))}
-          </Col>
-          {/* Chart 3: Agent Status Distribution */}
-          <Col xs={12} md={6}>
-            <Card>
-              <CardBody>
-                <Bar
-                  data={agentStatusDistribution}
-                  options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: 'Agent Status Distribution' } } }}
-                />
-              </CardBody>
+              )}
+
+              {loading && !error && (
+                <div className="text-center">
+                  <Spinner color="primary" />
+                  <p>Loading logs...</p>
+                </div>
+              )}
+
+              {!loading && !error && logs.length === 0 && (
+                <p className="text-muted">No logs found for the selected filters.</p>
+              )}
+
+              {!loading && !error && logs.length > 0 && (
+                <div
+                  style={{
+                    maxHeight: "60vh",
+                    overflowY: "auto",
+                    border: "1px solid #ddd",
+                    borderRadius: "4px",
+                    padding: "10px",
+                  }}
+                >
+                  {logs.map((logEntry, index) => (
+                    <div key={logEntry._rowId || index} className="mb-2">
+                      {/* Log Title (Clickable) */}
+                      <div
+                        onClick={() => openLogDetails(index)}
+                        style={{
+                          cursor: "pointer",
+                          padding: "10px",
+                          backgroundColor: "#fff",
+                          borderRadius: "4px",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          userSelect: "none",
+                        }}
+                      >
+                        <span>
+                          <strong>{new Date(logEntry._time).toLocaleString()}</strong> -{" "}
+                          {logEntry.data?.message || "N/A"}
+                        </span>
+                        <span>🔍</span> {/* Eye icon or similar */}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </Card>
           </Col>
         </Row>
-      </div>
-    </Container>
+
+        {/* Modal for Log Details */}
+        <Modal isOpen={modalOpen} toggle={closeModal} size="lg">
+          <ModalHeader toggle={closeModal}>Log Details</ModalHeader>
+          <ModalBody>
+            {selectedLog && (
+              <Table bordered responsive>
+                <tbody>
+                  <tr>
+                    <th>Timestamp</th>
+                    <td>{new Date(selectedLog._time).toLocaleString()}</td>
+                  </tr>
+                  <tr>
+                    <th>Message</th>
+                    <td>{selectedLog.data?.message || "N/A"}</td>
+                  </tr>
+                  <tr>
+                    <th>Level</th>
+                    <td>{selectedLog.data?.level || "N/A"}</td>
+                  </tr>
+                  <tr>
+                    <th>Source</th>
+                    <td>{selectedLog.data?.source || "N/A"}</td>
+                  </tr>
+                  {selectedLog.data?.fields &&
+                    Object.entries(selectedLog.data.fields).map(([key, value]) => (
+                      <tr key={key}>
+                        <th>{key}</th>
+                        <td>
+                          {typeof value === "object" && value !== null ? (
+                            <pre
+                              style={{
+                                margin: 0,
+                                whiteSpace: "pre-wrap",
+                                wordBreak: "break-word",
+                              }}
+                            >
+                              {JSON.stringify(value, null, 2)}
+                            </pre>
+                          ) : (
+                            String(value)
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </Table>
+            )}
+          </ModalBody>
+        </Modal>
+      </Container>
+    </>
   );
 };
 
-export default DashboardPage;
+export default LogsPage;
