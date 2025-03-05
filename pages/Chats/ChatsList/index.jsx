@@ -232,9 +232,10 @@ const ChatPage = () => {
   }, []);
 
   const handleTemplateSend = (details) => {
-    loggerdetails(logger, `agent status updated to ${StatusId} `, {
+    debugger
+    loggerdetails(logger, `agent sent template :`, {
       Obj : details,
-      conversationId: details.conversationId,
+      conversationId: details.ChatId,
       agentId: UserId,
       type: 1,
     });
