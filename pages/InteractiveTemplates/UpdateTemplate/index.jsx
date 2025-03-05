@@ -34,7 +34,10 @@ import MediaPopUp from "@/pages/Media/MediaPopUp";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
 import App from "@/components/Layout/App";
 import ButtonAction from "@/pages/Templates/ButtonAction";
-import { fetchSendernameById , clearSendernameState } from "@/slices/sendernameSlice";
+import {
+  fetchSendernameById,
+  clearSendernameState,
+} from "@/slices/sendernameSlice";
 import moment from "moment";
 import CustomMagicEditor from "@/components/CustomMagicEditor";
 import { BASE_URL } from "@/utils/apiConstants";
@@ -59,6 +62,7 @@ const InteractiveTemplateUpdate = () => {
   const { interactivetemplatedetail, loading, error } = useSelector(
     (state) => state.interactiveTemplates
   );
+  
   const { sendername } = useSelector((state) => state.sendernames);
   const stripHtml = (input) => input.replace(/<[^>]*>/g, "");
   const [messagePreview, setMessagePreview] = useState({
@@ -142,12 +146,10 @@ const InteractiveTemplateUpdate = () => {
         .finally(() => {
           setLoading(false);
         });
-    }
-    else{
-      router.back()
+    } else {
+      router.back();
     }
   }, [dispatch, Template_Id]);
-  
 
   // Handle interactivetemplatedetail updates once it has been fetched (Second useEffect)
   useEffect(() => {
@@ -351,8 +353,6 @@ const InteractiveTemplateUpdate = () => {
     };
   }, [selectedSenderId, dispatch]);
 
-
-
   useEffect(() => {
     let updatedBody = bodyFinalContent;
 
@@ -376,7 +376,6 @@ const InteractiveTemplateUpdate = () => {
     }));
   }, [bodyFinalContent, variables]);
 
- 
   const handleVariableChange = (index, value) => {
     setVariables((prev) => {
       const newVariables = [...prev];
@@ -555,13 +554,12 @@ const InteractiveTemplateUpdate = () => {
     setSelectedSenderId(role);
   };
 
-  const handlebuttonaction = (index, actionId, actionType , buttonValue) => {
-    
+  const handlebuttonaction = (index, actionId, actionType, buttonValue) => {
     setbuttonindex(index);
     const buttonaction = {
       actionId: actionId,
       actionType: actionType,
-      buttonValue:buttonValue
+      buttonValue: buttonValue,
     };
     setactionbuttonvalues(buttonaction);
     setshowaction(true);
@@ -615,12 +613,15 @@ const InteractiveTemplateUpdate = () => {
         <Loader />
       </App>
     );
+    
+    
   return (
     <App>
       <Container fluid className="mt-0">
         <Row style={{ height: "100vh" }}>
           <Col
-            md={6} lg={7}
+            md={6}
+            lg={7}
             className="UpdateInteractivetemplete-leftsection "
             style={{ padding: "20px", background: "#fff" }}
           >
@@ -635,11 +636,11 @@ const InteractiveTemplateUpdate = () => {
 
             <label className="block mb-1 mt-1">Language</label>
             <LanguageDropdown
-              name="language" 
+              name="language"
               value={language}
               disabled={true}
             />
-            <Formik
+           <Formik
               initialValues={{
                 templateName: interactivetemplatedetail.templateName,
                 headerType: interactivetemplatedetail.headerType,
@@ -658,12 +659,35 @@ const InteractiveTemplateUpdate = () => {
               onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
+                const handleHeaderTypeChange = (e) => {
+                  const newValue = e.target.value;
+                  setFieldValue("headerType", newValue);
+                  if (["2", "3", "4"].includes(newValue)) {
+                    setShowMediaPopup(true);
+                  }
+                };
+
+                const ToggleModal =() =>{
+                  setShowMediaPopup(false)
+                }
+                const getMediaTypeText = (headerType) => {
+                  switch (headerType) {
+                    case "2":
+                    case 2:
+                      return "Image";
+                    case "3":
+                    case 3:
+                      return "Video";
+                    case "4":
+                    case 4:
+                      return "Document";
+                    default:
+                      return "";
+                  }
+                };
                 return (
                   <Form>
-                    <div
-                      style={{ background: "#fff" }}
-                      className=""
-                    >
+                    <div style={{ background: "#fff" }} className="">
                       <FormGroup>
                         <Label
                           for="templateName"
@@ -718,10 +742,7 @@ const InteractiveTemplateUpdate = () => {
                         </Label>
                       </FormGroup>
                     </div>
-                    <div
-                      style={{ background: "#fff" }}
-                      className=""
-                    >
+                    <div style={{ background: "#fff" }} className="">
                       <FormGroup>
                         <Label
                           for="headerType"
@@ -733,6 +754,7 @@ const InteractiveTemplateUpdate = () => {
                           as={Input}
                           type="select"
                           name="headerType"
+                          onChange={handleHeaderTypeChange} // Added custom handler
                           className="form-control"
                           style={{ height: "46px" }}
                         >
@@ -772,61 +794,49 @@ const InteractiveTemplateUpdate = () => {
                           </FormGroup>
                         )}
                         {/* {console.log("Value Mania", ["2", "3", "4"].includes(values.headerType))} */}
-                        {["2", "3", "4"].includes(values.headerType) && (
-                          <>
-                          <div>
-                            <MediaPopUp
-                              key={values.headerType} // This forces re-rendering when headerType changes
-                              isPopup={["2", "3", "4"].includes(
-                                values.headerType
-                              )}
-                              contentTypeStr={
-                                values.headerType === "2"
-                                  ? "image"
-                                  : values.headerType === "3"
-                                  ? "video"
-                                  : "application"
-                              }
-                              onSelectMedia={(mediaId, mediaPath, mimeType) => {
-                                setSelectedMediaId(mediaId);
-                                setSelectedMediaPath(mediaPath);
-                                setSelectedMediaType(mimeType);
-                              }}
-                            />
-                             <div className="mt-3 text-sm">
-  <button
-    type="button" // Explicitly prevent form submission
-    className="text-blue-500 hover:underline text-sm font-medium"
-    onClick={(e) => {
-      e.preventDefault(); // Prevent default browser behavior
-      setShowMediaPopup(true); // Show the media popup
-    }}
-  >
-    Change {values.headerType === "2" ? "Image" : values.headerType === "3" ? "Video" : "Document"}
-  </button>
-
-  {showMediaPopup && (
-    <MediaPopUp
-      isPopup={true}
-      contentTypeStr={
-        values.headerType === "2"
-          ? "image"
-          : values.headerType === "3"
-          ? "video"
-          : "application"
-      }
-      onSelectMedia={(mediaId, mediaPath, mimeType) => {
-        setSelectedMediaId(mediaId);
-        setSelectedMediaPath(mediaPath);
-        setSelectedMediaType(mimeType);
-        setShowMediaPopup(false); // Close the popup after selection
-      }}
-    />
-  )}
-</div>
-</div>
-                          </>
-                        )}
+                        {interactivetemplatedetail &&
+                          [2, 3, 4].includes(Number(values.headerType)) && (
+                            <div>
+                              <div className="mt-3 text-sm">
+                                <button
+                                  type="button"
+                                  className="text-blue-500 hover:underline text-sm font-medium"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setShowMediaPopup(true);
+                                  }}
+                                >
+                                  Change {getMediaTypeText(values.headerType)}{" "}
+                                  {/* Updated text */}
+                                </button>
+                                {showMediaPopup && (
+                                  <MediaPopUp
+                                    isPopup={true}
+                                    ToggleModal={ToggleModal}
+                                    contentTypeStr={
+                                      values.headerType === "2" ||
+                                      values.headerType === 2
+                                        ? "image"
+                                        : values.headerType === "3" ||
+                                          values.headerType === 3
+                                        ? "video"
+                                        : "application"
+                                    }
+                                    onSelectMedia={(
+                                      mediaId,
+                                      mediaPath,
+                                      mimeType
+                                    ) => {
+                                      setSelectedMediaId(mediaId);
+                                      setSelectedMediaPath(mediaPath);
+                                      setSelectedMediaType(mimeType);
+                                      setShowMediaPopup(false);
+                                    }}
+                                  />
+                                )}
+                              </div>
+                            </div>
+                          )}
                       </div>
                     </div>
 
@@ -857,21 +867,21 @@ const InteractiveTemplateUpdate = () => {
                     </div>
 
                     <div className="">
-                      { interactivetemplatedetail.footerText && (
- <FormGroup>
- <Label for="footer" className="text-sm font-semibold">
-   Footer
- </Label>
- <Field
-   as={Input}
-   name="footer"
-   placeholder="Add footer text"
-   className="form-control"
-   maxLength="50"
- />
-</FormGroup>
+                      {interactivetemplatedetail.footerText && (
+                        <FormGroup>
+                          <Label for="footer" className="text-sm font-semibold">
+                            Footer
+                          </Label>
+                          <Field
+                            as={Input}
+                            name="footer"
+                            placeholder="Add footer text"
+                            className="form-control"
+                            maxLength="50"
+                          />
+                        </FormGroup>
                       )}
-                     
+
                       {/* Button dropdown */}
                       <Dropdown
                         isOpen={dropdownOpen}
@@ -1002,16 +1012,22 @@ const InteractiveTemplateUpdate = () => {
                               value={button.buttonValue}
                               placeholder="Phone Number"
                               onChange={(e) => {
-                                const updatedButtons = messagePreview.buttons.map((button, btnIndex) =>
-                                  btnIndex === index ? { ...button, buttonValue: e.target.value } : button
-                                );
-                              
+                                const updatedButtons =
+                                  messagePreview.buttons.map(
+                                    (button, btnIndex) =>
+                                      btnIndex === index
+                                        ? {
+                                            ...button,
+                                            buttonValue: e.target.value,
+                                          }
+                                        : button
+                                  );
+
                                 setMessagePreview({
                                   ...messagePreview,
                                   buttons: updatedButtons,
                                 });
                               }}
-                              
                               className="me-2"
                               style={{ minWidth: "220px" }}
                             />
@@ -1042,7 +1058,6 @@ const InteractiveTemplateUpdate = () => {
                                   }}
                                   className="me-2"
                                 />
-                               
                               </div>
 
                               {/* URL Variable Input */}
@@ -1106,7 +1121,7 @@ const InteractiveTemplateUpdate = () => {
 
                     <div className="w-full flex justify-end gap-3">
                       <button
-                      type="button"
+                        type="button"
                         className="Btn-Regular-1 mt-4"
                         onClick={handelCancel}
                       >
@@ -1129,7 +1144,11 @@ const InteractiveTemplateUpdate = () => {
               }}
             </Formik>
           </Col>
-          <Col md={6} lg={5} className="UpdateInteractivetemplete_chatSection h-screen right-10">
+          <Col
+            md={6}
+            lg={5}
+            className="UpdateInteractivetemplete_chatSection h-screen right-10"
+          >
             <div
               style={{
                 position: "sticky",
@@ -1149,7 +1168,7 @@ const InteractiveTemplateUpdate = () => {
             <div
               className="border "
               style={{
-               // maxHeight: "700px",
+                // maxHeight: "700px",
                 minHeight: "400px",
                 backgroundColor: "#e0e0e0",
                 backgroundImage: `url(${bagroundimage.src})`, // Update this path
@@ -1161,57 +1180,57 @@ const InteractiveTemplateUpdate = () => {
               }}
             >
               {sendername && (
-                  <div
-                    className="flex items-center justify-between text-black px-2 shadow-md bg-white"
-                    style={{
-                      position: "sticky", // Make this section sticky
-                      top: "0", // Stick it to the top
-                      zIndex: "10", // Ensure it stays above other content
-                      backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white for readability
-                    }}
-                  >
-                    {/* Left Section: Display sender's image, name, and phone number */}
-                    <div className="flex items-center space-x-3">
-                      {/* Display Image */}
-                      {sendername.mediaPath && (
-                        <img
-                          src={`${BASE_URL}${sendername.mediaPath}`}
-                          alt="Sender Logo"
-                          className="rounded-circle me-2 img-fluid"
-                          style={{
-                            width: "40px",
-                            height: "40px",
-                            objectFit: "cover",
-                          }}
-                        />
-                      )}
-                      {/* Display Name and Phone */}
-                      <div className="p-1">
-                        <div className=" ">{sendername.senderName}</div>
-                        <div className="text-xs text-gray-600">
-                          {sendername.phoneNumber}
-                        </div>
+                <div
+                  className="flex items-center justify-between text-black px-2 shadow-md bg-white"
+                  style={{
+                    position: "sticky", // Make this section sticky
+                    top: "0", // Stick it to the top
+                    zIndex: "10", // Ensure it stays above other content
+                    backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white for readability
+                  }}
+                >
+                  {/* Left Section: Display sender's image, name, and phone number */}
+                  <div className="flex items-center space-x-3">
+                    {/* Display Image */}
+                    {sendername.mediaPath && (
+                      <img
+                        src={`${BASE_URL}${sendername.mediaPath}`}
+                        alt="Sender Logo"
+                        className="rounded-circle me-2 img-fluid"
+                        style={{
+                          width: "40px",
+                          height: "40px",
+                          objectFit: "cover",
+                        }}
+                      />
+                    )}
+                    {/* Display Name and Phone */}
+                    <div className="p-1">
+                      <div className=" ">{sendername.senderName}</div>
+                      <div className="text-xs text-gray-600">
+                        {sendername.phoneNumber}
                       </div>
                     </div>
-                    {/* Right Section: Placeholder for future actions */}
-                    <div className="flex items-center space-x-4">
-                      {/* Add any buttons or actions here */}
-                    </div>
                   </div>
-                )}
+                  {/* Right Section: Placeholder for future actions */}
+                  <div className="flex items-center space-x-4">
+                    {/* Add any buttons or actions here */}
+                  </div>
+                </div>
+              )}
               <div
                 className="chat_bubble"
                 style={{
                   position: "relative",
-                    backgroundColor: "#ffff",
-                    borderRadius: "5px",
-                    padding: "20px 10px",
-                    wordWrap: "break-word",
-                    marginTop: "15px",
-                    marginBottom: "10px",
-                    marginRight: "0", // Remove any margin from the right side
-                    marginLeft: "22px",
-                    width: "60%",
+                  backgroundColor: "#ffff",
+                  borderRadius: "5px",
+                  padding: "20px 10px",
+                  wordWrap: "break-word",
+                  marginTop: "15px",
+                  marginBottom: "10px",
+                  marginRight: "0", // Remove any margin from the right side
+                  marginLeft: "22px",
+                  width: "60%",
                 }}
               >
                 <span className="time_bubble">

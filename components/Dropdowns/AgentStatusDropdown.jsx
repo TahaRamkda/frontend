@@ -57,7 +57,7 @@ const AgentStatusDropdown = ({ name, value, onChange }) => {
   return (
     <div className="relative">
       <button
-        className="flex bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none p-3 transition duration-200 ease-in-out"
+        className="flex p-[12px] bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none  transition duration-200 ease-in-out"
         onClick={handleButtonClick}
       >
         <i className={`${buttonIcon} mt-1`} aria-hidden="true"></i>
@@ -76,7 +76,7 @@ const AgentStatusDropdown = ({ name, value, onChange }) => {
               <button
                 key={option.id}
                 onClick={() => handleStatusChange(option.id)}
-                className={`flex items-center w-full px-4 py-2 text-sm text-white hover:bg-gray-600 dark:hover:bg-gray-600 focus:outline-none ${
+                className={`flex items-center w-full px-3 py-2 text-sm text-white hover:bg-gray-600 dark:hover:bg-gray-600 focus:outline-none ${
                   option.id === value ? 'bg-gray-600' : ''
                 }`}
               >

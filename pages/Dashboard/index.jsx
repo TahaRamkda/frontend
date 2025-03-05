@@ -230,7 +230,7 @@ useEffect(() => {
             />
           </div>
           <div className="flex flex-col mb-1 text-start">
-            <label className="font-medium text-gray-700 text-sm">
+            <label className="font-medium text-gray-700 text-sm mb-1">
               Sender Names
             </label>
             {isPageActive && (

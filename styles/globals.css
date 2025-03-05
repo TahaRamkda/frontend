@@ -11,7 +11,13 @@
 input[readonly] {
   background-color: rgb(235, 235, 228);
 }
-
+.css-hlgwow{
+  padding: 0px 6px !important;
+}
+.css-19bb58m{
+  margin: 0px !important;
+  padding-bottom: 0px !important;
+}
 /* Default (extra small) - less than 576px */
 [class^="col-"] {
   -ms-flex: 0 0 auto;
@@ -50,6 +56,9 @@ input[readonly] {
   width: 100%;
 }
 
+.jWAaK {
+  position: unset !important;
+}
 
 .load-page-button {
   padding: 0.5rem 1rem;

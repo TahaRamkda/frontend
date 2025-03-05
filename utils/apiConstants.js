@@ -2,6 +2,7 @@ export const BASE_URL = "https://qawhatsappapi.consulttechies.com";
 export const LOGINAPI = "/User/Login";
 export const REFRESHTOKENAPI = "/Token/Refresh";
 export const DASHBOARDSUMMARY = "/Dashboard/getdashboardsummary";
+export const SUPERVISORDASHBOARD = "/Supervisor/getsupervisordashboard";
 export const DASHBOARDREPORT="/Dashboard/getdashboardreportsummary";
 // Clients endpoints
 export const CREATECLIENT = "/Clients/addClient";

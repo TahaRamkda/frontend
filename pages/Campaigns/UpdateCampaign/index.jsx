@@ -553,6 +553,10 @@ const CampaignUpdate = () => {
     );
   };
 
+  const ToggleModal = () => {
+    setShowMediaPopup(false)
+  }
+
   const handelCancel = () => {
     // Clear Redux states
     dispatch(clearTemplateDetailState());
@@ -649,8 +653,9 @@ const CampaignUpdate = () => {
 
                         {showMediaPopup && (
                           <MediaPopUp
-                            isPopup={true}
-                            contentTypeStr={
+                            isPopup = {true}
+                            ToggleModal={ToggleModal}
+                            contentTypeStr = {
                               template.headerType === 2
                                 ? "image"
                                 : template.headerType === 3

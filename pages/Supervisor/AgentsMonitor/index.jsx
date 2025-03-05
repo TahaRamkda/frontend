@@ -248,15 +248,15 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
     return (
       <div className="w-full">
         <div className='grid grid-cols-5 gap-4'>
-          <div className='flex flex-col text-start mb-1'>
-            <label className="font-medium text-gray-700 text-sm">Sender Names</label>
+          <div className='flex flex-col text-start '>
+            <label className="font-medium text-gray-700 text-sm mb-1">Sender Names</label>
             <SendernameDropdown
               name="senderId"
               onChange={handleSenderChange}
               className="border rounded  w-100"
             />
           </div>
-          <div className='flex flex-col text-start mb-1'>
+          <div className='flex flex-col text-start '>
           <SearchBar
               label="Search"
               value={srcStr}
@@ -264,14 +264,14 @@ const [searchTimeout, setSearchTimeout] = useState(null); // State for managing 
             />
           </div>
 
-          <div className='flex flex-col text-start mb-1'>
+          <div className='flex flex-col text-start '>
           <DateTimePicker
               label="From Date"
               value={FromDate}
               onChange={setFromDate}
             />
           </div>
-          <div className='flex flex-col text-start mb-1'>
+          <div className='flex flex-col text-start '>
           <DateTimePicker
               label="To Date"
               value={ToDate}

@@ -326,7 +326,7 @@ const refreshPage = () => {
     return (
       <div className="w-full">
         <div className='grid grid-cols-5 gap-4'>
-          <div className='flex flex-col text-start mb-1 mt-2'>
+          <div className='flex flex-col text-start mb-1 '>
           <SearchBar
               label="Search"
               value={srcStr}
@@ -334,10 +334,10 @@ const refreshPage = () => {
             />
            
           </div>
-         <div className='flex flex-col text-start '>
-            <label className="font-medium text-gray-700 text-sm mt-1">Initiated</label>
-          <select  id="initiated" value={initiated} onChange={(e) => SetInitiated(e.target.value)}  className='border rounded  w-100 h-12 '> 
-            <option value="">Select  </option>
+         <div className='flex flex-col text-start'>
+            <label className="font-medium text-gray-700 text-sm mb-1">Source</label>
+          <select  id="initiated" value={initiated} onChange={(e) => SetInitiated(e.target.value)}  className='border rounded  w-100 h-[47px] '> 
+            <option value="">Select </option>
             <option value="0">Conversations  </option>
             <option value="1">Campaigns</option>
             <option value="2">API Messages</option>
@@ -345,15 +345,15 @@ const refreshPage = () => {
           </div>
 
           <div className='flex flex-col text-start '>
-            <label className="font-medium text-gray-700 text-sm">Agents</label>
+            <label className="font-medium text-gray-700 text-sm mb-1">Agents</label>
             <AgentDropdown
               name="agentId"
               onChange={handleAgentChange}
               className="border rounded w-100"
             />
           </div>
-          <div className='flex flex-col text-start mb-1 mt-2'>
-            <label className="font-medium text-gray-700 text-sm">Sender Names</label>
+          <div className='flex flex-col text-start '>
+            <label className="font-medium text-gray-700 text-sm mb-1">Sender Names</label>
             <SendernameDropdown
               name="senderId"
               onChange={handleSenderChange}
@@ -361,7 +361,7 @@ const refreshPage = () => {
             />
           </div>
           <div className='flex flex-col text-start '>
-            <label className="font-medium text-gray-700 text-sm">Status</label>
+            <label className="font-medium text-gray-700 text-sm mb-1">Status</label>
             <Select
             options={statusOptions}
             isMulti
