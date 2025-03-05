@@ -12,6 +12,8 @@ import {
   FaBan,
   FaCopy,
 } from "react-icons/fa";
+import { useLogger } from "next-axiom"; // Import Axiom logger
+import loggerdetails from "@/components/logger";
 import AgentStatusDropdown from "@/components/Dropdowns/AgentStatusDropdown";
 import { getAgentConversations ,getAgentMessages,addConversation, addMessageToConversation ,removeConversation , selectExpiredConversations ,checkForExpiredConversations ,setAgentstatus} from "@/slices/ChatBridgeSlice";
 import UserBadge from "@/public/images/User.jpg";
@@ -67,8 +69,10 @@ import {
   HiShieldExclamation,
 } from "react-icons/hi";
 import { sendPushNotification } from "@/components/SendPushNotification";
+import {AppId} from "@/utils/constants";
 const ChatPage = () => {
   const router = useRouter();
+  const logger = useLogger();
   const [modalOpen, setModalOpen] = useState(false);
   const [tempMessages, setTempMessages] = useState([]);
   const dispatch = useDispatch();
@@ -138,6 +142,10 @@ const ChatPage = () => {
       // Dispatch the thunk and unwrap the result to get the actual payload
       const response = await dispatch(setAgentstatus({ agentId: UserId, statusId: StatusId })).unwrap();
        if(response.success){
+        loggerdetails(logger, `agent status updated to ${StatusId} `, {
+          agentId: UserId,
+          type: 1,
+        });
         showSweetAlert({
           title: response.message || "Status updated successfully",
           text: "",
@@ -224,7 +232,12 @@ const ChatPage = () => {
   }, []);
 
   const handleTemplateSend = (details) => {
-    //clearTimer(Activechat);
+    loggerdetails(logger, `agent status updated to ${StatusId} `, {
+      Obj : details,
+      conversationId: details.conversationId,
+      agentId: UserId,
+      type: 1,
+    });
     setTemplateDetails(details); // Update parent state
     console.log("Received template details:", details);
   };
@@ -249,8 +262,14 @@ const ChatPage = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
+          debugger
           const response = await dispatch(setAgentstatus({ agentId: UserId, statusId: "0" })).unwrap();
           if (response.success) {
+            loggerdetails(logger, `Agent with ID:${UserId} logged out`, {
+             agentId: UserId,
+            })
+             window.OneSignal.User.PushSubscription.optOut();
+            //logger.info("Received new message detail ADSFSD:",  extra={     "user_id": 5,response  } )
             // Remove specific session-related items instead of clearing everything
             localStorage.clear();
             router.push("/auth/login");
@@ -296,6 +315,7 @@ const ChatPage = () => {
            const externalUserId = localStorage.getItem("userId");
            if (externalUserId) {
              await window.OneSignal.login(externalUserId);
+             await window.OneSignal.User.PushSubscriptions.optIn();
              console.log("External User ID set to:", externalUserId);
            }
  
@@ -356,7 +376,7 @@ const ChatPage = () => {
             setAgentStatus(response.result.status);
           }
         } catch (error) {
-          console.error('Failed to fetch data:', error);
+          logger.error('Failed to fetch agent by ID :', error);
           // Optionally set an error state or handle the error (e.g., setContactsloading(false))
         } finally {
           setContactsloading(false); // Ensure loading state is reset, even on error
@@ -510,6 +530,12 @@ const ChatPage = () => {
         sentmediaPath: previewUrl ? previewUrl : "",
         createdDate: new Date().toLocaleString(),
       };
+      //logger.info("Agent sent message:", newMessage);
+      loggerdetails(logger, "Agent sent message:", {
+        Obj : newMessage,
+        conversationId: Activechat,
+        agentId: UserId,
+       });
 
       //setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
       dispatch(addMessageToConversation(newMessage));
@@ -553,7 +579,7 @@ const ChatPage = () => {
       //   );
       // }
     } catch (error) {
-      console.error("Error sending message:", error);
+      logger.error("Error sending message:", error);
       toast.error("Failed to send message. Please try again.");
     }
   };
@@ -624,7 +650,11 @@ const ChatPage = () => {
 
     // Message received handler
     const handleIncomingMessage = (message) => {
-      console.log("Received new message:", message);
+      loggerdetails(logger, "Agent received message:", {
+        Obj : message,
+        conversationId: message.conversationId,
+        agentId: UserId,
+      })
       audioRef.current
         ?.play()
         .catch((err) =>
@@ -680,7 +710,11 @@ const ChatPage = () => {
 
     // Handles conversation assignment
     const handleConversationAssigned = (notification) => {
-      console.log(" New Conversation assigned:", notification);
+      loggerdetails(logger, "New Conversation assigned to agent:", {
+        Obj : notification,
+        conversationId: notification.id,
+        agentId: userId,
+      })
       audioRef.current
         ?.play()
         .catch((err) =>
@@ -723,7 +757,11 @@ const ChatPage = () => {
 
     // Handles conversation unassignment
     const handleConversationUnAssigned = (chatId) => {
-      console.log("Conversation unassigned for chat Id:", chatId);
+      logger.info("Conversation unassigned for chat Id:", chatId);
+      loggerdetails(logger, "Conversation unassigned for chat Id:", {
+        conversationId: chatId,
+        agentId: userId,
+      })
       if (
         !agentChatRef.current.some((conversation) => conversation.id === chatId)
       )
@@ -753,7 +791,7 @@ const ChatPage = () => {
     };
 
     const handleHeartbeatAcknowledged = (info) => {
-      console.log(info);
+     loggerdetails(logger, "Heartbeat acknowledged", { Obj : info  });
     };
 
     const handleConnected = (info) => {
@@ -778,44 +816,21 @@ const ChatPage = () => {
     
 
       newConnection.onreconnecting((error) => {
-        console.warn("Reconnecting SignalR...", error);
+        logger.info("Reconnecting SignalR...", error);
         setErrordisconnect(true);
       });
     
       newConnection.onreconnected(() => {
-        console.log("SignalR reconnected successfully");
+        logger.info("SignalR reconnected successfully");
         dispatch(getAgentConversations({ AgentId: userId }));
         setErrordisconnect(false);
         setheartbeatAttempts(0);
       });
     
       newConnection.onclose((error) => {
-        console.error("SignalR connection closed:", error);
+        logger.info("SignalR connection closed:", error);
         setErrordisconnect(true);
       });
-
-    // Heartbeat logic
-    // const heartbeatInterval = setInterval(() => {
-    //   if (newConnection.state === signalR.HubConnectionState.Connected) {
-    //     newConnection
-    //       .invoke("Heartbeat")
-    //       .then(() => {
-    //         console.log("Heartbeat sent successfully", new Date());
-    //         setheartbeatAttempts(0);
-    //       })
-    //       .catch((err) => {
-    //         setheartbeatAttempts((prev) => prev + 1);
-    //         console.error(
-    //           `Heartbeat error (${heartbeatAttempts} attempts):`,
-    //           err
-    //         );
-    //       });
-    //   } else {
-    //     setErrordisconnect(true);
-    //     console.warn("Connection is not in the connected state.");
-    //   }
-    // }, HEARTBEAT_CHECK_INTERVAL);
-
     // Start connection
     startSignalRConnection(newConnection, userId);
 
@@ -825,12 +840,12 @@ const ChatPage = () => {
         newConnection
           .invoke("Heartbeat")
           .then(() => {
-            console.log("Heartbeat sent:", new Date());
+            logger.info("Heartbeat sent:", new Date());
             setheartbeatAttempts(0);
           })
           .catch((err) => {
             setheartbeatAttempts((prev) => prev + 1);
-            console.error(`Heartbeat failed (${heartbeatAttempts}):`, err);
+            logger.error(`Heartbeat failed (${heartbeatAttempts}):`, err);
           });
       }
     }, HEARTBEAT_CHECK_INTERVAL);
@@ -846,12 +861,12 @@ const ChatPage = () => {
 
   
 
- useEffect(() => {
-  if (Errordisconnect && connectionRef.current) {
-    console.warn("Attempting to reconnect SignalR...");
-    startSignalRConnection(connectionRef.current, UserId);
-  }
-}, [Errordisconnect]);
+  useEffect(() => {
+    if (Errordisconnect && connectionRef.current) {
+      logger.info("Attempting to reconnect SignalR...");
+      startSignalRConnection(connectionRef.current, UserId);
+    }
+  }, [Errordisconnect]);
 
   useEffect(() => {
     if (heartbeatAttempts >= 2) {
@@ -1094,7 +1109,8 @@ const ChatPage = () => {
           </div>
         </nav>
       </div>
-
+     
+ 
       <Container fluid className="h-100 MainContainer">
         <Row className="g-0 h-100">
           <Col
@@ -1801,12 +1817,15 @@ const ChatPage = () => {
                     </div>
                   </div>
                 </div>
+               
               </Card>
             )}
             {Activechat === 0 && (
               <div className="font-bold text-center mt-[30%] text-gray-400 text-2xl">
                 Select a chat from left panel
+                <div className='onesignal-customlink-container'></div>
               </div>
+              
             )}
           </Col>
         </Row>
