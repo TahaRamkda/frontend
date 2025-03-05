@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { FLOWSLIST, FLOWDETAILS,CREATEFLOW, UPDATEFLOW, DELETEFLOW, FLOWDROPDOWN } from '@/utils/apiConstants';
+import { FLOWSLIST, FLOWDETAILS,CREATEFLOW, UPDATEFLOW, DELETEFLOW, FLOWDROPDOWN ,PUBLISHFLOW} from '@/utils/apiConstants';
 
 // Thunks
 // Fetch Group
@@ -9,7 +9,7 @@ export const fetchFlowsListData = createAsyncThunk(
     'flow/fetchFlowsListData',
     async ({clientId, pageNo, pageSize, SearchStr}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${FLOWSLIST}?${ SearchStr? `SearchStr=${SearchStr}`:''}&PageNo=${pageNo}&PageSize=${pageSize}`);
+        const response = await API.get(`${FLOWSLIST}?PageNo=${pageNo}&PageSize=${pageSize}${ SearchStr? `&SearchStr=${SearchStr}`:''}`);
         if (response?.status === 200) {
           return {
             flowsList: response.data.result,
@@ -29,7 +29,7 @@ export const fetchFlowDropdown = createAsyncThunk(
     'flowdropdown/fetchFlowDropdown',
     async ({clientId, SearchStr}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${FLOWDROPDOWN}?searchStr=${SearchStr}`);
+        const response = await API.get(`${FLOWDROPDOWN}`);
         if (response?.status === 200) {
           return {
             flowDropdownData: response.data.result,
@@ -47,9 +47,9 @@ export const fetchFlowDropdown = createAsyncThunk(
 // Fetch Group by ID
 export const fetchFlowDetailsById = createAsyncThunk(
     'flowdetails/fetchFlowDetailsById',
-    async ({groupId }, { rejectWithValue }) => {
+    async ({id }, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${FLOWDETAILS}?Id=${groupId}`);
+        const response = await API.get(`${FLOWDETAILS}?flowId=${id}`);
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -64,6 +64,20 @@ export const createFlows = createAsyncThunk(
   async (groupData, { rejectWithValue }) => {
     try {
       const response = await API.post(CREATEFLOW, groupData);
+      return response.data;
+    } catch (error) {
+      const handledError = handleError(error);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
+export const publishFlow = createAsyncThunk(
+  'publishflow/publishFlow',
+  async (id, { rejectWithValue }) => {
+    try {
+      
+      const response = await API.post(`${PUBLISHFLOW}?flowId=${id}`);
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -89,9 +103,9 @@ export const updateFlow = createAsyncThunk(
   // Delete Client
 export const deleteFlow = createAsyncThunk(
   'flowdelete/deleteFlow',
-  async ({ groupId, onSuccess }, { rejectWithValue }) => {
+  async ({ id, onSuccess }, { rejectWithValue }) => {
     try {
-      const response = await API.delete(`${DELETEFLOW}?GroupId=${groupId}`);
+      const response = await API.delete(`${DELETEFLOW}?flowId=${id}`);
       if (onSuccess) onSuccess(); // Handle success callback
       return response.data;
     } catch (error) {
@@ -139,6 +153,11 @@ const FlowSlice = createSlice({
     },
     clearFlowDropdownState: (state) => {
       state.flowDropdownData = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    },
+    clearFlowPublishState: (state) => {
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -229,6 +248,23 @@ const FlowSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
+      // Publish Flow
+       .addCase(publishFlow.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+          state.success = false;
+        })
+        .addCase(publishFlow.fulfilled, (state, action) => {
+          state.loading = false;
+          state.success = true;
+          state.message = action.payload.message || 'Uploaded Successfully';
+        })
+        .addCase(publishFlow.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload || action.error.message;
+          state.message = action.payload?.message || action.error.message;
+        })
+      
       // Update Client
       .addCase(updateFlow.pending, (state) => {
         state.loading = true;
@@ -273,6 +309,7 @@ export const {
   clearFlowDeleteState,
   clearFlowDetailState,
   clearFlowDropdownState,
+  clearFlowPublishState,
   clearFlowListState,
 } = FlowSlice.actions;
 

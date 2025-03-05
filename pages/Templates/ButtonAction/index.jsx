@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Modal, ModalBody, Input, FormGroup, Label, Button } from "reactstrap";
 import { FaTimes } from "react-icons/fa";
 import InteractiveTemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropWithoutParam";
-
+import FlowDropdown from "@/components/Dropdowns/FlowsDropdown";
 const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }) => {
   const [actionType, setActionType] = useState(0);
   const [buttonValue, setButtonValue] = useState("");
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
+  const [selectedFlowId, setSelectedFlowId] = useState(0);
 
   const dropdownOptions = [
     { label: "NONE", value: 0 },
@@ -16,6 +17,8 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }
     { label: "CHAT", value: 5 },
     { label: "ORDER", value: 6 },
     { label: "CLOSE CHAT", value: 7 },
+    { label: "FLOWS", value: 8 },
+
   ];
 
   // Populate state when `existingData` changes
@@ -25,6 +28,7 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }
       setActionType(existingData.actionType || 0);
       setButtonValue(existingData.buttonValue || "");
       setSelectedTemplateId(existingData.actionId || 0);
+      setSelectedFlowId(existingData.actionId || 0)
     }
   }, [existingData]);
 
@@ -32,11 +36,15 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }
     const templateId = e.target.value;
     setSelectedTemplateId(templateId);
   };
+  const handleFlowChange = (e) => {
+    const flowId = e.target.value;
+    setSelectedFlowId(flowId);
+  };
 
   const handleSubmit = () => {
     const data = {
       actionType: actionType,
-      actionId: actionType === 1 || actionType === "1" ? selectedTemplateId : "0",
+      actionId: actionType === 1 || actionType === "1" ? selectedTemplateId : actionType === 8 || actionType === "8" ? selectedFlowId : 0,
       buttonValue: buttonValue,
     };
     // Pass the index and the data to the parent component for updating the state
@@ -61,10 +69,7 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }
             type="select"
             id="actionType"
             value={actionType}
-            onChange={
-              
-              
-              (e) => setActionType(e.target.value)}
+            onChange={(e) => setActionType(e.target.value)}
           >
             {dropdownOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -83,6 +88,16 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }
               onChange={handleTemplateChange}
               TransactionType="0"
               SenderId={SenderId}
+            />
+          </FormGroup>
+        )}
+        {(actionType === 8 || actionType === "8") && (
+          <FormGroup>
+            <Label for="FlowDropdown">Select Flows</Label>
+            <FlowDropdown
+              id="FlowDropdown"
+              value={selectedFlowId}
+              onChange={handleFlowChange}
             />
           </FormGroup>
         )}

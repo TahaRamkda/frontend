@@ -781,7 +781,7 @@ const TemplateCreationPage = () => {
     const Language = e.target.value;
     setlanguage(Language);
   };
-
+  
   return (
     <App>
       <Container fluid className="mt-0">
@@ -837,6 +837,7 @@ const TemplateCreationPage = () => {
                 const ToggleModal = () => {
                   setShowMediaPopup(false)
                 }
+                
                 return (
                   <Form>
                     <div className="">
@@ -1035,7 +1036,7 @@ const TemplateCreationPage = () => {
                         toggle={toggleDropdown}
                         className="mt-3"
                       >
-                        <div className="flex justify-end">
+                        <div className="flex">
                           <DropdownToggle
                             caret
                             color="gray"

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { createAgent, clearAgentCreateState } from "@/slices/AgentSlice"; // Assuming this action exists
+import { createFlows, clearFlowCreateState } from "@/slices/FlowsSlice"; // Assuming this action exists
 import showSweetAlert from "@/components/Sweetalert"; // Import your SweetAlert utility
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Table, Input } from "reactstrap";
 import { useRouter } from "next/navigation";
@@ -50,14 +50,14 @@ const FlowForm = ({ onClose, isVisible, onsuccess }) => {
     };
 
     try {
-      const response = await dispatch(createAgent(requestBody)).unwrap();
+      const response = await dispatch(createFlows(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({
           title: "Created Successfully",
           text: "",
           icon: "success",
         });
-        clearAgentCreateState()
+        clearFlowCreateState()
         onsuccess()
         onClose()
       } else {

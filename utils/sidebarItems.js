@@ -41,8 +41,6 @@ export const sidebarItems = [
       module: 1,
       submenu: [],
     },
-
-   
     {
       href: '/TemplateInsight',
       icon: 'ti-bar-chart-alt', // Bar chart icon for Template Insight
@@ -128,6 +126,11 @@ export const sidebarItems = [
       module: 2,
       submenu: [
         {
+          href: '/Supervisor/SupervisorDashboard',
+          text: 'Dashboard',
+          icon: 'ti-dashboard', 
+        },
+        {
           href: '/Supervisor/ChatsMonitor',
           text: 'Chats Monitor',
           icon: 'ti-clipboard', // Clipboard icon for Message Reports
@@ -137,6 +140,7 @@ export const sidebarItems = [
           text: 'Agents Monitor',
           icon: 'ti-clipboard', // Pie chart icon for Message Summary
         },
+       
       ],
     },
     {

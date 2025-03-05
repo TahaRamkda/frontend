@@ -353,7 +353,6 @@ const ChatsReport = () => {
         pageNo: 1,
       })
     );
-   await dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize:newSize,pageNo:1,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated}));
   };
 
   const handlePageChange = async (pageNo) => {
@@ -374,7 +373,7 @@ const ChatsReport = () => {
         pageNo: pageNo,
       })
     );
-    await dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize:page,pageNo:pageNo,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated}));
+
   };
   const handleInitiateChange = (e) =>{
     SetInitiated(e.target.value)

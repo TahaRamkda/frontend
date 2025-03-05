@@ -2,7 +2,6 @@
 
 import React, { useMemo, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import FlowsDropdown from "@/components/MultiSelect/FlowDropdown";
 import { FaUser, FaCircle } from "react-icons/fa"; // Example icons from react-icons
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 import {
@@ -50,22 +49,20 @@ const DashboardPage = () => {
 
   return (
     <App>
-    <div className="flex h-screen  font-sans bg">
+    <div className="flex h-screen"> {/* Added h-screen to make full height */}
       {/* Side Panel (Always Open) */}
-      <div className="w-80 bg-white shadow-xl transform transition-all duration-300 ease-in-out hover:shadow-2xl">
-        <div className="p-4  text-black text-lg border rounded-sm font-bold flex items-center">
+      <div className="w-80 bg-white transform transition-all duration-300 ease-in-out flex flex-col h-full"> {/* Added flex, flex-col, and h-full */}
+        <div className="p-4 text-black text-lg border rounded-sm font-bold flex items-center">
           <FaUser className="mr-2" />
           Agent Details
         </div>
-        <FlowsDropdown />
-        <div className="overflow-y-auto border h-[calc(100vh-80px)]">
+        <div className="overflow-y-auto border flex-grow"> {/* Added flex-grow to make it stretch */}
           {supervisorDashboard?.Agents?.map((agent) => (
             <div
               key={agent.Id}
               className="p-1 border-b border-gray-200 hover:bg-blue-50 transition-all duration-300 cursor-pointer hover:shadow-md hover:translate-x-2 flex items-center"
             >
-              <span className="w-3 h-3 rounded-full mr-4 ml-1 flex items-center justify-center">
-                
+              <span className="w-3 h-3 rounded-full mr-4 ml-1 flex items-center justify-center">  
   <FaCircle
     className={
       agent.Status === 0
@@ -102,7 +99,7 @@ const DashboardPage = () => {
       <div className="ml-6">
   <h2 className=" bg-white shadow-sm border rounded-sm p-3">
    
-    Call Center Dashboard
+    Dashboard
   </h2>
 </div>
         

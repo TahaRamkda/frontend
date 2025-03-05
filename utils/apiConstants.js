@@ -141,9 +141,10 @@ export const EXCELEXPORTAGENTREPORT = "/Agents/getexportagentdetailsupervisorrep
 export const SENDCLOSECHATTEMPLATE = "/Conversation/closechatbysupervisor";
 
 // flows
-export const FLOWSLIST = "#";
-export const CREATEFLOW = "#";
-export const FLOWDETAILS = "#";
-export const UPDATEFLOW = "#";
-export const DELETEFLOW = "#";
-export const FLOWDROPDOWN = "#";
+export const FLOWSLIST = "/Flows/getflowslist";
+export const CREATEFLOW = "/Flows/addflow";
+export const FLOWDETAILS = "/Flows/getflowdetailsbyid";
+export const UPDATEFLOW = "/Flows/updateflow";
+export const PUBLISHFLOW = "/Flows/publishflow";
+export const DELETEFLOW = "/Flows/deleteflow";
+export const FLOWDROPDOWN = "/Flows/getflows";

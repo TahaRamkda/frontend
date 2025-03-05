@@ -1,320 +1,334 @@
-'use client'; // Mark as client-side component
+import React, { useState, useMemo, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Modal, ModalHeader, ModalBody } from "reactstrap";
+import SweetAlert from "sweetalert2";
+import { fetchFlowsListData,clearFlowListState, fetchFlowDetailsById, clearFlowDetailState, publishFlow,clearFlowPublishState, deleteFlow, clearFlowDeleteState, setCurrentPage, setPageSize } from "@/slices/FlowsSlice";
+import DataTable from "react-data-table-component";
+import { HiPencilAlt, HiTrash, HiUpload } from "react-icons/hi";
+import showSweetAlert from "@/components/Sweetalert";
+import SearchBar from "@/components/SearchBar/SearchComponent";
+import Loader from "@/components/Layout/Loader";
+import App from "@/components/Layout/App";
 
-import React from 'react';
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  CardBody,
-  CardTitle,
-  Table,
-  Badge,
-  Alert,
-  Nav,
-  NavItem,
-} from 'reactstrap';
-import { Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+import { set } from "date-fns";
 
-// Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+const Flow = () => {
+  const dispatch = useDispatch();
+  const { flowsList, totalRecords, loading, error } = useSelector((state) => state.flows);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [flowForm, setFlowForm] = useState({});
+  const [filterText, setFilterText] = useState("");
+  const [PageNum, SetPageNum] = useState(1)
+  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
+  const [floawLoading, setFlowLoading] = useState(false);
+  const [page, SetPageSize] = useState(10)
 
-// Dummy data
-const agentStatusData = [
-  { status: 'Online', count: 25, color: '#4caf50', icon: 'bi-headset' }, // Green
-  { status: 'Not Ready to Chat', count: 8, color: '#2196f3', icon: 'bi-pause' }, // Blue
-  { status: 'Offline', count: 12, color: '#f44336', icon: 'bi-person' }, // Red
-  { status: 'On Training', count: 5, color: '#ff9800', icon: 'bi-book' }, // Yellow
-];
-
-const chatStatusData = [
-  { id: 'C001', customer: 'John Doe', status: 'Waiting for Agent', waitTime: '5 min', icon: 'bi-hourglass-split' },
-  { id: 'C002', customer: 'Jane Smith', status: 'Assigned', agent: 'Agent A', waitTime: '2 min', icon: 'bi-person-check' },
-  { id: 'C003', customer: 'Mike Johnson', status: 'In Progress', agent: 'Agent B', waitTime: '8 min', icon: 'bi-chat-dots' },
-  { id: 'C004', customer: 'Sara Lee', status: 'Resolved', agent: 'Agent C', waitTime: '1 min', icon: 'bi-check-circle' },
-  { id: 'C005', customer: 'Tom Brown', status: 'Waiting for Agent', waitTime: '10 min', icon: 'bi-hourglass-split' },
-];
-
-const alertsData = [
-  { message: 'Chat C005 looking for agent for 10 minutes', severity: 'danger', time: 'Now' },
-  { message: 'Agent D offline for last 1 hour', severity: 'warning', time: '1 hr ago' },
-  { message: 'High chat volume detected', severity: 'info', time: '15 min ago' },
-  { message: 'Chat C003 escalated to supervisor', severity: 'warning', time: '5 min ago' },
-];
-
-const agentDetailsData = [
-  { name: 'Agent A', status: 'Online', since: '2 hr ago', color: '#4caf50' },
-  { name: 'Agent B', status: 'Online', since: '1 hr ago', color: '#4caf50' },
-  { name: 'Agent C', status: 'Offline', since: '30 min ago', color: '#f44336' },
-  { name: 'Agent D', status: 'Offline', since: '1 hr ago', color: '#f44336' },
-  { name: 'Agent E', status: 'Not Ready to Chat', since: '45 min ago', color: '#2196f3' },
-  { name: 'Agent F', status: 'On Training', since: '3 hr ago', color: '#ff9800' },
-];
-
-// Chart data preparation
-const chatsReceivedVsAssigned = {
-  labels: ['Chats Received', 'Agents Assigned'],
-  datasets: [
+  const flowColumn = [
+    { name: "Flow Name", selector: (row) => row.flowName, sortable: true },
+    { name: "Flow Language", selector: (row) => row.flowLanguage, sortable: true },
+    { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
+    { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
     {
-      label: 'Count',
-      data: [chatStatusData.length, chatStatusData.filter(chat => chat.agent).length],
-      backgroundColor: ['#36A2EB', '#FF6384'],
+      name: "Action",
+      cell: (row) => (
+        <div className="flex gap-2">
+          <button onClick={() => handleDetailClick(row.flowId)} title="Edit Flow" className="uniform_icon_btn">
+            <HiPencilAlt style={{ fontSize: "15px" }} />
+          </button>
+          <button onClick={() => handlePublishClick(row.flowId)} title="Edit Flow" className="uniform_icon_btn">
+            <HiUpload style={{ fontSize: "15px" }} />
+          </button>
+          <button onClick={() => handleDeleteClick(row.flowId)} title="Delete Flow" className="uniform_icon_btn">
+            <HiTrash style={{ fontSize: "15px" }} />
+          </button>
+        </div>
+      ),
     },
-  ],
-};
+  ];
 
-const chatsPerAgent = () => {
-  const agentChatCount = chatStatusData.reduce((acc, chat) => {
-    if (chat.agent) {
-      acc[chat.agent] = (acc[chat.agent] || 0) + 1;
+  useEffect(() => {
+    dispatch(fetchFlowsListData({pageNo:PageNum, pageSize: page, SearchStr: filterText}));
+  }, [dispatch,PageNum,page]);
+
+  const handleDetailClick = async (groupId) => {
+    try {
+      const response = await dispatch(fetchGroupById({groupId})).unwrap();
+      if (response) {
+        setFlowForm(response.result);
+        setIsModalOpen(true);
+      } else {
+        showSweetAlert({ title: "Error", text: "Failed to fetch details", icon: "error" });
+      }
+    } catch (error) {
+      alert("Failed to fetch group details: " + error.message);
     }
-    return acc;
-  }, {});
-  const agents = Object.keys(agentChatCount);
-  return {
-    labels: agents,
-    datasets: [
-      {
-        label: 'Chats Handled',
-        data: agents.map(agent => agentChatCount[agent]),
-        backgroundColor: agents.map(() => '#FFCE56'),
-      },
-    ],
   };
-};
-
-const agentStatusDistribution = {
-  labels: agentStatusData.map(status => status.status),
-  datasets: [
-    {
-      label: 'Agents',
-      data: agentStatusData.map(status => status.count),
-      backgroundColor: agentStatusData.map(status => status.color),
-    },
-  ],
-};
-
-const chartOptions = {
-  responsive: true,
-  plugins: {
-    legend: { position: 'top' },
-    title: { display: true, text: '' }, // Set dynamically in component
-  },
-};
-
-const DashboardPage = () => {
-  const agentChatCount = chatStatusData.reduce((acc, chat) => {
-    if (chat.agent) {
-      acc[chat.agent] = (acc[chat.agent] || 0) + 1;
+  const handlePublishClick = async (flowId) => {
+    try {
+      const response = await dispatch(publishFlow(flowId)).unwrap();
+      if (response.success) {
+        dispatch(clearFlowPublishState());
+        showSweetAlert({
+          title: "published Successfully",
+          text: "",
+          icon: "success",
+        });
+      } else {
+        showSweetAlert({
+          title: "Failed",
+          text: response.result.message || "",
+          icon: "error",
+        });
+      }
+    } catch (err) {
+      console.error("Failed to Upload", err);
+      showSweetAlert({
+        title: "Failed",
+        text: err.message || "",
+        icon: "error",
+      });
     }
-    return acc;
-  }, {});
-  const leastChatsAgent = Object.entries(agentChatCount).reduce(
-    (min, [agent, count]) => (count < min.count ? { agent, count } : min),
-    { agent: Object.keys(agentChatCount)[0], count: agentChatCount[Object.keys(agentChatCount)[0]] }
-  );
+  }
+  
 
+  const handleDeleteClick = (id) => {
+    SweetAlert.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        try {
+          dispatch(deleteFlow({ id })).then(() => {
+            showSweetAlert({ title: "Deleted Successfully", text: "", icon: "success" });
+          });
+
+
+        } catch (error) {
+          alert("An unexpected error occurred: " + error.message);
+        }
+      }
+    });
+  };
+
+   const handlePageSizeChange = async (newSize) => {
+      SetPageSize(newSize)
+      dispatch(setPageSize(newSize));
+      dispatch(setCurrentPage(1)); // Reset to first page
+      setFlowLoading(true);
+      await dispatch(
+        fetchFlowsListData({
+          SearchStr: filterText,
+          pageSize: newSize,
+          pageNo: 1,
+        })
+      );
+    };
+
+     const handlePageChange = async (pageNo) => {
+        SetPageNum(pageNo)
+        dispatch(setCurrentPage(pageNo));
+        setFlowLoading(true);
+        await dispatch(
+          fetchFlowsListData({
+            SearchStr: filterText ,
+            pageSize:page,
+            pageNo: pageNo,
+          })
+        );
+    
+      };
+
+  const handleSearchString = (setter) => (e) => {
+     const searchValue = e;
+     setFilterText(searchValue);
+     
+     setter(e);
+ 
+     if (searchTimeout) {
+       clearTimeout(searchTimeout);
+     }
+ 
+     const timeout = setTimeout(() => {
+       dispatch(
+         fetchFlowsListData({
+           SearchStr: searchValue,
+           pageSize:page,
+           pageNo: PageNum,
+         })
+       );
+     }, 500);
+ 
+     setSearchTimeout(timeout); // Save the timeout reference
+   };
+ 
+
+  const subHeaderComponentMemo = useMemo(() => {
+    return (
+      <div className="w-full">
+        <div className="grid grid-cols-5 gap-4">
+          <div className="flex flex-col space-y-1 text-start mb-1 ">
+            <SearchBar
+              label="Search"
+              value={filterText}
+              onChange={handleSearchString(setFilterText)}
+            />
+          </div>
+        </div>
+
+      </div>
+
+    );
+  }, [filterText]);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFlowForm((prev) => ({ ...prev, [name]: value }));
+  };
+  const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
+  // const handleSave = () => {
+  //   setFlowsList((prevFlows) =>
+  //     prevFlows.map((flow) => (flow.id === flowForm.id ? flowForm : flow))
+  //   );
+  //   setIsModalOpen(false);
+  // };
+
+  
   return (
-    <Container fluid className="py-4 d-flex">
-      {/* Side Panel (Always Open) */}
-      <div className="bg-light border-right" style={{ width: '250px', minWidth: '250px' }}>
-        <Nav vertical className="w-100">
-          <NavItem className="w-100">
-            <h5 className="p-3 border-bottom">Agent Details</h5>
-            {agentDetailsData.map((agent) => (
-              <div key={agent.name} className="p-2 border-bottom">
-                <div className="d-flex align-items-center">
-                  <span
-                    style={{
-                      width: '10px',
-                      height: '10px',
-                      backgroundColor: agent.color,
-                      borderRadius: '50%',
-                      marginRight: '10px',
-                    }}
-                  ></span>
-                  <div>
-                    <strong>{agent.name}</strong>
-                    <p className="mb-0 text-muted">
-                      {agent.status} ({agent.since})
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </NavItem>
-        </Nav>
+    <App>
+      {floawLoading && loading && <Loader />}
+     <div className="flex items-center">
+        {/* {loading && <Loader />} */}
+        <div className=''>
+          <h4 className="font-bold">FLows</h4>
+        </div>
+        <div className="ml-auto mb-1">
+          <button
+            className="uniform_btn"
+            // onClick={handleCreate}
+          >
+            Create Flows
+          </button>
+        </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-grow-1">
-        <Row>
-          <Col xs={12} className="mb-3">
-            <h1 className="font-weight-bold">Call Center Dashboard</h1>
-          </Col>
-        </Row>
+      <div className="overflow-auto">
+      <DataTable
+        data={flowsList}
+        columns={flowColumn}
+        highlightOnHover
+        striped
+        pagination
+        paginationServer
+        paginationTotalRows={totalRecords}
+        onChangePage={handlePageChange}
+        onChangeRowsPerPage={handlePageSizeChange}
+        sortIcon
+        sortServer
+        
+        paginationRowsPerPageOptions={customPageSizes}
+        subHeader
+        subHeaderComponent={subHeaderComponentMemo}
+        className="w-full border"
+        customStyles={{
+          table: {
+            style: {
+              width: "100%",
+              borderCollapse: "collapse",
+            },
+          },
+          headRow: {
+            style: {
+              borderBottom: "1px solid #ddd",
+              padding: "0px",
+            },
+          },
+          headCells: {
+            style: {
+              borderRight: "1px solid #ddd",
+              fontWeight: "bold",
+            },
+          },
+          rows: {
+            style: {
+              borderBottom: "1px solid #ddd",
+            },
+          },
+          cells: {
+            style: {
+              borderRight: "1px solid #ddd",
+            },
+          },
+        }}
+      />
+      </div>
 
-        {/* Section 1: Agent Status */}
-        <Row className="mb-4">
-          <Col xs={12}>
-            <h4 className="mb-3">Agent Status</h4>
-            <div className="d-flex flex-wrap">
-              {agentStatusData.map((status) => (
-                <Card
-                  key={status.status}
-                  className="mb-2 mr-2"
-                  style={{ borderLeft: `5px solid ${status.color}`, minWidth: '200px' }}
-                >
-                  <CardBody className="d-flex align-items-center">
-                    <i
-                      className={`${status.icon} mr-3`}
-                      style={{ color: status.color, fontSize: '2rem' }}
-                    ></i>
-                    <div>
-                      <CardTitle tag="h6" className="mb-0">
-                        {status.status}
-                      </CardTitle>
-                      <h3>{status.count}</h3>
-                    </div>
-                  </CardBody>
-                </Card>
-              ))}
+      {isModalOpen && (
+        <Modal isOpen={true} toggle={() => setIsModalOpen(false)} fade={false}>
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
+              <ModalHeader toggle={() => setIsModalOpen(false)}>Edit Flow</ModalHeader>
+              <ModalBody>
+                <div className="space-y-4">
+                  <div>
+                    <label className="font-medium text-gray-700 text-sm">Flow Name</label>
+                    <input
+                      type="text"
+                      name="FlowName"
+                      value={flowForm.FlowName || ""}
+                      onChange={handleInputChange}
+                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-medium text-gray-700 text-sm">Agent First Name</label>
+                    <input
+                      type="text"
+                      name="agentFName"
+                      value={flowForm.agentFName || ""}
+                      onChange={handleInputChange}
+                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-medium text-gray-700 text-sm">Agent Last Name</label>
+                    <input
+                      type="text"
+                      name="agentLName"
+                      value={flowForm.agentLName || ""}
+                      onChange={handleInputChange}
+                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-medium text-gray-700 text-sm">Screen Name</label>
+                    <input
+                      type="text"
+                      name="ScreenName"
+                      value={flowForm.ScreenName || ""}
+                      onChange={handleInputChange}
+                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                    />
+                  </div>
+                </div>
+                <div className="flex mt-6 justify-end space-x-2">
+                  <button className="uniform_btn bg-gray-500" onClick={() => setIsModalOpen(false)}>
+                    Cancel
+                  </button>
+                  <button className="uniform_btn bg-blue-500" onClick={handleSave}>
+                    Save Changes
+                  </button>
+                </div>
+              </ModalBody>
             </div>
-          </Col>
-        </Row>
-
-        {/* Section 2: Chat Status Table and Charts */}
-        <Row className="mb-4">
-          <Col xs={12}>
-            <h4 className="mb-3">Chat Status</h4>
-            <Table bordered responsive>
-              <thead className="thead-dark">
-                <tr>
-                  <th>Chat ID</th>
-                  <th>Customer</th>
-                  <th>Status</th>
-                  <th>Agent</th>
-                  <th>Wait Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                {chatStatusData.map((chat) => (
-                  <tr key={chat.id}>
-                    <td>{chat.id}</td>
-                    <td>{chat.customer}</td>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <i
-                          className={`${chat.icon} mr-2`}
-                          style={{
-                            color:
-                              chat.status === 'Waiting for Agent'
-                                ? '#ffc107'
-                                : chat.status === 'Assigned'
-                                ? '#007bff'
-                                : chat.status === 'In Progress'
-                                ? '#17a2b8'
-                                : '#28a745',
-                            fontSize: '1.2rem',
-                          }}
-                        ></i>
-                        <Badge
-                          color={
-                            chat.status === 'Waiting for Agent'
-                              ? 'warning'
-                              : chat.status === 'Assigned'
-                              ? 'primary'
-                              : chat.status === 'In Progress'
-                              ? 'info'
-                              : 'success'
-                          }
-                        >
-                          {chat.status}
-                        </Badge>
-                      </div>
-                    </td>
-                    <td>{chat.agent || 'N/A'}</td>
-                    <td>{chat.waitTime}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </Col>
-          {/* Chart 1: Chats Received vs. Agents Assigned */}
-          <Col xs={12} md={6} className="mt-4">
-            <Card>
-              <CardBody>
-                <Bar
-                  data={chatsReceivedVsAssigned}
-                  options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: 'Chats Received vs. Agents Assigned' } } }}
-                />
-              </CardBody>
-            </Card>
-          </Col>
-          {/* Chart 2: Chats per Agent */}
-          <Col xs={12} md={6} className="mt-4">
-            <Card>
-              <CardBody>
-                <Bar
-                  data={chatsPerAgent()}
-                  options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: `Chats per Agent (Least: ${leastChatsAgent.agent} - ${leastChatsAgent.count})` } } }}
-                />
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
-
-        {/* Section 3: Alerts and Additional Chart */}
-        <Row className="mb-4">
-          <Col xs={12} md={6}>
-            <h4 className="mb-3">Alerts</h4>
-            {alertsData.map((alert, index) => (
-              <Alert key={index} color={alert.severity} className="mb-2">
-                <div className="d-flex align-items-center">
-                  <i
-                    className="bi-exclamation-triangle-fill mr-2"
-                    style={{
-                      color:
-                        alert.severity === 'danger'
-                          ? '#dc3545'
-                          : alert.severity === 'warning'
-                          ? '#ffc107'
-                          : '#17a2b8',
-                      fontSize: '1.2rem',
-                    }}
-                  ></i>
-                  <div>
-                    <p className="mb-0">{alert.message}</p>
-                    <small>{alert.time}</small>
-                  </div>
-                </div>
-              </Alert>
-            ))}
-          </Col>
-          {/* Chart 3: Agent Status Distribution */}
-          <Col xs={12} md={6}>
-            <Card>
-              <CardBody>
-                <Bar
-                  data={agentStatusDistribution}
-                  options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: 'Agent Status Distribution' } } }}
-                />
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
-      </div>
-    </Container>
+          </div>
+        </Modal>
+      )}
+    </App>
   );
 };
 
-export default DashboardPage;
+export default Flow;
