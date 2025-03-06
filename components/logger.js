@@ -1,4 +1,3 @@
-
 const logChatDetails = (
     logger,
     logMessage = "Chat details logged",
