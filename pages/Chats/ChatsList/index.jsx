@@ -1108,9 +1108,7 @@ const ChatPage = () => {
             </div>
           </div>
         </nav>
-      </div>
-     
- 
+      </div>                                              
       <Container fluid className="h-100 MainContainer">
         <Row className="g-0 h-100">
           <Col
@@ -1575,7 +1573,6 @@ const ChatPage = () => {
                               &times;
                             </button>
 
-                            {/* Image Preview */}
                             {fileType === "image" && (
                               <div
                                 style={{

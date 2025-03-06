@@ -1,60 +1,44 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Modal, ModalHeader, ModalBody } from "reactstrap";
 import SweetAlert from "sweetalert2";
+import { fetchFlowsListData,clearFlowListState, fetchFlowDetailsById, clearFlowDetailState, publishFlow,clearFlowPublishState, deleteFlow, clearFlowDeleteState, setCurrentPage, setPageSize } from "@/slices/FlowsSlice";
 import DataTable from "react-data-table-component";
-import { HiPencilAlt, HiTrash } from "react-icons/hi";
+import { HiPencilAlt, HiTrash, HiUpload } from "react-icons/hi";
+import showSweetAlert from "@/components/Sweetalert";
 import SearchBar from "@/components/SearchBar/SearchComponent";
-import App from "@/components/Layout/App";
 import Loader from "@/components/Layout/Loader";
+import App from "@/components/Layout/App";
+
+import { set } from "date-fns";
 
 const Flow = () => {
+  const dispatch = useDispatch();
+  const { flowsList, totalRecords, loading, error } = useSelector((state) => state.flows);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [flowForm, setFlowForm] = useState({});
   const [filterText, setFilterText] = useState("");
-  const [flowsList, setFlowsList] = useState([
-    {
-      id: 1,
-      FlowName: "Customer Support",
-      agentFName: "John",
-      agentLName: "Doe",
-      FlowLanguage: "English",
-      ScreenName: "Main Menu",
-      ScreenButtons: "Help, Chat, Exit",
-      statusName: "Active",
-      ScreenSequence: 1,
-      Optiontext: "Select an option",
-    },
-    {
-      id: 2,
-      FlowName: "Sales Inquiry",
-      agentFName: "Jane",
-      agentLName: "Smith",
-      FlowLanguage: "Arabic",
-      ScreenName: "Inquiry Form",
-      ScreenButtons: "Request Quote, Talk to Agent",
-      statusName: "Inactive",
-      ScreenSequence: 2,
-      Optiontext: "Choose your request",
-    },
-  ]);
+  const [PageNum, SetPageNum] = useState(1)
+  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
+  const [floawLoading, setFlowLoading] = useState(false);
+  const [page, SetPageSize] = useState(10)
 
   const flowColumn = [
-    { name: "Flow Name", selector: (row) => row.FlowName, sortable: true },
-    { name: "Agent Name", selector: (row) => `${row.agentFName} ${row.agentLName}`, sortable: true },
-    { name: "Flow Language", selector: (row) => row.FlowLanguage, sortable: true },
-    { name: "Screen Name", selector: (row) => row.ScreenName, sortable: true },
-    { name: "Screen Buttons", selector: (row) => row.ScreenButtons, sortable: true },
-    { name: "Screen Redirections", selector: (row) => row.statusName, sortable: true },
-    { name: "Screen Sequence", selector: (row) => row.ScreenSequence, sortable: true },
-    { name: "Option Text", selector: (row) => row.Optiontext, sortable: true },
+    { name: "Flow Name", selector: (row) => row.flowName, sortable: true },
+    { name: "Flow Language", selector: (row) => row.flowLanguage, sortable: true },
+    { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
+    { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
     {
       name: "Action",
       cell: (row) => (
         <div className="flex gap-2">
-          <button onClick={() => handleDetailClick(row.id)} title="Edit Flow" className="uniform_icon_btn">
+          <button onClick={() => handleDetailClick(row.flowId)} title="Edit Flow" className="uniform_icon_btn">
             <HiPencilAlt style={{ fontSize: "15px" }} />
           </button>
-          <button onClick={() => handleDeleteClick(row.id)} title="Delete Flow" className="uniform_icon_btn">
+          <button onClick={() => handlePublishClick(row.flowId)} title="Edit Flow" className="uniform_icon_btn">
+            <HiUpload style={{ fontSize: "15px" }} />
+          </button>
+          <button onClick={() => handleDeleteClick(row.flowId)} title="Delete Flow" className="uniform_icon_btn">
             <HiTrash style={{ fontSize: "15px" }} />
           </button>
         </div>
@@ -62,18 +46,55 @@ const Flow = () => {
     },
   ];
 
-  const handleDetailClick = (id) => {
-    const selectedFlow = flowsList.find((flow) => flow.id === id);
-    if (selectedFlow) {
-      setFlowForm(selectedFlow);
-      setIsModalOpen(true);
+  useEffect(() => {
+    dispatch(fetchFlowsListData({pageNo:PageNum, pageSize: page, SearchStr: filterText}));
+  }, [dispatch,PageNum,page]);
+
+  const handleDetailClick = async (groupId) => {
+    try {
+      const response = await dispatch(fetchGroupById({groupId})).unwrap();
+      if (response) {
+        setFlowForm(response.result);
+        setIsModalOpen(true);
+      } else {
+        showSweetAlert({ title: "Error", text: "Failed to fetch details", icon: "error" });
+      }
+    } catch (error) {
+      alert("Failed to fetch group details: " + error.message);
     }
   };
+  const handlePublishClick = async (flowId) => {
+    try {
+      const response = await dispatch(publishFlow(flowId)).unwrap();
+      if (response.success) {
+        dispatch(clearFlowPublishState());
+        showSweetAlert({
+          title: "published Successfully",
+          text: "",
+          icon: "success",
+        });
+      } else {
+        showSweetAlert({
+          title: "Failed",
+          text: response.result.message || "",
+          icon: "error",
+        });
+      }
+    } catch (err) {
+      console.error("Failed to Upload", err);
+      showSweetAlert({
+        title: "Failed",
+        text: err.message || "",
+        icon: "error",
+      });
+    }
+  }
+  
 
   const handleDeleteClick = (id) => {
     SweetAlert.fire({
       title: "Are you sure?",
-      text: "This action cannot be undone",
+      text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -81,23 +102,80 @@ const Flow = () => {
       confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        setFlowsList(flowsList.filter((flow) => flow.id !== id));
+        try {
+          dispatch(deleteFlow({ id })).then(() => {
+            showSweetAlert({ title: "Deleted Successfully", text: "", icon: "success" });
+          });
+
+
+        } catch (error) {
+          alert("An unexpected error occurred: " + error.message);
+        }
       }
     });
   };
 
-  const handleSearch = (e) => {
-    setFilterText(e);
-  };
+   const handlePageSizeChange = async (newSize) => {
+      SetPageSize(newSize)
+      dispatch(setPageSize(newSize));
+      dispatch(setCurrentPage(1)); // Reset to first page
+      setFlowLoading(true);
+      await dispatch(
+        fetchFlowsListData({
+          SearchStr: filterText,
+          pageSize: newSize,
+          pageNo: 1,
+        })
+      );
+    };
+
+     const handlePageChange = async (pageNo) => {
+        SetPageNum(pageNo)
+        dispatch(setCurrentPage(pageNo));
+        setFlowLoading(true);
+        await dispatch(
+          fetchFlowsListData({
+            SearchStr: filterText ,
+            pageSize:page,
+            pageNo: pageNo,
+          })
+        );
+    
+      };
+
+  const handleSearchString = (setter) => (e) => {
+     const searchValue = e;
+     setFilterText(searchValue);
+     
+     setter(e);
+ 
+     if (searchTimeout) {
+       clearTimeout(searchTimeout);
+     }
+ 
+     const timeout = setTimeout(() => {
+       dispatch(
+         fetchFlowsListData({
+           SearchStr: searchValue,
+           pageSize:page,
+           pageNo: PageNum,
+         })
+       );
+     }, 500);
+ 
+     setSearchTimeout(timeout); // Save the timeout reference
+   };
+ 
 
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className="w-full">
         <div className="grid grid-cols-5 gap-4">
           <div className="flex flex-col space-y-1 text-start mb-1 ">
-          <SearchBar
+            <SearchBar
               label="Search"
               value={filterText}
+              onChange={handleSearchString(setFilterText)}
             />
           </div>
         </div>
@@ -110,20 +188,18 @@ const Flow = () => {
     const { name, value } = e.target;
     setFlowForm((prev) => ({ ...prev, [name]: value }));
   };
+  const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
+  // const handleSave = () => {
+  //   setFlowsList((prevFlows) =>
+  //     prevFlows.map((flow) => (flow.id === flowForm.id ? flowForm : flow))
+  //   );
+  //   setIsModalOpen(false);
+  // };
 
-  const handleSave = () => {
-    setFlowsList((prevFlows) =>
-      prevFlows.map((flow) => (flow.id === flowForm.id ? flowForm : flow))
-    );
-    setIsModalOpen(false);
-  };
-
-  const filteredFlows = flowsList.filter((flow) =>
-    flow.FlowName.toLowerCase().includes(filterText.toLowerCase())
-  );
-
+  
   return (
     <App>
+      {floawLoading && loading && <Loader />}
      <div className="flex items-center">
         {/* {loading && <Loader />} */}
         <div className=''>
@@ -140,47 +216,54 @@ const Flow = () => {
       </div>
 
       <div className="overflow-auto">
-        <DataTable
-          data={filteredFlows}
-          columns={flowColumn}
-          highlightOnHover
-          striped
-          pagination
-          subHeader
-          subHeaderComponent={subHeaderComponentMemo}
-          className="w-full border"
-          customStyles={{
-            table: {
-              style: {
-                width: '100%',
-                borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
-              },
+      <DataTable
+        data={flowsList}
+        columns={flowColumn}
+        highlightOnHover
+        striped
+        pagination
+        paginationServer
+        paginationTotalRows={totalRecords}
+        onChangePage={handlePageChange}
+        onChangeRowsPerPage={handlePageSizeChange}
+        sortIcon
+        sortServer
+        
+        paginationRowsPerPageOptions={customPageSizes}
+        subHeader
+        subHeaderComponent={subHeaderComponentMemo}
+        className="w-full border"
+        customStyles={{
+          table: {
+            style: {
+              width: "100%",
+              borderCollapse: "collapse",
             },
-            headRow: {
-              style: {
-                borderBottom: '1px solid #ddd', padding: '0px',
-              },
+          },
+          headRow: {
+            style: {
+              borderBottom: "1px solid #ddd",
+              padding: "0px",
             },
-            headCells: {
-              style: {
-
-                borderRight: '1px solid #ddd', // Grid line between columns
-                fontWeight: 'bold',
-              },
+          },
+          headCells: {
+            style: {
+              borderRight: "1px solid #ddd",
+              fontWeight: "bold",
             },
-            rows: {
-              style: {
-                borderBottom: '1px solid #ddd', // Horizontal grid line between rows
-              },
+          },
+          rows: {
+            style: {
+              borderBottom: "1px solid #ddd",
             },
-            cells: {
-              style: {
-
-                borderRight: '1px solid #ddd', // Vertical grid line between cells
-              },
+          },
+          cells: {
+            style: {
+              borderRight: "1px solid #ddd",
             },
-          }}
-        />
+          },
+        }}
+      />
       </div>
 
       {isModalOpen && (
