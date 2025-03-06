@@ -526,7 +526,7 @@ const ChatPage = () => {
         id: Activechat,
         senderId: message[0].senderId,
         messageId: Date.now(),
-        typeId: 4,
+        typeId: 1,
         messageContent: messageInput.trim(),
         sentcontentType: fileType ? fileType : "", // Set content type if there's media
         sentmediaPath: previewUrl ? previewUrl : "",
@@ -537,6 +537,7 @@ const ChatPage = () => {
         Obj : newMessage,
         conversationId: Activechat,
         agentId: UserId,
+        type: 4,
        });
 
       //setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
@@ -868,7 +869,7 @@ const ChatPage = () => {
 
   useEffect(() => {
     if (Errordisconnect && connectionRef.current) {
-      logger.info("Attempting to reconnect SignalR...");
+     loggerdetails(logger, "Reconnecting SignalR...", {type: 6 });  
       startSignalRConnection(connectionRef.current, UserId);
     }
   }, [Errordisconnect]);
