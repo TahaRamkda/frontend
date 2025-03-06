@@ -144,7 +144,7 @@ const ChatPage = () => {
        if(response.success){
         loggerdetails(logger, `agent status updated to ${StatusId} `, {
           agentId: UserId,
-          type: 1,
+          type: 5,
         });
         showSweetAlert({
           title: response.message || "Status updated successfully",
@@ -232,11 +232,12 @@ const ChatPage = () => {
   }, []);
 
   const handleTemplateSend = (details) => {
-    loggerdetails(logger, `agent status updated to ${StatusId} `, {
+    debugger
+    loggerdetails(logger, `agent sent template :`, {
       Obj : details,
-      conversationId: details.conversationId,
+      conversationId: details.ChatId,
       agentId: UserId,
-      type: 1,
+      type: 4,
     });
     setTemplateDetails(details); // Update parent state
     console.log("Received template details:", details);
@@ -267,6 +268,7 @@ const ChatPage = () => {
           if (response.success) {
             loggerdetails(logger, `Agent with ID:${UserId} logged out`, {
              agentId: UserId,
+             type: 5,
             })
              window.OneSignal.User.PushSubscription.optOut();
             //logger.info("Received new message detail ADSFSD:",  extra={     "user_id": 5,response  } )
@@ -524,7 +526,7 @@ const ChatPage = () => {
         id: Activechat,
         senderId: message[0].senderId,
         messageId: Date.now(),
-        typeId: 1,
+        typeId: 4,
         messageContent: messageInput.trim(),
         sentcontentType: fileType ? fileType : "", // Set content type if there's media
         sentmediaPath: previewUrl ? previewUrl : "",
@@ -654,6 +656,7 @@ const ChatPage = () => {
         Obj : message,
         conversationId: message.conversationId,
         agentId: UserId,
+        type: 2,
       })
       audioRef.current
         ?.play()
@@ -714,6 +717,7 @@ const ChatPage = () => {
         Obj : notification,
         conversationId: notification.id,
         agentId: userId,
+        type: 1,
       })
       audioRef.current
         ?.play()
@@ -757,10 +761,11 @@ const ChatPage = () => {
 
     // Handles conversation unassignment
     const handleConversationUnAssigned = (chatId) => {
-      logger.info("Conversation unassigned for chat Id:", chatId);
+      
       loggerdetails(logger, "Conversation unassigned for chat Id:", {
         conversationId: chatId,
         agentId: userId,
+        type: 3,
       })
       if (
         !agentChatRef.current.some((conversation) => conversation.id === chatId)
