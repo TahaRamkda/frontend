@@ -56,9 +56,9 @@ const ChatsReport = () => {
   const [CustomerName, setCustomerName] = useState("");
   const [PhoneNumber, setPhoneNumber] = useState("");
   const [agentId, SetAgentId] = useState(0);
-  const [PageNum, SetPageNum] = useState(0)
+  const [PageNum, SetPageNum] = useState(1)
   const [initiated, SetInitiated] = useState('');
-  const [page, SetPageSize] = useState(0)
+  const [page, SetPageSize] = useState(10)
 
   const [ChatLoading, setChatLoading] = useState(false);
   const getMonthStart = () => {
@@ -340,7 +340,6 @@ const ChatsReport = () => {
     setChatLoading(true);
     await dispatch(
       fetchConversationReport({
-        
         clientId: clientId,
         status: Status,
         srcStr: srcStr,
@@ -381,7 +380,7 @@ const ChatsReport = () => {
   }
 
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
-  
+  const defultpagessize = 10;
 
   const subHeaderComponentMemo = useMemo(() => {
    
@@ -545,7 +544,7 @@ const ChatsReport = () => {
         onChangeRowsPerPage={handlePageSizeChange}
         sortIcon
         sortServer
-        
+        paginationPerPage={defultpagessize}
         paginationRowsPerPageOptions={customPageSizes}
         subHeader
         subHeaderComponent={subHeaderComponentMemo}
@@ -583,15 +582,16 @@ const ChatsReport = () => {
       />
       {modalOpen && (
         <Modal isOpen={true} toggle={HandleCloseInfoClick} fade={false}>
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-1/3 relative">
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center  z-50">
+            <div className="bg-white p-6 rounded shadow-lg w-1/3 relative  overflow-y-auto">
               <ModalHeader toggle={HandleCloseInfoClick}>
                 Chat Logs
               </ModalHeader>
 
               <ModalBody>
               {loading && <Loader/>}
-                <table className="min-w-full bg-white border border-gray-200 rounded-md">
+              
+              <table className="min-w-full bg-white border border-gray-200 rounded-md ">
                 <thead>
                   <tr className="bg-gray-100 text-left text-sm uppercase text-gray-600">
                     <th className="py-2 px-4">Agent Full Name</th>
@@ -609,8 +609,6 @@ const ChatsReport = () => {
                   ))}
                 </tbody>
               </table>
-              
-                 
               </ModalBody>
             </div>
           </div>
