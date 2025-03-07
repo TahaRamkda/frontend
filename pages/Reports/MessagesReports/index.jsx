@@ -26,10 +26,10 @@ const MessageReport = () => {
   const [showfilterbutton, setshowfilterbutton] = useState(true);
   const { messagereport, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.reports);
   const [clientId, setClientId] = useState(null);
- const [reportloading, setreportloading] = useState(false);
+  const [reportloading, setreportloading] = useState(false);
   const ReportColumns = [
     { name: "Sender Name", selector: (row) => row.senderName, sortable: true, width: '16%' },
-    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true, width: '12%' },
+    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true, width: '12%'},
     { name: "Status", selector: (row) => row.currentStatusName, sortable: true },
     { name: "Category", selector: (row) => row.category, sortable: true },
     { name: "Sent Time", selector: (row) => row.sentDate, sortable: true, width: '18%' },
@@ -56,7 +56,6 @@ const MessageReport = () => {
     }
   }, [clientId, fromDate, toDate, status, senderid, sendernameId,ModuleId]);
 
-
   const handleSenderChange = (e) => {
     const senderId = e.target.value;
     setsenderid(senderId);
@@ -67,7 +66,7 @@ const MessageReport = () => {
     if (typeof window !== 'undefined') {
       setClientId(localStorage.getItem('clientId'));
     }
-  }, []);
+    }, []);
 
  
    useEffect(() => {
@@ -265,6 +264,7 @@ const MessageReport = () => {
         paginationPerPage={defultpagessize} // Default number of rows per page
         paginationRowsPerPageOptions={customPageSizes} // Custom page size options
         subHeader
+        key={"id"}
         subHeaderComponent={subHeaderComponentMemo}
         className="w-full border"
         customStyles={{

@@ -49,9 +49,9 @@ const DashboardPage = () => {
 
   return (
     <App>
-    <div className="flex h-screen"> {/* Added h-screen to make full height */}
+    <div className="flex "> {/* Added h-screen to make full height */}
       {/* Side Panel (Always Open) */}
-      <div className="w-80 bg-white transform transition-all duration-300 ease-in-out flex flex-col h-full"> {/* Added flex, flex-col, and h-full */}
+      <div className="w-80 bg-white transform transition-all duration-300 ease-in-out flex flex-col "> {/* Added flex, flex-col, and h-full */}
         <div className="p-4 text-black text-lg border rounded-sm font-bold flex items-center">
           <FaUser className="mr-2" />
           Agent Details
@@ -142,7 +142,7 @@ const DashboardPage = () => {
         <h4 className="text-xl font-semibold text-gray-700 mb-4">Alerts</h4>
         <div>
          
-          <div className="space-y-4">
+          <div className="space-y-4 max-h-[500px]">
             {supervisorDashboard?.Alerts?.map((alert, index) => (
               <div
                 key={index}
