@@ -9,10 +9,12 @@ import {
   Label, 
   Input, 
   Button, 
+  
   Card, 
   CardBody, 
   CardTitle 
 } from 'reactstrap';
+import { Tabs, Tab } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import LanguageDropdown from '@/components/Dropdowns/LanguageDropdown';
@@ -87,7 +89,7 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
       return true;
     });
   };
-
+ debugger
   return (
     <Card className="h-100 border-0 shadow-sm" style={{ borderRadius: '10px', overflow: 'hidden' }}>
       <CardBody className="p-4">
@@ -202,7 +204,7 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
               style={{ backgroundColor: '#00a884', border: 'none' }}
               disabled={!areRequiredQuestionsAnswered()}
             >
-              Next
+              {currentScreen.screenButtonText || 'Next '}
             </Button>
           )}
         </div>
@@ -270,6 +272,12 @@ const CreateFlowPage = () => {
     updatedScreens[currentEditScreenIndex].flowChildren.push(newQuestion);
     setFlowData({ ...flowData, flowScreens: updatedScreens });
   };
+  const deleteQuestion = (questionIndex) => {
+    const updatedScreens = [...flowData.flowScreens];
+    updatedScreens[currentEditScreenIndex].flowChildren.splice(questionIndex, 1);
+    setFlowData({ ...flowData, flowScreens: updatedScreens });
+    
+  }
 
   const addOption = (questionIndex) => {
     const updatedScreens = [...flowData.flowScreens];
@@ -292,6 +300,7 @@ const CreateFlowPage = () => {
     }
   };
 
+ 
   const updateField = (field, value) => {
     setFlowData({ ...flowData, [field]: value });
   };
@@ -358,7 +367,7 @@ const CreateFlowPage = () => {
       setCurrentEditScreenIndex(currentEditScreenIndex + 1);
     }
   };
-
+debugger
   return (
     <App>
       <Container fluid className="py-4 create-flow-container" style={{ minHeight: '100vh' }}>
@@ -393,15 +402,6 @@ const CreateFlowPage = () => {
                   </FormGroup>
                   <div className="d-flex justify-content-between mb-3">
                     <Button
-                      color="secondary"
-                      onClick={goToPreviousScreen}
-                      disabled={currentEditScreenIndex === 0}
-                      className="rounded-pill px-4 py-2"
-                      style={{ backgroundColor: '#e0e0e0', border: 'none', color: '#333' }}
-                    >
-                      Previous Screen
-                    </Button>
-                    <Button
                       color="primary"
                       onClick={addScreen}
                       className="rounded-pill px-4 py-2"
@@ -409,17 +409,23 @@ const CreateFlowPage = () => {
                     >
                       Add Screen
                     </Button>
-                    <Button
-                      color="secondary"
-                      onClick={goToNextScreen}
-                      disabled={currentEditScreenIndex === flowData.flowScreens.length - 1}
-                      className="rounded-pill px-4 py-2"
-                      style={{ backgroundColor: '#e0e0e0', border: 'none', color: '#333' }}
-                    >
-                      Next Screen
-                    </Button>
+                   
                   </div>
                   {flowData.flowScreens.length > 0 && (
+                    <>
+                    
+                    <Tabs
+                    activeKey={currentEditScreenIndex}
+                    onSelect={(key) => setCurrentEditScreenIndex(parseInt(key))}
+                    className='mb-3'
+                    >
+                      {flowData.flowScreens.map((screen, index) => (
+                        <Tab
+                        eventKey={index}
+                        title={`Screen ${index + 1}`} 
+                        key={index}/>
+                      ))}
+                    </Tabs>
                     <Card className="mb-3 shadow-sm">
                       <CardBody>
                         <div className="d-flex justify-content-between align-items-center">
@@ -441,21 +447,14 @@ const CreateFlowPage = () => {
                             className="rounded"
                           />
                         </FormGroup>
-                        <FormGroup>
-                          <Label>Button Text</Label>
-                          <Input
-                            value={flowData.flowScreens[currentEditScreenIndex].screenButtonText}
-                            onChange={(e) => updateScreenField('screenButtonText', e.target.value)}
-                            className="rounded"
-                          />
-                        </FormGroup>
+                        
                         <Button
                           color="success"
                           size="sm"
                           onClick={addQuestion}
                           className="mb-2 rounded-pill"
                         >
-                          Add Question
+                          Add Controller
                         </Button>
                         {flowData.flowScreens[currentEditScreenIndex].flowChildren.map((child, childIndex) => (
                           <div key={childIndex} className="border p-3 mb-2 rounded">
@@ -526,8 +525,17 @@ const CreateFlowPage = () => {
                             )}
                           </div>
                         ))}
+                        <FormGroup>
+                          <Label>Button Text</Label>
+                          <Input
+                            value={flowData.flowScreens[currentEditScreenIndex].screenButtonText}
+                            onChange={(e) => updateScreenField('screenButtonText', e.target.value)}
+                            className="rounded"
+                          />
+                        </FormGroup>
                       </CardBody>
                     </Card>
+                    </>
                   )}
                 </Form>
               </CardBody>

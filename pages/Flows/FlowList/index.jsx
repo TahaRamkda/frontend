@@ -49,6 +49,9 @@ const Flow = () => {
     },
   ];
 
+  const handleCreate = () => {
+    router.push("/Flows/CreateFlow");
+  };
   useEffect(() => {
     dispatch(fetchFlowsListData({pageNo:PageNum, pageSize: page, SearchStr: filterText}));
   }, [dispatch,PageNum,page]);
@@ -202,7 +205,7 @@ const Flow = () => {
         <div className="ml-auto mb-1">
           <button
             className="uniform_btn"
-            // onClick={handleCreate}
+            onClick={handleCreate}
           >
             Create Flows
           </button>
