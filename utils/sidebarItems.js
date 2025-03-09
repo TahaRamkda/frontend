@@ -56,6 +56,13 @@ export const sidebarItems = [
       submenu: [],
     },
     {
+      href: '/Flows/FlowList',
+      icon: 'ti-announcement', // Bullhorn icon for Campaigns
+      text: 'Flows',
+      module: 1,
+      submenu: [],
+    },
+    {
       href: '/Clients/ClientsList',
       icon: 'ti-user', // User icon for Clients
       text: 'Clients',

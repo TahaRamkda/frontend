@@ -19,6 +19,7 @@ import LanguageDropdown from '@/components/Dropdowns/LanguageDropdown';
 import { createFlows } from '@/slices/FlowsSlice';
 import App from '@/components/Layout/App';
 import showSweetAlert from '@/components/Sweetalert';
+
 // Enum for question types
 const QuestionTypes = {
   TextInput: 1,
@@ -70,18 +71,17 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
   const currentScreen = flowData.flowScreens[currentScreenIndex];
 
   const areRequiredQuestionsAnswered = () => {
-    // Return true if no screens exist to disable "Next" button safely
     if (flowData.flowScreens.length === 0) return true;
 
     return currentScreen.flowChildren.every((child, index) => {
       if (!child.required) return true;
-      const answer = answers[currentScreenIndex]?.[index]; // Safeguard with optional chaining
+      const answer = answers[currentScreenIndex]?.[index];
       if (child.type === QuestionTypes.TextInput || child.type === QuestionTypes.TextArea) 
         return answer !== undefined && answer.trim() !== '';
       if (child.type === QuestionTypes.RadioButtonsGroup) 
         return answer !== null;
       if (child.type === QuestionTypes.CheckboxGroup) 
-        return answer !== undefined && answer?.length > 0; // Additional safeguard
+        return answer !== undefined && answer?.length > 0;
       if (child.type === QuestionTypes.TextHeading) 
         return true;
       return true;
@@ -251,8 +251,8 @@ const CreateFlowPage = () => {
     const updatedScreens = flowData.flowScreens.filter((_, index) => index !== currentEditScreenIndex);
     setFlowData({ ...flowData, flowScreens: updatedScreens });
     if (updatedScreens.length === 0) {
-      setCurrentEditScreenIndex(-1); // Reset to invalid index when no screens remain
-      setCurrentScreenIndex(-1);     // Sync preview index
+      setCurrentEditScreenIndex(-1);
+      setCurrentScreenIndex(-1);
     } else if (currentEditScreenIndex >= updatedScreens.length) {
       setCurrentEditScreenIndex(updatedScreens.length - 1);
       setCurrentScreenIndex(updatedScreens.length - 1);
@@ -343,7 +343,7 @@ const CreateFlowPage = () => {
       })
       .catch((error) => {
         console.error('Failed to create flow:', error);
-        showSweetAlert({ title: "Error", text: error, icon: "error" });
+        showSweetAlert({ title: "Error", text: error.message || "An error occurred", icon: "error" });
       });
   };
 
@@ -360,203 +360,205 @@ const CreateFlowPage = () => {
   };
 
   return (
-    <Container fluid className="py-4" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <h2>Create WhatsApp Business Flow</h2>
-      <Row style={{ flex: 1, overflow: 'hidden' }}>
-        {/* Left Side - Flow Editor (Scrollable) */}
-        <Col md={6} style={{ height: '100%', overflowY: 'auto', paddingRight: '15px' }}>
-          <Card className="mb-4">
-            <CardBody>
-              <Form>
-                <FormGroup>
-                  <Label>Sender Name</Label>
-                  <SendernameDropdown 
-                    value={flowData.senderId}
-                    onChange={handleSenderChange}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <Label>Flow Name</Label>
-                  <Input
-                    value={flowData.flowName}
-                    onChange={(e) => updateField('flowName', e.target.value)}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <Label>Flow Language</Label>
-                  <LanguageDropdown 
-                    value={flowData.flowLanguage}
-                    onChange={handleLanguageChange}
-                  />
-                </FormGroup>
-                <div className="d-flex justify-content-between mb-3">
-                  <Button
-                    color="secondary"
-                    onClick={goToPreviousScreen}
-                    disabled={currentEditScreenIndex === 0}
-                    className="rounded-pill px-4 py-2"
-                    style={{ backgroundColor: '#e0e0e0', border: 'none', color: '#333' }}
-                  >
-                    Previous Screen
-                  </Button>
-                  <Button
-                    color="primary"
-                    onClick={addScreen}
-                    className="rounded-pill px-4 py-2"
-                    style={{ backgroundColor: '#00a884', border: 'none' }}
-                  >
-                    Add Screen
-                  </Button>
-                  <Button
-                    color="secondary"
-                    onClick={goToNextScreen}
-                    disabled={currentEditScreenIndex === flowData.flowScreens.length - 1}
-                    className="rounded-pill px-4 py-2"
-                    style={{ backgroundColor: '#e0e0e0', border: 'none', color: '#333' }}
-                  >
-                    Next Screen
-                  </Button>
-                </div>
-                {flowData.flowScreens.length > 0 && (
-                  <Card className="mb-3">
-                    <CardBody>
-                      <div className="d-flex justify-content-between align-items-center">
-                        <h5>Screen {currentEditScreenIndex + 1} of {flowData.flowScreens.length}</h5>
-                        <Button 
-                          color="danger" 
-                          size="sm" 
-                          onClick={deleteScreen}
-                          disabled={flowData.flowScreens.length <= 1}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                      <FormGroup>
-                        <Label>Screen Title</Label>
-                        <Input
-                          value={flowData.flowScreens[currentEditScreenIndex].title}
-                          onChange={(e) => updateScreenField('title', e.target.value)}
-                        />
-                      </FormGroup>
-                      <FormGroup>
-                        <Label>Button Text</Label>
-                        <Input
-                          value={flowData.flowScreens[currentEditScreenIndex].screenButtonText}
-                          onChange={(e) => updateScreenField('screenButtonText', e.target.value)}
-                        />
-                      </FormGroup>
-                      <Button
-                        color="success"
-                        size="sm"
-                        onClick={addQuestion}
-                        className="mb-2"
-                      >
-                        Add Question
-                      </Button>
-                      {flowData.flowScreens[currentEditScreenIndex].flowChildren.map((child, childIndex) => (
-                        <div key={childIndex} className="border p-3 mb-2">
-                          <FormGroup>
-                            <Label>Question Text</Label>
-                            <Input
-                              value={child.text}
-                              onChange={(e) => updateQuestionField(childIndex, 'text', e.target.value)}
-                            />
-                          </FormGroup>
-                          {child.type !== QuestionTypes.TextHeading && (
-                            <FormGroup check>
-                              <Input
-                                type="checkbox"
-                                name={`required_${currentEditScreenIndex}_${childIndex}`}
-                                checked={child.required}
-                                onChange={() => handleRequiredChange(childIndex)}
-                              />
-                              <Label check>Required</Label>
-                            </FormGroup>
-                          )}
-                          <FormGroup>
-                            <Label>Input Type</Label>
-                            <Input
-                              type="select"
-                              value={child.type}
-                              onChange={(e) => updateQuestionField(childIndex, 'type', parseInt(e.target.value))}
-                            >
-                              <option value={QuestionTypes.TextInput}>Text Input</option>
-                              <option value={QuestionTypes.TextArea}>Textarea</option>
-                              <option value={QuestionTypes.RadioButtonsGroup}>Radio Buttons</option>
-                              <option value={QuestionTypes.CheckboxGroup}>Checkbox Group</option>
-                              <option value={QuestionTypes.TextHeading}>Text Heading</option>
-                            </Input>
-                          </FormGroup>
-                          {(child.type === QuestionTypes.RadioButtonsGroup || child.type === QuestionTypes.CheckboxGroup) && (
-                            <>
-                              <Button
-                                color="info"
-                                size="sm"
-                                onClick={() => addOption(childIndex)}
-                                className="mb-2"
-                              >
-                                Add Option
-                              </Button>
-                              {child.flowOptions.map((option, optionIndex) => (
-                                <FormGroup key={optionIndex} className="mt-2 d-flex align-items-center">
-                                  <Input
-                                    value={option.optionText}
-                                    onChange={(e) => updateOptionField(childIndex, optionIndex, 'optionText', e.target.value)}
-                                    placeholder={`Option ${optionIndex + 1}`}
-                                    style={{ flex: 1, marginRight: '10px' }}
-                                  />
-                                  <Button
-                                    color="danger"
-                                    size="sm"
-                                    onClick={() => deleteOption(childIndex, optionIndex)}
-                                  >
-                                    Delete
-                                  </Button>
-                                </FormGroup>
-                              ))}
-                            </>
-                          )}
+    <App>
+      <Container fluid className="py-4 create-flow-container" style={{ minHeight: '100vh' }}>
+        <h2 className="mb-4">Create Flow</h2>
+        <Row className="flex-grow-1" style={{ overflow: 'hidden' }}>
+          {/* Left Side - Flow Editor (Scrollable) */}
+          <Col md={7} className="h-100" style={{ overflowY: 'auto', paddingRight: '15px' }}>
+            <Card className="mb-4 shadow-sm">
+              <CardBody>
+                <Form>
+                  <FormGroup>
+                    <Label>Sender Name</Label>
+                    <SendernameDropdown 
+                      value={flowData.senderId}
+                      onChange={handleSenderChange}
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label>Flow Name</Label>
+                    <Input
+                      value={flowData.flowName}
+                      onChange={(e) => updateField('flowName', e.target.value)}
+                      className="rounded"
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label>Flow Language</Label>
+                    <LanguageDropdown 
+                      value={flowData.flowLanguage}
+                      onChange={handleLanguageChange}
+                    />
+                  </FormGroup>
+                  <div className="d-flex justify-content-between mb-3">
+                    <Button
+                      color="secondary"
+                      onClick={goToPreviousScreen}
+                      disabled={currentEditScreenIndex === 0}
+                      className="rounded-pill px-4 py-2"
+                      style={{ backgroundColor: '#e0e0e0', border: 'none', color: '#333' }}
+                    >
+                      Previous Screen
+                    </Button>
+                    <Button
+                      color="primary"
+                      onClick={addScreen}
+                      className="rounded-pill px-4 py-2"
+                      style={{ backgroundColor: '#00a884', border: 'none' }}
+                    >
+                      Add Screen
+                    </Button>
+                    <Button
+                      color="secondary"
+                      onClick={goToNextScreen}
+                      disabled={currentEditScreenIndex === flowData.flowScreens.length - 1}
+                      className="rounded-pill px-4 py-2"
+                      style={{ backgroundColor: '#e0e0e0', border: 'none', color: '#333' }}
+                    >
+                      Next Screen
+                    </Button>
+                  </div>
+                  {flowData.flowScreens.length > 0 && (
+                    <Card className="mb-3 shadow-sm">
+                      <CardBody>
+                        <div className="d-flex justify-content-between align-items-center">
+                          <h5>Screen {currentEditScreenIndex + 1} of {flowData.flowScreens.length}</h5>
+                          <Button 
+                            color="danger" 
+                            size="sm" 
+                            onClick={deleteScreen}
+                            disabled={flowData.flowScreens.length <= 1}
+                          >
+                            Delete
+                          </Button>
                         </div>
-                      ))}
-                    </CardBody>
-                  </Card>
-                )}
-              </Form>
-            </CardBody>
-          </Card>
-        </Col>
+                        <FormGroup>
+                          <Label>Screen Title</Label>
+                          <Input
+                            value={flowData.flowScreens[currentEditScreenIndex].title}
+                            onChange={(e) => updateScreenField('title', e.target.value)}
+                            className="rounded"
+                          />
+                        </FormGroup>
+                        <FormGroup>
+                          <Label>Button Text</Label>
+                          <Input
+                            value={flowData.flowScreens[currentEditScreenIndex].screenButtonText}
+                            onChange={(e) => updateScreenField('screenButtonText', e.target.value)}
+                            className="rounded"
+                          />
+                        </FormGroup>
+                        <Button
+                          color="success"
+                          size="sm"
+                          onClick={addQuestion}
+                          className="mb-2 rounded-pill"
+                        >
+                          Add Question
+                        </Button>
+                        {flowData.flowScreens[currentEditScreenIndex].flowChildren.map((child, childIndex) => (
+                          <div key={childIndex} className="border p-3 mb-2 rounded">
+                            <FormGroup>
+                              <Label>Question Text</Label>
+                              <Input
+                                value={child.text}
+                                onChange={(e) => updateQuestionField(childIndex, 'text', e.target.value)}
+                                className="rounded"
+                              />
+                            </FormGroup>
+                            {child.type !== QuestionTypes.TextHeading && (
+                              <FormGroup check>
+                                <Input
+                                  type="checkbox"
+                                  name={`required_${currentEditScreenIndex}_${childIndex}`}
+                                  checked={child.required}
+                                  onChange={() => handleRequiredChange(childIndex)}
+                                />
+                                <Label check>Required</Label>
+                              </FormGroup>
+                            )}
+                            <FormGroup>
+                              <Label>Input Type</Label>
+                              <Input
+                                type="select"
+                                value={child.type}
+                                onChange={(e) => updateQuestionField(childIndex, 'type', parseInt(e.target.value))}
+                                className="rounded"
+                              >
+                                <option value={QuestionTypes.TextInput}>Text Input</option>
+                                <option value={QuestionTypes.TextArea}>Textarea</option>
+                                <option value={QuestionTypes.RadioButtonsGroup}>Radio Buttons</option>
+                                <option value={QuestionTypes.CheckboxGroup}>Checkbox Group</option>
+                                <option value={QuestionTypes.TextHeading}>Text Heading</option>
+                              </Input>
+                            </FormGroup>
+                            {(child.type === QuestionTypes.RadioButtonsGroup || child.type === QuestionTypes.CheckboxGroup) && (
+                              <>
+                                <Button
+                                  color="info"
+                                  size="sm"
+                                  onClick={() => addOption(childIndex)}
+                                  className="mb-2 rounded-pill"
+                                >
+                                  Add Option
+                                </Button>
+                                {child.flowOptions.map((option, optionIndex) => (
+                                  <FormGroup key={optionIndex} className="mt-2 d-flex align-items-center">
+                                    <Input
+                                      value={option.optionText}
+                                      onChange={(e) => updateOptionField(childIndex, optionIndex, 'optionText', e.target.value)}
+                                      placeholder={`Option ${optionIndex + 1}`}
+                                      style={{ flex: 1, marginRight: '10px' }}
+                                      className="rounded"
+                                    />
+                                    <Button
+                                      color="danger"
+                                      size="sm"
+                                      onClick={() => deleteOption(childIndex, optionIndex)}
+                                      className="rounded-pill"
+                                    >
+                                      Delete
+                                    </Button>
+                                  </FormGroup>
+                                ))}
+                              </>
+                            )}
+                          </div>
+                        ))}
+                      </CardBody>
+                    </Card>
+                  )}
+                </Form>
+              </CardBody>
+            </Card>
+          </Col>
 
-        {/* Right Side - Live Preview (Fixed) */}
-        <Col 
-          md={6} 
-          style={{ 
-            height: '100%', 
-            position: 'fixed', 
-            right: 0, 
-            top: 0, 
-            width: '50%', 
-            paddingLeft: '15px', 
-            paddingRight: '15px', 
-            overflowY: 'auto' 
-          }}
+          {/* Right Side - Live Preview */}
+          <Col 
+            md={5} 
+            className="h-100" 
+            style={{ overflowY: 'auto', paddingLeft: '15px', paddingRight: '15px' }}
+          >
+            <div style={{ paddingTop: '20px' }}>
+              <FlowPreview 
+                flowData={flowData} 
+                currentScreenIndex={currentScreenIndex} 
+                setCurrentScreenIndex={setCurrentScreenIndex} 
+              />
+            </div>
+          </Col>
+        </Row>
+        <Button 
+          color="success" 
+          onClick={handleSaveFlow} 
+          className="mt-4 rounded-pill px-4 py-2"
+          style={{ alignSelf: 'flex-start', backgroundColor: '#00a884', border: 'none' }}
         >
-          <div style={{ paddingTop: '20px' }}>
-            <FlowPreview 
-              flowData={flowData} 
-              currentScreenIndex={currentScreenIndex} 
-              setCurrentScreenIndex={setCurrentScreenIndex} 
-            />
-          </div>
-        </Col>
-      </Row>
-      <Button 
-        color="success" 
-        onClick={handleSaveFlow} 
-        style={{ marginTop: '20px', alignSelf: 'flex-start' }}
-      >
-        Save Flow
-      </Button>
-    </Container>
+          Save Flow
+        </Button>
+      </Container>
+    </App>
   );
 };
 

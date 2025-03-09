@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 import { Modal, ModalHeader, ModalBody } from "reactstrap";
 import SweetAlert from "sweetalert2";
 import { fetchFlowsListData,clearFlowListState, fetchFlowDetailsById, clearFlowDetailState, publishFlow,clearFlowPublishState, deleteFlow, clearFlowDeleteState, setCurrentPage, setPageSize } from "@/slices/FlowsSlice";
@@ -9,11 +10,13 @@ import showSweetAlert from "@/components/Sweetalert";
 import SearchBar from "@/components/SearchBar/SearchComponent";
 import Loader from "@/components/Layout/Loader";
 import App from "@/components/Layout/App";
-
+import { useSetRecoilState } from "recoil";
+import { FlowState } from "@/components/recoil";
 import { set } from "date-fns";
 
 const Flow = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
   const { flowsList, totalRecords, loading, error } = useSelector((state) => state.flows);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [flowForm, setFlowForm] = useState({});
@@ -22,7 +25,7 @@ const Flow = () => {
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [floawLoading, setFlowLoading] = useState(false);
   const [page, SetPageSize] = useState(10)
-
+  const setFlowsId = useSetRecoilState(FlowState);
   const flowColumn = [
     { name: "Flow Name", selector: (row) => row.flowName, sortable: true },
     { name: "Flow Language", selector: (row) => row.flowLanguage, sortable: true },
@@ -35,7 +38,7 @@ const Flow = () => {
           <button onClick={() => handleDetailClick(row.flowId)} title="Edit Flow" className="uniform_icon_btn">
             <HiPencilAlt style={{ fontSize: "15px" }} />
           </button>
-          <button onClick={() => handlePublishClick(row.flowId)} title="Edit Flow" className="uniform_icon_btn">
+          <button onClick={() => handlePublishClick(row.flowId)} title="Publish Flow" className="uniform_icon_btn">
             <HiUpload style={{ fontSize: "15px" }} />
           </button>
           <button onClick={() => handleDeleteClick(row.flowId)} title="Delete Flow" className="uniform_icon_btn">
@@ -50,18 +53,9 @@ const Flow = () => {
     dispatch(fetchFlowsListData({pageNo:PageNum, pageSize: page, SearchStr: filterText}));
   }, [dispatch,PageNum,page]);
 
-  const handleDetailClick = async (groupId) => {
-    try {
-      const response = await dispatch(fetchGroupById({groupId})).unwrap();
-      if (response) {
-        setFlowForm(response.result);
-        setIsModalOpen(true);
-      } else {
-        showSweetAlert({ title: "Error", text: "Failed to fetch details", icon: "error" });
-      }
-    } catch (error) {
-      alert("Failed to fetch group details: " + error.message);
-    }
+  const handleDetailClick = (flowId) => {
+    setFlowsId(flowId);
+    router.replace("/Flows/FlowDetails");
   };
   const handlePublishClick = async (flowId) => {
     try {

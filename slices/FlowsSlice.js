@@ -47,8 +47,9 @@ export const fetchFlowDropdown = createAsyncThunk(
 // Fetch Group by ID
 export const fetchFlowDetailsById = createAsyncThunk(
     'flowdetails/fetchFlowDetailsById',
-    async ({id }, { rejectWithValue }) => {
+    async ({id}, { rejectWithValue }) => {
       try {
+        
         const response = await API.get(`${FLOWDETAILS}?flowId=${id}`);
         return response.data;
       } catch (error) {
