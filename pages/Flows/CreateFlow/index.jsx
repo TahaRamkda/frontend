@@ -21,6 +21,7 @@ import LanguageDropdown from '@/components/Dropdowns/LanguageDropdown';
 import { createFlows } from '@/slices/FlowsSlice';
 import App from '@/components/Layout/App';
 import showSweetAlert from '@/components/Sweetalert';
+import { toast } from 'react-toastify';
 
 // Enum for question types
 const QuestionTypes = {
@@ -233,20 +234,24 @@ const CreateFlowPage = () => {
     }
     setCurrentScreenIndex(currentEditScreenIndex);
   }, [flowData.flowScreens.length, currentEditScreenIndex]);
-
   const addScreen = () => {
     const newScreen = {
-      name: `screen_${flowData.flowScreens.length + 1}`,
-      title: '',
-      screenButtonText: 'Next',
-      flowChildren: []
+        name: `screen_${flowData.flowScreens.length + 1}`,
+        title: '',
+        screenButtonText: 'Next',
+        flowChildren: []
     };
-    setFlowData({
-      ...flowData,
-      flowScreens: [...flowData.flowScreens, newScreen]
-    });
-    setCurrentEditScreenIndex(flowData.flowScreens.length);
-  };
+
+    if (flowData.flowScreens.length <= 4) {  // Allows up to 5 screens (index 0-4)
+        setFlowData({
+            ...flowData,
+            flowScreens: [...flowData.flowScreens, newScreen]
+        });
+        setCurrentEditScreenIndex(flowData.flowScreens.length);
+    } else {
+        toast.error("You can't add more than 5 screens");
+    }
+};
 
   const deleteScreen = () => {
     if (flowData.flowScreens.length <= 1) return;
