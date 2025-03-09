@@ -26,7 +26,6 @@ const ChatsMonitor = () => {
   const [showchat, setshowchat] = useState(false);
   const [srcStr, setsrcStr] = useState('');
   const [Status, setStatus] = useState("");
-  const [Size, setSize] = useState(10);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [showtransfer, setshowtransfer] = useState(false);
   const [activeChat, setActiveChat] = useState(0);
@@ -38,7 +37,8 @@ const ChatsMonitor = () => {
   const [CustomerName, setCustomerName] = useState('');
   const [refreshpage, setrefreshpage] = useState(false);  // Track if page is refreshing
   const [initiated , SetInitiated] = useState('');
- 
+ const [PageNum, SetPageNum] = useState(1);
+ const [page, SetPageSize] = useState(10);
   const statusOptions = [
     { value: '0', label: "Auto Chat" },
     { value: '1', label: "Looking For Agent" },
@@ -161,8 +161,8 @@ const ChatsMonitor = () => {
         fChatInitiated:initiated,
         srcStr: searchValue,
         status:Status,
-        pageSize,
-        pageNo: currentPage,
+        pageSize:page,
+        pageNo: PageNum,
       }));
     }, 500);
  
@@ -185,13 +185,12 @@ const refreshPage = () => {
       fChatInitiated:initiated,
       agentId: agentId,
       status:Status,
-      pageSize:Size, // Example page size
-      pageNo: currentPage, // Example current page
+      pageSize:page, // Example page size
+      pageNo: PageNum, // Example current page
     }));
 }
-    
 
- useEffect(() => {
+  useEffect(() => {
      if (!loading && chatsMonitor) {
        setChatLoading(false);
      }
@@ -221,8 +220,8 @@ const refreshPage = () => {
             fChatInitiated:initiated,
             agentId: agentId,
             status:Status,
-            pageSize:Size, // Example page size
-            pageNo: currentPage, // Example current page
+            pageSize:page, // Example page size
+            pageNo: PageNum, // Example current page
           }));
          } else {
            // Handle the case when isLiveReporting is false
@@ -241,7 +240,7 @@ const refreshPage = () => {
    
        // Cleanup the interval when the component unmounts
        return () => clearInterval(intervalId);
-     }, [dispatch,senderid,srcStr,Status,currentPage,initiated,agentId]);
+     }, [dispatch,senderid,srcStr,Status,initiated,agentId]);
 
  
   const handleDetailClick = async (row) => {
@@ -277,8 +276,8 @@ const refreshPage = () => {
         agentId: agentId,
         fChatInitiated:initiated,
         srcStr:srcStr,
-        pageSize,
-        pageNo: currentPage,
+        pageSize:page,
+        pageNo: PageNum,
       }));
     }
  
@@ -288,7 +287,7 @@ const refreshPage = () => {
   }, [dispatch, clientId,senderid, Status,initiated,agentId]);
  
   const handlePageSizeChange = async (newSize) => {
-    setSize(newSize);
+    SetPageSize(newSize);
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1));  // Reset to first page
     setChatLoading(true)
@@ -304,8 +303,9 @@ const refreshPage = () => {
     }));
   };
  
-  const handlePageChange = async (page) => {
-    dispatch(setCurrentPage(page));
+  const handlePageChange = async (pageNo) => {
+    dispatch(setCurrentPage(pageNo));
+    SetPageNum(pageNo)
     setChatLoading(true)
     await dispatch(fetchChatsMonitor({
       clientId: clientId,
@@ -314,8 +314,8 @@ const refreshPage = () => {
       agentId: agentId,
       fChatInitiated:initiated,
       srcStr:srcStr,
-      pageSize,
-      pageNo: page,
+      pageSize:page,
+      pageNo: pageNo,
     }));
   };
  
