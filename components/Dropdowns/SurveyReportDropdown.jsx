@@ -4,18 +4,18 @@ import $ from 'jquery';
 import 'select2/dist/css/select2.min.css';
 import Loader from '../Layout/Loader';
 import 'select2/dist/js/select2.min.js';
-import { fetchAgentsDrop, cleaAgenDroptState } from '@/slices/AgentSlice';
+import { fetchSurveyDropdown } from '@/slices/ReportSlice';
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
 const AgentDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
-  const { agentDrop, loading, error } = useSelector((state) => state.agents);
+  const {SurveyDropdown,loading,error} = useSelector((state) => state.reports);
   const [searchString, setsearchString] = useState("")
   const [SenderId, setSenderId] = useState(0)
 
   useEffect(() => {
-    dispatch(fetchAgentsDrop({ clientId: localStorage.getItem("clientId"), searchStr: searchString, senderId: SenderId }));
+    dispatch(fetchSurveyDropdown({}));
 
   }, [dispatch]);
 
@@ -40,7 +40,7 @@ const AgentDropdown = ({ name, value, onChange }) => {
         $(selectRef.current).off('change');
       }
     };
-  }, [agentDrop, onChange]);
+  }, [SurveyDropdown, onChange]);
 
   if (loading) return <Loader />;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
@@ -57,10 +57,10 @@ const AgentDropdown = ({ name, value, onChange }) => {
         required
       >
         <option value="0">Select</option>
-        {agentDrop && agentDrop.length > 0 ? (
-          agentDrop.map((agent) => (
-            <option key={agent.id} value={agent.id}>
-              {agent.name}
+        {SurveyDropdown && SurveyDropdown.length > 0 ? (
+          SurveyDropdown.map((Survey) => (
+            <option key={Survey.id} value={Survey.id}>
+              {Survey.name}
             </option>
           ))
         ) : (

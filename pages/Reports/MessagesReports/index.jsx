@@ -69,46 +69,46 @@ const MessageReport = () => {
     }, []);
 
  
-   useEffect(() => {
-        const checkAndFetch = async () => {
-          const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
+  //  useEffect(() => {
+  //       const checkAndFetch = async () => {
+  //         const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
     
-          if (isLiveReporting && !loading) {
+  //         if (isLiveReporting && !loading) {
             
-            try {
-               await dispatch(
-                fetchMessageReport({
-                  clientId: clientId,
-                  fromDate: fromDate,
-                  toDate: toDate,
-                  status: status,
-                  moduleId: ModuleId,
-                  senderid: senderid,
-                  srcStr: srcStr,
-                  sendernameId: sendernameId,
-                  pageSize: pageSize,
-                  pageNo: currentPage,
-                })
-              );
+  //           try {
+  //              await dispatch(
+  //               fetchMessageReport({
+  //                 clientId: clientId,
+  //                 fromDate: fromDate,
+  //                 toDate: toDate,
+  //                 status: status,
+  //                 moduleId: ModuleId,
+  //                 senderid: senderid,
+  //                 srcStr: srcStr,
+  //                 sendernameId: sendernameId,
+  //                 pageSize: pageSize,
+  //                 pageNo: currentPage,
+  //               })
+  //             );
               
-            } catch (error) {
-              console.error("Error fetching chat monitor:", error);
-            }
-          }
-        };
+  //           } catch (error) {
+  //             console.error("Error fetching chat monitor:", error);
+  //           }
+  //         }
+  //       };
     
        
     
-        const intervalId = setInterval(() => {
-          // Perform the periodic refresh (e.g., every 5 minutes) if page is loaded
-          if (!loading) {
-            checkAndFetch();
-          }
-        }, REFRESH_INTERVAL);
+  //       const intervalId = setInterval(() => {
+  //         // Perform the periodic refresh (e.g., every 5 minutes) if page is loaded
+  //         if (!loading) {
+  //           checkAndFetch();
+  //         }
+  //       }, REFRESH_INTERVAL);
     
-        // Cleanup interval on component unmount or when page is unloaded
-        return () => clearInterval(intervalId);
-      }, [ dispatch,senderid, srcStr,fromDate,toDate,status,ModuleId,sendernameId,pageSize,currentPage]);
+  //       // Cleanup interval on component unmount or when page is unloaded
+  //       return () => clearInterval(intervalId);
+  //     }, [ dispatch,senderid, srcStr,fromDate,toDate,status,ModuleId,sendernameId,pageSize,currentPage]);
   
 
 
@@ -264,7 +264,7 @@ const MessageReport = () => {
         paginationPerPage={defultpagessize} // Default number of rows per page
         paginationRowsPerPageOptions={customPageSizes} // Custom page size options
         subHeader
-        key={"id"}
+        keyField='id'
         subHeaderComponent={subHeaderComponentMemo}
         className="w-full border"
         customStyles={{

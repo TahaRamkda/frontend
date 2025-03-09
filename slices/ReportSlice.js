@@ -11,11 +11,12 @@ import {
   AGENTREPORT,
   CHATREPORTSTATS,
   CHATREPORTLOGS,
+  SURVEYDROPDOWN
 } from "@/utils/apiConstants";
 
 // Thunks
 
-// Fetch Clients
+// Fetch Message Summary
 export const fetchMessageSummary = createAsyncThunk(
   "messagesummary /fetchMessageSummary",
   async (
@@ -53,6 +54,7 @@ export const fetchMessageSummary = createAsyncThunk(
   }
 );
 
+// Fetch Message Report
 export const fetchMessageReport = createAsyncThunk(
   "messagereport /fetchMessageReport",
   async (
@@ -73,7 +75,7 @@ export const fetchMessageReport = createAsyncThunk(
       const response = await API.get(
         `${MESSAGEREPORT}?ModuleId=${moduleId}&SenderId=${senderid}&FromDate=${fromDate}&ToDate=${toDate}&CurrentStatus=${status}&SearchStr=${srcStr}&PageNo=${pageNo}&PageSize=${pageSize}`
       );
-      if (response?.status === 200 ) {
+      if (response?.status === 200) {
         const obj = JSON.stringify(response.data, 2);
 
         return {
@@ -92,20 +94,40 @@ export const fetchMessageReport = createAsyncThunk(
     }
   }
 );
+
+// Fetch Conversation Report
 export const fetchConversationReport = createAsyncThunk(
-  'conversationreport /fetchConversationReport',
-  async ({status, pageSize,pageNo,senderId,FromDate,ToDate,agentId,srcStr,fChatInitiated}, { rejectWithValue }) => {
-    
+  "conversationreport /fetchConversationReport",
+  async (
+    {
+      status,
+      pageSize,
+      pageNo,
+      senderId,
+      FromDate,
+      ToDate,
+      agentId,
+      srcStr,
+      fChatInitiated,
+    },
+    { rejectWithValue }
+  ) => {
     try {
-      
-      const response = await API.get(`${CONVERSATIONREPORT}?senderId=${senderId}${srcStr ? `&searchStr=${srcStr}`: ''}&status=${status}&agentId=${agentId}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}&fChatInitiated=${fChatInitiated}`);
+      const response = await API.get(
+        `${CONVERSATIONREPORT}?senderId=${senderId}${
+          srcStr ? `&searchStr=${srcStr}` : ""
+        }&status=${status}&agentId=${agentId}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}&fChatInitiated=${fChatInitiated}`
+      );
       if (response?.status === 200 && response.data?.result) {
         return {
-        ConversationReport: response.data.result,
-        totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
+          ConversationReport: response.data.result,
+          totalRecords:
+            response.data.result.length > 0
+              ? response.data.result[0].totalRecords
+              : 0,
         };
       } else {
-        throw new Error('Failed to fetch details');
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -114,9 +136,10 @@ export const fetchConversationReport = createAsyncThunk(
   }
 );
 
+// Fetch Supervisor Dashboard
 export const fetchSupervisorDashboard = createAsyncThunk(
   "supervisordashboard /fetchSupervisorDashboard",
-  async ({senderid }, { rejectWithValue }) => {
+  async ({ senderid }, { rejectWithValue }) => {
     try {
       const response = await API.get(
         `${SUPERVISORDASHBOARD}?SenderId=${senderid}`
@@ -137,19 +160,20 @@ export const fetchSupervisorDashboard = createAsyncThunk(
   }
 );
 
+// Fetch Chat Logs
 export const fetchChatLogs = createAsyncThunk(
-  'chatlogs /fetchChatLogs',
-  async ({conversationId}, { rejectWithValue }) => {
-    
+  "chatlogs /fetchChatLogs",
+  async ({ conversationId }, { rejectWithValue }) => {
     try {
-
-      const response = await API.get(`${CHATREPORTLOGS}?conversationId=${conversationId}`);
+      const response = await API.get(
+        `${CHATREPORTLOGS}?conversationId=${conversationId}`
+      );
       if (response?.status === 200 && response.data?.result) {
         return {
-        chatLogs: response.data.result
+          chatLogs: response.data.result,
         };
       } else {
-        throw new Error('Failed to fetch details');
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -158,19 +182,29 @@ export const fetchChatLogs = createAsyncThunk(
   }
 );
 
+// Fetch Agent Report
 export const fetchAgentReport = createAsyncThunk(
-  'agentreport /fetchAgentReport',
-  async ({status, pageSize,pageNo,senderId,FromDate,ToDate,srcStr}, { rejectWithValue }) => {
-   
+  "agentreport /fetchAgentReport",
+  async (
+    { status, pageSize, pageNo, senderId, FromDate, ToDate, srcStr },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await API.get(`${AGENTREPORT}?pageSize=${pageSize}&senderId=${senderId}${srcStr ? `&searchStr=${srcStr}`: ''}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`);
+      const response = await API.get(
+        `${AGENTREPORT}?pageSize=${pageSize}&senderId=${senderId}${
+          srcStr ? `&searchStr=${srcStr}` : ""
+        }&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`
+      );
       if (response?.status === 200 && response.data?.result) {
         return {
-        AgentReportList: response.data.result,
-        totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
+          AgentReportList: response.data.result,
+          totalRecords:
+            response.data.result.length > 0
+              ? response.data.result[0].totalRecords
+              : 0,
         };
       } else {
-        throw new Error('Failed to fetch details');
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -179,21 +213,35 @@ export const fetchAgentReport = createAsyncThunk(
   }
 );
 
+// Fetch Chat Report Stats
 export const fetchChatReportStats = createAsyncThunk(
-  'chatreportstats /fetchChatReportStats',
-  
-  async ({ pageSize,pageNo,senderId,FromDate,ToDate,srcStr,agentId,fChatInitiated}, { rejectWithValue }) => {
-    
-    
+  "chatreportstats /fetchChatReportStats",
+
+  async (
+    {
+      pageSize,
+      pageNo,
+      senderId,
+      FromDate,
+      ToDate,
+      srcStr,
+      agentId,
+      fChatInitiated,
+    },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await API.get(`${CHATREPORTSTATS}?pageSize=${pageSize}&senderId=${senderId}${srcStr ? `&searchStr=${srcStr}`: ''}&fChatInitiated=${fChatInitiated}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}&agentId=${agentId}`);
+      const response = await API.get(
+        `${CHATREPORTSTATS}?pageSize=${pageSize}&senderId=${senderId}${
+          srcStr ? `&searchStr=${srcStr}` : ""
+        }&fChatInitiated=${fChatInitiated}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}&agentId=${agentId}`
+      );
       if (response?.status === 200 && response.data?.result) {
-        
         return {
-        chatReportStats: response.data.result,
+          chatReportStats: response.data.result,
         };
       } else {
-        throw new Error('Failed to fetch details');
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -202,7 +250,7 @@ export const fetchChatReportStats = createAsyncThunk(
   }
 );
 
-
+// Fetch Dashboard Summary
 export const fetchDashboardSummary = createAsyncThunk(
   "dashboardsummary /fetchDashboardSummary",
   async ({ clientId, fromDate, toDate, senderid }, { rejectWithValue }) => {
@@ -226,6 +274,7 @@ export const fetchDashboardSummary = createAsyncThunk(
   }
 );
 
+// Fetch Template Insight
 export const fetchTemplateInsight = createAsyncThunk(
   "templateinsight /fetchTemplateInsight",
   async ({ clientId, fromDate, toDate, TemplateId }, { rejectWithValue }) => {
@@ -249,7 +298,26 @@ export const fetchTemplateInsight = createAsyncThunk(
   }
 );
 
-
+export const fetchSurveyDropdown = createAsyncThunk(
+  "survey /fetchSurveyDropdown",
+  async ({  }, { rejectWithValue }) => {
+    try {
+      const response = await API.get(
+        `${SURVEYDROPDOWN}`
+      );
+      if (response?.status === 200 && response.data?.result) {
+        return {
+          SurveyDropdown: response.data.result,
+        };
+      } else {
+        throw new Error("Failed to fetch details");
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
 
 // Slice
 const reportSlice = createSlice({
@@ -258,10 +326,11 @@ const reportSlice = createSlice({
     messageSummary: [],
     messagereport: [],
     templateInsight: [],
-    ConversationReport:[],
-    supervisorDashboard:[],
-    AgentReportList:[],
-    chatReportStats:[],
+    ConversationReport: [],
+    supervisorDashboard: [],
+    AgentReportList: [],
+    chatReportStats: [],
+    SurveyDropdown:[],
     loading: false,
     error: null,
     success: false,
@@ -314,7 +383,7 @@ const reportSlice = createSlice({
       state.error = null;
       state.success = false;
     },
-    
+
     clearConversationReportState: (state) => {
       state.ConversationReport = [];
       state.loading = false;
@@ -324,7 +393,7 @@ const reportSlice = createSlice({
       state.totalPages = 1;
       state.pageSize = 10;
       state.totalRecords = 0;
-    }, 
+    },
     clearAgentReportState: (state) => {
       state.AgentReportList = [];
       state.loading = false;
@@ -334,7 +403,7 @@ const reportSlice = createSlice({
       state.totalPages = 1;
       state.pageSize = 10;
       state.totalRecords = 0;
-    }, 
+    },
     clearTemplateInsightState: (state) => {
       state.templateInsight = [];
       state.loading = false;
@@ -362,6 +431,12 @@ const reportSlice = createSlice({
       state.pageSize = 10;
       state.totalRecords = 0;
     },
+    clearSurveyDropdownState: (state) => {
+      state.SurveyDropdown = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -401,6 +476,7 @@ const reportSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
+      // Fetch Chat Logs
       .addCase(fetchChatLogs.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -415,18 +491,18 @@ const reportSlice = createSlice({
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
+
       // Chats Report
       .addCase(fetchConversationReport.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchConversationReport.fulfilled, (state, action) => {
-
         state.loading = false;
         state.ConversationReport = action.payload.ConversationReport;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
-        state.message = action.payload.message || '';
+        state.message = action.payload.message || "";
       })
       .addCase(fetchConversationReport.rejected, (state, action) => {
         state.loading = false;
@@ -434,18 +510,17 @@ const reportSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      // Agents Report 
+      // Agents Report
       .addCase(fetchAgentReport.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchAgentReport.fulfilled, (state, action) => {
-        
         state.loading = false;
         state.AgentReportList = action.payload.AgentReportList;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
-        state.message = action.payload.message || '';
+        state.message = action.payload.message || "";
       })
       .addCase(fetchAgentReport.rejected, (state, action) => {
         state.loading = false;
@@ -453,8 +528,7 @@ const reportSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      //dashboard summary
-
+      //dashboard Summary
       .addCase(fetchDashboardSummary.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -479,7 +553,9 @@ const reportSlice = createSlice({
       })
       .addCase(fetchSupervisorDashboard.fulfilled, (state, action) => {
         state.loading = false;
-        state.supervisorDashboard = JSON.parse(action.payload.supervisorDashboard); //action.payload.messagereportsummary
+        state.supervisorDashboard = JSON.parse(
+          action.payload.supervisorDashboard
+        ); //action.payload.messagereportsummary
         state.message = action.payload.message || "";
       })
       .addCase(fetchSupervisorDashboard.rejected, (state, action) => {
@@ -494,7 +570,6 @@ const reportSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchChatReportStats.fulfilled, (state, action) => {
-
         state.loading = false;
         state.chatReportStats = action.payload.chatReportStats; //action.payload.messagereportsummary;
         state.message = action.payload.message || "";
@@ -519,9 +594,23 @@ const reportSlice = createSlice({
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
-      });
+      })
 
-     
+      // Fetch Survey Dropdown
+      .addCase(fetchSurveyDropdown.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSurveyDropdown.fulfilled, (state, action) => {
+        state.loading = false;
+        state.SurveyDropdown = JSON.parse(action.payload.SurveyDropdown); //action.payload.messagereportsummary;
+        state.message = action.payload.message || "";
+      })
+      .addCase(fetchSurveyDropdown.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      });
   },
 });
 
@@ -536,6 +625,7 @@ export const {
   clearSupervisorDashboardState,
   clearMessageReportState,
   clearChatReportStatsState,
+  clearSurveyDropdownState,
   clearAgentReportState,
   clearChatLogsState,
 } = reportSlice.actions;

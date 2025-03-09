@@ -39,6 +39,7 @@ const ChatsMonitor = () => {
   const [initiated , SetInitiated] = useState('');
  const [PageNum, SetPageNum] = useState(1);
  const [page, SetPageSize] = useState(10);
+ const [Logo,setLogo] = useState('');
   const statusOptions = [
     { value: '0', label: "Auto Chat" },
     { value: '1', label: "Looking For Agent" },
@@ -244,7 +245,7 @@ const refreshPage = () => {
 
  
   const handleDetailClick = async (row) => {
-    
+    setLogo(row.logo)
     setActiveChat(row.id);
     setCustomerName(row.fullName);
     setPhoneNumber(row.phoneNumber);
@@ -441,6 +442,7 @@ const refreshPage = () => {
         showchat && (
           <Chatview
             ChatId={activeChat}
+            logo={Logo}
             isVisible={true}
             CustomerName = {CustomerName}
             PhNo={PhoneNumber}

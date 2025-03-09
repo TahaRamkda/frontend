@@ -44,7 +44,7 @@ export const FlowsDropdown = ({ onChange }) => {
     <>
       <div>
       <Select
-        id="agentSelect"
+        id="flowSelect"
         value={Options.filter(option => selectedFlowId.includes(option.value))}
         onChange={handleSelectChange}
         options={Options}

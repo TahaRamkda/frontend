@@ -136,6 +136,7 @@ export const EXCELEXPORTCHATREPORT = "/Conversation/getexportconversationdetailr
 export const EXCELEXPORTCHATMONITOR = "/Conversation/exportconversationreportlist";
 export const EXCELEXPORTAGENTMONITOR = "/Agents/exportagentsupervisorreport";
 export const EXCELEXPORTAGENTREPORT = "/Agents/getexportagentdetailsupervisorreport";
+export const EXCELEXPORTSURVEYREPORT = "#";
 
 // close chat template By supervisor
 export const SENDCLOSECHATTEMPLATE = "/Conversation/closechatbysupervisor";
@@ -148,3 +149,6 @@ export const UPDATEFLOW = "/Flows/updateflow";
 export const PUBLISHFLOW = "/Flows/publishflow";
 export const DELETEFLOW = "/Flows/deleteflow";
 export const FLOWDROPDOWN = "/Flows/getflows";
+
+// Survey Report 
+export const SURVEYDROPDOWN = "/SurveyReport/getsurveys";
