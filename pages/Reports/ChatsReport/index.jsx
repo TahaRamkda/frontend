@@ -83,7 +83,7 @@ const ChatsReport = () => {
   const [SenderId, setSenderId] = useState(0);
   const [oldAgentId, setoldAgentId] = useState(0);
   const [refreshpage, setrefreshpage] = useState(false); // Track if page is refreshing
-
+const [Logo, setLogo] = useState('');
   const statusOptions = [
     { value: "0", label: "Auto Chat" },
     { value: "1", label: "Looking For Agent" },
@@ -275,6 +275,7 @@ const ChatsReport = () => {
     setActiveChat(row.id);
     setCustomerName(row.fullName);
     setPhoneNumber(row.phoneNumber);
+    setLogo(row.logo)
     setshowchat(true);
   };
 
@@ -619,6 +620,7 @@ const ChatsReport = () => {
           ChatId={activeChat}
           isVisible={true}
           PhNo={PhoneNumber}
+          logo={Logo}
           CustomerName={CustomerName}
           onClose={handleCancel}
         />

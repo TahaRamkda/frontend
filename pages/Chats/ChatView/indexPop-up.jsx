@@ -10,16 +10,17 @@ import {
   clearMessagesReportState,
 } from "@/slices/ConversationSlice";
 
-const Chatview = ({ ChatId, onClose, isVisible, PhNo, CustomerName }) => {
+const Chatview = ({ ChatId, onClose, isVisible, PhNo, CustomerName, logo }) => {
   const dispatch = useDispatch();
   const [Activechat, setActiveChat] = useState(0);
   const { conversationMessagereport, loading } = useSelector(
     (state) => state.conversations
   );
   const [chatMessages, setChatMessages] = useState([]);
-  const [refreshpage, setrefreshpage] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true); // New state for initial load
   const messagesEndRef = useRef(null);
   const [scrolledown, setscrolledown] = useState(false);
+
   // Set active chat when ChatId changes
   useEffect(() => {
     if (ChatId) {
@@ -29,7 +30,6 @@ const Chatview = ({ ChatId, onClose, isVisible, PhNo, CustomerName }) => {
 
   // Fetch chat messages when Activechat changes
   useEffect(() => {
-    
     const ClientId = localStorage.getItem("clientId");
     if (ClientId && Activechat) {
       dispatch(
@@ -47,9 +47,7 @@ const Chatview = ({ ChatId, onClose, isVisible, PhNo, CustomerName }) => {
       const isLiveReporting = JSON.parse(
         localStorage.getItem("isLiveReporting")
       );
-
       if (isLiveReporting && !loading) {
-        setrefreshpage(true);
         try {
           await dispatch(
             fetchConversationMessageReport({
@@ -59,8 +57,6 @@ const Chatview = ({ ChatId, onClose, isVisible, PhNo, CustomerName }) => {
           );
         } catch (error) {
           console.error("Error fetching chat monitor:", error);
-        } finally {
-          setrefreshpage(false);
         }
       }
     };
@@ -72,23 +68,26 @@ const Chatview = ({ ChatId, onClose, isVisible, PhNo, CustomerName }) => {
     }, REFRESH_INTERVAL);
 
     return () => clearInterval(intervalId);
-  }, [Activechat, dispatch]);
+  }, [Activechat, dispatch, loading]);
 
-  // Update chatMessages when conversationMessagereport changes
+  // Update chatMessages and handle initial load
   useEffect(() => {
     if (conversationMessagereport && conversationMessagereport.length > 0) {
       setChatMessages(conversationMessagereport);
+      if (isInitialLoad) {
+        setIsInitialLoad(false); // Mark initial load as complete
+      }
       dispatch(clearMessagesReportState());
     }
-  }, [conversationMessagereport, dispatch]);
+  }, [conversationMessagereport, dispatch, isInitialLoad]);
 
   // Auto-scroll to the bottom of the chat when the pop-up first appears
   useEffect(() => {
-    if (isVisible && messagesEndRef.current && scrolledown === false) {
+    if (isVisible && messagesEndRef.current && !scrolledown) {
       setscrolledown(true);
       messagesEndRef.current.scrollIntoView({ behavior: "auto" });
     }
-  }, [isVisible, chatMessages]);
+  }, [isVisible, chatMessages, scrolledown]);
 
   return (
     <Modal
@@ -100,16 +99,27 @@ const Chatview = ({ ChatId, onClose, isVisible, PhNo, CustomerName }) => {
       <div className="fixed inset-0 bg-gray bg-opacity-500 bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-gray-200 rounded shadow-lg w-full max-w-4xl h-full max-h-[90vh] flex flex-col">
           <ModalHeader toggle={onClose} className="border-b p-4">
-            <div className="">
-           <div className="text-xl">Chat Details</div> 
-            <div className="">
-              <div className="text-sm">{CustomerName}</div>
-              <div className="text-xs text-gray-600">
-                {PhNo}
+            <div>
+              <div className="text-xl">Chat Details </div>
+              <div className="flex flex-wrap">
+                <div className="text-sm">
+                  <img
+                    src={`${BASE_URL}${logo}`}
+                    alt="Sender Logo"
+                    className="rounded-circle me-2 mt-2 img-fluid"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      objectFit: "cover",
+                    }}
+                  />
+                </div>
+                <div>
+                  <div className="text-sm p-0 ml-1">{CustomerName}</div>
+                  <div className="text-xs text-gray-600 ml-1">{PhNo}</div>
+                </div>
               </div>
             </div>
-            </div>
-
           </ModalHeader>
           <ModalBody className="flex-grow overflow-y-auto p-4">
             <div className="right-sidebar-chat">
@@ -117,9 +127,7 @@ const Chatview = ({ ChatId, onClose, isVisible, PhNo, CustomerName }) => {
                 className="msger-chat flex-grow overflow-y-auto space-y-4"
                 style={{ maxHeight: "calc(90vh - 120px)" }}
               >
-                {loading && !refreshpage && (
-                 <Loader/>
-                )}
+                {loading && isInitialLoad && <Loader />}
                 {chatMessages?.map((message) => (
                   <div
                     key={message.messageId}
@@ -137,7 +145,7 @@ const Chatview = ({ ChatId, onClose, isVisible, PhNo, CustomerName }) => {
                       {message.parentMessageContent &&
                         message.parentMessageContent.trim() !== "" && (
                           <div
-                            className=" p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis mb-1"
+                            className="p-1 rounded bg-gray-100 text-gray-600 text-sm italic border-l-4 border-gray-300 overflow-hidden text-ellipsis mb-1"
                             style={{
                               fontSize: "15px",
                               display: "-webkit-box",
@@ -173,7 +181,7 @@ const Chatview = ({ ChatId, onClose, isVisible, PhNo, CustomerName }) => {
                           )}
                         </>
                       )}
-                      <div className="flex items-end justify-between min-w-[100px]  rounded-lg">
+                      <div className="flex items-end justify-between min-w-[100px] rounded-lg">
                         <p className="whitespace-pre-wrap break-words flex-grow">
                           {message.messageContent
                             ? message.messageContent
@@ -198,7 +206,6 @@ const Chatview = ({ ChatId, onClose, isVisible, PhNo, CustomerName }) => {
                           {extractTime(message.createdDate)}
                         </span>
                       </div>
-
                       {message.buttonJson && message.buttonJson.length > 0 && (
                         <div className="mt-2">
                           {(typeof message.buttonJson === "string"

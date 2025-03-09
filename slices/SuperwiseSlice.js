@@ -27,9 +27,9 @@ export const fetchChatsMonitor = createAsyncThunk(
   
 export const fetchAgentsMonitor = createAsyncThunk(
     'agentmonitor/fetchAgentsMonitor',
-    async ({clientId, fromDate, toDate, senderId, srcStr, pageSize,pageNo}, { rejectWithValue }) => {
+    async ({clientId, fromDate, toDate, senderId, srcStr,}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${AGENTSMONITOR}?fromDate=${fromDate}&toDate=${toDate}&senderId=${senderId}&pageSize=${pageSize}&pageNo=${pageNo}${srcStr? `&searchStr=${srcStr}`:''}`);
+        const response = await API.get(`${AGENTSMONITOR}?fromDate=${fromDate}&toDate=${toDate}&senderId=${senderId}${srcStr? `&searchStr=${srcStr}`:''}`);
         if (response?.status === 200 ) {
           return {
           agentsMonitor: response.data.result,
