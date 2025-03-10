@@ -34,7 +34,7 @@ const QuestionTypes = {
   TextArea: 2,
   RadioButtonsGroup: 3,
   CheckboxGroup: 4,
-  TextHeading: 5
+  TextHeading: 5,
 };
 
 // FlowPreview component remains unchanged
@@ -46,31 +46,50 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
         if (child.type === QuestionTypes.RadioButtonsGroup) return null;
         if (child.type === QuestionTypes.CheckboxGroup) return [];
         if (child.type === QuestionTypes.TextHeading) return null;
-        return '';
+        return "";
       })
     )
   );
 
+  const handlePreviewSave = () => {
+    showSweetAlert({
+      title: "Success",
+      text: "Flow saved successfully",
+      icon: "success",
+    });
+  };
+
   useEffect(() => {
-    setAnswers(prevAnswers => {
+    setAnswers((prevAnswers) => {
       const newAnswers = flowData.flowScreens.map((screen, screenIdx) => {
         return screen.flowChildren.map((child, childIdx) => {
           const existingAnswer = prevAnswers[screenIdx]?.[childIdx];
           if (existingAnswer !== undefined) return existingAnswer;
-          if (child.type === QuestionTypes.TextInput || child.type === QuestionTypes.TextArea) return '';
+          if (
+            child.type === QuestionTypes.TextInput ||
+            child.type === QuestionTypes.TextArea
+          )
+            return "";
           if (child.type === QuestionTypes.RadioButtonsGroup) return null;
           if (child.type === QuestionTypes.CheckboxGroup) return [];
           if (child.type === QuestionTypes.TextHeading) return null;
-          return '';
+          return "";
         });
       });
       return newAnswers;
     });
   }, [flowData]);
 
-  if (flowData.flowScreens.length === 0 || currentScreenIndex < 0 || currentScreenIndex >= flowData.flowScreens.length) {
+  if (
+    flowData.flowScreens.length === 0 ||
+    currentScreenIndex < 0 ||
+    currentScreenIndex >= flowData.flowScreens.length
+  ) {
     return (
-      <div className="text-center text-muted py-5" style={{ fontSize: '1.2rem' }}>
+      <div
+        className="text-center text-muted py-5"
+        style={{ fontSize: "1.2rem" }}
+      >
         No screens to preview
       </div>
     );
@@ -84,133 +103,187 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
     return currentScreen.flowChildren.every((child, index) => {
       if (!child.required) return true;
       const answer = answers[currentScreenIndex]?.[index];
-      if (child.type === QuestionTypes.TextInput || child.type === QuestionTypes.TextArea) 
-        return answer !== undefined && answer.trim() !== '';
-      if (child.type === QuestionTypes.RadioButtonsGroup) 
+      if (
+        child.type === QuestionTypes.TextInput ||
+        child.type === QuestionTypes.TextArea
+      )
+        return answer !== undefined && answer.trim() !== "";
+      if (child.type === QuestionTypes.RadioButtonsGroup)
         return answer !== null;
-      if (child.type === QuestionTypes.CheckboxGroup) 
+      if (child.type === QuestionTypes.CheckboxGroup)
         return answer !== undefined && answer?.length > 0;
-      if (child.type === QuestionTypes.TextHeading) 
-        return true;
+      if (child.type === QuestionTypes.TextHeading) return true;
       return true;
     });
   };
 
   return (
-    <Card className="h-100 border-0 shadow-sm" style={{ borderRadius: '10px', overflow: 'hidden' }}>
+    <Card
+      className="h-100 border-0 shadow-sm"
+      style={{ borderRadius: "10px", overflow: "hidden" }}
+    >
       <CardBody className="p-4">
-        <CardTitle className="mb-3" style={{ fontSize: '1rem', color: '#656565' }}>
-          Preview - Screen {currentScreenIndex + 1} of {flowData.flowScreens.length}
+        <CardTitle
+          className="mb-3"
+          style={{ fontSize: "1rem", color: "#656565" }}
+        >
+          Preview - Screen {currentScreenIndex + 1} of{" "}
+          {flowData.flowScreens.length}
         </CardTitle>
-        <h5 className="mb-4" style={{ fontSize: '1.5rem', fontWeight: '600' }}>
-          {currentScreen.title || 'Untitled Screen'}
+        <h5 className="mb-4" style={{ fontSize: "1.5rem", fontWeight: "600" }}>
+          {currentScreen.title || "Untitled Screen"}
         </h5>
         {currentScreen.flowChildren.map((child, childIndex) => (
           <FormGroup key={childIndex} className="mb-4">
-            <Label className="mb-2" style={{ fontSize: '1.1rem', fontWeight: '500', color: '#333' }}>
-              <span style={{ fontWeight: 'bold', marginRight: '8px' }}>{childIndex + 1}.</span>
-              {child.text || 'Untitled Question'} {child.required && child.type !== QuestionTypes.TextHeading && <span style={{ color: 'red' }}>*</span>}
+            <Label
+              className="mb-2"
+              style={{ fontSize: "1.1rem", fontWeight: "500", color: "#333" }}
+            >
+              <span style={{ fontWeight: "bold", marginRight: "8px" }}>
+                {childIndex + 1}.
+              </span>
+              {child.text || "Untitled Question"}{" "}
+              {child.required && child.type !== QuestionTypes.TextHeading && (
+                <span style={{ color: "red" }}>*</span>
+              )}
             </Label>
             {child.type === QuestionTypes.TextInput && (
               <Input
                 type="text"
-                value={answers[currentScreenIndex][childIndex] || ''}
+                value={answers[currentScreenIndex][childIndex] || ""}
                 onChange={(e) => {
                   const newAnswers = [...answers];
                   newAnswers[currentScreenIndex][childIndex] = e.target.value;
                   setAnswers(newAnswers);
                 }}
                 className="rounded-pill"
-                style={{ padding: '10px 15px', borderColor: '#ced4da' }}
+                style={{ padding: "10px 15px", borderColor: "#ced4da" }}
               />
             )}
             {child.type === QuestionTypes.TextArea && (
               <Input
                 type="textarea"
-                value={answers[currentScreenIndex][childIndex] || ''}
+                value={answers[currentScreenIndex][childIndex] || ""}
                 onChange={(e) => {
                   const newAnswers = [...answers];
                   newAnswers[currentScreenIndex][childIndex] = e.target.value;
                   setAnswers(newAnswers);
                 }}
                 className="rounded"
-                style={{ padding: '10px 15px', borderColor: '#ced4da', minHeight: '100px' }}
+                style={{
+                  padding: "10px 15px",
+                  borderColor: "#ced4da",
+                  minHeight: "100px",
+                }}
               />
             )}
-            {child.type === QuestionTypes.RadioButtonsGroup && (
+            {child.type === QuestionTypes.RadioButtonsGroup &&
               child.flowOptions.map((option, optionIndex) => (
                 <FormGroup check key={optionIndex} className="mb-2">
                   <Input
                     type="radio"
                     name={`question_${childIndex}`}
                     value={option.optionText}
-                    checked={answers[currentScreenIndex][childIndex] === option.optionText}
+                    checked={
+                      answers[currentScreenIndex][childIndex] ===
+                      option.optionText
+                    }
                     onChange={() => {
                       const newAnswers = [...answers];
-                      newAnswers[currentScreenIndex][childIndex] = option.optionText;
+                      newAnswers[currentScreenIndex][childIndex] =
+                        option.optionText;
                       setAnswers(newAnswers);
                     }}
-                    style={{ marginRight: '10px' }}
+                    style={{ marginRight: "10px" }}
                   />
-                  <Label check style={{ fontSize: '1rem', color: '#555' }}>
+                  <Label check style={{ fontSize: "1rem", color: "#555" }}>
                     {option.optionText}
                   </Label>
                 </FormGroup>
-              ))
-            )}
-            {child.type === QuestionTypes.CheckboxGroup && (
+              ))}
+            {child.type === QuestionTypes.CheckboxGroup &&
               child.flowOptions.map((option, optionIndex) => (
                 <FormGroup check key={optionIndex} className="mb-2">
                   <Input
                     type="checkbox"
                     value={option.optionText}
-                    checked={answers[currentScreenIndex][childIndex]?.includes(option.optionText) || false}
+                    checked={
+                      answers[currentScreenIndex][childIndex]?.includes(
+                        option.optionText
+                      ) || false
+                    }
                     onChange={(e) => {
                       const newAnswers = [...answers];
-                      const currentValues = newAnswers[currentScreenIndex][childIndex] || [];
+                      const currentValues =
+                        newAnswers[currentScreenIndex][childIndex] || [];
                       if (e.target.checked) {
-                        newAnswers[currentScreenIndex][childIndex] = [...currentValues, option.optionText];
+                        newAnswers[currentScreenIndex][childIndex] = [
+                          ...currentValues,
+                          option.optionText,
+                        ];
                       } else {
-                        newAnswers[currentScreenIndex][childIndex] = currentValues.filter(val => val !== option.optionText);
+                        newAnswers[currentScreenIndex][childIndex] =
+                          currentValues.filter(
+                            (val) => val !== option.optionText
+                          );
                       }
                       setAnswers(newAnswers);
                     }}
-                    style={{ marginRight: '10px' }}
+                    style={{ marginRight: "10px" }}
                   />
-                  <Label check style={{ fontSize: '1rem', color: '#555' }}>
+                  <Label check style={{ fontSize: "1rem", color: "#555" }}>
                     {option.optionText}
                   </Label>
                 </FormGroup>
-              ))
-            )}
+              ))}
             {child.type === QuestionTypes.TextHeading && (
-              <div style={{ fontSize: '1.2rem', color: '#333', marginBottom: '10px' }}>
-                {child.text || 'Untitled Heading'}
+              <div
+                style={{
+                  fontSize: "1.2rem",
+                  color: "#333",
+                  marginBottom: "10px",
+                }}
+              >
+                {child.text || "Untitled Heading"}
               </div>
             )}
           </FormGroup>
         ))}
         <div className="d-flex justify-content-between mt-4">
           {currentScreenIndex > 0 && (
-            <Button 
-              color="secondary" 
+            <Button
+              color="secondary"
               onClick={() => setCurrentScreenIndex(currentScreenIndex - 1)}
-              className="rounded-pill px-4 py-2"
-              style={{ backgroundColor: '#e0e0e0', border: 'none', color: '#333' }}
+              className="uniform_btn"
+              style={{
+                backgroundColor: "#e0e0e0",
+                border: "none",
+                color: "white",
+              }}
             >
               Previous
             </Button>
           )}
           <div className="flex-grow-1" />
           {currentScreenIndex < flowData.flowScreens.length - 1 && (
-            <Button 
-              color="primary" 
+            <Button
+              color="primary"
               onClick={() => setCurrentScreenIndex(currentScreenIndex + 1)}
-              className="rounded-pill px-4 py-2"
-              style={{ backgroundColor: '#00a884', border: 'none' }}
+              className="uniform_btn"
+              style={{ backgroundColor: "#00a884", border: "none" }}
               disabled={!areRequiredQuestionsAnswered()}
             >
-              {currentScreen.screenButtonText || 'Next '}
+              {currentScreen.screenButtonText || "Next "}
+            </Button>
+          )}
+          {currentScreenIndex === flowData.flowScreens.length - 1 && (
+            <Button
+              color="primary"
+              onClick={() => handlePreviewSave()}
+              className="uniform_btn"
+              style={{ backgroundColor: "#00a884", border: "none" }}
+            >
+              Save
             </Button>
           )}
         </div>
@@ -221,13 +294,13 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
 
 const CreateFlowPage = () => {
   const dispatch = useDispatch();
-
+  const router = useRouter();
   const [flowData, setFlowData] = useState({
     senderId: "0",
-    flowName: '',
-    flowLanguage: '',
+    flowName: "",
+    flowLanguage: "",
     publishToFB: false,
-    flowScreens: []
+    flowScreens: [],
   });
 
   const [currentEditScreenIndex, setCurrentEditScreenIndex] = useState(0);
@@ -264,7 +337,9 @@ const CreateFlowPage = () => {
 
   const deleteScreen = () => {
     if (flowData.flowScreens.length <= 1) return;
-    const updatedScreens = flowData.flowScreens.filter((_, index) => index !== currentEditScreenIndex);
+    const updatedScreens = flowData.flowScreens.filter(
+      (_, index) => index !== currentEditScreenIndex
+    );
     setFlowData({ ...flowData, flowScreens: updatedScreens });
     if (updatedScreens.length === 0) {
       setCurrentEditScreenIndex(-1);
@@ -280,7 +355,7 @@ const CreateFlowPage = () => {
       text: `Question ${flowData.flowScreens[currentEditScreenIndex].flowChildren.length + 1}`,
       type: QuestionTypes.TextInput,
       required: true,
-      flowOptions: []
+      flowOptions: [],
     };
     const updatedScreens = [...flowData.flowScreens];
     updatedScreens[currentEditScreenIndex].flowChildren.push(newQuestion);
@@ -308,7 +383,7 @@ const CreateFlowPage = () => {
     if (updatedQuestion.type === QuestionTypes.RadioButtonsGroup || updatedQuestion.type === QuestionTypes.CheckboxGroup) {
       updatedQuestion.flowOptions.push({
         optionId: `option_${Date.now()}`,
-        optionText: ''
+        optionText: "",
       });
       setCurrentQuestion(updatedQuestion);
     }
@@ -370,23 +445,35 @@ const CreateFlowPage = () => {
   const handleSaveFlow = () => {
     const requestBody = {
       ...flowData,
-      senderId: parseInt(flowData.senderId, 10)
+      senderId: parseInt(flowData.senderId, 10),
     };
     dispatch(createFlows(requestBody))
       .unwrap()
       .then(() => {
-        console.log('Flow created successfully:', requestBody);
-        showSweetAlert({ title: "Success", text: "Flow created successfully", icon: "success" });
+        console.log("Flow created successfully:", requestBody);
+        showSweetAlert({
+          title: "Success",
+          text: "Flow created successfully",
+          icon: "success",
+        });
       })
       .catch((error) => {
-        console.error('Failed to create flow:', error);
-        showSweetAlert({ title: "Error", text: error.message || "An error occurred", icon: "error" });
+        console.error("Failed to create flow:", error);
+        showSweetAlert({
+          title: "Error",
+          text: error.message || "An error occurred",
+          icon: "error",
+        });
       });
   };
 
   return (
     <App>
-      <Container fluid className="py-4 create-flow-container" style={{ minHeight: '100vh' }}>
+      <Container
+        fluid
+        className="py-4 create-flow-container"
+        style={{ minHeight: "100vh" }}
+      >
         <h2 className="mb-4">Create Flow</h2>
         <Row className="flex-grow-1" style={{ overflow: 'hidden' }}>
           {/* Left Side - Flow Editor */}
@@ -396,7 +483,7 @@ const CreateFlowPage = () => {
                 <Form>
                   <FormGroup>
                     <Label>Sender Name</Label>
-                    <SendernameDropdown 
+                    <SendernameDropdown
                       value={flowData.senderId}
                       onChange={handleSenderChange}
                     />
@@ -405,13 +492,13 @@ const CreateFlowPage = () => {
                     <Label>Flow Name</Label>
                     <Input
                       value={flowData.flowName}
-                      onChange={(e) => updateField('flowName', e.target.value)}
+                      onChange={(e) => updateField("flowName", e.target.value)}
                       className="rounded"
                     />
                   </FormGroup>
                   <FormGroup>
                     <Label>Flow Language</Label>
-                    <LanguageDropdown 
+                    <LanguageDropdown
                       value={flowData.flowLanguage}
                       onChange={handleLanguageChange}
                     />
@@ -420,8 +507,8 @@ const CreateFlowPage = () => {
                     <Button
                       color="primary"
                       onClick={addScreen}
-                      className="rounded-pill px-4 py-2"
-                      style={{ backgroundColor: '#00a884', border: 'none' }}
+                      className="uniform_btn"
+                      style={{ backgroundColor: "#00a884", border: "none" }}
                     >
                       Add Screen
                     </Button>
@@ -514,16 +601,20 @@ const CreateFlowPage = () => {
           </Col>
 
           {/* Right Side - Live Preview */}
-          <Col 
-            md={5} 
-            className="h-100" 
-            style={{ overflowY: 'auto', paddingLeft: '15px', paddingRight: '15px' }}
+          <Col
+            md={5}
+            className="h-100"
+            style={{
+              overflowY: "auto",
+              paddingLeft: "15px",
+              paddingRight: "15px",
+            }}
           >
-            <div style={{ paddingTop: '20px' }}>
-              <FlowPreview 
-                flowData={flowData} 
-                currentScreenIndex={currentScreenIndex} 
-                setCurrentScreenIndex={setCurrentScreenIndex} 
+            <div style={{ paddingTop: "20px" }}>
+              <FlowPreview
+                flowData={flowData}
+                currentScreenIndex={currentScreenIndex}
+                setCurrentScreenIndex={setCurrentScreenIndex}
               />
             </div>
           </Col>
