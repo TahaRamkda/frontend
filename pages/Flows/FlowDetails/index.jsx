@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/router';
 import { useRecoilValue } from "recoil";
 import { 
   Container, 
@@ -12,56 +13,78 @@ import {
   Button, 
   Card, 
   CardBody, 
-  CardTitle 
+  CardTitle,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ListGroup,
+  ListGroupItem
 } from 'reactstrap';
+import { Tabs, Tab } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import LanguageDropdown from '@/components/Dropdowns/LanguageDropdown';
-import { fetchFlowDetailsById, updateFlow } from '@/slices/FlowsSlice';
-import showSweetAlert from '@/components/Sweetalert';
+import { updateFlow, fetchFlowDetailsById } from '@/slices/FlowsSlice';
 import { FlowState } from '@/components/recoil';
 import App from '@/components/Layout/App';
+import showSweetAlert from '@/components/Sweetalert';
+import { toast } from 'react-toastify';
+
 // Enum for question types
 const QuestionTypes = {
   TextInput: 1,
   TextArea: 2,
   RadioButtonsGroup: 3,
   CheckboxGroup: 4,
-  TextHeading: 5
+  TextHeading: 5,
 };
 
-// Separate component for the preview section
 const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) => {
-  const [answers, setAnswers] = useState(() => 
-    flowData.flowScreens.map(screen => 
-      screen.flowChildren.map(child => {
-        if (child.type === QuestionTypes.TextInput || child.type === QuestionTypes.TextArea) return '';
-        if (child.type === QuestionTypes.RadioButtonsGroup) return null;
-        if (child.type === QuestionTypes.CheckboxGroup) return [];
-        if (child.type === QuestionTypes.TextHeading) return null;
-        return '';
-      })
-    )
-  );
+  const [answers, setAnswers] = useState([]);
 
-  useEffect(() => {
-    setAnswers(prevAnswers => {
-      const newAnswers = flowData.flowScreens.map((screen, screenIdx) => {
-        return screen.flowChildren.map((child, childIdx) => {
-          const existingAnswer = prevAnswers[screenIdx]?.[childIdx];
-          if (existingAnswer !== undefined) return existingAnswer;
-          if (child.type === QuestionTypes.TextInput || child.type === QuestionTypes.TextArea) return '';
-          if (child.type === QuestionTypes.RadioButtonsGroup) return null;
-          if (child.type === QuestionTypes.CheckboxGroup) return [];
-          if (child.type === QuestionTypes.TextHeading) return null;
-          return '';
-        });
-      });
-      return newAnswers;
+  const handlePreviewSave = () => {
+    showSweetAlert({
+      title: "Success",
+      text: "Flow saved successfully",
+      icon: "success",
     });
-  }, [flowData]);
+  };
 
-  if (flowData.flowScreens.length === 0 || currentScreenIndex < 0 || currentScreenIndex >= flowData.flowScreens.length) {
+  // Sync answers with flowData.flowScreens
+  useEffect(() => {
+    if (flowData.flowScreens.length > 0) {
+      setAnswers(prevAnswers => {
+        const newAnswers = flowData.flowScreens.map((screen, screenIdx) => {
+          return screen.flowChildren.map((child, childIdx) => {
+            const existingAnswer = prevAnswers?.[screenIdx]?.[childIdx];
+            if (existingAnswer !== undefined) {
+              if (
+                (child.type === QuestionTypes.TextInput || child.type === QuestionTypes.TextArea) && 
+                typeof existingAnswer === 'string'
+              ) return existingAnswer;
+              if (child.type === QuestionTypes.RadioButtonsGroup && (existingAnswer === null || typeof existingAnswer === 'string')) 
+                return existingAnswer;
+              if (child.type === QuestionTypes.CheckboxGroup && Array.isArray(existingAnswer)) 
+                return existingAnswer;
+              if (child.type === QuestionTypes.TextHeading && existingAnswer === null) 
+                return existingAnswer;
+            }
+            if (child.type === QuestionTypes.TextInput || child.type === QuestionTypes.TextArea) return '';
+            if (child.type === QuestionTypes.RadioButtonsGroup) return null;
+            if (child.type === QuestionTypes.CheckboxGroup) return [];
+            if (child.type === QuestionTypes.TextHeading) return null;
+            return '';
+          });
+        });
+        return newAnswers;
+      });
+    } else {
+      setAnswers([]);
+    }
+  }, [flowData.flowScreens]);
+
+  if (flowData.flowScreens.length === 0) {
     return (
       <div className="text-center text-muted py-5" style={{ fontSize: '1.2rem' }}>
         No screens to preview
@@ -69,22 +92,31 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
     );
   }
 
+  if (
+    currentScreenIndex < 0 || 
+    currentScreenIndex >= flowData.flowScreens.length || 
+    !answers[currentScreenIndex]
+  ) {
+    return (
+      <div className="text-center text-muted py-5" style={{ fontSize: '1.2rem' }}>
+        Loading preview...
+      </div>
+    );
+  }
+
   const currentScreen = flowData.flowScreens[currentScreenIndex];
 
   const areRequiredQuestionsAnswered = () => {
-    if (flowData.flowScreens.length === 0) return true;
-
     return currentScreen.flowChildren.every((child, index) => {
       if (!child.required) return true;
       const answer = answers[currentScreenIndex]?.[index];
-      if (child.type === QuestionTypes.TextInput || child.type === QuestionTypes.TextArea) 
+      if (child.type === QuestionTypes.TextInput || child.type === QuestionTypes.TextArea)
         return answer !== undefined && answer.trim() !== '';
-      if (child.type === QuestionTypes.RadioButtonsGroup) 
+      if (child.type === QuestionTypes.RadioButtonsGroup)
         return answer !== null;
-      if (child.type === QuestionTypes.CheckboxGroup) 
+      if (child.type === QuestionTypes.CheckboxGroup)
         return answer !== undefined && answer?.length > 0;
-      if (child.type === QuestionTypes.TextHeading) 
-        return true;
+      if (child.type === QuestionTypes.TextHeading) return true;
       return true;
     });
   };
@@ -102,7 +134,10 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
           <FormGroup key={childIndex} className="mb-4">
             <Label className="mb-2" style={{ fontSize: '1.1rem', fontWeight: '500', color: '#333' }}>
               <span style={{ fontWeight: 'bold', marginRight: '8px' }}>{childIndex + 1}.</span>
-              {child.text || 'Untitled Question'} {child.required && child.type !== QuestionTypes.TextHeading && <span style={{ color: 'red' }}>*</span>}
+              {child.text || 'Untitled Question'}{' '}
+              {child.required && child.type !== QuestionTypes.TextHeading && (
+                <span style={{ color: 'red' }}>*</span>
+              )}
             </Label>
             {child.type === QuestionTypes.TextInput && (
               <Input
@@ -130,7 +165,7 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
                 style={{ padding: '10px 15px', borderColor: '#ced4da', minHeight: '100px' }}
               />
             )}
-            {child.type === QuestionTypes.RadioButtonsGroup && (
+            {child.type === QuestionTypes.RadioButtonsGroup &&
               child.flowOptions.map((option, optionIndex) => (
                 <FormGroup check key={optionIndex} className="mb-2">
                   <Input
@@ -149,9 +184,8 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
                     {option.optionText}
                   </Label>
                 </FormGroup>
-              ))
-            )}
-            {child.type === QuestionTypes.CheckboxGroup && (
+              ))}
+            {child.type === QuestionTypes.CheckboxGroup &&
               child.flowOptions.map((option, optionIndex) => (
                 <FormGroup check key={optionIndex} className="mb-2">
                   <Input
@@ -164,7 +198,9 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
                       if (e.target.checked) {
                         newAnswers[currentScreenIndex][childIndex] = [...currentValues, option.optionText];
                       } else {
-                        newAnswers[currentScreenIndex][childIndex] = currentValues.filter(val => val !== option.optionText);
+                        newAnswers[currentScreenIndex][childIndex] = currentValues.filter(
+                          (val) => val !== option.optionText
+                        );
                       }
                       setAnswers(newAnswers);
                     }}
@@ -174,8 +210,7 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
                     {option.optionText}
                   </Label>
                 </FormGroup>
-              ))
-            )}
+              ))}
             {child.type === QuestionTypes.TextHeading && (
               <div style={{ fontSize: '1.2rem', color: '#333', marginBottom: '10px' }}>
                 {child.text || 'Untitled Heading'}
@@ -185,25 +220,35 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
         ))}
         <div className="d-flex justify-content-between mt-4">
           {currentScreenIndex > 0 && (
-            <Button 
-              color="secondary" 
+            <Button
+              color="secondary"
               onClick={() => setCurrentScreenIndex(currentScreenIndex - 1)}
-              className="rounded-pill px-4 py-2"
-              style={{ backgroundColor: '#e0e0e0', border: 'none', color: '#333' }}
+              className="uniform_btn"
+              style={{ backgroundColor: '#e0e0e0', border: 'none', color: 'white' }}
             >
               Previous
             </Button>
           )}
           <div className="flex-grow-1" />
           {currentScreenIndex < flowData.flowScreens.length - 1 && (
-            <Button 
-              color="primary" 
+            <Button
+              color="primary"
               onClick={() => setCurrentScreenIndex(currentScreenIndex + 1)}
-              className="rounded-pill px-4 py-2"
+              className="uniform_btn"
               style={{ backgroundColor: '#00a884', border: 'none' }}
               disabled={!areRequiredQuestionsAnswered()}
             >
-              Next
+              {currentScreen.screenButtonText || 'Next '}
+            </Button>
+          )}
+          {currentScreenIndex === flowData.flowScreens.length - 1 && (
+            <Button
+              color="primary"
+              onClick={handlePreviewSave}
+              className="uniform_btn"
+              style={{ backgroundColor: '#00a884', border: 'none' }}
+            >
+              Save
             </Button>
           )}
         </div>
@@ -215,16 +260,20 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
 const UpdateFlowPage = () => {
   const dispatch = useDispatch();
   const flowId = useRecoilValue(FlowState);
+  const router = useRouter();
   const [flowData, setFlowData] = useState({
     senderId: "0",
-    flowName: '',
-    flowLanguage: '',
+    flowName: "",
+    flowLanguage: "",
     publishToFB: false,
-    flowScreens: []
+    flowScreens: [],
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start as true since we're fetching data
   const [currentEditScreenIndex, setCurrentEditScreenIndex] = useState(0);
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(null);
+  const [currentQuestion, setCurrentQuestion] = useState(null);
 
   useEffect(() => {
     const fetchFlowData = async () => {
@@ -233,8 +282,7 @@ const UpdateFlowPage = () => {
         try {
           const response = await dispatch(fetchFlowDetailsById({ id: flowId })).unwrap();
           if (response) {
-            // Ensure deep copy of nested objects to avoid immutability issues
-            setFlowData(JSON.parse(JSON.stringify(response)));
+            setFlowData(JSON.parse(JSON.stringify(response))); // Deep copy
           } else {
             showSweetAlert({ title: "Error", text: "No flow data found", icon: "error" });
           }
@@ -251,11 +299,13 @@ const UpdateFlowPage = () => {
   }, [dispatch, flowId]);
 
   useEffect(() => {
-    if (currentEditScreenIndex >= flowData.flowScreens.length) {
-      setCurrentEditScreenIndex(Math.max(0, flowData.flowScreens.length - 1));
+    if (!isLoading && flowData.flowScreens.length > 0) {
+      if (currentEditScreenIndex >= flowData.flowScreens.length) {
+        setCurrentEditScreenIndex(Math.max(0, flowData.flowScreens.length - 1));
+      }
+      setCurrentScreenIndex(currentEditScreenIndex);
     }
-    setCurrentScreenIndex(currentEditScreenIndex);
-  }, [flowData.flowScreens.length, currentEditScreenIndex]);
+  }, [flowData.flowScreens.length, currentEditScreenIndex, isLoading]);
 
   const addScreen = () => {
     const newScreen = {
@@ -264,16 +314,23 @@ const UpdateFlowPage = () => {
       screenButtonText: 'Next',
       flowChildren: []
     };
-    setFlowData({
-      ...flowData,
-      flowScreens: [...flowData.flowScreens, newScreen]
-    });
-    setCurrentEditScreenIndex(flowData.flowScreens.length);
+
+    if (flowData.flowScreens.length <= 4) {
+      setFlowData({
+        ...flowData,
+        flowScreens: [...flowData.flowScreens, newScreen]
+      });
+      setCurrentEditScreenIndex(flowData.flowScreens.length);
+    } else {
+      toast.error("You can't add more than 5 screens");
+    }
   };
 
   const deleteScreen = () => {
     if (flowData.flowScreens.length <= 1) return;
-    const updatedScreens = flowData.flowScreens.filter((_, index) => index !== currentEditScreenIndex);
+    const updatedScreens = flowData.flowScreens.filter(
+      (_, index) => index !== currentEditScreenIndex
+    );
     setFlowData({ ...flowData, flowScreens: updatedScreens });
     if (updatedScreens.length === 0) {
       setCurrentEditScreenIndex(-1);
@@ -286,34 +343,49 @@ const UpdateFlowPage = () => {
 
   const addQuestion = () => {
     const newQuestion = {
-      text: '',
+      text: `Question ${flowData.flowScreens[currentEditScreenIndex].flowChildren.length + 1}`,
       type: QuestionTypes.TextInput,
       required: true,
-      flowOptions: []
+      flowOptions: [],
     };
     const updatedScreens = [...flowData.flowScreens];
     updatedScreens[currentEditScreenIndex].flowChildren.push(newQuestion);
     setFlowData({ ...flowData, flowScreens: updatedScreens });
+    setSelectedQuestionIndex(updatedScreens[currentEditScreenIndex].flowChildren.length - 1);
+    setCurrentQuestion({ ...newQuestion });
+    setModalOpen(true);
   };
 
-  const addOption = (questionIndex) => {
-    const updatedScreens = JSON.parse(JSON.stringify(flowData.flowScreens)); // Deep copy
-    const question = updatedScreens[currentEditScreenIndex].flowChildren[questionIndex];
-    if (question.type === QuestionTypes.RadioButtonsGroup || question.type === QuestionTypes.CheckboxGroup) {
-      question.flowOptions.push({
+  const deleteQuestion = (questionIndex) => {
+    const updatedScreens = [...flowData.flowScreens];
+    updatedScreens[currentEditScreenIndex].flowChildren.splice(questionIndex, 1);
+    setFlowData({ ...flowData, flowScreens: updatedScreens });
+  };
+
+  const openQuestionModal = (questionIndex) => {
+    setSelectedQuestionIndex(questionIndex);
+    setCurrentQuestion({ ...flowData.flowScreens[currentEditScreenIndex].flowChildren[questionIndex] });
+    setModalOpen(true);
+  };
+
+  const addOption = () => {
+    if (!currentQuestion) return;
+    const updatedQuestion = { ...currentQuestion };
+    if (updatedQuestion.type === QuestionTypes.RadioButtonsGroup || updatedQuestion.type === QuestionTypes.CheckboxGroup) {
+      updatedQuestion.flowOptions.push({
         optionId: `option_${Date.now()}`,
-        optionText: ''
+        optionText: "",
       });
-      setFlowData({ ...flowData, flowScreens: updatedScreens });
+      setCurrentQuestion(updatedQuestion);
     }
   };
 
-  const deleteOption = (questionIndex, optionIndex) => {
-    const updatedScreens = JSON.parse(JSON.stringify(flowData.flowScreens)); // Deep copy
-    const question = updatedScreens[currentEditScreenIndex].flowChildren[questionIndex];
-    if (question.type === QuestionTypes.RadioButtonsGroup || question.type === QuestionTypes.CheckboxGroup) {
-      question.flowOptions.splice(optionIndex, 1);
-      setFlowData({ ...flowData, flowScreens: updatedScreens });
+  const deleteOption = (optionIndex) => {
+    if (!currentQuestion) return;
+    const updatedQuestion = { ...currentQuestion };
+    if (updatedQuestion.type === QuestionTypes.RadioButtonsGroup || updatedQuestion.type === QuestionTypes.CheckboxGroup) {
+      updatedQuestion.flowOptions.splice(optionIndex, 1);
+      setCurrentQuestion(updatedQuestion);
     }
   };
 
@@ -322,27 +394,22 @@ const UpdateFlowPage = () => {
   };
 
   const updateScreenField = (field, value) => {
-    const updatedScreens = JSON.parse(JSON.stringify(flowData.flowScreens)); // Deep copy
+    const updatedScreens = [...flowData.flowScreens];
     updatedScreens[currentEditScreenIndex][field] = value;
     setFlowData({ ...flowData, flowScreens: updatedScreens });
   };
 
-  const updateQuestionField = (questionIndex, field, value) => {
-    const updatedScreens = JSON.parse(JSON.stringify(flowData.flowScreens)); // Deep copy
-    updatedScreens[currentEditScreenIndex].flowChildren[questionIndex] = {
-      ...updatedScreens[currentEditScreenIndex].flowChildren[questionIndex],
-      [field]: value
-    };
-    setFlowData({ ...flowData, flowScreens: updatedScreens });
+  const updateQuestionField = (field, value) => {
+    if (!currentQuestion) return;
+    const updatedQuestion = { ...currentQuestion, [field]: value };
+    setCurrentQuestion(updatedQuestion);
   };
 
-  const updateOptionField = (questionIndex, optionIndex, field, value) => {
-    const updatedScreens = JSON.parse(JSON.stringify(flowData.flowScreens)); // Deep copy
-    updatedScreens[currentEditScreenIndex].flowChildren[questionIndex].flowOptions[optionIndex] = {
-      ...updatedScreens[currentEditScreenIndex].flowChildren[questionIndex].flowOptions[optionIndex],
-      [field]: value
-    };
-    setFlowData({ ...flowData, flowScreens: updatedScreens });
+  const updateOptionField = (optionIndex, field, value) => {
+    if (!currentQuestion) return;
+    const updatedQuestion = { ...currentQuestion };
+    updatedQuestion.flowOptions[optionIndex][field] = value;
+    setCurrentQuestion(updatedQuestion);
   };
 
   const handleSenderChange = (e) => {
@@ -355,11 +422,15 @@ const UpdateFlowPage = () => {
     setFlowData({ ...flowData, flowLanguage: language });
   };
 
-  const handleRequiredChange = (questionIndex) => {
-    const updatedScreens = JSON.parse(JSON.stringify(flowData.flowScreens)); // Deep copy
-    updatedScreens[currentEditScreenIndex].flowChildren[questionIndex].required = 
-      !updatedScreens[currentEditScreenIndex].flowChildren[questionIndex].required;
-    setFlowData({ ...flowData, flowScreens: updatedScreens });
+  const handleSaveQuestion = () => {
+    if (selectedQuestionIndex !== null && currentQuestion) {
+      const updatedScreens = [...flowData.flowScreens];
+      updatedScreens[currentEditScreenIndex].flowChildren[selectedQuestionIndex] = { ...currentQuestion };
+      setFlowData({ ...flowData, flowScreens: updatedScreens });
+      setModalOpen(false);
+      setCurrentQuestion(null);
+      setSelectedQuestionIndex(null);
+    }
   };
 
   const handleSaveFlow = () => {
@@ -383,212 +454,254 @@ const UpdateFlowPage = () => {
       });
   };
 
-  const goToPreviousScreen = () => {
-    if (currentEditScreenIndex > 0) {
-      setCurrentEditScreenIndex(currentEditScreenIndex - 1);
-    }
-  };
-
-  const goToNextScreen = () => {
-    if (currentEditScreenIndex < flowData.flowScreens.length - 1) {
-      setCurrentEditScreenIndex(currentEditScreenIndex + 1);
-    }
-  };
-
   return (
     <App>
-    <Container fluid className="py-4" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <h2>{flowId ? "Update Flow" : "Create WhatsApp Business Flow"}</h2>
-      {isLoading ? (
-        <div>Loading flow details...</div>
-      ) : (
-        <Row style={{ flex: 1, overflow: 'hidden' }}>
-          <Col md={6} style={{ height: '100%', overflowY: 'auto', paddingRight: '15px' }}>
-            <Card className="mb-4">
-              <CardBody>
-                <Form>
-                  <FormGroup>
-                    <Label>Sender Name</Label>
-                    <SendernameDropdown 
-                      value={flowData.senderId}
-                      onChange={handleSenderChange}
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label>Flow Name</Label>
-                    <Input
-                      value={flowData.flowName}
-                      onChange={(e) => updateField('flowName', e.target.value)}
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label>Flow Language</Label>
-                    <LanguageDropdown 
-                      value={flowData.flowLanguage}
-                      onChange={handleLanguageChange}
-                    />
-                  </FormGroup>
-                  <div className="d-flex justify-content-between mb-3">
-                    <Button
-                      color="secondary"
-                      onClick={goToPreviousScreen}
-                      disabled={currentEditScreenIndex === 0}
-                      className="rounded-pill px-4 py-2"
-                      style={{ backgroundColor: '#e0e0e0', border: 'none', color: '#333' }}
-                    >
-                      Previous Screen
-                    </Button>
-                    <Button
-                      color="primary"
-                      onClick={addScreen}
-                      className="rounded-pill px-4 py-2"
-                      style={{ backgroundColor: '#00a884', border: 'none' }}
-                    >
-                      Add Screen
-                    </Button>
-                    <Button
-                      color="secondary"
-                      onClick={goToNextScreen}
-                      disabled={currentEditScreenIndex === flowData.flowScreens.length - 1}
-                      className="rounded-pill px-4 py-2"
-                      style={{ backgroundColor: '#e0e0e0', border: 'none', color: '#333' }}
-                    >
-                      Next Screen
-                    </Button>
-                  </div>
-                  {flowData.flowScreens.length > 0 && (
-                    <Card className="mb-3">
-                      <CardBody>
-                        <div className="d-flex justify-content-between align-items-center">
-                          <h5>Screen {currentEditScreenIndex + 1} of {flowData.flowScreens.length}</h5>
-                          <Button 
-                            color="danger" 
-                            size="sm" 
-                            onClick={deleteScreen}
-                            disabled={flowData.flowScreens.length <= 1}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                        <FormGroup>
-                          <Label>Screen Title</Label>
-                          <Input
-                            value={flowData.flowScreens[currentEditScreenIndex].title}
-                            onChange={(e) => updateScreenField('title', e.target.value)}
-                          />
-                        </FormGroup>
-                        <FormGroup>
-                          <Label>Button Text</Label>
-                          <Input
-                            value={flowData.flowScreens[currentEditScreenIndex].screenButtonText}
-                            onChange={(e) => updateScreenField('screenButtonText', e.target.value)}
-                          />
-                        </FormGroup>
-                        <Button
-                          color="success"
-                          size="sm"
-                          onClick={addQuestion}
-                          className="mb-2"
+      <Container fluid className="py-4 create-flow-container" style={{ minHeight: "100vh" }}>
+        <h2 className="mb-4">Update Flow</h2>
+        {isLoading ? (
+          <div className="text-center py-5">Loading flow data...</div>
+        ) : (
+          <Row className="flex-grow-1" style={{ overflow: 'hidden' }}>
+            {/* Left Side - Flow Editor */}
+            <Col md={7} className="h-100" style={{ overflowY: 'auto', paddingRight: '15px' }}>
+              <Card className="mb-4 shadow-sm">
+                <CardBody>
+                  <Form>
+                    <FormGroup>
+                      <Label>Sender Name</Label>
+                      <SendernameDropdown
+                        value={flowData.senderId}
+                        onChange={handleSenderChange}
+                      />
+                    </FormGroup>
+                    <FormGroup>
+                      <Label>Flow Name</Label>
+                      <Input
+                        value={flowData.flowName}
+                        onChange={(e) => updateField("flowName", e.target.value)}
+                        className="rounded"
+                      />
+                    </FormGroup>
+                    <FormGroup>
+                      <Label>Flow Language</Label>
+                      <LanguageDropdown
+                        value={flowData.flowLanguage}
+                        onChange={handleLanguageChange}
+                      />
+                    </FormGroup>
+                    <div className="d-flex justify-content-between mb-3">
+                      <Button
+                        color="primary"
+                        onClick={addScreen}
+                        className="uniform_btn"
+                        style={{ backgroundColor: "#00a884", border: "none" }}
+                      >
+                        Add Screen
+                      </Button>
+                    </div>
+                    {flowData.flowScreens.length > 0 && (
+                      <>
+                        <Tabs
+                          activeKey={currentEditScreenIndex}
+                          onSelect={(key) => setCurrentEditScreenIndex(parseInt(key))}
+                          className='mb-3'
                         >
-                          Add Question
-                        </Button>
-                        {flowData.flowScreens[currentEditScreenIndex].flowChildren.map((child, childIndex) => (
-                          <div key={childIndex} className="border p-3 mb-2">
+                          {flowData.flowScreens.map((screen, index) => (
+                            <Tab
+                              eventKey={index}
+                              title={`Screen ${index + 1}`} 
+                              key={index}
+                            />
+                          ))}
+                        </Tabs>
+                        <Card className="mb-3 shadow-sm">
+                          <CardBody>
+                            <div className="d-flex justify-content-between align-items-center">
+                              <h5>Screen {currentEditScreenIndex + 1} of {flowData.flowScreens.length}</h5>
+                              <Button 
+                                color="danger" 
+                                size="sm" 
+                                onClick={deleteScreen}
+                                disabled={flowData.flowScreens.length <= 1}
+                              >
+                                Delete
+                              </Button>
+                            </div>
                             <FormGroup>
-                              <Label>Question Text</Label>
+                              <Label>Screen Title</Label>
                               <Input
-                                value={child.text}
-                                onChange={(e) => updateQuestionField(childIndex, 'text', e.target.value)}
+                                value={flowData.flowScreens[currentEditScreenIndex].title}
+                                onChange={(e) => updateScreenField('title', e.target.value)}
+                                className="rounded"
                               />
                             </FormGroup>
-                            {child.type !== QuestionTypes.TextHeading && (
-                              <FormGroup check>
-                                <Input
-                                  type="checkbox"
-                                  name={`required_${currentEditScreenIndex}_${childIndex}`}
-                                  checked={child.required}
-                                  onChange={() => handleRequiredChange(childIndex)}
-                                />
-                                <Label check>Required</Label>
-                              </FormGroup>
-                            )}
-                            <FormGroup>
-                              <Label>Input Type</Label>
-                              <Input
-                                type="select"
-                                value={child.type}
-                                onChange={(e) => updateQuestionField(childIndex, 'type', parseInt(e.target.value))}
-                              >
-                                <option value={QuestionTypes.TextInput}>Text Input</option>
-                                <option value={QuestionTypes.TextArea}>Textarea</option>
-                                <option value={QuestionTypes.RadioButtonsGroup}>Radio Buttons</option>
-                                <option value={QuestionTypes.CheckboxGroup}>Checkbox Group</option>
-                                <option value={QuestionTypes.TextHeading}>Text Heading</option>
-                              </Input>
-                            </FormGroup>
-                            {(child.type === QuestionTypes.RadioButtonsGroup || child.type === QuestionTypes.CheckboxGroup) && (
-                              <>
-                                <Button
-                                  color="info"
-                                  size="sm"
-                                  onClick={() => addOption(childIndex)}
-                                  className="mb-2"
+                            <Button
+                              color="success"
+                              size="sm"
+                              onClick={addQuestion}
+                              className="mb-2 rounded-pill"
+                            >
+                              Add Control
+                            </Button>
+                            <ListGroup className="mt-3">
+                              {flowData.flowScreens[currentEditScreenIndex].flowChildren.map((child, childIndex) => (
+                                <ListGroupItem 
+                                  key={childIndex} 
+                                  className="d-flex justify-content-between align-items-center"
+                                  action
+                                  onClick={() => openQuestionModal(childIndex)}
                                 >
-                                  Add Option
-                                </Button>
-                                {child.flowOptions.map((option, optionIndex) => (
-                                  <FormGroup key={optionIndex} className="mt-2 d-flex align-items-center">
-                                    <Input
-                                      value={option.optionText}
-                                      onChange={(e) => updateOptionField(childIndex, optionIndex, 'optionText', e.target.value)}
-                                      placeholder={`Option ${optionIndex + 1}`}
-                                      style={{ flex: 1, marginRight: '10px' }}
-                                    />
-                                    <Button
-                                      color="danger"
-                                      size="sm"
-                                      onClick={() => deleteOption(childIndex, optionIndex)}
-                                    >
-                                      Delete
-                                    </Button>
-                                  </FormGroup>
-                                ))}
-                              </>
-                            )}
-                          </div>
-                        ))}
-                      </CardBody>
-                    </Card>
-                  )}
-                </Form>
-              </CardBody>
-            </Card>
-          </Col>
+                                  <span>
+                                    <strong>{childIndex + 1}.</strong> {child.text || `Question ${childIndex + 1}`}
+                                  </span>
+                                  <Button
+                                    color="danger"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      deleteQuestion(childIndex);
+                                    }}
+                                    className="rounded-pill"
+                                  >
+                                    Delete
+                                  </Button>
+                                </ListGroupItem>
+                              ))}
+                            </ListGroup>
+                            <FormGroup className="mt-3">
+                              <Label>Button Text</Label>
+                              <Input
+                                value={flowData.flowScreens[currentEditScreenIndex].screenButtonText}
+                                onChange={(e) => updateScreenField('screenButtonText', e.target.value)}
+                                className="rounded"
+                              />
+                            </FormGroup>
+                          </CardBody>
+                        </Card>
+                      </>
+                    )}
+                  </Form>
+                </CardBody>
+              </Card>
+            </Col>
 
-          <Col 
-                     md={6} 
-                     className="h-100" 
-                     style={{ overflowY: 'auto', paddingLeft: '15px', paddingRight: '15px' }}
-                   >
-                     <div style={{ paddingTop: '20px' }}>
-                       <FlowPreview 
-                         flowData={flowData} 
-                         currentScreenIndex={currentScreenIndex} 
-                         setCurrentScreenIndex={setCurrentScreenIndex} 
-                       />
-                     </div>
-                   </Col>
-        </Row>
-      )}
-      <Button 
-        color="success" 
-        onClick={handleSaveFlow} 
-        style={{ marginTop: '20px', alignSelf: 'flex-start' }}
-        disabled={isLoading}
-      >
-        {flowId ? "Update Flow" : "Save Flow"}
-      </Button>
-    </Container>
+            {/* Right Side - Live Preview */}
+            <Col md={5} className="h-100" style={{ overflowY: 'auto', paddingLeft: '15px', paddingRight: '15px' }}>
+              <div style={{ paddingTop: '20px' }}>
+                <FlowPreview
+                  flowData={flowData}
+                  currentScreenIndex={currentScreenIndex}
+                  setCurrentScreenIndex={setCurrentScreenIndex}
+                />
+              </div>
+            </Col>
+          </Row>
+        )}
+        {!isLoading && (
+          <Button 
+            color="success" 
+            onClick={handleSaveFlow} 
+            className="mt-4 rounded-pill px-4 py-2"
+            style={{ alignSelf: 'flex-start', backgroundColor: '#00a884', border: 'none' }}
+          >
+            Save Flow
+          </Button>
+        )}
+
+        {/* Question Configuration Modal */}
+        <Modal isOpen={modalOpen} toggle={() => setModalOpen(false)}>
+          <ModalHeader toggle={() => setModalOpen(false)}>
+            {selectedQuestionIndex !== null ? 'Edit Children' : 'Add Children'}
+          </ModalHeader>
+          <ModalBody>
+            {currentQuestion && (
+              <Form>
+                <FormGroup>
+                  <Label>Text</Label>
+                  <Input
+                    value={currentQuestion.text}
+                    onChange={(e) => updateQuestionField('text', e.target.value)}
+                    className="rounded"
+                  />
+                </FormGroup>
+                {currentQuestion.type !== QuestionTypes.TextHeading && (
+                  <FormGroup check>
+                    <Input
+                      type="checkbox"
+                      checked={currentQuestion.required}
+                      onChange={() => updateQuestionField('required', !currentQuestion.required)}
+                    />
+                    <Label check>Required</Label>
+                  </FormGroup>
+                )}
+                <FormGroup>
+                  <Label>Input Type</Label>
+                  <Input
+                    type="select"
+                    value={currentQuestion.type}
+                    onChange={(e) => updateQuestionField('type', parseInt(e.target.value))}
+                    className="rounded"
+                  >
+                    <option value={QuestionTypes.TextInput}>Text Input</option>
+                    <option value={QuestionTypes.TextArea}>Textarea</option>
+                    <option value={QuestionTypes.RadioButtonsGroup}>Radio Buttons</option>
+                    <option value={QuestionTypes.CheckboxGroup}>Checkbox Group</option>
+                    <option value={QuestionTypes.TextHeading}>Text Heading</option>
+                  </Input>
+                </FormGroup>
+                {(currentQuestion.type === QuestionTypes.RadioButtonsGroup || 
+                  currentQuestion.type === QuestionTypes.CheckboxGroup) && (
+                  <>
+                    <Button
+                      color="info"
+                      size="sm"
+                      onClick={addOption}
+                      className="mb-2 rounded-pill"
+                    >
+                      Add Option
+                    </Button>
+                    {currentQuestion.flowOptions.map((option, optionIndex) => (
+                      <FormGroup key={optionIndex} className="mt-2 d-flex align-items-center">
+                        <Input
+                          value={option.optionText}
+                          onChange={(e) => updateOptionField(optionIndex, 'optionText', e.target.value)}
+                          placeholder={`Option ${optionIndex + 1}`}
+                          style={{ flex: 1, marginRight: '10px' }}
+                          className="rounded"
+                        />
+                        <Button
+                          color="danger"
+                          size="sm"
+                          onClick={() => deleteOption(optionIndex)}
+                          className="rounded-pill"
+                        >
+                          Delete
+                        </Button>
+                      </FormGroup>
+                    ))}
+                  </>
+                )}
+              </Form>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button 
+              color="secondary" 
+              onClick={() => setModalOpen(false)}
+              className="rounded-pill"
+            >
+              Cancel
+            </Button>
+            <Button 
+              color="primary" 
+              onClick={handleSaveQuestion}
+              className="rounded-pill"
+            >
+              Save
+            </Button>
+          </ModalFooter>
+        </Modal>
+      </Container>
     </App>
   );
 };
