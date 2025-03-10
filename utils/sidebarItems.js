@@ -124,6 +124,11 @@ export const sidebarItems = [
           text: 'Agent Report',
           icon: 'ti-clipboard', // Pie chart icon for Message Summary
         },
+        {
+          href: '/Reports/SurveyReport',
+          text: 'Survey Report',
+          icon: 'ti-clipboard', // Pie chart icon for Message Summary
+        },
       ],
     },
     {

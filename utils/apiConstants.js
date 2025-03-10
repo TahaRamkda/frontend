@@ -130,13 +130,12 @@ export const AGENTINTERACTIVETEMPLATLIST =  "/InteractiveTemplates/getagentinter
 export const AGENTINTERACTIVETEMPLATLISTDETAIL = "/InteractiveTemplates/getinteractivetemplatedetail";
 export const SENDAGENTINTERACTIVETEMPLATLIS = "/Message/sendagentinteractivemessage";
 
-
 // Export Excel Endpoints
 export const EXCELEXPORTCHATREPORT = "/Conversation/getexportconversationdetailreportlist";
 export const EXCELEXPORTCHATMONITOR = "/Conversation/exportconversationreportlist";
 export const EXCELEXPORTAGENTMONITOR = "/Agents/exportagentsupervisorreport";
 export const EXCELEXPORTAGENTREPORT = "/Agents/getexportagentdetailsupervisorreport";
-export const EXCELEXPORTSURVEYREPORT = "#";
+export const EXCELEXPORTSURVEYREPORT = "/Flows/exportsurveyresponse";
 
 // close chat template By supervisor
 export const SENDCLOSECHATTEMPLATE = "/Conversation/closechatbysupervisor";

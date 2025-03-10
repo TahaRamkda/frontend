@@ -74,38 +74,38 @@ const Dashboard = () => {
 
   //function for live reporting
   // useEffect for live reporting
-useEffect(() => {
-  if (!isPageActive) return; // Only run when page is active
+// useEffect(() => {
+//   if (!isPageActive) return; // Only run when page is active
 
-  const checkAndFetch = async () => {
-    const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
-    const fromDate = fromDateRef.current;
-    const toDate = toDateRef.current;
+//   const checkAndFetch = async () => {
+//     const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
+//     const fromDate = fromDateRef.current;
+//     const toDate = toDateRef.current;
 
-    if (isLiveReporting && !loading) {
-      try {
-        await dispatch(
-          fetchDashboardSummary({
-            clientId: localStorage.getItem("clientId"),
-            fromDate: fromDate,
-            toDate: toDate,
-            senderid: SenderId,
-          })
-        );
-      } catch (error) {
-        console.error("Error fetching chat monitor:", error);
-      }
-    }
-  };
+//     if (isLiveReporting && !loading) {
+//       try {
+//         await dispatch(
+//           fetchDashboardSummary({
+//             clientId: localStorage.getItem("clientId"),
+//             fromDate: fromDate,
+//             toDate: toDate,
+//             senderid: SenderId,
+//           })
+//         );
+//       } catch (error) {
+//         console.error("Error fetching chat monitor:", error);
+//       }
+//     }
+//   };
 
-  const intervalId = setInterval(() => {
-    if (!loading) {
-      checkAndFetch();
-    }
-  }, REFRESH_INTERVAL);
+//   const intervalId = setInterval(() => {
+//     if (!loading) {
+//       checkAndFetch();
+//     }
+//   }, REFRESH_INTERVAL);
 
-  return () => clearInterval(intervalId);
-}, [dispatch, SenderId, isPageActive]);
+//   return () => clearInterval(intervalId);
+// }, [dispatch, SenderId, isPageActive]);
 
   
 

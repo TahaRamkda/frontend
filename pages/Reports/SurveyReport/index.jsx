@@ -17,7 +17,7 @@ const SurveyReportPage = () => {
   const [senderId, setSenderId] = useState(""); // Added state for senderId
 
   const handleExportToExcel = () => {
-    dispatch(excelExportSurveyReport({ fromDate: fromDate, toDate: toDate }));
+    dispatch(excelExportSurveyReport({ fromDate: fromDate, toDate: toDate, senderId: senderId, flowId, surveyId, searc }));
   };
 
   const handleSenderChange = (e) => {
@@ -25,15 +25,7 @@ const SurveyReportPage = () => {
     setSenderId(senderId);
   };
 
-  const refreshList = () => {
-    dispatch(
-      fetchMedia({
-        ClientId: localStorage.getItem("clientId"),
-        senderId: senderId,
-      })
-    );
-  };
-
+  
   const renderMediaPreview = (mediaPath, mimeType) => {
     const previewStyle =
       "w-full popup_img_container overflow-hidden flex justify-center items-center rounded-lg bg-gray-100";
