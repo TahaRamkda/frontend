@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/navigation';
 import { 
   Container, 
   Row, 
@@ -27,6 +28,7 @@ import { createFlows } from '@/slices/FlowsSlice';
 import App from '@/components/Layout/App';
 import showSweetAlert from '@/components/Sweetalert';
 import { toast } from 'react-toastify';
+import { HiTrash } from 'react-icons/hi';
 
 // Enum for question types
 const QuestionTypes = {
@@ -402,6 +404,9 @@ const CreateFlowPage = () => {
     setFlowData({ ...flowData, [field]: value });
   };
 
+  const handelCancel =()=>{
+    router.push("/Flows/FlowList");
+  }
   const updateScreenField = (field, value) => {
     const updatedScreens = [...flowData.flowScreens];
     updatedScreens[currentEditScreenIndex][field] = value;
@@ -453,7 +458,7 @@ const CreateFlowPage = () => {
         console.log("Flow created successfully:", requestBody);
         showSweetAlert({
           title: "Success",
-          text: "Flow created successfully",
+          text: "Created Successfully",
           icon: "success",
         });
       })
@@ -534,11 +539,10 @@ const CreateFlowPage = () => {
                             <h5>Screen {currentEditScreenIndex + 1} of {flowData.flowScreens.length}</h5>
                             <Button 
                               color="danger" 
-                              size="sm" 
                               onClick={deleteScreen}
                               disabled={flowData.flowScreens.length <= 1}
                             >
-                              Delete
+                              <HiTrash />
                             </Button>
                           </div>
                           <FormGroup>
@@ -550,10 +554,10 @@ const CreateFlowPage = () => {
                             />
                           </FormGroup>
                           <Button
-                            color="success"
+                           
                             size="sm"
                             onClick={addQuestion}
-                            className="mb-2 rounded-pill"
+                            className="uniform_btn"
                           >
                             Add Controll
                           </Button>
@@ -578,7 +582,7 @@ const CreateFlowPage = () => {
                                   }}
                                   className="rounded-pill"
                                 >
-                                  Delete
+                                  <HiTrash />
                                 </Button>
                               </ListGroupItem>
                             ))}
@@ -619,17 +623,28 @@ const CreateFlowPage = () => {
             </div>
           </Col>
         </Row>
-        <Button 
-          color="success" 
+        <div className='flex gap-4'>
+        <button 
+               
+               onClick={() => handelCancel()}
+               className="Btn-Regular-1"
+             >
+               Cancel
+             </button>
+             <Button 
           onClick={handleSaveFlow} 
-          className="mt-4 rounded-pill px-4 py-2"
+          className="uniform_btn"
           style={{ alignSelf: 'flex-start', backgroundColor: '#00a884', border: 'none' }}
         >
           Save Flow
         </Button>
+        </div>
+        
 
         {/* Question Configuration Modal */}
-        <Modal isOpen={modalOpen} toggle={() => setModalOpen(false)}>
+        <Modal isOpen={modalOpen} toggle={() => setModalOpen(false)} fade={false}>
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center ">
+        <div className="bg-white p-6 rounded shadow-lg w-1/3  relative">
           <ModalHeader toggle={() => setModalOpen(false)}>
             {selectedQuestionIndex !== null ? 'Edit Children' : 'Add Children'}
           </ModalHeader>
@@ -673,10 +688,10 @@ const CreateFlowPage = () => {
                   currentQuestion.type === QuestionTypes.CheckboxGroup) && (
                   <>
                     <Button
-                      color="info"
+                      
                       size="sm"
                       onClick={addOption}
-                      className="mb-2 rounded-pill"
+                      className="uniform_btn"
                     >
                       Add Option
                     </Button>
@@ -695,7 +710,7 @@ const CreateFlowPage = () => {
                           onClick={() => deleteOption(optionIndex)}
                           className="rounded-pill"
                         >
-                          Delete
+                          <HiTrash  />
                         </Button>
                       </FormGroup>
                     ))}
@@ -705,21 +720,17 @@ const CreateFlowPage = () => {
             )}
           </ModalBody>
           <ModalFooter>
-            <Button 
-              color="secondary" 
-              onClick={() => setModalOpen(false)}
-              className="rounded-pill"
-            >
-              Cancel
-            </Button>
-            <Button 
+            
+            <button 
               color="primary" 
               onClick={handleSaveQuestion}
-              className="rounded-pill"
+              className="uniform_btn"
             >
               Save
-            </Button>
+            </button>
           </ModalFooter>
+          </div>
+        </div>
         </Modal>
       </Container>
     </App>
