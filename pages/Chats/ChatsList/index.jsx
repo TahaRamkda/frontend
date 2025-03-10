@@ -797,7 +797,7 @@ const ChatPage = () => {
     };
 
     const handleHeartbeatAcknowledged = (info) => {
-     loggerdetails(logger, "Heartbeat acknowledged", { Obj : info  });
+    console.log(info);
     };
 
     const handleConnected = (info) => {
@@ -846,7 +846,6 @@ const ChatPage = () => {
         newConnection
           .invoke("Heartbeat")
           .then(() => {
-            logger.info("Heartbeat sent:", new Date());
             setheartbeatAttempts(0);
           })
           .catch((err) => {
