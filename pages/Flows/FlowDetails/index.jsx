@@ -30,6 +30,7 @@ import { FlowState } from '@/components/recoil';
 import App from '@/components/Layout/App';
 import showSweetAlert from '@/components/Sweetalert';
 import { toast } from 'react-toastify';
+import { HiCheck } from 'react-icons/hi'; // Added for the checkmark icon
 
 // Enum for question types
 const QuestionTypes = {
@@ -43,13 +44,11 @@ const QuestionTypes = {
 // Updated FlowPreview component
 const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) => {
   const [answers, setAnswers] = useState([]);
+  const [isSaved, setIsSaved] = useState(false); // Added to manage save message state
 
   const handlePreviewSave = () => {
-    showSweetAlert({
-      title: "Success",
-      text: "Flow saved successfully",
-      icon: "success",
-    });
+    setIsSaved(true); // Show the save message
+    setTimeout(() => setIsSaved(false), 2000); // Hide after 2 seconds
   };
 
   // Sync answers with flowData.flowScreens
@@ -219,6 +218,11 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
             )}
           </FormGroup>
         ))}
+        {isSaved && (
+          <div className="text-success text-center mb-3">
+            <HiCheck size={24} /> Flow saved successfully
+          </div>
+        )}
         <div className="d-flex justify-content-between mt-4">
           {currentScreenIndex > 0 && (
             <Button
@@ -487,7 +491,7 @@ const UpdateFlowPage = () => {
                         onChange={handleLanguageChange}
                       />
                     </FormGroup>
-                    <div className="d-flex justify-content-between mb-3">
+                     <div className="d-flex justify-content-between mb-3">
                       <Button
                         color="primary"
                         onClick={addScreen}
