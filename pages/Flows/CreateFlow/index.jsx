@@ -28,6 +28,8 @@ import { createFlows } from "@/slices/FlowsSlice";
 import App from "@/components/Layout/App";
 import { toast } from "react-toastify";
 import { HiTrash, HiCheck } from "react-icons/hi";
+import { is } from "immutable";
+import Loader from "@/components/Layout/Loader";
 
 // Enum for question types
 const QuestionTypes = {
@@ -60,6 +62,7 @@ const FlowPreview = ({
     )
   );
   const [isSaved, setIsSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handlePreviewSave = () => {
     setIsSaved(true);
@@ -67,6 +70,7 @@ const FlowPreview = ({
   };
 
   useEffect(() => {
+    setIsLoading(true);
     setAnswers((prevAnswers) => {
       const newAnswers = flowData.flowScreens.map((screen, screenIdx) => {
         return screen.flowChildren.map((child, childIdx) => {
@@ -125,7 +129,7 @@ const FlowPreview = ({
 
   return (
     <Card
-      className="h-100 border-0 shadow-sm"
+      className="max-h-[80vh] overflow-auto border shadow-sm"
       style={{ borderRadius: "10px", overflow: "hidden" }}
     >
       <CardBody className="p-4">
@@ -370,6 +374,7 @@ const CreateFlowPage = () => {
     publishToFB: false,
     flowScreens: [],
   });
+  const [isLoading, setIsLoading] = useState(false); // Added centralized loading state
   const [currentEditScreenIndex, setCurrentEditScreenIndex] = useState(0);
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
@@ -552,13 +557,7 @@ const CreateFlowPage = () => {
   };
 
   const handleSaveFlow = () => {
-    const errors = validateFlowData(flowData);
-    
-    if (errors.length > 0) {
-      errors.forEach(error => toast.error(error));
-      return;
-    }
-
+    setIsLoading(true); // Show loader when API call starts
     const requestBody = {
       ...flowData,
       senderId: parseInt(flowData.senderId, 10),
@@ -577,12 +576,21 @@ const CreateFlowPage = () => {
 
   return (
     <App>
-      <Container fluid className="py-4 create-flow-container" style={{ minHeight: "100vh" }}>
+      {isLoading && <Loader />} {/* Fixed typo and made it consistent */}
+      <Container
+        fluid
+        className="py-4 create-flow-container"
+        style={{ minHeight: "100vh" }}
+      >
         <h2 className="mb-4">Create Flow</h2>
         
         <Row className="flex-grow-1" style={{ overflow: "hidden" }}>
-          <Col md={7} className="h-100" style={{ overflowY: "auto", paddingRight: "15px" }}>
-            <Card className="mb-4 shadow-sm">
+          <Col
+            md={7}
+            className="h-100"
+            style={{ overflowY: "auto", paddingRight: "15px" }}
+          >
+            <Card className="mb-4 shadow-sm max-h-[80vh] overflow-auto">
               <CardBody>
                 <Form>
                   <FormGroup>
@@ -733,6 +741,22 @@ const CreateFlowPage = () => {
                 </Form>
               </CardBody>
             </Card>
+            <div className="flex gap-4">
+          <button onClick={handleCancel} className="Btn-Regular-1">
+            Cancel
+          </button>
+          <Button
+            onClick={handleSaveFlow}
+            className="uniform_btn"
+            style={{
+              alignSelf: "flex-start",
+              backgroundColor: "#00a884",
+              border: "none",
+            }}
+          >
+            Save Flow
+          </Button>
+        </div>
           </Col>
           <Col
             md={5}
@@ -750,26 +774,16 @@ const CreateFlowPage = () => {
                 setCurrentScreenIndex={setCurrentScreenIndex}
               />
             </div>
+
           </Col>
         </Row>
-        <div className="flex gap-4">
-          <button onClick={handleCancel} className="Btn-Regular-1">
-            Cancel
-          </button>
-          <Button
-            onClick={handleSaveFlow}
-            className="uniform_btn"
-            style={{
-              alignSelf: "flex-start",
-              backgroundColor: "#00a884",
-              border: "none",
-            }}
-          >
-            Save Flow
-          </Button>
-        </div>
+        
 
-        <Modal isOpen={modalOpen} toggle={() => setModalOpen(false)} fade={false}>
+        <Modal
+          isOpen={modalOpen}
+          toggle={() => setModalOpen(false)}
+          fade={false}
+        >
           <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
             <div className="bg-white p-6 rounded shadow-lg w-1/3 relative">
               <ModalHeader toggle={() => setModalOpen(false)}>
