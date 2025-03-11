@@ -784,12 +784,12 @@ const CreateFlowPage = () => {
           toggle={() => setModalOpen(false)}
           fade={false}
         >
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-6 rounded shadow-lg w-1/3 relative">
+          <div className="fixed inset-0  bg-gray-500 bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white  p-6 rounded shadow-lg w-1/3 relative">
               <ModalHeader toggle={() => setModalOpen(false)}>
                 {selectedQuestionIndex !== null ? "Edit Control" : "Add Control"}
               </ModalHeader>
-              <ModalBody>
+              <ModalBody className="max-h-[50vh] overflow-auto">
                 {currentQuestion && (
                   <Form>
                     <FormGroup>

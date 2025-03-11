@@ -66,7 +66,7 @@ const Flow = () => {
       if (response.success) {
         dispatch(clearFlowPublishState());
         showSweetAlert({
-          title: "published Successfully",
+          title: "Published Successfully",
           text: "",
           icon: "success",
         });
