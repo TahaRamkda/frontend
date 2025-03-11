@@ -1,34 +1,33 @@
-import { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { useRouter } from 'next/router';
-import { 
-  Container, 
-  Row, 
-  Col, 
-  Form, 
-  FormGroup, 
-  Label, 
-  Input, 
-  Button, 
-  Card, 
-  CardBody, 
+import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { useRouter } from "next/router";
+import {
+  Container,
+  Row,
+  Col,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  Button,
+  Card,
+  CardBody,
   CardTitle,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
   ListGroup,
-  ListGroupItem
-} from 'reactstrap';
-import { Tabs, Tab } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
-import LanguageDropdown from '@/components/Dropdowns/LanguageDropdown';
-import { createFlows } from '@/slices/FlowsSlice';
-import App from '@/components/Layout/App';
-import showSweetAlert from '@/components/Sweetalert';
-import { toast } from 'react-toastify';
-import { HiTrash } from 'react-icons/hi';
+  ListGroupItem,
+} from "reactstrap";
+import { Tabs, Tab } from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
+import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
+import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
+import { createFlows } from "@/slices/FlowsSlice";
+import App from "@/components/Layout/App";
+import { toast } from "react-toastify";
+import { HiTrash, HiCheck } from "react-icons/hi";
 
 // Enum for question types
 const QuestionTypes = {
@@ -39,12 +38,20 @@ const QuestionTypes = {
   TextHeading: 5,
 };
 
-// FlowPreview component remains unchanged
-const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) => {
-  const [answers, setAnswers] = useState(() => 
-    flowData.flowScreens.map(screen => 
-      screen.flowChildren.map(child => {
-        if (child.type === QuestionTypes.TextInput || child.type === QuestionTypes.TextArea) return '';
+// Updated FlowPreview component
+const FlowPreview = ({
+  flowData,
+  currentScreenIndex,
+  setCurrentScreenIndex,
+}) => {
+  const [answers, setAnswers] = useState(() =>
+    flowData.flowScreens.map((screen) =>
+      screen.flowChildren.map((child) => {
+        if (
+          child.type === QuestionTypes.TextInput ||
+          child.type === QuestionTypes.TextArea
+        )
+          return "";
         if (child.type === QuestionTypes.RadioButtonsGroup) return null;
         if (child.type === QuestionTypes.CheckboxGroup) return [];
         if (child.type === QuestionTypes.TextHeading) return null;
@@ -52,13 +59,11 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
       })
     )
   );
+  const [isSaved, setIsSaved] = useState(false);
 
   const handlePreviewSave = () => {
-    showSweetAlert({
-      title: "Success",
-      text: "Flow saved successfully",
-      icon: "success",
-    });
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2000);
   };
 
   useEffect(() => {
@@ -101,7 +106,6 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
 
   const areRequiredQuestionsAnswered = () => {
     if (flowData.flowScreens.length === 0) return true;
-
     return currentScreen.flowChildren.every((child, index) => {
       if (!child.required) return true;
       const answer = answers[currentScreenIndex]?.[index];
@@ -137,18 +141,18 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
         </h5>
         {currentScreen.flowChildren.map((child, childIndex) => (
           <FormGroup key={childIndex} className="mb-4">
-            <Label
-              className="mb-2"
-              style={{ fontSize: "1.1rem", fontWeight: "500", color: "#333" }}
-            >
-              <span style={{ fontWeight: "bold", marginRight: "8px" }}>
-                {childIndex + 1}.
-              </span>
-              {child.text || "Untitled Question"}{" "}
-              {child.required && child.type !== QuestionTypes.TextHeading && (
-                <span style={{ color: "red" }}>*</span>
-              )}
-            </Label>
+            {child.type !== QuestionTypes.TextHeading && (
+              <Label
+                className="mb-2"
+                style={{ fontSize: "1.1rem", fontWeight: "500", color: "#333" }}
+              >
+                <span style={{ fontWeight: "bold", marginRight: "8px" }}>
+                  {childIndex + 1}.
+                </span>
+                {child.text || "Untitled Question"}{" "}
+                {child.required && <span style={{ color: "red" }}>*</span>}
+              </Label>
+            )}
             {child.type === QuestionTypes.TextInput && (
               <Input
                 type="text"
@@ -251,6 +255,11 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
             )}
           </FormGroup>
         ))}
+        {isSaved && (
+          <div className="text-success text-center mb-3">
+            <HiCheck size={24} /> Flow saved successfully
+          </div>
+        )}
         <div className="d-flex justify-content-between mt-4">
           {currentScreenIndex > 0 && (
             <Button
@@ -275,13 +284,13 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
               style={{ backgroundColor: "#00a884", border: "none" }}
               disabled={!areRequiredQuestionsAnswered()}
             >
-              {currentScreen.screenButtonText || "Next "}
+              {currentScreen.screenButtonText || "Next"}
             </Button>
           )}
           {currentScreenIndex === flowData.flowScreens.length - 1 && (
             <Button
               color="primary"
-              onClick={() => handlePreviewSave()}
+              onClick={handlePreviewSave}
               className="uniform_btn"
               style={{ backgroundColor: "#00a884", border: "none" }}
             >
@@ -321,15 +330,14 @@ const CreateFlowPage = () => {
   const addScreen = () => {
     const newScreen = {
       name: `screen_${flowData.flowScreens.length + 1}`,
-      title: '',
-      screenButtonText: 'Next',
-      flowChildren: []
+      title: "",
+      screenButtonText: "Next",
+      flowChildren: [],
     };
-
     if (flowData.flowScreens.length <= 4) {
       setFlowData({
         ...flowData,
-        flowScreens: [...flowData.flowScreens, newScreen]
+        flowScreens: [...flowData.flowScreens, newScreen],
       });
       setCurrentEditScreenIndex(flowData.flowScreens.length);
     } else {
@@ -353,36 +361,44 @@ const CreateFlowPage = () => {
   };
 
   const addQuestion = () => {
-    const newQuestion = {
-      text: `Question ${flowData.flowScreens[currentEditScreenIndex].flowChildren.length + 1}`,
-      type: QuestionTypes.TextInput,
+    setCurrentQuestion({
+      type: null,
+      text: "",
       required: true,
       flowOptions: [],
-    };
-    const updatedScreens = [...flowData.flowScreens];
-    updatedScreens[currentEditScreenIndex].flowChildren.push(newQuestion);
-    setFlowData({ ...flowData, flowScreens: updatedScreens });
-    setSelectedQuestionIndex(updatedScreens[currentEditScreenIndex].flowChildren.length - 1);
-    setCurrentQuestion({ ...newQuestion });
+    });
+    setSelectedQuestionIndex(
+      flowData.flowScreens[currentEditScreenIndex].flowChildren.length
+    );
     setModalOpen(true);
   };
 
   const deleteQuestion = (questionIndex) => {
     const updatedScreens = [...flowData.flowScreens];
-    updatedScreens[currentEditScreenIndex].flowChildren.splice(questionIndex, 1);
+    updatedScreens[currentEditScreenIndex].flowChildren.splice(
+      questionIndex,
+      1
+    );
     setFlowData({ ...flowData, flowScreens: updatedScreens });
   };
 
   const openQuestionModal = (questionIndex) => {
     setSelectedQuestionIndex(questionIndex);
-    setCurrentQuestion({ ...flowData.flowScreens[currentEditScreenIndex].flowChildren[questionIndex] });
+    setCurrentQuestion({
+      ...flowData.flowScreens[currentEditScreenIndex].flowChildren[
+        questionIndex
+      ],
+    });
     setModalOpen(true);
   };
 
   const addOption = () => {
     if (!currentQuestion) return;
     const updatedQuestion = { ...currentQuestion };
-    if (updatedQuestion.type === QuestionTypes.RadioButtonsGroup || updatedQuestion.type === QuestionTypes.CheckboxGroup) {
+    if (
+      updatedQuestion.type === QuestionTypes.RadioButtonsGroup ||
+      updatedQuestion.type === QuestionTypes.CheckboxGroup
+    ) {
       updatedQuestion.flowOptions.push({
         optionId: `option_${Date.now()}`,
         optionText: "",
@@ -394,19 +410,18 @@ const CreateFlowPage = () => {
   const deleteOption = (optionIndex) => {
     if (!currentQuestion) return;
     const updatedQuestion = { ...currentQuestion };
-    if (updatedQuestion.type === QuestionTypes.RadioButtonsGroup || updatedQuestion.type === QuestionTypes.CheckboxGroup) {
-      updatedQuestion.flowOptions.splice(optionIndex, 1);
-      setCurrentQuestion(updatedQuestion);
-    }
+    updatedQuestion.flowOptions.splice(optionIndex, 1);
+    setCurrentQuestion(updatedQuestion);
   };
 
   const updateField = (field, value) => {
     setFlowData({ ...flowData, [field]: value });
   };
 
-  const handelCancel =()=>{
+  const handleCancel = () => {
     router.push("/Flows/FlowList");
-  }
+  };
+
   const updateScreenField = (field, value) => {
     const updatedScreens = [...flowData.flowScreens];
     updatedScreens[currentEditScreenIndex][field] = value;
@@ -439,7 +454,9 @@ const CreateFlowPage = () => {
   const handleSaveQuestion = () => {
     if (selectedQuestionIndex !== null && currentQuestion) {
       const updatedScreens = [...flowData.flowScreens];
-      updatedScreens[currentEditScreenIndex].flowChildren[selectedQuestionIndex] = { ...currentQuestion };
+      updatedScreens[currentEditScreenIndex].flowChildren[
+        selectedQuestionIndex
+      ] = { ...currentQuestion };
       setFlowData({ ...flowData, flowScreens: updatedScreens });
       setModalOpen(false);
       setCurrentQuestion(null);
@@ -456,19 +473,11 @@ const CreateFlowPage = () => {
       .unwrap()
       .then(() => {
         console.log("Flow created successfully:", requestBody);
-        showSweetAlert({
-          title: "Success",
-          text: "Created Successfully",
-          icon: "success",
-        });
+        toast.success("Flow created successfully!");
       })
       .catch((error) => {
         console.error("Failed to create flow:", error);
-        showSweetAlert({
-          title: "Error",
-          text: error.message || "An error occurred",
-          icon: "error",
-        });
+        toast.error(error.message || "An error occurred");
       });
   };
 
@@ -480,9 +489,12 @@ const CreateFlowPage = () => {
         style={{ minHeight: "100vh" }}
       >
         <h2 className="mb-4">Create Flow</h2>
-        <Row className="flex-grow-1" style={{ overflow: 'hidden' }}>
-          {/* Left Side - Flow Editor */}
-          <Col md={7} className="h-100" style={{ overflowY: 'auto', paddingRight: '15px' }}>
+        <Row className="flex-grow-1" style={{ overflow: "hidden" }}>
+          <Col
+            md={7}
+            className="h-100"
+            style={{ overflowY: "auto", paddingRight: "15px" }}
+          >
             <Card className="mb-4 shadow-sm">
               <CardBody>
                 <Form>
@@ -522,23 +534,44 @@ const CreateFlowPage = () => {
                     <>
                       <Tabs
                         activeKey={currentEditScreenIndex}
-                        onSelect={(key) => setCurrentEditScreenIndex(parseInt(key))}
-                        className='mb-3'
+                        onSelect={(key) =>
+                          setCurrentEditScreenIndex(parseInt(key))
+                        }
+                        className="mb-3"
+                        variant="pills"
+                        style={{
+                          backgroundColor: "#f8f9fa",
+                          padding: "10px",
+                          borderRadius: "8px",
+                        }}
                       >
                         {flowData.flowScreens.map((screen, index) => (
                           <Tab
                             eventKey={index}
-                            title={`Screen ${index + 1}`} 
+                            title={`Screen ${index + 1}`}
                             key={index}
+                            tabClassName="px-3 py-2"
+                            style={{
+                              backgroundColor:
+                                currentEditScreenIndex === index
+                                  ? "#00a884"
+                                  : "transparent",
+                              color:
+                                currentEditScreenIndex === index
+                                  ? "white"
+                                  : "#333",
+                              borderRadius: "20px",
+                              marginRight: "5px",
+                            }}
                           />
                         ))}
                       </Tabs>
                       <Card className="mb-3 shadow-sm">
                         <CardBody>
-                          <div className="d-flex justify-content-between align-items-center">
-                            <h5>Screen {currentEditScreenIndex + 1} of {flowData.flowScreens.length}</h5>
-                            <Button 
-                              color="danger" 
+                          <div className="flex justify-end">
+                            {/* <h5 className="mb-0">Screen {currentEditScreenIndex + 1} of {flowData.flowScreens.length}</h5> */}
+                            <Button
+                              color="danger"
                               onClick={deleteScreen}
                               disabled={flowData.flowScreens.length <= 1}
                             >
@@ -548,31 +581,37 @@ const CreateFlowPage = () => {
                           <FormGroup>
                             <Label>Screen Title</Label>
                             <Input
-                              value={flowData.flowScreens[currentEditScreenIndex].title}
-                              onChange={(e) => updateScreenField('title', e.target.value)}
+                              value={
+                                flowData.flowScreens[currentEditScreenIndex]
+                                  .title
+                              }
+                              onChange={(e) =>
+                                updateScreenField("title", e.target.value)
+                              }
                               className="rounded"
                             />
                           </FormGroup>
                           <Button
-                           
                             size="sm"
                             onClick={addQuestion}
                             className="uniform_btn"
                           >
-                            Add Controll
+                            Add Control
                           </Button>
                           <ListGroup className="mt-3">
-                            {flowData.flowScreens[currentEditScreenIndex].flowChildren.map((child, childIndex) => (
-                              <ListGroupItem 
-                                key={childIndex} 
+                            {flowData.flowScreens[
+                              currentEditScreenIndex
+                            ].flowChildren.map((child, childIndex) => (
+                              <ListGroupItem
+                                key={childIndex}
                                 className="d-flex justify-content-between align-items-center"
                                 action
                                 onClick={() => openQuestionModal(childIndex)}
                               >
                                 <span>
-    <strong>{childIndex + 1}.</strong> {child.text || `Question ${childIndex + 1}`}
-  </span>
-                               
+                                  <strong>{childIndex + 1}.</strong>{" "}
+                                  {child.text || `Question ${childIndex + 1}`}
+                                </span>
                                 <Button
                                   color="danger"
                                   size="sm"
@@ -590,8 +629,16 @@ const CreateFlowPage = () => {
                           <FormGroup className="mt-3">
                             <Label>Button Text</Label>
                             <Input
-                              value={flowData.flowScreens[currentEditScreenIndex].screenButtonText}
-                              onChange={(e) => updateScreenField('screenButtonText', e.target.value)}
+                              value={
+                                flowData.flowScreens[currentEditScreenIndex]
+                                  .screenButtonText
+                              }
+                              onChange={(e) =>
+                                updateScreenField(
+                                  "screenButtonText",
+                                  e.target.value
+                                )
+                              }
                               className="rounded"
                             />
                           </FormGroup>
@@ -603,8 +650,6 @@ const CreateFlowPage = () => {
               </CardBody>
             </Card>
           </Col>
-
-          {/* Right Side - Live Preview */}
           <Col
             md={5}
             className="h-100"
@@ -623,114 +668,164 @@ const CreateFlowPage = () => {
             </div>
           </Col>
         </Row>
-        <div className='flex gap-4'>
-        <button 
-               
-               onClick={() => handelCancel()}
-               className="Btn-Regular-1"
-             >
-               Cancel
-             </button>
-             <Button 
-          onClick={handleSaveFlow} 
-          className="uniform_btn"
-          style={{ alignSelf: 'flex-start', backgroundColor: '#00a884', border: 'none' }}
-        >
-          Save Flow
-        </Button>
+        <div className="flex gap-4">
+          <button onClick={handleCancel} className="Btn-Regular-1">
+            Cancel
+          </button>
+          <Button
+            onClick={handleSaveFlow}
+            className="uniform_btn"
+            style={{
+              alignSelf: "flex-start",
+              backgroundColor: "#00a884",
+              border: "none",
+            }}
+          >
+            Save Flow
+          </Button>
         </div>
-        
 
-        {/* Question Configuration Modal */}
-        <Modal isOpen={modalOpen} toggle={() => setModalOpen(false)} fade={false}>
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center ">
-        <div className="bg-white p-6 rounded shadow-lg w-1/3  relative">
-          <ModalHeader toggle={() => setModalOpen(false)}>
-            {selectedQuestionIndex !== null ? 'Edit Children' : 'Add Children'}
-          </ModalHeader>
-          <ModalBody>
-            {currentQuestion && (
-              <Form>
-                <FormGroup>
-                  <Label>Text</Label>
-                  <Input
-                    value={currentQuestion.text}
-                    onChange={(e) => updateQuestionField('text', e.target.value)}
-                    className="rounded"
-                  />
-                </FormGroup>
-                {currentQuestion.type !== QuestionTypes.TextHeading && (
-                  <FormGroup check>
-                    <Input
-                      type="checkbox"
-                      checked={currentQuestion.required}
-                      onChange={() => updateQuestionField('required', !currentQuestion.required)}
-                    />
-                    <Label check>Required</Label>
-                  </FormGroup>
+        <Modal
+          isOpen={modalOpen}
+          toggle={() => setModalOpen(false)}
+          fade={false}
+        >
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-6 rounded shadow-lg w-1/3 relative">
+              <ModalHeader toggle={() => setModalOpen(false)}>
+                {selectedQuestionIndex !== null
+                  ? "Edit Control"
+                  : "Add Control"}
+              </ModalHeader>
+              <ModalBody>
+                {currentQuestion && (
+                  <Form>
+                    <FormGroup>
+                      <Label>Input Type</Label>
+                      <Input
+                        type="select"
+                        value={currentQuestion.type || ""}
+                        onChange={(e) =>
+                          updateQuestionField("type", parseInt(e.target.value))
+                        }
+                        className="rounded"
+                      >
+                        <option value="" disabled>
+                          Select Input Type
+                        </option>
+                        <option value={QuestionTypes.TextInput}>
+                          Text Input
+                        </option>
+                        <option value={QuestionTypes.TextArea}>Textarea</option>
+                        <option value={QuestionTypes.RadioButtonsGroup}>
+                          Radio Buttons
+                        </option>
+                        <option value={QuestionTypes.CheckboxGroup}>
+                          Checkbox Group
+                        </option>
+                        <option value={QuestionTypes.TextHeading}>
+                          Text Heading
+                        </option>
+                      </Input>
+                    </FormGroup>
+                    {currentQuestion.type &&
+                      (currentQuestion.type === QuestionTypes.TextHeading ? (
+                        <FormGroup>
+                          <Label>Heading Text</Label>
+                          <Input
+                            value={currentQuestion.text}
+                            onChange={(e) =>
+                              updateQuestionField("text", e.target.value)
+                            }
+                            className="rounded"
+                            placeholder="Enter heading text"
+                          />
+                        </FormGroup>
+                      ) : (
+                        <>
+                          <FormGroup>
+                            <Label>Question Text</Label>
+                            <Input
+                              value={currentQuestion.text}
+                              onChange={(e) =>
+                                updateQuestionField("text", e.target.value)
+                              }
+                              className="rounded"
+                            />
+                          </FormGroup>
+                          <FormGroup check>
+                            <Input
+                              type="checkbox"
+                              checked={currentQuestion.required}
+                              onChange={() =>
+                                updateQuestionField(
+                                  "required",
+                                  !currentQuestion.required
+                                )
+                              }
+                            />
+                            <Label check>Required</Label>
+                          </FormGroup>
+                          {(currentQuestion.type ===
+                            QuestionTypes.RadioButtonsGroup ||
+                            currentQuestion.type ===
+                              QuestionTypes.CheckboxGroup) && (
+                            <>
+                              <Button
+                                size="sm"
+                                onClick={addOption}
+                                className="uniform_btn"
+                              >
+                                Add Option
+                              </Button>
+                              {currentQuestion.flowOptions.map(
+                                (option, optionIndex) => (
+                                  <FormGroup
+                                    key={optionIndex}
+                                    className="mt-2 d-flex align-items-center"
+                                  >
+                                    <Input
+                                      value={option.optionText}
+                                      onChange={(e) =>
+                                        updateOptionField(
+                                          optionIndex,
+                                          "optionText",
+                                          e.target.value
+                                        )
+                                      }
+                                      placeholder={`Option ${optionIndex + 1}`}
+                                      style={{ flex: 1, marginRight: "10px" }}
+                                      className="rounded"
+                                    />
+                                    <Button
+                                      color="danger"
+                                      size="sm"
+                                      onClick={() => deleteOption(optionIndex)}
+                                      className="rounded-pill"
+                                    >
+                                      <HiTrash />
+                                    </Button>
+                                  </FormGroup>
+                                )
+                              )}
+                            </>
+                          )}
+                        </>
+                      ))}
+                  </Form>
                 )}
-                <FormGroup>
-                  <Label>Input Type</Label>
-                  <Input
-                    type="select"
-                    value={currentQuestion.type}
-                    onChange={(e) => updateQuestionField('type', parseInt(e.target.value))}
-                    className="rounded"
-                  >
-                    <option value={QuestionTypes.TextInput}>Text Input</option>
-                    <option value={QuestionTypes.TextArea}>Textarea</option>
-                    <option value={QuestionTypes.RadioButtonsGroup}>Radio Buttons</option>
-                    <option value={QuestionTypes.CheckboxGroup}>Checkbox Group</option>
-                    <option value={QuestionTypes.TextHeading}>Text Heading</option>
-                  </Input>
-                </FormGroup>
-                {(currentQuestion.type === QuestionTypes.RadioButtonsGroup || 
-                  currentQuestion.type === QuestionTypes.CheckboxGroup) && (
-                  <>
-                    <Button
-                      
-                      size="sm"
-                      onClick={addOption}
-                      className="uniform_btn"
-                    >
-                      Add Option
-                    </Button>
-                    {currentQuestion.flowOptions.map((option, optionIndex) => (
-                      <FormGroup key={optionIndex} className="mt-2 d-flex align-items-center">
-                        <Input
-                          value={option.optionText}
-                          onChange={(e) => updateOptionField(optionIndex, 'optionText', e.target.value)}
-                          placeholder={`Option ${optionIndex + 1}`}
-                          style={{ flex: 1, marginRight: '10px' }}
-                          className="rounded"
-                        />
-                        <Button
-                          color="danger"
-                          size="sm"
-                          onClick={() => deleteOption(optionIndex)}
-                          className="rounded-pill"
-                        >
-                          <HiTrash  />
-                        </Button>
-                      </FormGroup>
-                    ))}
-                  </>
-                )}
-              </Form>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            
-            <button 
-              color="primary" 
-              onClick={handleSaveQuestion}
-              className="uniform_btn"
-            >
-              Save
-            </button>
-          </ModalFooter>
+              </ModalBody>
+              <ModalFooter>
+                <button
+                  color="primary"
+                  onClick={handleSaveQuestion}
+                  className="uniform_btn"
+                >
+                  Save
+                </button>
+              </ModalFooter>
+            </div>
           </div>
-        </div>
         </Modal>
       </Container>
     </App>
