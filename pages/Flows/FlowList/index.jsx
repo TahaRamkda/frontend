@@ -200,7 +200,7 @@ const Flow = () => {
      <div className="flex items-center">
         {/* {loading && <Loader />} */}
         <div className=''>
-          <h4 className="font-bold">FLows</h4>
+          <h4 className="font-bold">Flows</h4>
         </div>
         <div className="ml-auto mb-1">
           <button
