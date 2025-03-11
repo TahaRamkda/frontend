@@ -152,10 +152,10 @@ export const excelExportAgentMonitor = createAsyncThunk(
 // Export Excel Survey Report  
 export const excelExportSurveyReport = createAsyncThunk(
   'surveyReport/excelExportSurveyReport',
-  async ({ senderId, fromDate, toDate, searchStr, flowId, surveyId }, { rejectWithValue }) => {
+  async ({ senderId, fromDate, toDate,flowId }, { rejectWithValue }) => {
     
     try {
-      const surveyReportUrl = `${EXCELEXPORTSURVEYREPORT}?senderId=${senderId}&searchStr=${searchStr}&fromDate=${fromDate}&toDate=${toDate}&flowId=${flowId}&surveyId=${surveyId}`;
+      const surveyReportUrl = `${EXCELEXPORTSURVEYREPORT}?senderId=${senderId}&fromDate=${fromDate}&toDate=${toDate}&flowId=${flowId}`;
       // Make API request and get blob data for Excel file
       const response = await API.get(surveyReportUrl, { responseType: 'blob' });
       const fileBlob = new Blob([response.data], { type: response.headers['content-type'] });
