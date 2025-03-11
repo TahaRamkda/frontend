@@ -40,7 +40,7 @@ const QuestionTypes = {
   TextHeading: 5,
 };
 
-// Updated FlowPreview component
+// FlowPreview component (unchanged)
 const FlowPreview = ({
   flowData,
   currentScreenIndex,
@@ -455,6 +455,10 @@ const CreateFlowPage = () => {
     setFlowData({ ...flowData, flowLanguage: language });
   };
 
+  const handlePublishToFBChange = () => {
+    setFlowData({ ...flowData, publishToFB: !flowData.publishToFB });
+  };
+
   const handleSaveQuestion = () => {
     if (selectedQuestionIndex !== null && currentQuestion) {
       const updatedScreens = [...flowData.flowScreens];
@@ -479,14 +483,20 @@ const CreateFlowPage = () => {
       .unwrap()
       .then(() => {
         console.log("Flow created successfully:", requestBody);
-        toast.success("Flow created successfully!");
-        setIsLoading(false); // Hide loader on success
-        handleCancel(); // Navigate away after success
+        showSweetAlert({ 
+          title: "Success", 
+          text: "Flow Created successfully", 
+          icon: "success" 
+        });
+        router.push('/Flows/FlowList');
       })
       .catch((error) => {
         console.error("Failed to create flow:", error);
-        toast.error(error.message || "An error occurred");
-        setIsLoading(false); // Hide loader on error
+        showSweetAlert({ 
+          title: "Error", 
+          text: error.message || "An error occurred", 
+          icon: "error" 
+        });
       });
   };
 
@@ -529,6 +539,15 @@ const CreateFlowPage = () => {
                       value={flowData.flowLanguage}
                       onChange={handleLanguageChange}
                     />
+                  </FormGroup>
+                  <FormGroup check>
+                    <Input
+                      type="checkbox"
+                      checked={flowData.publishToFB}
+                      onChange={handlePublishToFBChange}
+                      style={{ marginRight: "10px" }}
+                    />
+                    <Label check>Publish to Facebook</Label>
                   </FormGroup>
                   <div className="d-flex justify-content-between mb-3">
                     <Button
@@ -579,7 +598,6 @@ const CreateFlowPage = () => {
                       <Card className="mb-3 shadow-sm">
                         <CardBody>
                           <div className="flex justify-end">
-                            {/* <h5 className="mb-0">Screen {currentEditScreenIndex + 1} of {flowData.flowScreens.length}</h5> */}
                             <Button
                               color="danger"
                               onClick={deleteScreen}

@@ -520,6 +520,10 @@ const UpdateFlowPage = () => {
     setFlowData({ ...flowData, flowLanguage: language });
   };
 
+  const handlePublishToFBChange = () => {
+    setFlowData({ ...flowData, publishToFB: !flowData.publishToFB });
+  };
+  
   const handleSaveQuestion = () => {
     if (selectedQuestionIndex !== null && currentQuestion) {
       const updatedScreens = [...flowData.flowScreens];
@@ -552,6 +556,7 @@ const UpdateFlowPage = () => {
           icon: "success",
         });
         handleCancel()
+        router.push('/Flows/FlowList');
       })
       .catch((error) => {
         console.error("Failed to update flow:", error);
@@ -609,7 +614,16 @@ const UpdateFlowPage = () => {
                         onChange={handleLanguageChange}
                       />
                     </FormGroup>
-                    <div className="d-flex justify-content-between mb-3">
+                    <FormGroup check>
+                    <Input
+                      type="checkbox"
+                      checked={flowData.publishToFB}
+                      onChange={handlePublishToFBChange}
+                      style={{ marginRight: "10px" }}
+                    />
+                    <Label check>Publish to Facebook</Label>
+                  </FormGroup>
+                     <div className="d-flex justify-content-between mb-3">
                       <Button
                         color="primary"
                         onClick={addScreen}
