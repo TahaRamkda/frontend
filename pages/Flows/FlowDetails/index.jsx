@@ -40,6 +40,7 @@ const QuestionTypes = {
   TextHeading: 5,
 };
 
+// Updated FlowPreview component
 const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) => {
   const [answers, setAnswers] = useState([]);
 
@@ -132,13 +133,13 @@ const FlowPreview = ({ flowData, currentScreenIndex, setCurrentScreenIndex }) =>
         </h5>
         {currentScreen.flowChildren.map((child, childIndex) => (
           <FormGroup key={childIndex} className="mb-4">
-            <Label className="mb-2" style={{ fontSize: '1.1rem', fontWeight: '500', color: '#333' }}>
-              <span style={{ fontWeight: 'bold', marginRight: '8px' }}>{childIndex + 1}.</span>
-              {child.text || 'Untitled Question'}{' '}
-              {child.required && child.type !== QuestionTypes.TextHeading && (
-                <span style={{ color: 'red' }}>*</span>
-              )}
-            </Label>
+            {child.type !== QuestionTypes.TextHeading && (
+              <Label className="mb-2" style={{ fontSize: '1.1rem', fontWeight: '500', color: '#333' }}>
+                <span style={{ fontWeight: 'bold', marginRight: '8px' }}>{childIndex + 1}.</span>
+                {child.text || 'Untitled Question'}{' '}
+                {child.required && <span style={{ color: 'red' }}>*</span>}
+              </Label>
+            )}
             {child.type === QuestionTypes.TextInput && (
               <Input
                 type="text"
@@ -344,15 +345,12 @@ const UpdateFlowPage = () => {
   const addQuestion = () => {
     const newQuestion = {
       text: `Question ${flowData.flowScreens[currentEditScreenIndex].flowChildren.length + 1}`,
-      type: QuestionTypes.TextInput,
+      type: null, // Changed to null to match modal behavior
       required: true,
       flowOptions: [],
     };
-    const updatedScreens = [...flowData.flowScreens];
-    updatedScreens[currentEditScreenIndex].flowChildren.push(newQuestion);
-    setFlowData({ ...flowData, flowScreens: updatedScreens });
-    setSelectedQuestionIndex(updatedScreens[currentEditScreenIndex].flowChildren.length - 1);
-    setCurrentQuestion({ ...newQuestion });
+    setCurrentQuestion(newQuestion);
+    setSelectedQuestionIndex(flowData.flowScreens[currentEditScreenIndex].flowChildren.length);
     setModalOpen(true);
   };
 
@@ -608,7 +606,7 @@ const UpdateFlowPage = () => {
           </Button>
         )}
 
-        {/* Question Configuration Modal */}
+        {/* Updated Question Configuration Modal */}
         <Modal isOpen={modalOpen} toggle={() => setModalOpen(false)}>
           <ModalHeader toggle={() => setModalOpen(false)}>
             {selectedQuestionIndex !== null ? 'Edit Children' : 'Add Children'}
@@ -617,31 +615,14 @@ const UpdateFlowPage = () => {
             {currentQuestion && (
               <Form>
                 <FormGroup>
-                  <Label>Text</Label>
-                  <Input
-                    value={currentQuestion.text}
-                    onChange={(e) => updateQuestionField('text', e.target.value)}
-                    className="rounded"
-                  />
-                </FormGroup>
-                {currentQuestion.type !== QuestionTypes.TextHeading && (
-                  <FormGroup check>
-                    <Input
-                      type="checkbox"
-                      checked={currentQuestion.required}
-                      onChange={() => updateQuestionField('required', !currentQuestion.required)}
-                    />
-                    <Label check>Required</Label>
-                  </FormGroup>
-                )}
-                <FormGroup>
                   <Label>Input Type</Label>
                   <Input
                     type="select"
-                    value={currentQuestion.type}
+                    value={currentQuestion.type || ""}
                     onChange={(e) => updateQuestionField('type', parseInt(e.target.value))}
                     className="rounded"
                   >
+                    <option value="" disabled>Select Input Type</option>
                     <option value={QuestionTypes.TextInput}>Text Input</option>
                     <option value={QuestionTypes.TextArea}>Textarea</option>
                     <option value={QuestionTypes.RadioButtonsGroup}>Radio Buttons</option>
@@ -649,37 +630,69 @@ const UpdateFlowPage = () => {
                     <option value={QuestionTypes.TextHeading}>Text Heading</option>
                   </Input>
                 </FormGroup>
-                {(currentQuestion.type === QuestionTypes.RadioButtonsGroup || 
-                  currentQuestion.type === QuestionTypes.CheckboxGroup) && (
-                  <>
-                    <Button
-                      color="info"
-                      size="sm"
-                      onClick={addOption}
-                      className="mb-2 rounded-pill"
-                    >
-                      Add Option
-                    </Button>
-                    {currentQuestion.flowOptions.map((option, optionIndex) => (
-                      <FormGroup key={optionIndex} className="mt-2 d-flex align-items-center">
+                {currentQuestion.type && (
+                  currentQuestion.type === QuestionTypes.TextHeading ? (
+                    <FormGroup>
+                      <Label>Heading Text</Label>
+                      <Input
+                        value={currentQuestion.text}
+                        onChange={(e) => updateQuestionField('text', e.target.value)}
+                        className="rounded"
+                        placeholder="Enter heading text"
+                      />
+                    </FormGroup>
+                  ) : (
+                    <>
+                      <FormGroup>
+                        <Label>Question Text</Label>
                         <Input
-                          value={option.optionText}
-                          onChange={(e) => updateOptionField(optionIndex, 'optionText', e.target.value)}
-                          placeholder={`Option ${optionIndex + 1}`}
-                          style={{ flex: 1, marginRight: '10px' }}
+                          value={currentQuestion.text}
+                          onChange={(e) => updateQuestionField('text', e.target.value)}
                           className="rounded"
                         />
-                        <Button
-                          color="danger"
-                          size="sm"
-                          onClick={() => deleteOption(optionIndex)}
-                          className="rounded-pill"
-                        >
-                          Delete
-                        </Button>
                       </FormGroup>
-                    ))}
-                  </>
+                      <FormGroup check>
+                        <Input
+                          type="checkbox"
+                          checked={currentQuestion.required}
+                          onChange={() => updateQuestionField('required', !currentQuestion.required)}
+                        />
+                        <Label check>Required</Label>
+                      </FormGroup>
+                      {(currentQuestion.type === QuestionTypes.RadioButtonsGroup || 
+                        currentQuestion.type === QuestionTypes.CheckboxGroup) && (
+                        <>
+                          <Button
+                            color="info"
+                            size="sm"
+                            onClick={addOption}
+                            className="mb-2 rounded-pill"
+                          >
+                            Add Option
+                          </Button>
+                          {currentQuestion.flowOptions.map((option, optionIndex) => (
+                            <FormGroup key={optionIndex} className="mt-2 d-flex align-items-center">
+                              <Input
+                                value={option.optionText}
+                                onChange={(e) => updateOptionField(optionIndex, 'optionText', e.target.value)}
+                                placeholder={`Option ${optionIndex + 1}`}
+                                style={{ flex: 1, marginRight: '10px' }}
+                                className="rounded"
+                              />
+                              <Button
+                                color="danger"
+                                size="sm"
+                                onClick={() => deleteOption(optionIndex)}
+                                className="rounded-pill"
+                              >
+                                Delete
+                              </Button>
+                            </FormGroup>
+                          ))}
+                        </>
+                      )}
+                    </>
+                  )
                 )}
               </Form>
             )}
