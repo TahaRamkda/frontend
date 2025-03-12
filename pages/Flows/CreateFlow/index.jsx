@@ -40,7 +40,7 @@ const QuestionTypes = {
   TextHeading: 5,
 };
 
-// FlowPreview component (unchanged)
+// FlowPreview component
 const FlowPreview = ({
   flowData,
   currentScreenIndex,
@@ -89,6 +89,7 @@ const FlowPreview = ({
       });
       return newAnswers;
     });
+    setIsLoading(false); // Reset loading after update
   }, [flowData]);
 
   if (
@@ -330,6 +331,10 @@ const validateFlowData = (flowData) => {
       errors.push(`Screen ${index + 1}: Title is required`);
     }
     
+    if (!screen.screenButtonText.trim()) {
+      errors.push(`Screen ${index + 1}: Button text is required`);
+    }
+
     if (screen.flowChildren.length === 0) {
       errors.push(`Screen ${index + 1}: At least one control is required`);
     }
@@ -374,7 +379,7 @@ const CreateFlowPage = () => {
     publishToFB: false,
     flowScreens: [],
   });
-  const [isLoading, setIsLoading] = useState(false); // Added centralized loading state
+  const [isLoading, setIsLoading] = useState(false);
   const [currentEditScreenIndex, setCurrentEditScreenIndex] = useState(0);
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
@@ -395,9 +400,9 @@ const CreateFlowPage = () => {
     }
     
     const newScreen = {
-      name: `screen_${flowData.flowScreens.length + 1}`,
+      name: `screen`,
       title: "",
-      screenButtonText: "Next",
+      screenButtonText: "", // Changed default to empty string to enforce validation
       flowChildren: [],
     };
     setFlowData({
@@ -557,7 +562,14 @@ const CreateFlowPage = () => {
   };
 
   const handleSaveFlow = () => {
-    setIsLoading(true); // Show loader when API call starts
+    const errors = validateFlowData(flowData);
+    
+    if (errors.length > 0) {
+      errors.forEach(error => toast.error(error));
+      return;
+    }
+
+    setIsLoading(true);
     const requestBody = {
       ...flowData,
       senderId: parseInt(flowData.senderId, 10),
@@ -571,12 +583,15 @@ const CreateFlowPage = () => {
       })
       .catch((error) => {
         toast.error(error.message || "An error occurred");
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
   return (
     <App>
-      {isLoading && <Loader />} {/* Fixed typo and made it consistent */}
+      {isLoading && <Loader />}
       <Container
         fluid
         className="py-4 create-flow-container"
@@ -725,13 +740,14 @@ const CreateFlowPage = () => {
                             )}
                           </ListGroup>
                           <FormGroup className="mt-3">
-                            <Label>Button Text</Label>
+                            <Label>Button Text *</Label> {/* Added asterisk to indicate required */}
                             <Input
                               value={flowData.flowScreens[currentEditScreenIndex].screenButtonText}
                               onChange={(e) =>
                                 updateScreenField("screenButtonText", e.target.value)
                               }
                               className="rounded"
+                              required
                             />
                           </FormGroup>
                         </CardBody>
@@ -742,21 +758,21 @@ const CreateFlowPage = () => {
               </CardBody>
             </Card>
             <div className="flex gap-4">
-          <button onClick={handleCancel} className="Btn-Regular-1">
-            Cancel
-          </button>
-          <Button
-            onClick={handleSaveFlow}
-            className="uniform_btn"
-            style={{
-              alignSelf: "flex-start",
-              backgroundColor: "#00a884",
-              border: "none",
-            }}
-          >
-            Save Flow
-          </Button>
-        </div>
+              <button onClick={handleCancel} className="Btn-Regular-1">
+                Cancel
+              </button>
+              <Button
+                onClick={handleSaveFlow}
+                className="uniform_btn"
+                style={{
+                  alignSelf: "flex-start",
+                  backgroundColor: "#00a884",
+                  border: "none",
+                }}
+              >
+                Save Flow
+              </Button>
+            </div>
           </Col>
           <Col
             md={5}
@@ -774,10 +790,8 @@ const CreateFlowPage = () => {
                 setCurrentScreenIndex={setCurrentScreenIndex}
               />
             </div>
-
           </Col>
         </Row>
-        
 
         <Modal
           isOpen={modalOpen}

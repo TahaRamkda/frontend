@@ -288,6 +288,9 @@ const ChatPage = () => {
             text: "An error occurred during logout. Please try again.",
             icon: "error",
           });
+          loggerdetails(logger, `error while logging out : ${error}`, {
+            agentId: UserId,
+           })
         }
       }
     });
