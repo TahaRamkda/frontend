@@ -10,6 +10,7 @@ import {
   clearChatLogsState,
   clearChatReportStatsState,
 } from "@/slices/ReportSlice";
+import { clearMessagesReportState } from "@/slices/ConversationSlice";
 import TemplateDropdown from "@/components/Dropdowns/TemplateDropdown";
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 import { Modal, ModalHeader, ModalBody, Input } from "reactstrap";
@@ -159,6 +160,8 @@ const [Logo, setLogo] = useState('');
 
   const handleCancel = () => {
     setshowchat(false);
+    dispatch(clearMessagesReportState())
+    
   };
   const handleTransferCancel = () => {
     setshowtransfer(false);

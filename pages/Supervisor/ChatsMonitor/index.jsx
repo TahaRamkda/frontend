@@ -3,6 +3,7 @@ import React, { useMemo, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchChatsMonitor, clearChatsMonitorState, setPageSize, setCurrentPage, SupervisorCloseChat } from "@/slices/SuperwiseSlice";
 import { excelExportChatMonitor } from '@/slices/ExportExcel';
+import { clearMessagesReportState } from '@/slices/ConversationSlice';
 import SendernameDropdown from '@/components/Dropdowns/SendernameDropdown';
 import DataTable from "react-data-table-component";
 import {HiEye} from "react-icons/hi";
@@ -95,6 +96,7 @@ const ChatsMonitor = () => {
  
   const handleCancel = () => {
     setshowchat(false);
+    dispatch(clearMessagesReportState())
   };
   const handleTransferCancel = () => {
     setshowtransfer(false);

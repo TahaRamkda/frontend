@@ -781,7 +781,7 @@ const UpdateFlowPage = () => {
           <ModalHeader toggle={() => setModalOpen(false)}>
             {selectedQuestionIndex !== null ? "Edit Children" : "Add Children"}
           </ModalHeader>
-          <ModalBody>
+          <ModalBody className="max-h-[50vh] overflow-auto">
             {currentQuestion && (
               <Form>
                 <FormGroup>
