@@ -310,7 +310,7 @@ const ContactList = () => {
               >
                 Edit Contact
               </ModalHeader>
-              <ModalBody>
+              <ModalBody className="max-h-[60vh] overflow-auto">
                 <form onSubmit={handleUpdateSubmit}>
                   <div className="w-full">
                     <label className="font-medium text-gray-700 text-sm"> Group </label>

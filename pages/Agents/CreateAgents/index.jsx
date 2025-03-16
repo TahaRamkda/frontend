@@ -92,7 +92,7 @@ const AgentsForm = ({ onClose, isVisible, onsuccess }) => {
           <div className="bg-white p-6 rounded shadow-lg w-2/5  relative">
 
             <ModalHeader toggle={onClose}>Create Agent</ModalHeader>
-            <ModalBody>
+            <ModalBody className="max-h-[60vh] overflow-auto">
               <form onSubmit={handleSubmit} className="space-y-6">
 
                 <div>

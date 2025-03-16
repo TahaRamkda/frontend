@@ -232,7 +232,7 @@ const ChatPage = () => {
   }, []);
 
   const handleTemplateSend = (details) => {
-    debugger
+    
     loggerdetails(logger, `agent sent template :`, {
       Obj : details,
       conversationId: details.ChatId,
@@ -251,6 +251,7 @@ const ChatPage = () => {
   };
 
   const handleLogout = async () => {
+
     SweetAlert.fire({
       title: "Are you sure you want to logout?",
       text: "",
@@ -263,7 +264,6 @@ const ChatPage = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          debugger
           const response = await dispatch(setAgentstatus({ agentId: UserId, statusId: "0" })).unwrap();
           if (response.success) {
             loggerdetails(logger, `Agent with ID:${UserId} logged out`, {

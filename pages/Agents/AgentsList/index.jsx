@@ -498,7 +498,7 @@ const AgentsList = () => {
               <ModalHeader toggle={() => toggleModal()}>
                 Edit Agents
               </ModalHeader>
-              <ModalBody>
+              <ModalBody className="max-h-[60vh] overflow-auto">
                 <form onSubmit={handleUpdateSubmit}>
                   <div>
                     <label className="font-medium text-gray-700 text-sm">

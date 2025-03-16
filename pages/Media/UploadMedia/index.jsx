@@ -55,9 +55,9 @@ const UploadMediaPage = ({ onUploadSuccess, onsenderChange, ispopUp }) => {
   };
 
   const handleSenderChange = (e) => {
-    setSelectedSenderId(e.target.value);
+    setSelectedSenderId(e.target?.value);
     if (onsenderChange) {
-      onsenderChange(e.target.value);
+      onsenderChange(e.target?.value);
     }
   };
 
@@ -82,7 +82,7 @@ const UploadMediaPage = ({ onUploadSuccess, onsenderChange, ispopUp }) => {
                   name="senderId"
                   value={values.senderId}
                   onChange={(e) => {
-                    setFieldValue("senderId", e.target.value);
+                    setFieldValue("senderId", e.target?.value);
                     handleSenderChange(e.target.value); // Make sure to pass the value, not the event
                   }}
                   required
