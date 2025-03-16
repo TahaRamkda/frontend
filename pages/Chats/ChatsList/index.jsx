@@ -120,13 +120,11 @@ const ChatPage = () => {
 
   const HandleAgentStatus = async (e) => {
     const StatusId = e.target.value;
-    setChatsloading(true);
-    setAgentStatus(StatusId)
+    setChatsloading(true); // Show loader
+    setAgentStatus(StatusId);
     try {
-      
-      // Dispatch the thunk and unwrap the result to get the actual payload
       const response = await dispatch(setAgentstatus({ agentId: UserId, statusId: StatusId })).unwrap();
-       if(response.success){
+      if (response.success) {
         await loggerdetails(logger, `agent status updated to ${StatusId} `, {
           agentId: UserId,
           type: 5,
@@ -136,24 +134,21 @@ const ChatPage = () => {
           text: "",
           icon: "success",
         });
-       }
-       else{
+      } else {
         showSweetAlert({
           title: response.message || "Status updated successfully",
           text: "",
           icon: "danger",
         });
-       }
-      
+      }
     } catch (error) {
-      // Handle any errors that occurred during the thunk execution
       showSweetAlert({
         title: error.message || "Failed to update status",
         text: "",
         icon: "error",
       });
     } finally {
-      setChatsloading(false);
+      setChatsloading(false); // Hide loader
     }
   };
 
@@ -357,28 +352,26 @@ const ChatPage = () => {
     const fetchData = async () => {
       const AgentId = localStorage.getItem("userId");
       const ClientId = localStorage.getItem("clientId");
-
+  
       if (AgentId) {
         try {
+          setContactsloading(true); // Show loader
           dispatch(getAgentConversations(AgentId));
           dispatch(fetchAgentStats({ clientId: ClientId, agentId: AgentId }));
-          setContactsloading(true);
-
           const response = await dispatch(fetchAgentsById({ agentId: AgentId })).unwrap();
           if (response && response.result) {
             setAgentStatus(response.result.status);
           }
         } catch (error) {
           logger.error('Failed to fetch agent by ID :', error);
-          // Optionally set an error state or handle the error (e.g., setContactsloading(false))
         } finally {
-          setContactsloading(false); // Ensure loading state is reset, even on error
+          setContactsloading(false); // Hide loader
         }
       }
     };
-
+  
     fetchData();
-
+  
     return () => {
       dispatch(clearconversationstate());
     };
@@ -399,16 +392,17 @@ const ChatPage = () => {
  
   const handleFetchMessages = (conversationId) => {
     setActiveChat(conversationId);
-    const conversation = conversations.find(
-      (conv) => conv.id === conversationId
-    );
+    const conversation = conversations.find((conv) => conv.id === conversationId);
     if (conversation?.messages?.length > 0) {
-      setChatMessages(conversation.messages); // Use cached messages
+      setChatMessages(conversation.messages);
       setActiveSenderId(conversation.messages[0].senderId);
     } else {
+      setChatsloading(true); // Show loader
       dispatch(getAgentMessages(conversationId)).then((response) => {
-        
-        setChatMessages(response.payload.messages); // Store in local state
+        setChatMessages(response.payload.messages);
+        setChatsloading(false); // Hide loader
+      }).catch(() => {
+        setChatsloading(false); // Hide loader on error
       });
     }
   };
@@ -908,6 +902,7 @@ const ChatPage = () => {
         </nav>
       </div>                                              
       <Container fluid className="h-100 MainContainer">
+      {(Chatsloading || Contactsloading) && <Loader />}
         <Row className="g-0 h-100">
           <Col
             xxl="4"
@@ -1083,9 +1078,7 @@ const ChatPage = () => {
                         flexDirection: "column-reverse",
                       }}
                     >
-                      {Chatsloading && (
-                       <Loader/>
-                      )}
+                      
                       {chatMessages?.map((message) => (
                         <div
                           key={message.messageId}

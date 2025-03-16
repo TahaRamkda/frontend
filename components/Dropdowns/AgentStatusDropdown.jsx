@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMasterData } from '@/slices/AgentSlice';
+import Loader from '../Layout/Loader';
 
 const AgentStatusDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();

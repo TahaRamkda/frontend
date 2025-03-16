@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
-
+import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 import {
   fetchInteractiveTemplates,
   clearInteractiveTemplateListState,
@@ -55,6 +55,7 @@ const TemplateList = () => {
   const [filterText, setFilterText] = useState("");
   const [TemplateLoading, setTemplateLoading  ] = useState(false);
   const settemplateId = useSetRecoilState(TemplateState);
+  const [sendernameId, setsendernameId] = useState(0);
   const templateColumns = [
     {
       name: "Template",
@@ -79,7 +80,7 @@ const TemplateList = () => {
       sortable: true,width: '20%'
     },
     {
-      name: "System Template?",
+      name: "System Template",
       selector: (row) => (row.defaultTypeId === 0 ? "No" : "Yes"),
       sortable: true,width: '16%'
     },    
@@ -95,7 +96,7 @@ const TemplateList = () => {
             >
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
-            {(row.defaultTypeId === 0 || row.defaultTypeId === "0") && (
+            {/* {(row.defaultTypeId === 0 || row.defaultTypeId === "0") && (
               <button
               title="Delete Interactive Template"
                 className="uniform_icon_btn"
@@ -103,7 +104,7 @@ const TemplateList = () => {
               >
                 <HiTrash style={{ fontSize: "15px" }} />
               </button>
-            )}
+            )} */}
           </div>
         </center>
       ),
@@ -154,6 +155,7 @@ const TemplateList = () => {
     await dispatch(
       fetchInteractiveTemplates({
         clientId: localStorage.getItem("clientId"),
+        senderId: sendernameId,
         toDate: ToDate,
         fromDate: FromDate,
         searchStr: filterText,
@@ -163,6 +165,9 @@ const TemplateList = () => {
     );
   };
 
+  const HandleSenderChange =(e) =>{
+    setsendernameId(e.target.value);
+  }
   const handlePageChange = async (page) => {
     // Update current page state in Redux
     dispatch(setCurrentPage(page));
@@ -172,6 +177,7 @@ const TemplateList = () => {
       fetchInteractiveTemplates({
         clientId: localStorage.getItem("clientId"),
         toDate: ToDate,
+        senderId: sendernameId,
         fromDate: FromDate,
         searchStr: filterText,
         pageNo: page,
@@ -184,6 +190,7 @@ const TemplateList = () => {
       fetchInteractiveTemplates({
         clientId: localStorage.getItem("clientId"),
         searchStr: filterText,
+        senderId: sendernameId,
         pageNo: currentPage,
         pageSize,
       })
@@ -204,6 +211,7 @@ const TemplateList = () => {
           clientId: localStorage.getItem("clientId"),
           toDate: ToDate,
           fromDate: FromDate,
+          senderId: sendernameId,
           searchStr: searchValue,
           pageNo: currentPage,
           pageSize,
@@ -223,6 +231,7 @@ const TemplateList = () => {
         clientId: localStorage.getItem("clientId"),
         toDate: ToDate,
         fromDate: FromDate,
+        senderId: sendernameId,
         searchStr: filterText,
         pageNo: currentPage,
         pageSize,
@@ -231,7 +240,7 @@ const TemplateList = () => {
     return () => {
       dispatch(clearInteractiveTemplateListState());
     };
-  }, [dispatch, ToDate, FromDate]);
+  }, [dispatch, ToDate, FromDate,sendernameId]);
   const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10
   const subHeaderComponentMemo = useMemo(() => {
@@ -243,6 +252,15 @@ const TemplateList = () => {
               label="Search"
               value={filterText}
               onChange={handleSearchString(setFilterText)}
+            />
+          </div>
+          <div className="flex flex-col text-start mb-1">
+          <label className="font-medium text-gray-700 text-sm mb-1">
+              Sender Names
+            </label>
+          <SendernameDropdown
+              name="senderId"
+              onChange={HandleSenderChange}
             />
           </div>
           <div className="flex flex-col text-start mb-1">

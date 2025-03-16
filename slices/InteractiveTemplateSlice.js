@@ -16,9 +16,9 @@ import {
 
 export const fetchInteractiveTemplates = createAsyncThunk(
   'template/interactiveTemplateList',
-  async ({clientId = localStorage.getItem("clientId"),fromDate,searchStr,toDate,pageNo,pageSize}, { rejectWithValue }) => {
+  async ({fromDate,searchStr,toDate,pageNo,pageSize, senderId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${INRERACTIVETEMPLATELIST}?${searchStr?`searchStr=${searchStr}`:''}&fromDate=${fromDate}&toDate=${toDate}&pageNo=${pageNo}&pageSize=${pageSize}`);
+      const response = await API.get(`${INRERACTIVETEMPLATELIST}?senderId=${senderId}${searchStr?`&searchStr=${searchStr}`:''}&fromDate=${fromDate}&toDate=${toDate}&pageNo=${pageNo}&pageSize=${pageSize}`);
       if (response?.status === 200) {
         return {
           interactiveTemplateList: response.data.result,
