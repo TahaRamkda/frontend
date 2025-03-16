@@ -1,19 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import {
-  Card,
-  CardBody,
-  CardHeader,
-  Col,
-  Input,
-  Label,
-  Alert,
-  Button,
-  Modal,
-  ModalBody,
-  ModalHeader,
-  Form,
-  FormGroup,
-  Row,
+  Alert
 } from "reactstrap";
 import { useRouter } from "next/navigation";
 import SweetAlert from "sweetalert2";
@@ -36,11 +23,13 @@ import Loader from "@/components/Layout/Loader";
 import SearchBar from '@/components/SearchBar/SearchComponent';
 import { toDate } from "date-fns";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
+import Updatetemplate from "../UpdateTemplate";
 const TemplateList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const [ToDate, settoDate] = useState("");
   const [FromDate, setfromDate] = useState("");
+  const [showupdatemodel,setshowupdatemodel] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const {
     interactiveTemplateList,
@@ -110,10 +99,15 @@ const TemplateList = () => {
     },
   ];
 
+  const handleClose = () => {
+    setshowupdatemodel(false);
+    setTemplateLoading(false);
+  };
+
   const handleDetailClick = (templates_Id) => {
     try {
       settemplateId(templates_Id);
-      router.push("/InteractiveTemplates/UpdateTemplate");
+      setshowupdatemodel(true);
     } catch (error) {
       alert(t("Failed to fetch Template details: ") + error.message);
     }
@@ -272,6 +266,10 @@ const TemplateList = () => {
 
   return (
     <App>
+      {showupdatemodel ? (
+        <Updatetemplate onclose={handleClose} />
+      ) : (
+        <>
       <div className="flex items-center">
         {(loading || TemplateLoading )&& <Loader />}
         <div className="mb-1">
@@ -338,6 +336,8 @@ const TemplateList = () => {
           }}
         />
       </div>
+      </>
+      )}
     </App>
   );
 };
