@@ -55,7 +55,7 @@ const CustomEditor = dynamic(
   () => import("../../../components/CustomEditor/CustomEditor"),
   { ssr: false }
 );
-const TemplateUpdatePage = () => {
+const TemplateUpdatePage = ({onclose}) => {
   const Template_Id = useRecoilValue(TemplateState);
   const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
   const router = useRouter();
@@ -63,9 +63,7 @@ const TemplateUpdatePage = () => {
   const dispatch = useDispatch();
   const [Loading, setLoading] = useState(true);
   const [actionbuttonvalues, setactionbuttonvalues] = useState([]);
-  
   const { template, loading, error } = useSelector((state) => state.templates);
-  
   const stripHtml = (input) => input.replace(/<[^>]*>/g, "");
   const [messagePreview, setMessagePreview] = useState({
     header: "",
@@ -315,10 +313,7 @@ const TemplateUpdatePage = () => {
       };
     });
   };
-  const handelCancel = () => {
-    setLoading(true);
-    router.push("/Templates/TemplatesList");
-  };
+ 
   // const handleSubmit = async (values) => {
   //   // let trimmedBodyContent = APIbodyContent.replace(/\*\*/g, "*").trimEnd();
   //   // let APIbodyContent = "**Latest**<sub>Text</sub>*Example*   "; // Example content
@@ -983,7 +978,7 @@ const TemplateUpdatePage = () => {
 
   
   return (
-    <App>
+    <>
       {(Loading || loading) && <Loader />}
       <Container fluid className="mt-0">
        
@@ -1547,7 +1542,7 @@ const TemplateUpdatePage = () => {
                     <div className="w-full flex justify-end gap-3">
                       <button type="button"
                         className="flex items-center gap-2 text-gray-700 hover:text-whie font-medium transition-all Btn-Regular-1 mt-4"
-                        onClick={handelCancel}
+                        onClick={onclose}
                       >
                         <HiArrowNarrowLeft style={{ fontSize: "15px" }} /> 
                         <span>Back</span>
@@ -1820,7 +1815,7 @@ const TemplateUpdatePage = () => {
         SenderId={selectedSenderId}
         existingData={actionbuttonvalues}
       />
-    </App>
+    </>
   );
 };
 

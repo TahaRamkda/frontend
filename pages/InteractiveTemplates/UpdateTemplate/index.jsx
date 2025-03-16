@@ -17,7 +17,7 @@ import {
   Alert,
 } from "reactstrap";
 //import ReactQuill from 'react-quill';
-import "react-quill/dist/quill.snow.css";
+//import "react-quill/dist/quill.snow.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { FaTimes } from "react-icons/fa";
@@ -48,13 +48,14 @@ import MonitorFormikContext from "@/components/monitorformikcontext";
 import TemplateCategoryDropdown from "@/components/Dropdowns/TemplateCategorydropdown";
 import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
 import { set } from "date-fns";
+import { on } from "winston-daily-rotate-file";
 const CustomEditor = dynamic(
   () => import("../../../components/CustomEditor/CustomEditor"),
   { ssr: false }
 );
-const InteractiveTemplateUpdate = () => {
+const InteractiveTemplateUpdate = ({onclose}) => {
   const Template_Id = useRecoilValue(TemplateState);
-  const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+  //const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
   const router = useRouter();
   const dispatch = useDispatch();
   const [Loading, setLoading] = useState(true);
@@ -305,7 +306,7 @@ const InteractiveTemplateUpdate = () => {
           text: "",
           icon: "success",
         });
-        router.push("/InteractiveTemplates/InteractiveList");
+       onSuccess();
       } else {
         showSweetAlert({
           title: "Failed",
@@ -1124,7 +1125,7 @@ const InteractiveTemplateUpdate = () => {
                       <button
                         type="button"
                         className="Btn-Regular-1 mt-4"
-                        onClick={handelCancel}
+                        onClick={onclose}
                       >
                         Cancel
                       </button>
