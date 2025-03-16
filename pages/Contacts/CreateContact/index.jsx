@@ -72,9 +72,9 @@ const ContactForm = ({ isVisible, onClose, onsuccess }) => {
       <Modal isOpen={isVisible} toggle={onClose} fade={false}>
 
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-2/5  relative">
+          <div className="bg-white p-6 rounded shadow-lg w-2/5   relative">
             <ModalHeader toggle={onClose}>Create Contact </ModalHeader>
-            <ModalBody>
+            <ModalBody className="max-h-[60vh] overflow-auto">
               <Formik
                 initialValues={{
                   groupId: "",

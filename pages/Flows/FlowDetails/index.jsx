@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { useRouter } from "next/router";
 import { useRecoilValue } from "recoil";
 import Loader from "@/components/Layout/Loader";
+import { BASE_URL } from "@/utils/apiConstants";
 import {
   Container,
   Row,
@@ -23,6 +24,10 @@ import {
   ListGroupItem,
 } from "reactstrap";
 import { Tabs, Tab } from "react-bootstrap";
+import {
+  fetchSendernameById,
+  clearSendernameState,
+} from "@/slices/sendernameSlice";
 import "bootstrap/dist/css/bootstrap.min.css";
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
@@ -47,6 +52,7 @@ const FlowPreview = ({
   flowData,
   currentScreenIndex,
   setCurrentScreenIndex,
+  senderNameData,
 }) => {
   const [answers, setAnswers] = useState([]);
   const [isSaved, setIsSaved] = useState(false); // Added to manage save message state
@@ -151,182 +157,242 @@ const FlowPreview = ({
   };
 
   return (
-    <Card
-      className="max-h-[80vh] overflow-auto border shadow-sm"
-      style={{ borderRadius: "10px", overflow: "hidden" }}
-    >
-      <CardBody className="p-4">
+    <div>
+      <div className="">
+        <h3 className="mb-2 " style={{ fontWeight: "600", color: "#333" }}>
+          Flow Preview
+        </h3>
+      </div>
+
+      <Card
+        className="max-h-[80vh] overflow-auto border shadow-sm"
+        style={{ borderRadius: "10px", overflow: "hidden" }}
+      >
         <CardTitle
-          className="mb-3"
-          style={{ fontSize: "1rem", color: "#656565" }}
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 10,
+            backgroundColor: "white",
+            borderBottom: "1px solid #e0e0e0",
+            padding: "10px 15px",
+          }}
         >
-          Preview - Screen {currentScreenIndex + 1} of{" "}
-          {flowData.flowScreens.length}
-        </CardTitle>
-        <h5 className="mb-4" style={{ fontSize: "1.5rem", fontWeight: "600" }}>
-          {currentScreen.title || "Untitled Screen"}
-        </h5>
-        {currentScreen.flowChildren.map((child, childIndex) => (
-          <FormGroup key={childIndex} className="mb-4">
-            {child.type !== QuestionTypes.TextHeading && (
-              <Label
-                className="mb-2"
-                style={{ fontSize: "1.1rem", fontWeight: "500", color: "#333" }}
-              >
-                <span style={{ fontWeight: "bold", marginRight: "8px" }}>
-                  {childIndex + 1}.
-                </span>
-                {child.text || "Untitled Question"}{" "}
-                {child.required && <span style={{ color: "red" }}>*</span>}
-              </Label>
-            )}
-            {child.type === QuestionTypes.TextInput && (
-              <Input
-                type="text"
-                value={answers[currentScreenIndex][childIndex] || ""}
-                onChange={(e) => {
-                  const newAnswers = [...answers];
-                  newAnswers[currentScreenIndex][childIndex] = e.target.value;
-                  setAnswers(newAnswers);
-                }}
-                className="rounded-pill"
-                style={{ padding: "10px 15px", borderColor: "#ced4da" }}
-              />
-            )}
-            {child.type === QuestionTypes.TextArea && (
-              <Input
-                type="textarea"
-                value={answers[currentScreenIndex][childIndex] || ""}
-                onChange={(e) => {
-                  const newAnswers = [...answers];
-                  newAnswers[currentScreenIndex][childIndex] = e.target.value;
-                  setAnswers(newAnswers);
-                }}
-                className="rounded"
-                style={{
-                  padding: "10px 15px",
-                  borderColor: "#ced4da",
-                  minHeight: "100px",
-                }}
-              />
-            )}
-            {child.type === QuestionTypes.RadioButtonsGroup &&
-              child.flowOptions.map((option, optionIndex) => (
-                <FormGroup check key={optionIndex} className="mb-2">
-                  <Input
-                    type="radio"
-                    name={`question_${childIndex}`}
-                    value={option.optionText}
-                    checked={
-                      answers[currentScreenIndex][childIndex] ===
-                      option.optionText
-                    }
-                    onChange={() => {
-                      const newAnswers = [...answers];
-                      newAnswers[currentScreenIndex][childIndex] =
-                        option.optionText;
-                      setAnswers(newAnswers);
+          <div>
+            {senderNameData && (
+              <div className="d-flex align-items-center">
+                {senderNameData.mediaPath && (
+                  <img
+                    src={`${BASE_URL}${senderNameData.mediaPath}`}
+                    alt="Sender Logo"
+                    className="rounded-circle me-2 img-fluid"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      objectFit: "cover",
                     }}
-                    style={{ marginRight: "10px" }}
                   />
-                  <Label check style={{ fontSize: "1rem", color: "#555" }}>
-                    {option.optionText}
-                  </Label>
-                </FormGroup>
-              ))}
-            {child.type === QuestionTypes.CheckboxGroup &&
-              child.flowOptions.map((option, optionIndex) => (
-                <FormGroup check key={optionIndex} className="mb-2">
-                  <Input
-                    type="checkbox"
-                    value={option.optionText}
-                    checked={
-                      answers[currentScreenIndex][childIndex]?.includes(
-                        option.optionText
-                      ) || false
-                    }
-                    onChange={(e) => {
-                      const newAnswers = [...answers];
-                      const currentValues =
-                        newAnswers[currentScreenIndex][childIndex] || [];
-                      if (e.target.checked) {
-                        newAnswers[currentScreenIndex][childIndex] = [
-                          ...currentValues,
-                          option.optionText,
-                        ];
-                      } else {
-                        newAnswers[currentScreenIndex][childIndex] =
-                          currentValues.filter(
-                            (val) => val !== option.optionText
-                          );
-                      }
-                      setAnswers(newAnswers);
-                    }}
-                    style={{ marginRight: "10px" }}
-                  />
-                  <Label check style={{ fontSize: "1rem", color: "#555" }}>
-                    {option.optionText}
-                  </Label>
-                </FormGroup>
-              ))}
-            {child.type === QuestionTypes.TextHeading && (
-              <div
-                style={{
-                  fontSize: "1.2rem",
-                  color: "#333",
-                  marginBottom: "10px",
-                }}
-              >
-                {child.text || "Untitled Heading"}
+                )}
+                <div>
+                  <div style={{ fontSize: "1rem", fontWeight: "500" }}>
+                    {senderNameData.senderName}
+                  </div>
+                  <div style={{ fontSize: "0.75rem", color: "#666" }}>
+                    {senderNameData.phoneNumber}
+                  </div>
+                </div>
               </div>
             )}
-          </FormGroup>
-        ))}
-        {isSaved && (
-          <div className="text-success text-center mb-3">
-            <HiCheck size={24} /> Flow saved successfully
           </div>
+        </CardTitle>
+
+        {isSaved ? (
+          <CardBody className="p-4 text-center">
+            <div className="text-success flex gap-3 justify-center ">
+              <HiCheck size={24} /> Flow saved successfully
+            </div>
+          </CardBody>
+        ) : (
+          <CardBody className="p-4">
+            <CardTitle
+              className="mb-3"
+              style={{ fontSize: "1rem", color: "#656565" }}
+            >
+              Preview - Screen {currentScreenIndex + 1} of{" "}
+              {flowData.flowScreens.length}
+            </CardTitle>
+            <h5
+              className="mb-4"
+              style={{ fontSize: "1.5rem", fontWeight: "600" }}
+            >
+              {currentScreen.title || "Untitled Screen"}
+            </h5>
+
+            {currentScreen.flowChildren.map((child, childIndex) => (
+              <FormGroup key={childIndex} className="mb-4">
+                {child.type !== QuestionTypes.TextHeading && (
+                  <Label
+                    className="mb-2"
+                    style={{
+                      fontSize: "1.1rem",
+                      fontWeight: "500",
+                      color: "#333",
+                    }}
+                  >
+                    <span style={{ fontWeight: "bold", marginRight: "8px" }}>
+                      {childIndex + 1}.
+                    </span>
+                    {child.text || "Untitled Question"}{" "}
+                    {child.required && <span style={{ color: "red" }}>*</span>}
+                  </Label>
+                )}
+                {child.type === QuestionTypes.TextInput && (
+                  <Input
+                    type="text"
+                    value={answers[currentScreenIndex][childIndex] || ""}
+                    onChange={(e) => {
+                      const newAnswers = [...answers];
+                      newAnswers[currentScreenIndex][childIndex] =
+                        e.target.value;
+                      setAnswers(newAnswers);
+                    }}
+                    className="rounded-pill"
+                    style={{ padding: "10px 15px", borderColor: "#ced4da" }}
+                  />
+                )}
+                {child.type === QuestionTypes.TextArea && (
+                  <Input
+                    type="textarea"
+                    value={answers[currentScreenIndex][childIndex] || ""}
+                    onChange={(e) => {
+                      const newAnswers = [...answers];
+                      newAnswers[currentScreenIndex][childIndex] =
+                        e.target.value;
+                      setAnswers(newAnswers);
+                    }}
+                    className="rounded"
+                    style={{
+                      padding: "10px 15px",
+                      borderColor: "#ced4da",
+                      minHeight: "100px",
+                    }}
+                  />
+                )}
+                {child.type === QuestionTypes.RadioButtonsGroup &&
+                  child.flowOptions.map((option, optionIndex) => (
+                    <FormGroup check key={optionIndex} className="mb-2">
+                      <Input
+                        type="radio"
+                        name={`question_${childIndex}`}
+                        value={option.optionText}
+                        checked={
+                          answers[currentScreenIndex][childIndex] ===
+                          option.optionText
+                        }
+                        onChange={() => {
+                          const newAnswers = [...answers];
+                          newAnswers[currentScreenIndex][childIndex] =
+                            option.optionText;
+                          setAnswers(newAnswers);
+                        }}
+                        style={{ marginRight: "10px" }}
+                      />
+                      <Label check style={{ fontSize: "1rem", color: "#555" }}>
+                        {option.optionText}
+                      </Label>
+                    </FormGroup>
+                  ))}
+                {child.type === QuestionTypes.CheckboxGroup &&
+                  child.flowOptions.map((option, optionIndex) => (
+                    <FormGroup check key={optionIndex} className="mb-2">
+                      <Input
+                        type="checkbox"
+                        value={option.optionText}
+                        checked={
+                          answers[currentScreenIndex][childIndex]?.includes(
+                            option.optionText
+                          ) || false
+                        }
+                        onChange={(e) => {
+                          const newAnswers = [...answers];
+                          const currentValues =
+                            newAnswers[currentScreenIndex][childIndex] || [];
+                          if (e.target.checked) {
+                            newAnswers[currentScreenIndex][childIndex] = [
+                              ...currentValues,
+                              option.optionText,
+                            ];
+                          } else {
+                            newAnswers[currentScreenIndex][childIndex] =
+                              currentValues.filter(
+                                (val) => val !== option.optionText
+                              );
+                          }
+                          setAnswers(newAnswers);
+                        }}
+                        style={{ marginRight: "10px" }}
+                      />
+                      <Label check style={{ fontSize: "1rem", color: "#555" }}>
+                        {option.optionText}
+                      </Label>
+                    </FormGroup>
+                  ))}
+                {child.type === QuestionTypes.TextHeading && (
+                  <div
+                    style={{
+                      fontSize: "1.2rem",
+                      color: "#333",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    {child.text || "Untitled Heading"}
+                  </div>
+                )}
+              </FormGroup>
+            ))}
+
+            <div className="d-flex justify-content-between mt-4">
+              {currentScreenIndex > 0 && (
+                <Button
+                  color="secondary"
+                  onClick={() => setCurrentScreenIndex(currentScreenIndex - 1)}
+                  className="uniform_btn"
+                  style={{
+                    backgroundColor: "#e0e0e0",
+                    border: "none",
+                    color: "white",
+                  }}
+                >
+                  Previous
+                </Button>
+              )}
+              <div className="flex-grow-1" />
+              {currentScreenIndex < flowData.flowScreens.length - 1 && (
+                <Button
+                  color="primary"
+                  onClick={() => setCurrentScreenIndex(currentScreenIndex + 1)}
+                  className="uniform_btn"
+                  style={{ backgroundColor: "#00a884", border: "none" }}
+                  disabled={!areRequiredQuestionsAnswered()}
+                >
+                  {currentScreen.screenButtonText || "Next"}
+                </Button>
+              )}
+              {currentScreenIndex === flowData.flowScreens.length - 1 && (
+                <Button
+                  color="primary"
+                  onClick={handlePreviewSave}
+                  className="uniform_btn"
+                  style={{ border: "none" }}
+                >
+                  Save
+                </Button>
+              )}
+            </div>
+          </CardBody>
         )}
-        <div className="d-flex justify-content-between mt-4">
-          {currentScreenIndex > 0 && (
-            <Button
-              color="secondary"
-              onClick={() => setCurrentScreenIndex(currentScreenIndex - 1)}
-              className="uniform_btn"
-              style={{
-                backgroundColor: "#e0e0e0",
-                border: "none",
-                color: "white",
-              }}
-            >
-              Previous
-            </Button>
-          )}
-          <div className="flex-grow-1" />
-          {currentScreenIndex < flowData.flowScreens.length - 1 && (
-            <Button
-              color="primary"
-              onClick={() => setCurrentScreenIndex(currentScreenIndex + 1)}
-              className="uniform_btn"
-              style={{ backgroundColor: "#00a884", border: "none" }}
-              disabled={!areRequiredQuestionsAnswered()}
-            >
-              {currentScreen.screenButtonText || "Next "}
-            </Button>
-          )}
-          {currentScreenIndex === flowData.flowScreens.length - 1 && (
-            <Button
-              color="primary"
-              onClick={handlePreviewSave}
-              className="uniform_btn"
-              style={{ border: "none" }}
-            >
-              Save
-            </Button>
-          )}
-        </div>
-      </CardBody>
-    </Card>
+      </Card>
+    </div>
   );
 };
 
@@ -334,6 +400,8 @@ const UpdateFlowPage = () => {
   const dispatch = useDispatch();
   const flowId = useRecoilValue(FlowState);
   const router = useRouter();
+  const [SendernamesData, setSendernamesData] = useState([]);
+
   const [flowData, setFlowData] = useState({
     senderId: "0",
     flowName: "",
@@ -343,6 +411,8 @@ const UpdateFlowPage = () => {
   });
   const [isLoading, setIsLoading] = useState(true); // Start as true since we're fetching data
   const [currentEditScreenIndex, setCurrentEditScreenIndex] = useState(0);
+  const [senderId, setSenderId] = useState(0);
+
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(null);
@@ -357,6 +427,7 @@ const UpdateFlowPage = () => {
             fetchFlowDetailsById({ id: flowId })
           ).unwrap();
           if (response) {
+            setSenderId(response.senderId);
             setFlowData(JSON.parse(JSON.stringify(response))); // Deep copy
           } else {
             showSweetAlert({
@@ -423,6 +494,31 @@ const UpdateFlowPage = () => {
       setCurrentScreenIndex(updatedScreens.length - 1);
     }
   };
+  useEffect(() => {
+    const fetchSenderName = async () => {
+      try {
+        const response = await dispatch(
+          fetchSendernameById({
+            senderId: senderId,
+            clientId: localStorage.getItem("clientId"),
+          })
+        ).unwrap();
+
+        // Set the data directly from the response
+        setSendernamesData(response.result);
+      } catch (error) {
+        console.error("Error fetching sender name:", error);
+        // Optionally set error state
+        setSendernamesData(null); // or handle error state differently
+      }
+    };
+    fetchSenderName();
+
+    // Cleanup function
+    return () => {
+      dispatch(clearSendernameState());
+    };
+  }, [dispatch, senderId]); // Added senderId to dependency array
 
   const addQuestion = () => {
     const newQuestion = {
@@ -509,8 +605,8 @@ const UpdateFlowPage = () => {
     setCurrentQuestion(updatedQuestion);
   };
 
-  const handleSenderChange = (e) => {
-    setIsLoading(true)
+  const handleSenderChange = async (e) => {
+    setIsLoading(true);
     const selectedSenderId = e.target.value;
     setFlowData({ ...flowData, senderId: selectedSenderId });
   };
@@ -523,7 +619,7 @@ const UpdateFlowPage = () => {
   const handlePublishToFBChange = () => {
     setFlowData({ ...flowData, publishToFB: !flowData.publishToFB });
   };
-  
+
   const handleSaveQuestion = () => {
     if (selectedQuestionIndex !== null && currentQuestion) {
       const updatedScreens = [...flowData.flowScreens];
@@ -537,11 +633,11 @@ const UpdateFlowPage = () => {
     }
   };
   const handleCancel = () => {
-    setIsLoading(true)
+    setIsLoading(true);
     router.push("/Flows/FlowList");
   };
   const handleSaveFlow = () => {
-    setIsLoading(true)
+    setIsLoading(true);
     const requestBody = {
       ...flowData,
       senderId: parseInt(flowData.senderId, 10),
@@ -555,8 +651,8 @@ const UpdateFlowPage = () => {
           text: "Flow updated successfully",
           icon: "success",
         });
-        handleCancel()
-        router.push('/Flows/FlowList');
+        handleCancel();
+        router.push("/Flows/FlowList");
       })
       .catch((error) => {
         console.error("Failed to update flow:", error);
@@ -615,15 +711,15 @@ const UpdateFlowPage = () => {
                       />
                     </FormGroup>
                     <FormGroup check>
-                    <Input
-                      type="checkbox"
-                      checked={flowData.publishToFB}
-                      onChange={handlePublishToFBChange}
-                      style={{ marginRight: "10px" }}
-                    />
-                    <Label check>Publish to Facebook</Label>
-                  </FormGroup>
-                     <div className="d-flex justify-content-between mb-3">
+                      <Input
+                        type="checkbox"
+                        checked={flowData.publishToFB}
+                        onChange={handlePublishToFBChange}
+                        style={{ marginRight: "10px" }}
+                      />
+                      <Label check>Publish to Facebook</Label>
+                    </FormGroup>
+                    <div className="d-flex justify-content-between mb-3">
                       <Button
                         color="primary"
                         onClick={addScreen}
@@ -737,6 +833,20 @@ const UpdateFlowPage = () => {
                   </Form>
                 </CardBody>
               </Card>
+              {!isLoading && (
+                <div className="flex gap-4 justify-end">
+                  <button onClick={handleCancel} className="Btn-Regular-1">
+                    Cancel
+                  </button>
+                  <Button
+                    onClick={handleSaveFlow}
+                    className="uniform_btn"
+                    style={{ alignSelf: "flex-start", border: "none" }}
+                  >
+                    Save Flow
+                  </Button>
+                </div>
+              )}
             </Col>
 
             {/* Right Side - Live Preview */}
@@ -749,165 +859,160 @@ const UpdateFlowPage = () => {
                 paddingRight: "15px",
               }}
             >
-              <div style={{ paddingTop: "20px" }}>
+              <div>
                 <FlowPreview
                   flowData={flowData}
                   currentScreenIndex={currentScreenIndex}
                   setCurrentScreenIndex={setCurrentScreenIndex}
+                  senderNameData={SendernamesData}
                 />
               </div>
             </Col>
           </Row>
         )}
-        {!isLoading && (
-          <div className="flex gap-4">
-            <button onClick={handleCancel} className="Btn-Regular-1">
-              Cancel
-            </button>
-            <Button
-              onClick={handleSaveFlow}
-              className="uniform_btn"
-              style={{ alignSelf: "flex-start", border: "none" }}
-            >
-              Save Flow
-            </Button>
-          </div>
-        )}
 
         {/* Updated Question Configuration Modal */}
-        <Modal isOpen={modalOpen} toggle={() => setModalOpen(false)} fade={false}>
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
-        <div className="bg-white p-6 rounded shadow-lg w-1/3 relative">
-          <ModalHeader toggle={() => setModalOpen(false)}>
-            {selectedQuestionIndex !== null ? "Edit Children" : "Add Children"}
-          </ModalHeader>
-          <ModalBody className="max-h-[50vh] overflow-auto">
-            {currentQuestion && (
-              <Form>
-                <FormGroup>
-                  <Label>Input Type</Label>
-                  <Input
-                    type="select"
-                    value={currentQuestion.type || ""}
-                    onChange={(e) =>
-                      updateQuestionField("type", parseInt(e.target.value))
-                    }
-                    className="rounded"
-                  >
-                    <option value="" disabled>
-                      Select Input Type
-                    </option>
-                    <option value={QuestionTypes.TextInput}>Text Input</option>
-                    <option value={QuestionTypes.TextArea}>Textarea</option>
-                    <option value={QuestionTypes.RadioButtonsGroup}>
-                      Radio Buttons
-                    </option>
-                    <option value={QuestionTypes.CheckboxGroup}>
-                      Checkbox Group
-                    </option>
-                    <option value={QuestionTypes.TextHeading}>
-                      Text Heading
-                    </option>
-                  </Input>
-                </FormGroup>
-                {currentQuestion.type &&
-                  (currentQuestion.type === QuestionTypes.TextHeading ? (
+        <Modal
+          isOpen={modalOpen}
+          toggle={() => setModalOpen(false)}
+          fade={false}
+        >
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-6 rounded shadow-lg w-1/3 relative">
+              <ModalHeader toggle={() => setModalOpen(false)}>
+                {selectedQuestionIndex !== null
+                  ? "Edit Children"
+                  : "Add Children"}
+              </ModalHeader>
+              <ModalBody className="max-h-[50vh] overflow-auto">
+                {currentQuestion && (
+                  <Form>
                     <FormGroup>
-                      <Label>Heading Text</Label>
+                      <Label>Input Type</Label>
                       <Input
-                        value={currentQuestion.text}
+                        type="select"
+                        value={currentQuestion.type || ""}
                         onChange={(e) =>
-                          updateQuestionField("text", e.target.value)
+                          updateQuestionField("type", parseInt(e.target.value))
                         }
                         className="rounded"
-                        placeholder="Enter heading text"
-                      />
+                      >
+                        <option value="" disabled>
+                          Select Input Type
+                        </option>
+                        <option value={QuestionTypes.TextInput}>
+                          Text Input
+                        </option>
+                        <option value={QuestionTypes.TextArea}>Textarea</option>
+                        <option value={QuestionTypes.RadioButtonsGroup}>
+                          Radio Buttons
+                        </option>
+                        <option value={QuestionTypes.CheckboxGroup}>
+                          Checkbox Group
+                        </option>
+                        <option value={QuestionTypes.TextHeading}>
+                          Text Heading
+                        </option>
+                      </Input>
                     </FormGroup>
-                  ) : (
-                    <>
-                      <FormGroup>
-                        <Label>Question Text</Label>
-                        <Input
-                          value={currentQuestion.text}
-                          onChange={(e) =>
-                            updateQuestionField("text", e.target.value)
-                          }
-                          className="rounded"
-                        />
-                      </FormGroup>
-                      <FormGroup check>
-                        <Input
-                          type="checkbox"
-                          checked={currentQuestion.required}
-                          onChange={() =>
-                            updateQuestionField(
-                              "required",
-                              !currentQuestion.required
-                            )
-                          }
-                        />
-                        <Label check>Required</Label>
-                      </FormGroup>
-                      {(currentQuestion.type ===
-                        QuestionTypes.RadioButtonsGroup ||
-                        currentQuestion.type ===
-                          QuestionTypes.CheckboxGroup) && (
+                    {currentQuestion.type &&
+                      (currentQuestion.type === QuestionTypes.TextHeading ? (
+                        <FormGroup>
+                          <Label>Heading Text</Label>
+                          <Input
+                            value={currentQuestion.text}
+                            onChange={(e) =>
+                              updateQuestionField("text", e.target.value)
+                            }
+                            className="rounded"
+                            placeholder="Enter heading text"
+                          />
+                        </FormGroup>
+                      ) : (
                         <>
-                          <Button
-                            size="sm"
-                            onClick={addOption}
-                            className="uniform_btn"
-                          >
-                            Add Option
-                          </Button>
-                          {currentQuestion.flowOptions.map(
-                            (option, optionIndex) => (
-                              <FormGroup
-                                key={optionIndex}
-                                className="mt-2 d-flex align-items-center"
+                          <FormGroup>
+                            <Label>Question Text</Label>
+                            <Input
+                              value={currentQuestion.text}
+                              onChange={(e) =>
+                                updateQuestionField("text", e.target.value)
+                              }
+                              className="rounded"
+                            />
+                          </FormGroup>
+                          <FormGroup check>
+                            <Input
+                              type="checkbox"
+                              checked={currentQuestion.required}
+                              onChange={() =>
+                                updateQuestionField(
+                                  "required",
+                                  !currentQuestion.required
+                                )
+                              }
+                            />
+                            <Label check>Required</Label>
+                          </FormGroup>
+                          {(currentQuestion.type ===
+                            QuestionTypes.RadioButtonsGroup ||
+                            currentQuestion.type ===
+                              QuestionTypes.CheckboxGroup) && (
+                            <>
+                              <Button
+                                size="sm"
+                                onClick={addOption}
+                                className="uniform_btn"
                               >
-                                <Input
-                                  value={option.optionText}
-                                  onChange={(e) =>
-                                    updateOptionField(
-                                      optionIndex,
-                                      "optionText",
-                                      e.target.value
-                                    )
-                                  }
-                                  placeholder={`Option ${optionIndex + 1}`}
-                                  style={{ flex: 1, marginRight: "10px" }}
-                                  className="rounded"
-                                />
-                                <Button
-                                  color="danger"
-                                  size="sm"
-                                  onClick={() => deleteOption(optionIndex)}
-                                  className="rounded-pill"
-                                >
-                                  <HiTrash />
-                                </Button>
-                              </FormGroup>
-                            )
+                                Add Option
+                              </Button>
+                              {currentQuestion.flowOptions.map(
+                                (option, optionIndex) => (
+                                  <FormGroup
+                                    key={optionIndex}
+                                    className="mt-2 d-flex align-items-center"
+                                  >
+                                    <Input
+                                      value={option.optionText}
+                                      onChange={(e) =>
+                                        updateOptionField(
+                                          optionIndex,
+                                          "optionText",
+                                          e.target.value
+                                        )
+                                      }
+                                      placeholder={`Option ${optionIndex + 1}`}
+                                      style={{ flex: 1, marginRight: "10px" }}
+                                      className="rounded"
+                                    />
+                                    <Button
+                                      color="danger"
+                                      size="sm"
+                                      onClick={() => deleteOption(optionIndex)}
+                                      className="rounded-pill"
+                                    >
+                                      <HiTrash />
+                                    </Button>
+                                  </FormGroup>
+                                )
+                              )}
+                            </>
                           )}
                         </>
-                      )}
-                    </>
-                  ))}
-              </Form>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              color="primary"
-              onClick={handleSaveQuestion}
-              className="uniform_btn"
-            >
-              Save
-            </Button>
-          </ModalFooter>
+                      ))}
+                  </Form>
+                )}
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  color="primary"
+                  onClick={handleSaveQuestion}
+                  className="uniform_btn"
+                >
+                  Save
+                </Button>
+              </ModalFooter>
+            </div>
           </div>
-        </div>
         </Modal>
       </Container>
     </App>

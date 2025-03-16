@@ -355,7 +355,7 @@ const InteractiveTemplateUpdate = ({onclose}) => {
   }, [selectedSenderId, dispatch]);
 
   useEffect(() => {
-    debugger
+    
     let updatedBody = bodyFinalContent;
 
     // Replace variables in the body content

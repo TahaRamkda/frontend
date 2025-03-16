@@ -137,7 +137,7 @@ const [Logo, setLogo] = useState('');
       name: "Action",
       cell: (row) => (
         <center>
-          <div className="flex gap-2">
+          <div className="flex-wrap gap-2">
             <button
               title="View Chat"
               className="uniform_icon_btn"
@@ -587,7 +587,7 @@ const [Logo, setLogo] = useState('');
       {modalOpen && (
         <Modal isOpen={true} toggle={HandleCloseInfoClick} fade={false}>
           <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center  z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-1/3 relative  overflow-y-auto">
+            <div className="bg-white p-6 rounded shadow-lg w-1/3  relative  overflow-y-auto">
               <ModalHeader toggle={HandleCloseInfoClick}>
                 Chat Logs
               </ModalHeader>
@@ -595,7 +595,7 @@ const [Logo, setLogo] = useState('');
               <ModalBody>
               {loading && <Loader/>}
               
-              <table className="min-w-full bg-white border border-gray-200 rounded-md ">
+              <table className="min-w-full max-w-full bg-white border border-gray-200 rounded-md ">
                 <thead>
                   <tr className="bg-gray-100 text-left text-sm uppercase text-gray-600">
                     <th className="py-2 px-4">Agent Full Name</th>

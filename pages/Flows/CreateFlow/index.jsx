@@ -12,6 +12,7 @@ import {
   Button,
   Card,
   CardBody,
+  CardHeader,
   CardTitle,
   Modal,
   ModalHeader,
@@ -21,7 +22,9 @@ import {
   ListGroupItem,
 } from "reactstrap";
 import { Tabs, Tab } from "react-bootstrap";
+import { BASE_URL } from "@/utils/apiConstants";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { fetchSendernameById , clearSendernameState } from "@/slices/sendernameSlice";
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
 import { createFlows } from "@/slices/FlowsSlice";
@@ -45,6 +48,7 @@ const FlowPreview = ({
   flowData,
   currentScreenIndex,
   setCurrentScreenIndex,
+  senderNameData
 }) => {
   const [answers, setAnswers] = useState(() =>
     flowData.flowScreens.map((screen) =>
@@ -129,10 +133,68 @@ const FlowPreview = ({
   };
 
   return (
+    <div>
+      <div className="">
+          <h3
+            className="mb-2 "
+            style={{  fontWeight: "600", color: "#333" }}
+          >
+            Flow Preview
+          </h3>
+          
+        </div>
     <Card
       className="max-h-[80vh] overflow-auto border shadow-sm"
       style={{ borderRadius: "10px", overflow: "hidden" }}
     >
+      <CardTitle
+      style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 10,
+        backgroundColor: "white",
+        borderBottom: "1px solid #e0e0e0",
+        padding: "10px 15px",
+      }}>
+      
+
+        
+       
+        <div>
+        {senderNameData && (
+            <div className="d-flex align-items-center">
+              {senderNameData.mediaPath && (
+                <img
+                  src={`${BASE_URL}${senderNameData.mediaPath}`}
+                  alt="Sender Logo"
+                  className="rounded-circle me-2 img-fluid"
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    objectFit: "cover",
+                  }}
+                />
+              )}
+              <div>
+                <div style={{ fontSize: "1rem", fontWeight: "500" }}>
+                  {senderNameData.senderName}
+                </div>
+                <div style={{ fontSize: "0.75rem", color: "#666" }}>
+                  {senderNameData.phoneNumber}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      
+      </CardTitle>
+      {isSaved ? (
+         <CardBody className=" text-center">
+         <div className="text-success flex gap-3 justify-center ">
+           <HiCheck size={24} /> Flow saved successfully
+         </div>
+       </CardBody>
+     ) : (
       <CardBody className="p-4">
         <CardTitle
           className="mb-3"
@@ -304,7 +366,9 @@ const FlowPreview = ({
           )}
         </div>
       </CardBody>
+      )}
     </Card>
+    </div>
   );
 };
 
@@ -372,6 +436,7 @@ const validateFlowData = (flowData) => {
 const CreateFlowPage = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const [SendernamesData, setSendernamesData] = useState([]);
   const [flowData, setFlowData] = useState({
     senderId: "0",
     flowName: "",
@@ -512,9 +577,32 @@ const CreateFlowPage = () => {
     setCurrentQuestion(updatedQuestion);
   };
 
-  const handleSenderChange = (e) => {
+  const handleSenderChange = async(e) => {
     const selectedSenderId = e.target.value;
     setFlowData({ ...flowData, senderId: selectedSenderId });
+    const senderId = e.target.value;
+    console.log("Selected Sender ID:", senderId);
+    // Clear sender name state before fetching new data
+    dispatch(clearSendernameState());
+    setSendernamesData(null); // Reset local state
+
+    try {
+      const response = await dispatch(
+        fetchSendernameById({
+          senderId: senderId,
+          clientId: localStorage.getItem("clientId"),
+        })
+      ).unwrap();
+
+      if (response) {
+        console.log("Fetched Sender Data:", response.result); // Debugging
+        setSendernamesData(response.result);
+      } else {
+        console.error("Failed to fetch details");
+      }
+    } catch (error) {
+      console.error("Error fetching sender details:", error);
+    } 
   };
 
   const handleLanguageChange = (e) => {
@@ -776,22 +864,22 @@ const CreateFlowPage = () => {
                 </Form>
               </CardBody>
             </Card>
-            <div className="flex gap-4">
-              <button onClick={handleCancel} className="Btn-Regular-1">
-                Cancel
-              </button>
-              <Button
-                onClick={handleSaveFlow}
-                className="uniform_btn"
-                style={{
-                  alignSelf: "flex-start",
-                  backgroundColor: "#00a884",
-                  border: "none",
-                }}
-              >
-                Save Flow
-              </Button>
-            </div>
+            <div className="flex gap-4 justify-end">
+          <button onClick={handleCancel} className="Btn-Regular-1">
+            Cancel
+          </button>
+          <Button
+            onClick={handleSaveFlow}
+            className="uniform_btn"
+            style={{
+              alignSelf: "flex-start",
+              backgroundColor: "#00a884",
+              border: "none",
+            }}
+          >
+            Save Flow
+          </Button>
+        </div>
           </Col>
           <Col
             md={5}
@@ -802,11 +890,12 @@ const CreateFlowPage = () => {
               paddingRight: "15px",
             }}
           >
-            <div style={{ paddingTop: "20px" }}>
+            <div >
               <FlowPreview
                 flowData={flowData}
                 currentScreenIndex={currentScreenIndex}
                 setCurrentScreenIndex={setCurrentScreenIndex}
+                senderNameData={SendernamesData}
               />
             </div>
           </Col>
