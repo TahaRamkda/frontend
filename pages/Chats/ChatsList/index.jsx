@@ -18,24 +18,16 @@ import loggerdetails from "@/components/logger";
 import AgentStatusDropdown from "@/components/Dropdowns/AgentStatusDropdown";
 import { getAgentConversations ,getAgentMessages,addConversation, addMessageToConversation ,removeConversation , selectExpiredConversations ,checkForExpiredConversations ,setAgentstatus} from "@/slices/ChatBridgeSlice";
 import UserBadge from "@/public/images/User.jpg";
-import Link from "next/link";
-import { MdOutlineTimer } from "react-icons/md";
 import { AiOutlineHourglass } from "react-icons/ai";
 import {
   Card,
   Col,
   Input,
-  InputGroup,
-  InputGroupText,
-  Nav,
-  NavItem,
   TabContent,
   TabPane,
   Container,
   Row,
   Button,
-  CardHeader,
-  Modal,
 } from "reactstrap";
 import {
   fetchConversationList,
@@ -61,13 +53,7 @@ import {
 } from "@/utils/constants";
 
 import {
-  HiZoomIn,
-  HiZoomOut,
   HiLogout,
-  HiMoon,
-  HiSun,
-  HiMenu,
-  HiShieldExclamation,
 } from "react-icons/hi";
 import { sendPushNotification } from "@/components/SendPushNotification";
 import {AppId} from "@/utils/constants";
@@ -119,7 +105,6 @@ const ChatPage = () => {
   const scrollContainerRef = useRef(null);
   const messagesEndRef = useRef(null);
   const timersRef = useRef({});
-  const [pageNo, setPageNo] = useState(1);
   const [unrepliedChats, setUnrepliedChats] = useState([]);
   const [templateDetails, setTemplateDetails] = useState([]);
   const [heartbeatAttempts, setheartbeatAttempts] = useState(0);
@@ -142,7 +127,7 @@ const ChatPage = () => {
       // Dispatch the thunk and unwrap the result to get the actual payload
       const response = await dispatch(setAgentstatus({ agentId: UserId, statusId: StatusId })).unwrap();
        if(response.success){
-        loggerdetails(logger, `agent status updated to ${StatusId} `, {
+        await loggerdetails(logger, `agent status updated to ${StatusId} `, {
           agentId: UserId,
           type: 5,
         });
@@ -231,9 +216,8 @@ const ChatPage = () => {
 
   }, []);
 
-  const handleTemplateSend = (details) => {
-    debugger
-    loggerdetails(logger, `agent sent template :`, {
+  const handleTemplateSend = async (details) => {
+   await loggerdetails(logger, `agent sent template :`, {
       Obj : details,
       conversationId: details.ChatId,
       agentId: UserId,
@@ -266,13 +250,13 @@ const ChatPage = () => {
           debugger
           const response = await dispatch(setAgentstatus({ agentId: UserId, statusId: "0" })).unwrap();
           if (response.success) {
-            loggerdetails(logger, `Agent with ID:${UserId} logged out`, {
+           await loggerdetails(logger, `Agent with ID:${UserId} logged out`, {
              agentId: UserId,
              type: 5,
             })
             const optedOut = await oneSignalService.optOut();
             if (!optedOut) {
-              logger.warn("Failed to opt-out from OneSignal notifications.");
+              console.warn("Failed to opt-out from OneSignal notifications.");
             }         
             //logger.info("Received new message detail ADSFSD:",  extra={     "user_id": 5,response  } )
             // Remove specific session-related items instead of clearing everything
@@ -291,7 +275,7 @@ const ChatPage = () => {
             text: "An error occurred during logout. Please try again.",
             icon: "error",
           });
-          loggerdetails(logger, `error while logging out : ${error}`, {
+        await  loggerdetails(logger, `error while logging out : ${error}`, {
             agentId: UserId,
            })
         }
@@ -312,7 +296,7 @@ const ChatPage = () => {
       // Initialize OneSignal
       const initialized = await oneSignalService.initializeOneSignal();
       if (!initialized) {
-        logger.error("Failed to initialize OneSignal.");
+        console.error("Failed to initialize OneSignal.");
         return;
       }
 
@@ -321,7 +305,7 @@ const ChatPage = () => {
       // Login with user ID
       const loggedIn = await oneSignalService.login(userId);
       if (!loggedIn) {
-        logger.error("Failed to log in to OneSignal.");
+        console.error("Failed to log in to OneSignal.");
         return;
       }
 
@@ -330,14 +314,14 @@ const ChatPage = () => {
       if (!isSubscribed) {
         const prompted = await oneSignalService.promptPush();
         if (!prompted) {
-          logger.warn("Failed to prompt for push notifications.");
+          console.warn("Failed to prompt for push notifications.");
         }
       }
 
       // Opt-in to push notifications
       const optedIn = await oneSignalService.optIn();
       if (!optedIn) {
-        logger.warn("Failed to opt-in to push notifications.");
+        console.warn("Failed to opt-in to push notifications.");
       }
     };
 
@@ -411,21 +395,7 @@ const ChatPage = () => {
     }
   }, [conversations]);
 
-  //called each time to get conversation messages
-  // const HandleConversationDetail = async (id) => {
-  //   setChatsloading(true);
-  //   dispatch(resetMessages());
-  //   setActiveChat(id); // Update Activechat state
-  //   const ClientId = localStorage.getItem("clientId");
-  //   if (ClientId && id) {
-  //     await dispatch(
-  //       GetConversationMessage(id)
-  //     );
-  //   }
-  //   return () => {
-  //     dispatch(resetMessages());
-  //   };
-  // };
+ 
  
   const handleFetchMessages = (conversationId) => {
     setActiveChat(conversationId);
@@ -458,54 +428,14 @@ const ChatPage = () => {
     agentChatRef.current = AgentConversation;
   }, [AgentConversation]);
 
-  // //triggered each time when messages changes and assign to local state
-  // useEffect(() => {
-  //   if (messages && messages.length > 0) {
-  //     setChatsloading(false);
-  //     setChatMessages(messages);
-  //     setActiveSenderId(messages[0].senderId);
-  //   }
-  // }, [messages]);-
+
 
   //Add emoji function
   const addEmoji = (emoji) => {
     setMessageInput((prevMessage) => prevMessage + emoji);
   };
 
-  // const handleScroll = () => {
-  //   if (!hasMore || loading) return;
-
-  //   const container = scrollContainerRef.current;
-  //   const buffer = 10; // Trigger API call 100px before reaching the top
-
-  //   // Detect upward scrolling and proximity to the top
-  //   const currentScrollTop = container.scrollTop;
-  //   if (
-  //     currentScrollTop < lastScrollTop.current && // Scrolling up
-  //     currentScrollTop <= buffer // Within 100px of the top
-  //   ) {
-  //     // Fetch older chats when scrolling up near the top
-  //     dispatch(
-  //       fetchConversationMessage({
-  //         clientId: localStorage.getItem("clientId"),
-  //         ChatId: Activechat,
-  //         pageNo: currentPage + 1,
-  //       })
-  //     );
-  //   }
-
-  //   // Update last scroll position
-  //   lastScrollTop.current = currentScrollTop;
-  // };
-
-  // useEffect(() => {
-  //   if (Activechat !== 0) {
-  //     const container = scrollContainerRef.current;
-  //     container.addEventListener("scroll", handleScroll);
-  //     return () => container.removeEventListener("scroll", handleScroll);
-  //   }
-  // }, [currentPage, hasMore,loading, Activechat]);
-
+ 
   const handleImageclose = () => {
     setMediaFile(null);
     setPreviewUrl(null);
@@ -540,7 +470,7 @@ const ChatPage = () => {
         createdDate: new Date().toLocaleString(),
       };
       //logger.info("Agent sent message:", newMessage);
-      loggerdetails(logger, "Agent sent message:", {
+       await loggerdetails(logger, "Agent sent message:", {
         Obj : newMessage,
         conversationId: Activechat,
         agentId: UserId,
@@ -560,34 +490,7 @@ const ChatPage = () => {
       setFileType(null); //get the file type
       //clearTimer(Activechat);
       removeUnrepliedMark(Activechat);
-      // Shift the active conversation to the top of the list and reset unread count
-      // const matchingConversationIndex = agentChatRef.current.findIndex(
-      //   (conversation) => conversation.id === Activechat
-      // );
-
-      // if (matchingConversationIndex !== -1) {
-      //   const updatedConversations = [...agentChatRef.current];
-      //   const matchingConversation =
-      //     updatedConversations[matchingConversationIndex];
-
-      //   // Remove from current position
-      //   updatedConversations.splice(matchingConversationIndex, 1);
-
-      //   // Add to the top with updated lastMessageText and reset unreadCount
-      //   updatedConversations.unshift({
-      //     ...matchingConversation,
-      //     lastMessageText: messageInput.trim(),
-      //     unreadCount: 0, // Reset unread count for sent messages
-      //   });
-
-      //   agentChatRef.current = updatedConversations;
-      //   setAgentConversation(updatedConversations);
-      // } else {
-      //   console.warn(
-      //     "No matching conversation found for Activechat:",
-      //     Activechat
-      //   );
-      // }
+     
     } catch (error) {
       logger.error("Error sending message:", error);
       toast.error("Failed to send message. Please try again.");
@@ -659,8 +562,8 @@ const ChatPage = () => {
     connectionRef.current = newConnection;
 
     // Message received handler
-    const handleIncomingMessage = (message) => {
-      loggerdetails(logger, "Agent received message:", {
+    const handleIncomingMessage = async (message) => {
+      await loggerdetails(logger, "Agent received message:", {
         Obj : message,
         conversationId: message.conversationId,
         agentId: UserId,
@@ -672,56 +575,12 @@ const ChatPage = () => {
           console.error("Failed to play notification sound:", err)
         );
         dispatch(addMessageToConversation(message));
-      // const matchingConversationIndex = agentChatRef.current.findIndex(
-      //   (conversation) => conversation.id === message.conversationId
-      // );
-
-      // if (matchingConversationIndex !== -1) {
-      //   const updatedConversations = [...agentChatRef.current];
-      //   const matchingConversation =
-      //     updatedConversations[matchingConversationIndex];
-
-      //   if ((matchingConversation.unreadCount || 0) <= 0) {
-      //     startTimer(message);
-      //   }
-
-      //   updatedConversations[matchingConversationIndex] = {
-      //     ...matchingConversation,
-      //     lastMessageText: message.messageContent,
-      //     updatedDate: message.createdDate,
-      //     unreadCount: (matchingConversation.unreadCount || 0) + 1,
-      //   };
-
-      //   agentChatRef.current = updatedConversations;
-      //   setAgentConversation(updatedConversations);
-      // } else {
-      //   console.warn(
-      //     "No matching conversation found for message.conversationId:",
-      //     message.conversationId
-      //   );
-      // }
-
-      // if (message.conversationId === activeChatRef.current) {
-      //   setChatMessages((prevMessages) => [message, ...prevMessages]);
-      //   setTempMessages([]);
-      // } else {
-      //   if (matchingConversationIndex !== -1) {
-      //     const updatedConversations = [...agentChatRef.current];
-      //     const matchingConversation =
-      //       updatedConversations[matchingConversationIndex];
-
-      //     updatedConversations.splice(matchingConversationIndex, 1);
-      //     updatedConversations.unshift(matchingConversation);
-
-      //     agentChatRef.current = updatedConversations;
-      //     setAgentConversation(updatedConversations);
-      //   }
-      // }
+     
     };
 
     // Handles conversation assignment
-    const handleConversationAssigned = (notification) => {
-      loggerdetails(logger, "New Conversation assigned to agent:", {
+    const handleConversationAssigned = async(notification) => {
+     await loggerdetails(logger, "New Conversation assigned to agent:", {
         Obj : notification,
         conversationId: notification.id,
         agentId: userId,
@@ -740,37 +599,13 @@ const ChatPage = () => {
         })
       );
       dispatch(addConversation(notification));
-      //startTimer(notification);
-
-      // const matchingConversationIndex = agentChatRef.current.findIndex(
-      //   (conversation) => conversation.id === notification.id
-      // );
-
-      // if (matchingConversationIndex !== -1) {
-      //   const updatedConversations = [...agentChatRef.current];
-      //   updatedConversations[matchingConversationIndex] = {
-      //     ...updatedConversations[matchingConversationIndex],
-      //     lastMessageText: notification.lastMessageText,
-      //     unreadCount:
-      //       (updatedConversations[matchingConversationIndex].unreadCount || 0) +
-      //       1,
-      //   };
-
-      //   agentChatRef.current = updatedConversations;
-      //   setAgentConversation(updatedConversations);
-      // } else {
-      //   const newNotification = { ...notification, unreadCount: 1 };
-      //   setAgentConversation((prevMessages) => [
-      //     newNotification,
-      //     ...prevMessages,
-      //   ]);
-      // }
+     
     };
 
     // Handles conversation unassignment
-    const handleConversationUnAssigned = (chatId) => {
+    const handleConversationUnAssigned = async (chatId) => {
       
-      loggerdetails(logger, "Conversation unassigned for chat Id:", {
+      await loggerdetails(logger, "Conversation unassigned for chat Id:", {
         conversationId: chatId,
         agentId: userId,
         type: 3,
@@ -798,9 +633,7 @@ const ChatPage = () => {
         setActiveChat(0);
       }
 
-      //clearTimer(chatId);
-      // agentChatRef.current = updatedConversations;
-      // setAgentConversation(updatedConversations);
+     
     };
 
     const handleHeartbeatAcknowledged = (info) => {
@@ -829,19 +662,21 @@ const ChatPage = () => {
     
 
       newConnection.onreconnecting((error) => {
-        logger.info("Reconnecting SignalR...", error);
+        loggerdetails(logger, "Reconnecting signalR:", {
+         Obj : error
+        })
         setErrordisconnect(true);
       });
     
       newConnection.onreconnected(() => {
-        logger.info("SignalR reconnected successfully");
+        loggerdetails(logger, " signalR reconnected succesfully")
         dispatch(getAgentConversations({ AgentId: userId }));
         setErrordisconnect(false);
         setheartbeatAttempts(0);
       });
     
       newConnection.onclose((error) => {
-        logger.info("SignalR connection closed:", error);
+        loggerdetails(logger, "SingalR connection closed:")
         setErrordisconnect(true);
       });
     // Start connection
@@ -857,7 +692,6 @@ const ChatPage = () => {
           })
           .catch((err) => {
             setheartbeatAttempts((prev) => prev + 1);
-            logger.error(`Heartbeat failed (${heartbeatAttempts}):`, err);
           });
       }
     }, HEARTBEAT_CHECK_INTERVAL);
@@ -886,55 +720,7 @@ const ChatPage = () => {
     }
   }, [heartbeatAttempts]);
 
-  // const startTimer = (messages) => {
-  //   // Clear existing timer if any
-  //   if (timersRef.current[messages.id]) {
-  //     clearTimeout(timersRef.current[messages.id]);
-  //   }
-
-  //   // Set a new 5-minute timer
-  //   timersRef.current[messages.id] = setTimeout(() => {
-  //     handleTimerExpiry(messages);
-  //   }, NOTIFICATION_WARNING_INTERVAL); // 5 minutes
-  // };
-
-  // const handleTimerExpiry = (message) => {
-  //   // toast.error(
-  //   //   `Reply pending for : ${message.phoneNumber} for more than 5 mins`
-  //   // );
-
-  //   // Play alert sound
-  //   // audioRef.current
-  //   //   ?.play()
-  //   //   .catch((err) =>
-  //   //     console.error("Failed to play alert sound on timer expiry:", err)
-  //   //   );
-
-  //   // Trigger another 5-minute timer if no action is taken
-  //   if (!isMessageReplied(message.id)) {
-  //     console.warn(`No reply for ID: ${message.id}, rescheduling timer.`);
-  //     markChatAsUnreplied(message.id);
-  //     startTimer(message); // Restart the timer
-  //   } else {
-  //     console.info(`Reply received for ID: ${message.id}, stopping timer.`);
-  //     clearTimer(message.id); // Stop the timer if replied
-  //   }
-  // };
-
-  // const clearTimer = (id) => {
-  //   if (timersRef.current[id]) {
-  //     clearTimeout(timersRef.current[id]);
-  //     delete timersRef.current[id];
-  //   }
-  // };
-
-  // Function to check if the message was replied
-  // const isMessageReplied = (id) => {
-  //   // Example condition: Check active chat messages or a specific state
-  //   return (
-  //     activeChatRef.current === id && chatMessages.some((msg) => msg.reply)
-  //   );
-  // };
+ 
 
   const markChatAsUnreplied = async (id) => {
     setUnrepliedChats((prev) => [...prev, id]);
@@ -945,10 +731,10 @@ const ChatPage = () => {
     setUnrepliedChats((prev) => prev.filter((chatId) => chatId !== id));
   };
 
-  const handleReload = () => {
-    // Reload the current page
-    window.location.reload();
-  };
+  // const handleReload = () => {
+  //   // Reload the current page
+  //   window.location.reload();
+  // };
 
   const handleDownload = (mediapath) => {
     const imageUrl = `${BASE_URL}${mediapath}`;
@@ -1486,7 +1272,7 @@ const ChatPage = () => {
                                   className="ml-2 text-gray-500 text-xs"
                                   style={{ whiteSpace: "nowrap" }}
                                 >
-                                  {extractTime(message.createdDate).slice(0, 5)}
+                                  {extractTime(message.createdDate)}
                                 </span>
                               </div>
                               {message.buttonJson &&
