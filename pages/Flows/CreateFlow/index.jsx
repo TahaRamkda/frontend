@@ -33,7 +33,7 @@ import { toast } from "react-toastify";
 import { HiTrash, HiCheck } from "react-icons/hi";
 import { is } from "immutable";
 import Loader from "@/components/Layout/Loader";
-
+import showSweetAlert from "@/components/Sweetalert";
 // Enum for question types
 const QuestionTypes = {
   TextInput: 1,
@@ -43,7 +43,7 @@ const QuestionTypes = {
   TextHeading: 5,
 };
 
-// FlowPreview component (unchanged)
+// FlowPreview component
 const FlowPreview = ({
   flowData,
   currentScreenIndex,
@@ -93,6 +93,7 @@ const FlowPreview = ({
       });
       return newAnswers;
     });
+    setIsLoading(false); // Reset loading after update
   }, [flowData]);
 
   if (
@@ -394,6 +395,10 @@ const validateFlowData = (flowData) => {
       errors.push(`Screen ${index + 1}: Title is required`);
     }
     
+    if (!screen.screenButtonText.trim()) {
+      errors.push(`Screen ${index + 1}: Button text is required`);
+    }
+
     if (screen.flowChildren.length === 0) {
       errors.push(`Screen ${index + 1}: At least one control is required`);
     }
@@ -435,11 +440,12 @@ const CreateFlowPage = () => {
   const [flowData, setFlowData] = useState({
     senderId: "0",
     flowName: "",
+    ModuleId : 4,
     flowLanguage: "",
     publishToFB: false,
     flowScreens: [],
   });
-  const [isLoading, setIsLoading] = useState(false); // Added centralized loading state
+  const [isLoading, setIsLoading] = useState(false);
   const [currentEditScreenIndex, setCurrentEditScreenIndex] = useState(0);
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
@@ -460,9 +466,9 @@ const CreateFlowPage = () => {
     }
     
     const newScreen = {
-      name: `screen_${flowData.flowScreens.length + 1}`,
+      name: `screen`,
       title: "",
-      screenButtonText: "Next",
+      screenButtonText: "", // Changed default to empty string to enforce validation
       flowChildren: [],
     };
     setFlowData({
@@ -530,7 +536,7 @@ const CreateFlowPage = () => {
       updatedQuestion.type === QuestionTypes.CheckboxGroup
     ) {
       updatedQuestion.flowOptions.push({
-        optionId: `option_${Date.now()}`,
+        //optionId: `option_${Date.now()}`,
         optionText: "",
       });
       setCurrentQuestion(updatedQuestion);
@@ -645,26 +651,54 @@ const CreateFlowPage = () => {
   };
 
   const handleSaveFlow = () => {
-    setIsLoading(true); // Show loader when API call starts
+    debugger
+    const errors = validateFlowData(flowData);
+  
+    if (errors.length > 0) {
+      errors.forEach(error => toast.error(error));
+      return;
+    }
+  
+    setIsLoading(true);
     const requestBody = {
       ...flowData,
       senderId: parseInt(flowData.senderId, 10),
     };
-    
+  
     dispatch(createFlows(requestBody))
       .unwrap()
-      .then(() => {
-        toast.success("Flow Created successfully");
-        router.push('/Flows/FlowList');
+      .then((response) => {
+        if (response?.result?.status === 1) {
+          showSweetAlert({
+            title: response?.message || "Flow created successfully",
+            text: "",
+            icon: "success",
+          });
+          router.push('/Flows/FlowList');
+        } else {
+          showSweetAlert({
+            title: response?.message || "An error occurred",
+            text: "",
+            icon: "error",
+          });
+        }
       })
       .catch((error) => {
-        toast.error(error.message || "An error occurred");
+        showSweetAlert({
+          title: error?.message || "An unexpected error occurred",
+          text: "",
+          icon: "error",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
+  
 
   return (
     <App>
-      {isLoading && <Loader />} {/* Fixed typo and made it consistent */}
+      {isLoading && <Loader />}
       <Container
         fluid
         className="py-4 create-flow-container"
@@ -813,13 +847,14 @@ const CreateFlowPage = () => {
                             )}
                           </ListGroup>
                           <FormGroup className="mt-3">
-                            <Label>Button Text</Label>
+                            <Label>Button Text *</Label> {/* Added asterisk to indicate required */}
                             <Input
                               value={flowData.flowScreens[currentEditScreenIndex].screenButtonText}
                               onChange={(e) =>
                                 updateScreenField("screenButtonText", e.target.value)
                               }
                               className="rounded"
+                              required
                             />
                           </FormGroup>
                         </CardBody>
@@ -863,10 +898,8 @@ const CreateFlowPage = () => {
                 senderNameData={SendernamesData}
               />
             </div>
-
           </Col>
         </Row>
-        
 
         <Modal
           isOpen={modalOpen}
