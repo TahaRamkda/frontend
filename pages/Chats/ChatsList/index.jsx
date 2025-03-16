@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import oneSignalService from "@/components/OneSignalService";
 import OneSignal from "react-onesignal";
 //import { ClipboardCopy } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -76,7 +77,6 @@ const ChatPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [tempMessages, setTempMessages] = useState([]);
   const dispatch = useDispatch();
-  
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { conversations } = useSelector(state => state.bridge);
@@ -270,7 +270,10 @@ const ChatPage = () => {
              agentId: UserId,
              type: 5,
             })
-             window.OneSignal.User.PushSubscription.optOut();
+            const optedOut = await oneSignalService.optOut();
+            if (!optedOut) {
+              logger.warn("Failed to opt-out from OneSignal notifications.");
+            }         
             //logger.info("Received new message detail ADSFSD:",  extra={     "user_id": 5,response  } )
             // Remove specific session-related items instead of clearing everything
             localStorage.clear();
@@ -297,49 +300,50 @@ const ChatPage = () => {
   };
 
  
-   //onesignal hook
-   useEffect(() => {
-     
-     const initializeOneSignal = async () => {
-       if (typeof window !== "undefined" && window.OneSignal) {
-         if (window.OneSignal.isInitialized) {
-           console.log("OneSignal is already initialized. Skipping initialization.");
-           return;
-         }
- 
-         try {
-           await window.OneSignal.init({
-             appId: AppId,
-             notifyButton: { enable: true },
-             allowLocalhostAsSecureOrigin: true,
-           });
- 
-           window.OneSignal.isInitialized = true;
-           setIsOneSignalLoaded(true);
- 
-           const externalUserId = localStorage.getItem("userId");
-           if (externalUserId) {
-             await window.OneSignal.login(externalUserId);
-             await window.OneSignal.User.PushSubscriptions.optIn();
-             console.log("External User ID set to:", externalUserId);
-           }
- 
-           // Check if user is already subscribed
-           const isSubscribed = await window.OneSignal.isPushNotificationsEnabled();
-           if (!isSubscribed) {
-             console.log("User is not subscribed. Prompting for push notifications...");
-             window.OneSignal.Slidedown.promptPush();
-           } else {
-             console.log("User is already subscribed.");
-           }
-         } catch (error) {
-           console.error("Error initializing OneSignal:", error);
-         }
-       }
-     };
- 
-     initializeOneSignal();
-   }, []);
+  // OneSignal initialization and setup
+  useEffect(() => {
+    const setupOneSignal = async () => {
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        console.warn("No userId found in localStorage for OneSignal setup.");
+        return;
+      }
+
+      // Initialize OneSignal
+      const initialized = await oneSignalService.initializeOneSignal();
+      if (!initialized) {
+        logger.error("Failed to initialize OneSignal.");
+        return;
+      }
+
+      setIsOneSignalLoaded(true);
+
+      // Login with user ID
+      const loggedIn = await oneSignalService.login(userId);
+      if (!loggedIn) {
+        logger.error("Failed to log in to OneSignal.");
+        return;
+      }
+
+      // Check subscription status and prompt if not subscribed
+      const isSubscribed = await oneSignalService.isSubscribed();
+      if (!isSubscribed) {
+        const prompted = await oneSignalService.promptPush();
+        if (!prompted) {
+          logger.warn("Failed to prompt for push notifications.");
+        }
+      }
+
+      // Opt-in to push notifications
+      const optedIn = await oneSignalService.optIn();
+      if (!optedIn) {
+        logger.warn("Failed to opt-in to push notifications.");
+      }
+    };
+
+    setupOneSignal();
+  }, []);
+
 
   useEffect(() => {
     if (templateDetails) {
