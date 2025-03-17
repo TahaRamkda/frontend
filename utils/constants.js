@@ -31,6 +31,20 @@
 };
 
 
+export const dropdownOptions = [
+  { label: "NONE", value: 0 },
+  { label: "TEMPLATE", value: 1 },
+  { label: "UNSUBSCRIBE", value: 3 },
+  { label: "BLOCK", value: 4 },
+  { label: "CHAT", value: 5 },
+  { label: "ORDER", value: 6 },
+  { label: "CLOSE CHAT", value: 7 },
+  { label: "FLOWS", value: 8 },
+
+];
+
+
+
   //to refresh the api call every 5 minutes
 export const REFRESH_INTERVAL=3000 ; // 5 minutes in milliseconds
 

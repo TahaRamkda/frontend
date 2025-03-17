@@ -33,8 +33,6 @@ import Loader from "@/components/Layout/Loader";
 import bagroundimage from "@/public/images/baground.jpg";
 import { BASE_URL } from "@/utils/apiConstants";
 import { toast } from "react-toastify";
-import { useRecoilValue } from "recoil";
-import { CampaignState } from "@/components/recoil";
 
 import {
   UpdateCampaign,
@@ -42,10 +40,10 @@ import {
   fetchCampaignDetail,
   clearCampaignDetailState,
 } from "@/slices/campaignSlice";
-const CampaignUpdate = () => {
+const CampaignUpdate = ({ campaignId , onclose}) => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const CampaignID = useRecoilValue(CampaignState);
+  //const CampaignID = useRecoilValue(CampaignState);
   const [Loading, setLoading] = useState(true);
   const { template, loading, error } = useSelector((state) => state.templates);
   const formikRef = useRef(); // Add ref for Formik
@@ -98,11 +96,11 @@ const CampaignUpdate = () => {
   };
 
   useEffect(() => {
-    if (CampaignID) {
+    if (campaignId) {
       // Run only if a template is selected
-      setSelectedCampaign(CampaignID);
+      setSelectedCampaign(campaignId);
     } else {
-      router.back();
+      onclose();
     }
   }, [SelectedCampaign]);
 
@@ -263,72 +261,7 @@ const CampaignUpdate = () => {
   setTotalButtonCount(updatedMessagePreview.buttons.length);
   },[Loading, template]);
 
-  // useEffect(() => {
-  //   if (!MessagePreviewupdated || Loading || !template.parameters) return;
-
-  //   // Use a flag to ensure this runs only once
-  //   let parametersProcessed = false;
-  //   if (parametersProcessed) return;
-
-  //   // Process Parameters
-  //   const filteredHeaderValues = template.parameters.filter(
-  //     (variable) => variable?.paramType === 1
-  //   );
-  //   if (filteredHeaderValues.length > 0) {
-  //     const allVariables = filteredHeaderValues.map(
-  //       (variable) => variable.paramName
-  //     );
-  //     addHeaderVariable(null, allVariables);
-  //     filteredHeaderValues.forEach((variable) => {
-  //       if (variable?.paramDefaultValue !== undefined) {
-  //         handleheaderVariableChange(
-  //           variable.paramName,
-  //           variable.paramDefaultValue
-  //         );
-  //       }
-  //     });
-  //   }
-
-  //   const filteredBodyValues = template.parameters.filter(
-  //     (variable) => variable?.paramType === 2
-  //   );
-  //   if (filteredBodyValues.length > 0) {
-  //     const allVariables = filteredBodyValues.map(
-  //       (variable) => variable.paramName
-  //     );
-  //     addVariable(null, allVariables);
-  //     filteredBodyValues.forEach((variable) => {
-  //       if (variable?.paramDefaultValue !== undefined) {
-  //         handleVariableChange(variable.paramName, variable.paramDefaultValue);
-  //       }
-  //     });
-  //   }
-
-  //   const filteredURLValues = template.parameters.filter(
-  //     (variable) => variable?.paramType === 3
-  //   );
-  //   if (filteredURLValues.length > 0) {
-  //     ;
-  //     setsenturlvariables(filteredURLValues);
-
-  //     const allVariables = filteredURLValues.map(
-  //       (variable) => variable.paramName
-  //     );
-
-  //     filteredURLValues
-  //       .filter((variable) => variable?.paramDefaultValue !== undefined)
-  //       .map((variable, index) =>
-  //         handleurlVariableChange(index, variable.paramDefaultValue)
-  //       );
-  //   }
-
-  //   // Mark parameters as processed
-  //   parametersProcessed = true;
-
-  //   // Clear Template Detail State
-  //   clearTemplateDetailState();
-  // }, [MessagePreviewupdated]);
-
+  
   const addHeaderVariable = (variablename, allVariables) => {
     setHeaderVariable((prev) => {
       // Reset variables array if this is the first call with allVariables
@@ -424,7 +357,7 @@ const CampaignUpdate = () => {
           text: "",
           icon: "success",
         });
-        router.push("/Campaigns/CampaignsList");
+        onclose();
       } else {
         showSweetAlert({
           title: "Failed",
@@ -445,34 +378,6 @@ const CampaignUpdate = () => {
     }
   };
 
-  // useEffect(() => {
-  //   let updatedBody = bodyFinalContent;
-
-  //   // Replace variables in the body content
-
-  //   // Handle newlines and preserve the flow
-  //   updatedBody = updatedBody?.replace(/\n/g, "<br/>"); // Convert newlines to <br/> tags for HTML rendering
-
-  //   // Replace <p> tags only if necessary, and ensure newlines are handled correctly
-  //   updatedBody = updatedBody
-  //     ?.replace(/<\/p>/gi, "<br/>")
-  //     .replace(/<p.*?>/gi, "");
-
-  //   // Update the message preview body content
-  //   setMessagePreview((prev) => ({
-  //     ...prev,
-  //     body: updatedBody, // HTML safe body with <br/> tags and replaced variables
-  //   }));
-  // }, [bodyFinalContent]);
-
-  // useEffect(() => {
-  //   setMessagePreview((prev) => ({
-  //     ...prev,
-  //     header: headContent
-  //       .replace(/\{{(\d+)\}}/g, (match, index) => headerVariable[index - 1])
-  //       .replace(/\n/g, "<br />"),
-  //   }));
-  // }, [headContent]);
 
   const handleVariableChange = (variableName, newValue) => {
     setVariables((prev) => {
@@ -514,7 +419,7 @@ const CampaignUpdate = () => {
   };
   useEffect(() => {
     setSelectedTemplateId(0);
-  }, [CampaignID]);
+  }, [campaignId]);
 
   const handleheaderVariableChange = (variableName, newValue) => {
     setHeaderVariable((prev) => {
@@ -564,11 +469,11 @@ const CampaignUpdate = () => {
     dispatch(clearCampaignDetailState());
     dispatch(clearSendernameState());
     // Navigate back
-    router.push("/Campaigns/CampaignsList");
+    onclose();
   };
 
   return (
-    <App>
+    <>
       {loading && <Loader />}
       <Container fluid className="mt-0">
         <Row style={{ height: "100vh" }}>
@@ -986,7 +891,7 @@ const CampaignUpdate = () => {
           </Col>
         </Row>
       </Container>
-    </App>
+    </>
   );
 };
 
