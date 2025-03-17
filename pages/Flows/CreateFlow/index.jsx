@@ -663,6 +663,14 @@ const CreateFlowPage = () => {
     setSelectedQuestionIndex(null);
   };
 
+  useEffect(() => {
+    // This will run when isLoading changes
+    if (!isLoading) {
+      // Loading has completed
+      console.log('Loading completed');
+      // Add any post-loading logic here if needed
+    }
+  }, [isLoading]);
   const handleSaveFlow = () => {
     debugger;
     const errors = validateFlowData(flowData);
@@ -709,10 +717,26 @@ const CreateFlowPage = () => {
   };
 
   const handleTemplateChange = (e) => {
-    updateField("actionId", e.target.value);
+    const templateId = e.target.value;
+    setIsLoading(true);
+    try {
+      updateField("actionId", templateId);
+    } catch (error) {
+      console.error("Error in handleTemplateChange:", error);
+    }finally {
+      setIsLoading(false);
+    }
   };
-  const handleFlowChange = (e) => {
-    updateField("actionId", e.target.value);
+  const handleFlowChange = async (e) => {
+    setIsLoading(true);
+    const flowId = e.target.value;
+    try {
+      updateField("actionId", flowId);
+    } catch (error) {
+      console.error("Error in handleFlowChange:", error);
+    }finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -233,6 +233,7 @@ const TemplateList = () => {
             />
           </div>
           <div className="flex flex-col text-start mb-1">
+            <label className="font-medium text-gray-700 text-sm mb-1">Sender Names</label>
             <SendernameDropdown
               value={SenderId}
               onChange={handleSenderChange()}
