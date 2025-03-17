@@ -29,7 +29,7 @@ const TemplateList = () => {
   const dispatch = useDispatch();
   const [ToDate, settoDate] = useState("");
   const [FromDate, setfromDate] = useState("");
-  const [showupdatemodel,setshowupdatemodel] = useState(false);
+  const [showupdatemodel, setshowupdatemodel] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const {
     interactiveTemplateList,
