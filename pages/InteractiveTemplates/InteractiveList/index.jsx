@@ -24,6 +24,7 @@ import SearchBar from '@/components/SearchBar/SearchComponent';
 import { toDate } from "date-fns";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
 import Updatetemplate from "../UpdateTemplate";
+import SendernamesDropdown from "@/components/MultiSelect/SendernameDropdown";
 const TemplateList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -42,6 +43,7 @@ const TemplateList = () => {
   const [filterText, setFilterText] = useState("");
   const [TemplateLoading, setTemplateLoading  ] = useState(false);
   const[templateId, settemplateId] = useState(0);
+  const[senderId, setsenderId] = useState(0);
   const templateColumns = [
     {
       name: "Template",
@@ -146,7 +148,7 @@ const TemplateList = () => {
     await dispatch(
       fetchInteractiveTemplates({
         clientId: localStorage.getItem("clientId"),
-        senderId: sendernameId,
+        senderId: senderId,
         toDate: ToDate,
         fromDate: FromDate,
         searchStr: filterText,
@@ -156,9 +158,6 @@ const TemplateList = () => {
     );
   };
 
-  const HandleSenderChange =(e) =>{
-    setsendernameId(e.target.value);
-  }
   const handlePageChange = async (page) => {
     // Update current page state in Redux
     dispatch(setCurrentPage(page));
@@ -168,7 +167,7 @@ const TemplateList = () => {
       fetchInteractiveTemplates({
         clientId: localStorage.getItem("clientId"),
         toDate: ToDate,
-        senderId: sendernameId,
+        senderId: senderId,
         fromDate: FromDate,
         searchStr: filterText,
         pageNo: page,
@@ -181,7 +180,7 @@ const TemplateList = () => {
       fetchInteractiveTemplates({
         clientId: localStorage.getItem("clientId"),
         searchStr: filterText,
-        senderId: sendernameId,
+        senderId: senderId,
         pageNo: currentPage,
         pageSize,
       })
@@ -202,7 +201,7 @@ const TemplateList = () => {
           clientId: localStorage.getItem("clientId"),
           toDate: ToDate,
           fromDate: FromDate,
-          senderId: sendernameId,
+          senderId: senderId,
           searchStr: searchValue,
           pageNo: currentPage,
           pageSize,
@@ -212,6 +211,12 @@ const TemplateList = () => {
 
     setSearchTimeout(timeout); // Save the timeout reference
   };
+
+  const handleSenderChange = (e) => {
+    const senderId = e.target.value;  
+      setsenderId(senderId);
+    }
+  
  const handleCreateClick = () => {
   setTemplateLoading(true);
     router.push("/InteractiveTemplates/CreateTemplate")
@@ -222,7 +227,7 @@ const TemplateList = () => {
         clientId: localStorage.getItem("clientId"),
         toDate: ToDate,
         fromDate: FromDate,
-        senderId: sendernameId,
+        senderId: senderId,
         searchStr: filterText,
         pageNo: currentPage,
         pageSize,
@@ -231,7 +236,7 @@ const TemplateList = () => {
     return () => {
       dispatch(clearInteractiveTemplateListState());
     };
-  }, [dispatch, ToDate, FromDate,sendernameId]);
+  }, [dispatch, ToDate, FromDate,senderId]);
   const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10
   const subHeaderComponentMemo = useMemo(() => {
@@ -251,7 +256,8 @@ const TemplateList = () => {
             </label>
           <SendernameDropdown
               name="senderId"
-              onChange={HandleSenderChange}
+              value={senderId}
+              onChange={handleSenderChange}
             />
           </div>
           <div className="flex flex-col text-start mb-1">
