@@ -13,7 +13,7 @@ const FlowDropdown = ({ name, value, onChange }) => {
   const { flowDropdownData, loading, error } = useSelector(
     (state) => state.flows
   );
-  
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     dispatch(
         fetchFlowDropdown({
@@ -25,6 +25,7 @@ const FlowDropdown = ({ name, value, onChange }) => {
 
   useEffect(() => {
     if (selectRef.current) {
+      setIsLoading(true);
       $(selectRef.current).select2({
         placeholder: "Select",
         allowClear: true,
@@ -36,6 +37,7 @@ const FlowDropdown = ({ name, value, onChange }) => {
           selectedValue = "0";
         }
         onChange({ target: { name, value: selectedValue } });
+        setIsLoading(false);
       });
     }
 
@@ -51,6 +53,7 @@ const FlowDropdown = ({ name, value, onChange }) => {
 
   return (
     <div>
+      
       <Input
         type="select"
         innerRef={selectRef}

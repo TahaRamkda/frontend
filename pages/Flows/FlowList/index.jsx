@@ -8,6 +8,7 @@ import DataTable from "react-data-table-component";
 import { HiPencilAlt, HiTrash, HiUpload } from "react-icons/hi";
 import showSweetAlert from "@/components/Sweetalert";
 import SearchBar from "@/components/SearchBar/SearchComponent";
+import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown"; 
 import Loader from "@/components/Layout/Loader";
 import App from "@/components/Layout/App";
 import { useSetRecoilState } from "recoil";
@@ -25,6 +26,7 @@ const Flow = () => {
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [floawLoading, setFlowLoading] = useState(false);
   const [page, SetPageSize] = useState(10)
+  const [SenderId , setSenderId] = useState(0);
   const[showupdateflowmodel,setshowupdateflowmodel] = useState(false);
   const[flowId, setflowId] = useState(0);
  // const setFlowsId = useSetRecoilState(FlowState);
@@ -55,8 +57,8 @@ const Flow = () => {
     router.push("/Flows/CreateFlow");
   };
   useEffect(() => {
-    dispatch(fetchFlowsListData({pageNo:PageNum, pageSize: page, SearchStr: filterText}));
-  }, [dispatch,PageNum,page]);
+    dispatch(fetchFlowsListData({pageNo:PageNum, pageSize: page, SearchStr: filterText, senderId:SenderId}));
+  }, [dispatch,PageNum,page, SenderId]);
 
   const handleDetailClick = (flowId) => {
     setflowId(flowId);
@@ -114,6 +116,11 @@ const Flow = () => {
     });
   };
 
+  const handleSenderChange = () => (e) => {
+    const senderId = e.target.value;  
+      setSenderId(senderId);
+    }
+  
    const handlePageSizeChange = async (newSize) => {
       SetPageSize(newSize)
       dispatch(setPageSize(newSize));
@@ -123,7 +130,7 @@ const Flow = () => {
         fetchFlowsListData({
           SearchStr: filterText,
           pageSize: newSize,
-          pageNo: 1,
+          pageNo: 1, senderId:SenderId
         })
       );
     };
@@ -136,7 +143,7 @@ const Flow = () => {
           fetchFlowsListData({
             SearchStr: filterText ,
             pageSize:page,
-            pageNo: pageNo,
+            pageNo: pageNo, senderId:SenderId
           })
         );
     
@@ -157,7 +164,7 @@ const Flow = () => {
          fetchFlowsListData({
            SearchStr: searchValue,
            pageSize:page,
-           pageNo: PageNum,
+           pageNo: PageNum, senderId:SenderId
          })
        );
      }, 500);
@@ -173,6 +180,13 @@ const Flow = () => {
           <div className="flex flex-col space-y-1 text-start mb-1 ">
             <SearchBar
               label="Search"
+              value={filterText}
+              onChange={handleSearchString(setFilterText)}
+            />
+          </div>
+          <div className="flex flex-col space-y-1 text-start mb-1">
+          <label className="font-medium text-gray-700 text-sm ">Sender Names</label>
+            <SendernameDropdown
               value={filterText}
               onChange={handleSearchString(setFilterText)}
             />

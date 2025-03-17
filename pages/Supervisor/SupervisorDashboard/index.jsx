@@ -51,7 +51,7 @@ const DashboardPage = () => {
     <App>
     <div className="flex "> {/* Added h-screen to make full height */}
       {/* Side Panel (Always Open) */}
-      <div className="w-80 bg-white transform transition-all duration-300 ease-in-out flex flex-col "> {/* Added flex, flex-col, and h-full */}
+      <div className="w-80 bg-white transform  flex flex-col "> {/* Added flex, flex-col, and h-full */}
         <div className="p-4 text-black text-lg border rounded-sm font-bold flex items-center">
           <FaUser className="mr-2" />
           Agent Details
@@ -60,7 +60,7 @@ const DashboardPage = () => {
           {supervisorDashboard?.Agents?.map((agent) => (
             <div
               key={agent.Id}
-              className="p-1 border-b border-gray-200 hover:bg-blue-50 transition-all duration-300 cursor-pointer hover:shadow-md hover:translate-x-2 flex items-center"
+              className="p-1 border-b border-gray-200 hover:bg-blue-50   hover:shadow-md flex items-center"
             >
               <span className="w-3 h-3 rounded-full mr-4 ml-1 flex items-center justify-center">  
   <FaCircle
@@ -115,7 +115,7 @@ const DashboardPage = () => {
             {supervisorDashboard?.Conversations?.map((status) => (
               <div
                 key={status.Status}
-                className="bg-white p-1 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-blue-500 transform hover:-translate-y-1"
+                className="bg-white p-1 rounded-lg shadow-md hover:shadow-lg border-l-4 border-blue-500 "
               >
                 <div className="flex items-Start">
                   <div className="text-2xl text-blue-500 mr-3">
