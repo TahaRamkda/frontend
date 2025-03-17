@@ -667,7 +667,7 @@ const CreateFlowPage = () => {
     // This will run when isLoading changes
     if (!isLoading) {
       // Loading has completed
-      console.log('Loading completed');
+      console.log("Loading completed");
       // Add any post-loading logic here if needed
     }
   }, [isLoading]);
@@ -723,7 +723,7 @@ const CreateFlowPage = () => {
       updateField("actionId", templateId);
     } catch (error) {
       console.error("Error in handleTemplateChange:", error);
-    }finally {
+    } finally {
       setIsLoading(false);
     }
   };
@@ -734,7 +734,7 @@ const CreateFlowPage = () => {
       updateField("actionId", flowId);
     } catch (error) {
       console.error("Error in handleFlowChange:", error);
-    }finally {
+    } finally {
       setIsLoading(false);
     }
   };
@@ -802,24 +802,41 @@ const CreateFlowPage = () => {
                     flowData.actionType === "1") && (
                     <FormGroup>
                       <Label for="templateDropdown">Select Template</Label>
-                      <InteractiveTemplateDropdown
-                        id="templateDropdown"
-                        value={flowData.actionId}
-                        onChange={handleTemplateChange}
-                        TransactionType="0"
-                        SenderId={flowData.senderId}
-                      />
+                      {flowData.senderId === 0 ||
+                      flowData.senderId === "0" ||
+                      !flowData.senderId ? (
+                        <div className="text-danger">
+                          Please select a Sender ID first
+                        </div>
+                      ) : (
+                        <InteractiveTemplateDropdown
+                          id="templateDropdown"
+                          value={flowData.actionId}
+                          onChange={handleTemplateChange}
+                          TransactionType="0"
+                          SenderId={flowData.senderId}
+                        />
+                      )}
                     </FormGroup>
                   )}
                   {(flowData.actionType === 8 ||
                     flowData.actionType === "8") && (
                     <FormGroup>
                       <Label for="FlowDropdown">Select Flows</Label>
-                      <FlowDropdown
+                      {flowData.senderId === 0 ||
+                      flowData.senderId === "0" ||
+                      !flowData.senderId ? (
+                        <div className="text-danger">
+                          Please select a Sender ID first
+                        </div>
+                      ) : (
+                        <FlowDropdown
                         id="FlowDropdown"
                         value={flowData.actionId}
                         onChange={handleFlowChange}
                       />
+                      )}
+                     
                     </FormGroup>
                   )}
                   <FormGroup check>
