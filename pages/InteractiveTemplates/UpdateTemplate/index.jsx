@@ -46,7 +46,6 @@ import Loader from "@/components/Layout/Loader";
 import { useRecoilValue } from "recoil";
 import { TemplateState } from "@/components/recoil";
 import MonitorFormikContext from "@/components/monitorformikcontext";
-import TemplateCategoryDropdown from "@/components/Dropdowns/TemplateCategorydropdown";
 import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
 const CustomEditor = dynamic(
   () => import("../../../components/CustomEditor/CustomEditor"),

@@ -19,7 +19,6 @@ import {
 import "react-quill/dist/quill.snow.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import { FaTimes } from "react-icons/fa";
 import { FaRegTrashCan } from "react-icons/fa6";
 import {
   createInteractiveTemplates,
