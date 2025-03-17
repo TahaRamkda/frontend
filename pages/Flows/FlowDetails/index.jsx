@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/router";
-import { useRecoilValue } from "recoil";
 import Loader from "@/components/Layout/Loader";
 import { BASE_URL } from "@/utils/apiConstants";
 import {
@@ -40,14 +39,7 @@ import { HiCheck, HiTrash } from "react-icons/hi"; // Added for the checkmark ic
 import { dropdownOptions } from "@/utils/constants";
 import InteractiveTemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropWithoutParam";
 import FlowDropdown from "@/components/Dropdowns/FlowsDropdown";
-// Enum for question types
-const QuestionTypes = {
-  TextInput: 1,
-  TextArea: 2,
-  RadioButtonsGroup: 3,
-  CheckboxGroup: 4,
-  TextHeading: 5,
-};
+import { QuestionTypes } from "@/utils/constants";
 
 // Updated FlowPreview component
 const FlowPreview = ({
@@ -398,7 +390,7 @@ const FlowPreview = ({
   );
 };
 
-const UpdateFlowPage = ({Flow_Id , onclose}) => {
+const UpdateFlowPage = ({ Flow_Id, onclose }) => {
   const dispatch = useDispatch();
   //const flowId = useRecoilValue(FlowState);
   const router = useRouter();
@@ -638,7 +630,7 @@ const UpdateFlowPage = ({Flow_Id , onclose}) => {
   };
   const handleCancel = () => {
     setIsLoading(true);
-   onclose();
+    onclose();
   };
   const handleSaveFlow = () => {
     setIsLoading(true);
@@ -667,15 +659,13 @@ const UpdateFlowPage = ({Flow_Id , onclose}) => {
         });
       });
   };
- 
 
   const handleTemplateChange = (e) => {
     updateField("actionId", e.target.value);
   };
   const handleFlowChange = (e) => {
-   updateField("actionId", e.target.value);
+    updateField("actionId", e.target.value);
   };
-
 
   return (
     <>
@@ -724,42 +714,46 @@ const UpdateFlowPage = ({Flow_Id , onclose}) => {
                       />
                     </FormGroup>
                     <FormGroup>
-                   <Label for="actionType">Select Action Type</Label>
-                   <Input
-                   type="select"
-                  id="actionType"
-                   value={flowData.actionType}
-                    onChange={(e) => updateField("actionType", parseInt(e.target.value))}
-                    >
-                              {dropdownOptions.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                  {option.label}
-                                </option>
-                              ))}
-                            </Input>
-                          </FormGroup>
-                          {(flowData.actionType === 1 || flowData.actionType === "1") && (
-          <FormGroup>
-            <Label for="templateDropdown">Select Template</Label>
-            <InteractiveTemplateDropdown
-              id="templateDropdown"
-              value={flowData.actionId}
-              onChange={handleTemplateChange}
-              TransactionType="0"
-              SenderId={flowData.senderId}
-            />
-          </FormGroup>
-        )}
-        {(flowData.actionType === 8 || flowData.actionType === "8") && (
-          <FormGroup>
-            <Label for="FlowDropdown">Select Flows</Label>
-            <FlowDropdown
-              id="FlowDropdown"
-              value={flowData.actionId}
-              onChange={handleFlowChange}
-            />
-          </FormGroup>
-        )}
+                      <Label for="actionType">Select Action Type</Label>
+                      <Input
+                        type="select"
+                        id="actionType"
+                        value={flowData.actionType}
+                        onChange={(e) =>
+                          updateField("actionType", parseInt(e.target.value))
+                        }
+                      >
+                        {dropdownOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </Input>
+                    </FormGroup>
+                    {(flowData.actionType === 1 ||
+                      flowData.actionType === "1") && (
+                      <FormGroup>
+                        <Label for="templateDropdown">Select Template</Label>
+                        <InteractiveTemplateDropdown
+                          id="templateDropdown"
+                          value={flowData.actionId}
+                          onChange={handleTemplateChange}
+                          TransactionType="0"
+                          SenderId={flowData.senderId}
+                        />
+                      </FormGroup>
+                    )}
+                    {(flowData.actionType === 8 ||
+                      flowData.actionType === "8") && (
+                      <FormGroup>
+                        <Label for="FlowDropdown">Select Flows</Label>
+                        <FlowDropdown
+                          id="FlowDropdown"
+                          value={flowData.actionId}
+                          onChange={handleFlowChange}
+                        />
+                      </FormGroup>
+                    )}
                     <FormGroup check>
                       <Input
                         type="checkbox"

@@ -43,6 +43,15 @@ export const dropdownOptions = [
 
 ];
 
+//enum for questiontype
+export const QuestionTypes = {
+  TextInput: 1,
+  TextArea: 2,
+  RadioButtonsGroup: 3,
+  CheckboxGroup: 4,
+  TextHeading: 5,
+};
+
 
 
   //to refresh the api call every 5 minutes
