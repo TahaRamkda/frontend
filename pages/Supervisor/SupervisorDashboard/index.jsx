@@ -4,19 +4,6 @@ import React, { useMemo, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { FaUser, FaCircle } from "react-icons/fa"; // Example icons from react-icons
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  CardBody,
-  CardTitle,
-  Table,
-  Badge,
-  Alert,
-  Nav,
-  NavItem,
-} from "reactstrap";
 import App from "@/components/Layout/App";
 // Dummy data
 import {
@@ -60,7 +47,7 @@ const DashboardPage = () => {
           {supervisorDashboard?.Agents?.map((agent) => (
             <div
               key={agent.Id}
-              className="p-1 border-b border-gray-200 hover:bg-blue-50   hover:shadow-md flex items-center"
+              className="p-1 border-b border-gray-200 hover:bg-blue-50 flex items-center"
             >
               <span className="w-3 h-3 rounded-full mr-4 ml-1 flex items-center justify-center">  
   <FaCircle
@@ -115,7 +102,7 @@ const DashboardPage = () => {
             {supervisorDashboard?.Conversations?.map((status) => (
               <div
                 key={status.Status}
-                className="bg-white p-1 rounded-lg shadow-md hover:shadow-lg border-l-4 border-blue-500 "
+                className="bg-white p-1 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-blue-500 "
               >
                 <div className="flex items-Start">
                   <div className="text-2xl text-blue-500 mr-3">
