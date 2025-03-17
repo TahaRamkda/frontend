@@ -13,7 +13,7 @@ import { TemplateState } from "@/components/recoil";
 import SearchBar from '@/components/SearchBar/SearchComponent';
 import Loading from "@/components/Layout/Loader";
 import Updatetemplate from "../UpdateTemplate";
-
+import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 const TemplateList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -25,6 +25,7 @@ const TemplateList = () => {
   const [transactonType, setTransactonType] = useState(0);
   const [showupdatemodel, setshowupdatemodel] = useState(false);
   const [templateId, settemplateId] = useState(0);
+  const [SenderId , setSenderId] = useState(0);
   //const settemplateId = useSetRecoilState(TemplateState);
 
   const templateColumns = [
@@ -130,8 +131,8 @@ const TemplateList = () => {
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1));
     await dispatch(fetchTemplates({
-      clientId: localStorage.getItem("clientId"),
       TransactonType: transactonType,
+      senderId : SenderId,
       searchStr: filterText,
       pageNo: 1,
       pageSize: newSize
@@ -143,6 +144,7 @@ const TemplateList = () => {
     await dispatch(fetchTemplates({
       clientId: localStorage.getItem("clientId"),
       TransactonType: transactonType,
+      senderId : SenderId,
       searchStr: filterText,
       pageNo: page,
       pageSize
@@ -154,6 +156,7 @@ const TemplateList = () => {
       fetchTemplates({
         clientId: localStorage.getItem("clientId"),
         TransactonType: transactonType,
+        senderId : SenderId,
         searchStr: filterText,
         pageNo: currentPage,
         pageSize
@@ -166,6 +169,7 @@ const TemplateList = () => {
       fetchTemplates({
         clientId: localStorage.getItem("clientId"),
         TransactonType: transactonType,
+        senderId : SenderId,
         searchStr: filterText,
         pageNo: currentPage,
         pageSize
@@ -174,7 +178,7 @@ const TemplateList = () => {
     return () => {
       dispatch(clearTemplateState());
     };
-  }, [dispatch]);
+  }, [dispatch,SenderId]);
 
   const filteredSendernames = templates.filter((template) =>
     template.templateName.toLowerCase().includes(filterText.toLowerCase())
@@ -209,6 +213,11 @@ const TemplateList = () => {
     setSearchTimeout(timeout);
   };
 
+ const handleSenderChange = () => (e) => {
+  const senderId = e.target.value;  
+    setSenderId(senderId);
+  }
+
   const customPageSizes = [1, 5, 10, 20, 50, 100];
   const defultpagessize = 10;
 
@@ -221,6 +230,12 @@ const TemplateList = () => {
               label="Search"
               value={filterText}
               onChange={handleSearchString(setFilterText)}
+            />
+          </div>
+          <div className="flex flex-col text-start mb-1">
+            <SendernameDropdown
+              value={SenderId}
+              onChange={handleSenderChange()}
             />
           </div>
         </div>

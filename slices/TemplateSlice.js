@@ -21,10 +21,10 @@ import {
 export const fetchTemplates = createAsyncThunk(
   'template/fetchTemplates',
  
-  async ({clientId = localStorage.getItem("clientId"),TransactonType,searchStr,pageNo,pageSize}, { rejectWithValue }) => {
+  async ({TransactonType,searchStr,pageNo,pageSize,senderId}, { rejectWithValue }) => {
     
     try {
-      const response = await API.get(`${TEMPLATELIST}?TransactionType=${TransactonType ? TransactonType : 1}${searchStr?`&searchStr=${searchStr}`:''}&pageNo=${pageNo}&pageSize=${pageSize}`);
+      const response = await API.get(`${TEMPLATELIST}?TransactionType=${TransactonType ? TransactonType : 1}${searchStr?`&searchStr=${searchStr}`:''}&senderId=${senderId}&pageNo=${pageNo}&pageSize=${pageSize}`);
       if (response?.status === 200 ) {
         return {
           templates: response.data.result,
@@ -113,8 +113,6 @@ export const fetchTemplatesById = createAsyncThunk(
     
     
     try {
-      
-      
       const response = await API.get(
         `${TEMPLATEDETAILS}?Id=${templateId}`
       );
