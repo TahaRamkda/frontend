@@ -36,9 +36,9 @@ const DashboardPage = () => {
 
   return (
     <App>
-    <div className="flex "> {/* Added h-screen to make full height */}
+    <div className="flex"> {/* Added h-screen to make full height */}
       {/* Side Panel (Always Open) */}
-      <div className="w-80 bg-white transform  flex flex-col "> {/* Added flex, flex-col, and h-full */}
+      <div className="max-h-[80vh] bg-white transform  flex flex-col "> {/* Added flex, flex-col, and h-full */}
         <div className="p-4 text-black text-lg border rounded-sm font-bold flex items-center">
           <FaUser className="mr-2" />
           Agent Details
