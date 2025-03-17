@@ -75,7 +75,7 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }
             <Label for="templateDropdown">Select Template</Label>
             {isSenderIdInvalid ? (
               <div className="text-danger">
-                Please select a  Sender ID first
+                Please select a  Sender Name first
               </div>
             ) : (
               <InteractiveTemplateDropdown
@@ -93,7 +93,7 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }
             <Label for="FlowDropdown">Select Flows</Label>
             {isSenderIdInvalid ? (
               <div className="text-danger">
-                Please select a valid Sender ID first
+                Please select a valid Sender Name first
               </div>
             ) : (
               <FlowDropdown

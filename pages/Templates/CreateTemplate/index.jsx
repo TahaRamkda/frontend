@@ -1360,7 +1360,7 @@ const TemplateCreationPage = () => {
                       )}
                       {/* Display Name and Phone */}
                       <div className="p-1">
-                        <div className=" ">{sendername.senderName}</div>
+                        <div className="">{sendername.senderName}</div>
                         <div className="text-xs text-gray-600">
                           {sendername.phoneNumber}
                         </div>

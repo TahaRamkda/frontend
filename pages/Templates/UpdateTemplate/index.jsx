@@ -1000,18 +1000,23 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
 </div>
 
             <label className="block mb-1 mt-1">Template type</label>
+            <div style={{ pointerEvents: "none" }}>
             <TemplateCategoryDropdown
               name="templatetype"
               value={Templatetype}
-              disabled={true}
+              
             />
+            </div>
+           
 
             <label className="block mb-1 mt-1">Language</label>
+            <div style={{ pointerEvents: "none" }}>
             <LanguageDropdown
               name="language"
               value={language}
-              disabled={true}
             />
+            </div>
+            
             <Formik
               initialValues={{
                 templateName: template?.templateName,
@@ -1036,6 +1041,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                   <Form>
                     <div style={{ background: "#fff" }}>
                       <FormGroup>
+                        <div style={{pointerEvents: "none"}}>
                         <Label
                           for="templateName"
                           className="font-semibold text-sm mb-0"
@@ -1048,7 +1054,6 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                           name="templateName"
                           id="templateName"
                           value={values.templateName} // Ensure it syncs with Formik's state
-                          readOnly // Prevent direct editing
                           onClick={(e) => {
                             // Allow user interactions like selecting or focusing the input
                             e.preventDefault();
@@ -1061,6 +1066,8 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                             setFieldValue("templateName", value); // Update Formik's state
                           }}
                         />
+                        </div>
+                       
                       </FormGroup>
                     </div>
                     <div style={{ background: "#fff" }}>
@@ -1345,10 +1352,10 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                     {messagePreview.buttons.map((button, index) => (
                       <div
                         key={index}
-                        className="d-flex align-items-center my-3"
+                        className="d-flex align-items-center my-3 border-b-2 pb-3 gap-3"
                       >
                         {/* Button Text Input */}
-                        <div style={{ pointerEvents: "none" }}>
+                        <div style={{ pointerEvents: "none" }} className="w-full">
                         <Input
                           type="text"
                           value={button.text }
@@ -1361,7 +1368,12 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                               buttons: updatedButtons,
                             });
                           }}
-                          className="me-2"
+                          className="mb-2"
+                          style={{
+                            flex: "1 1 40%",
+                            minWidth: "250px",
+                            marginBottom: "10px",
+                          }}
                         />
                         </div>
 
@@ -1375,7 +1387,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                                 borderColor: "green",
                                 color: "white",
                               }}
-                              className=""
+                              className="mr-2"
                               onClick={() =>
                                 handlebuttonaction(
                                   index,
@@ -1393,7 +1405,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                         {/* Type 2: Phone Number Input */}
                         {button.type === "2" ||
                           (button.type === 2 && (
-                            <div className="d-flex me-2">
+                            <div className="d-flex align-items-center border rounded px-2" style={{ flex: "1 1 60%", minWidth: "300px" }}>
                               <div style={{ pointerEvents: "none" }}>
                               <Input
                                 type="select"
@@ -1410,8 +1422,14 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                                   });
                                   setCountryCode(e.target.value);
                                 }}
+                                style={{
+                                  border: "none",
+                                  width: "80px",
+                                  appearance: "none",
+                                  background: "transparent",
+                                  paddingRight: "8px",
+                                }}
                                 className="me-2"
-                                style={{ minWidth: "120px" }}
                               >
                                 <option value="+965">KW +965</option>
                                 <option value="+1">US +1</option>
@@ -1434,8 +1452,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                                     buttons: updatedButtons,
                                   });
                                 }}
-                                className="me-2"
-                                style={{ minWidth: "220px" }}
+                                style={{ flex: 1, border: "none" }}
                               />
                               </div>
                             </div>
@@ -1445,10 +1462,10 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                         {button.type === "3" ||
                           (button.type === 3 && (
                             <>
-                              <div className="d-flex flex-column me-2">
+                              <div className="mb-2" style={{ flex: "1 1 60%" }}>
                                 {/* Website URL Input */}
-                                <div className="d-flex">
-                                <div style={{ pointerEvents: "none" }}>
+                                <div className="d-flex flex-column">
+                                <div style={{ pointerEvents: "none" }} className="d-flex align-items-center">
                                   <Input
                                     type="text"
                                     value={button.url}
@@ -1480,12 +1497,11 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
 
                                 {/* URL Variable Input */}
                                 {button.urlveriablevalue != null && (
-                                  <div className="mt-3">
-                                    <Row>
+                                  <div className="mt-2" style={{ width: "100%" }}>
+                                    <Row className="align-items-center">
                                       <Col>
                                       <div style={{ pointerEvents: "none" }}>
                                         <Input
-                                          className="w-100"
                                           type="text"
                                           value={button.urlveriablevalue}
                                           onChange={(e) =>
@@ -1806,7 +1822,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
           </Col>
         </Row>
       </Container>
-
+      
       <ButtonAction
         isOpen={showaction}
         toggle={togglePopup}
@@ -1815,6 +1831,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
         SenderId={selectedSenderId}
         existingData={actionbuttonvalues}
       />
+
     </>
   );
 };
