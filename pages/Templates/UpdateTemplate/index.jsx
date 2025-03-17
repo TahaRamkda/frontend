@@ -55,8 +55,8 @@ const CustomEditor = dynamic(
   () => import("../../../components/CustomEditor/CustomEditor"),
   { ssr: false }
 );
-const TemplateUpdatePage = ({onclose}) => {
-  const Template_Id = useRecoilValue(TemplateState);
+const TemplateUpdatePage = ({Template_Id , onclose}) => {
+  //const Template_Id = useRecoilValue(TemplateState);
   const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
   const router = useRouter();
   const { sendername } = useSelector((state) => state.sendernames);

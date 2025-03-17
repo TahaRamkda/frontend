@@ -13,7 +13,7 @@ import App from "@/components/Layout/App";
 import { useSetRecoilState } from "recoil";
 import { FlowState } from "@/components/recoil";
 import { set } from "date-fns";
-
+import UpdateFlow from "../FlowDetails";
 const Flow = () => {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -25,7 +25,9 @@ const Flow = () => {
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [floawLoading, setFlowLoading] = useState(false);
   const [page, SetPageSize] = useState(10)
-  const setFlowsId = useSetRecoilState(FlowState);
+  const[showupdateflowmodel,setshowupdateflowmodel] = useState(false);
+  const[flowId, setflowId] = useState(0);
+ // const setFlowsId = useSetRecoilState(FlowState);
   const flowColumn = [
     { name: "Flow Name", selector: (row) => row.flowName, sortable: true },
     { name: "Flow Language", selector: (row) => row.flowLanguage, sortable: true },
@@ -57,8 +59,8 @@ const Flow = () => {
   }, [dispatch,PageNum,page]);
 
   const handleDetailClick = (flowId) => {
-    setFlowsId(flowId);
-    router.replace("/Flows/FlowDetails");
+    setflowId(flowId);
+    setshowupdateflowmodel(true);
   };
   const handlePublishClick = async (flowId) => {
     try {
@@ -192,11 +194,21 @@ const Flow = () => {
   //   );
   //   setIsModalOpen(false);
   // };
-
+ 
+  const handleClose = () => {
+    setshowupdateflowmodel(false);
+    setFlowLoading(false);
+  };
   
   return (
     <App>
       {floawLoading && loading && <Loader />}
+      {showupdateflowmodel ? (
+        <UpdateFlow 
+        Flow_Id={flowId}
+        onclose={handleClose} />
+      ) : (
+        <>
      <div className="flex items-center">
         {/* {loading && <Loader />} */}
         <div className=''>
@@ -324,6 +336,8 @@ const Flow = () => {
           </div>
         </Modal>
       )}
+      </>
+       )}
     </App>
   );
 };

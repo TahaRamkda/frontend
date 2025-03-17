@@ -3,23 +3,14 @@ import { Modal, ModalBody, Input, FormGroup, Label, Button } from "reactstrap";
 import { FaTimes } from "react-icons/fa";
 import InteractiveTemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropWithoutParam";
 import FlowDropdown from "@/components/Dropdowns/FlowsDropdown";
+import { dropdownOptions } from "@/utils/constants";
 const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }) => {
   const [actionType, setActionType] = useState(0);
   const [buttonValue, setButtonValue] = useState("");
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
   const [selectedFlowId, setSelectedFlowId] = useState(0);
 
-  const dropdownOptions = [
-    { label: "NONE", value: 0 },
-    { label: "TEMPLATE", value: 1 },
-    { label: "UNSUBSCRIBE", value: 3 },
-    { label: "BLOCK", value: 4 },
-    { label: "CHAT", value: 5 },
-    { label: "ORDER", value: 6 },
-    { label: "CLOSE CHAT", value: 7 },
-    { label: "FLOWS", value: 8 },
 
-  ];
 
   // Populate state when `existingData` changes
   useEffect(() => {

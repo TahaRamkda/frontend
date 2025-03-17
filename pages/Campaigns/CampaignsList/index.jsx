@@ -19,6 +19,7 @@ import { REFRESH_INTERVAL } from '@/utils/constants';
 import { set, toDate } from 'date-fns';
 import SearchBar from '@/components/SearchBar/SearchComponent';
 import DateTimePicker from '@/components/Timepicker/datetimepicker';
+import UpdateCampaign from "../UpdateCampaign"
 const CampaignsList = () => {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -35,14 +36,15 @@ const CampaignsList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ContactedModal, setContactedModaL] = useState(false);
   const [CampaignTestModal, setCampaignTestModal] = useState(false)
-  const [CampaignId, setCampaignId] = useState(null);
   const [activateCampaignId, setactivateCampaignId] = useState(null);
   const [CampaignForm, setCampaignForm] = useState({});
   const { campaigns, loading, error, currentPage, pageSize, totalRecords } =
     useSelector((state) => state.campaigns);
   const [clientId, setClientId] = useState(null);
   const isLiveReporting = useRef(false); // UseRef to track live reporting state
-  const setCampaignsId = useSetRecoilState(CampaignState);
+  const[CampaignId , setCampaignId] = useState(null)
+  const[showUpdateModel , setShowUpdateModel] = useState(false);
+  //const setCampaignsId = useSetRecoilState(CampaignState);
  const [campaignloading, setcampaignloading] = useState(false);
   const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10
@@ -98,8 +100,8 @@ const CampaignsList = () => {
 
   const HandleUpdateCampaign = (CampaignId) => {
     setcampaignloading(true)
-    setCampaignsId(CampaignId);
-    router.push("/Campaigns/UpdateCampaign");
+    setCampaignId(CampaignId);
+  setShowUpdateModel(true);
   };
   const handleTestCampaign = (CampaignId) => {
     setactivateCampaignId(CampaignId)
@@ -349,11 +351,22 @@ const CampaignsList = () => {
     );
   }, [keyword, FromDate, ToDate, templateId]);
 
+  const handleClose = () => {
+    setShowUpdateModel(false);
+    setcampaignloading(false);
+  };
+
   return (
     
     <App>
       
       { campaignloading && <Loading />}
+      {showUpdateModel ? (
+       <UpdateCampaign
+       campaignId={CampaignId}
+       onclose={handleClose} />
+      ) : (
+        <>
       <div className="flex items-center">
      
         <div className='mb-1'>
@@ -460,6 +473,8 @@ const CampaignsList = () => {
           onsuccess={refreshCampaignList}
           CampaignId={activateCampaignId}
         />
+      )}
+      </>
       )}
     </App>
   );

@@ -24,7 +24,8 @@ const TemplateList = () => {
   const [filterText, setFilterText] = useState('');
   const [transactonType, setTransactonType] = useState(0);
   const [showupdatemodel, setshowupdatemodel] = useState(false);
-  const settemplateId = useSetRecoilState(TemplateState);
+  const [templateId, settemplateId] = useState(0);
+  //const settemplateId = useSetRecoilState(TemplateState);
 
   const templateColumns = [
     {
@@ -234,7 +235,9 @@ const TemplateList = () => {
   return (
     <App>
       {showupdatemodel ? (
-       <Updatetemplate onclose={handleClose} />
+       <Updatetemplate
+       Template_Id={templateId}
+       onclose={handleClose} />
       ) : (
         <>
           <div className="flex items-center">

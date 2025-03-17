@@ -39,12 +39,9 @@ const TemplateList = () => {
     totalRecords,
     currentPage,
   } = useSelector((state) => state.interactiveTemplates);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  //const [templateId, settemplateId] = useState(0);
   const [filterText, setFilterText] = useState("");
   const [TemplateLoading, setTemplateLoading  ] = useState(false);
-  const settemplateId = useSetRecoilState(TemplateState);
-  const [sendernameId, setsendernameId] = useState(0);
+  const[templateId, settemplateId] = useState(0);
   const templateColumns = [
     {
       name: "Template",
@@ -285,7 +282,9 @@ const TemplateList = () => {
   return (
     <App>
       {showupdatemodel ? (
-        <Updatetemplate onclose={handleClose} />
+        <Updatetemplate 
+        Template_Id={templateId}
+        onclose={handleClose} />
       ) : (
         <>
       <div className="flex items-center">

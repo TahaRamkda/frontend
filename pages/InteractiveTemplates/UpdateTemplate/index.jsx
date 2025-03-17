@@ -8,6 +8,7 @@ import {
   Input,
   Container,
   Row,
+
   Col,
   Button,
   Dropdown,
@@ -50,8 +51,8 @@ const CustomEditor = dynamic(
   () => import("../../../components/CustomEditor/CustomEditor"),
   { ssr: false }
 );
-const InteractiveTemplateUpdate = ({onclose}) => {
-  const Template_Id = useRecoilValue(TemplateState);
+const InteractiveTemplateUpdate = ({Template_Id,onclose}) => {
+  //const Template_Id = useRecoilValue(TemplateState);
   //const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
   const router = useRouter();
   const dispatch = useDispatch();
@@ -303,7 +304,7 @@ const InteractiveTemplateUpdate = ({onclose}) => {
           text: "",
           icon: "success",
         });
-       onSuccess();
+       onclose();
       } else {
         showSweetAlert({
           title: "Failed",
@@ -605,7 +606,7 @@ const InteractiveTemplateUpdate = ({onclose}) => {
     }));
   }, [bodyFinalContent, variables]);
 
-  console.log("BodyFinalContent12", bodyContent, finalContent);
+  //console.log("BodyFinalContent12", bodyContent, finalContent);
   if (Loading)
     return (
       <App>
@@ -615,7 +616,7 @@ const InteractiveTemplateUpdate = ({onclose}) => {
     
     
   return (
-    <App>
+    <>
       <Container fluid className="mt-0">
         <Row style={{ height: "100vh" }}>
           <Col
@@ -1385,7 +1386,7 @@ const InteractiveTemplateUpdate = ({onclose}) => {
         SenderId={selectedSenderId}
         existingData={actionbuttonvalues}
       />
-    </App>
+    </>
   );
 };
 

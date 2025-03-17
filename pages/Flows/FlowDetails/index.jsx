@@ -37,7 +37,9 @@ import App from "@/components/Layout/App";
 import showSweetAlert from "@/components/Sweetalert";
 import { toast } from "react-toastify";
 import { HiCheck, HiTrash } from "react-icons/hi"; // Added for the checkmark icon
-
+import { dropdownOptions } from "@/utils/constants";
+import InteractiveTemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropWithoutParam";
+import FlowDropdown from "@/components/Dropdowns/FlowsDropdown";
 // Enum for question types
 const QuestionTypes = {
   TextInput: 1,
@@ -396,9 +398,9 @@ const FlowPreview = ({
   );
 };
 
-const UpdateFlowPage = () => {
+const UpdateFlowPage = ({Flow_Id , onclose}) => {
   const dispatch = useDispatch();
-  const flowId = useRecoilValue(FlowState);
+  //const flowId = useRecoilValue(FlowState);
   const router = useRouter();
   const [SendernamesData, setSendernamesData] = useState([]);
 
@@ -407,6 +409,8 @@ const UpdateFlowPage = () => {
     flowName: "",
     flowLanguage: "",
     publishToFB: false,
+    actionId: 0,
+    actionType: 0,
     flowScreens: [],
   });
   const [isLoading, setIsLoading] = useState(true); // Start as true since we're fetching data
@@ -420,11 +424,11 @@ const UpdateFlowPage = () => {
 
   useEffect(() => {
     const fetchFlowData = async () => {
-      if (flowId) {
+      if (Flow_Id) {
         setIsLoading(true);
         try {
           const response = await dispatch(
-            fetchFlowDetailsById({ id: flowId })
+            fetchFlowDetailsById({ id: Flow_Id })
           ).unwrap();
           if (response) {
             setSenderId(response.senderId);
@@ -450,7 +454,7 @@ const UpdateFlowPage = () => {
     };
 
     fetchFlowData();
-  }, [dispatch, flowId]);
+  }, [dispatch, Flow_Id]);
 
   useEffect(() => {
     if (!isLoading && flowData.flowScreens.length > 0) {
@@ -634,14 +638,14 @@ const UpdateFlowPage = () => {
   };
   const handleCancel = () => {
     setIsLoading(true);
-    router.push("/Flows/FlowList");
+   onclose();
   };
   const handleSaveFlow = () => {
     setIsLoading(true);
     const requestBody = {
       ...flowData,
       senderId: parseInt(flowData.senderId, 10),
-      id: flowId,
+      id: Flow_Id,
     };
     dispatch(updateFlow(requestBody))
       .unwrap()
@@ -652,7 +656,7 @@ const UpdateFlowPage = () => {
           icon: "success",
         });
         handleCancel();
-        router.push("/Flows/FlowList");
+        //router.push("/Flows/FlowList");
       })
       .catch((error) => {
         console.error("Failed to update flow:", error);
@@ -663,9 +667,18 @@ const UpdateFlowPage = () => {
         });
       });
   };
+ 
+
+  const handleTemplateChange = (e) => {
+    updateField("actionId", e.target.value);
+  };
+  const handleFlowChange = (e) => {
+   updateField("actionId", e.target.value);
+  };
+
 
   return (
-    <App>
+    <>
       {isLoading && <Loader />}
       <Container
         fluid
@@ -710,6 +723,43 @@ const UpdateFlowPage = () => {
                         onChange={handleLanguageChange}
                       />
                     </FormGroup>
+                    <FormGroup>
+                   <Label for="actionType">Select Action Type</Label>
+                   <Input
+                   type="select"
+                  id="actionType"
+                   value={flowData.actionType}
+                    onChange={(e) => updateField("actionType", parseInt(e.target.value))}
+                    >
+                              {dropdownOptions.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </Input>
+                          </FormGroup>
+                          {(flowData.actionType === 1 || flowData.actionType === "1") && (
+          <FormGroup>
+            <Label for="templateDropdown">Select Template</Label>
+            <InteractiveTemplateDropdown
+              id="templateDropdown"
+              value={flowData.actionId}
+              onChange={handleTemplateChange}
+              TransactionType="0"
+              SenderId={flowData.senderId}
+            />
+          </FormGroup>
+        )}
+        {(flowData.actionType === 8 || flowData.actionType === "8") && (
+          <FormGroup>
+            <Label for="FlowDropdown">Select Flows</Label>
+            <FlowDropdown
+              id="FlowDropdown"
+              value={flowData.actionId}
+              onChange={handleFlowChange}
+            />
+          </FormGroup>
+        )}
                     <FormGroup check>
                       <Input
                         type="checkbox"
@@ -1015,7 +1065,7 @@ const UpdateFlowPage = () => {
           </div>
         </Modal>
       </Container>
-    </App>
+    </>
   );
 };
 
