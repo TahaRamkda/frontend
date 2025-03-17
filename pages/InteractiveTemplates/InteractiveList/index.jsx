@@ -25,7 +25,7 @@ import { toDate } from "date-fns";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
 import Updatetemplate from "../UpdateTemplate";
 import SendernamesDropdown from "@/components/MultiSelect/SendernameDropdown";
-const TemplateList = () => {
+const InteractiveTemplateList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const [ToDate, settoDate] = useState("");
@@ -365,4 +365,4 @@ const TemplateList = () => {
   );
 };
 
-export default TemplateList;
+export default InteractiveTemplateList;
