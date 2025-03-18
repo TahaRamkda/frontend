@@ -232,78 +232,107 @@ const CampaignsList = () => {
     {
       name: "Campaign Name",
       selector: (row) => row.campaignName,
-      sortable: true,width: '10%'
-      
+      sortable: true,
+      wrap: false, // Prevents wrapping, forces width to fit content
     },
     {
       name: "Schedule Date",
       selector: (row) => row.scheduleDate,
-      sortable: true, width: '15%',
-     
+      sortable: true,
+      wrap: false,
     },
-    { name: "Status", selector: (row) => row.statusName, sortable: true },
+    {
+      name: "Status",
+      selector: (row) => row.statusName,
+      sortable: true,
+      wrap: false,
+    },
     {
       name: "Contacts",
       selector: (row) => row.totalContacts,
-      sortable: true
-      
+      sortable: true,
+      wrap: false,
     },
-    { name: "Sent", selector: (row) => row.sentCount, sortable: true, },
-    { name: "Delivered", selector: (row) => row.deliveredCount, sortable: true},
-    { name: "Read", selector: (row) => row.readCount, sortable: true},
-    { name: "Failed", selector: (row) => row.failedCount, sortable: true},
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true,width: '15%' },
     {
-      name: "Action", cell: (row) => {
-        const scheduleDate = new Date(row.scheduleDate); // Convert scheduleDate to Date object
-        const currentTime = new Date(); // Get current time
-      
-        // Check if scheduleDate is today
+      name: "Sent",
+      selector: (row) => row.sentCount,
+      sortable: true,
+      wrap: false,
+    },
+    {
+      name: "Delivered",
+      selector: (row) => row.deliveredCount,
+      sortable: true,
+      wrap: false,
+    },
+    {
+      name: "Read",
+      selector: (row) => row.readCount,
+      sortable: true,
+      wrap: false,
+    },
+    {
+      name: "Failed",
+      selector: (row) => row.failedCount,
+      sortable: true,
+      wrap: false,
+    },
+    {
+      name: "Created Date",
+      selector: (row) => row.createdDate,
+      sortable: true,
+      wrap: false,
+    },
+    {
+      name: "Action",
+      cell: (row) => {
+        const scheduleDate = new Date(row.scheduleDate);
+        const currentTime = new Date();
+  
         const isSameDay =
           scheduleDate.getDate() === currentTime.getDate() &&
           scheduleDate.getMonth() === currentTime.getMonth() &&
           scheduleDate.getFullYear() === currentTime.getFullYear();
-      
-        const timeDifference = (scheduleDate - currentTime) / (1000 * 60 * 60); // Difference in hours
-      
+  
+        const timeDifference = (scheduleDate - currentTime) / (1000 * 60 * 60);
+  
         return (
-          <div className='Action_table flex-wrap' id='InfoIcon'>
-  <button 
-    title="Schedule Campaign" 
-    className="uniform_icon_btn Action_Button w-fulljustify-center items-center p-2" 
-    onClick={() => handleActivateClick(row.campaignId)}
-  >
-    <HiLightningBolt style={{ fontSize: "15px" }} />
-  </button>
-  <button 
-    title="Last Contacted People" 
-    className="uniform_icon_btn Action_Button w-full  justify-center items-center p-2" 
-    onClick={() => handelClick(row.campaignId)}
-  >
-    <MdGroupRemove style={{ fontSize: "15px" }} />
-  </button>
-  <button 
-    title="Test Campaign" 
-    className="uniform_icon_btn Action_Button w-full  justify-center items-center p-2" 
-    onClick={() => handleTestCampaign(row.campaignId)}
-  >
-    <HiBeaker style={{ fontSize: "15px" }} />
-  </button>
-  {(isSameDay && timeDifference > 3) || !isSameDay ? (
-    <button 
-      title="Edit Campaign" 
-      className="uniform_icon_btn Action_Button w-full  justify-center items-center p-2" 
-      onClick={() => HandleUpdateCampaign(row.campaignId)}
-    >
-      <HiPencilAlt style={{ fontSize: "15px" }} />
-    </button>
-  ) : null}
-</div>
+          <div className=" flex gap-1 " id="InfoIcon">
+            <button
+              title="Schedule Campaign"
+              className="uniform_icon_btn w-full justify-center items-center p-2"
+              onClick={() => handleActivateClick(row.campaignId)}
+            >
+              <HiLightningBolt style={{ fontSize: "15px" }} />
+            </button>
+            <button
+              title="Last Contacted People"
+              className="uniform_icon_btn w-full justify-center items-center p-2"
+              onClick={() => handelClick(row.campaignId)}
+            >
+              <MdGroupRemove style={{ fontSize: "15px" }} />
+            </button>
+            <button
+              title="Test Campaign"
+              className="uniform_icon_btn w-full justify-center items-center p-2"
+              onClick={() => handleTestCampaign(row.campaignId)}
+            >
+              <HiBeaker style={{ fontSize: "15px" }} />
+            </button>
+            {(isSameDay && timeDifference > 3) || !isSameDay ? (
+              <button
+                title="Edit Campaign"
+                className="uniform_icon_btn w-full justify-center items-center p-2"
+                onClick={() => HandleUpdateCampaign(row.campaignId)}
+              >
+                <HiPencilAlt style={{ fontSize: "15px" }} />
+              </button>
+            ) : null}
+          </div>
         );
-      },width: '10%'
-    }
-    
-
+      },
+      wrap: false, // Ensures action buttons don't wrap
+    },
   ];
   const subHeaderComponentMemo = useMemo(() => {
     return (
@@ -386,55 +415,58 @@ const CampaignsList = () => {
 
 
       <div className="overflow-auto">
-        <DataTable
-          data={campaigns}
-          columns={campaignColumns}
-          highlightOnHover
-          striped
-          sortIcon
-          sortServer
-          pagination
-          paginationServer
-          paginationTotalRows={totalRecords}
-          onChangePage={handlePageChange}
-          onChangeRowsPerPage={handlePageSizeChange}
-          paginationPerPage={defultpagessize} // Default number of rows per page
-          paginationRowsPerPageOptions={customPageSizes} // Custom page size options
-          subHeader
-          subHeaderComponent={subHeaderComponentMemo}
-          className="w-full border"
-          customStyles={{
-            table: {
-              style: {
-                width: '100%',
-                borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
-              },
-            },
-            headRow: {
-              style: {
-                borderBottom: '1px solid #ddd', padding: '0px',
-              },
-            },
-            headCells: {
-              style: {
-
-                borderRight: '1px solid #ddd', // Grid line between columns
-                fontWeight: 'bold',
-              },
-            },
-            rows: {
-              style: {
-                borderBottom: '1px solid #ddd', // Horizontal grid line between rows
-              },
-            },
-            cells: {
-              style: {
-
-                borderRight: '1px solid #ddd', // Vertical grid line between cells
-              },
-            },
-          }}
-        />
+      <DataTable
+  data={campaigns}
+  columns={campaignColumns}
+  highlightOnHover
+  striped
+  sortIcon
+  sortServer
+  pagination
+  paginationServer
+  paginationTotalRows={totalRecords}
+  onChangePage={handlePageChange}
+  onChangeRowsPerPage={handlePageSizeChange}
+  paginationPerPage={defultpagessize}
+  paginationRowsPerPageOptions={customPageSizes}
+  subHeader
+  subHeaderComponent={subHeaderComponentMemo}
+  className="w-full border"
+  customStyles={{
+    table: {
+      style: {
+        width: '100%',
+        borderCollapse: 'collapse',
+      },
+    },
+    headRow: {
+      style: {
+        borderBottom: '1px solid #ddd',
+        padding: '0px',
+      },
+    },
+    headCells: {
+      style: {
+        borderRight: '1px solid #ddd',
+        fontWeight: 'bold',
+        whiteSpace: 'nowrap', // Prevents wrapping in header
+        overflow: 'visible',  // Ensures content isn't clipped
+      },
+    },
+    rows: {
+      style: {
+        borderBottom: '1px solid #ddd',
+      },
+    },
+    cells: {
+      style: {
+        borderRight: '1px solid #ddd',
+        whiteSpace: 'nowrap', // Prevents wrapping in cells
+        overflow: 'visible',  // Ensures content isn't clipped
+      },
+    },
+  }}
+/>
       </div>
       <Modal isOpen={isModalOpen} toggle={() => setIsModalOpen(!isModalOpen)} fade={false}>
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">

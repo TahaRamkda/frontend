@@ -33,6 +33,7 @@ const Flow = () => {
   const flowColumn = [
     { name: "Flow Name", selector: (row) => row.flowName, sortable: true },
     { name: "Flow Language", selector: (row) => row.flowLanguage, sortable: true },
+    { name: "Status", selector: (row) => row.status, sortable: true },
     { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
     { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
     {
