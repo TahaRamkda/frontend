@@ -700,9 +700,14 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
                       <Label>Flow Name</Label>
                       <Input
                         value={flowData.flowName}
-                        onChange={(e) =>
-                          updateField("flowName", e.target.value)
+                        onChange={(e) =>{
+                          const value = e.target.value
+                          .replace(/\s+/g, "_")
+                          .replace(/[^a-zA-Z0-9_]/g, "")
+                        updateField("flowName", value)
+                      }
                         }
+                         
                         className="rounded"
                       />
                     </FormGroup>

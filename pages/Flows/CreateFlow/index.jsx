@@ -766,13 +766,19 @@ const CreateFlowPage = () => {
                     />
                   </FormGroup>
                   <FormGroup>
-                    <Label>Flow Name *</Label>
+                    <Label>Flow Name </Label>
                     <Input
-                      value={flowData.flowName}
-                      onChange={(e) => updateField("flowName", e.target.value)}
-                      className="rounded"
-                      required
-                    />
+  value={flowData.flowName}
+  onChange={(e) => {
+    const value = e.target.value
+      .replace(/\s+/g, "_")
+      .replace(/[^a-zA-Z0-9_]/g, "")
+      .toLowerCase();
+    updateField("flowName", value)  // Changed to use the transformed value
+  }}
+  className="rounded"
+  required
+/>
                   </FormGroup>
                   <FormGroup>
                     <Label>Flow Language *</Label>
