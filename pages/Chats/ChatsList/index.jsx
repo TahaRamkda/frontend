@@ -1156,6 +1156,57 @@ const ChatPage = () => {
                                         element.
                                       </audio>
                                     )}
+                                     {message.contentType.startsWith(
+                                      "application"
+                                    ) && (
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          marginTop: "10px",
+                                        }}
+                                      >
+                                        <div
+                                          style={{
+                                            backgroundColor: "#f0f0f0",
+                                            borderRadius: "50%",
+                                            width: "50px",
+                                            height: "50px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            marginRight: "10px",
+                                          }}
+                                        >
+                                          <i
+                                            className="fa fa-file"
+                                            style={{
+                                              fontSize: "24px",
+                                              color: "#555",
+                                            }}
+                                          ></i>
+                                        </div>
+                                        <div>
+                                          <p
+                                            style={{
+                                              margin: "0 0 5px",
+                                              fontWeight: "bold",
+                                              color: "#333",
+                                            }}
+                                          >
+                                            File
+                                          </p>
+                                          <button
+                                          onClick={() =>
+                                            handleDownload(message.mediaPath)
+                                          } // Pass function reference here
+                                        >
+                                          Download
+                                        </button>
+                                        </div>
+                                        
+                                      </div>
+                                    )}
                                   </>
                                 )}
                               {/* //for sent content */}
