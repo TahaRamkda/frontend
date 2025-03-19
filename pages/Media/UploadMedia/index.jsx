@@ -40,7 +40,7 @@ const UploadMediaPage = ({ onUploadSuccess, onsenderChange, ispopUp }) => {
       } else {
         showSweetAlert({
           title: "Failed",
-          text: response.result.message || "",
+          text: response.message || "",
           icon: "error",
         });
       }
