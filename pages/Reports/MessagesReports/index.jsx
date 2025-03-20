@@ -11,13 +11,14 @@ import App from '@/components/Layout/App';
 import { REFRESH_INTERVAL } from '@/utils/constants';
 import { set } from 'date-fns';
 import DateTimePicker from '@/components/Timepicker/datetimepicker';
+import { getMonthStart, getToday } from '@/components/Timepicker/datetimepicker';
 import SearchBar from '@/components/SearchBar/SearchComponent';
 const MessageReport = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
   const [status, setstatus] = useState(0);
-  const [fromDate, setfromDate] = useState("");
-  const [toDate, settoDate] = useState("");
+  const [fromDate, setfromDate] = useState(getMonthStart());
+  const [toDate, settoDate] = useState(getToday());
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [ModuleId, setmoduleId] = useState(0);
   const [srcStr, setsrcStr] = useState('');

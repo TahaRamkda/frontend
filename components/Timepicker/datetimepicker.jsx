@@ -1,5 +1,14 @@
 import React from "react";
+export const getMonthStart = () => {
+  const date = new Date();
+  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), 1))
+    .toISOString()
+    .split("T")[0];
+};
 
+export const getToday = () => {
+  return new Date().toISOString().split("T")[0];
+};
 const DateTimePicker = ({ label, value, onChange, className = "",minDate, ...props }) => {
   const inputRef = React.useRef(null);
 

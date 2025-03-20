@@ -55,7 +55,7 @@ export const QuestionTypes = {
 
 
   //to refresh the api call every 5 minutes
-export const REFRESH_INTERVAL=45000 ; // 5 minutes in milliseconds
+export const REFRESH_INTERVAL=4500 ; // 5 minutes in milliseconds
 
 export const NOTIFICATION_WARNING_INTERVAL=28800000  ; // 5 minutes in milliseconds
 

@@ -37,9 +37,7 @@ import { set } from "date-fns";
 const MessageSummary = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
-  const [FromDate, setFromDate] = useState("");
   const [AgentLoading, setAgentLoading] = useState(false);
-  const [ToDate, setToDate] = useState("");
   const [srcStr, setsrcStr] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [isfilteropen, setisfilteropen] = useState(false);
@@ -171,8 +169,6 @@ const MessageSummary = () => {
     dispatch(
       excelExportAgentMonitor({
         senderId: senderid,
-        fromDate: FromDate,
-        toDate: ToDate,
         searchStr: srcStr,
       })
     );
@@ -198,8 +194,7 @@ const MessageSummary = () => {
               srcStr: srcStr,
               pageSize,
               pageNo: currentPage,
-              fromDate: FromDate,
-              toDate: ToDate,
+              
             })
           );
         } catch (error) {
@@ -217,7 +212,7 @@ const MessageSummary = () => {
     }, REFRESH_INTERVAL);
     // Cleanup interval on component unmount or when page is unloaded
     return () => clearInterval(intervalId);
-  }, [pageSize, senderid, currentPage, srcStr, FromDate, ToDate, dispatch]);
+  }, [pageSize, senderid, currentPage, srcStr, dispatch]);
 
   useEffect(() => {
     if (!loading && agentsMonitor) {
@@ -256,14 +251,13 @@ const MessageSummary = () => {
         srcStr: srcStr,
         pageSize,
         pageNo: currentPage,
-        fromDate: FromDate,
-        toDate: ToDate,
+        
       })
     );
     return () => {
       clearAgentMonitorState();
     };
-  }, [dispatch, FromDate, ToDate, senderid, clientId]);
+  }, [dispatch, senderid, clientId]);
 
   const handleSenderChange = (e) => {
     const senderId = e.target.value;
@@ -278,8 +272,6 @@ const MessageSummary = () => {
         srcStr: srcStr,
         pageSize,
         pageNo: currentPage,
-        fromDate: FromDate,
-        toDate: ToDate,
       })
     );
   };
@@ -320,8 +312,7 @@ const MessageSummary = () => {
     //       srcStr: searchValue,
     //       pageSize,
     //       pageNo: currentPage,
-    //       fromDate: FromDate,
-    //       toDate: ToDate,
+    //       
     //     })
     //   );
     // }, 500);
@@ -340,8 +331,7 @@ const MessageSummary = () => {
   //       clientId: clientId,
   //       senderId: senderid,
   //       srcStr: srcStr,
-  //       fromDate: FromDate,
-  //       toDate: ToDate,
+  //       
   //       pageSize: newSize,
   //       pageNo: 1,
   //     })
@@ -409,8 +399,6 @@ const MessageSummary = () => {
     await dispatch(
       fetchAgentsMonitor({
         clientId: clientId,
-        fromDate: FromDate,
-        toDate: ToDate,
         senderId: senderid,
         srcStr: srcStr,
         pageSize,
@@ -441,22 +429,6 @@ const MessageSummary = () => {
               name="senderId"
               onChange={handleSenderChange}
               className="border rounded  w-100"
-            />
-          </div>
-         
-          <div className="flex flex-col text-start ">
-            <DateTimePicker
-              label="From Date"
-              value={FromDate}
-              onChange={setFromDate}
-            />
-          </div>
-          <div className="flex flex-col text-start ">
-            <DateTimePicker
-              label="To Date"
-              value={ToDate}
-              minDate={FromDate}
-              onChange={setToDate}
             />
           </div>
         </div>
