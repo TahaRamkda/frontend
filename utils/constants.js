@@ -54,8 +54,8 @@ export const QuestionTypes = {
 
 
 
-  //to refresh the api call every 5 minutes
-export const REFRESH_INTERVAL=3000 ; // 5 minutes in milliseconds
+//to refresh the api call every 5 minutes
+export const REFRESH_INTERVAL=45000 ; // 5 minutes in milliseconds
 
 export const NOTIFICATION_WARNING_INTERVAL=28800000  ; // 5 minutes in milliseconds
 
@@ -74,9 +74,9 @@ export const ExpireTime_Message_TRY5=60000 ;
 
 export const HeartBeat_Interval=100000 ; // 5 minutes in milliseconds
 
-export const AppId = "a06956a9-aab6-4bff-9465-dc19f5f2a33b";
+export const ProdAppId = "a06956a9-aab6-4bff-9465-dc19f5f2a33b";
 
-export const StagAppId="2b6362f1-b706-4087-bfaf-0d625c02110b";
+export const AppId="2b6362f1-b706-4087-bfaf-0d625c02110b";
 
 export const API_KEY1= "os_v2_app_fnrwf4nxazaipp5pbvrfyaqrbm5fgnr5ontuwrfsy2no57l3fxtwbtfinybm4x2ivawfnmztyenpcllfjijcisl774siswalccqwt7i";
 
