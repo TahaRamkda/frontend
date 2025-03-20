@@ -1556,8 +1556,8 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                         className="flex items-center gap-2 text-gray-700 hover:text-whie font-medium transition-all Btn-Regular-1 mt-4"
                         onClick={onclose}
                       >
-                        <HiArrowNarrowLeft style={{ fontSize: "15px" }} /> 
-                        <span>Back</span>
+                        
+                        Back
                       </button>
                       {/* <Button
                         className="uniform_btn  "

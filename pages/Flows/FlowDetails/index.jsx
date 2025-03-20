@@ -379,7 +379,7 @@ const FlowPreview = ({
                   className="uniform_btn"
                   style={{ border: "none" }}
                 >
-                  Save
+                  {currentScreen.screenButtonText || "Save"}
                 </Button>
               )}
             </div>

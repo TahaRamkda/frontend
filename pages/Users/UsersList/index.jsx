@@ -35,7 +35,7 @@ const UserList = () => {
       name: "Action",
       cell: (row) => (
         <>
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full justify-center">
             <button className="uniform_icon_btn" title="Edit Users" onClick={() => handleDetailClick(row.userId)}><HiPencilAlt style={{ fontSize: "15px" }} /></button>
             <button className="uniform_icon_btn" title="Delete Users" onClick={() => handleDeleteClick(row.userId)}><HiTrash style={{ fontSize: "15px" }} /></button>
           </div>

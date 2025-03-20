@@ -344,10 +344,17 @@ body {
 
 
 ::-webkit-scrollbar {
-  display: none;
+  width: 0px; /* Hides vertical scrollbar by setting its width to 0 */
+  height: 8px; /* Sets a visible height for horizontal scrollbar */
 }
 
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Optional: style for the track */
+}
 
+::-webkit-scrollbar-thumb {
+  background: #888; /* Optional: style for the thumb */
+}
 .popup_img_container {
   min-height: 170px;
 }

@@ -414,60 +414,66 @@ const CampaignsList = () => {
       </div>
 
 
-      <div className="overflow-auto">
-      <DataTable
-  data={campaigns}
-  columns={campaignColumns}
-  highlightOnHover
-  striped
-  sortIcon
-  sortServer
-  pagination
-  paginationServer
-  paginationTotalRows={totalRecords}
-  onChangePage={handlePageChange}
-  onChangeRowsPerPage={handlePageSizeChange}
-  paginationPerPage={defultpagessize}
-  paginationRowsPerPageOptions={customPageSizes}
-  subHeader
-  subHeaderComponent={subHeaderComponentMemo}
-  className="w-full border"
-  customStyles={{
-    table: {
-      style: {
-        width: '100%',
-        borderCollapse: 'collapse',
+      <div className="container-scroll">
+  <DataTable
+    data={campaigns}
+    columns={campaignColumns}
+    highlightOnHover
+    striped
+    sortIcon
+    sortServer
+    pagination
+    paginationServer
+    paginationTotalRows={totalRecords}
+    onChangePage={handlePageChange}
+    onChangeRowsPerPage={handlePageSizeChange}
+    paginationPerPage={defultpagessize}
+    paginationRowsPerPageOptions={customPageSizes}
+    subHeader
+    subHeaderComponent={subHeaderComponentMemo}
+    className="w-full border custom-datatable" // Keep the custom class for targeting
+    customStyles={{
+      table: {
+        style: {
+          width: '100%',
+          borderCollapse: 'collapse',
+        },
       },
-    },
-    headRow: {
-      style: {
-        borderBottom: '1px solid #ddd',
-        padding: '0px',
+      tableWrapper: {
+        style: {
+          overflowX: 'auto', // Ensure the table wrapper allows horizontal scrolling
+          display: 'block', // Ensure the wrapper behaves as a block for scrolling
+        },
       },
-    },
-    headCells: {
-      style: {
-        borderRight: '1px solid #ddd',
-        fontWeight: 'bold',
-        whiteSpace: 'nowrap', // Prevents wrapping in header
-        overflow: 'visible',  // Ensures content isn't clipped
+      headRow: {
+        style: {
+          borderBottom: '1px solid #ddd',
+          padding: '0px',
+        },
       },
-    },
-    rows: {
-      style: {
-        borderBottom: '1px solid #ddd',
+      headCells: {
+        style: {
+          borderRight: '1px solid #ddd',
+          fontWeight: 'bold',
+          whiteSpace: 'nowrap',
+          overflow: 'visible',
+        },
       },
-    },
-    cells: {
-      style: {
-        borderRight: '1px solid #ddd',
-        whiteSpace: 'nowrap', // Prevents wrapping in cells
-        overflow: 'visible',  // Ensures content isn't clipped
+      rows: {
+        style: {
+          borderBottom: '1px solid #ddd',
+        },
       },
-    },
-  }}
-/>
-      </div>
+      cells: {
+        style: {
+          borderRight: '1px solid #ddd',
+          whiteSpace: 'nowrap',
+          overflow: 'visible',
+        },
+      },
+    }}
+  />
+</div>
       <Modal isOpen={isModalOpen} toggle={() => setIsModalOpen(!isModalOpen)} fade={false}>
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">

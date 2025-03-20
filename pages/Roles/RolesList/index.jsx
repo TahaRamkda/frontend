@@ -28,7 +28,7 @@ const RoleList = () => {
       name: "Action",
       cell: (row) => (
         
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full justify-center">
           <button
             title="Edit Roles"
             className="uniform_icon_btn"
