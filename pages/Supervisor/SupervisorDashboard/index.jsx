@@ -1,5 +1,3 @@
-"use client"; // Mark as client-side component
-
 import React, { useMemo, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { FaUser, FaCircle } from "react-icons/fa"; // Example icons from react-icons

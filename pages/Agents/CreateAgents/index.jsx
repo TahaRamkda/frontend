@@ -118,7 +118,7 @@ const AgentsForm = ({ onClose, isVisible, onsuccess }) => {
                 <div>
                   <label className="font-medium text-gray-700 text-sm">Last Name</label>
                   <input
-                    required
+                    
                     type="text"
                     name="agentLName"
                     value={formData.agentLName}
@@ -141,7 +141,7 @@ const AgentsForm = ({ onClose, isVisible, onsuccess }) => {
                 <div>
                   <label className="font-medium text-gray-700 text-sm">Last Name Arabic</label>
                   <input
-                    required
+                    
                     type="text"
                     name="agentLNameAR"
                     value={formData.agentLNameAR}
