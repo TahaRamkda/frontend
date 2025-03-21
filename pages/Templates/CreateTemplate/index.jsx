@@ -18,6 +18,7 @@ import {
 } from "reactstrap";
 import "react-quill/dist/quill.snow.css";
 import { useDispatch, useSelector } from "react-redux";
+import { Image } from "react-bootstrap";
 import { useRouter } from "next/navigation";
 import { FaTimes } from "react-icons/fa";
 import { FaRegTrashCan } from "react-icons/fa6";
@@ -1347,7 +1348,7 @@ const TemplateCreationPage = () => {
                     <div className="flex items-center space-x-3">
                       {/* Display Image */}
                       {sendername.mediaPath && (
-                        <img
+                        <Image
                           src={`${BASE_URL}${sendername.mediaPath}`}
                           alt="Sender Logo"
                           className="rounded-circle me-2 img-fluid"
@@ -1394,7 +1395,7 @@ const TemplateCreationPage = () => {
                   </span>
                   {messagePreview.media &&
                     selectedMediaType.startsWith("image/") && (
-                      <img
+                      <Image
                         src={`${BASE_URL}${selectedMediaPath}`}
                         alt="Media"
                         className="img-fluid"

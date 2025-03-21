@@ -37,10 +37,10 @@ const AgentReport = () => {
     { name: "Unassigned", selector: (row) => row.unAssignedChat, sortable: true },
     { name: "Abandon", selector: (row) => row.abandonChat, sortable: true },
     { name: "Expired", selector: (row) => row.expiredChat, sortable: true },
-    { name: "Force Closed", selector: (row) => row.forceClosedChat, sortable: true, width: '11%' },
+    { name: "Force Closed", selector: (row) => row.forceClosedChat, sortable: true },
     { name: "Closed", selector: (row) => row.closedChat, sortable: true },
-    { name: "Avg Response Time", selector: (row) => row.avgResponseTime, sortable: true, width: '14%' }, 
-    { name: "Avg Chat Time", selector: (row) => row.avgChatTime, sortable: true, width: '11%' },
+    { name: "Avg Response Time", selector: (row) => row.avgResponseTime, sortable: true  }, 
+    { name: "Avg Chat Time", selector: (row) => row.avgChatTime, sortable: true },
   
   ];
 
@@ -277,7 +277,7 @@ const AgentReport = () => {
         customStyles={{
           table: {
             style: {
-              width: '100%',
+              width: AgentReportList.length > 0 ? '2023px' : '100%',
               borderCollapse: 'collapse',
             },
           },

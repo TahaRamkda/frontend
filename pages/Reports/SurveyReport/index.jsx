@@ -10,6 +10,7 @@ import Loader from "@/components/Layout/Loader";
 import FlowDropdown from "@/components/Dropdowns/FlowsDropdown";
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
+import { Image } from "react-bootstrap";
 
 const SurveyReportPage = () => {
   const dispatch = useDispatch();
@@ -37,7 +38,7 @@ const SurveyReportPage = () => {
 
     if (mimeType.startsWith("image/")) {
       return (
-        <img
+        <Image
           src={`${BASE_URL}${mediaPath}`}
           alt="Image"
           className="w-full h-full object-cover rounded-lg"

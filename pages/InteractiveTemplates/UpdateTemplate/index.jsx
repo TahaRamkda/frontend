@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Formik, Field, useFormikContext } from "formik";
+import { Image } from "react-bootstrap";
 import {
   Form,
   FormGroup,
@@ -1193,7 +1194,7 @@ const InteractiveTemplateUpdate = ({Template_Id,onclose}) => {
                   <div className="flex items-center space-x-3">
                     {/* Display Image */}
                     {sendername.mediaPath && (
-                      <img
+                      <Image
                         src={`${BASE_URL}${sendername.mediaPath}`}
                         alt="Sender Logo"
                         className="rounded-circle me-2 img-fluid"
@@ -1238,7 +1239,7 @@ const InteractiveTemplateUpdate = ({Template_Id,onclose}) => {
                 </span>
                 {messagePreview.media &&
                   selectedMediaType?.startsWith("image/") && (
-                    <img
+                    <Image
                       src={`${BASE_URL}${selectedMediaPath}`}
                       alt="Media"
                       className="img-fluid"

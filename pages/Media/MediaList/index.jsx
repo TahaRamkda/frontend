@@ -5,6 +5,7 @@ import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, La
 import SweetAlert from "sweetalert2";
 import App from '@/components/Layout/App';
 import UploadMedia from "../UploadMedia";
+import { Image } from "react-bootstrap";
 
 import Loader from "@/components/Layout/Loader";
 import { BASE_URL } from "@/utils/apiConstants";
@@ -77,7 +78,7 @@ if(medias){
     if (mimeType.startsWith("image/")) {
       return (
         <div className={previewStyle}>
-          <img
+          <Image
             src={`${BASE_URL}${mediaPath}`}
             alt="Image"
             className="w-full img-fluid h-full object-cover rounded-lg"

@@ -1,5 +1,5 @@
 import React from "react";
-
+import { Image } from "react-bootstrap";
 const Loader = () => (
   <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50">
     {/* Loader Container */}
@@ -13,7 +13,7 @@ const Loader = () => (
       ></div>
       {/* Center Logo */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <img
+        <Image
           src="\images\logo\Loader.svg" // Replace with your image path
           alt="Loading"
           className="w-10 h-10" // Adjust size as needed

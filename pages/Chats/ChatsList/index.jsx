@@ -15,6 +15,7 @@ import {
 } from "react-icons/fa";
 import { useLogger } from "next-axiom"; // Import Axiom logger
 import loggerdetails from "@/components/logger";
+import { Image } from "react-bootstrap";
 import AgentStatusDropdown from "@/components/Dropdowns/AgentStatusDropdown";
 import { getAgentConversations ,getAgentMessages,addConversation, addMessageToConversation ,removeConversation , selectExpiredConversations ,checkForExpiredConversations ,setAgentstatus} from "@/slices/ChatBridgeSlice";
 import UserBadge from "@/public/images/User.jpg";
@@ -758,7 +759,7 @@ const ChatPage = () => {
           <div className="flex justify-between items-center headerchatmenu">
             {/* Logo Section on the Left Side */}
             <div className="flex items-center space-x-3 gap-5">
-              <img
+              <Image
                 className="m-l-10 h-10 w-auto"
                 src="/images/logo/Loader.svg"
                 alt="Logo"
@@ -873,7 +874,7 @@ const ChatPage = () => {
                       className="flex  bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md items-center hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none   p-2"
                       onClick={() => setDropdownOpen(!dropdownOpen)}
                     >
-                      <img
+                      <Image
                         src={UserBadge.src}
                         alt="User"
                         className="w-8 h-8 rounded-full mr-2"
@@ -962,7 +963,7 @@ const ChatPage = () => {
                         }
                       >
                         <div className="d-flex align-items-center w-75">
-                          <img
+                          <Image
                             src={`${BASE_URL}${conversation.logo}`}
                             alt="User Logo"
                             className="rounded-circle me-2"
@@ -1036,7 +1037,7 @@ const ChatPage = () => {
                       key={conversation.id}
                       className="flex items-center space-x-3"
                     >
-                      <img
+                      <Image
                         src={`${BASE_URL}${conversation.logo}`}
                         alt="User Logo"
                         className="rounded-circle me-2"

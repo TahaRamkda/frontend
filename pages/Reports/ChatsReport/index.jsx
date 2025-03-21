@@ -542,7 +542,7 @@ const [Logo, setLogo] = useState('');
         customStyles={{
           table: {
             style: {
-              width: "100%",
+              width: ConversationReport.length > 0 ? '2023px' : '100%',
               borderCollapse: "collapse",
             },
           },

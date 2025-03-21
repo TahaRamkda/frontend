@@ -38,13 +38,13 @@ const TemplateList = () => {
       name: "Category",
       selector: (row) => row.category,
       sortable: true,
-      width: '11%'
+      
     },
     {
       name: "Whatsapp Id",
       selector: (row) => row.templateId,
       sortable: true,
-      width: '15%'
+      
     },
     {
       name: "Language",
@@ -55,14 +55,13 @@ const TemplateList = () => {
       name: "Sender Name",
       selector: (row) => row.senderName,
       sortable: true,
-      width: '18%'
+      
     },
     { name: "Status", selector: (row) => row.status, sortable: true },
     {
       name: "Created Date",
       selector: (row) => row.createdDate,
       sortable: true,
-      width: '18%'
     },
     {
       name: "Action",
@@ -292,30 +291,30 @@ const TemplateList = () => {
               customStyles={{
                 table: {
                   style: {
-                    width: "100%",
-                    borderCollapse: "collapse",
+                    width: '2023px',
+                    borderCollapse: 'collapse',
                   },
                 },
                 headRow: {
                   style: {
-                    borderBottom: "1px solid #ddd",
-                    padding: "0px",
+                    borderBottom: '1px solid #ddd',
+                    padding: '0px',
                   },
                 },
                 headCells: {
                   style: {
-                    borderRight: "1px solid #ddd",
-                    fontWeight: "bold",
+                    borderRight: '1px solid #ddd',
+                    fontWeight: 'bold',
                   },
                 },
                 rows: {
                   style: {
-                    borderBottom: "1px solid #ddd",
+                    borderBottom: '1px solid #ddd',
                   },
                 },
                 cells: {
                   style: {
-                    borderRight: "1px solid #ddd",
+                    borderRight: '1px solid #ddd',
                   },
                 },
               }}

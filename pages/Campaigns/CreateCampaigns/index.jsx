@@ -12,6 +12,7 @@ import {
 } from "reactstrap";
 //import ReactQuill from 'react-quill';
 import "react-quill/dist/quill.snow.css";
+import { Image } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchTemplatesById,
@@ -726,7 +727,7 @@ const CampaignCreate = () => {
                     <div className="flex items-center space-x-3">
                       {/* Display Image */}
                       {sendername.mediaPath && (
-                        <img
+                        <Image
                           src={`${BASE_URL}${sendername.mediaPath}`}
                           alt="Sender Logo"
                           className="rounded-circle me-2 img-fluid"
@@ -771,7 +772,7 @@ const CampaignCreate = () => {
                 </span>
                 {messagePreview.media &&
                   selectedMediaType?.startsWith("image/") && (
-                    <img
+                    <Image
                       src={`${BASE_URL}${selectedMediaPath}`}
                       alt="Media"
                       className="img-fluid"

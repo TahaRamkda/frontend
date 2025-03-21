@@ -233,55 +233,55 @@ const CampaignsList = () => {
       name: "Campaign Name",
       selector: (row) => row.campaignName,
       sortable: true,
-      wrap: false, // Prevents wrapping, forces width to fit content
+       // Prevents wrapping, forces width to fit content
     },
     {
       name: "Schedule Date",
       selector: (row) => row.scheduleDate,
       sortable: true,
-      wrap: false,
+      
     },
     {
       name: "Status",
       selector: (row) => row.statusName,
       sortable: true,
-      wrap: false,
+      
     },
     {
       name: "Contacts",
       selector: (row) => row.totalContacts,
       sortable: true,
-      wrap: false,
+      
     },
     {
       name: "Sent",
       selector: (row) => row.sentCount,
       sortable: true,
-      wrap: false,
+      
     },
     {
       name: "Delivered",
       selector: (row) => row.deliveredCount,
       sortable: true,
-      wrap: false,
+      
     },
     {
       name: "Read",
       selector: (row) => row.readCount,
       sortable: true,
-      wrap: false,
+      
     },
     {
       name: "Failed",
       selector: (row) => row.failedCount,
       sortable: true,
-      wrap: false,
+      
     },
     {
       name: "Created Date",
       selector: (row) => row.createdDate,
       sortable: true,
-      wrap: false,
+      
     },
     {
       name: "Action",
@@ -331,7 +331,7 @@ const CampaignsList = () => {
           </div>
         );
       },
-      wrap: false, // Ensures action buttons don't wrap
+       // Ensures action buttons don't wrap
     },
   ];
   const subHeaderComponentMemo = useMemo(() => {
@@ -435,7 +435,7 @@ const CampaignsList = () => {
   customStyles={{
     table: {
       style: {
-        width: '100%',
+        width: '2023px', // Set the width to 2023px
         borderCollapse: 'collapse',
       },
     },
@@ -449,8 +449,8 @@ const CampaignsList = () => {
       style: {
         borderRight: '1px solid #ddd',
         fontWeight: 'bold',
-        whiteSpace: 'nowrap', // Prevents wrapping in header
-        overflow: 'visible',  // Ensures content isn't clipped
+        whiteSpace: 'nowrap',
+        overflow: 'visible',
       },
     },
     rows: {
@@ -461,8 +461,8 @@ const CampaignsList = () => {
     cells: {
       style: {
         borderRight: '1px solid #ddd',
-        whiteSpace: 'nowrap', // Prevents wrapping in cells
-        overflow: 'visible',  // Ensures content isn't clipped
+        whiteSpace: 'nowrap',
+        overflow: 'visible',
       },
     },
   }}

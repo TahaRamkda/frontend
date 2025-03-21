@@ -51,7 +51,7 @@ const MessageSummary = () => {
   const [clientId, setClientId] = useState(null);
   const [refreshpage, setrefreshpage] = useState(false); // Track if page is refreshing
   const ChatsReportColumn = [
-    { name: "Agent", selector: (row) => row?.agentName, sortable: true },
+    { name: "Agent", selector: (row) => row?.agentName, sortable: true, width: "11%" },
     {
       name: "Status",
       selector: (row) => row?.status,
@@ -469,7 +469,7 @@ const MessageSummary = () => {
         customStyles={{
           table: {
             style: {
-              width: "100%",
+              width: agentsMonitor.length > 0 ? "2023px" : "100%",
               borderCollapse: "collapse", // Ensures borders collapse for proper grid appearance
             },
           },

@@ -15,6 +15,7 @@ import {
 //import ReactQuill from 'react-quill';
 import "react-quill/dist/quill.snow.css";
 import { IoClose } from "react-icons/io5";
+import { Image } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSendernameById , clearSendernameState} from "@/slices/sendernameSlice";
 import {HiArrowNarrowLeft, HiEye } from "react-icons/hi";
@@ -1634,7 +1635,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                     <div className="flex items-center space-x-3">
                       {/* Display Image */}
                       {sendername.mediaPath && (
-                        <img
+                        <Image
                           src={`${BASE_URL}${sendername.mediaPath}`}
                           alt="Sender Logo"
                           className="rounded-circle me-2 img-fluid"
@@ -1679,7 +1680,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                 </span>
                 {messagePreview.media &&
                   selectedMediaType.startsWith("image/") && (
-                    <img
+                    <Image
                       src={`${BASE_URL}${selectedMediaPath}`}
                       alt="MediaPopUp"
                       className="img-fluid"

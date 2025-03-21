@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Modal, ModalBody } from "reactstrap";
+import { Image } from "react-bootstrap";
 
 const ImagePreview = ({ imageSrc }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,7 +13,7 @@ const ImagePreview = ({ imageSrc }) => {
      
       <Modal isOpen={isOpen} toggle={toggleModal} centered>
         <ModalBody className="p-0">
-          <img
+          <Image
             src={imageSrc}
             alt="Full Preview"
             style={{

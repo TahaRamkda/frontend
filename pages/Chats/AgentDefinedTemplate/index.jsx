@@ -9,6 +9,7 @@ import {
   SendInteractivetemp,
   clearAgentTemplateSentState,
 } from "@/slices/ConversationSlice";
+import { Image } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import showSweetAlert from "@/components/Sweetalert";
 import { toast } from "react-toastify";
@@ -364,7 +365,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
                               message.contentType !== "" && (
                                 <>
                                   {message.contentType.startsWith("image/") && (
-                                    <img
+                                    <Image
                                       src={`${BASE_URL}${message.mediaPath}`}
                                       alt="Image"
                                       className="max-w-full rounded"

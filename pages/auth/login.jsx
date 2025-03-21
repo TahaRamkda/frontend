@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import imageOne from "@/public/images/logo.png";
 import { fetchLogin, blankAuthState } from "@/slices/AuthSlice";
+import { Image } from "react-bootstrap";
 import { sidebarItems } from '@/utils/sidebarItems';
   const Login = () => {
     const dispatch = useDispatch();
@@ -67,7 +68,7 @@ import { sidebarItems } from '@/utils/sidebarItems';
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
           <form onSubmit={handleLogin} className="space-y-6">
           <Link href={"/"  }>
-            <img className="h-20 mx-auto" src="\images\logo\Loader.svg" alt="logo" />
+            <Image className="h-20 mx-auto" src="\images\logo\Loader.svg" alt="logo" />
           </Link>
           <h2 class="text-center text-2xl font-bold">Sign In</h2>
           <div>

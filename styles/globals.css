@@ -345,7 +345,7 @@ body {
 
 ::-webkit-scrollbar {
   width: 0px; /* Hides vertical scrollbar by setting its width to 0 */
-  height: 8px; /* Sets a visible height for horizontal scrollbar */
+  height: 5px; /* Sets a visible height for horizontal scrollbar */
 }
 
 ::-webkit-scrollbar-track {

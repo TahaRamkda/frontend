@@ -12,6 +12,7 @@ import {
 } from "@/slices/sendernameSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import App from "@/components/Layout/App";
+import { Image } from "react-bootstrap";
 import SenderNameForm from "../CreateSenderName";
 import { BASE_URL } from "@/utils/apiConstants";
 import { selector } from "recoil";
@@ -34,7 +35,7 @@ const SendernameList = () => {
       cell: (row) => (
         <div className="flex flex-row items-center gap-2 text-center">
           
-          <img
+          <Image
             src={`${BASE_URL}${row.mediaPath}`}
             alt="Image"
             className="w-8 h-8 object-cover rounded-lg"
@@ -42,7 +43,7 @@ const SendernameList = () => {
           <div className="flex items-center">
             <span className="m-1">{row.senderName}</span>
             <span>{row.verified && ( // Check if verified is true and render the image
-            <img
+            <Image
               src="\images\wVarified.png"
               alt="Verified"
               className="w-4 h-4 object-contain mt-1" // Adjust size as needed

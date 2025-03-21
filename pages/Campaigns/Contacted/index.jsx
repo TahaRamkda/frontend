@@ -53,7 +53,7 @@ const LastContactedList = ({ isVisible, onClose, onsuccess, campaignId }) => {
         })
       );
     }
-  }, [CampaignId]);
+  }, [dispatch, ClientId,CampaignId]);
   // Handle row removal
   const removeRow = (removedays) => {
     const days = removedays;

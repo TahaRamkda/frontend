@@ -29,7 +29,7 @@ const ContactList = () => {
   const [CreateModalOPen, setCreateModalOpen] = useState(false);
   const [BulkUploadModal, setBulkUploadModal] = useState(false);
   const clientColumns = [
-    { name: "Groups", selector: (row) => row.groupName, sortable: true },
+    { name: "Groups", selector: (row) => row.groupName, sortable: true,  },
     { name: "First name", selector: (row) => row.firstName, sortable: true },
     { name: "Last Name", selector: (row) => row.lastName, sortable: true },
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true, width: '17%' },

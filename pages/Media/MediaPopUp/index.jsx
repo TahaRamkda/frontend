@@ -8,6 +8,7 @@ import { Modal, ModalHeader, ModalBody, Button } from "reactstrap";
 import Loader from "@/components/Layout/Loader";
 import { BASE_URL } from "@/utils/apiConstants";
 import UploadMedia from "../UploadMedia";
+import { Image } from "react-bootstrap";
 const MediaPopUp = ({ isPopup, onSelectMedia, contentTypeStr,senderId, ToggleModal }) => {
   const dispatch = useDispatch();
   const [selectedSenderId, setSelectedSenderId] = useState(null);
@@ -114,7 +115,7 @@ const [ispopUp, setispopUp] = useState(true);
     const previewStyle = "w-full popup_img_container overflow-hidden flex justify-center items-center rounded-lg bg-gray-100";
 
     if (mimeType.startsWith("image/")) {
-      return <img src={`${BASE_URL}${mediaPath}`} alt="Image" className="w-full h-full object-cover rounded-lg" />;
+      return <Image src={`${BASE_URL}${mediaPath}`} alt="Image" className="w-full h-full object-cover rounded-lg" />;
     } else if (mimeType.startsWith("video/")) {
       return <video controls className="w-full h-full object-cover"><source src={`${BASE_URL}${mediaPath}`} type={mimeType} /></video>;
     } else {

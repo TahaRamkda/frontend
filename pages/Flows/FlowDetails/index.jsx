@@ -28,6 +28,7 @@ import {
   clearSendernameState,
 } from "@/slices/sendernameSlice";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Image from "react-bootstrap";
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
 import { updateFlow, fetchFlowDetailsById } from "@/slices/FlowsSlice";
@@ -176,7 +177,7 @@ const FlowPreview = ({
             {senderNameData && (
               <div className="d-flex align-items-center">
                 {senderNameData.mediaPath && (
-                  <img
+                  <Image
                     src={`${BASE_URL}${senderNameData.mediaPath}`}
                     alt="Sender Logo"
                     className="rounded-circle me-2 img-fluid"

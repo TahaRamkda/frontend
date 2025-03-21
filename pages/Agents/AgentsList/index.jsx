@@ -100,7 +100,7 @@ const AgentsList = () => {
       name: "Action",
       cell: (row) => (
         <>
-          <div className="flex gap-2">
+          <div className="flex gap-2 justify-center w-full">
             <button
               onClick={() => handleDetailClick(row.id)}
               title="Edit Agent"
@@ -108,13 +108,13 @@ const AgentsList = () => {
             >
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
-            <button
+            {/* <button
               onClick={() => handleTime(row)}
               title="Agents Timming"
               className="uniform_icon_btn"
             >
               <HiClock style={{ fontSize: "15px" }} />
-            </button>
+            </button> */}
             <button
               onClick={() => handleDeleteClick(row.id)}
               title="Delete Agent"
@@ -201,15 +201,7 @@ const AgentsList = () => {
   const handleChange = (e) => {
     const senderId = e.target.value;
     setSenderId(senderId);
-    dispatch(
-      fetchAgents({
-        clientId: localStorage.getItem("clientId"),
-        senderId: senderId,
-        searchStr: filterText,
-        pageNo: currentPage,
-        pageSize,
-      })
-    );
+   
   };
   const handleClose = () => {
     setshowagenttiming(false);
@@ -383,7 +375,7 @@ const AgentsList = () => {
     return () => {
       dispatch(cleaAgentState());
     };
-  }, [dispatch]);
+  }, [dispatch,SenderId]);
 
   const filteredAgents = useMemo(
     () =>
@@ -416,7 +408,7 @@ const AgentsList = () => {
         </div>
       </div>
     ),
-    [filterText]
+    [filterText,SenderId]
   );
   if (error) {
     return <div className="p-4 text-red-500">{error}</div>;

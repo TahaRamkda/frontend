@@ -5,6 +5,7 @@ import { BASE_URL } from "@/utils/apiConstants";
 import { extractTime } from "@/utils/constants";
 import Loader from "@/components/Layout/Loader";
 import { REFRESH_INTERVAL } from "@/utils/constants";
+import { Image } from "react-bootstrap";
 import {
   fetchConversationMessageReport,
   clearMessagesReportState,
@@ -103,7 +104,7 @@ const Chatview = ({ ChatId, onClose, isVisible, PhNo, CustomerName, logo }) => {
               <div className="text-xl">Chat Details </div>
               <div className="flex flex-wrap">
                 <div className="text-sm">
-                  <img
+                  <Image
                     src={`${BASE_URL}${logo}`}
                     alt="Sender Logo"
                     className="rounded-circle me-2 mt-2 img-fluid"
@@ -160,7 +161,7 @@ const Chatview = ({ ChatId, onClose, isVisible, PhNo, CustomerName, logo }) => {
                       {message.contentType && message.contentType !== "" && (
                         <>
                           {message.contentType.startsWith("image/") && (
-                            <img
+                            <Image
                               src={`${BASE_URL}${message.mediaPath}`}
                               alt="Image"
                               className="w-full h-auto rounded"

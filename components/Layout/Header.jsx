@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { Image } from "react-bootstrap";
 import {
   HiZoomIn,
   HiZoomOut,
@@ -148,7 +149,7 @@ export function Header({ toggleSidebar }) {
         {/* Logo Section on the Left Side */}
         <div className="flex items-center space-x-3">
           <Link href="/Dashboard" className="flex items-center space-x-3">
-            <img
+            <Image
               className="h-8 w-auto"
               src="\images\logo\Loader.svg"
               alt="Logo"
@@ -189,7 +190,7 @@ export function Header({ toggleSidebar }) {
                 className="flex items-center space-x-2 p-2 bg-gray-100  bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 focus:outline-none"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
-                <img
+                <Image
                   src={UserBadge.src}
                   alt="User"
                   className="w-8 h-8 rounded-full"

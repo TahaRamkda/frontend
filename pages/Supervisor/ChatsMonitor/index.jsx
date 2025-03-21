@@ -413,7 +413,7 @@ useEffect(() => {
         customStyles={{
           table: {
             style: {
-              width: '100%',
+              width: chatsMonitor.length > 0 ? '2023px' : '100%',
               borderCollapse: 'collapse',
             },
           },
