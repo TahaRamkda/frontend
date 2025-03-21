@@ -29,6 +29,7 @@ import { MdSwapHoriz } from "react-icons/md";
 import { REFRESH_INTERVAL } from "@/utils/constants";
 import SearchBar from "@/components/SearchBar/SearchComponent";
 import { excelExportChatReport } from "@/slices/ExportExcel";
+import { getMonthStart, getToday } from "@/components/Timepicker/datetimepicker";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
 import Select from "react-select";
 import { FORMATEDATE } from "@/utils/constants";
@@ -62,22 +63,7 @@ const ChatsReport = () => {
   const [page, SetPageSize] = useState(10)
 
   const [ChatLoading, setChatLoading] = useState(false);
-  const getMonthStart = () => {
-    const date = new Date();
-    console.log("Raw Current Date:", date.toString());
-    console.log("Year:", date.getFullYear());
-    console.log("Month (0-indexed):", date.getMonth());
-    console.log("Day:", date.getDate());
-    const startDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), 1))
-        .toISOString()
-        .split("T")[0];
-    console.log("Month Start:", startDate);
-    return startDate;
-};
-  const getToday = () => {
-    const date = new Date();
-    return date.toISOString().split("T")[0];
-  };
+  
   const [FromDate, setFromDate] = useState(getMonthStart());
   const [ToDate, setToDate] = useState(getToday());
   const [modalOpen, SetModalOpen] = useState(false);
@@ -137,7 +123,7 @@ const [Logo, setLogo] = useState('');
       name: "Action",
       cell: (row) => (
         <center>
-          <div className="flex-wrap gap-2">
+          <div className="flex gap-2">
             <button
               title="View Chat"
               className="uniform_icon_btn"
@@ -592,10 +578,10 @@ const [Logo, setLogo] = useState('');
                 Chat Logs
               </ModalHeader>
 
-              <ModalBody>
+              <ModalBody className="overflow-auto max-h-[60vh]" >
               {loading && <Loader/>}
               
-              <table className="min-w-full max-w-full bg-white border border-gray-200 rounded-md ">
+              <table className="min-w-full max-w-full  overflow-auto bg-white border border-gray-200 rounded-md ">
                 <thead>
                   <tr className="bg-gray-100 text-left text-sm uppercase text-gray-600">
                     <th className="py-2 px-4">Agent Full Name</th>

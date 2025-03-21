@@ -48,7 +48,7 @@ const CampaignsList = () => {
  const [campaignloading, setcampaignloading] = useState(false);
   const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10
-
+ 
   const handleTemplateChange = (e) => {
     const template = e.target.value;
     settemplateId(template);
@@ -58,19 +58,19 @@ const CampaignsList = () => {
         ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status, templateId: template, srcStr: keyword, pageSize, PageNo: currentPage,
       }));
   };
-
+ 
   useEffect(() => {
     if (!loading && campaigns) {
       setcampaignloading(false);
     }
   }, [loading, campaigns]);
  
-
-
+ 
+ 
   useEffect(() => {
     const checkAndFetch = async () => {
       const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
-  
+ 
       if (isLiveReporting) {
         dispatch(
           fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage})
@@ -79,7 +79,7 @@ const CampaignsList = () => {
         // Handle the case when isLiveReporting is false
       }
     };
-  
+ 
     // Run the function every 5 minutes
     const intervalId = setInterval(() => {
       // Perform the periodic refresh (e.g., every 5 minutes) if page is loaded
@@ -87,17 +87,17 @@ const CampaignsList = () => {
         checkAndFetch();
       }
     }, REFRESH_INTERVAL);
-  
+ 
     // Run the function once immediately
-
+ 
     // Cleanup the interval when the component unmounts
     return () => clearInterval(intervalId);
   }, [dispatch,FromDate,ToDate,status,templateId,currentPage,pageSize]);
-
-
  
-
-
+ 
+ 
+ 
+ 
   const HandleUpdateCampaign = (CampaignId) => {
     setcampaignloading(true)
     setCampaignId(CampaignId);
@@ -111,12 +111,12 @@ const CampaignsList = () => {
     const searchValue = e;
     setKeyword(searchValue);
     setter(e)
-
+ 
     // Clear the previous timeout if any
     if (searchTimeout) {
       clearTimeout(searchTimeout);
     }
-    
+   
     // Set a new timeout for 0.5 seconds
     const timeout = setTimeout(() => {
       setcampaignloading(true);
@@ -124,28 +124,28 @@ const CampaignsList = () => {
         fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: searchValue, pageSize, PageNo: currentPage})
       );
     }, 500);
-
+ 
     setSearchTimeout(timeout); // Save the timeout reference
   };
-
-
-
+ 
+ 
+ 
  useEffect(() => {
-    
+   
       const clientId = localStorage.getItem("clientId");
       setcampaignloading(true);
       dispatch(fetchCampaign({ ClientId: clientId, FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
-    
+   
     return () => {
       clearCampaignListState();
     };
   }, [dispatch, FromDate, ToDate,templateId]);
-
+ 
   const handleCreate = () => {
     setcampaignloading(true)
     window.location.href = "/Campaigns/CreateCampaigns";
   }
-
+ 
   const handelClick = (campaignId) => {
     setCampaignId(campaignId)
     setContactedModaL(true)
@@ -154,18 +154,18 @@ const CampaignsList = () => {
     setContactedModaL(false)
     setCampaignTestModal(false)
   }
-
+ 
   const handelCloseClick = () => {
     setContactedModaL(false)
     setCampaignTestModal(false)
   }
-
-
+ 
+ 
   const refreshCampaignList = () => {
     setcampaignloading(true)
     dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: currentPage }));
   }
-
+ 
   const handlePageSizeChange = async (newSize) => {
     setSize(newSize);
     dispatch(setPageSize(newSize));
@@ -173,24 +173,24 @@ const CampaignsList = () => {
     setcampaignloading(true)
     await dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize: newSize, PageNo: 1 }));
   };
-
-  
+ 
+ 
   const handlePageChange = async (page) => {
     setcampaignloading(true)
     dispatch(setCurrentPage(page));
     await dispatch(fetchCampaign({ ClientId: localStorage.getItem("clientId"), FromDate: FromDate, ToDate: ToDate, status: status, templateId: templateId, srcStr: keyword, pageSize, PageNo: page }));
   };
-
+ 
   const handleActivateClick = async (campaignId) => {
     setCampaignId(campaignId);
     setIsModalOpen(true);
   };
-
+ 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setCampaignForm({ ...CampaignForm, [name]: value });
   };
-
+ 
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -217,17 +217,17 @@ const CampaignsList = () => {
           icon: "error",
         });
       }
-      
+     
     } catch (error) {
       showSweetAlert({ title: "Failed", text: error.message, icon: "error" });
     }
   };
-
+ 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString("en-US");
   };
-
+ 
   const campaignColumns = [
     {
       name: "Campaign Name",
@@ -288,14 +288,14 @@ const CampaignsList = () => {
       cell: (row) => {
         const scheduleDate = new Date(row.scheduleDate);
         const currentTime = new Date();
-  
+ 
         const isSameDay =
           scheduleDate.getDate() === currentTime.getDate() &&
           scheduleDate.getMonth() === currentTime.getMonth() &&
           scheduleDate.getFullYear() === currentTime.getFullYear();
-  
+ 
         const timeDifference = (scheduleDate - currentTime) / (1000 * 60 * 60);
-  
+ 
         return (
           <div className=" flex gap-1 " id="InfoIcon">
             <button
@@ -337,11 +337,11 @@ const CampaignsList = () => {
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className='w-full'>
-        
+       
         <div className="grid grid-cols-5 gap-4 justify-start">
-        
+       
           <div className="flex flex-col text-start mb-1">
-            
+           
             <Label className="font-medium text-sm mb-1">Select Templates</Label>
             <TemplateDropdown
               name="role_Id"
@@ -374,21 +374,21 @@ const CampaignsList = () => {
               onChange={setToDate}
             />
           </div>
-
+ 
         </div>
       </div>
     );
   }, [keyword, FromDate, ToDate, templateId]);
-
+ 
   const handleClose = () => {
     setShowUpdateModel(false);
     setcampaignloading(false);
   };
-
+ 
   return (
-    
+   
     <App>
-      
+     
       { campaignloading && <Loading />}
       {showUpdateModel ? (
        <UpdateCampaign
@@ -412,8 +412,8 @@ const CampaignsList = () => {
           </Button>
         </div>
       </div>
-
-
+ 
+ 
       <div className="overflow-auto">
       <DataTable
   data={campaigns}
@@ -482,8 +482,8 @@ const CampaignsList = () => {
                   <div className='mt-4 text-end w-full' >
                     <Button color="secondary" className='uniform_btn ' type="submit">Save</Button>
                   </div>
-
-
+ 
+ 
                 </Form>
               )}
             </ModalBody>
@@ -511,5 +511,6 @@ const CampaignsList = () => {
     </App>
   );
 };
-
+ 
 export default CampaignsList;
+ 

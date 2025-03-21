@@ -21,7 +21,7 @@ const GroupList = () => {
   const [groupForm, setGroupForm] = useState({});
   const [filterText, setFilterText] = useState('');
   const [CreateModalOpen, setCreateModalOpen] = useState(false)
-
+  const [isLoading, setIsLoading] = useState(false); // Start as true since we're fetching data
   const groupColumns = [
 
     { name: "Group Name", selector: (row) => row.groupName, sortable: true },
@@ -31,7 +31,7 @@ const GroupList = () => {
       name: "Action",
       cell: (row) => (
         <>
-          <div className="flex gap-2 ">
+          <div className="flex gap-2 justify-center w-full">
             <button
               title="Edit Group"
               className="uniform_icon_btn"
@@ -142,6 +142,7 @@ const GroupList = () => {
   };
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const requestBody = {
 
@@ -158,6 +159,7 @@ const GroupList = () => {
           text: "",
           icon: "success",
         });
+        setIsLoading(false);
         setIsModalOpen(false);
         refreshGroupList();
       } else {
@@ -165,6 +167,9 @@ const GroupList = () => {
       }
     } catch (error) {
       alert("Failed to update group: " + error.message);
+      setIsLoading(false);
+    }finally{
+      setIsLoading(false);
     }
   };
   const refreshGroupList = () => {
@@ -215,7 +220,7 @@ const GroupList = () => {
     <App>
 
       <div className="flex items-center">
-        {loading && <Loading />}
+        {(loading || isLoading) && <Loading />}
         <div className=''>
           <h4 className="font-bold">Groups </h4>
         </div>
@@ -282,42 +287,47 @@ const GroupList = () => {
 
 
       {isModalOpen && (
-        <Modal isOpen={true} toggle={() => toggleModal()} fade={false}>
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
-              <ModalHeader toggle={() => toggleModal()}>Edit Group</ModalHeader>
-
-              <ModalBody>
-
-                <form onSubmit={handleUpdateSubmit}>
-                  <div className="flex flex-col">
-                    <label htmlFor="groupName" className="font-medium text-gray-700 text-sm">
-                      Group Name
-                    </label>
-                    <input
-                      type="text"
-                      id="groupName"
-                      name="groupName"
-                      value={groupForm.groupName || ""}
-                      onChange={handleFormChange}
-                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
-                    />
-                  </div>
-
-                  <div className="mt-4 w-full flex justify-end">
-                    <button
-                      type="submit"
-                      className="uniform_btn"
-                    >
-                      Save
-                    </button>
-                  </div>
-                </form>
-              </ModalBody>
-            </div>
+  <Modal isOpen={true} toggle={() => toggleModal()} fade={false}>
+    <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
+        {/* Loader for update operation */}
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center z-50 ">
+            <Loading />
           </div>
-        </Modal>
-      )}
+        )}
+        <ModalHeader toggle={() => toggleModal()}>Edit Group</ModalHeader>
+        <ModalBody>
+          <form onSubmit={handleUpdateSubmit}>
+            <div className="flex flex-col">
+              <label htmlFor="groupName" className="font-medium text-gray-700 text-sm">
+                Group Name
+              </label>
+              <input
+                type="text"
+                id="groupName"
+                name="groupName"
+                value={groupForm.groupName || ""}
+                onChange={handleFormChange}
+                className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                disabled={isLoading} // Disable input while loading
+              />
+            </div>
+            <div className="mt-4 w-full flex justify-end">
+              <button
+                type="submit"
+                className="uniform_btn"
+                disabled={isLoading} // Disable button while loading
+              >
+                Save
+              </button>
+            </div>
+          </form>
+        </ModalBody>
+      </div>
+    </div>
+  </Modal>
+)}
 
       {CreateModalOpen && (
         <GroupForm

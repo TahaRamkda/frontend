@@ -56,67 +56,73 @@ const SurveyReportPage = () => {
 
   return (
     <App>
-      <div className=" w-1/3 ">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-        <div className="p-2">
-          <h4 className="font-bold ">Survey Report</h4>
-        </div>
+     <div className=" inset-0 flex items-center justify-center z-50">
+  <div className="bg-white p-6 rounded-lg shadow-lg w-2/5 border border-gray-200">
+    <div className="p-4 border-b border-gray-200">
+      <h4 className="font-bold text-lg text-gray-800">Survey Report</h4>
+    </div>
 
-          <div className="space-y-4">
-            {/* Sender Name Dropdown */}
-            <div className="p-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Sender Name
-              </label>
-              <SendernameDropdown
-                name="senderId"
-                onChange={handleSenderChange}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-              />
-            </div>
-            <div className="p-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Flow 
-              </label>
-              <FlowDropdown
-                name="flowId"
-                onChange={handleFlowChange}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-              />
-            </div>
-            {/* From Date */}
-            <div>
-              <DateTimePicker
-                label="From Date"
-                value={fromDate}
-                onChange={setFromDate}
-                className="w-full p-2  rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-              />
-            </div>
-
-            {/* To Date */}
-            <div>
-              <DateTimePicker
-                label="To Date"
-                value={toDate}
-                minDate={fromDate}
-                onChange={setToDate}
-                className="w-full p-2  rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-              />
-            </div>
-
-            {/* Export Button */}
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={handleExportToExcel}
-                className="uniform_btn"
-              >
-                Export to Excel
-              </button>
-            </div>
-          </div>
-        </div>
+    <form className="p-4 space-y-6">
+      {/* Sender Name Dropdown */}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          Sender Name
+        </label>
+        <SendernameDropdown
+          name="senderId"
+          onChange={handleSenderChange}
+          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+        />
       </div>
+
+      {/* Flow Dropdown */}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          Flow
+        </label>
+        <FlowDropdown
+          name="flowId"
+          onChange={handleFlowChange}
+          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+        />
+      </div>
+
+      {/* From Date */}
+      <div className="space-y-2">
+        
+        <DateTimePicker
+          label="From Date"
+          value={fromDate}
+          onChange={setFromDate}
+          className="w-full  border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+        />
+      </div>
+
+      {/* To Date */}
+      <div className="space-y-2">
+        
+        <DateTimePicker
+          label="To Date"
+          value={toDate}
+          minDate={fromDate}
+          onChange={setToDate}
+          className="w-full  border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+        />
+      </div>
+
+      {/* Export Button */}
+      <div className="flex justify-end pt-4 border-t border-gray-200">
+        <button
+          onClick={handleExportToExcel}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all"
+        >
+          Export to Excel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+     
     </App>
   );
 };

@@ -30,6 +30,7 @@ const ChatsMonitor = () => {
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [showtransfer, setshowtransfer] = useState(false);
   const [activeChat, setActiveChat] = useState(0);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [PhoneNumber, setPhoneNumber] = useState('');
   const [ChatLoading, setChatLoading] = useState(false)
   const [SenderId, setSenderId] = useState(0);
@@ -210,40 +211,37 @@ const refreshPage = () => {
 
 
  
-   useEffect(() => {
-    
-       const checkAndFetch = async () => {
-         const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
-     
-         if (isLiveReporting ) {
-          dispatch(fetchChatsMonitor({
-            clientId: localStorage.getItem("clientId"),
-            senderId: senderid,
-            srcStr:srcStr,
-            fChatInitiated:initiated,
-            agentId: agentId,
-            status:Status,
-            pageSize:page, // Example page size
-            pageNo: PageNum, // Example current page
-          }));
-         } else {
-           // Handle the case when isLiveReporting is false
-         }
-       };
-     
-       // Run the function every 5 minutes
-       const intervalId = setInterval(() => {
-         // Perform the periodic refresh (e.g., every 5 minutes) if page is loaded
-         if (!loading) {
-           checkAndFetch();
-         }
-       }, REFRESH_INTERVAL);
-     
-       // Run the function once immediately
-   
-       // Cleanup the interval when the component unmounts
-       return () => clearInterval(intervalId);
-     }, [dispatch,senderid,srcStr,Status,initiated,agentId]);
+useEffect(() => {
+  const checkAndFetch = async () => {
+    const isLiveReporting = JSON.parse(localStorage.getItem("isLiveReporting"));
+
+    if (isLiveReporting) {
+      dispatch(fetchChatsMonitor({
+        clientId: localStorage.getItem("clientId"),
+        senderId: senderid,
+        srcStr: srcStr,
+        fChatInitiated: initiated,
+        agentId: agentId,
+        status: Status,
+        pageSize: page, // Use current page size
+        pageNo: PageNum, // Use current page number
+      }));
+    }
+  };
+
+  const intervalId = setInterval(() => {
+    if (!loading) {
+      checkAndFetch();
+    }
+  }, REFRESH_INTERVAL);
+
+  // Run once immediately only on initial load
+  if (isInitialLoad) {
+    checkAndFetch();
+  }
+
+  return () => clearInterval(intervalId);
+}, [dispatch, senderid, srcStr, Status, initiated, agentId, page, PageNum, loading, isInitialLoad]);
 
  
   const handleDetailClick = async (row) => {
@@ -271,23 +269,25 @@ const refreshPage = () => {
  
   useEffect(() => {
     if (clientId) {
-      setChatLoading(true)
+      setChatLoading(true);
       dispatch(fetchChatsMonitor({
         clientId: clientId,
         senderId: senderid,
-        status:Status,
+        status: Status,
         agentId: agentId,
-        fChatInitiated:initiated,
-        srcStr:srcStr,
-        pageSize:page,
-        pageNo: PageNum,
-      }));
+        fChatInitiated: initiated,
+        srcStr: srcStr,
+        pageSize: isInitialLoad ? 10 : page, // Default 10 only on initial load
+        pageNo: isInitialLoad ? 1 : PageNum, // Default 1 only on initial load
+      })).then(() => {
+        if (isInitialLoad) setIsInitialLoad(false); // Mark initial load as complete
+      });
     }
- 
+  
     return () => {
       dispatch(clearChatsMonitorState());
     };
-  }, [dispatch, clientId,senderid, Status,initiated,agentId]);
+  }, [dispatch, clientId, senderid, Status, initiated, agentId]);
  
   const handlePageSizeChange = async (newSize) => {
     SetPageSize(newSize);

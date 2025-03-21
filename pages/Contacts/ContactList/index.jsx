@@ -25,6 +25,7 @@ const ContactList = () => {
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [GroupId, setGroupId] = useState(0);
   const [SearchStr, setSearchStr] = useState('')
+  const [isLoading, setIsLoading] = useState(false);
   const [CreateModalOPen, setCreateModalOpen] = useState(false);
   const [BulkUploadModal, setBulkUploadModal] = useState(false);
   const clientColumns = [
@@ -125,6 +126,7 @@ const ContactList = () => {
 
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const requestBody = {
 
@@ -141,6 +143,7 @@ const ContactList = () => {
       const response = await dispatch(updateContact(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({ title: "Updated Successfully", text: "", icon: "success" });
+        setIsLoading(false);
         setIsModalOpen(false);
         refreshContactList();
       } else {
@@ -148,6 +151,9 @@ const ContactList = () => {
       }
     } catch (error) {
       alert("Failed to update" + error.message);
+      setIsLoading(false);
+    }finally{
+      setIsLoading(false);
     }
   };
   const toggleModal = (reason = null) => {
@@ -305,6 +311,11 @@ const ContactList = () => {
         <Modal isOpen={true} toggle={() => toggleModal("close-icon")} fade={false}>
           <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
+            {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center z-50 ">
+            <Loading />
+          </div>
+        )}
               <ModalHeader
                 toggle={() => toggleModal("close-icon")}
               >
