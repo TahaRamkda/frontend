@@ -273,7 +273,7 @@ const agentSlice = createSlice({
       state.success = false;
       state.currentPage = 1;
       state.totalPages = 1;
-      state.pageSize = 10;
+      //state.pageSize = 10;
       state.totalRecords = 0;
     },
     cleaAgenDroptState: (state) => {
