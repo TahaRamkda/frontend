@@ -365,10 +365,9 @@ const AgentsList = () => {
   useEffect(() => {
     dispatch(
       fetchAgents({
-        clientId: localStorage.getItem("clientId"),
-        senderId: SenderId,
-        searchStr: filterText,
-        pageNo: currentPage,
+        senderId: 0,
+        searchStr: "",
+        pageNo: 1,
         pageSize,
       })
     );
