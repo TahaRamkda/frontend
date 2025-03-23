@@ -4,6 +4,7 @@ import { Container, Col, Card, CardBody, CardTitle, CardText, Button } from 'rea
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Loader from '@/components/Layout/Loader';
 
+import Updatetemplate from "@/pages/Templates/UpdateTemplate";
 // Action type mappings (unchanged)
 export const dropdownOptions = [
   { label: "NONE", value: 0 },
