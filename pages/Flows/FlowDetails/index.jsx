@@ -28,12 +28,10 @@ import {
   clearSendernameState,
 } from "@/slices/sendernameSlice";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Image from "react-bootstrap";
+import { Image } from "react-bootstrap";
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
 import { updateFlow, fetchFlowDetailsById } from "@/slices/FlowsSlice";
-import { FlowState } from "@/components/recoil";
-import App from "@/components/Layout/App";
 import showSweetAlert from "@/components/Sweetalert";
 import { toast } from "react-toastify";
 import { HiCheck, HiTrash } from "react-icons/hi"; // Added for the checkmark icon

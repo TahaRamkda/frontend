@@ -11,8 +11,9 @@ import {
 } from "reactstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Loader from "@/components/Layout/Loader";
-import updateIntTemplate from "@/pages/InteractiveTemplates/UpdateTemplate"
-import UpdateTemplate from "@/pages/Templates/UpdateTemplate"
+import { BASE_URL } from "@/utils/apiConstants";
+import InteractiveTemplateUpdate from "@/pages/InteractiveTemplates/UpdateTemplate";
+import UpdateTemplate from "@/pages/Templates/UpdateTemplate";
 // Action type mappings (unchanged)
 export const dropdownOptions = [
   { label: "NONE", value: 0 },
@@ -31,7 +32,7 @@ const fetchTemplateData = async () => {
     templates: [
       // Template 1: Starting template
       {
-        id: 1,
+        interactiveTemplateId: 1,
         clientId: 1,
         clientName: "Burger King",
         senderId: 1,
@@ -41,8 +42,9 @@ const fetchTemplateData = async () => {
         language: "en",
         status: "APPROVED",
         isApproved: true,
-        headerType: 1,
+        headerType: 3, // Text header
         headerText: "🍔 Burger King Offer!",
+        imageUrl: "", // No image for text header
         headerParamCount: 0,
         bodyText:
           "Get 30% off your next meal, {{customername}}! Choose your favorite offer below.",
@@ -57,25 +59,34 @@ const fetchTemplateData = async () => {
             sequence: 0,
             actionId: 2,
             actionType: 1,
-          }, // Leads to template id: 2
+          },
           {
             buttonId: 2,
-            buttonText: "Beef",
+            buttonText: "Flow",
             buttonValue: "",
             buttonType: 1,
             sequence: 1,
-            actionId: 3,
-            actionType: 1,
-          }, // Leads to template id: 3
+            actionId: 26,
+            actionType: 8,
+          },
           {
             buttonId: 3,
-            buttonText: "Unsubscribe",
+            buttonText: "Beef",
             buttonValue: "",
             buttonType: 1,
             sequence: 2,
+            actionId: 3,
+            actionType: 1,
+          },
+          {
+            buttonId: 4,
+            buttonText: "Unsubscribe",
+            buttonValue: "",
+            buttonType: 1,
+            sequence: 3,
             actionId: 0,
             actionType: 3,
-          }, // Unsubscribe action
+          },
         ],
         parameters: [
           {
@@ -84,6 +95,56 @@ const fetchTemplateData = async () => {
             paramType: 1,
             paramDefaultValue: "Alex",
             sequence: 0,
+          },
+        ],
+      },
+      
+      // Flow Template
+      {
+        senderId: 1,
+        moduleId: 5,
+        parentId: 1626,
+        flowName: "itemflow_item1_english",
+        flowLanguage: "en",
+        publishToFB: false,
+        flowId: 26,
+        actionId: 0,
+        actionType: 0,
+        headerType: 3, // Default to text for flows (no media)
+        headerText: "Cheeseburger Flow", // Optional header for flow
+        imageUrl: "", // No media for flows
+        flowScreens: [
+          {
+            name: "Screen_One_Item_item1_One",
+            title: "Cheeseburger - Add-ons",
+            screenButtonText: "Next",
+            flowChildren: [
+              {
+                text: "Add-ons",
+                type: 0,
+                required: false,
+                flowOptions: [
+                  { optionId: "item3", optionText: "Extra Cheese" },
+                  { optionId: "item4", optionText: "Pepperoni" },
+                ],
+              },
+            ],
+          },
+          {
+            name: "Screen_Two_Item_item1_Two",
+            title: "Cheeseburger - Size",
+            screenButtonText: "Submit",
+            flowChildren: [
+              {
+                text: "Size",
+                type: 1,
+                required: true,
+                flowOptions: [
+                  { optionId: "item5", optionText: "Small Size" },
+                  { optionId: "item6", optionText: "Large Size" },
+                ],
+              },
+            ],
           },
         ],
       },
@@ -99,8 +160,9 @@ const fetchTemplateData = async () => {
         language: "en",
         status: "APPROVED",
         isApproved: true,
-        headerType: 1,
-        headerText: "Chicken Offers",
+        headerType: 1, // Image header
+        headerText: "", // No text for image header
+        imageUrl: "/Media/images_1.jpg", // Image URL
         headerParamCount: 0,
         bodyText: "Explore our delicious chicken meals!",
         bodyParamCount: 0,
@@ -114,7 +176,7 @@ const fetchTemplateData = async () => {
             sequence: 0,
             actionId: 4,
             actionType: 1,
-          }, // Leads to template id: 4
+          },
           {
             buttonId: 5,
             buttonText: "Whopper Meal",
@@ -123,7 +185,7 @@ const fetchTemplateData = async () => {
             sequence: 1,
             actionId: 5,
             actionType: 1,
-          }, // Leads to template id: 5
+          },
           {
             buttonId: 6,
             buttonText: "Visit Website",
@@ -132,7 +194,7 @@ const fetchTemplateData = async () => {
             sequence: 2,
             actionId: 0,
             actionType: 5,
-          }, // URL action (mapped to CHAT)
+          },
         ],
       },
       // Template 3: Beef offers
@@ -147,8 +209,9 @@ const fetchTemplateData = async () => {
         language: "en",
         status: "APPROVED",
         isApproved: true,
-        headerType: 1,
-        headerText: "Beef Offers",
+        headerType: 2, // Video header
+        headerText: "", // No text for video header
+        imageUrl: "/Media/images_1.jpg", // Video URL
         headerParamCount: 0,
         bodyText: "Savor our beefy delights!",
         bodyParamCount: 0,
@@ -162,7 +225,7 @@ const fetchTemplateData = async () => {
             sequence: 0,
             actionId: 4,
             actionType: 1,
-          }, // Leads to template id: 4
+          },
           {
             buttonId: 8,
             buttonText: "Ramadan Offer",
@@ -171,7 +234,7 @@ const fetchTemplateData = async () => {
             sequence: 1,
             actionId: 6,
             actionType: 1,
-          }, // Leads to template id: 6
+          },
           {
             buttonId: 9,
             buttonText: "Call Support",
@@ -180,10 +243,10 @@ const fetchTemplateData = async () => {
             sequence: 2,
             actionId: 0,
             actionType: 5,
-          }, // Call action (mapped to CHAT)
+          },
         ],
       },
-      // Template 4: Meal details (used for Mega Chicken Meal and Mega Beef Meal)
+      // Template 4: Meal details (Mega Chicken Meal and Mega Beef Meal)
       {
         id: 4,
         clientId: 1,
@@ -195,8 +258,9 @@ const fetchTemplateData = async () => {
         language: "en",
         status: "APPROVED",
         isApproved: true,
-        headerType: 1,
-        headerText: "{{mealname}} Details",
+        headerType: 1, // Image header
+        headerText: "", // No text for image header
+        imageUrl: "https://picsum.photos/200/300", // Image URL
         headerParamCount: 1,
         bodyText: "Enjoy your {{mealname}} for only {{price}}!",
         bodyParamCount: 2,
@@ -210,7 +274,7 @@ const fetchTemplateData = async () => {
             sequence: 0,
             actionId: 0,
             actionType: 6,
-          }, // Order action
+          },
           {
             buttonId: 11,
             buttonText: "Chat Support",
@@ -219,7 +283,7 @@ const fetchTemplateData = async () => {
             sequence: 1,
             actionId: 0,
             actionType: 5,
-          }, // Chat action
+          },
         ],
         parameters: [
           {
@@ -238,7 +302,7 @@ const fetchTemplateData = async () => {
           },
         ],
       },
-      // Template 5: Meal details (used for Whopper Meal)
+      // Template 5: Meal details (Whopper Meal)
       {
         id: 5,
         clientId: 1,
@@ -250,8 +314,9 @@ const fetchTemplateData = async () => {
         language: "en",
         status: "APPROVED",
         isApproved: true,
-        headerType: 1,
-        headerText: "{{mealname}} Details",
+        headerType: 1, // Image header
+        headerText: "", // No text for image header
+        imageUrl: "/Media/images_1.jpg", // Image URL
         headerParamCount: 1,
         bodyText: "Enjoy your {{mealname}} for only {{price}}!",
         bodyParamCount: 2,
@@ -281,19 +346,19 @@ const fetchTemplateData = async () => {
             paramId: 2,
             paramName: "{{mealname}}",
             paramType: 1,
-            paramDefaultValue: "Meal",
+            paramDefaultValue: "Whopper Meal",
             sequence: 0,
           },
           {
             paramId: 3,
             paramName: "{{price}}",
             paramType: 2,
-            paramDefaultValue: "$10",
+            paramDefaultValue: "$12",
             sequence: 1,
           },
         ],
       },
-      // Template 6: Meal details (used for Ramadan Offer)
+      // Template 6: Meal details (Ramadan Offer)
       {
         id: 6,
         clientId: 1,
@@ -305,8 +370,9 @@ const fetchTemplateData = async () => {
         language: "en",
         status: "APPROVED",
         isApproved: true,
-        headerType: 1,
-        headerText: "{{mealname}} Details",
+        headerType: 1, // Image header
+        headerText: "", // No text for image header
+        imageUrl: "/Media/images_1.jpg", // Image URL
         headerParamCount: 1,
         bodyText: "Enjoy your {{mealname}} for only {{price}}!",
         bodyParamCount: 2,
@@ -336,14 +402,14 @@ const fetchTemplateData = async () => {
             paramId: 2,
             paramName: "{{mealname}}",
             paramType: 1,
-            paramDefaultValue: "Meal",
+            paramDefaultValue: "Ramadan Special Beef Meal",
             sequence: 0,
           },
           {
             paramId: 3,
             paramName: "{{price}}",
             paramType: 2,
-            paramDefaultValue: "$10",
+            paramDefaultValue: "$13",
             sequence: 1,
           },
         ],
@@ -353,53 +419,227 @@ const fetchTemplateData = async () => {
 };
 
 // Render a single box (fixed id assignment)
-const renderBox = (id, title, content, buttons = [], actionDetails = {},onCardClick) => (
-  <Col xs="auto" key={id}>
-    <Card
-      id={id}
-      className="mb-3 position-relative"
-      style={{ width: "300px" }}
-      onClick={onCardClick}
-    >
-      <CardBody>
-        <CardTitle tag="h5">
-          {title ? title.replace(/_/g, " ").toUpperCase() : "Unnamed"}
-        </CardTitle>
-        <CardText>{content || "No content"}</CardText>
-        {buttons.map((button) => (
+// Render a single box with a Meta-style template preview
+const renderBox = (
+  id,
+  title,
+  content,
+  buttons = [],
+  actionDetails = {},
+  onCardClick,
+  template // Pass the full template object for access to headerType and imageUrl
+) => {
+  const isFlow = title.includes("flow");
+  const headerType = template?.headerType || 3; // Default to text if not specified
+  const imageUrl = template?.imageUrl || "";
+  const headerText = template?.headerText || "";
+  const bodyText = template?.bodyText || content.split("\n\n")[1] || "No content";
+  const footerText = template?.footerText || content.split("\n\n")[2] || "";
+
+  return (
+    <Col xs="auto" key={id}>
+      <Card
+        id={id}
+        className="mb-3 position-relative"
+        style={{ width: "300px", cursor: "pointer" }}
+        onClick={onCardClick}
+      >
+        <CardBody style={{ padding: "10px" }}>
+          {/* Chat Bubble Container */}
           <div
-            key={button.buttonId}
-            id={`btn_${button.buttonId}`}
-            className="mb-2"
-            data-action={dropdownOptions
-              .find((opt) => opt.value === button.actionType)
-              ?.label.toLowerCase()}
-            data-target={
-              button.actionType === 1 && button.buttonType === 1
-                ? `${button.actionId}`
-                : `action_${button.buttonId}`
-            }
+            className="chat_bubble"
+            style={{
+              position: "relative",
+              backgroundColor: "#ffffff",
+              borderRadius: "8px",
+              padding: "15px 10px",
+              wordWrap: "break-word",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+            }}
           >
-            <Button color="primary" block disabled>
-              {button.buttonText || "Unnamed Button"}
-            </Button>
+            {/* Timestamp */}
+            <span
+              className="time_bubble"
+              style={{
+                position: "absolute",
+                top: "5px",
+                right: "10px",
+                fontSize: "0.7em",
+                color: "#888",
+              }}
+            >
+              {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </span>
+
+            {/* Header */}
+            {!isFlow && (
+              <>
+                {headerType === 1 && imageUrl && (
+                  <img
+                     src={imageUrl}
+                    alt="Header Image"
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      maxHeight: "150px",
+                      objectFit: "cover",
+                      borderRadius: "8px",
+                      marginBottom: "10px",
+                    }}
+                  />
+                )}
+                {headerType === 2 && imageUrl && (
+                  <video
+                    src={imageUrl}
+                    controls
+                    muted
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      maxHeight: "150px",
+                      objectFit: "cover",
+                      borderRadius: "8px",
+                      marginBottom: "10px",
+                    }}
+                  />
+                )}
+                {headerType === 3 && headerText && (
+                  <h6
+                    style={{
+                      marginBottom: "10px",
+                      fontWeight: "bold",
+                      fontSize: "1.1em",
+                    }}
+                    dangerouslySetInnerHTML={{ __html: headerText }}
+                  />
+                )}
+              </>
+            )}
+
+            {/* Body */}
+            {isFlow ? (
+              <CardText style={{ margin: "0" }}>
+                {content.split("\n\n").map((screen, index) => (
+                  <div key={index} style={{ marginBottom: "10px" }}>
+                    {screen.split("\n").map((line, idx) => {
+                      const [label, value] = line.split(": ");
+                      return (
+                        <div key={idx} style={{ marginBottom: "2px" }}>
+                          <strong>{label}:</strong> {value || ""}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </CardText>
+            ) : (
+              <div
+                style={{ marginBottom: "10px", fontSize: "1em" }}
+                dangerouslySetInnerHTML={{ __html: bodyText }}
+              />
+            )}
+
+            {/* Footer */}
+            {!isFlow && footerText && (
+              <p
+                style={{
+                  marginTop: "5px",
+                  fontSize: "0.85em",
+                  color: "#666",
+                  fontStyle: "italic",
+                }}
+              >
+                {footerText}
+              </p>
+            )}
+
+            {/* Buttons */}
+            {buttons.map((button) => (
+              <div
+                key={button.buttonId}
+                id={`btn_${button.buttonId}`}
+                className="mb-1"
+                data-action={dropdownOptions
+                  .find((opt) => opt.value === button.actionType)
+                  ?.label.toLowerCase()}
+                data-target={
+                  (button.actionType === 1 || button.actionType === 8) && button.buttonType === 1
+                    ? `${button.actionId}`
+                    : `action_${button.buttonId}`
+                }
+              >
+                <Button
+                  color="link"
+                  block
+                  disabled
+                  style={{
+                    color: "#00a9ee",
+                    backgroundColor: "#ffffff",
+                    borderTop: "1px solid #e1e1e1",
+                    borderRadius: "0",
+                    padding: "8px",
+                    textAlign: "center",
+                    textDecoration: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "none",
+                  }}
+                >
+                  {button.buttonType === 1 && (
+                    <span style={{ color: "#00a9ee" }}>
+                      <i className="fa fa-share fa-flip-horizontal me-2"></i>
+                      {button.buttonText || "Button"}
+                    </span>
+                  )}
+                  {button.buttonType === 2 && (
+                    <span style={{ color: "#00a9ee" }}>
+                      <i className="fa fa-phone me-2"></i>
+                      {button.buttonText || "Call"}
+                    </span>
+                  )}
+                  {button.buttonType === 3 && (
+                    <span style={{ color: "#00a9ee" }}>
+                      <i className="fa fa-external-link me-2"></i>
+                      {button.buttonText || "Visit"}
+                    </span>
+                  )}
+                </Button>
+              </div>
+            ))}
+
+            {/* Action Details for Non-Button Nodes */}
+            {!buttons.length && actionDetails.actionType !== undefined && (
+              <CardText
+                className="text-muted"
+                style={{ fontSize: "0.9em", textAlign: "center" }}
+              >
+                {actionDetails.actionType === 0
+                  ? "No Action"
+                  : dropdownOptions.find(
+                      (opt) => opt.value === actionDetails.actionType
+                    )?.label || "Unknown Action"}
+              </CardText>
+            )}
           </div>
-        ))}
-        {!buttons.length && actionDetails.actionType !== undefined && (
-          <CardText className="text-muted">
-            {actionDetails.actionType === 0
-              ? "No Action"
-              : dropdownOptions.find(
-                  (opt) => opt.value === actionDetails.actionType
-                )?.label || "Unknown Action"}
-          </CardText>
-        )}
-      </CardBody>
-    </Card>
-  </Col>
-);
 
-
+          {/* Template/Flow Name */}
+          <CardTitle
+            tag="h6"
+            style={{
+              marginTop: "10px",
+              fontSize: "0.9em",
+              textAlign: "center",
+              color: "#555",
+            }}
+          >
+            {title ? title.replace(/_/g, " ").toUpperCase() : "Unnamed"}
+          </CardTitle>
+        </CardBody>
+      </Card>
+    </Col>
+  );
+};
 // Collect nodes by level (fixed targetId assignment)
 const collectNodesByLevel = (
   template,
@@ -409,20 +649,32 @@ const collectNodesByLevel = (
   buttonMap = {},
   visited = new Set()
 ) => {
-  if (!template || !template.id) return { levels, buttonMap };
-
+  if (!template || (!template.id && !template.interactiveTemplateId && !template.flowId))
+    return { levels, buttonMap };
+  const id = template.id || template.interactiveTemplateId || template.flowId;
   // Prevent infinite loops by tracking visited templates
-  if (visited.has(template.id)) return { levels, buttonMap };
-  visited.add(template.id);
+  if (visited.has(id)) return { levels, buttonMap };
+  visited.add(id);
 
-  const templateId = `${template.id}`;
+  const templateId = `${id}`;
   if (!levels[level]) levels[level] = [];
-  const content = `${template.headerText || ""}\n\n${
-    template.bodyText || ""
-  }\n\n${template.footerText || ""}`;
+  let content, title;
+  if (template.flowId) {
+    title = template.flowName || "Unnamed Flow";
+    content = template.flowScreens
+      ? template.flowScreens
+          .map((screen) =>
+            `Name: ${screen.name || ""} \n\n Title: ${screen.title || ""}\n\n Body: ${screen.bodyText || ""}\n\n Button: ${screen.screenButtonText || ""}`
+          )
+          .join("\n\n")
+      : "No flow screens available"; // Fallback string if flowScreens is empty or undefined
+  } else {
+    title = template.templateName || "Unnamed Template";
+    content = `${template.headerText || ""}\n\n${template.bodyText || ""}\n\n${template.footerText || ""}`;
+  }
   levels[level].push({
     id: templateId,
-    title: template.templateName,
+    title,
     content,
     buttons: template.buttons || [],
   });
@@ -440,7 +692,11 @@ const collectNodesByLevel = (
       if (button.actionType === 1) {
         // If actionType is TEMPLATE, actionId contains the target template id
         const nextTemplate = templateMap[button.actionId];
-        targetId = `${button.actionId}`;
+        targetId = nextTemplate
+          ? nextTemplate.id !== undefined
+            ? `${nextTemplate.id}`
+            : `${nextTemplate.interactiveTemplateId}`
+          : null;
         if (nextTemplate) {
           // Dynamically set parameters for the meal_details templates
           // if ([4, 5, 6].includes(nextTemplate.id)) {
@@ -482,7 +738,21 @@ const collectNodesByLevel = (
             visited
           );
         }
-      } else {
+      } else if (button.actionType === 8) {
+        const nextFlow = templateMap[button.actionId];
+        targetId = nextFlow ? `${nextFlow.flowId}` : null;
+        if (nextFlow) {
+          // Recursively process the flow at the next level
+          collectNodesByLevel(
+            nextFlow,
+            templateMap,
+            level + 1,
+            levels,
+            buttonMap,
+            visited
+          );
+        }
+      }else {
         // Other action types (BLOCK, CHAT, ORDER, etc.)
         targetId = `action_${button.buttonId}`;
         const actionTitle =
@@ -573,23 +843,45 @@ export default function FlowVisualization({ initialData }) {
   const svgContainerRef = useRef(null);
   const [isMounted, setIsMounted] = useState(false);
   const [showUpdateTemplate, setShowUpdateTemplate] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState(null); 
-  const [isInteractiveTemplate, setIsInteractiveTemplate] = useState(false); 
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [isInteractiveTemplate, setIsInteractiveTemplate] = useState(false);
   // Ensure component is mounted on client
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   const handleCardClick = (templateId) => {
-    debugger
-    const template = initialData.templates.find((t) => t.id.toString() === templateId);
-    setSelectedTemplate(template.id);
-    if (template && template.interactiveTemplateId) {
-      setIsInteractiveTemplate(true);
-    } else {
-      setIsInteractiveTemplate(false);
+    debugger;
+    const template = initialData.templates.find(
+      (t) =>
+        (t.id && t.id.toString() === templateId) ||
+        (t.interactiveTemplateId &&
+          t.interactiveTemplateId.toString() === templateId)
+    );
+
+    if (template) {
+      // Check if the template has any buttons with an actionId
+      const hasActionId = template.buttons?.some(
+        (button) => button.actionId !== undefined && button.actionId !== 0
+      );
+
+      // Only proceed if there is at least one button with a valid actionId
+      if (hasActionId) {
+        debugger;
+        // Set selectedTemplate to either id or interactiveTemplateId
+        setSelectedTemplate(
+          template.interactiveTemplateId
+            ? template.interactiveTemplateId
+            : template.id
+        );
+
+        // Set isInteractiveTemplate based on presence of interactiveTemplateId
+        setIsInteractiveTemplate(!!template.interactiveTemplateId);
+
+        // Show the modal
+        setShowUpdateTemplate(true);
+      }
     }
-    setShowUpdateTemplate(true);
   };
 
   // Handle closing the modal
@@ -604,7 +896,9 @@ export default function FlowVisualization({ initialData }) {
     const calculateLines = () => {
       // Map templates by id for easy lookup
       const templateMap = initialData.templates.reduce((map, template) => {
-        map[template.id] = template;
+        if (template.id !== undefined) map[template.id] = template;
+        if (template.interactiveTemplateId !== undefined) map[template.interactiveTemplateId] = template;
+        if (template.flowId !== undefined) map[template.flowId] = template;
         return map;
       }, {});
 
@@ -765,7 +1059,13 @@ export default function FlowVisualization({ initialData }) {
 
   // Map templates and build the flow starting from the first template
   const templateMap = initialData.templates.reduce((map, template) => {
-    map[template.id] = template;
+    if (template.id !== undefined) {
+      map[template.id] = template;
+    } else if (template.interactiveTemplateId !== undefined) {
+      map[template.interactiveTemplateId] = template;
+    } else if (template.flowId !== undefined) {
+      map[template.flowId] = template; // Index flows by flowId
+    }
     return map;
   }, {});
   const rootTemplate = initialData.templates[0];
@@ -782,16 +1082,16 @@ export default function FlowVisualization({ initialData }) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
       {showUpdateTemplate ? (
-        // Conditionally render the appropriate modal based on template type
+        // Conditionally render the appropriate modal based on isInteractiveTemplate
         isInteractiveTemplate ? (
-          <updateIntTemplate
-            interactiveTemplateId={selectedTemplate?.interactiveTemplateId} // Pass interactiveTemplateId
+          <InteractiveTemplateUpdate
+            Template_Id={selectedTemplate} // Pass interactiveTemplateId
             onclose={handleCloseModal}
           />
         ) : (
           <UpdateTemplate
-          Template_Id={selectedTemplate} // Pass regular template id
-          onclose={handleCloseModal}
+            Template_Id={selectedTemplate} // Pass regular template id
+            onclose={handleCloseModal}
           />
         )
       ) : (
