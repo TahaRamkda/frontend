@@ -583,7 +583,7 @@ export default function FlowVisualization({ initialData }) {
   const handleCardClick = (templateId) => {
     debugger
     const template = initialData.templates.find((t) => t.id.toString() === templateId);
-    setSelectedTemplate(template.id);
+    setSelectedTemplate(template);
     if (template && template.interactiveTemplateId) {
       setIsInteractiveTemplate(true);
     } else {
