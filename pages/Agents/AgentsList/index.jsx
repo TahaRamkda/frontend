@@ -558,13 +558,13 @@ const AgentsList = () => {
                   </div>
                   <div>
                     <label className="font-medium text-gray-700 text-sm">
-                      First Name
+                      Last Name
                     </label>
                     <input
                       type="text"
-                      id="agentFName"
-                      name="agentFName"
-                      value={agentForm.agentFName || ""} // Bind value from agentForm
+                      id="agentLName"
+                      name="agentLName"
+                      value={agentForm.agentLName || ""} // Bind value from agentForm
                       onChange={handleFormChange}
                       className="border rounded py-1 px-2 w-full mt-1 text-sm"
                     />
