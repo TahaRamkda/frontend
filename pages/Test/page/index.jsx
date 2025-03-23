@@ -376,7 +376,7 @@ const renderBox = (id, title, content, buttons = [], actionDetails = {},onCardCl
               ?.label.toLowerCase()}
             data-target={
               button.actionType === 1 && button.buttonType === 1
-                ? `template_${button.actionId}`
+                ? `${button.actionId}`
                 : `action_${button.buttonId}`
             }
           >
@@ -415,7 +415,7 @@ const collectNodesByLevel = (
   if (visited.has(template.id)) return { levels, buttonMap };
   visited.add(template.id);
 
-  const templateId = `template_${template.id}`;
+  const templateId = `${template.id}`;
   if (!levels[level]) levels[level] = [];
   const content = `${template.headerText || ""}\n\n${
     template.bodyText || ""
@@ -440,7 +440,7 @@ const collectNodesByLevel = (
       if (button.actionType === 1) {
         // If actionType is TEMPLATE, actionId contains the target template id
         const nextTemplate = templateMap[button.actionId];
-        targetId = `template_${button.actionId}`;
+        targetId = `${button.actionId}`;
         if (nextTemplate) {
           // Dynamically set parameters for the meal_details templates
           // if ([4, 5, 6].includes(nextTemplate.id)) {
@@ -582,8 +582,8 @@ export default function FlowVisualization({ initialData }) {
 
   const handleCardClick = (templateId) => {
     debugger
-    const template = initialData.templates.find((t) => t.id === templateId);
-    setSelectedTemplate(template);
+    const template = initialData.templates.find((t) => t.id.toString() === templateId);
+    setSelectedTemplate(template.id);
     if (template && template.interactiveTemplateId) {
       setIsInteractiveTemplate(true);
     } else {
