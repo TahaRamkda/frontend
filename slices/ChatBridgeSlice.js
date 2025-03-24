@@ -4,11 +4,16 @@ import {
   fetchConversationList,
   fetchConversationMessage,
 } from "./ConversationSlice";
+import {
+  fetchAgentTemplate,
+  fetchAgentTemplatesDetail,
+} from "./AgentTemplateSlice";
 import { fetchAgentsById } from "./AgentSlice";
 import {setAgentStatus} from './AgentSlice';
 import { date } from "yup";
 const initialState = {
   conversations: [],
+  agenttemplates: [],
   loading: false,
   error: null,
 };

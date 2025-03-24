@@ -14,7 +14,7 @@ const logChatDetails = async (
     console.error("Logger instance is required for logChatDetails");
     return;
   }
-
+if(localStorage.getItem("isaxiomenabled") === "true"){
   try {
     // Construct metadata object with only provided arguments
     const metadata = {};
@@ -32,6 +32,11 @@ const logChatDetails = async (
     console.error("Failed to log chat details with Axiom:", error);
    // throw error; // Re-throw the error to allow caller to handle it
   }
+}
+else{
+  console.log(logMessage, Obj);
+}
+  
 };
 
 export default logChatDetails;
