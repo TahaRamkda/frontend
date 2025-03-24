@@ -271,9 +271,13 @@ const ChatPage = () => {
             text: "An error occurred during logout. Please try again.",
             icon: "error",
           });
-        await  loggerdetails(logger, `error while logging out : ${error}`, {
+          await loggerdetails(logger, " Error while loging out:", {
+            Obj : error,
+            logtype: "error",
+            conversationId: Activechat,
             agentId: UserId,
-           })
+            
+           });
         }
       }
     });
@@ -364,7 +368,13 @@ const ChatPage = () => {
             setAgentStatus(response.result.status);
           }
         } catch (error) {
-          logger.error('Failed to fetch agent by ID :', error);
+          await loggerdetails(logger, " Error fetching agent data:", {
+            Obj : error,
+            logtype: "error",
+            //conversationId: Activechat,
+            agentId: UserId,
+            
+           });
         } finally {
           setContactsloading(false); // Hide loader
         }
@@ -487,7 +497,14 @@ const ChatPage = () => {
       removeUnrepliedMark(Activechat);
      
     } catch (error) {
-      logger.error("Error sending message:", error);
+      await loggerdetails(logger, " Error while sending message:", {
+        Obj : error,
+        logtype: "error",
+        conversationId: Activechat,
+        agentId: UserId,
+        
+       });
+
       toast.error("Failed to send message. Please try again.");
     }
   };

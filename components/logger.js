@@ -1,6 +1,7 @@
 const logChatDetails = async (
   logger,
   logMessage = "Chat details logged",
+  logtype = "info",
   {
     Obj = null,
     agentId = null,
@@ -26,7 +27,12 @@ if(localStorage.getItem("isaxiomenabled") === "true"){
     Object.assign(metadata, additionalData); // Add any extra arguments
 
     // Log with Axiom and await the logging operation
-    await logger.info(logMessage, metadata);
+    if(logtype == "info"){
+      await logger.info(logMessage, metadata);
+    }
+    else if(logtype == "error"){
+      await logger.error(logMessage, metadata);
+    }
     await logger.flush(); // Wait for logs to be sent
   } catch (error) {
     console.error("Failed to log chat details with Axiom:", error);
