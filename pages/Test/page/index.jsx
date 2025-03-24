@@ -260,7 +260,7 @@ const fetchTemplateData = async () => {
         isApproved: true,
         headerType: 1, // Image header
         headerText: "", // No text for image header
-        imageUrl: "https://picsum.photos/200/300", // Image URL
+        imageUrl: "/Media/images_1.jpg", // Image URL
         headerParamCount: 1,
         bodyText: "Enjoy your {{mealname}} for only {{price}}!",
         bodyParamCount: 2,
@@ -447,7 +447,7 @@ const renderBox = (
         <CardBody style={{ padding: "10px" }}>
           {/* Chat Bubble Container */}
           <div
-            className="chat_bubble"
+            
             style={{
               position: "relative",
               backgroundColor: "#ffffff",
@@ -458,61 +458,49 @@ const renderBox = (
             }}
           >
             {/* Timestamp */}
-            <span
-              className="time_bubble"
-              style={{
-                position: "absolute",
-                top: "5px",
-                right: "10px",
-                fontSize: "0.7em",
-                color: "#888",
-              }}
-            >
-              {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-            </span>
-
+            
             {/* Header */}
             {!isFlow && (
               <>
                 {headerType === 1 && imageUrl && (
-                  <img
-                     src={imageUrl}
-                    alt="Header Image"
-                    style={{
-                      width: "100%",
-                      height: "auto",
-                      maxHeight: "150px",
-                      objectFit: "cover",
-                      borderRadius: "8px",
-                      marginBottom: "10px",
-                    }}
-                  />
-                )}
-                {headerType === 2 && imageUrl && (
-                  <video
-                    src={imageUrl}
-                    controls
-                    muted
-                    style={{
-                      width: "100%",
-                      height: "auto",
-                      maxHeight: "150px",
-                      objectFit: "cover",
-                      borderRadius: "8px",
-                      marginBottom: "10px",
-                    }}
-                  />
-                )}
-                {headerType === 3 && headerText && (
-                  <h6
-                    style={{
-                      marginBottom: "10px",
-                      fontWeight: "bold",
-                      fontSize: "1.1em",
-                    }}
-                    dangerouslySetInnerHTML={{ __html: headerText }}
-                  />
-                )}
+      <img
+        src={imageUrl}
+        alt="Header Image"
+        style={{
+          width: "100%",
+          height: "auto",
+          maxHeight: "150px",
+          objectFit: "cover",
+          borderRadius: "8px",
+          marginBottom: "10px",
+        }}
+      />
+    )}
+    {headerType === 2 && imageUrl && (
+      <video
+        src={imageUrl}
+        controls
+        muted
+        style={{
+          width: "100%",
+          height: "auto",
+          maxHeight: "150px",
+          objectFit: "cover",
+          borderRadius: "8px",
+          marginBottom: "10px",
+        }}
+      />
+    )}
+    {headerType === 3 && headerText && (
+      <h6
+        style={{
+          marginBottom: "10px",
+          fontWeight: "bold",
+          fontSize: "1.1em",
+        }}
+        dangerouslySetInnerHTML={{ __html: headerText }}
+      />
+    )}
               </>
             )}
 
@@ -1177,15 +1165,16 @@ export default function FlowVisualization({ initialData }) {
                       }}
                     >
                       {levels[level].map((node) =>
-                        renderBox(
-                          node.id,
-                          node.title,
-                          node.content,
-                          node.buttons,
-                          node.actionDetails || {},
-                          () => handleCardClick(node.id)
-                        )
-                      )}
+  renderBox(
+    node.id,
+    node.title,
+    node.content,
+    node.buttons,
+    node.actionDetails || {},
+    () => handleCardClick(node.id),
+    templateMap[node.id] // Pass the full template object
+  )
+)}
                     </div>
                   </div>
                 ))}
