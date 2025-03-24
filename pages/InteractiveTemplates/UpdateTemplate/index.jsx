@@ -567,6 +567,7 @@ const InteractiveTemplateUpdate = ({Template_Id,onclose}) => {
   };
 
   useEffect(() => {
+    
     if (finalContent) {
       console.log("MineFinalContent", finalContent);
       let formattedContent = finalContent?.replace(
@@ -582,6 +583,7 @@ const InteractiveTemplateUpdate = ({Template_Id,onclose}) => {
     }
   }, [finalContent]);
   useEffect(() => {
+    
     let updatedBody = bodyFinalContent;
     variables.forEach((variable, index) => {
       updatedBody = updatedBody.replace(`{{${index + 1}}}`, variable);
@@ -609,6 +611,7 @@ const InteractiveTemplateUpdate = ({Template_Id,onclose}) => {
 
   //console.log("BodyFinalContent12", bodyContent, finalContent);
   if (Loading)
+    
     return (
       <App>
         <Loader />
