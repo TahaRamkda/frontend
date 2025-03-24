@@ -473,6 +473,7 @@ const ChatPage = () => {
         sentcontentType: fileType ? fileType : "", // Set content type if there's media
         sentmediaPath: previewUrl ? previewUrl : "",
         createdDate: new Date().toLocaleString(),
+        sentime : new Date().toLocaleString(),
       };
       //logger.info("Agent sent message:", newMessage);
        await loggerdetails(logger, "Agent sent message:", {
@@ -490,6 +491,11 @@ const ChatPage = () => {
       setMessageInput("");
       await dispatch(NewAgentMessage(formData)).unwrap();
       //toast.success("Message sent successfully!");
+      await loggerdetails(logger, "Message sent successfully on time :", {
+        Obj : new Date().toLocaleString(),
+        conversationId: Activechat,
+        agentId: UserId,
+       });
       setMediaFile(null); // Clear the selected file after sending the message
       setPreviewUrl(null);
       setFileType(null); //get the file type
