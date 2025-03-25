@@ -271,9 +271,13 @@ const ChatPage = () => {
             text: "An error occurred during logout. Please try again.",
             icon: "error",
           });
-        await  loggerdetails(logger, `error while logging out : ${error}`, {
+          await loggerdetails(logger, " Error while loging out:", {
+            Obj : error,
+            logtype: "error",
+            conversationId: Activechat,
             agentId: UserId,
-           })
+            
+           });
         }
       }
     });
@@ -326,19 +330,20 @@ const ChatPage = () => {
 
 
   useEffect(() => {
+    debugger
     if (templateDetails) {
       const newMessage = {
         messageId: Date.now(),
-        id : templateDetails.ChatId,
+        id : templateDetails.conversationID,
         senderId: message[0]?.senderId,
         typeId: 1,
-        messageContent: templateDetails.bodyText,
+        messageContent: templateDetails.messageContent,
         contentType: templateDetails.contentType
           ? templateDetails.contentType
           : "", // Set content type if there's media
         mediaPath: templateDetails.mediaPath ? templateDetails.mediaPath : "", // Set media path if there's media
-        buttonJson: templateDetails.buttonsJson
-          ? templateDetails.buttonsJson
+        buttonJson: templateDetails.buttonJson
+          ? templateDetails.buttonJson
           : "",
         createdDate: new Date().toLocaleString(),
       };
@@ -364,7 +369,13 @@ const ChatPage = () => {
             setAgentStatus(response.result.status);
           }
         } catch (error) {
-          logger.error('Failed to fetch agent by ID :', error);
+          await loggerdetails(logger, " Error fetching agent data:", {
+            Obj : error,
+            logtype: "error",
+            //conversationId: Activechat,
+            agentId: UserId,
+            
+           });
         } finally {
           setContactsloading(false); // Hide loader
         }
@@ -463,6 +474,7 @@ const ChatPage = () => {
         sentcontentType: fileType ? fileType : "", // Set content type if there's media
         sentmediaPath: previewUrl ? previewUrl : "",
         createdDate: new Date().toLocaleString(),
+        sentime : new Date().toLocaleString(),
       };
       //logger.info("Agent sent message:", newMessage);
        await loggerdetails(logger, "Agent sent message:", {
@@ -480,6 +492,11 @@ const ChatPage = () => {
       setMessageInput("");
       await dispatch(NewAgentMessage(formData)).unwrap();
       //toast.success("Message sent successfully!");
+      await loggerdetails(logger, "Message sent successfully on time :", {
+        Obj : new Date().toLocaleString(),
+        conversationId: Activechat,
+        agentId: UserId,
+       });
       setMediaFile(null); // Clear the selected file after sending the message
       setPreviewUrl(null);
       setFileType(null); //get the file type
@@ -487,7 +504,14 @@ const ChatPage = () => {
       removeUnrepliedMark(Activechat);
      
     } catch (error) {
-      logger.error("Error sending message:", error);
+      await loggerdetails(logger, " Error while sending message:", {
+        Obj : error,
+        logtype: "error",
+        conversationId: Activechat,
+        agentId: UserId,
+        
+       });
+
       toast.error("Failed to send message. Please try again.");
     }
   };

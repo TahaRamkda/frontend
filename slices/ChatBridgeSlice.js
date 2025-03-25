@@ -4,11 +4,17 @@ import {
   fetchConversationList,
   fetchConversationMessage,
 } from "./ConversationSlice";
+import {
+  fetchAgentTemplate,
+  fetchAgentTemplatesDetail,
+} from "./AgentTemplateSlice";
 import { fetchAgentsById } from "./AgentSlice";
 import {setAgentStatus} from './AgentSlice';
 import { date } from "yup";
 const initialState = {
   conversations: [],
+  agenttemplates: [],
+  agenttemplatedetails: [],
   loading: false,
   error: null,
 };
@@ -112,6 +118,49 @@ export const setAgentstatus = createAsyncThunk(
     const response = await dispatch(setAgentStatus({ agentId: agentId, statusId: statusId })).unwrap();
     //console.log("set status response", response)
     return response;
+  }
+);
+
+// getagenttemplate thunk
+export const getAgentTemplate = createAsyncThunk(
+  "bridge/getAgentTemplate",
+  async ({ senderId }, { dispatch, getState }) => {
+    const { bridge } = getState();
+    
+    // Check if any template in the agenttemplates list has the given senderId
+    const templateExists = bridge.agenttemplates.some(
+      (template) => template.senderId === senderId
+    );
+
+    if (templateExists) {
+      // If a template with the senderId exists, return the existing templates
+      return { senderId, templates: bridge.agenttemplates };
+    }
+
+    // If no template with the senderId exists, fetch the list of templates
+    const response = await dispatch(fetchAgentTemplate({ senderId })).unwrap();
+    return { senderId, templates: response }; // Expecting response to be a list of templates
+  }
+);
+
+export const getAgentTemplateDetail = createAsyncThunk(
+  "bridge/getAgentTemplateDetail", // Unique action type
+  async ({ senderId, templateId }, { dispatch, getState }) => { // Renamed templaterId to templateId for consistency
+    const { bridge } = getState();
+    
+    // Check if the specific template detail exists in agenttemplatedetails
+    const templateDetailExists = bridge.agenttemplatedetails.some(
+      (detail) => detail.senderId === senderId && detail.templateId === templateId
+    );
+
+    if (templateDetailExists) {
+      // Return the existing agenttemplatedetails array if the specific detail exists
+      return { senderId, templateId, templatedetail: bridge.agenttemplatedetails };
+    }
+
+    // Fetch the template detail if it doesn’t exist
+    const response = await dispatch(fetchAgentTemplatesDetail({ senderId, TemplateId:templateId })).unwrap();
+    return { senderId, templateId, templatedetail: response.result }; // Assuming response is a single detail object
   }
 );
 
@@ -228,6 +277,59 @@ const bridgeSlice = createSlice({
         const {expiredConversationIds, updatedConversations} = action.payload;
           state.expiredConversationIds = expiredConversationIds;
           state.conversations = updatedConversations;
+        })
+
+        .addCase(getAgentTemplate.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(getAgentTemplate.fulfilled, (state, action) => {
+          
+          state.loading = false;
+          const { senderId, templates } = action.payload;
+  
+          // Check if any template in the list has the given senderId
+          const templateExists = state.agenttemplates.some(
+            (template) => template.senderId === senderId
+          );
+  
+          if (!templateExists) {
+            // If no template with the senderId exists, append the new list of templates
+            // Ensure each template in the list has a senderId
+            const templatesWithSenderId = templates.agenttemplates.map((template) => ({
+              ...template,
+              senderId: template.senderId || senderId, // Use the provided senderId if the template doesn't have one
+            }));
+            state.agenttemplates = [...state.agenttemplates, ...templatesWithSenderId];
+          }
+        })
+        .addCase(getAgentTemplate.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.error.message;
+        })
+        .addCase(getAgentTemplateDetail.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(getAgentTemplateDetail.fulfilled, (state, action) => {
+          state.loading = false;
+          const { senderId, templateId, templatedetail } = action.payload;
+  
+          // Check if the specific template detail already exists
+          const detailExists = state.agenttemplatedetails.some(
+            (detail) => detail.senderId === senderId && detail.templateId === templateId
+          );
+  
+          if (!detailExists) {
+            state.agenttemplatedetails = [
+              ...state.agenttemplatedetails,
+              { ...templatedetail, senderId, templateId }
+            ];
+          }
+        })
+        .addCase(getAgentTemplateDetail.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.error.message;
         });
   },
 });
