@@ -29,7 +29,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env nfiles
+# local env files
 .env*.local
 .env*.production
 
@@ -39,4 +39,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
-#newrelic_agent.log*
+# New Relic logs
+newrelic_agent.log*
