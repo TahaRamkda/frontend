@@ -14,6 +14,7 @@ import Loader from "@/components/Layout/Loader";
 import { BASE_URL } from "@/utils/apiConstants";
 import InteractiveTemplateUpdate from "@/pages/InteractiveTemplates/UpdateTemplate";
 import UpdateTemplate from "@/pages/Templates/UpdateTemplate";
+import UpdateFlowPage from "@/pages/Flows/FlowDetails";
 // Action type mappings (unchanged)
 export const dropdownOptions = [
   { label: "NONE", value: 0 },
@@ -99,55 +100,56 @@ const fetchTemplateData = async () => {
         ],
       },
       
+      
       // Flow Template
-      {
-        senderId: 1,
-        moduleId: 5,
-        parentId: 1626,
-        flowName: "itemflow_item1_english",
-        flowLanguage: "en",
-        publishToFB: false,
-        flowId: 26,
-        actionId: 0,
-        actionType: 0,
-        headerType: 3, // Default to text for flows (no media)
-        headerText: "Cheeseburger Flow", // Optional header for flow
-        imageUrl: "", // No media for flows
-        flowScreens: [
-          {
-            name: "Screen_One_Item_item1_One",
-            title: "Cheeseburger - Add-ons",
-            screenButtonText: "Next",
-            flowChildren: [
-              {
-                text: "Add-ons",
-                type: 0,
-                required: false,
-                flowOptions: [
-                  { optionId: "item3", optionText: "Extra Cheese" },
-                  { optionId: "item4", optionText: "Pepperoni" },
-                ],
-              },
-            ],
-          },
-          {
-            name: "Screen_Two_Item_item1_Two",
-            title: "Cheeseburger - Size",
-            screenButtonText: "Submit",
-            flowChildren: [
-              {
-                text: "Size",
-                type: 1,
-                required: true,
-                flowOptions: [
-                  { optionId: "item5", optionText: "Small Size" },
-                  { optionId: "item6", optionText: "Large Size" },
-                ],
-              },
-            ],
-          },
-        ],
-      },
+{
+  senderId: 1,
+  moduleId: 5,
+  parentId: 1626,
+  flowName: "itemflow_item1_english",
+  flowLanguage: "en",
+  publishToFB: false,
+  flowId: 26,
+  actionId: 5, // Default actionId for the flow itself
+  actionType: 1, // Default actionType
+  headerType: 8,
+  headerText: "Cheeseburger Flow",
+  imageUrl: "",
+  flowScreens: [
+    {
+      name: "Screen_One_Item_item1_One",
+      title: "Cheeseburger - Add-ons",
+      screenButtonText: "Next",
+      flowChildren: [
+        {
+          text: "Add-ons",
+          type: 0,
+          required: false,
+          flowOptions: [
+            { optionId: "item3", optionText: "Extra Cheese" },
+            { optionId: "item4", optionText: "Pepperoni" },
+          ],
+        },
+      ],
+    },
+    {
+      name: "Screen_Two_Item_item1_Two",
+      title: "Cheeseburger - Size",
+      screenButtonText: "Submit",
+      flowChildren: [
+        {
+          text: "Size",
+          type: 1,
+          required: true,
+          flowOptions: [
+            { optionId: "item5", optionText: "Small Size" },
+            { optionId: "item6", optionText: "Large Size" },
+          ],
+        },
+      ],
+    },
+  ],
+},
       // Template 2: Chicken offers
       {
         id: 2,
@@ -427,10 +429,10 @@ const renderBox = (
   buttons = [],
   actionDetails = {},
   onCardClick,
-  template // Pass the full template object for access to headerType and imageUrl
+  template // Full template object for headerType, imageUrl, etc.
 ) => {
   const isFlow = title.includes("flow");
-  const headerType = template?.headerType || 3; // Default to text if not specified
+  const headerType = template?.headerType || 3; // Default to text header
   const imageUrl = template?.imageUrl || "";
   const headerText = template?.headerText || "";
   const bodyText = template?.bodyText || content.split("\n\n")[1] || "No content";
@@ -447,7 +449,6 @@ const renderBox = (
         <CardBody style={{ padding: "10px" }}>
           {/* Chat Bubble Container */}
           <div
-            
             style={{
               position: "relative",
               backgroundColor: "#ffffff",
@@ -457,75 +458,104 @@ const renderBox = (
               boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
             }}
           >
-            {/* Timestamp */}
-            
             {/* Header */}
             {!isFlow && (
               <>
                 {headerType === 1 && imageUrl && (
-      <img
-        src={imageUrl}
-        alt="Header Image"
-        style={{
-          width: "100%",
-          height: "auto",
-          maxHeight: "150px",
-          objectFit: "cover",
-          borderRadius: "8px",
-          marginBottom: "10px",
-        }}
-      />
-    )}
-    {headerType === 2 && imageUrl && (
-      <video
-        src={imageUrl}
-        controls
-        muted
-        style={{
-          width: "100%",
-          height: "auto",
-          maxHeight: "150px",
-          objectFit: "cover",
-          borderRadius: "8px",
-          marginBottom: "10px",
-        }}
-      />
-    )}
-    {headerType === 3 && headerText && (
-      <h6
-        style={{
-          marginBottom: "10px",
-          fontWeight: "bold",
-          fontSize: "1.1em",
-        }}
-        dangerouslySetInnerHTML={{ __html: headerText }}
-      />
-    )}
+                  <img
+                    src={`${BASE_URL}${imageUrl}`}
+                    alt="Header Image"
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      maxHeight: "150px",
+                      objectFit: "cover",
+                      borderRadius: "8px",
+                      marginBottom: "10px",
+                    }}
+                  />
+                )}
+                {headerType === 2 && imageUrl && (
+                  <video
+                    src={imageUrl}
+                    controls
+                    muted
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      maxHeight: "150px",
+                      objectFit: "cover",
+                      borderRadius: "8px",
+                      marginBottom: "10px",
+                    }}
+                  />
+                )}
+                {headerType === 3 && headerText && (
+                  <h6
+                    style={{
+                      marginBottom: "10px",
+                      fontWeight: "bold",
+                      fontSize: "1.1em",
+                    }}
+                    dangerouslySetInnerHTML={{ __html: headerText }}
+                  />
+                )}
               </>
             )}
 
             {/* Body */}
-            {isFlow ? (
-              <CardText style={{ margin: "0" }}>
-                {content.split("\n\n").map((screen, index) => (
-                  <div key={index} style={{ marginBottom: "10px" }}>
-                    {screen.split("\n").map((line, idx) => {
-                      const [label, value] = line.split(": ");
-                      return (
-                        <div key={idx} style={{ marginBottom: "2px" }}>
-                          <strong>{label}:</strong> {value || ""}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))}
-              </CardText>
-            ) : (
-              <div
-                style={{ marginBottom: "10px", fontSize: "1em" }}
-                dangerouslySetInnerHTML={{ __html: bodyText }}
-              />
-            )}
+            {isFlow && template?.flowScreens ? (
+  <div>
+    {template.flowScreens.length > 0 && (
+      <div style={{ marginBottom: "15px" }}>
+          <div
+            key={buttons[0].buttonId}
+            id={`btn_${buttons[0].buttonId}`}
+            className="mb-1"
+            data-action={dropdownOptions
+              .find((opt) => opt.value === buttons[0].actionType)
+              ?.label.toLowerCase()}
+            data-target={
+              (buttons[0].actionType === 1 || buttons[0].actionType === 8) &&
+              buttons[0].buttonType === 1
+                ? `${buttons[0].actionId}`
+                : `action_${buttons[0].buttonId}`
+            }
+          >
+            <Button
+              color="link"
+              block
+              disabled
+              style={{
+                color: "#00a9ee",
+                backgroundColor: "#ffffff",
+                border: "1px solid #808080",
+                borderRadius: "4px",
+                padding: "8px",
+                textAlign: "center",
+                textDecoration: "none",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "none",
+                marginBottom: "4px",
+              }}
+            >
+              <span style={{ color: "#00a9ee" }}>
+                <i className="fa fa-arrow-right me-2"></i>
+                {buttons[0].buttonText || "Button"}
+              </span>
+            </Button>
+          </div>
+      </div>
+    )}
+  </div>
+) : (
+  <div
+    style={{ marginBottom: "10px", fontSize: "1em" }}
+    dangerouslySetInnerHTML={{ __html: bodyText }}
+  />
+)}
 
             {/* Footer */}
             {!isFlow && footerText && (
@@ -541,60 +571,63 @@ const renderBox = (
               </p>
             )}
 
-            {/* Buttons */}
-            {buttons.map((button) => (
-              <div
-                key={button.buttonId}
-                id={`btn_${button.buttonId}`}
-                className="mb-1"
-                data-action={dropdownOptions
-                  .find((opt) => opt.value === button.actionType)
-                  ?.label.toLowerCase()}
-                data-target={
-                  (button.actionType === 1 || button.actionType === 8) && button.buttonType === 1
-                    ? `${button.actionId}`
-                    : `action_${button.buttonId}`
-                }
-              >
-                <Button
-                  color="link"
-                  block
-                  disabled
-                  style={{
-                    color: "#00a9ee",
-                    backgroundColor: "#ffffff",
-                    borderTop: "1px solid #e1e1e1",
-                    borderRadius: "0",
-                    padding: "8px",
-                    textAlign: "center",
-                    textDecoration: "none",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    boxShadow: "none",
-                  }}
+            {/* Template Buttons */}
+            {!isFlow &&
+              buttons.map((button) => (
+                <div
+                  key={button.buttonId}
+                  id={`btn_${button.buttonId}`}
+                  className="mb-1"
+                  data-action={dropdownOptions
+                    .find((opt) => opt.value === button.actionType)
+                    ?.label.toLowerCase()}
+                  data-target={
+                    (button.actionType === 1 || button.actionType === 8) &&
+                    button.buttonType === 1
+                      ? `${button.actionId}`
+                      : `action_${button.buttonId}`
+                  }
                 >
-                  {button.buttonType === 1 && (
-                    <span style={{ color: "#00a9ee" }}>
-                      <i className="fa fa-share fa-flip-horizontal me-2"></i>
-                      {button.buttonText || "Button"}
-                    </span>
-                  )}
-                  {button.buttonType === 2 && (
-                    <span style={{ color: "#00a9ee" }}>
-                      <i className="fa fa-phone me-2"></i>
-                      {button.buttonText || "Call"}
-                    </span>
-                  )}
-                  {button.buttonType === 3 && (
-                    <span style={{ color: "#00a9ee" }}>
-                      <i className="fa fa-external-link me-2"></i>
-                      {button.buttonText || "Visit"}
-                    </span>
-                  )}
-                </Button>
-              </div>
-            ))}
+                  <Button
+                    color="link"
+                    block
+                    disabled
+                    style={{
+                      color: "#00a9ee",
+                      backgroundColor: "#ffffff",
+                      border: "1px solid #808080",
+                      borderRadius: "4px",
+                      padding: "8px",
+                      textAlign: "center",
+                      textDecoration: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxShadow: "none",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    {button.buttonType === 1 && (
+                      <span style={{ color: "#00a9ee" }}>
+                        <i className="fa fa-share fa-flip-horizontal me-2"></i>
+                        {button.buttonText || "Button"}
+                      </span>
+                    )}
+                    {button.buttonType === 2 && (
+                      <span style={{ color: "#00a9ee" }}>
+                        <i className="fa fa-phone me-2"></i>
+                        {button.buttonText || "Call"}
+                      </span>
+                    )}
+                    {button.buttonType === 3 && (
+                      <span style={{ color: "#00a9ee" }}>
+                        <i className="fa fa-external-link me-2"></i>
+                        {button.buttonText || "Visit"}
+                      </span>
+                    )}
+                  </Button>
+                </div>
+              ))}
 
             {/* Action Details for Non-Button Nodes */}
             {!buttons.length && actionDetails.actionType !== undefined && (
@@ -637,48 +670,152 @@ const collectNodesByLevel = (
   buttonMap = {},
   visited = new Set()
 ) => {
-  if (!template || (!template.id && !template.interactiveTemplateId && !template.flowId))
+  // Guard clause: Return if template is invalid or missing required IDs
+  if (!template || (!template.id && !template.interactiveTemplateId && !template.flowId)) {
     return { levels, buttonMap };
+  }
+
+  // Determine the unique ID for the template (id, interactiveTemplateId, or flowId)
   const id = template.id || template.interactiveTemplateId || template.flowId;
-  // Prevent infinite loops by tracking visited templates
-  if (visited.has(id)) return { levels, buttonMap };
+
+  // Prevent infinite loops by checking if this template has been visited
+  if (visited.has(id)) {
+    return { levels, buttonMap };
+  }
   visited.add(id);
 
+  // Use stringified ID for consistency
   const templateId = `${id}`;
   if (!levels[level]) levels[level] = [];
-  let content, title;
+
+  let title, buttons = [], content;
+
+  // Handle Flow Templates
   if (template.flowId) {
     title = template.flowName || "Unnamed Flow";
+    // Define the button using the flow's own actionId instead of the last screen's
+    buttons = template.flowScreens && template.flowScreens.length > 0
+    ? [
+        {
+          buttonId: `${template.flowId}_screen_${template.flowScreens.length - 1}`,
+          buttonText: template.flowScreens[template.flowScreens.length - 1].screenButtonText || "Submit",
+          buttonType: 1,
+          sequence: template.flowScreens.length - 1,
+          actionId: template.actionId || 0, // 5
+          actionType: template.actionType || 0, // 1
+        }
+      ]
+    : [];
     content = template.flowScreens
       ? template.flowScreens
           .map((screen) =>
             `Name: ${screen.name || ""} \n\n Title: ${screen.title || ""}\n\n Body: ${screen.bodyText || ""}\n\n Button: ${screen.screenButtonText || ""}`
           )
           .join("\n\n")
-      : "No flow screens available"; // Fallback string if flowScreens is empty or undefined
-  } else {
+      : "No flow screens available";
+
+    // Process the flow's actionId for the button
+    if (template.actionId && template.actionType) {
+      let targetId;
+      if (template.actionType === 1) { // TEMPLATE
+        const nextTemplate = templateMap[template.actionId];
+        targetId = nextTemplate
+          ? nextTemplate.id !== undefined
+            ? `${nextTemplate.id}`
+            : `${nextTemplate.interactiveTemplateId}`
+          : null;
+        if (nextTemplate) {
+          collectNodesByLevel(
+            nextTemplate,
+            templateMap,
+            level + 1,
+            levels,
+            buttonMap,
+            visited
+          );
+          buttonMap[`btn_${template.flowId}_screen_${template.flowScreens.length - 1}`] = targetId;
+        }
+      } else if (template.actionType === 8) { // FLOWS
+        const nextFlow = templateMap[template.actionId];
+        targetId = nextFlow ? `${nextFlow.flowId}` : null;
+        if (nextFlow) {
+          collectNodesByLevel(
+            nextFlow,
+            templateMap,
+            level + 1,
+            levels,
+            buttonMap,
+            visited
+          );
+          buttonMap[`btn_${template.flowId}_screen_${template.flowScreens.length - 1}`] = targetId;
+        }
+      } else {
+        // Handle other action types (e.g., ORDER, CHAT, etc.)
+        targetId = `action_${template.flowId}_screen_${template.flowScreens.length - 1}`;
+        const actionTypeLabel = dropdownOptions
+          .find((opt) => opt.value === template.actionType)
+          ?.label.toLowerCase();
+        const actionTitle =
+          actionTypeLabel === "chat"
+            ? "Chat With Agent"
+            : actionTypeLabel === "order"
+            ? "Order"
+            : actionTypeLabel === "close chat"
+            ? "Close Chat"
+            : actionTypeLabel === "unsubscribe"
+            ? "Unsubscribe User"
+            : actionTypeLabel === "block"
+            ? "Block User"
+            : "Action";
+        const actionContent =
+          actionTypeLabel === "chat"
+            ? "Start Chat"
+            : actionTypeLabel === "order"
+            ? "Place Order"
+            : actionTypeLabel === "close chat"
+            ? "End Chat"
+            : actionTypeLabel === "unsubscribe"
+            ? "Unsubscribed"
+            : actionTypeLabel === "block"
+            ? "Blocked"
+            : actionTypeLabel;
+        if (!levels[level + 1]) levels[level + 1] = [];
+        levels[level + 1].push({
+          id: targetId,
+          title: actionTitle,
+          content: actionContent,
+          buttons: [],
+          actionDetails: { actionId: template.actionId, actionType: template.actionType },
+        });
+        buttonMap[`btn_${template.flowId}_screen_${template.flowScreens.length - 1}`] = targetId;
+      }
+    }
+  } 
+  // Handle Regular Templates
+  else {
     title = template.templateName || "Unnamed Template";
     content = `${template.headerText || ""}\n\n${template.bodyText || ""}\n\n${template.footerText || ""}`;
+    buttons = template.buttons || [];
   }
+
+  // Add the current node to the level
   levels[level].push({
     id: templateId,
     title,
     content,
-    buttons: template.buttons || [],
+    buttons,
   });
 
-  template.buttons?.forEach((button) => {
+  // Process Buttons (for both flows and templates)
+  buttons?.forEach((button) => {
     let targetId;
     let actionTypeLabel;
 
-    // Determine the action based on buttonType
-    if (button.buttonType === 1) {
-      // Button Type 1: Use actionType from dropdownOptions
+    if (button.buttonType === 1) { // Quick Reply Button
       actionTypeLabel = dropdownOptions
         .find((opt) => opt.value === button.actionType)
         ?.label.toLowerCase();
-      if (button.actionType === 1) {
-        // If actionType is TEMPLATE, actionId contains the target template id
+      if (button.actionType === 1) { // TEMPLATE
         const nextTemplate = templateMap[button.actionId];
         targetId = nextTemplate
           ? nextTemplate.id !== undefined
@@ -686,37 +823,6 @@ const collectNodesByLevel = (
             : `${nextTemplate.interactiveTemplateId}`
           : null;
         if (nextTemplate) {
-          // Dynamically set parameters for the meal_details templates
-          // if ([4, 5, 6].includes(nextTemplate.id)) {
-          //   let mealName, price;
-          //   switch (button.buttonText) {
-          //     case "Mega Chicken Meal":
-          //       mealName = "Mega Chicken Meal";
-          //       price = "$10";
-          //       break;
-          //     case "Whopper Meal":
-          //       mealName = "Whopper Meal";
-          //       price = "$12";
-          //       break;
-          //     case "Mega Beef Meal":
-          //       mealName = "Mega Beef Meal";
-          //       price = "$15";
-          //       break;
-          //     case "Ramadan Offer":
-          //       mealName = "Ramadan Special Beef Meal";
-          //       price = "$13";
-          //       break;
-          //     default:
-          //       mealName = "Meal";
-          //       price = "$10";
-          //   }
-          //   nextTemplate.parameters = [
-          //     { paramId: 2, paramName: "{{mealname}}", paramType: 1, paramDefaultValue: mealName, sequence: 0 },
-          //     { paramId: 3, paramName: "{{price}}", paramType: 2, paramDefaultValue: price, sequence: 1 }
-          //   ];
-          //   nextTemplate.headerText = `${mealName} Details`;
-          //   nextTemplate.bodyText = `Enjoy your ${mealName} for only ${price}!`;
-          // }
           collectNodesByLevel(
             nextTemplate,
             templateMap,
@@ -726,11 +832,10 @@ const collectNodesByLevel = (
             visited
           );
         }
-      } else if (button.actionType === 8) {
+      } else if (button.actionType === 8) { // FLOWS
         const nextFlow = templateMap[button.actionId];
         targetId = nextFlow ? `${nextFlow.flowId}` : null;
         if (nextFlow) {
-          // Recursively process the flow at the next level
           collectNodesByLevel(
             nextFlow,
             templateMap,
@@ -740,8 +845,7 @@ const collectNodesByLevel = (
             visited
           );
         }
-      }else {
-        // Other action types (BLOCK, CHAT, ORDER, etc.)
+      } else { // Other actions (e.g., CHAT, ORDER, etc.)
         targetId = `action_${button.buttonId}`;
         const actionTitle =
           actionTypeLabel === "chat"
@@ -780,11 +884,10 @@ const collectNodesByLevel = (
           actionDetails: button,
         });
       }
-    } else if (button.buttonType === 2) {
-      // Button Type 2: Call/Phone Number (mapped to CHAT)
-      actionTypeLabel = "chat"; // Since CALL is not allowed, map to CHAT
+    } else if (button.buttonType === 2) { // Call/Phone Number (mapped to CHAT)
+      actionTypeLabel = "chat";
       targetId = `action_${button.buttonId}`;
-      const actionTitle = button.buttonText; // Use buttonText as the heading
+      const actionTitle = button.buttonText;
       const actionContent = `Call: ${button.buttonValue || "Not provided"}`;
       if (!levels[level + 1]) levels[level + 1] = [];
       levels[level + 1].push({
@@ -792,13 +895,12 @@ const collectNodesByLevel = (
         title: actionTitle,
         content: actionContent,
         buttons: [],
-        actionDetails: { ...button, actionType: 5 }, // Set actionType to CHAT
+        actionDetails: { ...button, actionType: 5 }, // CHAT action type
       });
-    } else if (button.buttonType === 3) {
-      // Button Type 3: URL/Visit Website (mapped to CHAT)
-      actionTypeLabel = "chat"; // Since VISIT is not allowed, map to CHAT
+    } else if (button.buttonType === 3) { // URL/Visit Website (mapped to CHAT)
+      actionTypeLabel = "chat";
       targetId = `action_${button.buttonId}`;
-      const actionTitle = button.buttonText; // Use buttonText as the heading
+      const actionTitle = button.buttonText;
       const actionContent = `Visit: ${button.buttonValue || "Not provided"}`;
       if (!levels[level + 1]) levels[level + 1] = [];
       levels[level + 1].push({
@@ -806,11 +908,14 @@ const collectNodesByLevel = (
         title: actionTitle,
         content: actionContent,
         buttons: [],
-        actionDetails: { ...button, actionType: 5 }, // Set actionType to CHAT
+        actionDetails: { ...button, actionType: 5 }, // CHAT action type
       });
     }
 
-    buttonMap[`btn_${button.buttonId}`] = targetId;
+    // Update buttonMap with the target ID
+    if (targetId) {
+      buttonMap[`btn_${button.buttonId}`] = targetId;
+    }
   });
 
   return { levels, buttonMap };
@@ -830,6 +935,7 @@ export default function FlowVisualization({ initialData }) {
   const [lines, setLines] = useState([]);
   const svgContainerRef = useRef(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [showUpdateFlow, setShowUpdateFlow] = useState(false);
   const [showUpdateTemplate, setShowUpdateTemplate] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [isInteractiveTemplate, setIsInteractiveTemplate] = useState(false);
@@ -844,30 +950,26 @@ export default function FlowVisualization({ initialData }) {
       (t) =>
         (t.id && t.id.toString() === templateId) ||
         (t.interactiveTemplateId &&
-          t.interactiveTemplateId.toString() === templateId)
+          t.interactiveTemplateId.toString() === templateId) ||
+        (t.flowId && t.flowId.toString() === templateId)
     );
-
+  
     if (template) {
-      // Check if the template has any buttons with an actionId
-      const hasActionId = template.buttons?.some(
-        (button) => button.actionId !== undefined && button.actionId !== 0
-      );
-
-      // Only proceed if there is at least one button with a valid actionId
-      if (hasActionId) {
+      if (template.flowId) {
         debugger;
-        // Set selectedTemplate to either id or interactiveTemplateId
-        setSelectedTemplate(
-          template.interactiveTemplateId
-            ? template.interactiveTemplateId
-            : template.id
-        );
-
-        // Set isInteractiveTemplate based on presence of interactiveTemplateId
-        setIsInteractiveTemplate(!!template.interactiveTemplateId);
-
-        // Show the modal
+        setSelectedTemplate(template.flowId);
+        setShowUpdateFlow(true);
+        return; // Exit after handling flow
+      } else if (template.interactiveTemplateId) {
+        setSelectedTemplate(template.interactiveTemplateId);
+        setIsInteractiveTemplate(true);
         setShowUpdateTemplate(true);
+        return; // Exit after handling interactive template
+      } else if (template.id) {
+        setSelectedTemplate(template.id);
+        setIsInteractiveTemplate(false);
+        setShowUpdateTemplate(true);
+        return; // Exit after handling regular template
       }
     }
   };
@@ -875,6 +977,7 @@ export default function FlowVisualization({ initialData }) {
   // Handle closing the modal
   const handleCloseModal = () => {
     setShowUpdateTemplate(false);
+    setShowUpdateFlow(false);
     setSelectedTemplate(null);
   };
 
@@ -942,34 +1045,26 @@ export default function FlowVisualization({ initialData }) {
         Object.entries(buttonMap).forEach(([buttonId, targetId], index) => {
           const buttonElement = document.getElementById(buttonId);
           const targetElement = document.getElementById(targetId);
-
+      
           if (!buttonElement || !targetElement) {
             console.warn(`Missing elements: ${buttonId} or ${targetId}`);
             return;
           }
-
-          const cardElement = buttonElement.closest(".card");
-          if (!cardElement) {
-            console.warn(`Parent card not found for button: ${buttonId}`);
-            return;
-          }
-
+      
           const buttonRect = buttonElement.getBoundingClientRect();
           const targetRect = targetElement.getBoundingClientRect();
           const svgRect = svgContainerRef.current.getBoundingClientRect();
-
+      
           if (
             buttonRect.width === 0 ||
             buttonRect.height === 0 ||
             targetRect.width === 0 ||
             targetRect.height === 0
           ) {
-            console.warn(
-              `Invalid bounding rect for ${buttonId} or ${targetId}`
-            );
+            console.warn(`Invalid bounding rect for ${buttonId} or ${targetId}`);
             return;
           }
-
+      
           const action = buttonElement.dataset.action;
           let strokeColor = "#007bff";
           switch (action) {
@@ -995,41 +1090,41 @@ export default function FlowVisualization({ initialData }) {
             default:
               strokeColor = "#6c757d";
           }
-
+      
           // Calculate start and end points
           const buttonCenterX = buttonRect.left + buttonRect.width / 2;
           const targetCenterX = targetRect.left + targetRect.width / 2;
           const isTargetLeft = targetCenterX < buttonCenterX;
-
+      
+          // Start from the edge center of the button border
           const startX = isTargetLeft
-            ? buttonRect.left - svgRect.left + 5
-            : buttonRect.right - svgRect.left - 5;
+            ? buttonRect.left - svgRect.left // Left edge center
+            : buttonRect.right - svgRect.left; // Right edge center
           const startY = buttonRect.top + buttonRect.height / 2 - svgRect.top;
-
+      
           const endX = targetRect.left + targetRect.width / 2 - svgRect.left;
           const endY = targetRect.top - svgRect.top - 10;
-
+      
           // Define control points for a cubic Bézier curve
           const controlPointOffsetX = Math.abs(endX - startX) * 0.3;
           const controlPointOffsetY = Math.abs(endY - startY) * 0.5;
-
+      
           const controlPoint1X =
-            startX +
-            (isTargetLeft ? -controlPointOffsetX : controlPointOffsetX);
+            startX + (isTargetLeft ? -controlPointOffsetX : controlPointOffsetX);
           const controlPoint1Y = startY + controlPointOffsetY;
           const controlPoint2X =
             endX + (isTargetLeft ? controlPointOffsetX : -controlPointOffsetX);
           const controlPoint2Y = endY - controlPointOffsetY;
-
+      
           const pathD = `M ${startX},${startY} C ${controlPoint1X},${controlPoint1Y} ${controlPoint2X},${controlPoint2Y} ${endX},${endY}`;
-
+      
           newLines.push({
             pathD,
             stroke: strokeColor,
             key: `${buttonId}-${targetId}`,
           });
         });
-
+      
         setLines(newLines);
       };
 
@@ -1069,16 +1164,20 @@ export default function FlowVisualization({ initialData }) {
         <title>Template Flow Visualization</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
-      {showUpdateTemplate ? (
-        // Conditionally render the appropriate modal based on isInteractiveTemplate
+      {showUpdateFlow ? (
+        <UpdateFlowPage
+          Flow_Id={selectedTemplate} // Pass flowId to UpdateFlowPage
+          onclose={handleCloseModal}
+        />
+      ) : showUpdateTemplate ? (
         isInteractiveTemplate ? (
           <InteractiveTemplateUpdate
-            Template_Id={selectedTemplate} // Pass interactiveTemplateId
+            Template_Id={selectedTemplate}
             onclose={handleCloseModal}
           />
         ) : (
           <UpdateTemplate
-            Template_Id={selectedTemplate} // Pass regular template id
+            Template_Id={selectedTemplate}
             onclose={handleCloseModal}
           />
         )
