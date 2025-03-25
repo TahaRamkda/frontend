@@ -330,19 +330,20 @@ const ChatPage = () => {
 
 
   useEffect(() => {
+    debugger
     if (templateDetails) {
       const newMessage = {
         messageId: Date.now(),
-        id : templateDetails.ChatId,
+        id : templateDetails.conversationID,
         senderId: message[0]?.senderId,
         typeId: 1,
-        messageContent: templateDetails.bodyText,
+        messageContent: templateDetails.messageContent,
         contentType: templateDetails.contentType
           ? templateDetails.contentType
           : "", // Set content type if there's media
         mediaPath: templateDetails.mediaPath ? templateDetails.mediaPath : "", // Set media path if there's media
-        buttonJson: templateDetails.buttonsJson
-          ? templateDetails.buttonsJson
+        buttonJson: templateDetails.buttonJson
+          ? templateDetails.buttonJson
           : "",
         createdDate: new Date().toLocaleString(),
       };
