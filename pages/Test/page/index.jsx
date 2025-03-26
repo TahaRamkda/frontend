@@ -356,10 +356,8 @@ const renderBox = (
   const headerType = template?.headerType || 3; // Default to text header
   const imageUrl = template?.mediaPath || "";
   const headerText = template?.headerText || "";
-  const bodyText =
-    template?.bodyText || content.split("\n\n")[1] ;
-  const footerText = template?.footerText || content.split("\n\n")[2] || "";
-
+  const bodyText = template?.bodyText || content|| "No content";
+  const footerText = template?.footerText || "";
   return (
     <Col xs="auto" key={id}>
       <Card
@@ -908,6 +906,8 @@ const TemplateTypeDropdown = ({ onTemplateTypeChange, selectedType }) => {
 };
 
 
+
+
 export default function FlowVisualization({ initialData }) {
   const [lines, setLines] = useState([]);
   const svgContainerRef = useRef(null);
@@ -917,13 +917,12 @@ export default function FlowVisualization({ initialData }) {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [isInteractiveTemplate, setIsInteractiveTemplate] = useState(false);
   const [templateType, setTemplateType] = useState("");
-  // Ensure component is mounted on client
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   const handleCardClick = (templateId) => {
-    debugger;
     const template = initialData.templates.find(
       (t) =>
         (t.id && t.id.toString() === templateId) ||
@@ -934,32 +933,27 @@ export default function FlowVisualization({ initialData }) {
 
     if (template) {
       if (template.flowId) {
-        debugger;
         setSelectedTemplate(template.flowId);
         setShowUpdateFlow(true);
-        return; // Exit after handling flow
+        return;
       } else if (template.interactiveTemplateId) {
         setSelectedTemplate(template.interactiveTemplateId);
         setIsInteractiveTemplate(true);
         setShowUpdateTemplate(true);
-        return; // Exit after handling interactive template
+        return;
       } else if (template.id) {
         setSelectedTemplate(template.id);
         setIsInteractiveTemplate(false);
         setShowUpdateTemplate(true);
-        return; // Exit after handling regular template
+        return;
       }
     }
   };
-  
 
-  //function to change template
   const handleTemplateTypeChange = (type) => {
     setTemplateType(type);
   };
 
-
-  // Handle closing the modal
   const handleCloseModal = () => {
     setShowUpdateTemplate(false);
     setShowUpdateFlow(false);
@@ -970,7 +964,6 @@ export default function FlowVisualization({ initialData }) {
     if (!isMounted || !initialData || !svgContainerRef.current) return;
 
     const calculateLines = () => {
-      // Map templates by id for easy lookup
       const templateMap = initialData.templates.reduce((map, template) => {
         if (template.id !== undefined) map[template.id] = template;
         if (template.interactiveTemplateId !== undefined)
@@ -979,7 +972,6 @@ export default function FlowVisualization({ initialData }) {
         return map;
       }, {});
 
-      // Start with the first template (assumed to be the root)
       const rootTemplate = initialData.templates[0];
       const { buttonMap } = collectNodesByLevel(rootTemplate, templateMap);
       const newLines = [];
@@ -1018,13 +1010,12 @@ export default function FlowVisualization({ initialData }) {
           if (element) observer.observe(element);
         });
 
-        // Fallback: If elements don't become visible within 5 seconds, proceed anyway
         setTimeout(() => {
           elementsToCheck.forEach((element) => {
             if (element) observer.unobserve(element);
           });
           callback();
-        }, 5000);
+        }, 1000);
       };
 
       const drawLines = () => {
@@ -1084,26 +1075,32 @@ export default function FlowVisualization({ initialData }) {
           const targetCenterX = targetRect.left + targetRect.width / 2;
           const isTargetLeft = targetCenterX < buttonCenterX;
 
-          // Start from the edge center of the button border
+          // Start from inside the button (closer to the text/icon)
           const startX = isTargetLeft
-            ? buttonRect.left - svgRect.left // Left edge center
-            : buttonRect.right - svgRect.left; // Right edge center
+            ? buttonRect.left + buttonRect.width * 0.50 - svgRect.left // 25% from left edge
+            : buttonRect.right - buttonRect.width * 0.50 - svgRect.left; // 25% from right edge
           const startY = buttonRect.top + buttonRect.height / 2 - svgRect.top;
 
           const endX = targetRect.left + targetRect.width / 2 - svgRect.left;
           const endY = targetRect.top - svgRect.top - 10;
 
-          // Define control points for a cubic Bézier curve
-          const controlPointOffsetX = Math.abs(endX - startX) * 0.3;
-          const controlPointOffsetY = Math.abs(endY - startY) * 0.5;
+          // Define control points for a tilted cubic Bézier curve
+          const verticalDistance = Math.abs(endY - startY);
+          const horizontalDistance = Math.abs(endX - startX);
+          
+          // Adjust control points for a slight tilt
+          const controlPointOffsetX = horizontalDistance * 0.2; // Increased for more curve
+          const controlPointOffsetY = verticalDistance * 0.6; // Tilted more vertically
 
-          const controlPoint1X =
-            startX +
-            (isTargetLeft ? -controlPointOffsetX : controlPointOffsetX);
-          const controlPoint1Y = startY + controlPointOffsetY;
-          const controlPoint2X =
-            endX + (isTargetLeft ? controlPointOffsetX : -controlPointOffsetX);
-          const controlPoint2Y = endY - controlPointOffsetY;
+          const controlPoint1X = isTargetLeft
+            ? startX - controlPointOffsetX * 0.5 // Slight left tilt
+            : startX + controlPointOffsetX * 0.5; // Slight right tilt
+          const controlPoint1Y = startY + controlPointOffsetY * 0.8; // More pronounced downward curve
+
+          const controlPoint2X = isTargetLeft
+            ? endX + controlPointOffsetX * 0.3 // Adjust for tilt
+            : endX - controlPointOffsetX * 0.3;
+          const controlPoint2Y = endY - controlPointOffsetY * 0.4; // Curve up toward target
 
           const pathD = `M ${startX},${startY} C ${controlPoint1X},${controlPoint1Y} ${controlPoint2X},${controlPoint2Y} ${endX},${endY}`;
 
@@ -1111,6 +1108,7 @@ export default function FlowVisualization({ initialData }) {
             pathD,
             stroke: strokeColor,
             key: `${buttonId}-${targetId}`,
+            strokeWidth: "2.5", // Slightly thicker for visibility
           });
         });
 
@@ -1129,14 +1127,13 @@ export default function FlowVisualization({ initialData }) {
 
   if (!isMounted || !initialData) return <Loader />;
 
-  // Map templates and build the flow starting from the first template
   const templateMap = initialData.templates.reduce((map, template) => {
     if (template.id !== undefined) {
       map[template.id] = template;
     } else if (template.interactiveTemplateId !== undefined) {
       map[template.interactiveTemplateId] = template;
     } else if (template.flowId !== undefined) {
-      map[template.flowId] = template; // Index flows by flowId
+      map[template.flowId] = template;
     }
     return map;
   }, {});
@@ -1149,13 +1146,9 @@ export default function FlowVisualization({ initialData }) {
 
   return (
     <App>
-      {/* <Head>
-        <title>Template Flow Visualization</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </Head> */}
       {showUpdateFlow ? (
         <UpdateFlowPage
-          Flow_Id={selectedTemplate} // Pass flowId to UpdateFlowPage
+          Flow_Id={selectedTemplate}
           onclose={handleCloseModal}
         />
       ) : showUpdateTemplate ? (
@@ -1171,7 +1164,6 @@ export default function FlowVisualization({ initialData }) {
           />
         )
       ) : (
-        // Render the main content when showUpdateTemplate is false
         <div
           style={{
             overflow: "auto",
@@ -1190,7 +1182,7 @@ export default function FlowVisualization({ initialData }) {
               minHeight: "100%",
             }}
           >
-         <div className="d-flex justify-content-center align-items-end mb-4 gap-3 flex-wrap overflow-auto">
+            <div className="d-flex justify-content-center align-items-end mb-4 gap-3 flex-wrap">
               <div className="col-md-3 col-sm-12">
                 <label className="form-label">Template Type:</label>
                 <TemplateTypeDropdown
@@ -1198,7 +1190,6 @@ export default function FlowVisualization({ initialData }) {
                   selectedType={templateType}
                 />
               </div>
-
               <div
                 className={`col-md-3 col-sm-12 ${
                   templateType === "interactive" ? "d-block" : "d-none"
@@ -1207,7 +1198,6 @@ export default function FlowVisualization({ initialData }) {
                 <label className="form-label">Interactive Template:</label>
                 <InteractiveTemplateDropdown  />
               </div>
-
               <div
                 className={`col-md-3 col-sm-12 ${
                   templateType === "marketing" ? "d-block" : "d-none"
@@ -1237,7 +1227,7 @@ export default function FlowVisualization({ initialData }) {
                     key={line.key}
                     d={line.pathD}
                     stroke={line.stroke}
-                    strokeWidth="2"
+                    strokeWidth={line.strokeWidth || "2"}
                     fill="none"
                     markerEnd="url(#arrow)"
                   />
@@ -1287,7 +1277,7 @@ export default function FlowVisualization({ initialData }) {
                           node.buttons,
                           node.actionDetails || {},
                           () => handleCardClick(node.id),
-                          templateMap[node.id] // Pass the full template object
+                          templateMap[node.id]
                         )
                       )}
                     </div>
