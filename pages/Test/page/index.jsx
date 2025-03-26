@@ -149,7 +149,7 @@ const fetchTemplateData = async () => {
         "id": 74,
         "clientId": 1,
         "senderId": 1,
-        "templateName": "fl_vs_test_flows",
+        "templateName": "fl_vs_test_2",
         "language": "en",
         "transactionType": 2,
         "status": 1,
@@ -167,15 +167,15 @@ const fetchTemplateData = async () => {
         "buttonsJson": "[{\"ButtonId\":147,\"ButtonText\":\"Submit\",\"ButtonValue\":\"\",\"ButtonType\":1,\"Sequence\":0,\"ActionId\":23,\"ActionType\":8}]",
         "parametersJson": null,
         "buttons": [
-            {
-                "buttonId": 147,
-                "buttonText": "Submit",
-                "buttonValue": "",
-                "buttonType": 1,
-                "sequence": 0,
-                "actionId": 23,
-                "actionType": 8
-            }
+          {
+            "buttonId": 147,
+            "buttonText": "Submit",
+            "buttonValue": "",
+            "buttonType": 1,
+            "sequence": 0,
+            "actionId": 23,
+            "actionType": 8
+          },
         ],
         "parameters": [],
         "createdBy": 2,
@@ -398,7 +398,7 @@ const renderBox = (
               .find((opt) => opt.value === buttons[0].actionType)
               ?.label.toLowerCase()}
             data-target={
-              (buttons[0].actionType === 1 || buttons[0].actionType === 8) &&
+              (buttons[0].actionType === 8) &&
               buttons[0].buttonType === 1
                 ? `${buttons[0].actionId}`
                 : `action_${buttons[0].buttonId}`
