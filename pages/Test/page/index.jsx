@@ -293,7 +293,43 @@ const fetchTemplateData = async () => {
                 "sequence": 1,
                 "actionId": 0,
                 "actionType": 0
-            }
+            },
+            {
+                "buttonId": 150,
+                "buttonText": "Visit Website",
+                "buttonValue": "https://qawaba.consulttechies.com/",
+                "buttonType": 3,
+                "sequence": 1,
+                "actionId": 0,
+                "actionType": 0
+            },
+            {
+                "buttonId": 151,
+                "buttonText": "Visit Website",
+                "buttonValue": "https://qawaba.consulttechies.com/",
+                "buttonType": 3,
+                "sequence": 1,
+                "actionId": 0,
+                "actionType": 0
+            },
+            {
+                "buttonId": 152,
+                "buttonText": "Visit Website",
+                "buttonValue": "https://qawaba.consulttechies.com/",
+                "buttonType": 3,
+                "sequence": 1,
+                "actionId": 0,
+                "actionType": 0
+            },
+            {
+                "buttonId": 153,
+                "buttonText": "Visit Website",
+                "buttonValue": "https://qawaba.consulttechies.com/",
+                "buttonType": 3,
+                "sequence": 1,
+                "actionId": 0,
+                "actionType": 0
+            },
         ],
         "parameters": [],
         "createdBy": 2,
@@ -321,7 +357,7 @@ const renderBox = (
   const imageUrl = template?.mediaPath || "";
   const headerText = template?.headerText || "";
   const bodyText =
-    template?.bodyText || content.split("\n\n")[1] || "No content";
+    template?.bodyText || content.split("\n\n")[1] ;
   const footerText = template?.footerText || content.split("\n\n")[2] || "";
 
   return (
@@ -1146,15 +1182,15 @@ export default function FlowVisualization({ initialData }) {
           }}
         >
           <Container
-            fluid
             style={{
+              overflow: "auto",
               padding: "40px 20px",
               position: "relative",
-              minWidth: `${minWidthNeeded}px`,
+              minWidth: `${20}px`,
               minHeight: "100%",
             }}
           >
-         <div className="d-flex justify-content-center align-items-end mb-4 gap-3 flex-wrap">
+         <div className="d-flex justify-content-center align-items-end mb-4 gap-3 flex-wrap overflow-auto">
               <div className="col-md-3 col-sm-12">
                 <label className="form-label">Template Type:</label>
                 <TemplateTypeDropdown
@@ -1169,7 +1205,7 @@ export default function FlowVisualization({ initialData }) {
                 }`}
               >
                 <label className="form-label">Interactive Template:</label>
-                <InteractiveTemplateDropdown />
+                <InteractiveTemplateDropdown  />
               </div>
 
               <div
