@@ -95,35 +95,50 @@ const fetchTemplateData = async () => {
 
       // Flow Template
       {
-        "id": 74,
-        "clientId": 1,
-        "senderId": 1,
-        "templateName": "fl_vs_test_2",
-        "language": "en",
-        "transactionType": 2,
-        "status": 1,
-        "usedByAgent": false,
-        "headerType": 0,
-        "headerParamCount": 0,
-        "headerText": "",
-        "bodyParamCount": 0,
-        "bodyText": "We kindly request that you submit your valuable feedback. Thank you!",
-        "footerText": "",
-        "mediaId": 0,
-        "mediaPath": null,
-        "contentType": null,
-        "fileName": null,
-        "buttonsJson": "[{\"ButtonId\":147,\"ButtonText\":\"Submit\",\"ButtonValue\":\"\",\"ButtonType\":1,\"Sequence\":0,\"ActionId\":23,\"ActionType\":8}]",
-        "parametersJson": null,
-        "buttons": [
+        senderId: 1,
+        moduleId: 5,
+        parentId: 1626,
+        flowName: "itemflow_item1_english",
+        flowLanguage: "en",
+        publishToFB: false,
+        flowId: 26,
+        actionId: 5, // Default actionId for the flow itself
+        actionType: 1, // Default actionType
+        headerType: 8,
+        headerText: "Cheeseburger Flow",
+        imageUrl: "",
+        flowScreens: [
           {
-            "buttonId": 147,
-            "buttonText": "Submit",
-            "buttonValue": "",
-            "buttonType": 1,
-            "sequence": 0,
-            "actionId": 23,
-            "actionType": 8
+            name: "Screen_One_Item_item1_One",
+            title: "Cheeseburger - Add-ons",
+            screenButtonText: "Next",
+            flowChildren: [
+              {
+                text: "Add-ons",
+                type: 0,
+                required: false,
+                flowOptions: [
+                  { optionId: "item3", optionText: "Extra Cheese" },
+                  { optionId: "item4", optionText: "Pepperoni" },
+                ],
+              },
+            ],
+          },
+          {
+            name: "Screen_Two_Item_item1_Two",
+            title: "Cheeseburger - Size",
+            screenButtonText: "Submit",
+            flowChildren: [
+              {
+                text: "Size",
+                type: 1,
+                required: true,
+                flowOptions: [
+                  { optionId: "item5", optionText: "Small Size" },
+                  { optionId: "item6", optionText: "Large Size" },
+                ],
+              },
+            ],
           },
         ],
       },
@@ -483,57 +498,58 @@ const renderBox = (
 
             {/* Body */}
             {isFlow && template?.flowScreens ? (
-  <div>
-    {template.flowScreens.length > 0 && (
-      <div style={{ marginBottom: "15px" }}>
-          <div
-            key={buttons[0].buttonId}
-            id={`btn_${buttons[0].buttonId}`}
-            className="mb-1"
-            data-action={dropdownOptions
-              .find((opt) => opt.value === buttons[0].actionType)
-              ?.label.toLowerCase()}
-            data-target={
-              (buttons[0].actionType === 8) &&
-              buttons[0].buttonType === 1
-                ? `${buttons[0].actionId}`
-                : `action_${buttons[0].buttonId}`
-            }
-          >
-            <Button
-              color="link"
-              block
-              disabled
-              style={{
-                color: "#00a9ee",
-                backgroundColor: "#ffffff",
-                border: "1px solid #808080",
-                borderRadius: "4px",
-                padding: "8px",
-                textAlign: "center",
-                textDecoration: "none",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "none",
-                marginBottom: "4px",
-              }}
-            >
-              <span style={{ color: "#00a9ee" }}>
-                <i className="fa fa-arrow-right me-2"></i>
-                {buttons[0].buttonText || "Button"}
-              </span>
-            </Button>
-          </div>
-      </div>
-    )}
-  </div>
-) : (
-  <div
-    style={{ marginBottom: "10px", fontSize: "1em" }}
-    dangerouslySetInnerHTML={{ __html: bodyText }}
-  />
-)}
+              <div>
+                {template.flowScreens.length > 0 && (
+                  <div style={{ marginBottom: "15px" }}>
+                    <div
+                      key={buttons[0].buttonId}
+                      id={`btn_${buttons[0].buttonId}`}
+                      className="mb-1"
+                      data-action={dropdownOptions
+                        .find((opt) => opt.value === buttons[0].actionType)
+                        ?.label.toLowerCase()}
+                      data-target={
+                        (buttons[0].actionType === 1 ||
+                          buttons[0].actionType === 8) &&
+                        buttons[0].buttonType === 1
+                          ? `${buttons[0].actionId}`
+                          : `action_${buttons[0].buttonId}`
+                      }
+                    >
+                      <Button
+                        color="link"
+                        block
+                        disabled
+                        style={{
+                          color: "#00a9ee",
+                          backgroundColor: "#ffffff",
+                          border: "1px solid #808080",
+                          borderRadius: "4px",
+                          padding: "8px",
+                          textAlign: "center",
+                          textDecoration: "none",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          boxShadow: "none",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        <span style={{ color: "#00a9ee" }}>
+                          <i className="fa fa-arrow-right me-2"></i>
+                          {buttons[0].buttonText || "Button"}
+                        </span>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div
+                style={{ marginBottom: "10px", fontSize: "1em" }}
+                dangerouslySetInnerHTML={{ __html: bodyText }}
+              />
+            )}
 
             {/* Footer */}
             {!isFlow && footerText && (
