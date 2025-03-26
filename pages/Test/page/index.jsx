@@ -26,243 +26,6 @@ const fetchTemplateData = async () => {
     templates: [
       // Template 1: Starting template
       {
-        "id": 22,
-        "clientId": 1,
-        "clientName": "Babji Consult Techies",
-        "senderId": 1,
-        "senderName": "Babji Consult Techies",
-        "templateName": "fl_vs_maintemplate",
-        "category": "MARKETING",
-        "subCategory": null,
-        "language": "en",
-        "status": "PENDING",
-        "isApproved": false,
-        "templateId": "",
-        "headerType": 2,
-        "headerText": "",
-        "headerParamCount": 0,
-        "mediaId": 425,
-        "mediaPath": "/Media/images_(2)_1.jpg",
-        "contentType": "image/jpeg",
-        "fileExtension": ".jpg",
-        "fileName": "images_(2)_1.jpg",
-        "bodyText": "No matching results, press enter to execute your custom prompt write a para promoting burger King burger\nIndulge in the mouthwatering goodness of Burger King's iconic flame-grilled burgers! Each bite delivers a perfect blend of savory flavors, starting with high-quality beef that’s grilled to perfection for that unmistakable smoky taste. Whether you're craving the classic Whopper stacked high with fresh lettuce, juicy tomatoes, and creamy mayonnaise, or one of their delicious specialty burgers",
-        "bodyParamCount": 0,
-        "footerText": "do it quickly",
-        "buttons": [
-            {
-                "buttonId": 27,
-                "buttonText": "Template 1",
-                "buttonValue": "",
-                "buttonType": 1,
-                "sequence": 0,
-                "actionId": 73,
-                "actionType": 1,
-                "systemActionId": null
-            },
-            {
-                "buttonId": 28,
-                "buttonText": "Tempalte 2",
-                "buttonValue": "",
-                "buttonType": 1,
-                "sequence": 1,
-                "actionId": 74,
-                "actionType": 1,
-                "systemActionId": null
-            },
-            {
-                "buttonId": 29,
-                "buttonText": "Call Phone Number",
-                "buttonValue": "+91-7297005253",
-                "buttonType": 2,
-                "sequence": 2,
-                "actionId": 0,
-                "actionType": 0,
-                "systemActionId": null
-            }
-        ],
-        "parameters": [],
-        "createdBy": 2,
-        "createdDate": "25-Mar-2025 04:58:40 PM",
-        "updatedBy": 2,
-        "updatedDate": "25-Mar-2025 04:58:40 PM"
-    },
-      
-      
-      // Template 2
-      {
-        "id": 73,
-        "clientId": 1,
-        "senderId": 1,
-        "templateName": "fl_vs_test_1",
-        "language": "en",
-        "transactionType": 2,
-        "status": 1,
-        "usedByAgent": false,
-        "headerType": 0,
-        "headerParamCount": 0,
-        "headerText": "",
-        "bodyParamCount": 0,
-        "bodyText": "wanna try our new order??",
-        "footerText": "",
-        "mediaId": 0,
-        "mediaPath": null,
-        "contentType": null,
-        "fileName": null,
-        "buttonsJson": "[{\"ButtonId\":150,\"ButtonText\":\"Clicke me\",\"ButtonValue\":\"\",\"ButtonType\":1,\"Sequence\":0,\"ActionId\":77,\"ActionType\":1},{\"ButtonId\":151,\"ButtonText\":\"Unsubscribe\",\"ButtonValue\":\"\",\"ButtonType\":1,\"Sequence\":0,\"ActionId\":0,\"ActionType\":3},{\"ButtonId\":152,\"ButtonText\":\"Block\",\"ButtonValue\":\"\",\"ButtonType\":1,\"Sequence\":0,\"ActionId\":0,\"ActionType\":4}]",
-        "parametersJson": null,
-        "buttons": [
-            {
-                "buttonId": 150,
-                "buttonText": "Clicke me",
-                "buttonValue": "",
-                "buttonType": 1,
-                "sequence": 0,
-                "actionId": 77,
-                "actionType": 1
-            },
-            {
-                "buttonId": 151,
-                "buttonText": "Unsubscribe",
-                "buttonValue": "",
-                "buttonType": 1,
-                "sequence": 0,
-                "actionId": 0,
-                "actionType": 3
-            },
-            {
-                "buttonId": 152,
-                "buttonText": "Block",
-                "buttonValue": "",
-                "buttonType": 1,
-                "sequence": 0,
-                "actionId": 0,
-                "actionType": 4
-            }
-        ],
-        "parameters": [],
-        "createdBy": 2,
-        "createdDate": "25-Mar-2025 04:34:51 PM",
-        "updatedBy": 2,
-        "updatedDate": "25-Mar-2025 04:54:35 PM"
-    },
-      
-      // Template 3: Template connecting to flow
-      {
-        "id": 74,
-        "clientId": 1,
-        "senderId": 1,
-        "templateName": "fl_vs_test_flows",
-        "language": "en",
-        "transactionType": 2,
-        "status": 1,
-        "usedByAgent": false,
-        "headerType": 0,
-        "headerParamCount": 0,
-        "headerText": "",
-        "bodyParamCount": 0,
-        "bodyText": "We kindly request that you submit your valuable feedback. Thank you!",
-        "footerText": "",
-        "mediaId": 0,
-        "mediaPath": null,
-        "contentType": null,
-        "fileName": null,
-        "buttonsJson": "[{\"ButtonId\":147,\"ButtonText\":\"Submit\",\"ButtonValue\":\"\",\"ButtonType\":1,\"Sequence\":0,\"ActionId\":23,\"ActionType\":8}]",
-        "parametersJson": null,
-        "buttons": [
-            {
-                "buttonId": 147,
-                "buttonText": "Submit",
-                "buttonValue": "",
-                "buttonType": 1,
-                "sequence": 0,
-                "actionId": 23,
-                "actionType": 8
-            }
-        ],
-        "parameters": [],
-        "createdBy": 2,
-        "createdDate": "25-Mar-2025 04:37:15 PM",
-        "updatedBy": 2,
-        "updatedDate": "25-Mar-2025 04:44:07 PM"
-    },
-      // Template 4: Flow template
-      {
-        "senderId": 1,
-        "moduleId": 0,
-        "parentId": 0,
-        "flowName": "website_recommendation_flow",
-        "flowLanguage": "en",
-        "publishToFB": false,
-        "flowId": 23,
-        "actionId": 0,
-        "actionType": 0,
-        "flowScreens": [
-            {
-                "name": "screen_One",
-                "title": "Share feedback",
-                "screenButtonText": "Next",
-                "flowChildren": [
-                    {
-                        "text": "Would you recommend the website to your friend?",
-                        "type": 3,
-                        "required": true,
-                        "flowOptions": [
-                            {
-                                "optionId": "Yes",
-                                "optionText": "Yes"
-                            },
-                            {
-                                "optionId": "No",
-                                "optionText": "No"
-                            }
-                        ]
-                    },
-                    {
-                        "text": "Rate our delivery experience",
-                        "type": 3,
-                        "required": true,
-                        "flowOptions": [
-                            {
-                                "optionId": "*",
-                                "optionText": "*"
-                            },
-                            {
-                                "optionId": "**",
-                                "optionText": "**"
-                            },
-                            {
-                                "optionId": "***",
-                                "optionText": "***"
-                            },
-                            {
-                                "optionId": "****",
-                                "optionText": "****"
-                            },
-                            {
-                                "optionId": "*****",
-                                "optionText": "*****"
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "name": "screen_Two",
-                "title": "Overall experience",
-                "screenButtonText": "Complete",
-                "flowChildren": [
-                    {
-                        "text": "Comments",
-                        "type": 2,
-                        "required": false,
-                        "flowOptions": []
-                    }
-                ]
-            }
-        ]
-    },
-      // Template that is connected to template 2
         interactiveTemplateId: 1,
         clientId: 1,
         clientName: "Burger King",
@@ -591,43 +354,60 @@ const fetchTemplateData = async () => {
       },
       // Template 6: Meal details (Ramadan Offer)
       {
-        "id": 77,
-        "clientId": 1,
-        "senderId": 1,
-        "templateName": "fl_vs_test_item",
-        "language": "en",
-        "transactionType": 2,
-        "status": 1,
-        "usedByAgent": false,
-        "headerType": 2,
-        "headerParamCount": 0,
-        "headerText": "",
-        "bodyParamCount": 0,
-        "bodyText": "Sink your teeth into the ultimate flavor experience with our mouthwatering burgers, made from 100% fresh, premium ingredients. Each bite is a delicious symphony of juicy beef, melted cheese, and crisp toppings, all nestled in a soft, toasted bun. And what better way to wash it down than with an ice-cold cola? Its refreshing fizz perfectly complements the savory goodness of our burgers, making it the ideal combo for your next meal. Treat yourself to this classic pairing today and savor the satisf",
-        "footerText": "do it quickly",
-        "mediaId": 425,
-        "mediaPath": "/Media/images_(2)_1.jpg",
-        "contentType": "image/jpeg",
-        "fileName": "images_(2)_1.jpg",
-        "buttonsJson": "[{\"ButtonId\":149,\"ButtonText\":\"Visit Website\",\"ButtonValue\":\"https:\\/\\/qawaba.consulttechies.com\\/\",\"ButtonType\":3,\"Sequence\":1,\"ActionId\":0,\"ActionType\":0}]",
-        "parametersJson": null,
-        "buttons": [
-            {
-                "buttonId": 149,
-                "buttonText": "Visit Website",
-                "buttonValue": "https://qawaba.consulttechies.com/",
-                "buttonType": 3,
-                "sequence": 1,
-                "actionId": 0,
-                "actionType": 0
-            }
+        id: 6,
+        clientId: 1,
+        clientName: "Burger King",
+        senderId: 1,
+        senderName: "Burger King",
+        templateName: "meal_details",
+        category: "MARKETING",
+        language: "en",
+        status: "APPROVED",
+        isApproved: true,
+        headerType: 1, // Image header
+        headerText: "", // No text for image header
+        imageUrl: "/Media/images_1.jpg", // Image URL
+        headerParamCount: 1,
+        bodyText: "Enjoy your {{mealname}} for only {{price}}!",
+        bodyParamCount: 2,
+        footerText: "Order now and save",
+        buttons: [
+          {
+            buttonId: 14,
+            buttonText: "Order Now",
+            buttonValue: "",
+            buttonType: 1,
+            sequence: 0,
+            actionId: 0,
+            actionType: 6,
+          },
+          {
+            buttonId: 15,
+            buttonText: "Chat Support",
+            buttonValue: "",
+            buttonType: 1,
+            sequence: 1,
+            actionId: 0,
+            actionType: 5,
+          },
         ],
-        "parameters": [],
-        "createdBy": 2,
-        "createdDate": "25-Mar-2025 04:48:19 PM",
-        "updatedBy": null,
-        "updatedDate": ""
-    },
+        parameters: [
+          {
+            paramId: 2,
+            paramName: "{{mealname}}",
+            paramType: 1,
+            paramDefaultValue: "Ramadan Special Beef Meal",
+            sequence: 0,
+          },
+          {
+            paramId: 3,
+            paramName: "{{price}}",
+            paramType: 2,
+            paramDefaultValue: "$13",
+            sequence: 1,
+          },
+        ],
+      },
     ],
   };
 };
@@ -645,7 +425,7 @@ const renderBox = (
 ) => {
   const isFlow = title.includes("flow");
   const headerType = template?.headerType || 3; // Default to text header
-  const imageUrl = template?.mediaPath || "";
+  const imageUrl = template?.imageUrl || "";
   const headerText = template?.headerText || "";
   const bodyText =
     template?.bodyText || content.split("\n\n")[1] || "No content";
@@ -674,7 +454,7 @@ const renderBox = (
             {/* Header */}
             {!isFlow && (
               <>
-                {headerType === 2 && imageUrl && (
+                {headerType === 1 && imageUrl && (
                   <img
                     src={`${BASE_URL}${imageUrl}`}
                     alt="Header Image"
@@ -688,7 +468,7 @@ const renderBox = (
                     }}
                   />
                 )}
-                {headerType === 1 && imageUrl && (
+                {headerType === 2 && imageUrl && (
                   <video
                     src={imageUrl}
                     controls
