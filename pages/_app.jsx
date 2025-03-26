@@ -16,6 +16,7 @@ import { Provider } from 'react-redux';
 import { store } from '@/store/store';
 import SweetAlert from 'sweetalert2';
 import { sidebarItems } from '@/utils/sidebarItems';
+import { PermissionsProvider } from '@/context/PermissionsContext';
 import Loader from '@/components/Layout/Loader';
 
 function MyApp({ Component, pageProps }) {
@@ -111,19 +112,30 @@ function MyApp({ Component, pageProps }) {
     handleRouteChange();
   }, [router.pathname]);
 
+
+  useEffect(() => {
+    const storedPermissions = localStorage.getItem("permission");
+    if (storedPermissions) {
+      setPermissions(JSON.parse(storedPermissions));
+    } 
+  }, []);
+
   // Display a loading state until permissions are validated
   if (isLoading) {
     return <div><Loader/></div>; // Replace with a loading spinner if needed
   }
 
   return (
-    <ErrorBoundary>
+   <ErrorBoundary>
       <RecoilRoot>
         <Provider store={store}>
-          <Component {...pageProps} />
+          {/* Wrap the app with PermissionsProvider */}
+          <PermissionsProvider permissions={permissions}>
+            <Component {...pageProps} />
+            <ToastContainer autoClose={3000} />
+            <ErrorComponent />
+          </PermissionsProvider>
         </Provider>
-        <ToastContainer autoClose={3000} />
-        <ErrorComponent />
       </RecoilRoot>
     </ErrorBoundary>
   );
