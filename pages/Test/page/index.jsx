@@ -79,6 +79,26 @@ const fetchTemplateData = async () => {
                 "actionId": 0,
                 "actionType": 0,
                 "systemActionId": null
+            },
+            {
+                "buttonId": 29,
+                "buttonText": "Call Phone Number",
+                "buttonValue": "+91-7297005253",
+                "buttonType": 2,
+                "sequence": 2,
+                "actionId": 0,
+                "actionType": 0,
+                "systemActionId": null
+            },
+            {
+                "buttonId": 29,
+                "buttonText": "Call Phone Number",
+                "buttonValue": "+91-7297005253",
+                "buttonType": 2,
+                "sequence": 2,
+                "actionId": 0,
+                "actionType": 0,
+                "systemActionId": null
             }
         ],
         "parameters": [],
@@ -195,7 +215,7 @@ const fetchTemplateData = async () => {
         "flowLanguage": "en",
         "publishToFB": false,
         "flowId": 23,
-        "actionId": 0,
+        "actionId": 5,
         "actionType": 0,
         "flowScreens": [
             {
@@ -259,7 +279,20 @@ const fetchTemplateData = async () => {
                         "flowOptions": []
                     }
                 ]
-            }
+            },
+            {
+                "name": "screen_Two",
+                "title": "Overall experience",
+                "screenButtonText": "Complete",
+                "flowChildren": [
+                    {
+                        "text": "Comments",
+                        "type": 2,
+                        "required": false,
+                        "flowOptions": []
+                    }
+                ]
+            },
         ]
     },
       // Template that is connected to template 2
@@ -1165,23 +1198,16 @@ export default function FlowVisualization({ initialData }) {
         )
       ) : (
         <div
+        className=""
           style={{
-            overflow: "auto",
-            height: "100vh",
-            width: "100vw",
+            overflow: "scroll",
+            height: "86vh",
+            width: "80vw",
             position: "relative",
             backgroundColor: "#f8f9fa",
           }}
         >
-          <Container
-            style={{
-              overflow: "auto",
-              padding: "40px 20px",
-              position: "relative",
-              minWidth: `${20}px`,
-              minHeight: "100%",
-            }}
-          >
+          
             <div className="d-flex justify-content-center align-items-end mb-4 gap-3 flex-wrap">
               <div className="col-md-3 col-sm-12">
                 <label className="form-label">Template Type:</label>
@@ -1210,6 +1236,17 @@ export default function FlowVisualization({ initialData }) {
             <h2 className="text-center mb-5">
               WhatsApp Template Flow Visualization
             </h2>
+            <Container
+          fluid
+            style={{
+              overflow: "scroll",
+              padding: "",
+              position: "relative",
+              minWidth: `${minWidthNeeded}px`,
+              border: "1px solid black",
+              minHeight: "100%",
+            }}
+          >
             <div ref={svgContainerRef} style={{ position: "relative" }}>
               <svg
                 style={{
