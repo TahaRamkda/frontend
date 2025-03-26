@@ -31,9 +31,10 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [parameterValues, setParameterValues] = useState([]);
   const [templateView, setTemplateView] = useState("");
-  const [chatMessages, setChatMessages] = useState(null); // Single object instead of array
+  const [chatMessages, setChatMessages] = useState(null);
   const [filteredTemplates, setFilteredTemplates] = useState([]);
   const [parameters, setParameters] = useState([]);
+  const [showTemplateList, setShowTemplateList] = useState(true); // New state to control template list visibility
   const dispatch = useDispatch();
 
   const agenttemplates = useSelector((state) => state.bridge.agenttemplates);
@@ -67,10 +68,11 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
 
   const handleSelection = (templateId) => {
     setSelectedOption(templateId);
-    setChatMessages(null); // Clear previous preview
-    setParameterValues([]); // Reset parameter values
-    setParameters([]); // Reset parameters
-    setTemplateView(""); // Reset template view
+    setChatMessages(null);
+    setParameterValues([]);
+    setParameters([]);
+    setTemplateView("");
+    setShowTemplateList(false); // Hide the template list when a template is selected
 
     if (templateId) {
       const cachedDetail = agenttemplatedetails.find(
@@ -97,7 +99,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
         setTemplateView(updatedView);
         setChatMessages({
           messageId: `preview-${selectedOption}`,
-          typeId: 1, // Agent message
+          typeId: 1,
           contentType: selectedDetail.contentType || "",
           mediaPath: selectedDetail.mediaPath || "",
           conversationID: ChatId,
@@ -178,7 +180,8 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
 
   const handleSearchTemplate = (value) => {
     setSearchQuery(value);
-    setChatMessages(null); // Clear preview on search
+    setChatMessages(null);
+    setShowTemplateList(true); // Show the template list when search bar is clicked or typed in
   };
 
   useEffect(() => {
@@ -202,7 +205,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
             <i className="fa fa-times"></i>
           </div>
           <div className="flex ChatPopUp">
-            {/* Left Section (Search Bar and Template List) */}
+            {/* Left Section (Search Bar and Template List/Parameters) */}
             <div className="w-1/2 p-4">
               <div className="relative mb-4">
                 <input
@@ -211,53 +214,56 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
                   className="w-full bg-gray-100 text-gray-800 pl-10 mb-1 py-1 rounded-md focus:outline-none border border-gray-300"
                   value={searchQuery}
                   onChange={(e) => handleSearchTemplate(e.target.value)}
+                  onClick={() => setShowTemplateList(true)} // Show list when search bar is clicked
                 />
                 <div className="absolute top-1/2 left-2 transform -translate-y-1/2 text-gray-500">
                   <i className="fa fa-search pl-2"></i>
                 </div>
               </div>
 
-              <div className="max-h-60 overflow-y-auto">
-                {filteredTemplates?.length > 0 ? (
-                  filteredTemplates.map((option) => (
-                    <div
-                      key={option.id}
-                      className={`px-4 py-2 cursor-pointer text-sm ${
-                        selectedOption === option.id
-                          ? "bg-blue-100 text-blue-600 border-l-4 border-blue-500"
-                          : "hover:bg-gray-200"
-                      }`}
-                      onClick={() => handleSelection(option.id)}
-                    >
-                      {option.name}
-                    </div>
-                  ))
-                ) : (
-                  <div className="max-h-60 overflow-y-auto">No templates found</div>
-                )}
-              </div>
-
-              {parameters.length > 0 && (
-                <div className="overflow-auto max-h-[300px] bg-gray-100 p-1">
-                  {parameters.map((option) => (
-                    <div key={option.paramId} className="mb-2">
-                      <label htmlFor={option.paramId} className="block text-sm text-gray-700">
-                        {option.paramName}
-                      </label>
-                      <input
-                        id={option.paramId}
-                        type="text"
-                        value={
-                          parameterValues.find((item) => item.key === option.paramName)?.value || ""
-                        }
-                        onChange={(e) => handleParameterChange(option.paramName, e.target.value)}
-                        className="w-full mt-1 px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        placeholder={`Enter Value`}
-                        required
-                      />
-                    </div>
-                  ))}
+              {showTemplateList ? (
+                <div className="max-h-60 overflow-y-auto">
+                  {filteredTemplates?.length > 0 ? (
+                    filteredTemplates.map((option) => (
+                      <div
+                        key={option.id}
+                        className={`px-4 py-2 cursor-pointer text-sm ${
+                          selectedOption === option.id
+                            ? "bg-blue-100 text-blue-600 border-l-4 border-blue-500"
+                            : "hover:bg-gray-200"
+                        }`}
+                        onClick={() => handleSelection(option.id)}
+                      >
+                        {option.name}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="max-h-60 overflow-y-auto">No templates found</div>
+                  )}
                 </div>
+              ) : (
+                parameters.length > 0 && (
+                  <div className="overflow-auto max-h-[300px] bg-gray-100 p-1">
+                    {parameters.map((option) => (
+                      <div key={option.paramId} className="mb-2">
+                        <label htmlFor={option.paramId} className="block text-sm text-gray-700">
+                          {option.paramName}
+                        </label>
+                        <input
+                          id={option.paramId}
+                          type="text"
+                          value={
+                            parameterValues.find((item) => item.key === option.paramName)?.value || ""
+                          }
+                          onChange={(e) => handleParameterChange(option.paramName, e.target.value)}
+                          className="w-full mt-1 px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          placeholder={`Enter Value`}
+                          required
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )
               )}
             </div>
 

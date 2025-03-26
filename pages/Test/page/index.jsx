@@ -16,17 +16,7 @@ import InteractiveTemplateUpdate from "@/pages/InteractiveTemplates/UpdateTempla
 import UpdateTemplate from "@/pages/Templates/UpdateTemplate";
 import UpdateFlowPage from "@/pages/Flows/FlowDetails";
 // Action type mappings (unchanged)
-export const dropdownOptions = [
-  { label: "NONE", value: 0 },
-  { label: "TEMPLATE", value: 1 },
-  { label: "UNSUBSCRIBE", value: 3 },
-  { label: "BLOCK", value: 4 },
-  { label: "CHAT", value: 5 },
-  { label: "ORDER", value: 6 },
-  { label: "CLOSE CHAT", value: 7 },
-  { label: "FLOWS", value: 8 },
-];
-
+import { dropdownOptions } from "@/utils/constants";
 // Simulated API data with updated IDs and actionIds
 const fetchTemplateData = async () => {
   return {

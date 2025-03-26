@@ -19,9 +19,11 @@ import { REFRESH_INTERVAL } from '@/utils/constants';
 import { set, toDate } from 'date-fns';
 import SearchBar from '@/components/SearchBar/SearchComponent';
 import DateTimePicker from '@/components/Timepicker/datetimepicker';
-import UpdateCampaign from "../UpdateCampaign"
+import UpdateCampaign from "../UpdateCampaign";
+import { usePermissions } from '@/context/PermissionsContext';
 const CampaignsList = () => {
   const dispatch = useDispatch();
+  const { hasPermission } = usePermissions();
   const router = useRouter();
   const [templateId, settemplateId] = useState(0);
   const [status, setstatus] = useState(0);
@@ -298,6 +300,7 @@ const CampaignsList = () => {
  
         return (
           <div className=" flex gap-1 " id="InfoIcon">
+            
             <button
               title="Schedule Campaign"
               className="uniform_icon_btn w-full justify-center items-center p-2"
@@ -305,6 +308,7 @@ const CampaignsList = () => {
             >
               <HiLightningBolt style={{ fontSize: "15px" }} />
             </button>
+            
             <button
               title="Last Contacted People"
               className="uniform_icon_btn w-full justify-center items-center p-2"
@@ -319,7 +323,9 @@ const CampaignsList = () => {
             >
               <HiBeaker style={{ fontSize: "15px" }} />
             </button>
+           
             {(isSameDay && timeDifference > 3) || !isSameDay ? (
+              
               <button
                 title="Edit Campaign"
                 className="uniform_icon_btn w-full justify-center items-center p-2"
@@ -327,6 +333,7 @@ const CampaignsList = () => {
               >
                 <HiPencilAlt style={{ fontSize: "15px" }} />
               </button>
+              
             ) : null}
           </div>
         );
@@ -402,14 +409,17 @@ const CampaignsList = () => {
           <h4 className="font-bold mb-2">Campaign</h4>
         </div>
         <div className="ml-auto mb-2">
-          <Button
-            color="primary"
-            className="uniform_btn"
-            onClick={handleCreate} // Navigate on create
-            type="button"
-          >
-            Create Campaign
-          </Button>
+        {hasPermission("Campaigns", "create") && (
+              <Button
+              color="primary"
+              className="uniform_btn"
+              onClick={handleCreate} // Navigate on create
+              type="button"
+            >
+              Create Campaign
+            </Button>
+            )}
+         
         </div>
       </div>
  
