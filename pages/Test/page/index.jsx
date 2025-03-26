@@ -347,10 +347,12 @@ const renderBox = (
             {/* Header */}
             {!isFlow && (
               <>
-                {headerType === 2 && imageUrl && (
-                  <img
-                    src={`${BASE_URL}${imageUrl}`}
-                    alt="Header Image"
+                
+                {headerType === 1 && imageUrl && (
+                  <video
+                    src={imageUrl}
+                    controls
+                    muted
                     style={{
                       width: "100%",
                       height: "auto",
@@ -361,11 +363,10 @@ const renderBox = (
                     }}
                   />
                 )}
-                {headerType === 1 && imageUrl && (
-                  <video
-                    src={imageUrl}
-                    controls
-                    muted
+                {headerType === 2 && imageUrl && (
+                  <img
+                    src={`${BASE_URL}${imageUrl}`}
+                    alt="Header Image"
                     style={{
                       width: "100%",
                       height: "auto",
