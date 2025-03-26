@@ -74,10 +74,10 @@ export const ExpireTime_Message_TRY5=60000 ;
 
 export const HeartBeat_Interval=100000 ; // 5 minutes in milliseconds
 
-export const ProdAppId = "a06956a9-aab6-4bff-9465-dc19f5f2a33b";
+export const AppId = "a06956a9-aab6-4bff-9465-dc19f5f2a33b";
 
-export const AppId="2b6362f1-b706-4087-bfaf-0d625c02110b";
+export const StagAppId="2b6362f1-b706-4087-bfaf-0d625c02110b";
 
-export const API_KEY1= "os_v2_app_fnrwf4nxazaipp5pbvrfyaqrbm5fgnr5ontuwrfsy2no57l3fxtwbtfinybm4x2ivawfnmztyenpcllfjijcisl774siswalccqwt7i";
+export const API_KEY= "os_v2_app_fnrwf4nxazaipp5pbvrfyaqrbm5fgnr5ontuwrfsy2no57l3fxtwbtfinybm4x2ivawfnmztyenpcllfjijcisl774siswalccqwt7i";
 
-export const API_KEY = "os_v2_app_ubuvnknkwzf77fdf3qm7l4vdhng2wrzqbmhupyn4g22egnsgjxyon5bmd7z67msxiqtxenrk5ghe3cayc5zc6nmeqchu36ykk7m7k6q";
+export const API_KEY1 = "os_v2_app_ubuvnknkwzf77fdf3qm7l4vdhng2wrzqbmhupyn4g22egnsgjxyon5bmd7z67msxiqtxenrk5ghe3cayc5zc6nmeqchu36ykk7m7k6q";
