@@ -197,6 +197,7 @@ const fetchTemplateData = async () => {
         "publishToFB": false,
         "flowId": 23,
         "actionId": 5,
+        "actionId": 5,
         "actionType": 0,
         "flowScreens": [
             {
@@ -260,6 +261,20 @@ const fetchTemplateData = async () => {
                         "flowOptions": []
                     }
                 ]
+            },
+            {
+                "name": "screen_Two",
+                "title": "Overall experience",
+                "screenButtonText": "Complete",
+                "flowChildren": [
+                    {
+                        "text": "Comments",
+                        "type": 2,
+                        "required": false,
+                        "flowOptions": []
+                    }
+                ]
+            },
             },
             {
                 "name": "screen_Two",
@@ -1151,7 +1166,11 @@ export default function FlowVisualization({ initialData }) {
       ) : (
         <div
         className=""
+        className=""
           style={{
+            overflow: "scroll",
+            height: "86vh",
+            width: "80vw",
             overflow: "scroll",
             height: "86vh",
             width: "80vw",
