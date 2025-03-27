@@ -1166,11 +1166,7 @@ export default function FlowVisualization({ initialData }) {
       ) : (
         <div
         className=""
-        className=""
           style={{
-            overflow: "scroll",
-            height: "86vh",
-            width: "80vw",
             overflow: "scroll",
             height: "86vh",
             width: "80vw",
@@ -1179,19 +1175,16 @@ export default function FlowVisualization({ initialData }) {
           }}
         >
           <Container
-          fluid
             style={{
-              overflow: "scroll",
-              padding: "",
+              overflow: "auto",
+              padding: "40px 20px",
               position: "relative",
-              minWidth: `${minWidthNeeded}px`,
-              border: "1px solid black",
+              minWidth: `${20}px`,
               minHeight: "100%",
             }}
           >
-          
-            <div className="d-flex justify-content-center  mb-4 gap-3 flex-wrap">
-              <div className="col-md-2 jcol-sm-12 text-left">
+            <div className="d-flex justify-content-center align-items-end mb-4 gap-3 flex-wrap">
+              <div className="col-md-3 col-sm-12">
                 <label className="form-label">Template Type:</label>
                 <TemplateTypeDropdown
                   onTemplateTypeChange={handleTemplateTypeChange}
@@ -1218,7 +1211,6 @@ export default function FlowVisualization({ initialData }) {
             <h2 className="text-center mb-5">
               WhatsApp Template Flow Visualization
             </h2>
-            
             <div ref={svgContainerRef} style={{ position: "relative" }}>
               <svg
                 style={{
