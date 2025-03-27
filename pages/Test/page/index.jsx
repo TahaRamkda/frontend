@@ -46,7 +46,7 @@ const fetchTemplateData = async () => {
         "contentType": "image/jpeg",
         "fileExtension": ".jpg",
         "fileName": "images_(2)_1.jpg",
-        "bodyText": "No matching results, press enter to execute your custom prompt write a para promoting burger King burger\nIndulge in the mouthwatering goodness of Burger King's iconic flame-grilled burgers! Each bite delivers a perfect blend of savory flavors, starting with high-quality beef that’s grilled to perfection for that unmistakable smoky taste. Whether you're craving the classic Whopper stacked high with fresh lettuce, juicy tomatoes, and creamy mayonnaise, or one of their delicious specialty burgers",
+        "bodyText": "burger King burger\nIndulge in the mouthwatering goodness of Burger King's iconic flame-grilled burgers! Each bite delivers a perfect blend of savory flavors, starting with high-quality beef that’s grilled to perfection for that unmistakable smoky taste. Whether you're craving the classic Whopper stacked high with fresh lettuce, juicy tomatoes, and creamy mayonnaise, or one of their delicious specialty burgers",
         "bodyParamCount": 0,
         "footerText": "do it quickly",
         "buttons": [
@@ -275,7 +275,7 @@ const fetchTemplateData = async () => {
                     }
                 ]
             },
-            },
+            
             {
                 "name": "screen_Two",
                 "title": "Overall experience",
@@ -305,7 +305,7 @@ const fetchTemplateData = async () => {
         "headerParamCount": 0,
         "headerText": "",
         "bodyParamCount": 0,
-        "bodyText": "Sink your teeth into the ultimate flavor experience with our mouthwatering burgers, made from 100% fresh, premium ingredients. Each bite is a delicious symphony of juicy beef, melted cheese, and crisp toppings, all nestled in a soft, toasted bun. And what better way to wash it down than with an ice-cold cola? Its refreshing fizz perfectly complements the savory goodness of our burgers, making it the ideal combo for your next meal. Treat yourself to this classic pairing today and savor the satisf",
+        "bodyText": " Treat yourself to this classic pairing today and savor the satisf",
         "footerText": "do it quickly",
         "mediaId": 425,
         "mediaPath": "/Media/images_(2)_1.jpg",
