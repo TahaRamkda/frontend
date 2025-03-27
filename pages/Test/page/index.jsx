@@ -79,7 +79,8 @@ const fetchTemplateData = async () => {
                 "actionId": 0,
                 "actionType": 0,
                 "systemActionId": null
-            }
+            },
+           
         ],
         "parameters": [],
         "createdBy": 2,
@@ -195,7 +196,7 @@ const fetchTemplateData = async () => {
         "flowLanguage": "en",
         "publishToFB": false,
         "flowId": 23,
-        "actionId": 0,
+        "actionId": 5,
         "actionType": 0,
         "flowScreens": [
             {
@@ -259,7 +260,20 @@ const fetchTemplateData = async () => {
                         "flowOptions": []
                     }
                 ]
-            }
+            },
+            {
+                "name": "screen_Two",
+                "title": "Overall experience",
+                "screenButtonText": "Complete",
+                "flowChildren": [
+                    {
+                        "text": "Comments",
+                        "type": 2,
+                        "required": false,
+                        "flowOptions": []
+                    }
+                ]
+            },
         ]
     },
       // Template that is connected to template 2
@@ -294,42 +308,7 @@ const fetchTemplateData = async () => {
                 "actionId": 0,
                 "actionType": 0
             },
-            {
-                "buttonId": 150,
-                "buttonText": "Visit Website",
-                "buttonValue": "https://qawaba.consulttechies.com/",
-                "buttonType": 3,
-                "sequence": 1,
-                "actionId": 0,
-                "actionType": 0
-            },
-            {
-                "buttonId": 151,
-                "buttonText": "Visit Website",
-                "buttonValue": "https://qawaba.consulttechies.com/",
-                "buttonType": 3,
-                "sequence": 1,
-                "actionId": 0,
-                "actionType": 0
-            },
-            {
-                "buttonId": 152,
-                "buttonText": "Visit Website",
-                "buttonValue": "https://qawaba.consulttechies.com/",
-                "buttonType": 3,
-                "sequence": 1,
-                "actionId": 0,
-                "actionType": 0
-            },
-            {
-                "buttonId": 153,
-                "buttonText": "Visit Website",
-                "buttonValue": "https://qawaba.consulttechies.com/",
-                "buttonType": 3,
-                "sequence": 1,
-                "actionId": 0,
-                "actionType": 0
-            },
+           
         ],
         "parameters": [],
         "createdBy": 2,
@@ -971,79 +950,35 @@ export default function FlowVisualization({ initialData }) {
         if (template.flowId !== undefined) map[template.flowId] = template;
         return map;
       }, {});
-
+    
       const rootTemplate = initialData.templates[0];
       const { buttonMap } = collectNodesByLevel(rootTemplate, templateMap);
       const newLines = [];
-
-      const checkElementsVisibility = (callback) => {
-        const elementsToCheck = [];
-        Object.entries(buttonMap).forEach(([buttonId, targetId]) => {
-          const buttonElement = document.getElementById(buttonId);
-          const targetElement = document.getElementById(targetId);
-          if (buttonElement && targetElement) {
-            elementsToCheck.push(buttonElement);
-            elementsToCheck.push(targetElement);
-          } else {
-            console.warn(`Element not found: ${buttonId} or ${targetId}`);
-          }
-        });
-
-        if (elementsToCheck.length === 0) {
-          console.warn("No elements to observe for visibility");
-          callback();
-          return;
-        }
-
-        const observer = new IntersectionObserver(
-          (entries, observer) => {
-            const allVisible = entries.every((entry) => entry.isIntersecting);
-            if (allVisible) {
-              entries.forEach((entry) => observer.unobserve(entry.target));
-              callback();
-            }
-          },
-          { threshold: 0.1 }
-        );
-
-        elementsToCheck.forEach((element) => {
-          if (element) observer.observe(element);
-        });
-
-        setTimeout(() => {
-          elementsToCheck.forEach((element) => {
-            if (element) observer.unobserve(element);
-          });
-          callback();
-        }, 1000);
-      };
-
+    
       const drawLines = () => {
         Object.entries(buttonMap).forEach(([buttonId, targetId], index) => {
           const buttonElement = document.getElementById(buttonId);
           const targetElement = document.getElementById(targetId);
-
+    
           if (!buttonElement || !targetElement) {
             console.warn(`Missing elements: ${buttonId} or ${targetId}`);
             return;
           }
-
+    
           const buttonRect = buttonElement.getBoundingClientRect();
           const targetRect = targetElement.getBoundingClientRect();
           const svgRect = svgContainerRef.current.getBoundingClientRect();
-
+    
           if (
             buttonRect.width === 0 ||
             buttonRect.height === 0 ||
             targetRect.width === 0 ||
             targetRect.height === 0
           ) {
-            console.warn(
-              `Invalid bounding rect for ${buttonId} or ${targetId}`
-            );
+            console.warn(`Invalid bounding rect for ${buttonId} or ${targetId}`);
             return;
           }
-
+    
           const action = buttonElement.dataset.action;
           let strokeColor = "#007bff";
           switch (action) {
@@ -1069,52 +1004,102 @@ export default function FlowVisualization({ initialData }) {
             default:
               strokeColor = "#6c757d";
           }
-
+    
           // Calculate start and end points
           const buttonCenterX = buttonRect.left + buttonRect.width / 2;
           const targetCenterX = targetRect.left + targetRect.width / 2;
           const isTargetLeft = targetCenterX < buttonCenterX;
-
-          // Start from inside the button (closer to the text/icon)
+    
+          // Start from the button's border
           const startX = isTargetLeft
-            ? buttonRect.left + buttonRect.width * 0.50 - svgRect.left // 25% from left edge
-            : buttonRect.right - buttonRect.width * 0.50 - svgRect.left; // 25% from right edge
+            ? buttonRect.left - svgRect.left // Left border
+            : buttonRect.right - svgRect.left; // Right border
           const startY = buttonRect.top + buttonRect.height / 2 - svgRect.top;
-
+    
           const endX = targetRect.left + targetRect.width / 2 - svgRect.left;
           const endY = targetRect.top - svgRect.top - 10;
-
-          // Define control points for a tilted cubic Bézier curve
-          const verticalDistance = Math.abs(endY - startY);
-          const horizontalDistance = Math.abs(endX - startX);
-          
-          // Adjust control points for a slight tilt
-          const controlPointOffsetX = horizontalDistance * 0.2; // Increased for more curve
-          const controlPointOffsetY = verticalDistance * 0.6; // Tilted more vertically
-
+    
+          // Define a straight segment length (e.g., 20px) before the curve
+          const straightLength = 20; // Adjust this value for the straight segment length
+          const straightEndX = isTargetLeft
+            ? startX - straightLength
+            : startX + straightLength;
+          const straightEndY = startY; // Keep Y constant for a horizontal straight line
+    
+          // Calculate distances for the curve
+          const verticalDistance = Math.abs(endY - straightEndY);
+          const horizontalDistance = Math.abs(endX - straightEndX);
+    
+          // Control points for the Bézier curve after the straight segment
+          const controlPointOffsetX = horizontalDistance * 0.3; // Adjusted for smoother tilt
+          const controlPointOffsetY = verticalDistance * 0.5; // Adjusted for tilt
+    
           const controlPoint1X = isTargetLeft
-            ? startX - controlPointOffsetX * 0.5 // Slight left tilt
-            : startX + controlPointOffsetX * 0.5; // Slight right tilt
-          const controlPoint1Y = startY + controlPointOffsetY * 0.8; // More pronounced downward curve
-
+            ? straightEndX - controlPointOffsetX * 0.5
+            : straightEndX + controlPointOffsetX * 0.5;
+          const controlPoint1Y = straightEndY + controlPointOffsetY * 0.7;
+    
           const controlPoint2X = isTargetLeft
-            ? endX + controlPointOffsetX * 0.3 // Adjust for tilt
+            ? endX + controlPointOffsetX * 0.3
             : endX - controlPointOffsetX * 0.3;
-          const controlPoint2Y = endY - controlPointOffsetY * 0.4; // Curve up toward target
-
-          const pathD = `M ${startX},${startY} C ${controlPoint1X},${controlPoint1Y} ${controlPoint2X},${controlPoint2Y} ${endX},${endY}`;
-
+          const controlPoint2Y = endY - controlPointOffsetY * 0.3;
+    
+          // Path: Move to start, straight line, then cubic Bézier curve
+          const pathD = `M ${startX},${startY} L ${straightEndX},${straightEndY} C ${controlPoint1X},${controlPoint1Y} ${controlPoint2X},${controlPoint2Y} ${endX},${endY}`;
+    
           newLines.push({
             pathD,
             stroke: strokeColor,
             key: `${buttonId}-${targetId}`,
-            strokeWidth: "2.5", // Slightly thicker for visibility
+            strokeWidth: "1.5",
           });
         });
-
+    
         setLines(newLines);
       };
-
+    
+      const checkElementsVisibility = (callback) => {
+        const elementsToCheck = [];
+        Object.entries(buttonMap).forEach(([buttonId, targetId]) => {
+          const buttonElement = document.getElementById(buttonId);
+          const targetElement = document.getElementById(targetId);
+          if (buttonElement && targetElement) {
+            elementsToCheck.push(buttonElement);
+            elementsToCheck.push(targetElement);
+          } else {
+            console.warn(`Element not found: ${buttonId} or ${targetId}`);
+          }
+        });
+    
+        if (elementsToCheck.length === 0) {
+          console.warn("No elements to observe for visibility");
+          callback();
+          return;
+        }
+    
+        const observer = new IntersectionObserver(
+          (entries, observer) => {
+            const allVisible = entries.every((entry) => entry.isIntersecting);
+            if (allVisible) {
+              entries.forEach((entry) => observer.unobserve(entry.target));
+              callback();
+            }
+          },
+          { threshold: 0.1 }
+        );
+    
+        elementsToCheck.forEach((element) => {
+          if (element) observer.observe(element);
+        });
+    
+        setTimeout(() => {
+          elementsToCheck.forEach((element) => {
+            if (element) observer.unobserve(element);
+          });
+          callback();
+        }, 1000);
+      };
+    
       checkElementsVisibility(drawLines);
     };
 
@@ -1165,25 +1150,29 @@ export default function FlowVisualization({ initialData }) {
         )
       ) : (
         <div
+        className=""
           style={{
-            overflow: "auto",
-            height: "100vh",
-            width: "100vw",
+            overflow: "scroll",
+            height: "86vh",
+            width: "80vw",
             position: "relative",
             backgroundColor: "#f8f9fa",
           }}
         >
           <Container
+          fluid
             style={{
-              overflow: "auto",
-              padding: "40px 20px",
+              overflow: "scroll",
+              padding: "",
               position: "relative",
-              minWidth: `${20}px`,
+              minWidth: `${minWidthNeeded}px`,
+              border: "1px solid black",
               minHeight: "100%",
             }}
           >
-            <div className="d-flex justify-content-center align-items-end mb-4 gap-3 flex-wrap">
-              <div className="col-md-3 col-sm-12">
+          
+            <div className="d-flex justify-content-center  mb-4 gap-3 flex-wrap">
+              <div className="col-md-2 jcol-sm-12 text-left">
                 <label className="form-label">Template Type:</label>
                 <TemplateTypeDropdown
                   onTemplateTypeChange={handleTemplateTypeChange}
@@ -1210,6 +1199,7 @@ export default function FlowVisualization({ initialData }) {
             <h2 className="text-center mb-5">
               WhatsApp Template Flow Visualization
             </h2>
+            
             <div ref={svgContainerRef} style={{ position: "relative" }}>
               <svg
                 style={{
