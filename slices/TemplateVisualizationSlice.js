@@ -1,17 +1,16 @@
-import { FLOWVISUALIZATION } from "@/utils/apiConstants";
+import { TEMPLATEVISUALIZATION } from "@/utils/apiConstants";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import Flow from "@/pages/Flows/FlowList";
 
-export const fetchFlowVisualization = createAsyncThunk(
-    'flowvisualization/fetchFlowVisualization',
-    async ({templateId,intTemplateId}, { rejectWithValue }) => {
+export const fetchTemplateVisualization = createAsyncThunk(
+    'templatevisualization/fetchTemplateVisualization',
+    async ({templateId,templatetype}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${FLOWVISUALIZATION}?TemplateId=${templateId}&IntTemplateId=${intTemplateId}`);
+        const response = await API.get(`${TEMPLATEVISUALIZATION}?templateType=${templatetype}&templateId=${templateId}`);
         if (response?.status === 200) {
           return {
-            flowVisualizationData: response.data.result,
+            templateVisualizationData: response.data,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -23,18 +22,18 @@ export const fetchFlowVisualization = createAsyncThunk(
     }
   );
 
-const FlowVisualizationSlice = createSlice({
-    name: 'flowvisualization',
+const TemplateVisualizationSlice = createSlice({
+    name: 'templatevisualization',
     initialState: {
-        flowVisualizationData: [],
+        templateVisualizationData: [],
         loading: false,
         error: null,
         success: false,
         message: '',
     },
     reducers: {
-        clearFlowVisualization: (state) => {
-            state.flowVisualizationData = [];
+        clearTemplateVisualization: (state) => {
+            state.templateVisualizationData = [];
             state.loading = false;
             state.error = null;
             state.success = false;
@@ -43,16 +42,16 @@ const FlowVisualizationSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-        .addCase(fetchFlowVisualization.pending, (state) => {
+        .addCase(fetchTemplateVisualization.pending, (state) => {
             state.loading = true;
             state.error = null;
         })
-        .addCase(fetchFlowVisualization.fulfilled, (state, action) => {
+        .addCase(fetchTemplateVisualization.fulfilled, (state, action) => {
             state.loading = false;
-            state.flowVisualizationData = action.payload.flowVisualizationData;
+            state.templateVisualizationData = action.payload.templateVisualizationData;
             state.message = action.payload.message || '';
         })
-        .addCase(fetchFlowVisualization.rejected, (state, action) => {
+        .addCase(fetchTemplateVisualization.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload || action.error.message;
             state.message = action.payload?.message || action.error.message;
@@ -60,5 +59,5 @@ const FlowVisualizationSlice = createSlice({
     }
 })
 
-export const { clearFlowVisualization } = FlowVisualizationSlice.actions;
-export default FlowVisualizationSlice.reducer;  
+export const { clearTemplateVisualization } = TemplateVisualizationSlice.actions;
+export default TemplateVisualizationSlice.reducer;  

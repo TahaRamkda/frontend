@@ -21,7 +21,7 @@ import agentShiftSlice from "@/slices/AgentsShift"
 import chatTestSlice from "@/slices/ChatTest";
 import ChatBridgeSlice from "@/slices/ChatBridgeSlice";
 import FlowSlice from "@/slices/FlowsSlice";
-import FlowVisualization  from "@/slices/FlowVisualizationSlice";
+import TemplateVisualizationSlice  from "@/slices/TemplateVisualizationSlice";
 import { configureStore } from "@reduxjs/toolkit";
 
 export const store = configureStore({
@@ -49,7 +49,7 @@ export const store = configureStore({
     chatTest: chatTestSlice,
     bridge:ChatBridgeSlice,
     flows:FlowSlice,
-    flowsVisualization:FlowVisualization
+    templateVisualization:TemplateVisualizationSlice
 
     }
 })

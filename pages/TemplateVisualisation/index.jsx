@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Head from "next/head";
 import {
   Container,
@@ -12,7 +13,7 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import Loader from "@/components/Layout/Loader";
 import { BASE_URL } from "@/utils/apiConstants";
-import { fetchFlowVisualization } from "@/slices/FlowVisualizationSlice";
+import { fetchTemplateVisualization } from "@/slices/TemplateVisualizationSlice";
 import InteractiveTemplateUpdate from "@/pages/InteractiveTemplates/UpdateTemplate";
 import UpdateTemplate from "@/pages/Templates/UpdateTemplate";
 import UpdateFlowPage from "@/pages/Flows/FlowDetails";
@@ -342,6 +343,7 @@ import { set } from "date-fns";
 // Render a single box with a Meta-style template preview
 const renderBox = (
   id,
+  type,
   title,
   content,
   buttons = [],
@@ -349,12 +351,13 @@ const renderBox = (
   onCardClick,
   template // Full template object for headerType, imageUrl, etc.
 ) => {
-  const isFlow = title.includes("flow");
-  const headerType = template?.headerType || 3; // Default to text header
-  const imageUrl = template?.mediaPath || "";
-  const headerText = template?.headerText || "";
-  const bodyText = template?.bodyText || content|| "No content";
-  const footerText = template?.footerText || "";
+  
+  const isFlow = template?.type === 3;
+  const headerType = template?.details.headerType || 3; // Default to text header
+  const imageUrl = template?.details.mediaPath || "";
+  const headerText = template?.details.headerText || "";
+  const bodyText = template?.details.bodyText || content|| "No content";
+  const footerText = template?.details.footerText || "";
   return (
     <Col xs="auto" key={id}>
       <Card
@@ -614,8 +617,8 @@ const collectNodesByLevel = (
     content;
 
   // Handle Flow Templates
-  if (template.flowId) {
-    title = template.flowName || "Unnamed Flow";
+  if (template.type===3) {
+    title = template.details.flowName || "Unnamed Flow";
     // Define the button using the flow's own actionId instead of the last screen's
     buttons =
       template.flowScreens && template.flowScreens.length > 0
@@ -634,29 +637,18 @@ const collectNodesByLevel = (
             },
           ]
         : [];
-    content = template.flowScreens
-      ? template.flowScreens
-          .map(
-            (screen) =>
-              `Name: ${screen.name || ""} \n\n Title: ${
-                screen.title || ""
-              }\n\n Body: ${screen.bodyText || ""}\n\n Button: ${
-                screen.screenButtonText || ""
-              }`
-          )
-          .join("\n\n")
-      : "No flow screens available";
+    content = "Flow Screen";
 
     // Process the flow's actionId for the button
-    if (template.actionId && template.actionType) {
+    if (template.details.actionId && template.details.actionType) {
       let targetId;
-      if (template.actionType === 1) {
+      if (template.details.actionType === 1) {
         // TEMPLATE
-        const nextTemplate = templateMap[template.actionId];
+        const nextTemplate = templateMap[template.details.actionId];
         targetId = nextTemplate
           ? nextTemplate.id !== undefined
             ? `${nextTemplate.id}`
-            : `${nextTemplate.interactiveTemplateId}`
+            : `${nextTemplate.id}`
           : null;
         if (nextTemplate) {
           collectNodesByLevel(
@@ -668,13 +660,13 @@ const collectNodesByLevel = (
             visited
           );
           buttonMap[
-            `btn_${template.flowId}_screen_${template.flowScreens.length - 1}`
+            `btn_${template.id}_screen_${template.flowScreens.length - 1}`
           ] = targetId;
         }
-      } else if (template.actionType === 8) {
+      } else if (template.details.actionType === 8) {
         // FLOWS
-        const nextFlow = templateMap[template.actionId];
-        targetId = nextFlow ? `${nextFlow.flowId}` : null;
+        const nextFlow = templateMap[template.details.actionId];
+        targetId = nextFlow ? `${nextFlow.id}` : null;
         if (nextFlow) {
           collectNodesByLevel(
             nextFlow,
@@ -739,11 +731,11 @@ const collectNodesByLevel = (
   }
   // Handle Regular Templates
   else {
-    title = template.templateName || "Unnamed Template";
-    content = `${template.headerText || ""}\n\n${template.bodyText || ""}\n\n${
-      template.footerText || ""
+    title = template.details.templateName || "Unnamed Template";
+    content = `${template.details.headerText || ""}\n\n${template.details.bodyText || ""}\n\n${
+      template.details.footerText || ""
     }`;
-    buttons = template.buttons || [];
+    buttons = template.details.buttons || [];
   }
 
   // Add the current node to the level
@@ -783,9 +775,10 @@ const collectNodesByLevel = (
           );
         }
       } else if (button.actionType === 8) {
+       // debugger
         // FLOWS
         const nextFlow = templateMap[button.actionId];
-        targetId = nextFlow ? `${nextFlow.flowId}` : null;
+        targetId = nextFlow ? `${nextFlow.id}` : null;
         if (nextFlow) {
           collectNodesByLevel(
             nextFlow,
@@ -875,12 +868,16 @@ const collectNodesByLevel = (
   return { levels, buttonMap };
 };
 
-// Use getServerSideProps for server-side data fetching in Next.js
+//Use getServerSideProps for server-side data fetching in Next.js
 // export async function getServerSideProps() {
-//   const data = await fetchTemplateData();
+//   debugger
+//   const data = await fetchTemplateVisualization({templateId: 26, templatetype: 1});
+//   console.log(data);
+//   const initialData = data.result.templatevisualization;
+  
 //   return {
 //     props: {
-//       initialData: data,
+//       initialData: initialData,
 //     },
 //   };
 // }
@@ -895,8 +892,8 @@ const TemplateTypeDropdown = ({ onTemplateTypeChange, selectedType }) => {
         onChange={(e) => onTemplateTypeChange(e.target.value)}
       >
         <option value="">Select Template</option>
-        <option value="interactive">Interactive Template</option>
-        <option value="marketing">Marketing Template</option>
+        <option value="2">Interactive Template</option>
+        <option value="1">Marketing Template</option>
       </select>
     </div>
   );
@@ -905,7 +902,8 @@ const TemplateTypeDropdown = ({ onTemplateTypeChange, selectedType }) => {
 
 
 
-export default function FlowVisualization({ initialData }) {
+export default function FlowVisualization() {
+  const dispatch = useDispatch();
   const [lines, setLines] = useState([]);
   const svgContainerRef = useRef(null);
   const [isMounted, setIsMounted] = useState(false);
@@ -915,32 +913,31 @@ export default function FlowVisualization({ initialData }) {
   const [isInteractiveTemplate, setIsInteractiveTemplate] = useState(false);
   const [templateType, setTemplateType] = useState("");
   const [templateId, setTemplateId] = useState(null);
+  const [initialData, setInitialData] = useState();
   const [interactiveTemplateId, setInteractiveTemplateId] = useState(null);
-  const { flowsVisualization, loading, error } = useSelector((state) => state.flowsVisualization);
+  const { templateVisualizationData, loading, error } = useSelector((state) => state.templateVisualization);
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   const handleCardClick = (templateId) => {
-    const template = initialData.flowsVisualization.find(
+    const template = initialData.find(
       (t) =>
-        (t.id && t.id.toString() === templateId) ||
-        (t.interactiveTemplateId &&
-          t.interactiveTemplateId.toString() === templateId) ||
-        (t.flowId && t.flowId.toString() === templateId)
+        (t.id && t.id.toString() === templateId)
+        
     );
 
     if (template) {
-      if (template.flowId) {
-        setSelectedTemplate(template.flowId);
+      if (template.type ===3) {
+        setSelectedTemplate(template.id);
         setShowUpdateFlow(true);
         return;
-      } else if (template.interactiveTemplateId) {
-        setSelectedTemplate(template.interactiveTemplateId);
+      } else if (template.type===2) {
+        setSelectedTemplate(template.id);
         setIsInteractiveTemplate(true);
         setShowUpdateTemplate(true);
         return;
-      } else if (template.id) {
+      } else if (template.type===1) {
         setSelectedTemplate(template.id);
         setIsInteractiveTemplate(false);
         setShowUpdateTemplate(true);
@@ -949,15 +946,15 @@ export default function FlowVisualization({ initialData }) {
     }
   };
 
-  const handleTemplateClick = (Id) => {
-    setTemplateId(Id);
+  const handleTemplateClick = (e) => {
+    setTemplateId(e.target.value);
   }
 
   const handleTemplateTypeChange = (type) => {
     setTemplateType(type);
   };
-const handleInteractiveTemplateClick = (Id) => {
-  setInteractiveTemplateId(Id);
+const handleInteractiveTemplateClick = (e) => {
+  setTemplateId(e.target.value);
 }
   const handleCloseModal = () => {
     setShowUpdateTemplate(false);
@@ -965,32 +962,21 @@ const handleInteractiveTemplateClick = (Id) => {
     setSelectedTemplate(null);
   };
 
-  useEffect(() => {
-    try {
-      const response = dispatch(fetchFlowVisualization({templateId:templateId, intTemplateId:interactiveTemplateId}));
-    }catch (error) {
-      console.error('Error fetching data:', error);
-      showSweetAlert({
-        title: "Error",
-        text: "Failed to fetch data",
-        icon: "error",
-      })
-    }
-  },[templateId, interactiveTemplateId]);
+ 
 
   useEffect(() => {
     if (!isMounted || !initialData || !svgContainerRef.current) return;
 
     const calculateLines = () => {
-      const templateMap = initialData.flowsVisualization.reduce((map, template) => {
+      const templateMap = initialData.reduce((map, template) => {
         if (template.id !== undefined) map[template.id] = template;
-        if (template.interactiveTemplateId !== undefined)
-          map[template.interactiveTemplateId] = template;
-        if (template.flowId !== undefined) map[template.flowId] = template;
+        // if (template.interactiveTemplateId !== undefined)
+        //   map[template.interactiveTemplateId] = template;
+        // if (template.flowId !== undefined) map[template.flowId] = template;
         return map;
       }, {});
     
-      const rootTemplate = initialData.flowsVisualization[0];
+      const rootTemplate = initialData[0];
       const { buttonMap } = collectNodesByLevel(rootTemplate, templateMap);
       const newLines = [];
     
@@ -1149,19 +1135,70 @@ const handleInteractiveTemplateClick = (Id) => {
     };
   }, [isMounted, initialData]);
 
-  if (!isMounted || !initialData) return <Loader />;
 
-  const templateMap = initialData.flowsVisualization.reduce((map, template) => {
-    if (template.id !== undefined) {
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+          
+        const response = await dispatch(fetchTemplateVisualization({ templateId : templateId, templatetype: templateType }));
+        // Optionally handle the response if needed
+        console.log('Fetch response:', response);
+        setInitialData(response.payload.templateVisualizationData.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // showSweetAlert({
+        //   title: "Error",
+        //   text: "Failed to fetch data",
+        //   icon: "error",
+        // });
+      }
+    };
+  
+    fetchData(); // Call the async function
+  }, [templateId]); // Add dependencies
+
+  if (!isMounted || !initialData) return (
+    <>
+     <div className="d-flex justify-content-center align-items-end mb-4 gap-3 flex-wrap">
+              <div className="col-md-3 col-sm-12">
+                <label className="form-label">Template Type:</label>
+                <TemplateTypeDropdown
+                  onTemplateTypeChange={handleTemplateTypeChange}
+                  selectedType={templateType}
+                />
+              </div>
+              <div
+                className={`col-md-3 col-sm-12 ${
+                  templateType === "2" ? "d-block" : "d-none"
+                }`}
+              >
+                <label className="form-label">Interactive Template:</label>
+                <InteractiveTemplateDropdown value={templateId} onChange={handleInteractiveTemplateClick}  />
+              </div>
+              <div
+                className={`col-md-3 col-sm-12 ${
+                  templateType === "1" ? "d-block" : "d-none"
+                }`}
+              >
+                <label className="form-label">Marketing Template:</label>
+                <TemplateDropdown value={templateId} onChange={handleTemplateClick}/>
+              </div>
+            </div>
+    </>
+  );
+
+  const templateMap = initialData.reduce((map, template) => {
+    if (template.type === 1) {
       map[template.id] = template;
-    } else if (template.interactiveTemplateId !== undefined) {
-      map[template.interactiveTemplateId] = template;
-    } else if (template.flowId !== undefined) {
-      map[template.flowId] = template;
+    } else if (template.type === 2) {
+      map[template.id] = template;
+    } else if (template.type === 3) {
+      map[template.id] = template;
     }
     return map;
   }, {});
-  const rootTemplate = initialData.flowsVisualization[0];
+  const rootTemplate = initialData[0];
   const { levels } = collectNodesByLevel(rootTemplate, templateMap);
   const maxCardsPerLevel = Math.max(
     ...Object.values(levels).map((level) => level.length)
@@ -1207,31 +1244,7 @@ const handleInteractiveTemplateClick = (Id) => {
               minHeight: "100%",
             }}
           >
-            <div className="d-flex justify-content-center align-items-end mb-4 gap-3 flex-wrap">
-              <div className="col-md-3 col-sm-12">
-                <label className="form-label">Template Type:</label>
-                <TemplateTypeDropdown
-                  onTemplateTypeChange={handleTemplateTypeChange}
-                  selectedType={templateType}
-                />
-              </div>
-              <div
-                className={`col-md-3 col-sm-12 ${
-                  templateType === "interactive" ? "d-block" : "d-none"
-                }`}
-              >
-                <label className="form-label">Interactive Template:</label>
-                <InteractiveTemplateDropdown  />
-              </div>
-              <div
-                className={`col-md-3 col-sm-12 ${
-                  templateType === "marketing" ? "d-block" : "d-none"
-                }`}
-              >
-                <label className="form-label">Marketing Template:</label>
-                <TemplateDropdown value={templateId} onChange={handleTemplateClick}/>
-              </div>
-            </div>
+           
             <h2 className="text-center mb-5">
               WhatsApp Template Flow Visualization
             </h2>
@@ -1297,6 +1310,7 @@ const handleInteractiveTemplateClick = (Id) => {
                       {levels[level].map((node) =>
                         renderBox(
                           node.id,
+                          node.type,
                           node.title,
                           node.content,
                           node.buttons,

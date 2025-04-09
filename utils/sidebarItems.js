@@ -63,9 +63,9 @@ export const sidebarItems = [
       submenu: [],
     },
     {
-      href: '/FlowVisualization',
+      href: '/TemplateVisualisation',
       icon: 'ti-eye', 
-      text: 'Flow Visualization',
+      text: 'Template Visualisation',
       module: 1,
       submenu: [],
     },

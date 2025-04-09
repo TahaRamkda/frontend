@@ -1,4 +1,4 @@
-export const BASE_URL = "https://whatsappapi.consulttechies.com";
+export const BASE_URL = "https://qawhatsappapi.consulttechies.com";
 export const LOGINAPI = "/User/Login";
 export const REFRESHTOKENAPI = "/Token/Refresh";
 export const DASHBOARDSUMMARY = "/Dashboard/getdashboardsummary";
@@ -153,4 +153,4 @@ export const FLOWDROPDOWN = "/Flows/getflows";
 export const SURVEYDROPDOWN = "/SurveyReport/getsurveys";
 
 // Flow Visualization 
-export const FLOWVISUALIZATION = "#";
+export const TEMPLATEVISUALIZATION = "/Templates/GetTemplateVisualization";

@@ -13,7 +13,7 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import Loader from "@/components/Layout/Loader";
 import { BASE_URL } from "@/utils/apiConstants";
-import { fetchFlowVisualization } from "@/slices/FlowVisualizationSlice";
+import { fetchFlowVisualization } from "@/slices/TemplateVisualizationSlice";
 import InteractiveTemplateUpdate from "@/pages/InteractiveTemplates/UpdateTemplate";
 import UpdateTemplate from "@/pages/Templates/UpdateTemplate";
 import UpdateFlowPage from "@/pages/Flows/FlowDetails";
