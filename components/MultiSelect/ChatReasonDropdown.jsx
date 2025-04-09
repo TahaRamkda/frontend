@@ -38,7 +38,7 @@ const ChatReasonDropdown = ({ name, value, onChange, existingdata }) => {
 
   // Handle when selection changes
   const handleSelectChange = (selectedOptions) => {
-    debugger
+    
     const selectedIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
     setSelectedId(selectedIds);
   };

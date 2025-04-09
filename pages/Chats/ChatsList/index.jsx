@@ -126,7 +126,7 @@ const ChatPage = () => {
     try {
       const response = await dispatch(setAgentstatus({ agentId: UserId, statusId: StatusId })).unwrap();
       if (response.success) {
-        await loggerdetails(logger, `agent status updated to ${StatusId} `, {
+        await loggerdetails(logger, `agent status updated to ${StatusId} `,"info", {
           agentId: UserId,
           type: 5,
         });
@@ -213,7 +213,7 @@ const ChatPage = () => {
   }, []);
 
   const handleTemplateSend = async (details) => {
-   await loggerdetails(logger, `agent sent template :`, {
+   await loggerdetails(logger, `agent sent template :`,"info", {
       Obj : details,
       conversationId: details.ChatId,
       agentId: UserId,
@@ -246,7 +246,7 @@ const ChatPage = () => {
         try {
           const response = await dispatch(setAgentstatus({ agentId: UserId, statusId: "0" })).unwrap();
           if (response.success) {
-           await loggerdetails(logger, `Agent with ID:${UserId} logged out`, {
+           await loggerdetails(logger, `Agent with ID:${UserId} logged out`, "info", {
              agentId: UserId,
              type: 5,
             })
@@ -271,7 +271,7 @@ const ChatPage = () => {
             text: "An error occurred during logout. Please try again.",
             icon: "error",
           });
-          await loggerdetails(logger, " Error while loging out:", {
+          await loggerdetails(logger, " Error while loging out:", "error", {
             Obj : error,
             logtype: "error",
             conversationId: Activechat,
@@ -330,7 +330,7 @@ const ChatPage = () => {
 
 
   useEffect(() => {
-    debugger
+    
     if (templateDetails) {
       const newMessage = {
         messageId: Date.now(),
@@ -369,9 +369,9 @@ const ChatPage = () => {
             setAgentStatus(response.result.status);
           }
         } catch (error) {
-          await loggerdetails(logger, " Error fetching agent data:", {
+          await loggerdetails(logger, " Error fetching agent data:","error", {
             Obj : error,
-            logtype: "error",
+            //logtype: "error",
             //conversationId: Activechat,
             agentId: UserId,
             
@@ -477,7 +477,7 @@ const ChatPage = () => {
         sentime : new Date().toLocaleString(),
       };
       //logger.info("Agent sent message:", newMessage);
-       await loggerdetails(logger, "Agent sent message:", {
+       await loggerdetails(logger, "Agent sent message:","info", {
         Obj : newMessage,
         conversationId: Activechat,
         agentId: UserId,
@@ -492,7 +492,7 @@ const ChatPage = () => {
       setMessageInput("");
       await dispatch(NewAgentMessage(formData)).unwrap();
       //toast.success("Message sent successfully!");
-      await loggerdetails(logger, "Message sent successfully on time :", {
+      await loggerdetails(logger, "Message sent successfully on time :","info", {
         Obj : new Date().toLocaleString(),
         conversationId: Activechat,
         agentId: UserId,
@@ -504,7 +504,7 @@ const ChatPage = () => {
       removeUnrepliedMark(Activechat);
      
     } catch (error) {
-      await loggerdetails(logger, " Error while sending message:", {
+      await loggerdetails(logger, " Error while sending message:","error", {
         Obj : error,
         logtype: "error",
         conversationId: Activechat,
@@ -582,7 +582,7 @@ const ChatPage = () => {
 
     // Message received handler
     const handleIncomingMessage = async (message) => {
-      await loggerdetails(logger, "Agent received message:", {
+      await loggerdetails(logger, "Agent received message:","info", {
         Obj : message,
         conversationId: message.conversationId,
         agentId: UserId,
@@ -599,7 +599,7 @@ const ChatPage = () => {
 
     // Handles conversation assignment
     const handleConversationAssigned = async(notification) => {
-     await loggerdetails(logger, "New Conversation assigned to agent:", {
+     await loggerdetails(logger, "New Conversation assigned to agent:","info", {
         Obj : notification,
         conversationId: notification.id,
         agentId: userId,
@@ -624,7 +624,7 @@ const ChatPage = () => {
     // Handles conversation unassignment
     const handleConversationUnAssigned = async (chatId) => {
       
-      await loggerdetails(logger, "Conversation unassigned for chat Id:", {
+      await loggerdetails(logger, "Conversation unassigned for chat Id:", "info", {
         conversationId: chatId,
         agentId: userId,
         type: 3,

@@ -11,39 +11,58 @@ const logChatDetails = async (
     ...additionalData
   } = {}
 ) => {
+  // Validate logger instance
   if (!logger) {
     console.error("Logger instance is required for logChatDetails");
     return;
   }
+
+  // Construct metadata object with only provided arguments
   const metadata = {};
   if (Obj !== null) metadata.Obj = Obj;
   if (agentId !== null) metadata.agentId = agentId;
   if (conversationId !== null) metadata.conversationId = conversationId;
   if (type !== null) metadata.type = type;
   if (userId !== null) metadata.userId = userId;
-  Object.assign(metadata, additionalData); // Add any extra arguments
+  Object.assign(metadata, additionalData); // Merge any additional arguments
 
-if(localStorage.getItem("isaxiomenabled") === "true"){
-  try {
-    // Construct metadata object with only provided arguments
-   
-    // Log with Axiom and await the logging operation
-    if(logtype == "info"){
-      await logger.info(logMessage, metadata);
+  // Check if Axiom logging is enabled
+  const isAxiomEnabled = localStorage.getItem("isaxiomenabled") === "true";
+
+  if (isAxiomEnabled) {
+    try {
+      // Log based on logtype
+      switch (logtype.toLowerCase()) {
+        case "info":
+          await logger.info(logMessage, metadata);
+          break;
+        case "error":
+          await logger.error(logMessage, metadata);
+          break;
+        case "warn":
+          await logger.warn(logMessage, metadata); // Optional: Add warn if supported by logger
+          break;
+        case "debug":
+          await logger.debug(logMessage, metadata); // Optional: Add debug if supported by logger
+          break;
+        default:
+          console.warn(`Unsupported logtype: ${logtype}, defaulting to info`);
+          await logger.info(logMessage, metadata);
+          break;
+      }
+
+      // Flush logs to ensure they are sent
+      await logger.flush();
+    } catch (error) {
+      console.error("Failed to log chat details with Axiom:", error);
+      // Optionally re-throw if the caller needs to handle it
+      // throw error;
     }
-    else if(logtype == "error"){
-      await logger.error(logMessage, metadata);
-    }
-    await logger.flush(); // Wait for logs to be sent
-  } catch (error) {
-    console.error("Failed to log chat details with Axiom:", error);
-   // throw error; // Re-throw the error to allow caller to handle it
+  } else {
+    // Fallback to console logging if Axiom is disabled
+    const consoleMethod = logtype.toLowerCase() === "error" ? console.error : console.log;
+    consoleMethod(logMessage, metadata);
   }
-}
-else{
-  console.log(logMessage, metadata);
-}
-  
 };
 
 export default logChatDetails;

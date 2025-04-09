@@ -25,6 +25,7 @@ export const fetchLogin = createAsyncThunk('auth/login', async ({ email, passwor
             localStorage.setItem("clientId", result.clientId);
             localStorage.setItem("userId", result.userId);
             localStorage.setItem("userName", result.userName);
+            localStorage.setItem("isaxiomenabled", true);
 
             Cookies.set('permission', JSON.stringify(result.permission), { path: '/', secure: true, sameSite: 'Strict' });
             Cookies.set('accessToken', result.accessToken, { path: '/', secure: true, sameSite: 'Strict' });

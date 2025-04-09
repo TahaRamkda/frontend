@@ -994,7 +994,7 @@ export default function FlowVisualization({ initialData }) {
   }, []);
 
   const handleCardClick = (templateId) => {
-    debugger;
+    
     const template = initialData.templates.find(
       (t) =>
         (t.id && t.id.toString() === templateId) ||
@@ -1005,7 +1005,7 @@ export default function FlowVisualization({ initialData }) {
 
     if (template) {
       if (template.flowId) {
-        debugger;
+        
         setSelectedTemplate(template.flowId);
         setShowUpdateFlow(true);
         return; // Exit after handling flow

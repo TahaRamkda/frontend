@@ -672,7 +672,6 @@ const CreateFlowPage = () => {
     }
   }, [isLoading]);
   const handleSaveFlow = () => {
-    debugger;
     const errors = validateFlowData(flowData);
 
     if (errors.length > 0) {
