@@ -9,6 +9,9 @@ import {
   HiSun,
   HiMenu,
   HiShieldExclamation,
+
+  HiCog,
+  HiSett
 } from "react-icons/hi";
 import { useRouter } from "next/router";
 import SweetAlert from "sweetalert2";
@@ -17,11 +20,13 @@ import ChangePass from "./ChangePassword";
 import LiveReportingSwitch from "./LiveReportingSwitch";
 import Switch from "react-switch";
 import { set } from "date-fns";
+import Setting from "../Settings/SettingDropdown";
 export function Header({ toggleSidebar }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [ShowChangePass, setShowChangePass] = useState (false)
   const router = useRouter();
+  const [settingModal, SetSettingModal]= useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false);
   useEffect(() => {
     const checkFullScreen = () => {
@@ -60,6 +65,12 @@ export function Header({ toggleSidebar }) {
 
   };
 
+  const handleSettingClick = () =>{
+    SetSettingModal(true)
+  }
+  const handleSettingCloseClick = () =>{
+    SetSettingModal(false)
+  }
   const enterFullScreen = () => {
     const docEl = document.documentElement;
     if (docEl.requestFullscreen) {
@@ -163,7 +174,7 @@ export function Header({ toggleSidebar }) {
           <div className="ml-52">
             <button
               onClick={handleSidebarToggle}
-              className="p-2 bg-gray-100  bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 focus:outline-none"
+              className="p-2   bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 focus:outline-none"
             >
               <HiMenu className="w-6 h-6" />
             </button>
@@ -175,7 +186,7 @@ export function Header({ toggleSidebar }) {
             {/* Fullscreen Toggle Icon */}
             <button
               onClick={toggleFullScreen}
-              className="p-2 bg-gray-100  bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 focus:outline-none"
+              className="p-2   bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 focus:outline-none"
             >
               {isFullScreen ? (
                 <HiZoomOut className="w-6 h-6" />
@@ -187,7 +198,7 @@ export function Header({ toggleSidebar }) {
             {/* User Badge with Name and Dropdown */}
             <div className="relative">
               <button
-                className="flex items-center space-x-2 p-2 bg-gray-100  bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 focus:outline-none"
+                className="flex items-center space-x-2 p-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 focus:outline-none"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
                 <Image
@@ -216,10 +227,22 @@ export function Header({ toggleSidebar }) {
        <HiShieldExclamation className="" />
        <span>Change Password</span>
      </button> 
+                  <button
+       onClick={handleSettingClick}
+       className="flex items-center w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-600 relative"
+     >
+       <HiCog className="" />
+       <span>Settings</span>
+       {settingModal &&(
+                 <Setting onClose={handleSettingCloseClick}/>
+                )}
+     </button> 
                 </div>
+                
               )}
             </div>
           </div>
+         
         </div>
         {ShowChangePass && (
           <ChangePass 

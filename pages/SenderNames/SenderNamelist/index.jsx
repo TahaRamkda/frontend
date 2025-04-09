@@ -119,7 +119,7 @@ const SendernameList = () => {
   }, [dispatch]);
 
   const filteredSendernames = sendernames.filter((sender) =>
-    sender.senderName.toLowerCase().includes(filterText.toLowerCase())
+    sender.senderName?.toLowerCase().includes(filterText.toLowerCase())
   );
   const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10

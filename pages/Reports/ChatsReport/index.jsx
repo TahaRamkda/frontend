@@ -21,7 +21,7 @@ import {
   HiEye,
   HiInformationCircle,
 } from "react-icons/hi";
-
+import { statusOptions } from "@/utils/constants";
 import App from "@/components/Layout/App";
 import Chatview from "@/pages/Chats/ChatView/indexPop-up";
 import AgentDropdown from "@/components/Dropdowns/AgentDropdown";
@@ -29,7 +29,10 @@ import { MdSwapHoriz } from "react-icons/md";
 import { REFRESH_INTERVAL } from "@/utils/constants";
 import SearchBar from "@/components/SearchBar/SearchComponent";
 import { excelExportChatReport } from "@/slices/ExportExcel";
-import { getMonthStart, getToday } from "@/components/Timepicker/datetimepicker";
+import {
+  getMonthStart,
+  getToday,
+} from "@/components/Timepicker/datetimepicker";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
 import Select from "react-select";
 import { FORMATEDATE } from "@/utils/constants";
@@ -40,14 +43,15 @@ const ChatsReport = () => {
   const [DetailModal, setDetailModal] = useState(false);
   const {
     ConversationReport,
-    chatReportStats, chatLogs,
+    chatReportStats,
+    chatLogs,
     loading,
     error,
     currentPage,
     pageSize,
     totalRecords,
   } = useSelector((state) => state.reports);
-  
+
   const [clientId, setClientId] = useState(null);
   const [showchat, setshowchat] = useState(false);
   const [srcStr, setsrcStr] = useState("");
@@ -58,27 +62,20 @@ const ChatsReport = () => {
   const [CustomerName, setCustomerName] = useState("");
   const [PhoneNumber, setPhoneNumber] = useState("");
   const [agentId, SetAgentId] = useState(0);
-  const [PageNum, SetPageNum] = useState(1)
-  const [initiated, SetInitiated] = useState('');
-  const [page, SetPageSize] = useState(10)
+  const [PageNum, SetPageNum] = useState(1);
+  const [initiated, SetInitiated] = useState("");
+  const [page, SetPageSize] = useState(10);
 
   const [ChatLoading, setChatLoading] = useState(false);
-  
+
   const [FromDate, setFromDate] = useState(getMonthStart());
   const [ToDate, setToDate] = useState(getToday());
   const [modalOpen, SetModalOpen] = useState(false);
   const [SenderId, setSenderId] = useState(0);
   const [oldAgentId, setoldAgentId] = useState(0);
   const [refreshpage, setrefreshpage] = useState(false); // Track if page is refreshing
-const [Logo, setLogo] = useState('');
-  const statusOptions = [
-    { value: "0", label: "Auto Chat" },
-    { value: "1", label: "Looking For Agent" },
-    { value: "2", label: "Agent Assigned" },
-    { value: "3", label: "Chat Closed" },
-    { value: "4", label: "Chat Expired" },
-    { value: "5", label: "Chat Force Closed" },
-  ];
+  const [Logo, setLogo] = useState("");
+
   const ChatsReportColumn = [
     {
       name: "Name",
@@ -134,7 +131,7 @@ const [Logo, setLogo] = useState('');
             <button
               title="Chat Logs"
               className="uniform_icon_btn"
-              onClick={()=>HandleInfoClick(row)}
+              onClick={() => HandleInfoClick(row)}
             >
               <HiInformationCircle style={{ fontSize: "15px" }} />
             </button>
@@ -146,28 +143,26 @@ const [Logo, setLogo] = useState('');
 
   const handleCancel = () => {
     setshowchat(false);
-    dispatch(clearMessagesReportState())
-    
+    dispatch(clearMessagesReportState());
   };
   const handleTransferCancel = () => {
     setshowtransfer(false);
   };
 
   const HandleInfoClick = (row) => {
-    setActiveChat(row.id)
-    dispatch(fetchChatLogs({conversationId:row.id}))
+    setActiveChat(row.id);
+    dispatch(fetchChatLogs({ conversationId: row.id }));
     SetModalOpen(true);
-    
   };
   const HandleCloseInfoClick = () => {
     SetModalOpen(false);
-    dispatch(clearChatLogsState())
+    dispatch(clearChatLogsState());
   };
- 
+
   const handleSearchString = (setter) => (e) => {
     const searchValue = e;
     setsrcStr(searchValue);
-    
+
     setter(e);
 
     if (searchTimeout) {
@@ -182,11 +177,11 @@ const [Logo, setLogo] = useState('');
           senderId: senderid,
           srcStr: searchValue,
           ToDate: ToDate,
-          agentId:agentId,
-          fChatInitiated:initiated,
+          agentId: agentId,
+          fChatInitiated: initiated,
           FromDate: FromDate,
           status: Status,
-          pageSize:page,
+          pageSize: page,
           pageNo: PageNum,
         })
       );
@@ -196,7 +191,6 @@ const [Logo, setLogo] = useState('');
   };
 
   const handleStatusChange = (selectedOptions) => {
-    
     if (Array.isArray(selectedOptions)) {
       const values = selectedOptions.map((option) => option.value); // Extract values
       setStatus(values.join(",")); // Join as a comma-separated string
@@ -213,7 +207,7 @@ const [Logo, setLogo] = useState('');
 
   const handleSenderChange = (e) => {
     const senderId = e.target.value;
-    
+
     setsenderid(senderId);
   };
 
@@ -264,13 +258,22 @@ const [Logo, setLogo] = useState('');
     setActiveChat(row.id);
     setCustomerName(row.fullName);
     setPhoneNumber(row.phoneNumber);
-    setLogo(row.logo)
+    setLogo(row.logo);
     setshowchat(true);
   };
 
   const handleExportToExcel = () => {
     dispatch(
-      excelExportChatReport({ senderId: senderid, chatId: activeChat, agentId,searchStr:srcStr,fChatInitiated:initiated, fromDate:FromDate, toDate:ToDate, status:Status })
+      excelExportChatReport({
+        senderId: senderid,
+        chatId: activeChat,
+        agentId,
+        searchStr: srcStr,
+        fChatInitiated: initiated,
+        fromDate: FromDate,
+        toDate: ToDate,
+        status: Status,
+      })
     );
   };
 
@@ -286,10 +289,8 @@ const [Logo, setLogo] = useState('');
     setoldAgentId(oldAgentId);
     setshowtransfer(true);
   };
- 
 
   useEffect(() => {
-    
     if (clientId) {
       setChatLoading(true);
       dispatch(
@@ -297,12 +298,12 @@ const [Logo, setLogo] = useState('');
           clientId: clientId,
           senderId: senderid,
           status: Status,
-          agentId:agentId,
-          fChatInitiated:initiated,
+          agentId: agentId,
+          fChatInitiated: initiated,
           ToDate: ToDate,
           FromDate: FromDate,
           srcStr: srcStr,
-          pageSize:page,
+          pageSize: page,
           pageNo: PageNum,
         })
       );
@@ -311,20 +312,39 @@ const [Logo, setLogo] = useState('');
     return () => {
       dispatch(clearConversationReportState());
     };
-  }, [dispatch,clientId, senderid, Status, ToDate, FromDate,agentId,initiated]);
+  }, [
+    dispatch,
+    clientId,
+    senderid,
+    Status,
+    ToDate,
+    FromDate,
+    agentId,
+    initiated,
+  ]);
 
   useEffect(() => {
-    
-      setChatLoading(true);
-      dispatch(fetchChatReportStats({senderId:senderid, agentId:agentId,pageSize:page,pageNo:PageNum,FromDate:FromDate,ToDate:ToDate,srcStr:srcStr,fChatInitiated:initiated,}));
+    setChatLoading(true);
+    dispatch(
+      fetchChatReportStats({
+        senderId: senderid,
+        agentId: agentId,
+        pageSize: page,
+        pageNo: PageNum,
+        FromDate: FromDate,
+        ToDate: ToDate,
+        srcStr: srcStr,
+        fChatInitiated: initiated,
+      })
+    );
 
     return () => {
       dispatch(clearChatReportStatsState());
     };
-  }, [dispatch,senderid,agentId,FromDate,ToDate,initiated]);
+  }, [dispatch, senderid, agentId, FromDate, ToDate, initiated]);
 
   const handlePageSizeChange = async (newSize) => {
-    SetPageSize(newSize)
+    SetPageSize(newSize);
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to first page
     setChatLoading(true);
@@ -333,9 +353,9 @@ const [Logo, setLogo] = useState('');
         clientId: clientId,
         status: Status,
         srcStr: srcStr,
-        agentId:agentId,
+        agentId: agentId,
         ToDate: ToDate,
-        fChatInitiated:initiated,
+        fChatInitiated: initiated,
         FromDate: FromDate,
         senderId: senderid,
         pageSize: newSize,
@@ -345,7 +365,7 @@ const [Logo, setLogo] = useState('');
   };
 
   const handlePageChange = async (pageNo) => {
-    SetPageNum(pageNo)
+    SetPageNum(pageNo);
     dispatch(setCurrentPage(pageNo));
     setChatLoading(true);
     await dispatch(
@@ -353,29 +373,24 @@ const [Logo, setLogo] = useState('');
         clientId: clientId,
         senderId: senderid,
         status: Status,
-        agentId:agentId,
-        fChatInitiated:initiated,
+        agentId: agentId,
+        fChatInitiated: initiated,
         ToDate: ToDate,
         FromDate: FromDate,
         srcStr: srcStr,
-        pageSize:page,
+        pageSize: page,
         pageNo: pageNo,
       })
     );
-
   };
-  const handleInitiateChange = (e) =>{
-    SetInitiated(e.target.value)
-    
-  }
+  const handleInitiateChange = (e) => {
+    SetInitiated(e.target.value);
+  };
 
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10;
 
   const subHeaderComponentMemo = useMemo(() => {
-   
-
-    
     return (
       <div className="w-full">
         <div className="grid grid-cols-5 gap-4 mb-3">
@@ -414,7 +429,9 @@ const [Logo, setLogo] = useState('');
             />
           </div>
           <div className="flex flex-col text-start ">
-            <label className="font-medium text-gray-700 text-sm mb-1">Agents </label>
+            <label className="font-medium text-gray-700 text-sm mb-1">
+              Agents{" "}
+            </label>
             <AgentDropdown
               name="agentId"
               onChange={handleAgentChange}
@@ -422,7 +439,9 @@ const [Logo, setLogo] = useState('');
             />
           </div>
           <div className="flex flex-col text-start ">
-            <label className="font-medium text-gray-700 text-sm mb-1">Status</label>
+            <label className="font-medium text-gray-700 text-sm mb-1">
+              Status
+            </label>
             <Select
               options={statusOptions}
               isMulti
@@ -447,62 +466,59 @@ const [Logo, setLogo] = useState('');
           </div>
         </div>
         <div>
-          
-    <div className="grid grid-cols-4 gap-2">
-    
+          <div className="grid grid-cols-4 gap-2">
+            <div className="bg-white stats shadow-md mb-3 p-2 text-left">
+              <h3 className="font-bold mb-0">
+                Total Conversation: {chatReportStats.totalConversation ?? "-/-"}
+              </h3>
+            </div>
 
-      <div className="bg-white stats shadow-md mb-3 p-2 text-left" >
-        <h3 className="font-bold mb-0">
-          Total Conversation: {chatReportStats.totalConversation ?? "-/-"  }
-        </h3>
-      </div>
-    
+            <div className="bg-white stats shadow-md mb-3 p-2 text-left">
+              <h3 className="font-bold mb-0">
+                Marketing Conversation:{" "}
+                {chatReportStats.marketingConversation ?? "-/-"}
+              </h3>
+            </div>
 
-      <div className="bg-white stats shadow-md mb-3 p-2 text-left" >
-        <h3 className="font-bold mb-0">
-          Marketing Conversation: {chatReportStats.marketingConversation ?? "-/-" }
-        </h3>
-      </div>
+            <div className="bg-white stats shadow-md mb-3 p-2 text-left">
+              <h3 className="font-bold mb-0">
+                Utility Conversation:{" "}
+                {chatReportStats.utilityConversation ?? "-/-"}
+              </h3>
+            </div>
 
-      <div className="bg-white stats shadow-md mb-3 p-2 text-left" >
-        <h3 className="font-bold mb-0">
-          Utility Conversation: {chatReportStats.utilityConversation ?? "-/-"}
-        </h3>
-      </div>
+            <div className="bg-white stats shadow-md mb-3 p-2 text-left">
+              <h3 className="font-bold mb-0">
+                Initiated Conversation:{" "}
+                {chatReportStats.initiatedConversation ?? "-/-"}
+              </h3>
+            </div>
 
-      <div className="bg-white stats shadow-md mb-3 p-2 text-left" >
-        <h3 className="font-bold mb-0">
-          Initiated Conversation: {chatReportStats.initiatedConversation ?? "-/-" }
-        </h3>
-      </div>
+            <div className="bg-white stats shadow-md mb-3 p-2 text-left">
+              <h3 className="font-bold mb-0">
+                Force Closed: {chatReportStats.forceClosed ?? "-/-"}
+              </h3>
+            </div>
 
-      <div className="bg-white stats shadow-md mb-3 p-2 text-left" >
-        <h3 className="font-bold mb-0">
-          Force Closed: {chatReportStats.forceClosed ?? "-/-"}
-        </h3>
-      </div>
+            <div className="bg-white stats shadow-md mb-3 p-2 text-left">
+              <h3 className="font-bold mb-0">
+                Closed: {chatReportStats.closed ?? "-/-"}
+              </h3>
+            </div>
 
-      <div className="bg-white stats shadow-md mb-3 p-2 text-left" >
-        <h3 className="font-bold mb-0">
-          Closed: {chatReportStats.closed ?? "-/-"}
-        </h3>
-      </div>
+            <div className="bg-white stats shadow-md mb-3 p-2 text-left">
+              <h3 className="font-bold mb-0">
+                Abandon: {chatReportStats.abandon ?? "-/-"}
+              </h3>
+            </div>
 
-      <div className="bg-white stats shadow-md mb-3 p-2 text-left">
-        <h3 className="font-bold mb-0">
-          Abandon: {chatReportStats.abandon ?? "-/-"}
-        </h3>
-      </div>
-
-      <div className="bg-white stats shadow-md mb-3 p-2 text-left">
-        <h3 className="font-bold mb-0">
-          Looking for Agent: {chatReportStats.lookingforAgent ?? "-/-"}
-        </h3>
-      </div>
-     
-  </div>
-</div>
-
+            <div className="bg-white stats shadow-md mb-3 p-2 text-left">
+              <h3 className="font-bold mb-0">
+                Looking for Agent: {chatReportStats.lookingforAgent ?? "-/-"}
+              </h3>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }, [srcStr, senderid, FromDate, ToDate, chatReportStats, agentId, initiated]);
@@ -510,7 +526,7 @@ const [Logo, setLogo] = useState('');
   return (
     <App>
       <div className="flex items-center">
-      {ChatLoading && <Loader />}
+        {ChatLoading && <Loader />}
 
         <div className="">
           <h4 className="font-bold ">Chats Report</h4>
@@ -542,7 +558,7 @@ const [Logo, setLogo] = useState('');
         customStyles={{
           table: {
             style: {
-              width: ConversationReport.length > 0 ? '2023px' : '100%',
+              width: ConversationReport.length > 0 ? "2023px" : "100%",
               borderCollapse: "collapse",
             },
           },
@@ -574,31 +590,33 @@ const [Logo, setLogo] = useState('');
         <Modal isOpen={true} toggle={HandleCloseInfoClick} fade={false}>
           <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center  z-50">
             <div className="bg-white p-6 rounded shadow-lg w-1/3  relative  overflow-y-auto">
-              <ModalHeader toggle={HandleCloseInfoClick}>
-                Chat Logs
-              </ModalHeader>
+              <ModalHeader toggle={HandleCloseInfoClick}>Chat Logs</ModalHeader>
 
-              <ModalBody className="overflow-auto max-h-[60vh]" >
-              {loading && <Loader/>}
-              
-              <table className="min-w-full max-w-full  overflow-auto bg-white border border-gray-200 rounded-md ">
-                <thead>
-                  <tr className="bg-gray-100 text-left text-sm uppercase text-gray-600">
-                    <th className="py-2 px-4">Agent Full Name</th>
-                    <th className="py-2 px-4">Status</th>
-                    <th className="py-2 px-4">Created Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {chatLogs?.map((message, index) => (
-                    <tr key={index} className="border-b hover:bg-gray-50">
-                      <td className="py-2 px-4">{message.agentFullName || "-"}</td>
-                      <td className="py-2 px-4">{message.name || "-"}</td>
-                      <td className="py-2 px-4">{message.createdDate || "-"}</td>
+              <ModalBody className="overflow-auto max-h-[60vh]">
+                {loading && <Loader />}
+
+                <table className="min-w-full max-w-full  overflow-auto bg-white border border-gray-200 rounded-md ">
+                  <thead>
+                    <tr className="bg-gray-100 text-left text-sm uppercase text-gray-600">
+                      <th className="py-2 px-4">Agent Full Name</th>
+                      <th className="py-2 px-4">Status</th>
+                      <th className="py-2 px-4">Created Date</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {chatLogs?.map((message, index) => (
+                      <tr key={index} className="border-b hover:bg-gray-50">
+                        <td className="py-2 px-4">
+                          {message.agentFullName || "-"}
+                        </td>
+                        <td className="py-2 px-4">{message.name || "-"}</td>
+                        <td className="py-2 px-4">
+                          {message.createdDate || "-"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </ModalBody>
             </div>
           </div>

@@ -64,6 +64,7 @@ export const RolesDropdown = ({ onChange, error,existingdata }) => {
         placeholder="Select"
         noOptionsMessage={() => "No records found"}
         required
+        menuPortalTarget={document.body} // Add this line
       />
       </div>
     </>

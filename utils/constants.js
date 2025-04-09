@@ -43,6 +43,15 @@ export const dropdownOptions = [
 
 ];
 
+export const statusOptions = [
+  { value: "0", label: "Auto Chat" },
+  { value: "1", label: "Looking For Agent" },
+  { value: "2", label: "Agent Assigned" },
+  { value: "3", label: "Chat Closed" },
+  { value: "4", label: "Chat Expired" },
+  { value: "5", label: "Chat Force Closed" },
+  { value: "6", label: "System abandoned" },
+];
 //enum for questiontype
 export const QuestionTypes = {
   TextInput: 1,
@@ -53,9 +62,28 @@ export const QuestionTypes = {
 };
 
 
-
+export const formatTime = (ms) => {
+  if (!ms && ms !== 0) return 'N/A';
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  
+  if (minutes > 0) {
+    return `${minutes} min ${seconds} sec`;
+  }
+  return `${seconds} sec`;
+};
+export const formatDateTime = (timestamp) => {
+  if (!timestamp) return 'N/A';
+  return new Date(timestamp).toLocaleString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
+};
   //to refresh the api call every 5 minutes
-export const REFRESH_INTERVAL=4500 ; // 5 minutes in milliseconds
+export const REFRESH_INTERVAL=4000 ; // 5 minutes in milliseconds
 
 export const NOTIFICATION_WARNING_INTERVAL=28800000  ; // 5 minutes in milliseconds
 
