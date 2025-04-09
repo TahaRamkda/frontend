@@ -52,16 +52,13 @@ const Dashboard = () => {
   const isLiveReporting = useRef(false); // UseRef to track live reporting state
   useEffect(() => {
     const today = new Date();
-    const lastWeek = new Date(today);
-    lastWeek.setDate(today.getDate() - 7);
-
     settoDate(today.toISOString().split("T")[0]);
-    setfromDate(lastWeek.toISOString().split("T")[0]);
+    setfromDate(today.toISOString().split("T")[0]);
 
     const todayStr = today.toISOString().split("T")[0];
-    const lastWeekStr = lastWeek.toISOString().split("T")[0];
+    
 
-    fromDateRef.current = lastWeekStr;
+    fromDateRef.current = todayStr;
     toDateRef.current = todayStr;
   }, []);
 

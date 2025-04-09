@@ -54,6 +54,7 @@ export const ClientsDropdown = ({ onChange }) => {
         noOptionsMessage={() => "No records found"}
         placeholder="Select"
         required
+        menuPortalTarget={document.body} // Add this line
       />
       </div>
     </>

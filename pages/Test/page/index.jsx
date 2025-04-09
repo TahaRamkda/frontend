@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useDispatch } from "react-redux";
 import Head from "next/head";
 import {
   Container,
@@ -12,6 +13,7 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import Loader from "@/components/Layout/Loader";
 import { BASE_URL } from "@/utils/apiConstants";
+import { fetchFlowVisualization } from "@/slices/FlowVisualizationSlice";
 import InteractiveTemplateUpdate from "@/pages/InteractiveTemplates/UpdateTemplate";
 import UpdateTemplate from "@/pages/Templates/UpdateTemplate";
 import UpdateFlowPage from "@/pages/Flows/FlowDetails";
@@ -20,6 +22,8 @@ import { dropdownOptions } from "@/utils/constants";
 import InteractiveTemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropdown";
 import TemplateDropdown from "@/components/Dropdowns/TemplateDropdown";
 import App from "@/components/Layout/App";
+import showSweetAlert from "@/components/Sweetalert";
+import { set } from "date-fns";
 // Simulated API data with updated IDs and actionIds
 const fetchTemplateData = async () => {
   return {
@@ -92,7 +96,7 @@ const fetchTemplateData = async () => {
       
       // Template 2
       {
-        "id": 73,
+        "interactiveTemplateId": 73,
         "clientId": 1,
         "senderId": 1,
         "templateName": "fl_vs_test_1",
@@ -150,7 +154,7 @@ const fetchTemplateData = async () => {
       
       // Template 3: Template connecting to flow
       {
-        "id": 74,
+        "interactiveTemplateId": 74,
         "clientId": 1,
         "senderId": 1,
         "templateName": "fl_vs_test_2",
@@ -293,7 +297,7 @@ const fetchTemplateData = async () => {
     },
       // Template that is connected to template 2
       {
-        "id": 77,
+        "interactiveTemplateId": 77,
         "clientId": 1,
         "senderId": 1,
         "templateName": "fl_vs_test_item",
@@ -911,7 +915,9 @@ export default function FlowVisualization({ initialData }) {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [isInteractiveTemplate, setIsInteractiveTemplate] = useState(false);
   const [templateType, setTemplateType] = useState("");
-
+  const [templateId, setTemplateId] = useState(null);
+  const [interactiveTemplateId, setInteractiveTemplateId] = useState(null);
+  const dispatch = useDispatch()
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -944,15 +950,27 @@ export default function FlowVisualization({ initialData }) {
     }
   };
 
+  const handleTemplateClick = (Id) => {
+    setTemplateId(Id);
+  }
+
   const handleTemplateTypeChange = (type) => {
     setTemplateType(type);
   };
-
+const handleInteractiveTemplateClick = (Id) => {
+  setInteractiveTemplateId(Id);
+}
   const handleCloseModal = () => {
     setShowUpdateTemplate(false);
     setShowUpdateFlow(false);
     setSelectedTemplate(null);
   };
+  
+  useEffect(() => {
+    
+      const response = dispatch(fetchFlowVisualization({templateId:templateId, intTemplateId:interactiveTemplateId}));
+    
+  },[templateId, interactiveTemplateId]);
 
   useEffect(() => {
     if (!isMounted || !initialData || !svgContainerRef.current) return;
@@ -1197,7 +1215,7 @@ export default function FlowVisualization({ initialData }) {
                 }`}
               >
                 <label className="form-label">Interactive Template:</label>
-                <InteractiveTemplateDropdown  />
+                <InteractiveTemplateDropdown value={interactiveTemplateId} onChange={handleInteractiveTemplateClick} />
               </div>
               <div
                 className={`col-md-3 col-sm-12 ${
@@ -1205,7 +1223,7 @@ export default function FlowVisualization({ initialData }) {
                 }`}
               >
                 <label className="form-label">Marketing Template:</label>
-                <TemplateDropdown />
+                <TemplateDropdown value={templateId} onChange={handleTemplateClick}/>
               </div>
             </div>
             <h2 className="text-center mb-5">

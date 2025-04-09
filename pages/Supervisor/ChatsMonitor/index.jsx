@@ -37,7 +37,7 @@ const ChatsMonitor = () => {
   const [oldAgentId, setoldAgentId] = useState(0);
   const [agentId, SetAgentId] = useState(0);
   const [CustomerName, setCustomerName] = useState('');
-  const [refreshpage, setrefreshpage] = useState(false);  // Track if page is refreshing
+  const [refreshpage, setrefreshpage] = useState(false);  
   const [initiated , SetInitiated] = useState('');
  const [PageNum, SetPageNum] = useState(1);
  const [page, SetPageSize] = useState(10);
@@ -155,7 +155,7 @@ const ChatsMonitor = () => {
     if (searchTimeout) {
       clearTimeout(searchTimeout);
     }
- 
+    
     const timeout = setTimeout(() => {
       setChatLoading(true)
       dispatch(fetchChatsMonitor({
@@ -189,8 +189,8 @@ const refreshPage = () => {
       fChatInitiated:initiated,
       agentId: agentId,
       status:Status,
-      pageSize:page, // Example page size
-      pageNo: PageNum, // Example current page
+      pageSize:page, 
+      pageNo: PageNum,
     }));
 }
 
@@ -223,8 +223,8 @@ useEffect(() => {
         fChatInitiated: initiated,
         agentId: agentId,
         status: Status,
-        pageSize: page, // Use current page size
-        pageNo: PageNum, // Use current page number
+        pageSize: page, 
+        pageNo: PageNum, 
       }));
     }
   };
@@ -241,7 +241,7 @@ useEffect(() => {
   }
 
   return () => clearInterval(intervalId);
-}, [dispatch, senderid, srcStr, Status, initiated, agentId, page, PageNum, loading, isInitialLoad]);
+}, [dispatch, senderid, srcStr, Status, initiated, agentId, loading, isInitialLoad]);
 
  
   const handleDetailClick = async (row) => {
@@ -292,7 +292,7 @@ useEffect(() => {
   const handlePageSizeChange = async (newSize) => {
     SetPageSize(newSize);
     dispatch(setPageSize(newSize));
-    dispatch(setCurrentPage(1));  // Reset to first page
+    dispatch(setCurrentPage(1));  
     setChatLoading(true)
     await dispatch(fetchChatsMonitor({
       clientId: clientId,
@@ -322,7 +322,7 @@ useEffect(() => {
     }));
   };
  
-  const customPageSizes = [1, 5, 10, 20, 50, 100];  // Custom page size options
+  const customPageSizes = [1, 5, 10, 20, 50, 100];  
  
  
   const subHeaderComponentMemo = useMemo(() => {

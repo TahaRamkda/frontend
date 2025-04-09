@@ -143,6 +143,7 @@ const ChatPage = () => {
         });
       }
     } catch (error) {
+      
       showSweetAlert({
         title: error.message || "Failed to update status",
         text: "",
@@ -215,7 +216,7 @@ const ChatPage = () => {
   const handleTemplateSend = async (details) => {
    await loggerdetails(logger, `agent sent template :`,"info", {
       Obj : details,
-      conversationId: details.ChatId,
+      conversationId: details?.ChatId,
       agentId: UserId,
       type: 4,
     });
@@ -509,7 +510,6 @@ const ChatPage = () => {
         logtype: "error",
         conversationId: Activechat,
         agentId: UserId,
-        
        });
 
       toast.error("Failed to send message. Please try again.");

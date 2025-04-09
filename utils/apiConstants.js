@@ -151,3 +151,6 @@ export const FLOWDROPDOWN = "/Flows/getflows";
 
 // Survey Report 
 export const SURVEYDROPDOWN = "/SurveyReport/getsurveys";
+
+// Flow Visualization 
+export const FLOWVISUALIZATION = "#";
