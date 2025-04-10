@@ -1140,6 +1140,7 @@ export default function FlowVisualization() {
   
     const fetchData = async () => {
       setInitialData(null);
+      setLines([]);
       try {
          await dispatch(
           fetchTemplateVisualization({
