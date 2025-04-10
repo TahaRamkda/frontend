@@ -446,6 +446,7 @@ const ChatPage = () => {
   const handleImageclose = () => {
     setMediaFile(null);
     setPreviewUrl(null);
+    
   };
 
   //called each time to send message
@@ -1156,7 +1157,7 @@ const ChatPage = () => {
                                             handleDownload(message.mediaPath)
                                           } // Pass function reference here
                                         >
-                                          Download
+                                          <i className="fa fa-download" area-hidden='true'></i>
                                         </button>
                                       </>
                                     )}
@@ -1226,7 +1227,7 @@ const ChatPage = () => {
                                             handleDownload(message.mediaPath)
                                           } // Pass function reference here
                                         >
-                                          Download
+                                          <i className="fa fa-download" area-hidde='true'></i>
                                         </button>
                                         </div>
                                         

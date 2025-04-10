@@ -976,6 +976,7 @@ export default function FlowVisualization() {
       const newLines = [];
 
       const drawLines = () => {
+        newLines.length = 0;
         Object.entries(buttonMap).forEach(([buttonId, targetId], index) => {
           const buttonElement = document.getElementById(buttonId);
           const targetElement = document.getElementById(targetId);
@@ -1141,6 +1142,7 @@ export default function FlowVisualization() {
     const fetchData = async () => {
       setInitialData(null);
       setLines([]);
+      
       try {
          dispatch(
           fetchTemplateVisualization({
