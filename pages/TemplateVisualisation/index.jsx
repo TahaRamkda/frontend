@@ -84,7 +84,7 @@ import { set } from "date-fns";
 //                 "actionType": 0,
 //                 "systemActionId": null
 //             },
-           
+
 //         ],
 //         "parameters": [],
 //         "createdBy": 2,
@@ -92,8 +92,7 @@ import { set } from "date-fns";
 //         "updatedBy": 2,
 //         "updatedDate": "25-Mar-2025 04:58:40 PM"
 //     },
-      
-      
+
 //       // Template 2
 //       {
 //         "interactiveTemplateId": 73,
@@ -151,7 +150,7 @@ import { set } from "date-fns";
 //         "updatedBy": 2,
 //         "updatedDate": "25-Mar-2025 04:54:35 PM"
 //     },
-      
+
 //       // Template 3: Template connecting to flow
 //       {
 //         "interactiveTemplateId": 74,
@@ -279,7 +278,7 @@ import { set } from "date-fns";
 //                     }
 //                 ]
 //             },
-            
+
 //             {
 //                 "name": "screen_Two",
 //                 "title": "Overall experience",
@@ -327,7 +326,7 @@ import { set } from "date-fns";
 //                 "actionId": 0,
 //                 "actionType": 0
 //             },
-           
+
 //         ],
 //         "parameters": [],
 //         "createdBy": 2,
@@ -351,12 +350,11 @@ const renderBox = (
   onCardClick,
   template // Full template object for headerType, imageUrl, etc.
 ) => {
-  
   const isFlow = template?.type === 3;
   const headerType = template?.details.headerType || 3; // Default to text header
   const imageUrl = template?.details.mediaPath || "";
   const headerText = template?.details.headerText || "";
-  const bodyText = template?.details.bodyText || content|| "No content";
+  const bodyText = template?.details.bodyText || content || "No content";
   const footerText = template?.details.footerText || "";
   return (
     <Col xs="auto" key={id}>
@@ -381,7 +379,6 @@ const renderBox = (
             {/* Header */}
             {!isFlow && (
               <>
-                
                 {headerType === 1 && imageUrl && (
                   <video
                     src={imageUrl}
@@ -426,57 +423,57 @@ const renderBox = (
 
             {/* Body */}
             {isFlow && template?.flowScreens ? (
-  <div>
-    {template.flowScreens.length > 0 && (
-      <div style={{ marginBottom: "15px" }}>
-          <div
-            key={buttons[0].buttonId}
-            id={`btn_${buttons[0].buttonId}`}
-            className="mb-1"
-            data-action={dropdownOptions
-              .find((opt) => opt.value === buttons[0].actionType)
-              ?.label.toLowerCase()}
-            data-target={
-              (buttons[0].actionType === 8) &&
-              buttons[0].buttonType === 1
-                ? `${buttons[0].actionId}`
-                : `action_${buttons[0].buttonId}`
-            }
-          >
-            <Button
-              color="link"
-              block
-              disabled
-              style={{
-                color: "#00a9ee",
-                backgroundColor: "#ffffff",
-                border: "1px solid #808080",
-                borderRadius: "4px",
-                padding: "8px",
-                textAlign: "center",
-                textDecoration: "none",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "none",
-                marginBottom: "4px",
-              }}
-            >
-              <span style={{ color: "#00a9ee" }}>
-                <i className="fa fa-arrow-right me-2"></i>
-                {buttons[0].buttonText || "Button"}
-              </span>
-            </Button>
-          </div>
-      </div>
-    )}
-  </div>
-) : (
-  <div
-    style={{ marginBottom: "10px", fontSize: "1em" }}
-    dangerouslySetInnerHTML={{ __html: bodyText }}
-  />
-)}
+              <div>
+                {template.flowScreens.length > 0 && (
+                  <div style={{ marginBottom: "15px" }}>
+                    <div
+                      key={buttons[0].buttonId}
+                      id={`btn_${buttons[0].buttonId}`}
+                      className="mb-1"
+                      data-action={dropdownOptions
+                        .find((opt) => opt.value === buttons[0].actionType)
+                        ?.label.toLowerCase()}
+                      data-target={
+                        buttons[0].actionType === 8 &&
+                        buttons[0].buttonType === 1
+                          ? `${buttons[0].actionId}`
+                          : `action_${buttons[0].buttonId}`
+                      }
+                    >
+                      <Button
+                        color="link"
+                        block
+                        disabled
+                        style={{
+                          color: "#00a9ee",
+                          backgroundColor: "#ffffff",
+                          border: "1px solid #808080",
+                          borderRadius: "4px",
+                          padding: "8px",
+                          textAlign: "center",
+                          textDecoration: "none",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          boxShadow: "none",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        <span style={{ color: "#00a9ee" }}>
+                          <i className="fa fa-arrow-right me-2"></i>
+                          {buttons[0].buttonText || "Button"}
+                        </span>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div
+                style={{ marginBottom: "10px", fontSize: "1em" }}
+                dangerouslySetInnerHTML={{ __html: bodyText }}
+              />
+            )}
 
             {/* Footer */}
             {!isFlow && footerText && (
@@ -617,7 +614,7 @@ const collectNodesByLevel = (
     content;
 
   // Handle Flow Templates
-  if (template.type===3) {
+  if (template.type === 3) {
     title = template.details.flowName || "Unnamed Flow";
     // Define the button using the flow's own actionId instead of the last screen's
     buttons =
@@ -732,9 +729,9 @@ const collectNodesByLevel = (
   // Handle Regular Templates
   else {
     title = template.details.templateName || "Unnamed Template";
-    content = `${template.details.headerText || ""}\n\n${template.details.bodyText || ""}\n\n${
-      template.details.footerText || ""
-    }`;
+    content = `${template.details.headerText || ""}\n\n${
+      template.details.bodyText || ""
+    }\n\n${template.details.footerText || ""}`;
     buttons = template.details.buttons || [];
   }
 
@@ -775,7 +772,7 @@ const collectNodesByLevel = (
           );
         }
       } else if (button.actionType === 8) {
-       // debugger
+        // debugger
         // FLOWS
         const nextFlow = templateMap[button.actionId];
         targetId = nextFlow ? `${nextFlow.id}` : null;
@@ -873,15 +870,14 @@ const collectNodesByLevel = (
 //   debugger
 //   const data = await fetchTemplateVisualization({templateId: 26, templatetype: 1});
 //   console.log(data);
-//   const initialData = data.result.templatevisualization;
-  
+//   const templateVisualizationData = data.result.templatevisualization;
+
 //   return {
 //     props: {
-//       initialData: initialData,
+//       templateVisualizationData: templateVisualizationData,
 //     },
 //   };
 // }
-
 
 const TemplateTypeDropdown = ({ onTemplateTypeChange, selectedType }) => {
   return (
@@ -899,9 +895,6 @@ const TemplateTypeDropdown = ({ onTemplateTypeChange, selectedType }) => {
   );
 };
 
-
-
-
 export default function FlowVisualization() {
   const dispatch = useDispatch();
   const [lines, setLines] = useState([]);
@@ -913,31 +906,31 @@ export default function FlowVisualization() {
   const [isInteractiveTemplate, setIsInteractiveTemplate] = useState(false);
   const [templateType, setTemplateType] = useState("");
   const [templateId, setTemplateId] = useState(null);
-  const [initialData, setInitialData] = useState();
+  const [, setInitialData] = useState();
   const [interactiveTemplateId, setInteractiveTemplateId] = useState(null);
-  const { templateVisualizationData, loading, error } = useSelector((state) => state.templateVisualization);
+  const { templateVisualizationData, loading, error } = useSelector(
+    (state) => state.templateVisualization
+  );
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   const handleCardClick = (templateId) => {
-    const template = initialData.find(
-      (t) =>
-        (t.id && t.id.toString() === templateId)
-        
+    const template = templateVisualizationData.find(
+      (t) => t.id && t.id.toString() === templateId
     );
 
     if (template) {
-      if (template.type ===3) {
+      if (template.type === 3) {
         setSelectedTemplate(template.id);
         setShowUpdateFlow(true);
         return;
-      } else if (template.type===2) {
+      } else if (template.type === 2) {
         setSelectedTemplate(template.id);
         setIsInteractiveTemplate(true);
         setShowUpdateTemplate(true);
         return;
-      } else if (template.type===1) {
+      } else if (template.type === 1) {
         setSelectedTemplate(template.id);
         setIsInteractiveTemplate(false);
         setShowUpdateTemplate(true);
@@ -948,62 +941,63 @@ export default function FlowVisualization() {
 
   const handleTemplateClick = (e) => {
     setTemplateId(e.target.value);
-  }
+  };
 
   const handleTemplateTypeChange = (type) => {
     setTemplateType(type);
   };
-const handleInteractiveTemplateClick = (e) => {
-  setTemplateId(e.target.value);
-}
+  const handleInteractiveTemplateClick = (e) => {
+    setTemplateId(e.target.value);
+  };
   const handleCloseModal = () => {
     setShowUpdateTemplate(false);
     setShowUpdateFlow(false);
     setSelectedTemplate(null);
   };
 
- 
-
   useEffect(() => {
-    if (!isMounted || !initialData || !svgContainerRef.current) return;
+    if (!isMounted || !templateVisualizationData || !svgContainerRef.current)
+      return;
 
     const calculateLines = () => {
-      const templateMap = initialData.reduce((map, template) => {
+      const templateMap = templateVisualizationData.reduce((map, template) => {
         if (template.id !== undefined) map[template.id] = template;
         // if (template.interactiveTemplateId !== undefined)
         //   map[template.interactiveTemplateId] = template;
         // if (template.flowId !== undefined) map[template.flowId] = template;
         return map;
       }, {});
-    
-      const rootTemplate = initialData[0];
+
+      const rootTemplate = templateVisualizationData[0];
       const { buttonMap } = collectNodesByLevel(rootTemplate, templateMap);
       const newLines = [];
-    
+
       const drawLines = () => {
         Object.entries(buttonMap).forEach(([buttonId, targetId], index) => {
           const buttonElement = document.getElementById(buttonId);
           const targetElement = document.getElementById(targetId);
-    
+
           if (!buttonElement || !targetElement) {
             console.warn(`Missing elements: ${buttonId} or ${targetId}`);
             return;
           }
-    
+
           const buttonRect = buttonElement.getBoundingClientRect();
           const targetRect = targetElement.getBoundingClientRect();
           const svgRect = svgContainerRef.current.getBoundingClientRect();
-    
+
           if (
             buttonRect.width === 0 ||
             buttonRect.height === 0 ||
             targetRect.width === 0 ||
             targetRect.height === 0
           ) {
-            console.warn(`Invalid bounding rect for ${buttonId} or ${targetId}`);
+            console.warn(
+              `Invalid bounding rect for ${buttonId} or ${targetId}`
+            );
             return;
           }
-    
+
           const action = buttonElement.dataset.action;
           let strokeColor = "#007bff";
           switch (action) {
@@ -1029,49 +1023,49 @@ const handleInteractiveTemplateClick = (e) => {
             default:
               strokeColor = "#6c757d";
           }
-    
+
           // Calculate start and end points
           const buttonCenterX = buttonRect.left + buttonRect.width / 2;
           const targetCenterX = targetRect.left + targetRect.width / 2;
           const isTargetLeft = targetCenterX < buttonCenterX;
-    
+
           // Start from the button's border
           const startX = isTargetLeft
             ? buttonRect.left - svgRect.left // Left border
             : buttonRect.right - svgRect.left; // Right border
           const startY = buttonRect.top + buttonRect.height / 2 - svgRect.top;
-    
+
           const endX = targetRect.left + targetRect.width / 2 - svgRect.left;
           const endY = targetRect.top - svgRect.top - 10;
-    
+
           // Define a straight segment length (e.g., 20px) before the curve
           const straightLength = 20; // Adjust this value for the straight segment length
           const straightEndX = isTargetLeft
             ? startX - straightLength
             : startX + straightLength;
           const straightEndY = startY; // Keep Y constant for a horizontal straight line
-    
+
           // Calculate distances for the curve
           const verticalDistance = Math.abs(endY - straightEndY);
           const horizontalDistance = Math.abs(endX - straightEndX);
-    
+
           // Control points for the Bézier curve after the straight segment
           const controlPointOffsetX = horizontalDistance * 0.3; // Adjusted for smoother tilt
           const controlPointOffsetY = verticalDistance * 0.5; // Adjusted for tilt
-    
+
           const controlPoint1X = isTargetLeft
             ? straightEndX - controlPointOffsetX * 0.5
             : straightEndX + controlPointOffsetX * 0.5;
           const controlPoint1Y = straightEndY + controlPointOffsetY * 0.7;
-    
+
           const controlPoint2X = isTargetLeft
             ? endX + controlPointOffsetX * 0.3
             : endX - controlPointOffsetX * 0.3;
           const controlPoint2Y = endY - controlPointOffsetY * 0.3;
-    
+
           // Path: Move to start, straight line, then cubic Bézier curve
           const pathD = `M ${startX},${startY} L ${straightEndX},${straightEndY} C ${controlPoint1X},${controlPoint1Y} ${controlPoint2X},${controlPoint2Y} ${endX},${endY}`;
-    
+
           newLines.push({
             pathD,
             stroke: strokeColor,
@@ -1079,10 +1073,10 @@ const handleInteractiveTemplateClick = (e) => {
             strokeWidth: "1.5",
           });
         });
-    
+
         setLines(newLines);
       };
-    
+
       const checkElementsVisibility = (callback) => {
         const elementsToCheck = [];
         Object.entries(buttonMap).forEach(([buttonId, targetId]) => {
@@ -1095,13 +1089,13 @@ const handleInteractiveTemplateClick = (e) => {
             console.warn(`Element not found: ${buttonId} or ${targetId}`);
           }
         });
-    
+
         if (elementsToCheck.length === 0) {
           console.warn("No elements to observe for visibility");
           callback();
           return;
         }
-    
+
         const observer = new IntersectionObserver(
           (entries, observer) => {
             const allVisible = entries.every((entry) => entry.isIntersecting);
@@ -1112,11 +1106,11 @@ const handleInteractiveTemplateClick = (e) => {
           },
           { threshold: 0.1 }
         );
-    
+
         elementsToCheck.forEach((element) => {
           if (element) observer.observe(element);
         });
-    
+
         setTimeout(() => {
           elementsToCheck.forEach((element) => {
             if (element) observer.unobserve(element);
@@ -1124,7 +1118,7 @@ const handleInteractiveTemplateClick = (e) => {
           callback();
         }, 1000);
       };
-    
+
       checkElementsVisibility(drawLines);
     };
 
@@ -1133,62 +1127,69 @@ const handleInteractiveTemplateClick = (e) => {
     return () => {
       window.removeEventListener("resize", calculateLines);
     };
-  }, [isMounted, initialData]);
-
-
+  }, [isMounted, templateVisualizationData]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-          
-        const response = await dispatch(fetchTemplateVisualization({ templateId : templateId, templatetype: templateType }));
-        // Optionally handle the response if needed
-        console.log('Fetch response:', response);
-        setInitialData(response.payload.templateVisualizationData.data);
+        const response = await dispatch(
+          fetchTemplateVisualization({
+            templateId: templateId,
+            templatetype: templateType,
+          })
+        );
+        console.log("Fetch response:", response);
       } catch (error) {
-        console.error('Error fetching data:', error);
-        // showSweetAlert({
-        //   title: "Error",
-        //   text: "Failed to fetch data",
-        //   icon: "error",
-        // });
+        console.error("Error fetching data:", error);
+        showSweetAlert({
+          title: "Error",
+          text: "Failed to fetch data",
+          icon: "error",
+        });
       }
     };
-  
+
     fetchData(); // Call the async function
   }, [templateId]); // Add dependencies
 
-  if (!isMounted || !initialData) return (
-    <>
-     <div className="d-flex justify-content-center align-items-end mb-4 gap-3 flex-wrap">
-              <div className="col-md-3 col-sm-12">
-                <label className="form-label">Template Type:</label>
-                <TemplateTypeDropdown
-                  onTemplateTypeChange={handleTemplateTypeChange}
-                  selectedType={templateType}
-                />
-              </div>
-              <div
-                className={`col-md-3 col-sm-12 ${
-                  templateType === "2" ? "d-block" : "d-none"
-                }`}
-              >
-                <label className="form-label">Interactive Template:</label>
-                <InteractiveTemplateDropdown value={templateId} onChange={handleInteractiveTemplateClick}  />
-              </div>
-              <div
-                className={`col-md-3 col-sm-12 ${
-                  templateType === "1" ? "d-block" : "d-none"
-                }`}
-              >
-                <label className="form-label">Marketing Template:</label>
-                <TemplateDropdown value={templateId} onChange={handleTemplateClick}/>
-              </div>
-            </div>
-    </>
-  );
+  if (!isMounted || !templateVisualizationData)
+    return (
+      <>
+        <div className="d-flex justify-content-center align-items-end mb-4 gap-3 flex-wrap">
+          <div className="col-md-3 col-sm-12">
+            <label className="form-label">Template Type:</label>
+            <TemplateTypeDropdown
+              onTemplateTypeChange={handleTemplateTypeChange}
+              selectedType={templateType}
+            />
+          </div>
+          <div
+            className={`col-md-3 col-sm-12 ${
+              templateType === "2" ? "d-block" : "d-none"
+            }`}
+          >
+            <label className="form-label">Interactive Template:</label>
+            <InteractiveTemplateDropdown
+              value={templateId}
+              onChange={handleInteractiveTemplateClick}
+            />
+          </div>
+          <div
+            className={`col-md-3 col-sm-12 ${
+              templateType === "1" ? "d-block" : "d-none"
+            }`}
+          >
+            <label className="form-label">Marketing Template:</label>
+            <TemplateDropdown
+              value={templateId}
+              onChange={handleTemplateClick}
+            />
+          </div>
+        </div>
+      </>
+    );
 
-  const templateMap = initialData.reduce((map, template) => {
+  const templateMap = templateVisualizationData.reduce((map, template) => {
     if (template.type === 1) {
       map[template.id] = template;
     } else if (template.type === 2) {
@@ -1198,20 +1199,18 @@ const handleInteractiveTemplateClick = (e) => {
     }
     return map;
   }, {});
-  const rootTemplate = initialData[0];
+  const rootTemplate = templateVisualizationData[0];
   const { levels } = collectNodesByLevel(rootTemplate, templateMap);
   const maxCardsPerLevel = Math.max(
     ...Object.values(levels).map((level) => level.length)
   );
   const minWidthNeeded = maxCardsPerLevel * 320 + 40;
-
+  
   return (
     <App>
+      
       {showUpdateFlow ? (
-        <UpdateFlowPage
-          Flow_Id={selectedTemplate}
-          onclose={handleCloseModal}
-        />
+        <UpdateFlowPage Flow_Id={selectedTemplate} onclose={handleCloseModal} />
       ) : showUpdateTemplate ? (
         isInteractiveTemplate ? (
           <InteractiveTemplateUpdate
@@ -1226,7 +1225,7 @@ const handleInteractiveTemplateClick = (e) => {
         )
       ) : (
         <div
-        className=""
+          className=""
           style={{
             overflow: "scroll",
             height: "86vh",
@@ -1235,6 +1234,7 @@ const handleInteractiveTemplateClick = (e) => {
             backgroundColor: "#f8f9fa",
           }}
         >
+          
           <Container
             style={{
               overflow: "auto",
@@ -1244,7 +1244,6 @@ const handleInteractiveTemplateClick = (e) => {
               minHeight: "100%",
             }}
           >
-           
             <h2 className="text-center mb-5">
               WhatsApp Template Flow Visualization
             </h2>
