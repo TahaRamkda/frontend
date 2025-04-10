@@ -1142,7 +1142,7 @@ export default function FlowVisualization() {
       setInitialData(null);
       setLines([]);
       try {
-         await dispatch(
+         dispatch(
           fetchTemplateVisualization({
             templateId: templateId,
             templatetype: templateType,
