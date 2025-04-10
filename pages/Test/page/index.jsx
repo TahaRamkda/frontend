@@ -13,7 +13,7 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import Loader from "@/components/Layout/Loader";
 import { BASE_URL } from "@/utils/apiConstants";
-import { fetchTemplateVisualization } from "@/slices/TemplateVisualizationSlice";
+import { fetchTemplateVisualization ,clearTemplateVisualization } from "@/slices/TemplateVisualizationSlice";
 import InteractiveTemplateUpdate from "@/pages/InteractiveTemplates/UpdateTemplate";
 import UpdateTemplate from "@/pages/Templates/UpdateTemplate";
 import UpdateFlowPage from "@/pages/Flows/FlowDetails";
@@ -342,7 +342,7 @@ import { set } from "date-fns";
 // Render a single box with a Meta-style template preview
 const renderBox = (
   id,
-  type,
+  //type,
   title,
   content,
   buttons = [],
@@ -1139,15 +1139,16 @@ export default function FlowVisualization() {
     }
   
     const fetchData = async () => {
+      setInitialData(null);
       try {
-        const response = await dispatch(
+         await dispatch(
           fetchTemplateVisualization({
             templateId: templateId,
             templatetype: templateType,
           })
         );
-        console.log("Fetch response:", response);
-        setInitialData(templateVisualizationData);
+        //console.log("Fetch response:", response);
+        //setInitialData(templateVisualizationData);
       } catch (error) {
         console.error("Error fetching data:", error);
         showSweetAlert({
@@ -1160,6 +1161,13 @@ export default function FlowVisualization() {
     };
     fetchData();
   }, [templateId, dispatch]);
+
+  useEffect(() => {
+    if (templateVisualizationData && templateVisualizationData.data) {
+      setInitialData(templateVisualizationData.data);
+    }
+   
+  }, [templateVisualizationData]);
 
   let templateMap = {};
 let rootTemplate = null;
@@ -1314,7 +1322,7 @@ if (initialData) {
                       {levels[level].map((node) =>
                         renderBox(
                           node.id,
-                          node.type,
+                          //node.type,
                           node.title,
                           node.content,
                           node.buttons,
