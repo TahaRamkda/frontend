@@ -13,7 +13,10 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import Loader from "@/components/Layout/Loader";
 import { BASE_URL } from "@/utils/apiConstants";
-import { fetchTemplateVisualization ,clearTemplateVisualization } from "@/slices/TemplateVisualizationSlice";
+import {
+  fetchTemplateVisualization,
+  clearTemplateVisualization,
+} from "@/slices/TemplateVisualizationSlice";
 import InteractiveTemplateUpdate from "@/pages/InteractiveTemplates/UpdateTemplate";
 import UpdateTemplate from "@/pages/Templates/UpdateTemplate";
 import UpdateFlowPage from "@/pages/Flows/FlowDetails";
@@ -1138,13 +1141,13 @@ export default function FlowVisualization() {
       setInitialData(null); // Reset initialData when either is unselected
       return;
     }
-  
+
     const fetchData = async () => {
       setInitialData(null);
       setLines([]);
-      
+
       try {
-         dispatch(
+        dispatch(
           fetchTemplateVisualization({
             templateId: templateId,
             templatetype: templateType,
@@ -1169,31 +1172,30 @@ export default function FlowVisualization() {
     if (templateVisualizationData && templateVisualizationData.data) {
       setInitialData(templateVisualizationData.data);
     }
-   
   }, [templateVisualizationData]);
 
   let templateMap = {};
-let rootTemplate = null;
-let levels = {};
+  let rootTemplate = null;
+  let levels = {};
 
-if (initialData) {
-  templateMap = initialData.reduce((map, template) => {
-    if (template.type === 1) {
-      map[template.id] = template;
-    } else if (template.type === 2) {
-      map[template.id] = template;
-    } else if (template.type === 3) {
-      map[template.id] = template;
-    }
-    return map;
-  }, {});
-  rootTemplate = initialData[0];
-  ({ levels } = collectNodesByLevel(rootTemplate, templateMap));
-}
+  if (initialData) {
+    templateMap = initialData.reduce((map, template) => {
+      if (template.type === 1) {
+        map[template.id] = template;
+      } else if (template.type === 2) {
+        map[template.id] = template;
+      } else if (template.type === 3) {
+        map[template.id] = template;
+      }
+      return map;
+    }, {});
+    rootTemplate = initialData[0];
+    ({ levels } = collectNodesByLevel(rootTemplate, templateMap));
+  }
 
   return (
     <App>
-      {loading && <Loader/>}
+      {loading && <Loader />}
       {showUpdateFlow ? (
         <UpdateFlowPage Flow_Id={selectedTemplate} onclose={handleCloseModal} />
       ) : showUpdateTemplate ? (
@@ -1220,130 +1222,130 @@ if (initialData) {
           }}
         >
           <div className="d-flex justify-content-center align-items-end mb-4 gap-3 flex-wrap">
-          <div className="col-md-3 col-sm-12">
-            <label className="form-label">Template Type:</label>
-            <TemplateTypeDropdown
-              onTemplateTypeChange={handleTemplateTypeChange}
-              selectedType={templateType}
-            />
-          </div>
-          <div
-            className={`col-md-3 col-sm-12 ${
-              templateType === "2" ? "d-block" : "d-none"
-            }`}
-          >
-            <label className="form-label">Interactive Template:</label>
-            <InteractiveTemplateDropdown
-              value={templateId}
-              onChange={handleInteractiveTemplateClick}
-            />
-          </div>
-          <div
-            className={`col-md-3 col-sm-12 ${
-              templateType === "1" ? "d-block" : "d-none"
-            }`}
-          >
-            <label className="form-label">Marketing Template:</label>
-            <TemplateDropdown
-              value={templateId}
-              onChange={handleTemplateClick}
-            />
-          </div>
-        </div>
-        {initialData && templateId ?(
-          <Container
-            style={{
-              overflow: "auto",
-              padding: "40px 20px",
-              position: "relative",
-              minWidth: `${20}px`,
-              minHeight: "100%",
-            }}
-          >
-            <h2 className="text-center mb-5">
-              WhatsApp Template Flow Visualization
-            </h2>
-            <div ref={svgContainerRef} style={{ position: "relative" }}>
-              <svg
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  pointerEvents: "none",
-                  zIndex: 10,
-                }}
-              >
-                {lines.map((line) => (
-                  <path
-                    key={line.key}
-                    d={line.pathD}
-                    stroke={line.stroke}
-                    strokeWidth={line.strokeWidth || "2"}
-                    fill="none"
-                    markerEnd="url(#arrow)"
-                  />
-                ))}
-                <defs>
-                  <marker
-                    id="arrow"
-                    markerWidth="8"
-                    markerHeight="8"
-                    refX="7"
-                    refY="4"
-                    orient="auto"
-                    markerUnits="strokeWidth"
-                  >
-                    <path d="M0,0 L0,8 L8,4 z" fill="currentColor" />
-                  </marker>
-                </defs>
-              </svg>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                {Object.keys(levels).map((level) => (
-                  <div
-                    key={level}
-                    className="mb-5"
-                    style={{ position: "relative", zIndex: 0 }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        flexWrap: "nowrap",
-                        justifyContent: "center",
-                        gap: "20px",
-                        width: `${levels[level].length * 320}px`,
-                        margin: "0 auto",
-                      }}
-                    >
-                      {levels[level].map((node) =>
-                        renderBox(
-                          node.id,
-                          //node.type,
-                          node.title,
-                          node.content,
-                          node.buttons,
-                          node.actionDetails || {},
-                          () => handleCardClick(node.id),
-                          templateMap[node.id]
-                        )
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="col-md-3 col-sm-12">
+              <label className="form-label">Template Type:</label>
+              <TemplateTypeDropdown
+                onTemplateTypeChange={handleTemplateTypeChange}
+                selectedType={templateType}
+              />
             </div>
-          </Container>
+            <div
+              className={`col-md-3 col-sm-12 ${
+                templateType === "2" ? "d-block" : "d-none"
+              }`}
+            >
+              <label className="form-label">Interactive Template:</label>
+              <InteractiveTemplateDropdown
+                value={templateId}
+                onChange={handleInteractiveTemplateClick}
+              />
+            </div>
+            <div
+              className={`col-md-3 col-sm-12 ${
+                templateType === "1" ? "d-block" : "d-none"
+              }`}
+            >
+              <label className="form-label">Marketing Template:</label>
+              <TemplateDropdown
+                value={templateId}
+                onChange={handleTemplateClick}
+              />
+            </div>
+          </div>
+          {initialData && templateId ? (
+            <Container
+              style={{
+                overflow: "auto",
+                padding: "40px 20px",
+                position: "relative",
+                minWidth: `${20}px`,
+                minHeight: "100%",
+              }}
+            >
+              <h2 className="text-center mb-5">
+                WhatsApp Template Flow Visualization
+              </h2>
+              <div ref={svgContainerRef} style={{ position: "relative" }}>
+                <svg
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    pointerEvents: "none",
+                    zIndex: 10,
+                  }}
+                >
+                  {lines.map((line) => (
+                    <path
+                      key={line.key}
+                      d={line.pathD}
+                      stroke={line.stroke}
+                      strokeWidth={line.strokeWidth || "2"}
+                      fill="none"
+                      markerEnd="url(#arrow)"
+                    />
+                  ))}
+                  <defs>
+                    <marker
+                      id="arrow"
+                      markerWidth="8"
+                      markerHeight="8"
+                      refX="7"
+                      refY="4"
+                      orient="auto"
+                      markerUnits="strokeWidth"
+                    >
+                      <path d="M0,0 L0,8 L8,4 z" fill="currentColor" />
+                    </marker>
+                  </defs>
+                </svg>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  {Object.keys(levels).map((level) => (
+                    <div
+                      key={level}
+                      className="mb-5"
+                      style={{ position: "relative", zIndex: 0 }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "nowrap",
+                          justifyContent: "center",
+                          gap: "20px",
+                          width: `${levels[level].length * 320}px`,
+                          margin: "0 auto",
+                        }}
+                      >
+                        {levels[level].map((node) =>
+                          renderBox(
+                            node.id,
+                            //node.type,
+                            node.title,
+                            node.content,
+                            node.buttons,
+                            node.actionDetails || {},
+                            () => handleCardClick(node.id),
+                            templateMap[node.id]
+                          )
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Container>
           ) : (
             <div className="text-center mt-4">
-            <p>Please select a template to see the visualization.</p>
-          </div>
+              <p>Please select a template to see the visualization.</p>
+            </div>
           )}
         </div>
       )}

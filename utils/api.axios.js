@@ -11,6 +11,7 @@ const logger = new Logger();
 
 instance.interceptors.request.use(
   async (config) => {
+    debugger
     if (typeof window !== 'undefined') {
       const accessToken = localStorage.getItem('accessToken');
       const clientId = localStorage.getItem('clientId');
@@ -30,6 +31,7 @@ instance.interceptors.request.use(
       }
 
       await logChatDetails(logger, 'API call initiated', 'info', {
+        Obj: config.data || null,
         endpoint: `${config.baseURL}${config.url}`,
         method: config.method.toUpperCase(),
         clientId: clientId || null,
