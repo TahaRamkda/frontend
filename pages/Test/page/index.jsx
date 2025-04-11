@@ -1144,7 +1144,7 @@ export default function FlowVisualization() {
       setLines([]);
       
       try {
-         await dispatch(
+         dispatch(
           fetchTemplateVisualization({
             templateId: templateId,
             templatetype: templateType,
