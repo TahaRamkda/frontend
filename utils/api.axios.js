@@ -18,7 +18,7 @@ instance.interceptors.request.use(
       const actionBy = localStorage.getItem('userId');
       const startTime = Date.now();
       config.metadata = { startTime };
-      
+      const parameter = new URLSearchParams(config.params)
       if (accessToken) {
         config.headers.Authorization = `Bearer ${accessToken}`;
       }
@@ -34,6 +34,7 @@ instance.interceptors.request.use(
         Obj: config.data || null,
         endpoint: `${config.baseURL}${config.url}`,
         method: config.method.toUpperCase(),
+        params: parameter,
         clientId: clientId || null,
         actionBy: actionBy || null,
         type: 7,
@@ -43,6 +44,7 @@ instance.interceptors.request.use(
     return config;
   },
   async (error) => {
+    debugger
     if (typeof window !== 'undefined') {
       const startTime = error.config?.metadata?.startTime;
       await logChatDetails(logger, 'API call request failed', 'error', {
@@ -61,6 +63,7 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   async (response) => {
+    debugger
     if (typeof window !== 'undefined') {
       const endTime = Date.now();
       const startTime = response.config.metadata.startTime;
@@ -70,6 +73,7 @@ instance.interceptors.response.use(
         endpoint: `${response.config.baseURL}${response.config.url}`,
         method: response.config.method.toUpperCase(),
         statusCode: response.status,
+        data: response.data.result,
         clientId: localStorage.getItem('clientId') || null,
         actionBy: localStorage.getItem('actionBy') || null,
         startTime: formatDateTime(startTime),
@@ -80,6 +84,7 @@ instance.interceptors.response.use(
     return response;
   },
   async (error) => {
+    debugger
     if (typeof window !== 'undefined') {
       const startTime = error.config?.metadata?.startTime;
       const endTime = Date.now();
