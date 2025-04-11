@@ -2,23 +2,23 @@ import axios from 'axios';
 import { BASE_URL } from './apiConstants';
 import { Logger } from 'next-axiom';
 import logChatDetails from '@/components/logger';
+import { LogerType } from '@/utils/constants';
 import { formatDateTime, formatTime } from '@/utils/constants';
 const instance = axios.create({
   baseURL: BASE_URL,
 });
-
 const logger = new Logger();
 
 instance.interceptors.request.use(
   async (config) => {
     debugger
+    
     if (typeof window !== 'undefined') {
       const accessToken = localStorage.getItem('accessToken');
       const clientId = localStorage.getItem('clientId');
       const actionBy = localStorage.getItem('userId');
       const startTime = Date.now();
       config.metadata = { startTime };
-      const parameter = new URLSearchParams(config.params)
       if (accessToken) {
         config.headers.Authorization = `Bearer ${accessToken}`;
       }
@@ -34,10 +34,9 @@ instance.interceptors.request.use(
         Obj: config.data || null,
         endpoint: `${config.baseURL}${config.url}`,
         method: config.method.toUpperCase(),
-        params: parameter,
         clientId: clientId || null,
         actionBy: actionBy || null,
-        type: 7,
+        type: LogerType.Apicallinitiated,
         startTime: formatDateTime(startTime),
       });
     }
@@ -53,7 +52,7 @@ instance.interceptors.request.use(
         error: error.message,
         logtype: 'error',
         actionBy: localStorage.getItem('userId') || null,
-        type: 7,
+        type: LogerType.Error,
         startTime: formatDateTime(startTime),
       });
     }
@@ -63,7 +62,7 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   async (response) => {
-    debugger
+    
     if (typeof window !== 'undefined') {
       const endTime = Date.now();
       const startTime = response.config.metadata.startTime;
@@ -74,6 +73,7 @@ instance.interceptors.response.use(
         method: response.config.method.toUpperCase(),
         statusCode: response.status,
         data: response.data.result,
+        type: LogerType.Apicallcompleted,
         clientId: localStorage.getItem('clientId') || null,
         actionBy: localStorage.getItem('actionBy') || null,
         startTime: formatDateTime(startTime),
@@ -84,7 +84,7 @@ instance.interceptors.response.use(
     return response;
   },
   async (error) => {
-    debugger
+    
     if (typeof window !== 'undefined') {
       const startTime = error.config?.metadata?.startTime;
       const endTime = Date.now();
@@ -95,6 +95,7 @@ instance.interceptors.response.use(
         method: error.config?.method?.toUpperCase() || 'UNKNOWN',
         statusCode: error.response?.status,
         error: error.message,
+        type: LogerType.Error,
         clientId: localStorage.getItem('clientId') || null,
         actionBy: localStorage.getItem('actionBy') || null,
         logtype: 'error',

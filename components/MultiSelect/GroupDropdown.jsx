@@ -66,7 +66,7 @@ export const GroupsDropdown = ({ onChange ,existingdata}) => {
         placeholder="Select"
         required
         noOptionsMessage={() => "No records found"}
-        menuPortalTarget={document.body} // Add this line
+
       />
       </div>
     </>

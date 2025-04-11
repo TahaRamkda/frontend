@@ -58,6 +58,7 @@ import {
 } from "react-icons/hi";
 import { sendPushNotification } from "@/components/SendPushNotification";
 import {AppId} from "@/utils/constants";
+import { LogerType } from "@/utils/constants";
 const ChatPage = () => {
   const router = useRouter();
   const logger = useLogger();
@@ -128,7 +129,7 @@ const ChatPage = () => {
       if (response.success) {
         await loggerdetails(logger, `agent status updated to ${StatusId} `,"info", {
           agentId: UserId,
-          type: 5,
+          type: LogerType.logoutOrstatuschange,
         });
         showSweetAlert({
           title: response.message || "Status updated successfully",
@@ -218,7 +219,7 @@ const ChatPage = () => {
       Obj : details,
       conversationId: details?.ChatId,
       agentId: UserId,
-      type: 4,
+      type: LogerType.messagesent,
     });
     setTemplateDetails(details); // Update parent state
     console.log("Received template details:", details);
@@ -249,7 +250,7 @@ const ChatPage = () => {
           if (response.success) {
            await loggerdetails(logger, `Agent with ID:${UserId} logged out`, "info", {
              agentId: UserId,
-             type: 5,
+             type: LogerType.logoutOrstatuschange,
             })
             const optedOut = await oneSignalService.optOut();
             if (!optedOut) {
@@ -277,6 +278,7 @@ const ChatPage = () => {
             logtype: "error",
             conversationId: Activechat,
             agentId: UserId,
+            type: LogerType.Error
             
            });
         }
@@ -373,8 +375,9 @@ const ChatPage = () => {
           await loggerdetails(logger, " Error fetching agent data:","error", {
             Obj : error,
             //logtype: "error",
-            //conversationId: Activechat,
+            conversationId: Activechat,
             agentId: UserId,
+            type:LogerType.Error
             
            });
         } finally {
@@ -483,7 +486,7 @@ const ChatPage = () => {
         Obj : newMessage,
         conversationId: Activechat,
         agentId: UserId,
-        type: 4,
+        type: LogerType.messagesent,
        });
 
       //setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
@@ -498,6 +501,7 @@ const ChatPage = () => {
         Obj : new Date().toLocaleString(),
         conversationId: Activechat,
         agentId: UserId,
+        type:LogerType.messagesent,
        });
       setMediaFile(null); // Clear the selected file after sending the message
       setPreviewUrl(null);
@@ -511,6 +515,7 @@ const ChatPage = () => {
         logtype: "error",
         conversationId: Activechat,
         agentId: UserId,
+        type:LogerType.Error
        });
 
       toast.error("Failed to send message. Please try again.");
@@ -587,7 +592,7 @@ const ChatPage = () => {
         Obj : message,
         conversationId: message.conversationId,
         agentId: UserId,
-        type: 2,
+        type: LogerType.newincomingmessage,
       })
       audioRef.current
         ?.play()
@@ -604,7 +609,7 @@ const ChatPage = () => {
         Obj : notification,
         conversationId: notification.id,
         agentId: userId,
-        type: 1,
+        type: LogerType.ConversationAssigned,
       })
       audioRef.current
         ?.play()
@@ -628,7 +633,7 @@ const ChatPage = () => {
       await loggerdetails(logger, "Conversation unassigned for chat Id:", "info", {
         conversationId: chatId,
         agentId: userId,
-        type: 3,
+        type: LogerType.Conversationunassigned,
       })
       if (
         !agentChatRef.current.some((conversation) => conversation.id === chatId)
@@ -683,7 +688,8 @@ const ChatPage = () => {
 
       newConnection.onreconnecting((error) => {
         loggerdetails(logger, "Reconnecting signalR:", {
-         Obj : error
+         Obj : error,
+         type: LogerType.Error,
         })
         setErrordisconnect(true);
       });
@@ -729,7 +735,7 @@ const ChatPage = () => {
 
   useEffect(() => {
     if (Errordisconnect && connectionRef.current) {
-     loggerdetails(logger, "Reconnecting SignalR...", {type: 6 });  
+     loggerdetails(logger, "Reconnecting SignalR...", {type: LogerType.Error });  
       startSignalRConnection(connectionRef.current, UserId);
     }
   }, [Errordisconnect]);

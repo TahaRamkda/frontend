@@ -1,20 +1,19 @@
-  export const FORMATEDATE = (dateString) => {
-    if (!dateString) return ''; // Handle empty or undefined dates
-  
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return ''; // Handle invalid dates
-  
-    // Get the year, month, and day
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
-    const day = String(date.getDate()).padStart(2, '0');
-  
-    // Return in yyyy-MM-dd format
-    return `${day}-${month}-${year}`;
-  };
-  
+export const FORMATEDATE = (dateString) => {
+  if (!dateString) return ""; // Handle empty or undefined dates
 
- export const extractTime = (datetimeString) => {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return ""; // Handle invalid dates
+
+  // Get the year, month, and day
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+  const day = String(date.getDate()).padStart(2, "0");
+
+  // Return in yyyy-MM-dd format
+  return `${day}-${month}-${year}`;
+};
+
+export const extractTime = (datetimeString) => {
   const date = new Date(datetimeString);
 
   if (isNaN(date.getTime())) {
@@ -30,7 +29,6 @@
   return `${String(hours).padStart(2, "0")}:${minutes} ${period}`;
 };
 
-
 export const dropdownOptions = [
   { label: "NONE", value: 0 },
   { label: "TEMPLATE", value: 1 },
@@ -40,7 +38,6 @@ export const dropdownOptions = [
   { label: "ORDER", value: 6 },
   { label: "CLOSE CHAT", value: 7 },
   { label: "FLOWS", value: 8 },
-
 ];
 
 export const statusOptions = [
@@ -61,51 +58,63 @@ export const QuestionTypes = {
   TextHeading: 5,
 };
 
+export const LogerType = {
+  ConversationAssigned: 1,
+  newincomingmessage: 2,
+  Conversationunassigned: 3,
+  messagesent: 4,
+  logoutOrstatuschange: 5,
+  Apicallinitiated: 6,
+  Apicallcompleted: 7,
+  Error: 8,
+};
 
 export const formatTime = (ms) => {
-  if (!ms && ms !== 0) return 'N/A';
+  if (!ms && ms !== 0) return "N/A";
   const totalSeconds = Math.floor(ms / 1000);
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
-  
+
   if (minutes > 0) {
     return `${minutes} min ${seconds} sec`;
   }
   return `${seconds} sec`;
 };
 export const formatDateTime = (timestamp) => {
-  if (!timestamp) return 'N/A';
-  return new Date(timestamp).toLocaleString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
+  if (!timestamp) return "N/A";
+  return new Date(timestamp).toLocaleString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
   });
 };
-  //to refresh the api call every 5 minutes
-export const REFRESH_INTERVAL=4000 ; // 5 minutes in milliseconds
+//to refresh the api call every 5 minutes
+export const REFRESH_INTERVAL = 4000; // 5 minutes in milliseconds
 
-export const NOTIFICATION_WARNING_INTERVAL=28800000  ; // 5 minutes in milliseconds
+export const NOTIFICATION_WARNING_INTERVAL = 28800000; // 5 minutes in milliseconds
 
-export const HEARTBEAT_CHECK_INTERVAL=10000 ; // 5 minutes in milliseconds
+export const HEARTBEAT_CHECK_INTERVAL = 10000; // 5 minutes in milliseconds
 
-export const ExpireTime_AssignedChat=180000 ; // 30 Seconds
-export const ExpireTime_AssignedChat_TRY1=180000 ;
-export const ExpireTime_AssignedChat_TRY2=180000 ;
-export const ExpireTime_Message=300000 ;
-export const ExpireTime_Message_TRY1=300000 ; // 5 minutes in milliseconds
+export const ExpireTime_AssignedChat = 180000; // 30 Seconds
+export const ExpireTime_AssignedChat_TRY1 = 180000;
+export const ExpireTime_AssignedChat_TRY2 = 180000;
+export const ExpireTime_Message = 300000;
+export const ExpireTime_Message_TRY1 = 300000; // 5 minutes in milliseconds
 
-export const ExpireTime_Message_TRY2=240000 ;
-export const ExpireTime_Message_TRY3=180000 ;
-export const ExpireTime_Message_TRY4=120000 ;
-export const ExpireTime_Message_TRY5=60000 ;
+export const ExpireTime_Message_TRY2 = 240000;
+export const ExpireTime_Message_TRY3 = 180000;
+export const ExpireTime_Message_TRY4 = 120000;
+export const ExpireTime_Message_TRY5 = 60000;
 
-export const HeartBeat_Interval=100000 ; // 5 minutes in milliseconds
+export const HeartBeat_Interval = 100000; // 5 minutes in milliseconds
 
 export const AppId = "a06956a9-aab6-4bff-9465-dc19f5f2a33b";
 
-export const StagAppId="2b6362f1-b706-4087-bfaf-0d625c02110b";
+export const StagAppId = "2b6362f1-b706-4087-bfaf-0d625c02110b";
 
-export const API_KEY= "os_v2_app_fnrwf4nxazaipp5pbvrfyaqrbm5fgnr5ontuwrfsy2no57l3fxtwbtfinybm4x2ivawfnmztyenpcllfjijcisl774siswalccqwt7i";
+export const API_KEY =
+  "os_v2_app_fnrwf4nxazaipp5pbvrfyaqrbm5fgnr5ontuwrfsy2no57l3fxtwbtfinybm4x2ivawfnmztyenpcllfjijcisl774siswalccqwt7i";
 
-export const API_KEY1 = "os_v2_app_ubuvnknkwzf77fdf3qm7l4vdhng2wrzqbmhupyn4g22egnsgjxyon5bmd7z67msxiqtxenrk5ghe3cayc5zc6nmeqchu36ykk7m7k6q";
+export const API_KEY1 =
+  "os_v2_app_ubuvnknkwzf77fdf3qm7l4vdhng2wrzqbmhupyn4g22egnsgjxyon5bmd7z67msxiqtxenrk5ghe3cayc5zc6nmeqchu36ykk7m7k6q";
