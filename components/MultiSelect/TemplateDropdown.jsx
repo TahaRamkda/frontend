@@ -55,7 +55,6 @@ export const TemplatesDropdown = ({ onChange }) => {
         placeholder="Select"
         className="border border-gray-300 rounded-lg text-sm"
         required
-        menuPortalTarget={document.body} // Add this line
       />
       </div>
     </>

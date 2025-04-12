@@ -16,16 +16,16 @@ const logChatDetails = async (
     console.error("Logger instance is required for logChatDetails");
     return;
   }
-
+debugger
   // Construct metadata object with only provided arguments
   const metadata = {};
-  if (Obj !== null) metadata.Obj = Obj;
+  if (Obj !== null) metadata.Request = Obj;
   if (agentId !== null) metadata.agentId = agentId;
   if (conversationId !== null) metadata.conversationId = conversationId;
   if (type !== null) metadata.type = type;
   if (userId !== null) metadata.userId = userId;
   Object.assign(metadata, additionalData); // Merge any additional arguments
-
+debugger
   // Check if Axiom logging is enabled
   const isAxiomEnabled = localStorage.getItem("isaxiomenabled") === "true";
 

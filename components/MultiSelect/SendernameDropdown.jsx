@@ -63,7 +63,6 @@ const SendernamesDropdown = ({ name, value, onChange, error, existingdata  }) =>
         noOptionsMessage={() => "No records found"}
         className="border border-gray-300 rounded-lg text-sm"
         required
-        menuPortalTarget={document.body} // Add this line
       />
       </div>
     </>

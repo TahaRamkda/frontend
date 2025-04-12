@@ -475,21 +475,21 @@ const ChatsReport = () => {
 
             <div className="bg-white stats shadow-md mb-3 p-2 text-left">
               <h3 className="font-bold mb-0">
-                Marketing Conversation:{" "}
+                Marketing Messages:{" "}
                 {chatReportStats.marketingConversation ?? "-/-"}
               </h3>
             </div>
 
             <div className="bg-white stats shadow-md mb-3 p-2 text-left">
               <h3 className="font-bold mb-0">
-                Utility Conversation:{" "}
+                Utility Messages:{" "}
                 {chatReportStats.utilityConversation ?? "-/-"}
               </h3>
             </div>
 
             <div className="bg-white stats shadow-md mb-3 p-2 text-left">
               <h3 className="font-bold mb-0">
-                Initiated Conversation:{" "}
+                Initiated Messages:{" "}
                 {chatReportStats.initiatedConversation ?? "-/-"}
               </h3>
             </div>

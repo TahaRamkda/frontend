@@ -54,7 +54,6 @@ const AgentsDropdown = ({ name, value, onChange }) => {
         isSearchable
         placeholder="Select"
         required
-        menuPortalTarget={document.body} // Add this line
       />
     </div>
   );

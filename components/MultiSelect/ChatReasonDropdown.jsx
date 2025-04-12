@@ -60,7 +60,6 @@ const ChatReasonDropdown = ({ name, value, onChange, existingdata }) => {
         isSearchable
         placeholder="Select"
         required
-        menuPortalTarget={document.body} // Add this line
       
       />
     </div>
