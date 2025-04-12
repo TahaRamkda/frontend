@@ -11,7 +11,7 @@ const logger = new Logger();
 
 instance.interceptors.request.use(
   async (config) => {
-    debugger
+    
     
     if (typeof window !== 'undefined') {
       const accessToken = localStorage.getItem('accessToken');
