@@ -11,7 +11,6 @@ const logger = new Logger();
 
 instance.interceptors.request.use(
   async (config) => {
-    debugger
     if (typeof window !== 'undefined') {
       const accessToken = localStorage.getItem('accessToken');
       const clientId = localStorage.getItem('clientId');
@@ -44,7 +43,7 @@ instance.interceptors.request.use(
     return config;
   },
   async (error) => {
-    debugger
+    
     if (typeof window !== 'undefined') {
       const startTime = error.config?.metadata?.startTime;
       await logChatDetails(logger, 'API call request failed', 'error', {
@@ -63,7 +62,6 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   async (response) => {
-    debugger
     if (typeof window !== 'undefined') {
       const endTime = Date.now();
       const startTime = response.config.metadata.startTime;
@@ -84,7 +82,6 @@ instance.interceptors.response.use(
     return response;
   },
   async (error) => {
-    debugger
     if (typeof window !== 'undefined') {
       const startTime = error.config?.metadata?.startTime;
       const endTime = Date.now();
