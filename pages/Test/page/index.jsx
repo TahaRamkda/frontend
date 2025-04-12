@@ -884,9 +884,9 @@ const collectNodesByLevel = (
 
 const TemplateTypeDropdown = ({ onTemplateTypeChange, selectedType }) => {
   return (
-    <div className="mb-3" style={{ maxWidth: "300px", margin: "0 auto" }}>
+    <div className="mb-3">
       <select
-        className="form-select"
+        className="form-select border border-gray-300 rounded-md w-full py-1 px-3 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         value={selectedType}
         onChange={(e) => onTemplateTypeChange(e.target.value)}
       >
@@ -1221,9 +1221,9 @@ export default function FlowVisualization() {
             backgroundColor: "#f8f9fa",
           }}
         >
-          <div className="d-flex justify-content-center align-items-end mb-4 gap-3 flex-wrap">
-            <div className="col-md-3 col-sm-12">
-              <label className="form-label">Template Type:</label>
+          <div className="grid sm:grid-cols-1 md:grid-cols-5   ">
+            <div className="flex flex-col justify-start p-4">
+              <label className="form-label ">Template Type:</label>
               <TemplateTypeDropdown
                 onTemplateTypeChange={handleTemplateTypeChange}
                 selectedType={templateType}
