@@ -963,8 +963,6 @@ export default function FlowVisualization() {
     setSelectedTemplate(null);
   };
 
- 
-
   useEffect(() => {
     if (!isMounted || !initialData || !svgContainerRef.current) return;
     if (!showArrows) return;
@@ -976,14 +974,14 @@ export default function FlowVisualization() {
         // if (template.flowId !== undefined) map[template.flowId] = template;
         return map;
       }, {});
-      
+
       const rootTemplate = initialData[0];
-      
+
       const { buttonMap } = collectNodesByLevel(rootTemplate, templateMap);
       const newLines = [];
 
       const drawLines = () => {
-        setLines([])
+        setLines([]);
         Object.entries(buttonMap).forEach(([buttonId, targetId], index) => {
           const buttonElement = document.getElementById(buttonId);
           const targetElement = document.getElementById(targetId);
@@ -1196,18 +1194,18 @@ export default function FlowVisualization() {
     rootTemplate = initialData[0];
     ({ levels } = collectNodesByLevel(rootTemplate, templateMap));
   }
-  
+
   useEffect(() => {
     if (!initialData || !Object.keys(levels).length) {
       setShowArrows(false); // Reset when data or levels are not ready
       return;
     }
- 
+
     // Set a timer to show arrows after 500ms delay to ensure DOM is rendered
     const timer = setTimeout(() => {
       setShowArrows(true);
     }, 500);
- 
+
     return () => clearTimeout(timer); // Clean up timer on unmount or data change
   }, [initialData, levels]);
   return (
@@ -1231,9 +1229,6 @@ export default function FlowVisualization() {
         <div
           className=""
           style={{
-            overflow: "scroll",
-            height: "86vh",
-            width: "80vw",
             position: "relative",
             backgroundColor: "#f8f9fa",
           }}
@@ -1272,16 +1267,11 @@ export default function FlowVisualization() {
           {initialData && templateId ? (
             <Container
               style={{
-                overflow: "auto",
                 padding: "40px 20px",
                 position: "relative",
-                minWidth: `${20}px`,
-                minHeight: "100%",
               }}
             >
-              <h2 className="text-center mb-5">
-                 Template Flow Visualization
-              </h2>
+              <h2 className="text-center mb-5">Template Flow Visualization</h2>
               <div ref={svgContainerRef} style={{ position: "relative" }}>
                 <svg
                   style={{
@@ -1294,16 +1284,17 @@ export default function FlowVisualization() {
                     zIndex: 10,
                   }}
                 >
-                  {showArrows && lines.map((line) => (
-                    <path
-                      key={line.key}
-                      d={line.pathD}
-                      stroke={line.stroke}
-                      strokeWidth={line.strokeWidth || "2"}
-                      fill="none"
-                      markerEnd="url(#arrow)"
-                    />
-                  ))}
+                  {showArrows &&
+                    lines.map((line) => (
+                      <path
+                        key={line.key}
+                        d={line.pathD}
+                        stroke={line.stroke}
+                        strokeWidth={line.strokeWidth || "2"}
+                        fill="none"
+                        markerEnd="url(#arrow)"
+                      />
+                    ))}
                   <defs>
                     <marker
                       id="arrow"
@@ -1320,9 +1311,7 @@ export default function FlowVisualization() {
                 </svg>
                 <div
                   style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
+                    overflow: "auto",
                   }}
                 >
                   {Object.keys(levels).map((level) => (

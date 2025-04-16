@@ -98,7 +98,7 @@ export const AGENTDROPDOWN = "/Agents/getagents";
 export const GETAGENTSTATS = "/Agents/GetAgentStats";
 export const ACTIVEAGENTS = "/Agents/getactiveagents";
 export const AGENTSHIFTBULKUPLOAD = "/Agents/importbulkagenttimings";
-export const MASTERDATA = "/getmasterdatalist";
+export const MASTERDATA = "/MasterData/getmasterdatalist";
 export const AGENTSTATUS = "/Agents/setagentstatus";
 
 
