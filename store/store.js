@@ -22,6 +22,7 @@ import chatTestSlice from "@/slices/ChatTest";
 import ChatBridgeSlice from "@/slices/ChatBridgeSlice";
 import FlowSlice from "@/slices/FlowsSlice";
 import TemplateVisualizationSlice  from "@/slices/TemplateVisualizationSlice";
+import  AppSettingSlice  from "@/slices/AppSettingSlice";
 import { configureStore } from "@reduxjs/toolkit";
 
 export const store = configureStore({
@@ -49,7 +50,8 @@ export const store = configureStore({
     chatTest: chatTestSlice,
     bridge:ChatBridgeSlice,
     flows:FlowSlice,
-    templateVisualization:TemplateVisualizationSlice
+    templateVisualization:TemplateVisualizationSlice,
+    appsettong:AppSettingSlice,
 
     }
 })
