@@ -1,6 +1,16 @@
-import { useEffect, useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Head from "next/head";
+import {
+  ReactFlow,
+  Background,
+  Controls,
+  useNodesState,
+  useEdgesState,
+  Handle,
+  Position,
+  getStraightPath,
+  Edge,
+} from "@xyflow/react";
 import {
   Container,
   Col,
@@ -10,1149 +20,515 @@ import {
   CardText,
   Button,
 } from "reactstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
-import Loader from "@/components/Layout/Loader";
+import "@xyflow/react/dist/style.css";
 import { BASE_URL } from "@/utils/apiConstants";
+import InteractiveTemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropdown";
+import TemplateDropdown from "@/components/Dropdowns/TemplateDropdown";
+import InteractiveTemplateUpdate from "@/pages/InteractiveTemplates/UpdateTemplate";
+import UpdateTemplate from "@/pages/Templates/UpdateTemplate";
+import UpdateFlowPage from "@/pages/Flows/FlowDetails";
 import {
   fetchTemplateVisualization,
   clearTemplateVisualization,
 } from "@/slices/TemplateVisualizationSlice";
-import InteractiveTemplateUpdate from "@/pages/InteractiveTemplates/UpdateTemplate";
-import UpdateTemplate from "@/pages/Templates/UpdateTemplate";
-import UpdateFlowPage from "@/pages/Flows/FlowDetails";
-// Action type mappings (unchanged)
-import { dropdownOptions } from "@/utils/constants";
-import InteractiveTemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropdown";
-import TemplateDropdown from "@/components/Dropdowns/TemplateDropdown";
 import App from "@/components/Layout/App";
 import showSweetAlert from "@/components/Sweetalert";
-import { set } from "date-fns";
-// Simulated API data with updated IDs and actionIds
-// const fetchTemplateData = async () => {
-//   return {
-//     flowsVisualization: [
-//       // Template 1: Starting template
-//       {
-//         "id": 22,
-//         "clientId": 1,
-//         "clientName": "Babji Consult Techies",
-//         "senderId": 1,
-//         "senderName": "Babji Consult Techies",
-//         "templateName": "fl_vs_maintemplate",
-//         "category": "MARKETING",
-//         "subCategory": null,
-//         "language": "en",
-//         "status": "PENDING",
-//         "isApproved": false,
-//         "templateId": "",
-//         "headerType": 2,
-//         "headerText": "",
-//         "headerParamCount": 0,
-//         "mediaId": 425,
-//         "mediaPath": "/Media/images_(2)_1.jpg",
-//         "contentType": "image/jpeg",
-//         "fileExtension": ".jpg",
-//         "fileName": "images_(2)_1.jpg",
-//         "bodyText": "burger King burger\nIndulge in the mouthwatering goodness of Burger King's iconic flame-grilled burgers! Each bite delivers a perfect blend of savory flavors, starting with high-quality beef that’s grilled to perfection for that unmistakable smoky taste. Whether you're craving the classic Whopper stacked high with fresh lettuce, juicy tomatoes, and creamy mayonnaise, or one of their delicious specialty burgers",
-//         "bodyParamCount": 0,
-//         "footerText": "do it quickly",
-//         "buttons": [
-//             {
-//                 "buttonId": 27,
-//                 "buttonText": "Template 1",
-//                 "buttonValue": "",
-//                 "buttonType": 1,
-//                 "sequence": 0,
-//                 "actionId": 73,
-//                 "actionType": 1,
-//                 "systemActionId": null
-//             },
-//             {
-//                 "buttonId": 28,
-//                 "buttonText": "Tempalte 2",
-//                 "buttonValue": "",
-//                 "buttonType": 1,
-//                 "sequence": 1,
-//                 "actionId": 74,
-//                 "actionType": 1,
-//                 "systemActionId": null
-//             },
-//             {
-//                 "buttonId": 29,
-//                 "buttonText": "Call Phone Number",
-//                 "buttonValue": "+91-7297005253",
-//                 "buttonType": 2,
-//                 "sequence": 2,
-//                 "actionId": 0,
-//                 "actionType": 0,
-//                 "systemActionId": null
-//             },
+import Loader from "@/components/Layout/Loader";
 
-//         ],
-//         "parameters": [],
-//         "createdBy": 2,
-//         "createdDate": "25-Mar-2025 04:58:40 PM",
-//         "updatedBy": 2,
-//         "updatedDate": "25-Mar-2025 04:58:40 PM"
-//     },
-
-//       // Template 2
-//       {
-//         "interactiveTemplateId": 73,
-//         "clientId": 1,
-//         "senderId": 1,
-//         "templateName": "fl_vs_test_1",
-//         "language": "en",
-//         "transactionType": 2,
-//         "status": 1,
-//         "usedByAgent": false,
-//         "headerType": 0,
-//         "headerParamCount": 0,
-//         "headerText": "",
-//         "bodyParamCount": 0,
-//         "bodyText": "wanna try our new order??",
-//         "footerText": "",
-//         "mediaId": 0,
-//         "mediaPath": null,
-//         "contentType": null,
-//         "fileName": null,
-//         "buttonsJson": "[{\"ButtonId\":150,\"ButtonText\":\"Clicke me\",\"ButtonValue\":\"\",\"ButtonType\":1,\"Sequence\":0,\"ActionId\":77,\"ActionType\":1},{\"ButtonId\":151,\"ButtonText\":\"Unsubscribe\",\"ButtonValue\":\"\",\"ButtonType\":1,\"Sequence\":0,\"ActionId\":0,\"ActionType\":3},{\"ButtonId\":152,\"ButtonText\":\"Block\",\"ButtonValue\":\"\",\"ButtonType\":1,\"Sequence\":0,\"ActionId\":0,\"ActionType\":4}]",
-//         "parametersJson": null,
-//         "buttons": [
-//             {
-//                 "buttonId": 150,
-//                 "buttonText": "Clicke me",
-//                 "buttonValue": "",
-//                 "buttonType": 1,
-//                 "sequence": 0,
-//                 "actionId": 77,
-//                 "actionType": 1
-//             },
-//             {
-//                 "buttonId": 151,
-//                 "buttonText": "Unsubscribe",
-//                 "buttonValue": "",
-//                 "buttonType": 1,
-//                 "sequence": 0,
-//                 "actionId": 0,
-//                 "actionType": 3
-//             },
-//             {
-//                 "buttonId": 152,
-//                 "buttonText": "Block",
-//                 "buttonValue": "",
-//                 "buttonType": 1,
-//                 "sequence": 0,
-//                 "actionId": 0,
-//                 "actionType": 4
-//             }
-//         ],
-//         "parameters": [],
-//         "createdBy": 2,
-//         "createdDate": "25-Mar-2025 04:34:51 PM",
-//         "updatedBy": 2,
-//         "updatedDate": "25-Mar-2025 04:54:35 PM"
-//     },
-
-//       // Template 3: Template connecting to flow
-//       {
-//         "interactiveTemplateId": 74,
-//         "clientId": 1,
-//         "senderId": 1,
-//         "templateName": "fl_vs_test_2",
-//         "language": "en",
-//         "transactionType": 2,
-//         "status": 1,
-//         "usedByAgent": false,
-//         "headerType": 0,
-//         "headerParamCount": 0,
-//         "headerText": "",
-//         "bodyParamCount": 0,
-//         "bodyText": "We kindly request that you submit your valuable feedback. Thank you!",
-//         "footerText": "",
-//         "mediaId": 0,
-//         "mediaPath": null,
-//         "contentType": null,
-//         "fileName": null,
-//         "buttonsJson": "[{\"ButtonId\":147,\"ButtonText\":\"Submit\",\"ButtonValue\":\"\",\"ButtonType\":1,\"Sequence\":0,\"ActionId\":23,\"ActionType\":8}]",
-//         "parametersJson": null,
-//         "buttons": [
-//           {
-//             "buttonId": 147,
-//             "buttonText": "Submit",
-//             "buttonValue": "",
-//             "buttonType": 1,
-//             "sequence": 0,
-//             "actionId": 23,
-//             "actionType": 8
-//           },
-//         ],
-//         "parameters": [],
-//         "createdBy": 2,
-//         "createdDate": "25-Mar-2025 04:37:15 PM",
-//         "updatedBy": 2,
-//         "updatedDate": "25-Mar-2025 04:44:07 PM"
-//     },
-//       // Template 4: Flow template
-//       {
-//         "senderId": 1,
-//         "moduleId": 0,
-//         "parentId": 0,
-//         "flowName": "website_recommendation_flow",
-//         "flowLanguage": "en",
-//         "publishToFB": false,
-//         "flowId": 23,
-//         "actionId": 5,
-//         "actionId": 5,
-//         "actionType": 0,
-//         "flowScreens": [
-//             {
-//                 "name": "screen_One",
-//                 "title": "Share feedback",
-//                 "screenButtonText": "Next",
-//                 "flowChildren": [
-//                     {
-//                         "text": "Would you recommend the website to your friend?",
-//                         "type": 3,
-//                         "required": true,
-//                         "flowOptions": [
-//                             {
-//                                 "optionId": "Yes",
-//                                 "optionText": "Yes"
-//                             },
-//                             {
-//                                 "optionId": "No",
-//                                 "optionText": "No"
-//                             }
-//                         ]
-//                     },
-//                     {
-//                         "text": "Rate our delivery experience",
-//                         "type": 3,
-//                         "required": true,
-//                         "flowOptions": [
-//                             {
-//                                 "optionId": "*",
-//                                 "optionText": "*"
-//                             },
-//                             {
-//                                 "optionId": "**",
-//                                 "optionText": "**"
-//                             },
-//                             {
-//                                 "optionId": "***",
-//                                 "optionText": "***"
-//                             },
-//                             {
-//                                 "optionId": "****",
-//                                 "optionText": "****"
-//                             },
-//                             {
-//                                 "optionId": "*****",
-//                                 "optionText": "*****"
-//                             }
-//                         ]
-//                     }
-//                 ]
-//             },
-//             {
-//                 "name": "screen_Two",
-//                 "title": "Overall experience",
-//                 "screenButtonText": "Complete",
-//                 "flowChildren": [
-//                     {
-//                         "text": "Comments",
-//                         "type": 2,
-//                         "required": false,
-//                         "flowOptions": []
-//                     }
-//                 ]
-//             },
-//             {
-//                 "name": "screen_Two",
-//                 "title": "Overall experience",
-//                 "screenButtonText": "Complete",
-//                 "flowChildren": [
-//                     {
-//                         "text": "Comments",
-//                         "type": 2,
-//                         "required": false,
-//                         "flowOptions": []
-//                     }
-//                 ]
-//             },
-
-//             {
-//                 "name": "screen_Two",
-//                 "title": "Overall experience",
-//                 "screenButtonText": "Complete",
-//                 "flowChildren": [
-//                     {
-//                         "text": "Comments",
-//                         "type": 2,
-//                         "required": false,
-//                         "flowOptions": []
-//                     }
-//                 ]
-//             },
-//         ]
-//     },
-//       // Template that is connected to template 2
-//       {
-//         "interactiveTemplateId": 77,
-//         "clientId": 1,
-//         "senderId": 1,
-//         "templateName": "fl_vs_test_item",
-//         "language": "en",
-//         "transactionType": 2,
-//         "status": 1,
-//         "usedByAgent": false,
-//         "headerType": 2,
-//         "headerParamCount": 0,
-//         "headerText": "",
-//         "bodyParamCount": 0,
-//         "bodyText": " Treat yourself to this classic pairing today and savor the satisf",
-//         "footerText": "do it quickly",
-//         "mediaId": 425,
-//         "mediaPath": "/Media/images_(2)_1.jpg",
-//         "contentType": "image/jpeg",
-//         "fileName": "images_(2)_1.jpg",
-//         "buttonsJson": "[{\"ButtonId\":149,\"ButtonText\":\"Visit Website\",\"ButtonValue\":\"https:\\/\\/qawaba.consulttechies.com\\/\",\"ButtonType\":3,\"Sequence\":1,\"ActionId\":0,\"ActionType\":0}]",
-//         "parametersJson": null,
-//         "buttons": [
-//             {
-//                 "buttonId": 149,
-//                 "buttonText": "Visit Website",
-//                 "buttonValue": "https://qawaba.consulttechies.com/",
-//                 "buttonType": 3,
-//                 "sequence": 1,
-//                 "actionId": 0,
-//                 "actionType": 0
-//             },
-
-//         ],
-//         "parameters": [],
-//         "createdBy": 2,
-//         "createdDate": "25-Mar-2025 04:48:19 PM",
-//         "updatedBy": null,
-//         "updatedDate": ""
-//     },
-//     ],
-//   };
-// };
-
-// Render a single box (fixed id assignment)
-// Render a single box with a Meta-style template preview
-const renderBox = (
-  id,
-  //type,
-  title,
-  content,
-  buttons = [],
-  actionDetails = {},
-  onCardClick,
-  template // Full template object for headerType, imageUrl, etc.
-) => {
-  const isFlow = template?.type === 3;
-  const headerType = template?.details.headerType || 3; // Default to text header
-  const imageUrl = template?.details.mediaPath || "";
-  const headerText = template?.details.headerText || "";
-  const bodyText = template?.details.bodyText || content || "No content";
-  const footerText = template?.details.footerText || "";
-  return (
-    <Col xs="auto" key={id}>
-      <Card
-        id={id}
-        className="mb-3 position-relative"
-        style={{ width: "300px", cursor: "pointer" }}
-        onClick={onCardClick}
-      >
-        <CardBody style={{ padding: "10px" }}>
-          {/* Chat Bubble Container */}
-          <div
-            style={{
-              position: "relative",
-              backgroundColor: "#ffffff",
-              borderRadius: "8px",
-              padding: "15px 10px",
-              wordWrap: "break-word",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-            }}
-          >
-            {/* Header */}
-            {!isFlow && (
-              <>
-                {headerType === 1 && imageUrl && (
-                  <video
-                    src={imageUrl}
-                    controls
-                    muted
-                    style={{
-                      width: "100%",
-                      height: "auto",
-                      maxHeight: "150px",
-                      objectFit: "cover",
-                      borderRadius: "8px",
-                      marginBottom: "10px",
-                    }}
-                  />
-                )}
-                {headerType === 2 && imageUrl && (
-                  <img
-                    src={`${BASE_URL}${imageUrl}`}
-                    alt="Header Image"
-                    style={{
-                      width: "100%",
-                      height: "auto",
-                      maxHeight: "150px",
-                      objectFit: "cover",
-                      borderRadius: "8px",
-                      marginBottom: "10px",
-                    }}
-                  />
-                )}
-                {headerType === 3 && headerText && (
-                  <h6
-                    style={{
-                      marginBottom: "10px",
-                      fontWeight: "bold",
-                      fontSize: "1.1em",
-                    }}
-                    dangerouslySetInnerHTML={{ __html: headerText }}
-                  />
-                )}
-              </>
-            )}
-
-            {/* Body */}
-            {isFlow && template?.flowScreens ? (
-              <div>
-                {template.flowScreens.length > 0 && (
-                  <div style={{ marginBottom: "15px" }}>
-                    <div
-                      key={buttons[0].buttonId}
-                      id={`btn_${buttons[0].buttonId}`}
-                      className="mb-1"
-                      data-action={dropdownOptions
-                        .find((opt) => opt.value === buttons[0].actionType)
-                        ?.label.toLowerCase()}
-                      data-target={
-                        buttons[0].actionType === 8 &&
-                        buttons[0].buttonType === 1
-                          ? `${buttons[0].actionId}`
-                          : `action_${buttons[0].buttonId}`
-                      }
-                    >
-                      <Button
-                        color="link"
-                        block
-                        disabled
-                        style={{
-                          color: "#00a9ee",
-                          backgroundColor: "#ffffff",
-                          border: "1px solid #808080",
-                          borderRadius: "4px",
-                          padding: "8px",
-                          textAlign: "center",
-                          textDecoration: "none",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          boxShadow: "none",
-                          marginBottom: "4px",
-                        }}
-                      >
-                        <span style={{ color: "#00a9ee" }}>
-                          <i className="fa fa-arrow-right me-2"></i>
-                          {buttons[0].buttonText || "Button"}
-                        </span>
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div
-                style={{ marginBottom: "10px", fontSize: "1em" }}
-                dangerouslySetInnerHTML={{ __html: bodyText }}
-              />
-            )}
-
-            {/* Footer */}
-            {!isFlow && footerText && (
-              <p
-                style={{
-                  marginTop: "5px",
-                  fontSize: "0.85em",
-                  color: "#666",
-                  fontStyle: "italic",
-                }}
-              >
-                {footerText}
-              </p>
-            )}
-
-            {/* Template Buttons */}
-            {!isFlow &&
-              buttons.map((button) => (
-                <div
-                  key={button.buttonId}
-                  id={`btn_${button.buttonId}`}
-                  className="mb-1"
-                  data-action={dropdownOptions
-                    .find((opt) => opt.value === button.actionType)
-                    ?.label.toLowerCase()}
-                  data-target={
-                    (button.actionType === 1 || button.actionType === 8) &&
-                    button.buttonType === 1
-                      ? `${button.actionId}`
-                      : `action_${button.buttonId}`
-                  }
-                >
-                  <Button
-                    color="link"
-                    block
-                    disabled
-                    style={{
-                      color: "#00a9ee",
-                      backgroundColor: "#ffffff",
-                      border: "1px solid #808080",
-                      borderRadius: "4px",
-                      padding: "8px",
-                      textAlign: "center",
-                      textDecoration: "none",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      boxShadow: "none",
-                      marginBottom: "4px",
-                    }}
-                  >
-                    {button.buttonType === 1 && (
-                      <span style={{ color: "#00a9ee" }}>
-                        <i className="fa fa-share fa-flip-horizontal me-2"></i>
-                        {button.buttonText || "Button"}
-                      </span>
-                    )}
-                    {button.buttonType === 2 && (
-                      <span style={{ color: "#00a9ee" }}>
-                        <i className="fa fa-phone me-2"></i>
-                        {button.buttonText || "Call"}
-                      </span>
-                    )}
-                    {button.buttonType === 3 && (
-                      <span style={{ color: "#00a9ee" }}>
-                        <i className="fa fa-external-link me-2"></i>
-                        {button.buttonText || "Visit"}
-                      </span>
-                    )}
-                  </Button>
-                </div>
-              ))}
-
-            {/* Action Details for Non-Button Nodes */}
-            {!buttons.length && actionDetails.actionType !== undefined && (
-              <CardText
-                className="text-muted"
-                style={{ fontSize: "0.9em", textAlign: "center" }}
-              >
-                {actionDetails.actionType === 0
-                  ? "No Action"
-                  : dropdownOptions.find(
-                      (opt) => opt.value === actionDetails.actionType
-                    )?.label || "Unknown Action"}
-              </CardText>
-            )}
-          </div>
-
-          {/* Template/Flow Name */}
-          <CardTitle
-            tag="h6"
-            style={{
-              marginTop: "10px",
-              fontSize: "0.9em",
-              textAlign: "center",
-              color: "#555",
-            }}
-          >
-            {title ? title.replace(/_/g, " ").toUpperCase() : "Unnamed"}
-          </CardTitle>
-        </CardBody>
-      </Card>
-    </Col>
-  );
-};
-// Collect nodes by level (fixed targetId assignment)
-const collectNodesByLevel = (
-  template,
-  templateMap,
-  level = 0,
-  levels = {},
-  buttonMap = {},
-  visited = new Set()
-) => {
-  // Guard clause: Return if template is invalid or missing required IDs
-  if (
-    !template ||
-    (!template.id && !template.interactiveTemplateId && !template.flowId)
-  ) {
-    return { levels, buttonMap };
-  }
-
-  // Determine the unique ID for the template (id, interactiveTemplateId, or flowId)
-  const id = template.id || template.interactiveTemplateId || template.flowId;
-
-  // Prevent infinite loops by checking if this template has been visited
-  if (visited.has(id)) {
-    return { levels, buttonMap };
-  }
-  visited.add(id);
-
-  // Use stringified ID for consistency
-  const templateId = `${id}`;
-  if (!levels[level]) levels[level] = [];
-
-  let title,
-    buttons = [],
-    content;
-
-  // Handle Flow Templates
-  if (template.type === 3) {
-    title = template.details.flowName || "Unnamed Flow";
-    // Define the button using the flow's own actionId instead of the last screen's
-    buttons =
-      template.flowScreens && template.flowScreens.length > 0
-        ? [
-            {
-              buttonId: `${template.flowId}_screen_${
-                template.flowScreens.length - 1
-              }`,
-              buttonText:
-                template.flowScreens[template.flowScreens.length - 1]
-                  .screenButtonText || "Submit",
-              buttonType: 1,
-              sequence: template.flowScreens.length - 1,
-              actionId: template.actionId || 0, // 5
-              actionType: template.actionType || 0, // 1
-            },
-          ]
-        : [];
-    content = "Flow Screen";
-
-    // Process the flow's actionId for the button
-    if (template.details.actionId && template.details.actionType) {
-      let targetId;
-      if (template.details.actionType === 1) {
-        // TEMPLATE
-        const nextTemplate = templateMap[template.details.actionId];
-        targetId = nextTemplate
-          ? nextTemplate.id !== undefined
-            ? `${nextTemplate.id}`
-            : `${nextTemplate.id}`
-          : null;
-        if (nextTemplate) {
-          collectNodesByLevel(
-            nextTemplate,
-            templateMap,
-            level + 1,
-            levels,
-            buttonMap,
-            visited
-          );
-          buttonMap[
-            `btn_${template.id}_screen_${template.flowScreens.length - 1}`
-          ] = targetId;
-        }
-      } else if (template.details.actionType === 8) {
-        // FLOWS
-        const nextFlow = templateMap[template.details.actionId];
-        targetId = nextFlow ? `${nextFlow.id}` : null;
-        if (nextFlow) {
-          collectNodesByLevel(
-            nextFlow,
-            templateMap,
-            level + 1,
-            levels,
-            buttonMap,
-            visited
-          );
-          buttonMap[
-            `btn_${template.flowId}_screen_${template.flowScreens.length - 1}`
-          ] = targetId;
-        }
-      } else {
-        // Handle other action types (e.g., ORDER, CHAT, etc.)
-        targetId = `action_${template.flowId}_screen_${
-          template.flowScreens.length - 1
-        }`;
-        const actionTypeLabel = dropdownOptions
-          .find((opt) => opt.value === template.actionType)
-          ?.label.toLowerCase();
-        const actionTitle =
-          actionTypeLabel === "chat"
-            ? "Chat With Agent"
-            : actionTypeLabel === "order"
-            ? "Order"
-            : actionTypeLabel === "close chat"
-            ? "Close Chat"
-            : actionTypeLabel === "unsubscribe"
-            ? "Unsubscribe User"
-            : actionTypeLabel === "block"
-            ? "Block User"
-            : "Action";
-        const actionContent =
-          actionTypeLabel === "chat"
-            ? "Start Chat"
-            : actionTypeLabel === "order"
-            ? "Place Order"
-            : actionTypeLabel === "close chat"
-            ? "End Chat"
-            : actionTypeLabel === "unsubscribe"
-            ? "Unsubscribed"
-            : actionTypeLabel === "block"
-            ? "Blocked"
-            : actionTypeLabel;
-        if (!levels[level + 1]) levels[level + 1] = [];
-        levels[level + 1].push({
-          id: targetId,
-          title: actionTitle,
-          content: actionContent,
-          buttons: [],
-          actionDetails: {
-            actionId: template.actionId,
-            actionType: template.actionType,
-          },
-        });
-        buttonMap[
-          `btn_${template.flowId}_screen_${template.flowScreens.length - 1}`
-        ] = targetId;
-      }
-    }
-  }
-  // Handle Regular Templates
-  else {
-    title = template.details.templateName || "Unnamed Template";
-    content = `${template.details.headerText || ""}\n\n${
-      template.details.bodyText || ""
-    }\n\n${template.details.footerText || ""}`;
-    buttons = template.details.buttons || [];
-  }
-
-  // Add the current node to the level
-  levels[level].push({
-    id: templateId,
-    title,
-    content,
-    buttons,
-  });
-
-  // Process Buttons (for both flows and flowsVisualization)
-  buttons?.forEach((button) => {
-    let targetId;
-    let actionTypeLabel;
-
-    if (button.buttonType === 1) {
-      // Quick Reply Button
-      actionTypeLabel = dropdownOptions
-        .find((opt) => opt.value === button.actionType)
-        ?.label.toLowerCase();
-      if (button.actionType === 1) {
-        // TEMPLATE
-        const nextTemplate = templateMap[button.actionId];
-        targetId = nextTemplate
-          ? nextTemplate.id !== undefined
-            ? `${nextTemplate.id}`
-            : `${nextTemplate.interactiveTemplateId}`
-          : null;
-        if (nextTemplate) {
-          collectNodesByLevel(
-            nextTemplate,
-            templateMap,
-            level + 1,
-            levels,
-            buttonMap,
-            visited
-          );
-        }
-      } else if (button.actionType === 8) {
-        // debugger
-        // FLOWS
-        const nextFlow = templateMap[button.actionId];
-        targetId = nextFlow ? `${nextFlow.id}` : null;
-        if (nextFlow) {
-          collectNodesByLevel(
-            nextFlow,
-            templateMap,
-            level + 1,
-            levels,
-            buttonMap,
-            visited
-          );
-        }
-      } else {
-        // Other actions (e.g., CHAT, ORDER, etc.)
-        targetId = `action_${button.buttonId}`;
-        const actionTitle =
-          actionTypeLabel === "chat"
-            ? "Chat With Agent"
-            : actionTypeLabel === "order"
-            ? "Order"
-            : actionTypeLabel === "close chat"
-            ? "Close Chat"
-            : actionTypeLabel === "flows"
-            ? "Flow Action"
-            : actionTypeLabel === "unsubscribe"
-            ? "Unsubscribe User"
-            : actionTypeLabel === "block"
-            ? "Block User"
-            : "Action";
-        const actionContent =
-          actionTypeLabel === "chat"
-            ? "Start Chat"
-            : actionTypeLabel === "order"
-            ? "Place Order"
-            : actionTypeLabel === "close chat"
-            ? "End Chat"
-            : actionTypeLabel === "flows"
-            ? "Start Flow"
-            : actionTypeLabel === "unsubscribe"
-            ? "Unsubscribed"
-            : actionTypeLabel === "block"
-            ? "Blocked"
-            : actionTypeLabel;
-        if (!levels[level + 1]) levels[level + 1] = [];
-        levels[level + 1].push({
-          id: targetId,
-          title: actionTitle,
-          content: actionContent,
-          buttons: [],
-          actionDetails: button,
-        });
-      }
-    } else if (button.buttonType === 2) {
-      // Call/Phone Number (mapped to CHAT)
-      actionTypeLabel = "chat";
-      targetId = `action_${button.buttonId}`;
-      const actionTitle = button.buttonText;
-      const actionContent = `Call: ${button.buttonValue || "Not provided"}`;
-      if (!levels[level + 1]) levels[level + 1] = [];
-      levels[level + 1].push({
-        id: targetId,
-        title: actionTitle,
-        content: actionContent,
-        buttons: [],
-        actionDetails: { ...button, actionType: 5 }, // CHAT action type
-      });
-    } else if (button.buttonType === 3) {
-      // URL/Visit Website (mapped to CHAT)
-      actionTypeLabel = "chat";
-      targetId = `action_${button.buttonId}`;
-      const actionTitle = button.buttonText;
-      const actionContent = `Visit: ${button.buttonValue || "Not provided"}`;
-      if (!levels[level + 1]) levels[level + 1] = [];
-      levels[level + 1].push({
-        id: targetId,
-        title: actionTitle,
-        content: actionContent,
-        buttons: [],
-        actionDetails: { ...button, actionType: 5 }, // CHAT action type
-      });
-    }
-
-    // Update buttonMap with the target ID
-    if (targetId) {
-      buttonMap[`btn_${button.buttonId}`] = targetId;
-    }
-  });
-
-  return { levels, buttonMap };
-};
-
-//Use getServerSideProps for server-side data fetching in Next.js
-// export async function getServerSideProps() {
-//   debugger
-//   const data = await fetchTemplateVisualization({templateId: 26, templatetype: 1});
-//   console.log(data);
-//   const initialData = data.result.templatevisualization;
-
-//   return {
-//     props: {
-//       initialData: initialData,
-//     },
-//   };
-// }
-
-const TemplateTypeDropdown = ({ onTemplateTypeChange, selectedType }) => {
-  return (
-    <div className="mb-3">
-      <select
-        className="form-select border border-gray-300 rounded-md w-full py-1 px-3 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        value={selectedType}
-        onChange={(e) => onTemplateTypeChange(e.target.value)}
-      >
-        <option value="">Select Template</option>
-        <option value="2">Interactive Template</option>
-        <option value="1">Marketing Template</option>
-      </select>
-    </div>
-  );
-};
-
-export default function FlowVisualization() {
+const TemplateVisualisation = ({Id, type, onclose}) => {
+  
   const dispatch = useDispatch();
-  const [lines, setLines] = useState([]);
-  const svgContainerRef = useRef(null);
-  const [isMounted, setIsMounted] = useState(false);
   const [showUpdateFlow, setShowUpdateFlow] = useState(false);
   const [showUpdateTemplate, setShowUpdateTemplate] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [isInteractiveTemplate, setIsInteractiveTemplate] = useState(false);
-  const [templateType, setTemplateType] = useState("");
+  const [selectedId, setSelectedId] = useState(null);
   const [templateId, setTemplateId] = useState(null);
+  const [templateType, setTemplateType] = useState("");
   const [initialData, setInitialData] = useState(null);
-  const [interactiveTemplateId, setInteractiveTemplateId] = useState(null);
-  const { templateVisualizationData, loading, error } = useSelector(
-    (state) => state.templateVisualization
-  );
-  const [showArrows, setShowArrows] = useState(false);
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  const handleCardClick = (templateId) => {
-    const template = initialData.find(
-      (t) => t.id && t.id.toString() === templateId
+   const { templateVisualizationData, loading, error } = useSelector(
+      (state) => state.templateVisualization
     );
-
-    if (template) {
-      if (template.type === 3) {
-        setSelectedTemplate(template.id);
-        setShowUpdateFlow(true);
-        return;
-      } else if (template.type === 2) {
-        setSelectedTemplate(template.id);
-        setIsInteractiveTemplate(true);
-        setShowUpdateTemplate(true);
-        return;
-      } else if (template.type === 1) {
-        setSelectedTemplate(template.id);
-        setIsInteractiveTemplate(false);
-        setShowUpdateTemplate(true);
-        return;
-      }
+  const handleNodeClick = (_, node) => {
+    
+    
+    const templateId = node.id; // Node ID from React Flow
+    const template = initialData.find(
+      (t) => t.id.toString() === templateId
+    );
+  
+    if (!template) return;
+  
+    setSelectedId(template.id);
+    
+    if (template.type === 3) {
+      // Flow node
+      setShowUpdateFlow(true);
+      setShowUpdateTemplate(false);
+    } else if (template.type === 2) {
+      // Interactive template
+      setIsInteractiveTemplate(true);
+      setShowUpdateTemplate(true);
+      setShowUpdateFlow(false);
+    } else if (template.type === 1) {
+      // Non-interactive template
+      setIsInteractiveTemplate(false);
+      setShowUpdateTemplate(true);
+      setShowUpdateFlow(false);
     }
   };
-
+  const closeModals = () => {
+    
+    setShowUpdateFlow(false);
+    setShowUpdateTemplate(false);
+    setSelectedId(null);
+  };
   const handleTemplateClick = (e) => {
+    
     setTemplateId(e.target.value);
   };
-
   const handleTemplateTypeChange = (type) => {
+    
     setTemplateType(type);
     if (!type) {
       setTemplateId(null); // Reset templateId
-      setInitialData(null); // Reset initialData to hide visualization
     }
   };
   const handleInteractiveTemplateClick = (e) => {
+    
     setTemplateId(e.target.value);
   };
-  const handleCloseModal = () => {
-    setShowUpdateTemplate(false);
-    setShowUpdateFlow(false);
-    setSelectedTemplate(null);
+  const CustomNode = ({ data }) => {
+    
+    const imageUrl = `${BASE_URL}${data.mediaPath}`;
+    return (
+      <div
+        style={{
+          padding: "10px",
+          border: "1px solid #777",
+          borderRadius: "5px",
+          background: "#fff",
+          width: "300px",
+          textAlign: "left",
+          position: "relative",
+        }}
+      >
+        <Handle type="target" position={Position.Top} id="top" />
+        <strong>{data.templateName}</strong>
+        {data.isFlow ? (
+          // For flow nodes, only show the flowName
+          <div style={{ marginTop: "10px", fontSize: "1em" }}>
+            {data.flowName}
+            <hr />
+            <div
+                style={{ marginBottom: "10px", fontSize: "1em", textAlign: "center" }}
+                dangerouslySetInnerHTML={{ __html: data.bodyText }}
+              />
+          </div>
+        ) : (
+          <>
+            {data.headerType === 3 && imageUrl && (
+              <video
+                src={imageUrl}
+                controls
+                muted
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  marginTop: "10px",
+                  borderRadius: "3px",
+                }}
+              />
+            )}
+            {data.headerType === 2 && imageUrl && (
+              <img
+                src={imageUrl}
+                alt={data.templateName}
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  marginTop: "10px",
+                  borderRadius: "3px",
+                }}
+              />
+            )}
+            {data.headerType === 1 && data.headerText && (
+              <h6
+                style={{
+                  marginBottom: "10px",
+                  fontWeight: "bold",
+                  fontSize: "1.1em",
+                }}
+                dangerouslySetInnerHTML={{ __html: data.headerText }}
+              />
+            )}
+            {data.bodyText && (
+              <div
+                style={{ marginBottom: "10px", fontSize: "1em" }}
+                dangerouslySetInnerHTML={{ __html: data.bodyText }}
+              />
+            )}
+            {data.buttons?.length > 0 && (
+              <div style={{ marginTop: "10px" }}>
+                {data.buttons.map((button, index) => (
+                  <div
+                    key={button.buttonId}
+                    style={{ position: "relative", marginBottom: "4px" }}
+                  >
+                    <Button
+                      color="link"
+                      block
+                      disabled
+                      style={{
+                        color: "#00a9ee",
+                        backgroundColor: "#ffffff",
+                        border: "1px solid #808080",
+                        borderRadius: "4px",
+                        padding: "8px",
+                        textAlign: "center",
+                        textDecoration: "none",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: "none",
+                      }}
+                    >
+                      {button.buttonType === 1 && (
+                        <span style={{ color: "#00a9ee" }}>
+                          <i className="fa fa-share fa-flip-horizontal me-2"></i>
+                          {button.buttonText.trim() || "Button"}
+                        </span>
+                      )}
+                      {button.buttonType === 2 && (
+                        <span style={{ color: "#00a9ee" }}>
+                          <i className="fa fa-phone me-2"></i>
+                          {button.buttonText.trim() || "Call"}
+                        </span>
+                      )}
+                      {button.buttonType === 3 && (
+                        <span style={{ color: "#00a9ee" }}>
+                          <i className="fa fa-external-link me-2"></i>
+                          {button.buttonText.trim() || "Visit"}
+                        </span>
+                      )}
+                    </Button>
+                    <Handle
+                      type="source"
+                      position={Position.Right}
+                      id={`button-${button.buttonId}`}
+                      style={{
+                        top: `${((index + 0.5) * 100) / data.buttons.length}%`,
+                        transform: "translateX(50%)",
+                        position: "absolute",
+                        right: "0",
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    );
   };
 
+  const TemplateTypeDropdown = ({ onTemplateTypeChange, selectedType }) => {
+    
+    return (
+      <div className="mb-3">
+        <select
+          className="form-select border border-gray-300 rounded-md w-full py-1 px-3 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          value={selectedType}
+          onChange={(e) => onTemplateTypeChange(e.target.value)}
+        >
+          <option value="">Select Template</option>
+          <option value="2">Interactive Template</option>
+          <option value="1">Marketing Template</option>
+        </select>
+      </div>
+    );
+  };
+
+  
+
+  const nodeTypes = {
+    custom: CustomNode,
+  };
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  
+
   useEffect(() => {
-    if (!isMounted || !initialData || !svgContainerRef.current) return;
-    if (!showArrows) return;
-    const calculateLines = () => {
-      const templateMap = initialData.reduce((map, template) => {
-        if (template.id !== undefined) map[template.id] = template;
-        // if (template.interactiveTemplateId !== undefined)
-        //   map[template.interactiveTemplateId] = template;
-        // if (template.flowId !== undefined) map[template.flowId] = template;
-        return map;
-      }, {});
+    setTimeout(() => {
+      // Step 1: Build a graph representation to determine levels
+      const graph = {};
+      const inDegree = {};
+      initialData?.forEach((template) => {
+        const templateId = template.id.toString();
+        graph[templateId] = [];
+        inDegree[templateId] = inDegree[templateId] || 0;
+        if (template.type === 2) {
+          template.details.buttons?.forEach((button) => {
+            let targetId;
+            if (button.actionId === 8) {
+              // For actionId 8, connect to flow (type 3) with matching flowId
+              const flow = initialData.find(
+                (t) => t.type === 3 && t.details.actionId === 8
+              );
+              if (flow) {
+                targetId = flow.id.toString();
+              }
+            } else if (
+              button.actionId &&
+              initialData.some((t) => t.id === button.actionId)
+            ) {
+              targetId = button.actionId.toString();
+            }
+            if (targetId) {
+              graph[templateId].push(targetId);
+              inDegree[targetId] = (inDegree[targetId] || 0) + 1;
+            }
+          });
+        }
+      });
 
-      const rootTemplate = initialData[0];
+      // Step 2: Assign levels to nodes using topological sorting
+      const levels = {};
+      const queue = [];
+      const visited = new Set();
 
-      const { buttonMap } = collectNodesByLevel(rootTemplate, templateMap);
-      const newLines = [];
+      // Start with nodes that have no incoming edges (root nodes)
+      Object.keys(inDegree).forEach((nodeId) => {
+        if (inDegree[nodeId] === 0) {
+          queue.push(nodeId);
+          levels[nodeId] = 0;
+        }
+      });
 
-      const drawLines = () => {
-        setLines([]);
-        Object.entries(buttonMap).forEach(([buttonId, targetId], index) => {
-          const buttonElement = document.getElementById(buttonId);
-          const targetElement = document.getElementById(targetId);
+      // Process nodes level by level
+      while (queue.length > 0) {
+        const currentId = queue.shift();
+        visited.add(currentId);
 
-          if (!buttonElement || !targetElement) {
-            console.warn(`Missing elements: ${buttonId} or ${targetId}`);
-            return;
+        graph[currentId].forEach((neighborId) => {
+          if (!visited.has(neighborId)) {
+            inDegree[neighborId]--;
+            if (inDegree[neighborId] === 0) {
+              queue.push(neighborId);
+              levels[neighborId] = (levels[currentId] || 0) + 1;
+            }
           }
+        });
+      }
 
-          const buttonRect = buttonElement.getBoundingClientRect();
-          const targetRect = targetElement.getBoundingClientRect();
-          const svgRect = svgContainerRef.current.getBoundingClientRect();
+      // Step 3: Create nodes with hierarchical positioning
+      const nodesPerLevel = {};
+      initialData?.forEach((template) => {
+        const level = levels[template.id.toString()] || 0;
+        if (!nodesPerLevel[level]) nodesPerLevel[level] = [];
+        nodesPerLevel[level].push(template);
+      });
+
+      const newNodes = [];
+      const xSpacing = 400; // Horizontal spacing between nodes
+      const ySpacing = 400; // Vertical spacing between levels
+
+      Object.keys(nodesPerLevel).forEach((level) => {
+        const templates = nodesPerLevel[level];
+        templates.forEach((template, index) => {
+          if (template.type === 3) {
+            // Flow node
+            newNodes.push({
+              id: template.id.toString(),
+              type: "custom",
+              position: {
+                x: index * xSpacing,
+                y: level * ySpacing,
+              },
+              data: {
+                templateId: template.details.id,
+                templateName: template.details.flowName,
+                headerText: null,
+                bodyText: "FLow Screen",
+                mediaPath: null,
+                buttons: [],
+                headerType: null,
+                isFlow: true,
+              },
+            });
+          } else {
+            // Template node
+            newNodes.push({
+              id: template.id.toString(),
+              type: "custom",
+              position: {
+                x: index * xSpacing,
+                y: level * ySpacing,
+              },
+              data: {
+                templateId: template.details.id,
+                templateName: template.details.templateName,
+                headerText: template.details.headerText,
+                bodyText: template.details.bodyText,
+                mediaPath: template.details.mediaPath,
+                buttons: template.details.buttons,
+                headerType: template.details.headerType,
+                isFlow: false,
+              },
+            });
+          }
+        });
+      });
+
+      // Step 4: Create action nodes and edges
+      const actionNodes = [];
+      const newEdges = [];
+      let actionNodeCounter = 0;
+
+      initialData?.forEach((template) => {
+        const sourceNode = newNodes.find(
+          (n) => n.id === template.id.toString()
+        );
+        if (!sourceNode) return;
+
+        // Group buttons by action type to avoid duplicate action nodes
+        const actionTypeToButtons = {};
+        template.details.buttons?.forEach((button) => {
+          let targetId = null;
+          const actionTypeLabel =
+            button.actionType === 3
+              ? "unsubscribe"
+              : button.actionType === 5
+              ? "chat"
+              : button.actionType === 6
+              ? "order"
+              : button.actionType === 7
+              ? "close chat"
+              : button.actionType === 9
+              ? "block"
+              : button.buttonType === 2
+              ? `phone_${button.buttonValue || button.buttonId}`
+              : button.buttonType === 3
+              ? `url_${button.buttonValue || button.buttonId}`
+              : "action";
 
           if (
-            buttonRect.width === 0 ||
-            buttonRect.height === 0 ||
-            targetRect.width === 0 ||
-            targetRect.height === 0
+            button.actionType !== 1 &&
+            button.actionType !== 8 &&
+            (button.buttonType === 1 || button.buttonType === 2 || button.buttonType === 3)
           ) {
-            console.warn(
-              `Invalid bounding rect for ${buttonId} or ${targetId}`
-            );
-            return;
-          }
-
-          const action = buttonElement.dataset.action;
-          let strokeColor = "#007bff";
-          switch (action) {
-            case "template":
-              strokeColor = "#007bff";
-              break;
-            case "chat":
-              strokeColor = "#ffc107";
-              break;
-            case "order":
-              strokeColor = "#6f42c1";
-              break;
-            case "close chat":
-              strokeColor = "#fd7e14";
-              break;
-            case "flows":
-              strokeColor = "#20c997";
-              break;
-            case "block":
-            case "unsubscribe":
-              strokeColor = "#dc3545";
-              break;
-            default:
-              strokeColor = "#6c757d";
-          }
-
-          // Calculate start and end points
-          const buttonCenterX = buttonRect.left + buttonRect.width / 2;
-          const targetCenterX = targetRect.left + targetRect.width / 2;
-          const isTargetLeft = targetCenterX < buttonCenterX;
-
-          // Start from the button's border
-          const startX = isTargetLeft
-            ? buttonRect.left - svgRect.left // Left border
-            : buttonRect.right - svgRect.left; // Right border
-          const startY = buttonRect.top + buttonRect.height / 2 - svgRect.top;
-
-          const endX = targetRect.left + targetRect.width / 2 - svgRect.left;
-          const endY = targetRect.top - svgRect.top - 10;
-
-          // Define a straight segment length (e.g., 20px) before the curve
-          const straightLength = 20; // Adjust this value for the straight segment length
-          const straightEndX = isTargetLeft
-            ? startX - straightLength
-            : startX + straightLength;
-          const straightEndY = startY; // Keep Y constant for a horizontal straight line
-
-          // Calculate distances for the curve
-          const verticalDistance = Math.abs(endY - straightEndY);
-          const horizontalDistance = Math.abs(endX - straightEndX);
-
-          // Control points for the Bézier curve after the straight segment
-          const controlPointOffsetX = horizontalDistance * 0.3; // Adjusted for smoother tilt
-          const controlPointOffsetY = verticalDistance * 0.5; // Adjusted for tilt
-
-          const controlPoint1X = isTargetLeft
-            ? straightEndX - controlPointOffsetX * 0.5
-            : straightEndX + controlPointOffsetX * 0.5;
-          const controlPoint1Y = straightEndY + controlPointOffsetY * 0.7;
-
-          const controlPoint2X = isTargetLeft
-            ? endX + controlPointOffsetX * 0.3
-            : endX - controlPointOffsetX * 0.3;
-          const controlPoint2Y = endY - controlPointOffsetY * 0.3;
-
-          // Path: Move to start, straight line, then cubic Bézier curve
-          const pathD = `M ${startX},${startY} L ${straightEndX},${straightEndY} C ${controlPoint1X},${controlPoint1Y} ${controlPoint2X},${controlPoint2Y} ${endX},${endY}`;
-
-          newLines.push({
-            pathD,
-            stroke: strokeColor,
-            key: `${buttonId}-${targetId}`,
-            strokeWidth: "1.5",
-          });
-        });
-
-        setLines(newLines);
-      };
-
-      const checkElementsVisibility = (callback) => {
-        const elementsToCheck = [];
-        Object.entries(buttonMap).forEach(([buttonId, targetId]) => {
-          const buttonElement = document.getElementById(buttonId);
-          const targetElement = document.getElementById(targetId);
-          if (buttonElement && targetElement) {
-            elementsToCheck.push(buttonElement);
-            elementsToCheck.push(targetElement);
-          } else {
-            console.warn(`Element not found: ${buttonId} or ${targetId}`);
-          }
-        });
-
-        if (elementsToCheck.length === 0) {
-          console.warn("No elements to observe for visibility");
-          callback();
-          return;
-        }
-
-        const observer = new IntersectionObserver(
-          (entries, observer) => {
-            const allVisible = entries.every((entry) => entry.isIntersecting);
-            if (allVisible) {
-              entries.forEach((entry) => observer.unobserve(entry.target));
-              callback();
+            // Group buttons by action type
+            if (!actionTypeToButtons[actionTypeLabel]) {
+              actionTypeToButtons[actionTypeLabel] = [];
             }
-          },
-          { threshold: 0.1 }
-        );
-
-        elementsToCheck.forEach((element) => {
-          if (element) observer.observe(element);
+            actionTypeToButtons[actionTypeLabel].push(button);
+          } else if (
+            button.actionId &&
+            initialData.some((t) => t.id === button.actionId)
+          ) {
+            targetId = button.actionId.toString();
+            newEdges.push({
+              id: `e${template.id}-${targetId}-${button.buttonId}`,
+              source: template.id.toString(),
+              sourceHandle: `button-${button.buttonId}`,
+              target: targetId,
+              targetHandle: "top",
+              style: {
+                stroke: "black",
+                strokeWidth: 2,
+                strokeDasharray: "5,5",
+              },
+            });
+          }
         });
 
-        setTimeout(() => {
-          elementsToCheck.forEach((element) => {
-            if (element) observer.unobserve(element);
+        // Create one action node per action type
+        Object.keys(actionTypeToButtons).forEach((actionTypeLabel) => {
+          const buttons = actionTypeToButtons[actionTypeLabel];
+          const firstButton = buttons[0]; // Use the first button for node details
+          let actionNodeId = `action_${template.id}_${actionTypeLabel}`;
+          let actionTitle, actionContent;
+
+          if (actionTypeLabel === "chat") {
+            actionTitle = "Chat With Agent";
+            actionContent = "Start Chat";
+          } else if (actionTypeLabel === "order") {
+            actionTitle = "Order";
+            actionContent = "Place Order";
+          } else if (actionTypeLabel === "close chat") {
+            actionTitle = "Close Chat";
+            actionContent = "End Chat";
+          } else if (actionTypeLabel === "unsubscribe") {
+            actionTitle = "Unsubscribe User";
+            actionContent = "Unsubscribed";
+          } else if (actionTypeLabel === "block") {
+            actionTitle = "Block User";
+            actionContent = "Blocked";
+          } else if (actionTypeLabel.startsWith("phone_")) {
+            actionTitle = firstButton.buttonText;
+            actionContent = `Call: ${firstButton.buttonValue || "Not provided"}`;
+          } else if (actionTypeLabel.startsWith("url_")) {
+            actionTitle = firstButton.buttonText;
+            actionContent = `Visit: ${firstButton.buttonValue || "Not provided"}`;
+          } else {
+            actionTitle = "Action";
+            actionContent = actionTypeLabel;
+          }
+
+          // Create a single action node for this action type
+          actionNodes.push({
+            id: actionNodeId,
+            type: "custom",
+            position: {
+              x: sourceNode.position.x,
+              y: sourceNode.position.y + ySpacing,
+            },
+            data: {
+              templateName: actionTitle,
+              bodyText: actionContent,
+              mediaPath: null,
+              buttons: [],
+              headerType: 1,
+            },
           });
-          callback();
-        }, 1000);
-      };
 
-      checkElementsVisibility(drawLines);
-    };
+          // Create edges from each button to the single action node
+          buttons.forEach((button) => {
+            newEdges.push({
+              id: `e${template.id}-${actionNodeId}-${button.buttonId}`,
+              source: template.id.toString(),
+              sourceHandle: `button-${button.buttonId}`,
+              target: actionNodeId,
+              targetHandle: "top",
+              style: {
+                stroke: "black",
+                strokeWidth: 2,
+                strokeDasharray: "5,5",
+              },
+            });
+          });
 
-    calculateLines();
-    window.addEventListener("resize", calculateLines);
-    return () => {
-      window.removeEventListener("resize", calculateLines);
-    };
-  }, [isMounted, initialData, showArrows]);
+          actionNodeCounter++;
+        });
+      });
+
+      setNodes([...newNodes, ...actionNodes]);
+      setEdges(newEdges);
+    }, 1000);
+  }, [setNodes, setEdges, initialData]);
 
   useEffect(() => {
-    if (!templateId || !templateType || templateId <= 0) {
-      setInitialData(null); // Reset initialData when either is unselected
-      return;
-    }
 
     const fetchData = async () => {
+      
       setInitialData(null);
-      setLines([]);
 
       try {
+        
         dispatch(
           fetchTemplateVisualization({
-            templateId: templateId,
-            templatetype: templateType,
+            templateId: Id,
+            templatetype: type,
           })
         );
         //console.log("Fetch response:", response);
@@ -1171,190 +547,62 @@ export default function FlowVisualization() {
   }, [templateId, dispatch]);
 
   useEffect(() => {
+    
     if (templateVisualizationData && templateVisualizationData.data) {
       setInitialData(templateVisualizationData.data);
     }
   }, [templateVisualizationData]);
 
-  let templateMap = {};
-  let rootTemplate = null;
-  let levels = {};
-
-  if (initialData) {
-    templateMap = initialData.reduce((map, template) => {
-      if (template.type === 1) {
-        map[template.id] = template;
-      } else if (template.type === 2) {
-        map[template.id] = template;
-      } else if (template.type === 3) {
-        map[template.id] = template;
-      }
-      return map;
-    }, {});
-    rootTemplate = initialData[0];
-    ({ levels } = collectNodesByLevel(rootTemplate, templateMap));
-  }
-
-  useEffect(() => {
-    if (!initialData || !Object.keys(levels).length) {
-      setShowArrows(false); // Reset when data or levels are not ready
-      return;
-    }
-
-    // Set a timer to show arrows after 500ms delay to ensure DOM is rendered
-    const timer = setTimeout(() => {
-      setShowArrows(true);
-    }, 500);
-
-    return () => clearTimeout(timer); // Clean up timer on unmount or data change
-  }, [initialData, levels]);
   return (
-    <App>
-      {loading && <Loader />}
-      {showUpdateFlow ? (
-        <UpdateFlowPage Flow_Id={selectedTemplate} onclose={handleCloseModal} />
-      ) : showUpdateTemplate ? (
-        isInteractiveTemplate ? (
-          <InteractiveTemplateUpdate
-            Template_Id={selectedTemplate}
-            onclose={handleCloseModal}
-          />
-        ) : (
-          <UpdateTemplate
-            Template_Id={selectedTemplate}
-            onclose={handleCloseModal}
-          />
-        )
-      ) : (
-        <div
-          className=""
-          style={{
-            position: "relative",
-            backgroundColor: "#f8f9fa",
-          }}
-        >
-          <div className="grid sm:grid-cols-1 md:grid-cols-5   ">
-            <div className="flex flex-col justify-start p-4">
-              <label className="form-label ">Template Type:</label>
-              <TemplateTypeDropdown
-                onTemplateTypeChange={handleTemplateTypeChange}
-                selectedType={templateType}
-              />
-            </div>
-            <div
-              className={`flex flex-col p-4 ${
-                templateType === "2" ? "d-block" : "d-none"
-              }`}
-            >
-              <label className="form-label">Interactive Template:</label>
-              <InteractiveTemplateDropdown
-                value={templateId}
-                onChange={handleInteractiveTemplateClick}
-              />
-            </div>
-            <div
-              className={`flex flex-col p-4  ${
-                templateType === "1" ? "d-block" : "d-none"
-              }`}
-            >
-              <label className="form-label">Marketing Template:</label>
-              <TemplateDropdown
-                value={templateId}
-                onChange={handleTemplateClick}
-              />
-            </div>
+    <>
+      {!showUpdateFlow && !showUpdateTemplate ? (
+        <div>
+          <div>
+            <h1>WhatsApp Flow Integration</h1>
           </div>
-          {initialData && templateId ? (
-            <Container
-              style={{
-                padding: "40px 20px",
-                position: "relative",
-              }}
+          
+        <div style={{  height: "75vh", textAlign: "center", border: "1px solid black" }}>
+          {(!initialData || loading) && <Loader />}
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              nodeTypes={nodeTypes}
+              onNodeClick={handleNodeClick}
+              fitView
             >
-              <h2 className="text-center mb-5">Template Flow Visualization</h2>
-              <div ref={svgContainerRef} style={{ position: "relative" }}>
-                <svg
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    pointerEvents: "none",
-                    zIndex: 10,
-                  }}
-                >
-                  {showArrows &&
-                    lines.map((line) => (
-                      <path
-                        key={line.key}
-                        d={line.pathD}
-                        stroke={line.stroke}
-                        strokeWidth={line.strokeWidth || "2"}
-                        fill="none"
-                        markerEnd="url(#arrow)"
-                      />
-                    ))}
-                  <defs>
-                    <marker
-                      id="arrow"
-                      markerWidth="10"
-                      markerHeight="10"
-                      refX="1"
-                      refY="4"
-                      orient="auto"
-                      markerUnits="strokeWidth"
-                    >
-                      <path d="M 0,0 L 0, 8 L 8 ,4 z" fill="currentColor" />
-                    </marker>
-                  </defs>
-                </svg>
-                <div
-                  style={{
-                    overflow: "auto",
-                  }}
-                >
-                  {Object.keys(levels).map((level) => (
-                    <div
-                      key={level}
-                      className="mb-5"
-                      style={{ position: "relative", zIndex: 0 }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          flexWrap: "nowrap",
-                          justifyContent: "center",
-                          gap: "20px",
-                          width: `${levels[level].length * 320}px`,
-                          margin: "0 auto",
-                        }}
-                      >
-                        {levels[level].map((node) =>
-                          renderBox(
-                            node.id,
-                            //node.type,
-                            node.title,
-                            node.content,
-                            node.buttons,
-                            node.actionDetails || {},
-                            () => handleCardClick(node.id),
-                            templateMap[node.id]
-                          )
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Container>
-          ) : (
-            <div className="text-center mt-4">
-              <h1>Please select a template to see the visualization.</h1>
-            </div>
-          )}
+             <Background bgColor="#f0f0f0" color="black" variant="dots" gap={20} size={1} />
+              <Controls />
+            </ReactFlow>
+          
         </div>
+        <div className="w-full flex justify-end">
+        <button type="button"
+                        className="flex items-center gap-2 text-gray-700 hover:text-whie font-medium transition-all Btn-Regular-1 mt-2"
+                        onClick={onclose}
+                      >
+                        
+                        Back
+                      </button>
+        </div>
+        
+        </div>
+      ) : null}
+      {showUpdateFlow && (
+        <UpdateFlowPage Flow_Id={selectedId} onclose={closeModals} />
       )}
-    </App>
+      {showUpdateTemplate && isInteractiveTemplate && (
+        <InteractiveTemplateUpdate
+          Template_Id={selectedId}
+          onclose={closeModals}
+        />
+      )}
+      {showUpdateTemplate && !isInteractiveTemplate && (
+        <UpdateTemplate Template_Id={selectedId} onclose={closeModals} />
+      )}
+      </>
   );
-}
+};
+
+export default TemplateVisualisation;

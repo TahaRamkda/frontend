@@ -56,8 +56,8 @@ export const QuestionTypes = {
   RadioButtonsGroup: 3,
   CheckboxGroup: 4,
   TextHeading: 5,
+  Dropdown: 6,
 };
-
 export const LogerType = {
   ConversationAssigned: 1,
   newincomingmessage: 2,

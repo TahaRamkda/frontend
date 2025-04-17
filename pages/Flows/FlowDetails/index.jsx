@@ -71,6 +71,7 @@ const FlowPreview = ({
                 return existingAnswer;
               if (
                 child.type === QuestionTypes.RadioButtonsGroup &&
+                child.type === QuestionTypes.Dropdown &&
                 (existingAnswer === null || typeof existingAnswer === "string")
               )
                 return existingAnswer;
@@ -91,6 +92,7 @@ const FlowPreview = ({
             )
               return "";
             if (child.type === QuestionTypes.RadioButtonsGroup) return null;
+            if (child.type === QuestionTypes.Dropdown) return null;
             if (child.type === QuestionTypes.CheckboxGroup) return [];
             if (child.type === QuestionTypes.TextHeading) return null;
             return "";
@@ -142,6 +144,7 @@ const FlowPreview = ({
         return answer !== undefined && answer.trim() !== "";
       if (child.type === QuestionTypes.RadioButtonsGroup)
         return answer !== null;
+      if (child.type === QuestionTypes.Dropdown) return answer !== null;
       if (child.type === QuestionTypes.CheckboxGroup)
         return answer !== undefined && answer?.length > 0;
       if (child.type === QuestionTypes.TextHeading) return true;
@@ -295,6 +298,36 @@ const FlowPreview = ({
                       </Label>
                     </FormGroup>
                   ))}
+
+                {child.type === QuestionTypes.Dropdown && (
+                  <FormGroup className="mb-2" key={childIndex}>
+                    <Label style={{ fontSize: "1rem", color: "#555" }}>
+                      {child.questionText}
+                    </Label>
+                    <Input
+                      type="select"
+                      name={`question_${childIndex}`}
+                      value={answers[currentScreenIndex]?.[childIndex] || ""}
+                      onChange={(e) => {
+                        const newAnswers = [...answers];
+                        newAnswers[currentScreenIndex][childIndex] =
+                          e.target.value;
+                        setAnswers(newAnswers);
+                      }}
+                      style={{ fontSize: "1rem", color: "#555" }}
+                    >
+                      <option value="" disabled>
+                        Select an option
+                      </option>
+                      {child.flowOptions.map((option, optionIndex) => (
+                        <option key={optionIndex} value={option.optionText}>
+                          {option.optionText}
+                        </option>
+                      ))}
+                    </Input>
+                  </FormGroup>
+                )}
+
                 {child.type === QuestionTypes.CheckboxGroup &&
                   child.flowOptions.map((option, optionIndex) => (
                     <FormGroup check key={optionIndex} className="mb-2">
@@ -555,6 +588,7 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
     const updatedQuestion = { ...currentQuestion };
     if (
       updatedQuestion.type === QuestionTypes.RadioButtonsGroup ||
+      QuestionTypes.Dropdown ||
       updatedQuestion.type === QuestionTypes.CheckboxGroup
     ) {
       updatedQuestion.flowOptions.push({
@@ -570,6 +604,7 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
     const updatedQuestion = { ...currentQuestion };
     if (
       updatedQuestion.type === QuestionTypes.RadioButtonsGroup ||
+      QuestionTypes.Dropdown ||
       updatedQuestion.type === QuestionTypes.CheckboxGroup
     ) {
       updatedQuestion.flowOptions.splice(optionIndex, 1);
@@ -699,14 +734,12 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
                       <Label>Flow Name</Label>
                       <Input
                         value={flowData.flowName}
-                        onChange={(e) =>{
+                        onChange={(e) => {
                           const value = e.target.value
-                          .replace(/\s+/g, "_")
-                          .replace(/[^a-zA-Z0-9_]/g, "")
-                        updateField("flowName", value)
-                      }
-                        }
-                         
+                            .replace(/\s+/g, "_")
+                            .replace(/[^a-zA-Z0-9_]/g, "");
+                          updateField("flowName", value);
+                        }}
                         className="rounded"
                       />
                     </FormGroup>
@@ -955,6 +988,9 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
                         <option value={QuestionTypes.RadioButtonsGroup}>
                           Radio Buttons
                         </option>
+                        <option value={QuestionTypes.Dropdown}>
+                          Radio Buttons
+                        </option>
                         <option value={QuestionTypes.CheckboxGroup}>
                           Checkbox Group
                         </option>
@@ -1003,6 +1039,7 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
                           </FormGroup>
                           {(currentQuestion.type ===
                             QuestionTypes.RadioButtonsGroup ||
+                            QuestionTypes.Dropdown ||
                             currentQuestion.type ===
                               QuestionTypes.CheckboxGroup) && (
                             <>

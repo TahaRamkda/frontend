@@ -62,13 +62,13 @@ export const sidebarItems = [
       module: 1,
       submenu: [],
     },
-    {
-      href: '/TemplateVisualisation',
-      icon: 'ti-eye', 
-      text: 'Template Visualisation',
-      module: 1,
-      submenu: [],
-    },
+    // {
+    //   href: '/TemplateVisualisation',
+    //   icon: 'ti-eye', 
+    //   text: 'Template Visualisation',
+    //   module: 1,
+    //   submenu: [],
+    // },
     {
       href: '/Clients/ClientsList',
       icon: 'ti-user', // User icon for Clients

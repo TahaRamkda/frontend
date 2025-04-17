@@ -56,6 +56,7 @@ const FlowPreview = ({
           child.type === QuestionTypes.TextArea
         )
           return "";
+        if (child.type === QuestionTypes.Dropdown) return null;
         if (child.type === QuestionTypes.RadioButtonsGroup) return null;
         if (child.type === QuestionTypes.CheckboxGroup) return [];
         if (child.type === QuestionTypes.TextHeading) return null;
@@ -83,6 +84,7 @@ const FlowPreview = ({
             child.type === QuestionTypes.TextArea
           )
             return "";
+          if (child.type === QuestionTypes.Dropdown) return null;
           if (child.type === QuestionTypes.RadioButtonsGroup) return null;
           if (child.type === QuestionTypes.CheckboxGroup) return [];
           if (child.type === QuestionTypes.TextHeading) return null;
@@ -123,6 +125,7 @@ const FlowPreview = ({
         return answer !== undefined && answer.trim() !== "";
       if (child.type === QuestionTypes.RadioButtonsGroup)
         return answer !== null;
+      if (child.type === QuestionTypes.Dropdown) return answer !== null;
       if (child.type === QuestionTypes.CheckboxGroup)
         return answer !== undefined && answer?.length > 0;
       if (child.type === QuestionTypes.TextHeading) return true;
@@ -132,13 +135,8 @@ const FlowPreview = ({
 
   return (
     <div>
-      <div className="">
-        <h3 className="mb-2 " style={{ fontWeight: "600", color: "#333" }}>
-          Flow Preview
-        </h3>
-      </div>
       <Card
-        className="max-h-[80vh] overflow-auto border shadow-sm"
+        className="h-[80vh] overflow-auto border shadow-sm"
         style={{ borderRadius: "10px", overflow: "hidden" }}
       >
         <CardTitle
@@ -151,31 +149,10 @@ const FlowPreview = ({
             padding: "10px 15px",
           }}
         >
-          <div>
-            {senderNameData && (
-              <div className="d-flex align-items-center">
-                {senderNameData.mediaPath && (
-                  <img
-                    src={`${BASE_URL}${senderNameData.mediaPath}`}
-                    alt="Sender Logo"
-                    className="rounded-circle me-2 img-fluid"
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      objectFit: "cover",
-                    }}
-                  />
-                )}
-                <div>
-                  <div style={{ fontSize: "1rem", fontWeight: "500" }}>
-                    {senderNameData.senderName}
-                  </div>
-                  <div style={{ fontSize: "0.75rem", color: "#666" }}>
-                    {senderNameData.phoneNumber}
-                  </div>
-                </div>
-              </div>
-            )}
+          <div className="">
+            <h3 className=" " style={{ fontWeight: "600", color: "#333" }}>
+              Flow Preview
+            </h3>
           </div>
         </CardTitle>
         {isSaved ? (
@@ -273,6 +250,60 @@ const FlowPreview = ({
                       </Label>
                     </FormGroup>
                   ))}
+                {/* {child.type === QuestionTypes.Dropdown &&
+                  child.flowOptions.map((option, optionIndex) => (
+                    
+                    <FormGroup check key={optionIndex} className="mb-2">
+                      <Input
+                        type="radio"
+                        name={`question_${childIndex}`}
+                        value={option.optionText}
+                        checked={
+                          answers[currentScreenIndex][childIndex] ===
+                          option.optionText
+                        }
+                        onChange={() => {
+                          const newAnswers = [...answers];
+                          newAnswers[currentScreenIndex][childIndex] =
+                            option.optionText;
+                          setAnswers(newAnswers);
+                        }}
+                        style={{ marginRight: "10px" }}
+                      />
+                      <Label check style={{ fontSize: "1rem", color: "#555" }}>
+                        {option.optionText}
+                      </Label>
+                    </FormGroup>
+                  ))} */}
+                {child.type === QuestionTypes.Dropdown && (
+                  <FormGroup className="mb-2">
+                    <Label style={{ fontSize: "1rem", color: "#555" }}>
+                      {child.questionText}
+                    </Label>
+                    <Input
+                      type="select"
+                      name={`question_${childIndex}`}
+                      value={answers[currentScreenIndex][childIndex] || ""}
+                      onChange={(e) => {
+                        const newAnswers = [...answers];
+                        newAnswers[currentScreenIndex][childIndex] =
+                          e.target.value;
+                        setAnswers(newAnswers);
+                      }}
+                      style={{ fontSize: "1rem", color: "#555" }}
+                    >
+                      <option value="" disabled>
+                        Select an option
+                      </option>
+                      {child.flowOptions.map((option, optionIndex) => (
+                        <option key={optionIndex} value={option.optionText}>
+                          {option.optionText}
+                        </option>
+                      ))}
+                    </Input>
+                  </FormGroup>
+                )}
+
                 {child.type === QuestionTypes.CheckboxGroup &&
                   child.flowOptions.map((option, optionIndex) => (
                     <FormGroup check key={optionIndex} className="mb-2">
@@ -411,6 +442,7 @@ const validateFlowData = (flowData) => {
 
       if (
         child.type === QuestionTypes.RadioButtonsGroup ||
+        child.type === QuestionTypes.Dropdown ||
         child.type === QuestionTypes.CheckboxGroup
       ) {
         if (child.flowOptions.length === 0) {
@@ -543,6 +575,7 @@ const CreateFlowPage = () => {
     const updatedQuestion = { ...currentQuestion };
     if (
       updatedQuestion.type === QuestionTypes.RadioButtonsGroup ||
+      updatedQuestion.type === QuestionTypes.Dropdown ||
       updatedQuestion.type === QuestionTypes.CheckboxGroup
     ) {
       updatedQuestion.flowOptions.push({
@@ -638,6 +671,7 @@ const CreateFlowPage = () => {
 
     if (
       currentQuestion.type === QuestionTypes.RadioButtonsGroup ||
+      currentQuestion.type === QuestionTypes.Dropdown ||
       currentQuestion.type === QuestionTypes.CheckboxGroup
     ) {
       if (currentQuestion.flowOptions.length === 0) {
@@ -741,20 +775,33 @@ const CreateFlowPage = () => {
   return (
     <App>
       {isLoading && <Loader />}
-      <Container
-        fluid
-        className="py-4 create-flow-container"
-        style={{ minHeight: "100vh" }}
-      >
-        <h2 className="mb-4">Create Flow</h2>
-
-        <Row className="flex-grow-1" style={{ overflow: "hidden" }}>
+      <Container fluid className="py-4 create-flow-container">
+        <Row className="flex-grow-1">
           <Col
-            md={7}
-            className="h-100"
+            md={6}
+            className=""
             style={{ overflowY: "auto", paddingRight: "15px" }}
           >
-            <Card className="mb-4 shadow-sm max-h-[80vh] overflow-auto">
+            <Card className="mb-4 shadow-sm max-h-[72vh] overflow-auto">
+              <CardTitle
+                style={{
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 10,
+                  backgroundColor: "white",
+                  borderBottom: "1px solid #e0e0e0",
+                  padding: "10px 15px",
+                }}
+              >
+                <div className="">
+                  <h4
+                    className=" "
+                    style={{ fontWeight: "600", color: "#333" }}
+                  >
+                    Create Flow
+                  </h4>
+                </div>
+              </CardTitle>
               <CardBody>
                 <Form>
                   <FormGroup>
@@ -767,17 +814,17 @@ const CreateFlowPage = () => {
                   <FormGroup>
                     <Label>Flow Name </Label>
                     <Input
-  value={flowData.flowName}
-  onChange={(e) => {
-    const value = e.target.value
-      .replace(/\s+/g, "_")
-      .replace(/[^a-zA-Z0-9_]/g, "")
-      .toLowerCase();
-    updateField("flowName", value)  // Changed to use the transformed value
-  }}
-  className="rounded"
-  required
-/>
+                      value={flowData.flowName}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          .replace(/\s+/g, "_")
+                          .replace(/[^a-zA-Z0-9_]/g, "")
+                          .toLowerCase();
+                        updateField("flowName", value); // Changed to use the transformed value
+                      }}
+                      className="rounded"
+                      required
+                    />
                   </FormGroup>
                   <FormGroup>
                     <Label>Flow Language *</Label>
@@ -836,12 +883,11 @@ const CreateFlowPage = () => {
                         </div>
                       ) : (
                         <FlowDropdown
-                        id="FlowDropdown"
-                        value={flowData.actionId}
-                        onChange={handleFlowChange}
-                      />
+                          id="FlowDropdown"
+                          value={flowData.actionId}
+                          onChange={handleFlowChange}
+                        />
                       )}
-                     
                     </FormGroup>
                   )}
                   <FormGroup check>
@@ -1002,8 +1048,8 @@ const CreateFlowPage = () => {
             </div>
           </Col>
           <Col
-            md={5}
-            className="h-100"
+            md={6}
+            className=""
             style={{
               overflowY: "auto",
               paddingLeft: "15px",
@@ -1057,6 +1103,10 @@ const CreateFlowPage = () => {
                         <option value={QuestionTypes.RadioButtonsGroup}>
                           Radio Buttons
                         </option>
+                        <option value={QuestionTypes.Dropdown}>
+                          Dropdown{" "}
+                        </option>
+
                         <option value={QuestionTypes.CheckboxGroup}>
                           Checkbox Group
                         </option>
@@ -1107,6 +1157,7 @@ const CreateFlowPage = () => {
                           </FormGroup>
                           {(currentQuestion.type ===
                             QuestionTypes.RadioButtonsGroup ||
+                            QuestionTypes.Dropdown ||
                             currentQuestion.type ===
                               QuestionTypes.CheckboxGroup) && (
                             <>

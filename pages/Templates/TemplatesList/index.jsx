@@ -1,31 +1,59 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { Card, CardBody, CardHeader, Col, Input, Label, Alert, Button, Modal, ModalBody, ModalHeader, Form, FormGroup, Row } from "reactstrap";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Col,
+  Input,
+  Label,
+  Alert,
+  Button,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  Form,
+  FormGroup,
+  Row,
+} from "reactstrap";
 import { useRouter } from "next/navigation";
 import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchTemplates, clearTemplateState, deleteTemplates, syncTemplates, updateTemplates, fetchTemplatesById, setCurrentPage, setPageSize } from "@/slices/TemplateSlice";
+import {
+  fetchTemplates,
+  clearTemplateState,
+  deleteTemplates,
+  syncTemplates,
+  updateTemplates,
+  fetchTemplatesById,
+  setCurrentPage,
+  setPageSize,
+} from "@/slices/TemplateSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import App from "@/components/Layout/App";
-import { HiPencilAlt, HiTrash, HiRefresh, HiEye } from "react-icons/hi";
+import { HiPencilAlt, HiTrash, HiRefresh, HiEye, HiArrowsExpand} from "react-icons/hi";
 import { useSetRecoilState } from "recoil";
 import { TemplateState } from "@/components/recoil";
-import SearchBar from '@/components/SearchBar/SearchComponent';
+import TemplateVisualisation from "@/pages/TemplateVisualisation";
+import { clearTemplateVisualization } from "@/slices/TemplateVisualizationSlice";
+import SearchBar from "@/components/SearchBar/SearchComponent";
 import Loading from "@/components/Layout/Loader";
 import Updatetemplate from "../UpdateTemplate";
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 const TemplateList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { templates, loading, error, pageSize, totalRecords, currentPage } = useSelector((state) => state.templates);
+  const { templates, loading, error, pageSize, totalRecords, currentPage } =
+    useSelector((state) => state.templates);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [TemplateLoading, setTemplateLoading] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
-  const [filterText, setFilterText] = useState('');
+  const [filterText, setFilterText] = useState("");
   const [transactonType, setTransactonType] = useState(0);
   const [showupdatemodel, setshowupdatemodel] = useState(false);
+  const [showVisualizationModal, setShowVisualizationModal] = useState(false);
   const [templateId, settemplateId] = useState(0);
-  const [SenderId , setSenderId] = useState(0);
+  const [SenderId, setSenderId] = useState(0);
   //const settemplateId = useSetRecoilState(TemplateState);
 
   const templateColumns = [
@@ -38,13 +66,11 @@ const TemplateList = () => {
       name: "Category",
       selector: (row) => row.category,
       sortable: true,
-      
     },
     {
       name: "Whatsapp Id",
       selector: (row) => row.templateId,
       sortable: true,
-      
     },
     {
       name: "Language",
@@ -55,7 +81,6 @@ const TemplateList = () => {
       name: "Sender Name",
       selector: (row) => row.senderName,
       sortable: true,
-      
     },
     { name: "Status", selector: (row) => row.status, sortable: true },
     {
@@ -74,6 +99,14 @@ const TemplateList = () => {
               onClick={() => handleDetailClick(row.id)}
             >
               <HiEye style={{ fontSize: "15px" }} />
+            </button>
+            <button
+              title="Template Visualisation"
+              className="uniform_icon_btn"
+              onClick={() => handleViualizationClick(row.id)}
+            >
+              <i class="fa fa-connectdevelop fa-lg" aria-hidden="true"></i>
+
             </button>
             <button
               title="Delete Template"
@@ -96,6 +129,10 @@ const TemplateList = () => {
     } catch (error) {
       alert("Failed to fetch Template details: " + error.message);
     }
+  };
+  const handleViualizationClick = (templates_Id) => {
+    settemplateId(templates_Id);
+    setShowVisualizationModal(true)
   };
 
   const handleDeleteClick = (templateId) => {
@@ -129,25 +166,29 @@ const TemplateList = () => {
   const handlePageSizeChange = async (newSize) => {
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1));
-    await dispatch(fetchTemplates({
-      TransactonType: transactonType,
-      senderId : SenderId,
-      searchStr: filterText,
-      pageNo: 1,
-      pageSize: newSize
-    }));
+    await dispatch(
+      fetchTemplates({
+        TransactonType: transactonType,
+        senderId: SenderId,
+        searchStr: filterText,
+        pageNo: 1,
+        pageSize: newSize,
+      })
+    );
   };
 
   const handlePageChange = async (page) => {
     dispatch(setCurrentPage(page));
-    await dispatch(fetchTemplates({
-      clientId: localStorage.getItem("clientId"),
-      TransactonType: transactonType,
-      senderId : SenderId,
-      searchStr: filterText,
-      pageNo: page,
-      pageSize
-    }));
+    await dispatch(
+      fetchTemplates({
+        clientId: localStorage.getItem("clientId"),
+        TransactonType: transactonType,
+        senderId: SenderId,
+        searchStr: filterText,
+        pageNo: page,
+        pageSize,
+      })
+    );
   };
 
   const refreshTemplateList = () => {
@@ -155,10 +196,10 @@ const TemplateList = () => {
       fetchTemplates({
         clientId: localStorage.getItem("clientId"),
         TransactonType: transactonType,
-        senderId : SenderId,
+        senderId: SenderId,
         searchStr: filterText,
         pageNo: currentPage,
-        pageSize
+        pageSize,
       })
     );
   };
@@ -168,16 +209,16 @@ const TemplateList = () => {
       fetchTemplates({
         clientId: localStorage.getItem("clientId"),
         TransactonType: transactonType,
-        senderId : SenderId,
+        senderId: SenderId,
         searchStr: filterText,
         pageNo: currentPage,
-        pageSize
+        pageSize,
       })
     );
     return () => {
       dispatch(clearTemplateState());
     };
-  }, [dispatch,SenderId]);
+  }, [dispatch, SenderId]);
 
   const filteredSendernames = templates.filter((template) =>
     template.templateName.toLowerCase().includes(filterText.toLowerCase())
@@ -190,6 +231,11 @@ const TemplateList = () => {
   const handleClose = () => {
     setshowupdatemodel(false);
     setTemplateLoading(false);
+  };
+  const handleCloseVS = () => {
+    setShowVisualizationModal(false);
+    dispatch(clearTemplateVisualization())
+
   };
   const handleSearchString = (setter) => (e) => {
     const searchValue = e;
@@ -205,17 +251,17 @@ const TemplateList = () => {
           TransactonType: transactonType,
           searchStr: searchValue,
           pageNo: currentPage,
-          pageSize
+          pageSize,
         })
       );
     }, 500);
     setSearchTimeout(timeout);
   };
 
- const handleSenderChange = () => (e) => {
-  const senderId = e.target.value;  
+  const handleSenderChange = () => (e) => {
+    const senderId = e.target.value;
     setSenderId(senderId);
-  }
+  };
 
   const customPageSizes = [1, 5, 10, 20, 50, 100];
   const defultpagessize = 10;
@@ -232,7 +278,9 @@ const TemplateList = () => {
             />
           </div>
           <div className="flex flex-col text-start mb-1">
-            <label className="font-medium text-gray-700 text-sm mb-1">Sender Names</label>
+            <label className="font-medium text-gray-700 text-sm mb-1">
+              Sender Names
+            </label>
             <SendernameDropdown
               value={SenderId}
               onChange={handleSenderChange()}
@@ -250,21 +298,18 @@ const TemplateList = () => {
   return (
     <App>
       {showupdatemodel ? (
-       <Updatetemplate
-       Template_Id={templateId}
-       onclose={handleClose} />
-      ) : (
+        <Updatetemplate Template_Id={templateId} onclose={handleClose} />
+      )  : showVisualizationModal ? (
+        <TemplateVisualisation Id={templateId} type={1} onclose={handleCloseVS} />
+      ):(
         <>
           <div className="flex items-center">
-            {(loading || TemplateLoading) ? <Loading /> : null}
+            {loading || TemplateLoading ? <Loading /> : null}
             <div className="mb-1">
               <h4 className="font-bold mb-2">Templates</h4>
             </div>
             <div className="ml-auto mb-2">
-              <button
-                className="uniform_btn"
-                onClick={handleCreateClick}
-              >
+              <button className="uniform_btn" onClick={handleCreateClick}>
                 Create Template
               </button>
             </div>
@@ -291,30 +336,30 @@ const TemplateList = () => {
               customStyles={{
                 table: {
                   style: {
-                    width: '2023px',
-                    borderCollapse: 'collapse',
+                    width: "2023px",
+                    borderCollapse: "collapse",
                   },
                 },
                 headRow: {
                   style: {
-                    borderBottom: '1px solid #ddd',
-                    padding: '0px',
+                    borderBottom: "1px solid #ddd",
+                    padding: "0px",
                   },
                 },
                 headCells: {
                   style: {
-                    borderRight: '1px solid #ddd',
-                    fontWeight: 'bold',
+                    borderRight: "1px solid #ddd",
+                    fontWeight: "bold",
                   },
                 },
                 rows: {
                   style: {
-                    borderBottom: '1px solid #ddd',
+                    borderBottom: "1px solid #ddd",
                   },
                 },
                 cells: {
                   style: {
-                    borderRight: '1px solid #ddd',
+                    borderRight: "1px solid #ddd",
                   },
                 },
               }}
