@@ -154,3 +154,11 @@ export const SURVEYDROPDOWN = "/SurveyReport/getsurveys";
 
 // Flow Visualization 
 export const TEMPLATEVISUALIZATION = "/Templates/GetTemplateVisualization";
+
+// App Setting
+export const ETTINGLIST = "/AppSettings/getappsettinglist";
+export const SETTINGBYID ="/AppSettings/getappsettingbyid";
+export const ADDGROUP = "/AppSettings/addGroup";
+export const UPDATEAPPSETTING = "/AppSettings/updateappsettings";
+export const DELETEAPPSETTING ="/AppSettings/deleteappsetting";
+export const APPSETTING = "/AppSettings/getappsettings";
