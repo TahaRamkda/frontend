@@ -44,7 +44,7 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
   const router = useRouter();
   const dispatch = useDispatch();
   //const CampaignID = useRecoilValue(CampaignState);
-  const [Loading, setLoading] = useState(true);
+  const [Loading, setLoading] = useState(false);
   const { template, loading, error } = useSelector((state) => state.templates);
   const formikRef = useRef(); // Add ref for Formik
   const [messagePreview, setMessagePreview] = useState({
@@ -106,27 +106,28 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
 
   useEffect(() => {
     if (SelectedCampaign) {
-      // Run only if a template is selected
       setLoading(true);
       dispatch(
         fetchCampaignDetail({
           CampaignId: SelectedCampaign,
         })
-      );
+      ).then(() => {
+        setLoading(false); // Set loading to false when data is fetched
+      });
     }
   }, [dispatch, SelectedCampaign]);
 
   useEffect(() => {
-    
     if (selectedTemplateId) {
-      // Run only if a template is selected
       setLoading(true);
       dispatch(
         fetchTemplatesById({
           ClientId: localStorage.getItem("clientId"),
           templateId: selectedTemplateId,
         })
-      );
+      ).then(() => {
+        setLoading(false); // Set loading to false when data is fetched
+      });
     }
   }, [dispatch, selectedTemplateId]);
 
@@ -135,10 +136,11 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
     const initializeCampaignDetails = async () => {
       
       if (campaigndetail) {
+        debugger
         setSelectedTemplateId(campaigndetail.templateId);
         setcampaignName(campaigndetail.campaignName);
         setexistinggroupId(
-          campaigndetail.groupIds.replace(/['"]+/g, "").split(",").map(Number)
+          campaigndetail.groupIds?.replace(/['"]+/g, "").split(",").map(Number)
         );
         setSelectedMediaId(campaigndetail.mediaId);
         setSelectedMediaPath(campaigndetail.mediaURL);
@@ -246,11 +248,7 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
     setHeadContent(template.headerText);
     //setupdatedheadvercontent(template.headerText);
     //setheaderTextCount(template.headerParamCount);
-  } else {
-    setSelectedMediaId(template.mediaId);
-    setSelectedMediaPath(template.mediaPath);
-    setSelectedMediaType(template.contentType);
-  }
+  } 
 
   // Update Body State
   setBodyFinalContent(template.bodyText);
@@ -315,68 +313,70 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
   };
 
   //submit function to update campaign main request body creates here
-  const handleSubmit = async (values) => {
-    const requestBody = {
-      clientId: localStorage.getItem("clientId"),
-      campaignId: SelectedCampaign,
-      campaignName: campaignName,
-      senderId: template.senderId,
-      templateId: selectedTemplateId,
-      campaignType: "1",
-      groupIds: selectedGroups.join(","),
-      mediaId: selectedMediaId,
-      actionBy: localStorage.getItem("userId"),
-      campaignParameters: [
-        ...headerVariable?.map((variable, index) => ({
-          sequence: index,
-          paramName: variable.name, // Dynamic name for header variables
-          paramValue: variable.value,
-          paramType: 1,
-        })),
-        ...variables?.map((variable, index) => ({
-          sequence: index,
-          paramName: variable.name, // Dynamic name for header variables
-          paramValue: variable.value,
-          paramType: 2,
-        })),
-        ...senturlvariables.map((variable, index) => ({
-          sequence: variable.sequence,
-          paramName: variable.paramName, // Dynamic name for header variables
-          paramValue: variable.urlvalue,
-          paramType: 3, // Static type
-        })),
-      ],
-    };
-
-    try {
-      const response = await dispatch(UpdateCampaign(requestBody)).unwrap();
-      if (response.success) {
-        dispatch(clearTemplateDetailState());
-        showSweetAlert({
-          title: "Updated Successfully",
-          text: "",
-          icon: "success",
-        });
-        onclose();
-      } else {
-        showSweetAlert({
-          title: "Failed",
-          text: response.message || "",
-          icon: "error",
-        });
-
-        //window.location.reload();
-      }
-    } catch (err) {
-      console.error("Failed to create Template", err);
+const handleSubmit = async (values) => {
+  setLoading(true);
+  debugger
+  const requestBody = {
+    clientId: localStorage.getItem("clientId"),
+    campaignId: SelectedCampaign,
+    campaignName: campaignName,
+    senderId: template.senderId,
+    templateId: selectedTemplateId,
+    campaignType: "1",
+    groupIds: selectedGroups.join(","),
+    mediaId: selectedMediaId,
+    actionBy: localStorage.getItem("userId"),
+    campaignParameters: [
+      ...headerVariable?.map((variable, index) => ({
+        sequence: index,
+        paramName: variable.name,
+        paramValue: variable.value,
+        paramType: 1,
+      })),
+      ...variables?.map((variable, index) => ({
+        sequence: index,
+        paramName: variable.name,
+        paramValue: variable.value,
+        paramType: 2,
+      })),
+      ...senturlvariables.map((variable, index) => ({
+        sequence: variable.sequence,
+        paramName: variable.paramName,
+        paramValue: variable.urlvalue,
+        paramType: 3,
+      })),
+    ],
+  };
+debugger
+  try {
+    const response = await dispatch(UpdateCampaign(requestBody)).unwrap();
+    if (response.success) {
+      dispatch(clearTemplateDetailState());
+      showSweetAlert({
+        title: "Updated Successfully",
+        text: "",
+        icon: "success",
+      });
+      onclose();
+      setLoading(false); // Set loading to false on success
+    } else {
       showSweetAlert({
         title: "Failed",
-        text: err.message || "",
+        text: response.message || "",
         icon: "error",
       });
-      //window.location.reload();
+      setLoading(false); // Set loading to false on failure
     }
-  };
+  } catch (err) {
+    console.error("Failed to create Template", err);
+    showSweetAlert({
+      title: "Failed",
+      text: err.message || "",
+      icon: "error",
+    });
+    setLoading(false); // Set loading to false on error
+  }
+};
 
 
   const handleVariableChange = (variableName, newValue) => {
@@ -474,7 +474,7 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
 
   return (
     <>
-      {loading && <Loader />}
+      {(loading||campaignloading || Loading) && <Loader />}
       <Container fluid className="mt-0">
         <Row style={{ height: "100vh" }}>
           <Col
@@ -560,6 +560,7 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
                           <MediaPopUp
                             isPopup = {true}
                             ToggleModal={ToggleModal}
+                            senderId={selectedSenderId}
                             contentTypeStr = {
                               template.headerType === 2
                                 ? "image"
@@ -568,6 +569,7 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
                                 : "application"
                             }
                             onSelectMedia={(mediaId, mediaPath, mimeType) => {
+                              debugger
                               setSelectedMediaId(mediaId);
                               setSelectedMediaPath(mediaPath);
                               setSelectedMediaType(mimeType);

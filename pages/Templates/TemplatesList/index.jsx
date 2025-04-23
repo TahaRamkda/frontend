@@ -61,33 +61,37 @@ const TemplateList = () => {
       name: "Template",
       selector: (row) => row.templateName,
       sortable: true,
-    },
-    {
-      name: "Category",
-      selector: (row) => row.category,
-      sortable: true,
-    },
-    {
-      name: "Whatsapp Id",
-      selector: (row) => row.templateId,
-      sortable: true,
-    },
-    {
-      name: "Language",
-      selector: (row) => row.language,
-      sortable: true,
+      width: "20%",
     },
     {
       name: "Sender Name",
       selector: (row) => row.senderName,
       sortable: true,
     },
+    {
+      name: "Category",
+      selector: (row) => row.category,
+      sortable: true,
+    },
+   
+    {
+      name: "Language",
+      selector: (row) => row.language,
+      sortable: true,
+    },
+  
     { name: "Status", selector: (row) => row.status, sortable: true },
+    {
+      name: "Whatsapp Id",
+      selector: (row) => row.templateId,
+      sortable: true,
+    },
     {
       name: "Created Date",
       selector: (row) => row.createdDate,
       sortable: true,
     },
+    
     {
       name: "Action",
       cell: (row) => (
@@ -105,8 +109,7 @@ const TemplateList = () => {
               className="uniform_icon_btn"
               onClick={() => handleViualizationClick(row.id)}
             >
-              <i class="fa fa-connectdevelop fa-lg" aria-hidden="true"></i>
-
+             <i class="fa fa-connectdevelop fa-lg" aria-hidden="true"></i>
             </button>
             <button
               title="Delete Template"
@@ -333,36 +336,6 @@ const TemplateList = () => {
               subHeader
               subHeaderComponent={subHeaderComponentMemo}
               className="w-full border"
-              customStyles={{
-                table: {
-                  style: {
-                    width: "2023px",
-                    borderCollapse: "collapse",
-                  },
-                },
-                headRow: {
-                  style: {
-                    borderBottom: "1px solid #ddd",
-                    padding: "0px",
-                  },
-                },
-                headCells: {
-                  style: {
-                    borderRight: "1px solid #ddd",
-                    fontWeight: "bold",
-                  },
-                },
-                rows: {
-                  style: {
-                    borderBottom: "1px solid #ddd",
-                  },
-                },
-                cells: {
-                  style: {
-                    borderRight: "1px solid #ddd",
-                  },
-                },
-              }}
             />
           </div>
         </>

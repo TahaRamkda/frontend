@@ -2,36 +2,62 @@ import React, { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input } from "reactstrap";
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+} from "reactstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchGroup, clearGroupState, deleteGroup, fetchGroupById, updateGroup, setPageSize, setCurrentPage } from "@/slices/Groupslice";
+import {
+  fetchGroup,
+  clearGroupState,
+  deleteGroup,
+  fetchGroupById,
+  updateGroup,
+  setPageSize,
+  setCurrentPage,
+} from "@/slices/Groupslice";
 import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Layout/Loader";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
 import GroupForm from "../CreateGroup";
-import App from '@/components/Layout/App';
-import SearchBar from '@/components/SearchBar/SearchComponent';
+import App from "@/components/Layout/App";
+import SearchBar from "@/components/SearchBar/SearchComponent";
 
 const GroupList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { groups, loading, error, pageSize, totalRecords, currentPage } = useSelector((state) => state.groups);
+  const { groups, loading, error, pageSize, totalRecords, currentPage } =
+    useSelector((state) => state.groups);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [groupForm, setGroupForm] = useState({});
-  const [filterText, setFilterText] = useState('');
-  const [CreateModalOpen, setCreateModalOpen] = useState(false)
+  const [filterText, setFilterText] = useState("");
+  const [CreateModalOpen, setCreateModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // Start as true since we're fetching data
   const groupColumns = [
-
     { name: "Group Name", selector: (row) => row.groupName, sortable: true },
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
-    { name: "Total Contacts", selector: (row) => row.totalContacts, sortable: true },
+    {
+      name: "Created Date",
+      selector: (row) => row.createdDate,
+      sortable: true,
+    },
+    {
+      name: "Total Contacts",
+      selector: (row) => row.totalContacts,
+      sortable: true,
+    },
     {
       name: "Action",
       cell: (row) => (
         <>
-          <div className="flex gap-2 justify-center w-full">
+          <div className="flex gap-2 w-full">
             <button
               title="Edit Group"
               className="uniform_icon_btn"
@@ -40,7 +66,7 @@ const GroupList = () => {
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
             <button
-            title="Delete Group"
+              title="Delete Group"
               className="uniform_icon_btn"
               onClick={() => handleDeleteClick(row.groupId)}
             >
@@ -57,20 +83,24 @@ const GroupList = () => {
 
   const handleDetailClick = async (groupId) => {
     try {
-      const response = await dispatch(fetchGroupById({groupId})).unwrap();
+      const response = await dispatch(fetchGroupById({ groupId })).unwrap();
       if (response) {
         setGroupForm(response.result);
         setIsModalOpen(true);
       } else {
-        showSweetAlert({ title: "Error", text: "Failed to fetch details", icon: "error" });
+        showSweetAlert({
+          title: "Error",
+          text: "Failed to fetch details",
+          icon: "error",
+        });
       }
     } catch (error) {
       alert("Failed to fetch group details: " + error.message);
     }
   };
   const handleCancel = () => {
-    setCreateModalOpen(false)
-  }
+    setCreateModalOpen(false);
+  };
   const handleDeleteClick = (groupId) => {
     SweetAlert.fire({
       title: "Are you sure?",
@@ -84,11 +114,13 @@ const GroupList = () => {
       if (result.isConfirmed) {
         try {
           dispatch(deleteGroup({ groupId })).then(() => {
-            showSweetAlert({ title: "Deleted Successfully", text: "", icon: "success" });
+            showSweetAlert({
+              title: "Deleted Successfully",
+              text: "",
+              icon: "success",
+            });
             refreshGroupList();
           });
-
-
         } catch (error) {
           alert("An unexpected error occurred: " + error.message);
         }
@@ -101,7 +133,13 @@ const GroupList = () => {
     dispatch(setCurrentPage(page));
 
     // Fetch clients for the new page
-    await dispatch(fetchGroup({ clientId: localStorage.getItem("clientId"), pageSize, pageNo: page }));
+    await dispatch(
+      fetchGroup({
+        clientId: localStorage.getItem("clientId"),
+        pageSize,
+        pageNo: page,
+      })
+    );
   };
 
   const handlePageSizeChange = async (newSize) => {
@@ -109,7 +147,14 @@ const GroupList = () => {
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to first page
     // Fetch data with updated page size and reset to page 1
-    await dispatch(fetchGroup({ clientId: localStorage.getItem("clientId"), pageSize: newSize, pageNo: 1, SearchStr: filterText }));
+    await dispatch(
+      fetchGroup({
+        clientId: localStorage.getItem("clientId"),
+        pageSize: newSize,
+        pageNo: 1,
+        SearchStr: filterText,
+      })
+    );
   };
 
   const handleFormChange = (e) => {
@@ -117,14 +162,13 @@ const GroupList = () => {
     setGroupForm({ ...groupForm, [name]: value });
   };
   const toggleModal = () => {
-
     setIsModalOpen(false);
   };
 
   const handleSearchString = (setter) => (e) => {
     const searchValue = e;
     setFilterText(searchValue);
-    setter(e)
+    setter(e);
 
     // Clear the previous timeout if any
     if (searchTimeout) {
@@ -134,7 +178,12 @@ const GroupList = () => {
     // Set a new timeout for 0.5 seconds
     const timeout = setTimeout(() => {
       dispatch(
-        fetchGroup({ clientId: localStorage.getItem("clientId"), pageSize, pageNo: currentPage, SearchStr: searchValue })
+        fetchGroup({
+          clientId: localStorage.getItem("clientId"),
+          pageSize,
+          pageNo: currentPage,
+          SearchStr: searchValue,
+        })
       );
     }, 500);
 
@@ -145,7 +194,6 @@ const GroupList = () => {
     setIsLoading(true);
     try {
       const requestBody = {
-
         groupId: groupForm.groupId || 0,
         groupName: groupForm.groupName || "string",
         actionBy: localStorage.getItem("userId"),
@@ -163,28 +211,46 @@ const GroupList = () => {
         setIsModalOpen(false);
         refreshGroupList();
       } else {
-        showSweetAlert({ title: "Error", text: response.message, icon: "error" });
+        showSweetAlert({
+          title: "Error",
+          text: response.message,
+          icon: "error",
+        });
       }
     } catch (error) {
       alert("Failed to update group: " + error.message);
       setIsLoading(false);
-    }finally{
+    } finally {
       setIsLoading(false);
     }
   };
   const refreshGroupList = () => {
-    dispatch(fetchGroup({ clientId: localStorage.getItem("clientId"), pageSize, pageNo: currentPage, SearchStr: filterText }));
+    dispatch(
+      fetchGroup({
+        clientId: localStorage.getItem("clientId"),
+        pageSize,
+        pageNo: currentPage,
+        SearchStr: filterText,
+      })
+    );
   };
 
   useEffect(() => {
-    dispatch(fetchGroup({ clientId: localStorage.getItem("clientId"), pageSize, pageNo: currentPage, SearchStr: filterText }));
+    dispatch(
+      fetchGroup({
+        clientId: localStorage.getItem("clientId"),
+        pageSize,
+        pageNo: currentPage,
+        SearchStr: filterText,
+      })
+    );
     return () => {
       dispatch(clearGroupState());
     };
   }, [dispatch]);
 
   const handleCreate = () => {
-    setCreateModalOpen(true)
+    setCreateModalOpen(true);
   };
 
   const filteredGroup = groups.filter(
@@ -192,23 +258,21 @@ const GroupList = () => {
       group.groupName &&
       group.groupName.toLowerCase().includes(filterText.toLowerCase())
   );
-  const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
-  const defultpagessize = 10
+  const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
+  const defultpagessize = 10;
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className="w-full">
         <div className="grid grid-cols-5 gap-4">
           <div className="flex flex-col space-y-1 text-start mb-1 ">
-          <SearchBar
+            <SearchBar
               label="Search"
               value={filterText}
               onChange={handleSearchString(setFilterText)}
             />
           </div>
         </div>
-
       </div>
-
     );
   }, [filterText]);
 
@@ -218,17 +282,13 @@ const GroupList = () => {
 
   return (
     <App>
-
       <div className="flex items-center">
         {(loading || isLoading) && <Loading />}
-        <div className=''>
+        <div className="">
           <h4 className="font-bold">Groups </h4>
         </div>
         <div className="ml-auto mb-1">
-          <button
-            className="uniform_btn"
-            onClick={handleCreate}
-          >
+          <button className="uniform_btn" onClick={handleCreate}>
             Create Group
           </button>
         </div>
@@ -251,83 +311,54 @@ const GroupList = () => {
           subHeader
           subHeaderComponent={subHeaderComponentMemo}
           className="w-full border"
-          customStyles={{
-            table: {
-              style: {
-                width: '100%',
-                borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
-              },
-            },
-            headRow: {
-              style: {
-                borderBottom: '1px solid #ddd', padding: '0px',
-              },
-            },
-            headCells: {
-              style: {
-
-                borderRight: '1px solid #ddd', // Grid line between columns
-                fontWeight: 'bold',
-              },
-            },
-            rows: {
-              style: {
-                borderBottom: '1px solid #ddd', // Horizontal grid line between rows
-              },
-            },
-            cells: {
-              style: {
-
-                borderRight: '1px solid #ddd', // Vertical grid line between cells
-              },
-            },
-          }}
         />
       </div>
 
-
       {isModalOpen && (
-  <Modal isOpen={true} toggle={() => toggleModal()} fade={false}>
-    <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
-        {/* Loader for update operation */}
-        {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center z-50 ">
-            <Loading />
+        <Modal isOpen={true} toggle={() => toggleModal()} fade={false}>
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
+              {/* Loader for update operation */}
+              {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center z-50 ">
+                  <Loading />
+                </div>
+              )}
+              <ModalHeader toggle={() => toggleModal()}>Edit Group</ModalHeader>
+              <ModalBody>
+                <form onSubmit={handleUpdateSubmit}>
+                  <div className="flex flex-col">
+                    <label
+                      htmlFor="groupName"
+                      className="font-medium text-gray-700 text-sm"
+                    >
+                      Group Name
+                    </label>
+                    <input
+                      type="text"
+                      id="groupName"
+                      name="groupName"
+                      value={groupForm.groupName || ""}
+                      onChange={handleFormChange}
+                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                      disabled={isLoading} // Disable input while loading
+                    />
+                  </div>
+                  <div className="mt-4 w-full flex justify-end">
+                    <button
+                      type="submit"
+                      className="uniform_btn"
+                      disabled={isLoading} // Disable button while loading
+                    >
+                      Save
+                    </button>
+                  </div>
+                </form>
+              </ModalBody>
+            </div>
           </div>
-        )}
-        <ModalHeader toggle={() => toggleModal()}>Edit Group</ModalHeader>
-        <ModalBody>
-          <form onSubmit={handleUpdateSubmit}>
-            <div className="flex flex-col">
-              <label htmlFor="groupName" className="font-medium text-gray-700 text-sm">
-                Group Name
-              </label>
-              <input
-                type="text"
-                id="groupName"
-                name="groupName"
-                value={groupForm.groupName || ""}
-                onChange={handleFormChange}
-                className="border rounded py-1 px-2 w-full mt-1 text-sm"
-                disabled={isLoading} // Disable input while loading
-              />
-            </div>
-            <div className="mt-4 w-full flex justify-end">
-              <button
-                type="submit"
-                className="uniform_btn"
-                disabled={isLoading} // Disable button while loading
-              >
-                Save
-              </button>
-            </div>
-          </form>
-        </ModalBody>
-      </div>
-    </div>
-  </Modal>
-)}
+        </Modal>
+      )}
 
       {CreateModalOpen && (
         <GroupForm
@@ -335,7 +366,6 @@ const GroupList = () => {
           onClose={handleCancel}
           onsuccess={refreshGroupList}
         />
-
       )}
     </App>
   );

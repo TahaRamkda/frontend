@@ -30,29 +30,29 @@ const Flow = () => {
   const[showupdateflowmodel,setshowupdateflowmodel] = useState(false);
   const[flowId, setflowId] = useState(0);
  // const setFlowsId = useSetRecoilState(FlowState);
-  const flowColumn = [
-    { name: "Flow Name", selector: (row) => row.flowName, sortable: true },
-    { name: "Flow Language", selector: (row) => row.flowLanguage, sortable: true },
-    { name: "Status", selector: (row) => row.status, sortable: true },
-    { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
-    {
-      name: "Action",
-      cell: (row) => (
-        <div className="flex gap-2">
-          <button onClick={() => handleDetailClick(row.flowId)} title="Edit Flow" className="uniform_icon_btn">
-            <HiPencilAlt style={{ fontSize: "15px" }} />
-          </button>
-          <button onClick={() => handlePublishClick(row.flowId)} title="Publish Flow" className="uniform_icon_btn">
-            <HiUpload style={{ fontSize: "15px" }} />
-          </button>
-          <button onClick={() => handleDeleteClick(row.flowId)} title="Delete Flow" className="uniform_icon_btn">
-            <HiTrash style={{ fontSize: "15px" }} />
-          </button>
-        </div>
-      ),
-    },
-  ];
+ const flowColumn = [
+  { name: "Flow Name", selector: (row) => row.flowName, sortable: true },
+  { name: "Flow Language", selector: (row) => row.flowLanguage, sortable: true },
+  { name: "Status", selector: (row) => row.status, sortable: true },
+  { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
+  { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
+  {
+    name: "Action",
+    cell: (row) => (
+      <div className="flex gap-2">
+        <button onClick={() => handleDetailClick(row.flowId)} title="Edit Flow" className="uniform_icon_btn">
+          <HiPencilAlt style={{ fontSize: "15px" }} />
+        </button>
+        <button onClick={() => handlePublishClick(row.flowId)} title="Publish Flow" className="uniform_icon_btn">
+          <HiUpload style={{ fontSize: "15px" }} />
+        </button>
+        <button onClick={() => handleDeleteClick(row.flowId)} title="Delete Flow" className="uniform_icon_btn">
+          <HiTrash style={{ fontSize: "15px" }} />
+        </button>
+      </div>
+    ),
+  },
+];
 
   const handleCreate = () => {
     router.push("/Flows/CreateFlow");
@@ -257,36 +257,6 @@ const Flow = () => {
         subHeader
         subHeaderComponent={subHeaderComponentMemo}
         className="w-full border"
-        customStyles={{
-          table: {
-            style: {
-              width: "100%",
-              borderCollapse: "collapse",
-            },
-          },
-          headRow: {
-            style: {
-              borderBottom: "1px solid #ddd",
-              padding: "0px",
-            },
-          },
-          headCells: {
-            style: {
-              borderRight: "1px solid #ddd",
-              fontWeight: "bold",
-            },
-          },
-          rows: {
-            style: {
-              borderBottom: "1px solid #ddd",
-            },
-          },
-          cells: {
-            style: {
-              borderRight: "1px solid #ddd",
-            },
-          },
-        }}
       />
       </div>
 

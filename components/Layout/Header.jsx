@@ -16,6 +16,7 @@ import {
 import { useRouter } from "next/router";
 import SweetAlert from "sweetalert2";
 import UserBadge from "@/public/images/User.jpg";
+import AppSettings from "@/pages/AppSetting/AppSettingList";
 import ChangePass from "./ChangePassword";
 import LiveReportingSwitch from "./LiveReportingSwitch";
 import Switch from "react-switch";

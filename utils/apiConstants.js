@@ -1,4 +1,4 @@
-export const BASE_URL = "https://whatsappapi.consulttechies.com";
+export const BASE_URL = "https://qawhatsappapi.consulttechies.com";
 export const LOGINAPI = "/User/Login";
 export const REFRESHTOKENAPI = "/Token/Refresh";
 export const DASHBOARDSUMMARY = "/Dashboard/getdashboardsummary";
@@ -156,9 +156,9 @@ export const SURVEYDROPDOWN = "/SurveyReport/getsurveys";
 export const TEMPLATEVISUALIZATION = "/Templates/GetTemplateVisualization";
 
 // App Setting
-export const ETTINGLIST = "/AppSettings/getappsettinglist";
+export const SETTINGLIST = "/AppSettings/getappsettinglist";
 export const SETTINGBYID ="/AppSettings/getappsettingbyid";
-export const ADDGROUP = "/AppSettings/addGroup";
+export const ADDSETTINGS = "/AppSettings/addAppsettings";
 export const UPDATEAPPSETTING = "/AppSettings/updateappsettings";
 export const DELETEAPPSETTING ="/AppSettings/deleteappsetting";
 export const APPSETTING = "/AppSettings/getappsettings";

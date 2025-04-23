@@ -12,6 +12,7 @@ import {
 } from "reactstrap";
 //import ReactQuill from 'react-quill';
 import "react-quill/dist/quill.snow.css";
+
 import { Image } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -75,7 +76,50 @@ const CampaignCreate = () => {
 
   const handleTemplateChange = (e) => {
     const templateId = e.target.value;
+  
+    // Reset all template-related states
+    setVariables([]);
+    setHeaderVariable([]);
+    setsenturlvariables([]);
     setSelectedTemplateId(templateId);
+    setMessagePreview({
+      header: "",
+      body: "",
+      footer: "",
+      media: null,
+      buttons: [],
+      visitWebsiteButtonCount: 0,
+    });
+    setHeadContent("");
+    setBodyFinalContent("");
+    setSelectedMediaId(0);
+    setSelectedMediaPath("");
+    setSelectedMediaType("");
+    setTotalButtonCount(0);
+    setMessagePreviewupdated(false);
+    setErrorMessage("");
+    setSelectedSenderId(null);
+  
+    // Clear the template detail state in Redux
+    dispatch(clearTemplateDetailState());
+  
+    // If a valid templateId is selected, fetch the new template
+    if (templateId) {
+      setCampaignLoading(true);
+      dispatch(
+        fetchTemplatesById({
+          ClientId: localStorage.getItem("clientId"),
+          templateId: templateId,
+        })
+      )
+        .catch((error) => {
+          console.error("Error fetching template:", error);
+          toast.error("Failed to fetch template data");
+        })
+        .finally(() => {
+          setCampaignLoading(false);
+        });
+    }
   };
   useEffect(() => {
     if (selectedTemplateId) {
@@ -348,7 +392,7 @@ const CampaignCreate = () => {
         })),
       ],
     };
-
+    setCampaignLoading(true);
     try {
       const response = await dispatch(createCampaign(requestBody)).unwrap();
       if (response.success) {
@@ -359,13 +403,14 @@ const CampaignCreate = () => {
           icon: "success",
         });
         router.push("/Campaigns/CampaignsList");
+        setCampaignLoading(false);
       } else {
         showSweetAlert({
           title: "Failed",
           text: response.message || "",
           icon: "error",
         });
-
+        setCampaignLoading(false);
         //window.location.reload();
       }
     } catch (err) {
@@ -581,6 +626,7 @@ const CampaignCreate = () => {
                           <MediaPopUp
                             isPopup={true}
                             ToggleModal={ToggleModal}
+                            senderId={selectedSenderId}
                             contentTypeStr={
                               template.headerType === 2
                                 ? "image"

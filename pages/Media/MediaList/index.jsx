@@ -30,7 +30,9 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr,senderId }) => {
     setIsModalOpen(false);
   };
 useEffect(() =>{
-if(medias){
+  debugger
+if(medias && medias.length > 0){
+  debugger
   setmediaList(medias)
 }
 },[medias])
@@ -152,10 +154,11 @@ if(medias){
           ispopUp={isPopup}
         />
         <div className="row">
-          {Medialist.map((media) => (
+          {Medialist?.map((media) => (
             <div key={media.mediaId} className="flex flex-col items-center space-y-2 col-lg-2 col-md-3 mb-5">
-              <div className="w-full overflow-hidden">
+              <div className="w-full overflow-hidden text-center">
                 {renderMediaPreview(media.mediaPath, media.contentType || "application/pdf")}
+                <span className="text-xs font-bold font-sans ">{media.fileName}</span>
               </div>
                 <button
                   className="Btn-Regular-3"

@@ -58,17 +58,18 @@ const InteractiveTemplateList = () => {
       name: "Template",
       selector: (row) => row.templateName,
       sortable: true,
-    },
-    {
-      name: "Language",
-      selector: (row) => row.language,
-      sortable: true,
+      width: "20%",
     },
     {
       name: " Sender Name",
       selector: (row) => row.senderName,
       sortable: true,
       width: "17%",
+    },
+    {
+      name: "Language",
+      selector: (row) => row.language,
+      sortable: true,
     },
     // { name: t("Template Language"), selector: (row) => row.language, sortable: true },
     { name: "Status ", selector: (row) => row.statusName, sortable: true },
@@ -101,7 +102,7 @@ const InteractiveTemplateList = () => {
               className="uniform_icon_btn"
               onClick={() => handleViualizationClick(row.interactiveTemplateId)}
             >
-               <i class="fa fa-connectdevelop fa-lg" aria-hidden="true"></i>
+              <i class="fa fa-connectdevelop fa-lg" aria-hidden="true"></i>
             </button>
             {/* {(row.defaultTypeId === 0 || row.defaultTypeId === "0") && (
               <button
@@ -345,37 +346,6 @@ const InteractiveTemplateList = () => {
               subHeader
               subHeaderComponent={subHeaderComponentMemo}
               className="w-full border"
-              customStyles={{
-                table: {
-                  style: {
-                    width: "100%",
-                    borderCollapse: "collapse", // Ensures borders collapse for proper grid appearance
-                  },
-                },
-                headRow: {
-                  style: {
-                    borderBottom: "1px solid #ddd",
-                    padding: "0px",
-                    padding: "0px", // Grid line at the bottom of the header
-                  },
-                },
-                headCells: {
-                  style: {
-                    borderRight: "1px solid #ddd", // Grid line between columns
-                    fontWeight: "bold",
-                  },
-                },
-                rows: {
-                  style: {
-                    borderBottom: "1px solid #ddd", // Horizontal grid line between rows
-                  },
-                },
-                cells: {
-                  style: {
-                    borderRight: "1px solid #ddd", // Vertical grid line between cells
-                  },
-                },
-              }}
             />
           </div>
         </>

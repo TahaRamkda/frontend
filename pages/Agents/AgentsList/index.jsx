@@ -84,7 +84,7 @@ const AgentsList = () => {
         </div>
       ),
     },
-    
+
     {
       name: "Agent Name AR",
       selector: (row) => `${row.agentFNameAR} ${row.agentLNameAR}`,
@@ -185,7 +185,6 @@ const AgentsList = () => {
     });
   };
 
-
   const handleTime = (agentId) => {
     setAgentId(agentId.id);
     setAgentFirstName(agentId.agentFName);
@@ -201,7 +200,6 @@ const AgentsList = () => {
   const handleChange = (e) => {
     const senderId = e.target.value;
     setSenderId(senderId);
-   
   };
   const handleClose = () => {
     setshowagenttiming(false);
@@ -374,7 +372,7 @@ const AgentsList = () => {
     return () => {
       dispatch(cleaAgentState());
     };
-  }, [dispatch,SenderId]);
+  }, [dispatch, SenderId]);
 
   const filteredAgents = useMemo(
     () =>
@@ -407,7 +405,7 @@ const AgentsList = () => {
         </div>
       </div>
     ),
-    [filterText,SenderId]
+    [filterText, SenderId]
   );
   if (error) {
     return <div className="p-4 text-red-500">{error}</div>;
@@ -450,36 +448,6 @@ const AgentsList = () => {
           subHeader
           subHeaderComponent={subHeaderComponentMemo}
           className="w-full border"
-          customStyles={{
-            table: {
-              style: {
-                width: "100%",
-                borderCollapse: "collapse", // Ensures borders collapse for proper grid appearance
-              },
-            },
-            headRow: {
-              style: {
-                borderBottom: "1px solid #ddd",
-                padding: "0px",
-              },
-            },
-            headCells: {
-              style: {
-                borderRight: "1px solid #ddd", // Grid line between columns
-                fontWeight: "bold",
-              },
-            },
-            rows: {
-              style: {
-                borderBottom: "1px solid #ddd", // Horizontal grid line between rows
-              },
-            },
-            cells: {
-              style: {
-                borderRight: "1px solid #ddd", // Vertical grid line between cells
-              },
-            },
-          }}
         />
       </div>
       {isModalOpen && (
@@ -516,7 +484,7 @@ const AgentsList = () => {
                       className="border rounded py-1 px-2 w-full text-sm"
                       existingdata={existingChatReasonId}
                     />
-                  </div> 
+                  </div>
                   <div>
                     <label className="font-medium text-gray-700 text-sm">
                       First Name Arabic
@@ -581,7 +549,13 @@ const AgentsList = () => {
         </Modal>
       )}
       {showagenttiming && (
-        <AgentTiming agentId={AgentId} isVisible={true} onClose={handleClose} AgentFirstName={AgentFirstName} AgentLastName={AgentLastName} />
+        <AgentTiming
+          agentId={AgentId}
+          isVisible={true}
+          onClose={handleClose}
+          AgentFirstName={AgentFirstName}
+          AgentLastName={AgentLastName}
+        />
       )}
 
       {CreateModalOpen && (

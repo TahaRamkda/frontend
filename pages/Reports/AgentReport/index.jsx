@@ -30,19 +30,19 @@ const AgentReport = () => {
 //     { value: '4', label: "Chat Expired" },
 //     { value: '5', label: "Chat Force Closed" },
 //   ];
-  const ChatsReportColumn = [
-    { name: "Agent ", selector: (row) => row.agentName, sortable: true },
-    { name: "Active", selector: (row) => row.activeChat, sortable: true },
-    { name: "Assigned", selector: (row) => row.assignedChat, sortable: true },
-    { name: "Unassigned", selector: (row) => row.unAssignedChat, sortable: true },
-    { name: "Abandon", selector: (row) => row.abandonChat, sortable: true },
-    { name: "Expired", selector: (row) => row.expiredChat, sortable: true },
-    { name: "Force Closed", selector: (row) => row.forceClosedChat, sortable: true },
-    { name: "Closed", selector: (row) => row.closedChat, sortable: true },
-    { name: "Avg Response Time", selector: (row) => row.avgResponseTime, sortable: true  }, 
-    { name: "Avg Chat Time", selector: (row) => row.avgChatTime, sortable: true },
-  
-  ];
+const ChatsReportColumn = [
+  { name: "Agent ", selector: (row) => row.agentName, sortable: true, width:"20%" },
+  { name: "Active", selector: (row) => row.activeChat, sortable: true },
+  { name: "Assigned", selector: (row) => row.assignedChat, sortable: true },
+  { name: "Unassigned", selector: (row) => row.unAssignedChat, sortable: true },
+  { name: "Abandon", selector: (row) => row.abandonChat, sortable: true },
+  { name: "Expired", selector: (row) => row.expiredChat, sortable: true },
+  { name: "Force Closed", selector: (row) => row.forceClosedChat, sortable: true },
+  { name: "Closed", selector: (row) => row.closedChat, sortable: true },
+  { name: "Avg Response Time", selector: (row) => row.avgResponseTime, sortable: true  }, 
+  { name: "Avg Chat Time", selector: (row) => row.avgChatTime, sortable: true },
+
+];
 
  
   const handleSearchString = (setter) => (e) => {
@@ -274,35 +274,6 @@ const AgentReport = () => {
         subHeader
         subHeaderComponent={subHeaderComponentMemo}
         className="w-full border"
-        customStyles={{
-          table: {
-            style: {
-              width: AgentReportList.length > 0 ? '2023px' : '100%',
-              borderCollapse: 'collapse',
-            },
-          },
-          headRow: {
-            style: {
-              borderBottom: '1px solid #ddd', padding: '0px',
-            },
-          },
-          headCells: {
-            style: {
-              borderRight: '1px solid #ddd',
-              fontWeight: 'bold',
-            },
-          },
-          rows: {
-            style: {
-              borderBottom: '1px solid #ddd',
-            },
-          },
-          cells: {
-            style: {
-              borderRight: '1px solid #ddd',
-            },
-          },
-        }}
       />
     </App>
   );

@@ -35,7 +35,7 @@ const UserList = () => {
       name: "Action",
       cell: (row) => (
         <>
-          <div className="flex gap-2 w-full justify-center">
+          <div className="flex gap-2 w-full ">
             <button className="uniform_icon_btn" title="Edit Users" onClick={() => handleDetailClick(row.userId)}><HiPencilAlt style={{ fontSize: "15px" }} /></button>
             <button className="uniform_icon_btn" title="Delete Users" onClick={() => handleDeleteClick(row.userId)}><HiTrash style={{ fontSize: "15px" }} /></button>
           </div>
@@ -214,37 +214,6 @@ const UserList = () => {
         paginationPerPage={defultpagessize} // Default number of rows per page
         paginationRowsPerPageOptions={customPageSizes} // Custom page size options
         className="w-full border"
-        customStyles={{
-          table: {
-            style: {
-              width: '100%',
-              borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
-            },
-          },
-          headRow: {
-            style: {
-              borderBottom: '1px solid #ddd', padding: '0px',
-            },
-          },
-          headCells: {
-            style: {
-
-              borderRight: '1px solid #ddd', // Grid line between columns
-              fontWeight: 'bold',
-            },
-          },
-          rows: {
-            style: {
-              borderBottom: '1px solid #ddd', // Horizontal grid line between rows
-            },
-          },
-          cells: {
-            style: {
-
-              borderRight: '1px solid #ddd', // Vertical grid line between cells
-            },
-          },
-        }}
       />
 
 

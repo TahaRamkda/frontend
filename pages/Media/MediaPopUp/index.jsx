@@ -11,7 +11,6 @@ import UploadMedia from "../UploadMedia";
 import { Image } from "react-bootstrap";
 const MediaPopUp = ({ isPopup, onSelectMedia, contentTypeStr,senderId, ToggleModal }) => {
   const dispatch = useDispatch();
-  const [selectedSenderId, setSelectedSenderId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [selectedMediaId, setSelectedMediaId] = useState(null);
   const [Medialist, setmediaList] = useState([]);
@@ -20,9 +19,9 @@ const fileInputRef = useRef(null);
 const [ispopUp, setispopUp] = useState(true);
   useEffect(() => {
     setmediaList([null]);
-    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), senderId: selectedSenderId,contentTypeStr: contentTypeStr}));
+    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), senderId: senderId,contentTypeStr: contentTypeStr}));
     return () => clearMediaUploadState();
-  }, [dispatch, selectedSenderId,contentTypeStr]);
+  }, [dispatch, senderId,contentTypeStr]);
 
   useEffect(() => {
     if (medias) {
@@ -30,53 +29,11 @@ const [ispopUp, setispopUp] = useState(true);
     }
   }, [medias]);
 
-  const validationSchema = Yup.object().shape({
-    senderId: Yup.string().required("Sender name is required"),
-    MediaFile: Yup.mixed().required("Media file is required"),
-  });
+  
 
-  const handleSubmit = async (values) => {
-    const formData = new FormData();
-    formData.append("ClientId", localStorage.getItem("clientId"));
-    formData.append("SenderNameId", values.selectedSenderId);
-    formData.append("File", values.MediaFile);
-    formData.append("ActionBy", localStorage.getItem("userId"));
+  
 
-    try {
-      const response = await dispatch(uploadMedia(formData)).unwrap();
-      if (response.success) {
-        dispatch(clearMediaUploadState());
-        setSubmitting(false);
-        showSweetAlert({
-          title: "Uploaded Successfully",
-          text: "",
-          icon: "success",
-        });
-        onUploadSuccess();
-        refreshList(); // Refresh the list after upload
-      } else {
-        showSweetAlert({
-          title: "Failed",
-          text: response.result.message || "",
-          icon: "error",
-        });
-      }
-    } catch (err) {
-      console.error("Failed to Upload", err);
-      showSweetAlert({
-        title: "Failed",
-        text: err.message || "",
-        icon: "error",
-      });
-    }
-  };
-
-  const handleSenderChange = (e) => {
-    setSelectedSenderId(e.target.value);
-    if (onsenderChange) {
-      onsenderChange(e.target.value);
-    }
-  };
+ 
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -108,7 +65,7 @@ const [ispopUp, setispopUp] = useState(true);
   };
 
   const refreshList = () => {
-    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), senderId: selectedSenderId }));
+    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), senderId: senderId }));
   };
 
   const renderMediaPreview = (mediaPath, mimeType) => {
@@ -136,6 +93,7 @@ const [ispopUp, setispopUp] = useState(true);
         {error && <div className="text-center text-red-500">{error}</div>}
         <UploadMedia
           onUploadSuccess={refreshList}
+          senderId={senderId}
           ispopUp={isPopup}
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 lg:grid-cols-5 gap-4">

@@ -1154,6 +1154,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                               isPopup={["2", "3", "4"].includes(
                                 values.headerType
                               )}
+                              senderId={selectedSenderId}
                               contentTypeStr={
                                 values.headerType === "2"
                                   ? "image"

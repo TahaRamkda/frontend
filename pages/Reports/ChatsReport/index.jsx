@@ -105,17 +105,17 @@ const ChatsReport = () => {
       name: "Status",
       selector: (row) => row.statusName,
       sortable: true,
-      width: "12%",
+      width: "8%",
     },
-    { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
-    { name: "Agent", selector: (row) => row.agentName, sortable: true },
+    { name: "Sender Name", selector: (row) => row.senderName, sortable: true, width: "12%" },
+    { name: "Agent", selector: (row) => row.agentName, sortable: true, width: "9%" },
     {
       name: "Total Messages",
       selector: (row) => row.totalMessages,
       sortable: true,
-      width: "10%",
+      width: "8%",
     },
-    { name: "Unread", selector: (row) => row.unreadCount, sortable: true },
+    { name: "Unread", selector: (row) => row.unreadCount, sortable: true, },
     {
       name: "Action",
       cell: (row) => (
@@ -555,36 +555,6 @@ const ChatsReport = () => {
         subHeader
         subHeaderComponent={subHeaderComponentMemo}
         className="w-full border"
-        customStyles={{
-          table: {
-            style: {
-              width: ConversationReport.length > 0 ? "2023px" : "100%",
-              borderCollapse: "collapse",
-            },
-          },
-          headRow: {
-            style: {
-              borderBottom: "1px solid #ddd",
-              padding: "0px",
-            },
-          },
-          headCells: {
-            style: {
-              borderRight: "1px solid #ddd",
-              fontWeight: "bold",
-            },
-          },
-          rows: {
-            style: {
-              borderBottom: "1px solid #ddd",
-            },
-          },
-          cells: {
-            style: {
-              borderRight: "1px solid #ddd",
-            },
-          },
-        }}
       />
       {modalOpen && (
         <Modal isOpen={true} toggle={HandleCloseInfoClick} fade={false}>

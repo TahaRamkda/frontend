@@ -28,7 +28,7 @@ const RoleList = () => {
       name: "Action",
       cell: (row) => (
         
-        <div className="flex gap-2 w-full justify-center">
+        <div className="flex gap-2 w-full ">
           <button
             title="Edit Roles"
             className="uniform_icon_btn"
@@ -200,37 +200,6 @@ const RoleList = () => {
           subHeaderComponent={subHeaderComponentMemo}
           paginationPerPage={defultpagessize} // Default number of rows per page
           paginationRowsPerPageOptions={customPageSizes} // Custom page size options
-          customStyles={{
-            table: {
-              style: {
-                width: '100%',
-                borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
-              },
-            },
-            headRow: {
-              style: {
-                borderBottom: '1px solid #ddd', padding: '0px',
-              },
-            },
-            headCells: {
-              style: {
-
-                borderRight: '1px solid #ddd', // Grid line between columns
-                fontWeight: 'bold',
-              },
-            },
-            rows: {
-              style: {
-                borderBottom: '1px solid #ddd', // Horizontal grid line between rows
-              },
-            },
-            cells: {
-              style: {
-
-                borderRight: '1px solid #ddd', // Vertical grid line between cells
-              },
-            },
-          }}
         />
       </div>
       {isModalOpen && (

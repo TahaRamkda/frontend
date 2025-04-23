@@ -51,7 +51,7 @@ const MessageSummary = () => {
   const [clientId, setClientId] = useState(null);
   const [refreshpage, setrefreshpage] = useState(false); // Track if page is refreshing
   const ChatsReportColumn = [
-    { name: "Agent", selector: (row) => row?.agentName, sortable: true, width: "11%" },
+    { name: "Agent", selector: (row) => row?.agentName, sortable: true, width: "15%" },
     {
       name: "Status",
       selector: (row) => row?.status,
@@ -67,38 +67,34 @@ const MessageSummary = () => {
         </span>
       ),
     },
-    { name: "Active Chat", selector: (row) => row?.activeChat, sortable: true },
+    { name: "Active ", selector: (row) => row?.activeChat, sortable: true },
     { name: "Unread", selector: (row) => row?.unreadCount || 0, sortable: true },
     { name: "Assigned", selector: (row) => row?.assignedChat, sortable: true },
     {
       name: "Unassigned",
       selector: (row) => row?.unAssignedChat,
       sortable: true,
-      width: "11%",
     },
     {
       name: "Abandoned",
       selector: (row) => row?.abandonChat,
       sortable: true,
-      width: "11%",
     },
     {
       name: "Force closed",
       selector: (row) => row?.forceClosedChat,
       sortable: true,
-      width: "11%",
+     
     },
     {
       name: "Closed",
       selector: (row) => row?.closedChat,
       sortable: true,
-      width: "10%",
     },
     {
       name: "Expired",
       selector: (row) => row?.forceClosedChat,
       sortable: true,
-      width: "10%",
     },
 
     {
@@ -147,7 +143,6 @@ const MessageSummary = () => {
           />
         </div>
       ),
-      width: "10%",
     },
   ];
 
@@ -466,36 +461,6 @@ const MessageSummary = () => {
         subHeader
         subHeaderComponent={subHeaderComponentMemo}
         className="w-full border"
-        customStyles={{
-          table: {
-            style: {
-              width: agentsMonitor.length > 0 ? "2023px" : "100%",
-              borderCollapse: "collapse", // Ensures borders collapse for proper grid appearance
-            },
-          },
-          headRow: {
-            style: {
-              borderBottom: "1px solid #ddd",
-              padding: "0px",
-            },
-          },
-          headCells: {
-            style: {
-              borderRight: "1px solid #ddd", // Grid line between columns
-              fontWeight: "bold",
-            },
-          },
-          rows: {
-            style: {
-              borderBottom: "1px solid #ddd", // Horizontal grid line between rows
-            },
-          },
-          cells: {
-            style: {
-              borderRight: "1px solid #ddd", // Vertical grid line between cells
-            },
-          },
-        }}
       />
       {ShowEditModal && (
         <Modal isOpen={true} toggle={toggleModal} fade={false}>

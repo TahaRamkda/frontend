@@ -20,7 +20,7 @@ const PermissionList = () => {
   const handleCheckboxChangeCanView = (permissionId) => {
     //alert("change permission for Id: " +permissionId);
     setData((prevData) =>
-      prevData.map((row) => {
+      prevData?.map((row) => {
         if (row.pId === permissionId) {
           const updatedRow = { ...row, canView: !row.canView };
           return updatedRow;
@@ -32,7 +32,7 @@ const PermissionList = () => {
 
   const handleCheckboxChangeCanCreate = (permissionId) => {
     setData((prevData) =>
-      prevData.map((row) => {
+      prevData?.map((row) => {
         if (row.pId === permissionId) {
           const updatedRow = { ...row, canCreate: !row.canCreate };
           return updatedRow;
@@ -44,7 +44,7 @@ const PermissionList = () => {
 
   const handleCheckboxChangeCanUpdate = (permissionId) => {
     setData((prevData) =>
-      prevData.map((row) => {
+      prevData?.map((row) => {
         if (row.pId === permissionId) {
           const updatedRow = { ...row, canUpdate: !row.canUpdate };
           return updatedRow;
@@ -56,7 +56,7 @@ const PermissionList = () => {
 
   const handleCheckboxChangeCanDelete = (permissionId) => {
     setData((prevData) =>
-      prevData.map((row) => {
+      prevData?.map((row) => {
         if (row.pId === permissionId) {
           const updatedRow = { ...row, canDelete: !row.canDelete };
           return updatedRow;
@@ -164,7 +164,7 @@ const PermissionList = () => {
   }, [dispatch, selectedRole]);
 
   useEffect(() => {
-    if (permissions.length) {
+    if (permissions?.length > 0) {
       setData(permissions);
     }
   }, [permissions]);
@@ -223,37 +223,6 @@ const PermissionList = () => {
         subHeaderComponent={subHeaderComponentMemo}
         paginationPerPage={defultpagessize} // Default number of rows per page
         paginationRowsPerPageOptions={customPageSizes} // Custom page size options
-        customStyles={{
-          table: {
-            style: {
-              width: '100%',
-              borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
-            },
-          },
-          headRow: {
-            style: {
-              borderBottom: '1px solid #ddd', padding: '0px',
-            },
-          },
-          headCells: {
-            style: {
-
-              borderRight: '1px solid #ddd', // Grid line between columns
-              fontWeight: 'bold',
-            },
-          },
-          rows: {
-            style: {
-              borderBottom: '1px solid #ddd', // Horizontal grid line between rows
-            },
-          },
-          cells: {
-            style: {
-
-              borderRight: '1px solid #ddd', // Vertical grid line between cells
-            },
-          },
-        }}
       />
 
     </App>

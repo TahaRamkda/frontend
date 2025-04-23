@@ -55,7 +55,7 @@ import UpdateCampaign from "../UpdateCampaign";
 import { usePermissions } from "@/context/PermissionsContext";
 const CampaignsList = () => {
   const dispatch = useDispatch();
-  const { hasPermission } = usePermissions();
+  // const { hasPermission } = usePermissions();
   const router = useRouter();
   const [templateId, settemplateId] = useState(0);
   const [status, setstatus] = useState(0);
@@ -320,47 +320,56 @@ const CampaignsList = () => {
       name: "Campaign Name",
       selector: (row) => row.campaignName,
       sortable: true,
+      width: "15%"
       // Prevents wrapping, forces width to fit content
     },
     {
       name: "Schedule Date",
       selector: (row) => row.scheduleDate,
       sortable: true,
+      width: "15%"
     },
     {
       name: "Status",
       selector: (row) => row.statusName,
       sortable: true,
+      width: "10%"
     },
     {
       name: "Contacts",
       selector: (row) => row.totalContacts,
       sortable: true,
+      width: "6%"
     },
     {
       name: "Sent",
       selector: (row) => row.sentCount,
       sortable: true,
+      width: "6%"
     },
     {
       name: "Delivered",
       selector: (row) => row.deliveredCount,
       sortable: true,
+      width: "6%"
     },
     {
       name: "Read",
       selector: (row) => row.readCount,
       sortable: true,
+      width: "6%"
     },
     {
       name: "Failed",
       selector: (row) => row.failedCount,
       sortable: true,
+      width: "6%"
     },
     {
       name: "Created Date",
       selector: (row) => row.createdDate,
       sortable: true,
+      width: "15%"
     },
     {
       name: "Action",
@@ -412,7 +421,7 @@ const CampaignsList = () => {
           </div>
         );
       },
-      // Ensures action buttons don't wrap
+      width: "10%"
     },
   ];
   const subHeaderComponentMemo = useMemo(() => {
@@ -420,7 +429,7 @@ const CampaignsList = () => {
       <div className="w-full">
         <div className="grid grid-cols-5 gap-4 justify-start">
           <div className="flex flex-col text-start mb-1">
-            <Label className="font-medium text-sm mb-1">Select Templates</Label>
+            <Label className="font-medium text-sm mb-1"> Templates</Label>
             <TemplateDropdown
               name="role_Id"
               onChange={handleTemplateChange}
@@ -458,6 +467,7 @@ const CampaignsList = () => {
   const handleClose = () => {
     setShowUpdateModel(false);
     setcampaignloading(false);
+    refreshCampaignList();
   };
 
   return (
@@ -472,7 +482,7 @@ const CampaignsList = () => {
               <h4 className="font-bold mb-2">Campaign</h4>
             </div>
             <div className="ml-auto mb-2">
-              {hasPermission("Campaigns", "create") && (
+              {/* {hasPermission("Campaigns", "create") && ( */}
                 <Button
                   color="primary"
                   className="uniform_btn"
@@ -481,7 +491,7 @@ const CampaignsList = () => {
                 >
                   Create Campaign
                 </Button>
-              )}
+              {/* )} */}
             </div>
           </div>
 
@@ -502,40 +512,7 @@ const CampaignsList = () => {
               subHeader
               subHeaderComponent={subHeaderComponentMemo}
               className="w-full border"
-              customStyles={{
-                table: {
-                  style: {
-                    width: "2023px", // Set the width to 2023px
-                    borderCollapse: "collapse",
-                  },
-                },
-                headRow: {
-                  style: {
-                    borderBottom: "1px solid #ddd",
-                    padding: "0px",
-                  },
-                },
-                headCells: {
-                  style: {
-                    borderRight: "1px solid #ddd",
-                    fontWeight: "bold",
-                    whiteSpace: "nowrap",
-                    overflow: "visible",
-                  },
-                },
-                rows: {
-                  style: {
-                    borderBottom: "1px solid #ddd",
-                  },
-                },
-                cells: {
-                  style: {
-                    borderRight: "1px solid #ddd",
-                    whiteSpace: "nowrap",
-                    overflow: "visible",
-                  },
-                },
-              }}
+              
             />
           </div>
           <Modal

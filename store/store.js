@@ -51,7 +51,7 @@ export const store = configureStore({
     bridge:ChatBridgeSlice,
     flows:FlowSlice,
     templateVisualization:TemplateVisualizationSlice,
-    appsettong:AppSettingSlice,
+    appsetting:AppSettingSlice,
 
     }
 })

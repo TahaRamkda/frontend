@@ -692,6 +692,7 @@ const InteractiveTemplateCreation = () => {
                                 isPopup={["2", "3", "4"].includes(
                                   values.headerType
                                 )}
+                                senderId={selectedSenderId}
                                 contentTypeStr={
                                   values.headerType === "2"
                                     ? "image"
@@ -730,6 +731,7 @@ const InteractiveTemplateCreation = () => {
                                   <MediaPopUp
                                     isPopup={true}
                                     ToggleModal={ToggleModal}
+                                    senderId={selectedSenderId}
                                     contentTypeStr={
                                       values.headerType === "2"
                                         ? "image"

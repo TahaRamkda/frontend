@@ -57,8 +57,8 @@ const RoleDropdown = ({ name, value, onChange }) => {
         required
       >
          <option value="0">Select</option>
-        {roleDrop && roleDrop.length > 0 ? (
-          roleDrop.map((role) => (
+        {roleDrop && roleDrop?.length > 0 ? (
+          roleDrop?.map((role) => (
             <option key={role.id} value={role.id}>
               {role.name}
             </option>

@@ -175,36 +175,6 @@ const SendernameList = () => {
           paginationPerPage={defultpagessize} // Default number of rows per page
           paginationRowsPerPageOptions={customPageSizes} // Custom page size options
           className="w-full border"
-          customStyles={{
-            table: {
-              style: {
-                width: "100%",
-                borderCollapse: "collapse", // Ensures borders collapse for proper grid appearance
-              },
-            },
-            headRow: {
-              style: {
-                borderBottom: "1px solid #ddd",
-                padding: "0px",
-              },
-            },
-            headCells: {
-              style: {
-                borderRight: "1px solid #ddd", // Grid line between columns
-                fontWeight: "bold",
-              },
-            },
-            rows: {
-              style: {
-                borderBottom: "1px solid #ddd", // Horizontal grid line between rows
-              },
-            },
-            cells: {
-              style: {
-                borderRight: "1px solid #ddd", // Vertical grid line between cells
-              },
-            },
-          }}
         />
       </div>
 

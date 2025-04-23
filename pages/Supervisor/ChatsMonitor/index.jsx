@@ -410,35 +410,6 @@ useEffect(() => {
         responsive
         subHeaderComponent={subHeaderComponentMemo}
         className="w-full border"
-        customStyles={{
-          table: {
-            style: {
-              width: chatsMonitor.length > 0 ? '2023px' : '100%',
-              borderCollapse: 'collapse',
-            },
-          },
-          headRow: {
-            style: {
-              borderBottom: '1px solid #ddd', padding: '0px',
-            },
-          },
-          headCells: {
-            style: {
-              borderRight: '1px solid #ddd',
-              fontWeight: 'bold',
-            },
-          },
-          rows: {
-            style: {
-              borderBottom: '1px solid #ddd',
-            },
-          },
-          cells: {
-            style: {
-              borderRight: '1px solid #ddd',
-            },
-          },
-        }}
       />
       {
         showchat && (

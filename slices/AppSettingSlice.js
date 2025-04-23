@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { SETTINGLIST, SETTINGBYID, ADDGROUP,  UPDATEAPPSETTING, DELETEAPPSETTING, APPSETTING } from '@/utils/apiConstants';
+import { SETTINGLIST, SETTINGBYID, ADDSETTINGS,  UPDATEAPPSETTING, DELETEAPPSETTING, APPSETTING } from '@/utils/apiConstants';
 
 // Thunks
 // Fatch Setting
@@ -9,7 +9,7 @@ export const fetchSetting = createAsyncThunk(
     'appSettings/fetchSetting',
     async ({ pageNo, pageSize, SearchStr}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${SETTINGLIST}?PageNo=${pageNo}${ SearchStr? `&SearchStr=${SearchStr}`:''}PageSize=${pageSize}`);
+        const response = await API.get(`${SETTINGLIST}?PageNo=${pageNo}${ SearchStr? `&SearchStr=${SearchStr}`:''}&PageSize=${pageSize}`);
         if (response?.status === 200) {
           return {
             settingList: response.data.result,
@@ -41,11 +41,11 @@ export const fetchSettingById = createAsyncThunk(
   );
 
 // ADD GROUP
-export const addGroup = createAsyncThunk(
-    'appSettings/addGroup',
+export const addSettings = createAsyncThunk(
+    'appSettings/addSettings',
     async (Groupdata, { rejectWithValue }) => {
       try {
-        const response = await API.post(ADDGROUP, Groupdata);
+        const response = await API.post(ADDSETTINGS, Groupdata);
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -200,17 +200,17 @@ const AppSettingSlice = createSlice({
       })
 
       // Create Group Setting 
-      .addCase(addGroup.pending, (state) => {
+      .addCase(addSettings.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.success = false;
       })
-      .addCase(addGroup.fulfilled, (state, action) => {
+      .addCase(addSettings.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
         state.message = action.payload.message || ' Created Successfully';
       })
-      .addCase(addGroup.rejected, (state, action) => {
+      .addCase(addSettings.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;

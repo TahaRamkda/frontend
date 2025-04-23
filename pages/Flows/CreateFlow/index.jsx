@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/router";
+
 import {
   Container,
   Row,
@@ -21,6 +22,7 @@ import {
   ListGroup,
   ListGroupItem,
 } from "reactstrap";
+import { Image } from "react-bootstrap";
 import { Tabs, Tab } from "react-bootstrap";
 import { BASE_URL } from "@/utils/apiConstants";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -41,6 +43,8 @@ import { dropdownOptions } from "@/utils/constants";
 import InteractiveTemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropWithoutParam";
 import FlowDropdown from "@/components/Dropdowns/FlowsDropdown";
 import { QuestionTypes } from "@/utils/constants";
+import { FiArrowLeft, FiChevronRight } from "react-icons/fi";
+
 // FlowPreview component
 const FlowPreview = ({
   flowData,
@@ -48,6 +52,7 @@ const FlowPreview = ({
   setCurrentScreenIndex,
   senderNameData,
 }) => {
+  const [contentShow, setContentShow] = useState(true);
   const [answers, setAnswers] = useState(() =>
     flowData.flowScreens.map((screen) =>
       screen.flowChildren.map((child) => {
@@ -66,10 +71,42 @@ const FlowPreview = ({
   );
   const [isSaved, setIsSaved] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  // New state for dropdown options screen
+  const [isDropdownOptionsScreen, setIsDropdownOptionsScreen] = useState(false);
+  const [dropdownChildIndex, setDropdownChildIndex] = useState(null);
+  const [dropdownOptions, setDropdownOptions] = useState([]);
   const handlePreviewSave = () => {
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2000);
+  };
+  const handleClick = () => {
+    setContentShow(true);
+  };
+  const handleDropdownClick = (childIndex, options) => {
+    setIsDropdownOptionsScreen(true);
+    setDropdownChildIndex(childIndex);
+    setDropdownOptions(options);
+  };
+
+  const handleOptionSelect = (optionText) => {
+    const newAnswers = [...answers];
+    newAnswers[currentScreenIndex][dropdownChildIndex] = optionText;
+    setAnswers(newAnswers);
+    setIsDropdownOptionsScreen(false);
+    setDropdownChildIndex(null);
+    setDropdownOptions([]);
+  };
+  const handleCLose = () => {
+    if (isDropdownOptionsScreen) {
+      // Return from dropdown options screen to main screen
+      setIsDropdownOptionsScreen(false);
+      setDropdownChildIndex(null);
+      setDropdownOptions([]);
+    } else if (currentScreenIndex > 0) {
+      setCurrentScreenIndex(currentScreenIndex - 1);
+    } else {
+      setContentShow(false);
+    }
   };
 
   useEffect(() => {
@@ -132,267 +169,324 @@ const FlowPreview = ({
       return true;
     });
   };
-
   return (
     <div>
-      <Card
-        className="h-[80vh] overflow-auto border shadow-sm"
-        style={{ borderRadius: "10px", overflow: "hidden" }}
-      >
-        <CardTitle
-          style={{
-            position: "sticky",
-            top: 0,
-            zIndex: 10,
-            backgroundColor: "white",
-            borderBottom: "1px solid #e0e0e0",
-            padding: "10px 15px",
-          }}
-        >
-          <div className="">
-            <h3 className=" " style={{ fontWeight: "600", color: "#333" }}>
-              Flow Preview
-            </h3>
+      <Card className="max-h-[85vh] overflow-auto border shadow-sm">
+        <CardTitle className="sticky top-0 z-10 bg-white border-b border-gray-200 p-2">
+          <div>
+            <h3 className="font-semibold text-gray-800">Flow Preview</h3>
           </div>
         </CardTitle>
         {isSaved ? (
-          <CardBody className=" text-center">
-            <div className="text-success flex gap-3 justify-center ">
+          <CardBody className="text-center">
+            <div className="text-green-600 flex gap-3 justify-center items-center">
               <HiCheck size={24} /> Flow saved successfully
             </div>
           </CardBody>
         ) : (
           <CardBody className="p-4">
-            <CardTitle
-              className="mb-3"
-              style={{ fontSize: "1rem", color: "#656565" }}
-            >
+            <CardTitle className="mb-3 text-sm text-gray-500">
               Preview - Screen {currentScreenIndex + 1} of{" "}
               {flowData.flowScreens.length}
             </CardTitle>
-            <h5
-              className="mb-4"
-              style={{ fontSize: "1.5rem", fontWeight: "600" }}
-            >
-              {currentScreen.title || "Untitled Screen"}
-            </h5>
-            {currentScreen.flowChildren.map((child, childIndex) => (
-              <FormGroup key={childIndex} className="mb-4">
-                {child.type !== QuestionTypes.TextHeading && (
-                  <Label
-                    className="mb-2"
-                    style={{
-                      fontSize: "1.1rem",
-                      fontWeight: "500",
-                      color: "#333",
-                    }}
-                  >
-                    <span style={{ fontWeight: "bold", marginRight: "8px" }}>
-                      {childIndex + 1}.
-                    </span>
-                    {child.text || "Untitled Question"}{" "}
-                    {child.required && <span style={{ color: "red" }}>*</span>}
-                  </Label>
-                )}
-                {child.type === QuestionTypes.TextInput && (
-                  <Input
-                    type="text"
-                    value={answers[currentScreenIndex][childIndex] || ""}
-                    onChange={(e) => {
-                      const newAnswers = [...answers];
-                      newAnswers[currentScreenIndex][childIndex] =
-                        e.target.value;
-                      setAnswers(newAnswers);
-                    }}
-                    className="rounded-pill"
-                    style={{ padding: "10px 15px", borderColor: "#ced4da" }}
-                  />
-                )}
-                {child.type === QuestionTypes.TextArea && (
-                  <Input
-                    type="textarea"
-                    value={answers[currentScreenIndex][childIndex] || ""}
-                    onChange={(e) => {
-                      const newAnswers = [...answers];
-                      newAnswers[currentScreenIndex][childIndex] =
-                        e.target.value;
-                      setAnswers(newAnswers);
-                    }}
-                    className="rounded"
-                    style={{
-                      padding: "10px 15px",
-                      borderColor: "#ced4da",
-                      minHeight: "100px",
-                    }}
-                  />
-                )}
-                {child.type === QuestionTypes.RadioButtonsGroup &&
-                  child.flowOptions.map((option, optionIndex) => (
-                    <FormGroup check key={optionIndex} className="mb-2">
-                      <Input
-                        type="radio"
-                        name={`question_${childIndex}`}
-                        value={option.optionText}
-                        checked={
-                          answers[currentScreenIndex][childIndex] ===
-                          option.optionText
-                        }
-                        onChange={() => {
-                          const newAnswers = [...answers];
-                          newAnswers[currentScreenIndex][childIndex] =
-                            option.optionText;
-                          setAnswers(newAnswers);
-                        }}
-                        style={{ marginRight: "10px" }}
-                      />
-                      <Label check style={{ fontSize: "1rem", color: "#555" }}>
-                        {option.optionText}
-                      </Label>
-                    </FormGroup>
-                  ))}
-                {/* {child.type === QuestionTypes.Dropdown &&
-                  child.flowOptions.map((option, optionIndex) => (
-                    
-                    <FormGroup check key={optionIndex} className="mb-2">
-                      <Input
-                        type="radio"
-                        name={`question_${childIndex}`}
-                        value={option.optionText}
-                        checked={
-                          answers[currentScreenIndex][childIndex] ===
-                          option.optionText
-                        }
-                        onChange={() => {
-                          const newAnswers = [...answers];
-                          newAnswers[currentScreenIndex][childIndex] =
-                            option.optionText;
-                          setAnswers(newAnswers);
-                        }}
-                        style={{ marginRight: "10px" }}
-                      />
-                      <Label check style={{ fontSize: "1rem", color: "#555" }}>
-                        {option.optionText}
-                      </Label>
-                    </FormGroup>
-                  ))} */}
-                {child.type === QuestionTypes.Dropdown && (
-                  <FormGroup className="mb-2">
-                    <Label style={{ fontSize: "1rem", color: "#555" }}>
-                      {child.questionText}
-                    </Label>
-                    <Input
-                      type="select"
-                      name={`question_${childIndex}`}
-                      value={answers[currentScreenIndex][childIndex] || ""}
-                      onChange={(e) => {
-                        const newAnswers = [...answers];
-                        newAnswers[currentScreenIndex][childIndex] =
-                          e.target.value;
-                        setAnswers(newAnswers);
-                      }}
-                      style={{ fontSize: "1rem", color: "#555" }}
-                    >
-                      <option value="" disabled>
-                        Select an option
-                      </option>
-                      {child.flowOptions.map((option, optionIndex) => (
-                        <option key={optionIndex} value={option.optionText}>
-                          {option.optionText}
-                        </option>
-                      ))}
-                    </Input>
-                  </FormGroup>
-                )}
 
-                {child.type === QuestionTypes.CheckboxGroup &&
-                  child.flowOptions.map((option, optionIndex) => (
-                    <FormGroup check key={optionIndex} className="mb-2">
-                      <Input
-                        type="checkbox"
-                        value={option.optionText}
-                        checked={
-                          answers[currentScreenIndex][childIndex]?.includes(
-                            option.optionText
-                          ) || false
-                        }
-                        onChange={(e) => {
-                          const newAnswers = [...answers];
-                          const currentValues =
-                            newAnswers[currentScreenIndex][childIndex] || [];
-                          if (e.target.checked) {
-                            newAnswers[currentScreenIndex][childIndex] = [
-                              ...currentValues,
-                              option.optionText,
-                            ];
-                          } else {
-                            newAnswers[currentScreenIndex][childIndex] =
-                              currentValues.filter(
-                                (val) => val !== option.optionText
-                              );
-                          }
-                          setAnswers(newAnswers);
-                        }}
-                        style={{ marginRight: "10px" }}
-                      />
-                      <Label check style={{ fontSize: "1rem", color: "#555" }}>
-                        {option.optionText}
-                      </Label>
-                    </FormGroup>
-                  ))}
-                {child.type === QuestionTypes.TextHeading && (
-                  <div
-                    style={{
-                      fontSize: "1.2rem",
-                      color: "#333",
-                      marginBottom: "10px",
-                    }}
-                  >
-                    {child.text || "Untitled Heading"}
-                  </div>
-                )}
-              </FormGroup>
-            ))}
-            {isSaved && (
-              <div className="text-success text-center mb-3">
-                <HiCheck size={24} /> Flow saved successfully
+            <div className="relative mx-auto my-8 w-[18vw] max-w-[360px] h-[640px] bg-white border-8 border-gray-800 rounded-3xl shadow-xl overflow-hidden">
+              {/* Header */}
+              <div className="flex items-center justify-start p-2 bg-white border-b border-gray-200">
+                <div className="flex items-center space-x-2">
+                  {senderNameData && (
+                    <div className="flex items-center">
+                      {senderNameData.mediaPath && (
+                        <Image
+                          src={`${BASE_URL}${senderNameData.mediaPath}`}
+                          alt="Sender Logo"
+                          className="rounded-full w-10 h-10 object-cover"
+                        />
+                      )}
+                      <div className="ml-2">
+                        <div className="text-xs font-medium text-gray-800">
+                          {senderNameData.senderName}
+                        </div>
+                        <div className="text-[0.66rem] text-gray-600">
+                          {senderNameData.phoneNumber}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
-            <div className="d-flex justify-content-between mt-4">
-              {currentScreenIndex > 0 && (
-                <Button
-                  color="secondary"
-                  onClick={() => setCurrentScreenIndex(currentScreenIndex - 1)}
-                  className="uniform_btn"
-                  style={{
-                    backgroundColor: "#e0e0e0",
-                    border: "none",
-                    color: "white",
-                  }}
-                >
-                  Previous
-                </Button>
-              )}
-              <div className="flex-grow-1" />
-              {currentScreenIndex < flowData.flowScreens.length - 1 && (
-                <Button
-                  color="primary"
-                  onClick={() => setCurrentScreenIndex(currentScreenIndex + 1)}
-                  className="uniform_btn"
-                  style={{ backgroundColor: "#00a884", border: "none" }}
-                  disabled={!areRequiredQuestionsAnswered()}
-                >
-                  {currentScreen.screenButtonText || "Next"}
-                </Button>
-              )}
-              {currentScreenIndex === flowData.flowScreens.length - 1 && (
-                <Button
-                  color="primary"
-                  onClick={handlePreviewSave}
-                  className="uniform_btn"
-                  style={{ backgroundColor: "#00a884", border: "none" }}
-                >
-                  {currentScreen.screenButtonText || "Save"}
-                </Button>
+              {contentShow ? (
+                <>
+                  <div className="h-[62vh] border-t border-black rounded-t-2xl flex flex-col">
+                    {/* Header */}
+                    <div className="flex items-center justify-start p-3 bg-white border-b rounded-t-2xl border-gray-200">
+                      <div className="flex items-center space-x-5">
+                        <div>
+                          <button
+                            className="flex items-center space-x-2 text-gray-600 hover:text-gray-800"
+                            onClick={handleCLose}
+                          >
+                            <FiArrowLeft className="w-5 h-5" />
+                          </button>
+                        </div>
+                        <div className="flex items-baseline space-x-2">
+                          <h5 className="text-gray-600 hover:text-gray-800 m-0">
+                            {isDropdownOptionsScreen
+                              ? "Select an Option"
+                              : currentScreen.title || "Untitled Screen"}
+                          </h5>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Scrollable Content */}
+                    <div className="flex-1 overflow-y-auto p-3">
+                      {isDropdownOptionsScreen ? (
+                        // Dropdown Options Screen
+                        <div>
+                          {dropdownOptions.map((option, optionIndex) => {
+                            const isSelected =
+                              answers[currentScreenIndex][
+                                dropdownChildIndex
+                              ] === option.optionText;
+                            return (
+                              <div className="w-full">
+                              <button
+                                key={optionIndex}
+                                className={`w-full text-left p-3 mb-2 rounded-lg text-base ${
+                                  isSelected ? "text-green-400" : " text-gray-800 hover:bg-gray-200"
+                                } flex items-center justify-between`}
+                                onClick={() => handleOptionSelect(option.optionText)}
+                              >
+                                <span>{option.optionText}</span>
+                                {isSelected && <HiCheck className="w-5 h-5 text-green-500" />}
+                              </button>
+                            </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        // Main Screen Content
+                        currentScreen.flowChildren.map((child, childIndex) => (
+                          <FormGroup key={childIndex} className="mb-4">
+                            {child.type !== QuestionTypes.TextHeading && (
+                              <Label className="mb-2 text-[1.1rem] font-medium text-gray-800">
+                                {child.text || "Untitled Question"}
+                              </Label>
+                            )}
+                            {child.type === QuestionTypes.TextInput && (
+                              <Input
+                                type="text"
+                                value={
+                                  answers[currentScreenIndex][childIndex] || ""
+                                }
+                                onChange={(e) => {
+                                  const newAnswers = [...answers];
+                                  newAnswers[currentScreenIndex][childIndex] =
+                                    e.target.value;
+                                  setAnswers(newAnswers);
+                                }}
+                                className="rounded-full"
+                                style={{
+                                  padding: "10px 15px",
+                                  borderColor: "#ced4da",
+                                }}
+                              />
+                            )}
+                            {child.type === QuestionTypes.TextArea && (
+                              <Input
+                                type="textarea"
+                                value={
+                                  answers[currentScreenIndex][childIndex] || ""
+                                }
+                                onChange={(e) => {
+                                  const newAnswers = [...answers];
+                                  newAnswers[currentScreenIndex][childIndex] =
+                                    e.target.value;
+                                  setAnswers(newAnswers);
+                                }}
+                                className="rounded"
+                                style={{
+                                  padding: "10px 15px",
+                                  borderColor: "#ced4da",
+                                  minHeight: "100px",
+                                }}
+                              />
+                            )}
+                            {child.type === QuestionTypes.RadioButtonsGroup &&
+                              child.flowOptions.map((option, optionIndex) => (
+                                <FormGroup
+                                  check
+                                  key={optionIndex}
+                                  className="mb-2"
+                                >
+                                  <Input
+                                    type="radio"
+                                    name={`question_${childIndex}`}
+                                    value={option.optionText}
+                                    checked={
+                                      answers[currentScreenIndex][
+                                        childIndex
+                                      ] === option.optionText
+                                    }
+                                    onChange={() => {
+                                      const newAnswers = [...answers];
+                                      newAnswers[currentScreenIndex][
+                                        childIndex
+                                      ] = option.optionText;
+                                      setAnswers(newAnswers);
+                                    }}
+                                    className="mr-2"
+                                  />
+                                  <Label
+                                    check
+                                    className="text-base text-gray-600"
+                                  >
+                                    {option.optionText}
+                                  </Label>
+                                </FormGroup>
+                              ))}
+                            {child.type === QuestionTypes.Dropdown && (
+                              <FormGroup className="mb-2">
+                                <button
+                                  className="w-full text-left p-2 bg-gray-100 rounded-lg text-base text-gray-600 border border-gray-300 flex items-center justify-between"
+                                  onClick={() =>
+                                    handleDropdownClick(
+                                      childIndex,
+                                      child.flowOptions
+                                    )
+                                  }
+                                >
+                                  <span>
+                                  {answers && answers[currentScreenIndex] && answers[currentScreenIndex][childIndex] 
+  ? answers[currentScreenIndex][childIndex] 
+  : "Select an option"}
+                                  </span>
+                                  <FiChevronRight className="w-5 h-5 text-gray-600" />
+                                </button>
+                              </FormGroup>
+                            )}
+                            {child.type === QuestionTypes.CheckboxGroup &&
+                              child.flowOptions.map((option, optionIndex) => (
+                                <FormGroup
+                                  check
+                                  key={optionIndex}
+                                  className="mb-2"
+                                >
+                                  <Input
+                                    type="checkbox"
+                                    value={option.optionText}
+                                    checked={
+                                      answers[currentScreenIndex][
+                                        childIndex
+                                      ]?.includes(option.optionText) || false
+                                    }
+                                    onChange={(e) => {
+                                      const newAnswers = [...answers];
+                                      const currentValues =
+                                        newAnswers[currentScreenIndex][
+                                          childIndex
+                                        ] || [];
+                                      if (e.target.checked) {
+                                        newAnswers[currentScreenIndex][
+                                          childIndex
+                                        ] = [
+                                          ...currentValues,
+                                          option.optionText,
+                                        ];
+                                      } else {
+                                        newAnswers[currentScreenIndex][
+                                          childIndex
+                                        ] = currentValues.filter(
+                                          (val) => val !== option.optionText
+                                        );
+                                      }
+                                      setAnswers(newAnswers);
+                                    }}
+                                    className="mr-2"
+                                  />
+                                  <Label
+                                    check
+                                    className="text-base text-gray-600"
+                                  >
+                                    {option.optionText}
+                                  </Label>
+                                </FormGroup>
+                              ))}
+                            {child.type === QuestionTypes.TextHeading && (
+                              <div className="text-lg text-gray-800 mb-2">
+                                {child.text || "Untitled Heading"}
+                              </div>
+                            )}
+                          </FormGroup>
+                        ))
+                      )}
+                      {isSaved && (
+                        <div className="text-green-600 text-center mb-3 flex items-center justify-center gap-2">
+                          <HiCheck size={24} /> Flow saved successfully
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Fixed Footer Buttons */}
+                    {!isDropdownOptionsScreen && (
+                      <div className="p-3 bg-white border-t border-gray-200 flex justify-center gap-2">
+                        {currentScreenIndex <
+                          flowData.flowScreens.length - 1 && (
+                          <button
+                            onClick={() =>
+                              setCurrentScreenIndex(currentScreenIndex + 1)
+                            }
+                            className="Btn-Regular-4"
+                            disabled={!areRequiredQuestionsAnswered()}
+                          >
+                            {currentScreen.screenButtonText || "Next"}
+                          </button>
+                        )}
+                        {currentScreenIndex ===
+                          flowData.flowScreens.length - 1 && (
+                          <button
+                            onClick={handlePreviewSave}
+                            className="Btn-Regular-4"
+                          >
+                            {currentScreen.screenButtonText || "Save"}
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="w-full h-[calc(100%-104px)] overflow-y-auto p-4 bg-[#ece4dd]">
+                    <div className="flex justify-end mb-4 relative">
+                      <div className="bg-green-200 text-gray-800 p-2 rounded-lg w-32 relative">
+                        <div className="w-23 h-1 bg-gray-400 mb-1"></div>
+                        <div className="w-23 h-1 bg-gray-400 mb-1"></div>
+                        <div className="absolute -right-[6px] top-[3px] w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-8 border-l-green-200"></div>
+                      </div>
+                    </div>
+                    <div className="flex mb-4 relative">
+                      <div className="bg-white text-gray-800 p-2 rounded-lg border border-gray-300 relative w-32">
+                        <div className="w-28 h-1 bg-gray-400 mb-1 mt-2"></div>
+                        <div className="w-28 h-1 bg-gray-400"></div>
+                        <hr className="border-gray-300" />
+                        <button className="text-blue-600" onClick={handleClick}>
+                          Preview Flow
+                        </button>
+                        <div className="absolute -left-2 top-1 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-8 border-r-white"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-white border-t border-gray-200">
+                    <div className="flex items-center space-x-2 pointer-events-none">
+                      <input
+                        type="text"
+                        className="flex-1 p-2 rounded-full border border-gray-300 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                </>
               )}
             </div>
           </CardBody>
@@ -778,7 +872,7 @@ const CreateFlowPage = () => {
       <Container fluid className="py-4 create-flow-container">
         <Row className="flex-grow-1">
           <Col
-            md={6}
+            md={7}
             className=""
             style={{ overflowY: "auto", paddingRight: "15px" }}
           >
@@ -805,7 +899,7 @@ const CreateFlowPage = () => {
               <CardBody>
                 <Form>
                   <FormGroup>
-                    <Label>Sender Name *</Label>
+                    <Label>Sender Name </Label>
                     <SendernameDropdown
                       value={flowData.senderId}
                       onChange={handleSenderChange}
@@ -827,7 +921,7 @@ const CreateFlowPage = () => {
                     />
                   </FormGroup>
                   <FormGroup>
-                    <Label>Flow Language *</Label>
+                    <Label>Flow Language </Label>
                     <LanguageDropdown
                       value={flowData.flowLanguage}
                       onChange={handleLanguageChange}
@@ -957,7 +1051,7 @@ const CreateFlowPage = () => {
                             </Button>
                           </div>
                           <FormGroup>
-                            <Label>Screen Title *</Label>
+                            <Label>Screen Title </Label>
                             <Input
                               value={
                                 flowData.flowScreens[currentEditScreenIndex]
@@ -1006,7 +1100,7 @@ const CreateFlowPage = () => {
                             ))}
                           </ListGroup>
                           <FormGroup className="mt-3">
-                            <Label>Button Text *</Label>{" "}
+                            <Label>Button Text </Label>{" "}
                             {/* Added asterisk to indicate required */}
                             <Input
                               value={
@@ -1048,7 +1142,7 @@ const CreateFlowPage = () => {
             </div>
           </Col>
           <Col
-            md={6}
+            md={5}
             className=""
             style={{
               overflowY: "auto",
@@ -1083,7 +1177,7 @@ const CreateFlowPage = () => {
                 {currentQuestion && (
                   <Form>
                     <FormGroup>
-                      <Label>Input Type *</Label>
+                      <Label>Input Type </Label>
                       <Input
                         type="select"
                         value={currentQuestion.type || ""}
@@ -1118,7 +1212,7 @@ const CreateFlowPage = () => {
                     {currentQuestion.type &&
                       (currentQuestion.type === QuestionTypes.TextHeading ? (
                         <FormGroup>
-                          <Label>Heading Text *</Label>
+                          <Label>Heading Text </Label>
                           <Input
                             value={currentQuestion.text}
                             onChange={(e) =>
@@ -1132,7 +1226,7 @@ const CreateFlowPage = () => {
                       ) : (
                         <>
                           <FormGroup>
-                            <Label>Question Text *</Label>
+                            <Label>Question Text</Label>
                             <Input
                               value={currentQuestion.text}
                               onChange={(e) =>

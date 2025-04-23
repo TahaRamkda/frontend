@@ -558,7 +558,7 @@ const TemplateVisualisation = ({Id, type, onclose}) => {
       {!showUpdateFlow && !showUpdateTemplate ? (
         <div>
           <div>
-            <h1>WhatsApp Flow Integration</h1>
+            <h1>Template Visualization</h1>
           </div>
           
         <div style={{  height: "75vh", textAlign: "center", border: "1px solid black" }}>

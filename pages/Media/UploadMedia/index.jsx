@@ -1,29 +1,40 @@
 import { useState, useRef } from "react";
 import { Formik, Form, ErrorMessage } from "formik";
-import * as Yup from "yup"; // For form validation
+import * as Yup from "yup";
 import { useDispatch } from "react-redux";
 import { uploadMedia, clearMediaUploadState } from "@/slices/MediaSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
-import { set } from "immutable";
+import { toast } from "react-toastify";
 
-const UploadMediaPage = ({ onUploadSuccess, onsenderChange, ispopUp }) => {
+const UploadMediaPage = ({ onUploadSuccess, onsenderChange, ispopUp, senderId }) => {
   const dispatch = useDispatch();
-  const [selectedSenderId, setSelectedSenderId] = useState(null);
+  const [selectedSenderId, setSelectedSenderId] = useState(senderId || null);
   const fileInputRef = useRef(null);
+
   // Form validation schema
   const validationSchema = Yup.object().shape({
-    senderId: Yup.string().required("Sender name is required"),
+    senderId: ispopUp
+      ? Yup.string().nullable() // Optional when ispopUp is true
+      : Yup.string().required("Sender name is required"), // Required when ispopUp is false
     MediaFile: Yup.mixed().required("Media file is required"),
   });
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+   
+      // Check senderId when ispopUp is true
+      if (ispopUp && (!senderId || senderId === "0")) {
+        toast.error("Please Select A Sendername Before Proceeding");
+        return;
+      }
+  
+  
     const formData = new FormData();
     formData.append("ClientId", localStorage.getItem("clientId"));
-    formData.append("SenderNameId", values.senderId); // Use Formik's value
+    formData.append("SenderNameId", ispopUp ? senderId : values.senderId); // Use prop senderId when ispopUp is true
     formData.append("File", values.MediaFile);
     formData.append("ActionBy", localStorage.getItem("userId"));
-
+  
     try {
       const response = await dispatch(uploadMedia(formData)).unwrap();
       if (response.success) {
@@ -53,17 +64,16 @@ const UploadMediaPage = ({ onUploadSuccess, onsenderChange, ispopUp }) => {
       });
     }
   };
-
-  const handleSenderChange = (e) => {
-    setSelectedSenderId(e.target?.value);
+  const handleSenderChange = (value) => {
+    setSelectedSenderId(value);
     if (onsenderChange) {
-      onsenderChange(e.target?.value);
+      onsenderChange(value);
     }
   };
 
   return (
     <Formik
-      initialValues={{ senderId: "", MediaFile: null }}
+      initialValues={{ senderId: ispopUp ? senderId || "" : "", MediaFile: null }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
@@ -74,16 +84,16 @@ const UploadMediaPage = ({ onUploadSuccess, onsenderChange, ispopUp }) => {
               Sender Names
             </label>
           )}
-          <div className="grid grid-cols-4 gap-4 mb-5 ">
+          <div className="grid grid-cols-4 gap-4 mb-5">
             {!ispopUp && (
-              <div className="col-span-1 ">
-                {/* Sendernames Dropdown */}
+              <div className="col-span-1">
                 <Sendernames
                   name="senderId"
                   value={values.senderId}
                   onChange={(e) => {
-                    setFieldValue("senderId", e.target?.value);
-                    handleSenderChange(e.target.value); // Make sure to pass the value, not the event
+                    const value = e.target.value;
+                    setFieldValue("senderId", value);
+                    handleSenderChange(value);
                   }}
                   required
                 />
@@ -96,7 +106,7 @@ const UploadMediaPage = ({ onUploadSuccess, onsenderChange, ispopUp }) => {
             )}
 
             {/* File Upload */}
-            <div className="col-span-2  ">
+            <div className="col-span-2">
               <input
                 type="file"
                 className="form-control border rounded py-1 px-2"
@@ -106,7 +116,7 @@ const UploadMediaPage = ({ onUploadSuccess, onsenderChange, ispopUp }) => {
                   const file = event.currentTarget.files[0];
                   setFieldValue("MediaFile", file || null);
                 }}
-                ref={fileInputRef} // Attach the ref here
+                ref={fileInputRef}
                 required
               />
               <ErrorMessage
@@ -117,12 +127,8 @@ const UploadMediaPage = ({ onUploadSuccess, onsenderChange, ispopUp }) => {
             </div>
             {ispopUp && <div className=""></div>}
             {/* Submit Button */}
-            <div className="flex justify-end mt-1 ">
-              <button
-                type="submit"
-                className="uniform_btn px-4 py-2"
-                disabled={isSubmitting}
-              >
+            <div className="flex justify-end mt-1">
+              <button type="submit" className="uniform_btn px-4 py-2" disabled={isSubmitting}>
                 Upload
               </button>
             </div>

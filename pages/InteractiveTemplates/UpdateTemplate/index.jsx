@@ -817,6 +817,7 @@ const InteractiveTemplateUpdate = ({Template_Id,onclose}) => {
                                   <MediaPopUp
                                     isPopup={true}
                                     ToggleModal={ToggleModal}
+                                    senderId={selectedSenderId}
                                     contentTypeStr={
                                       values.headerType === "2" ||
                                       values.headerType === 2

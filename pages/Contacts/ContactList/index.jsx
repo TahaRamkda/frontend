@@ -34,7 +34,7 @@ const ContactList = () => {
     { name: "Last Name", selector: (row) => row.lastName, sortable: true },
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true, width: '17%' },
     { name: "Email", selector: (row) => row.emailAddress, sortable: true },
-    { name: "Area Name", selector: (row) => row.areaName, sortable: true },
+    { name: "Area", selector: (row) => row.areaName, sortable: true },
     {
       name: "Action",
       cell: (row) => (
@@ -273,37 +273,6 @@ const ContactList = () => {
           subHeader
           subHeaderComponent={subHeaderComponentMemo}
           className="w-full border"
-          customStyles={{
-            table: {
-              style: {
-                width: '100%',
-                borderCollapse: 'collapse', // Ensures borders collapse for proper grid appearance
-              },
-            },
-            headRow: {
-              style: {
-                borderBottom: '1px solid #ddd', padding: '0px',
-              },
-            },
-            headCells: {
-              style: {
-
-                borderRight: '1px solid #ddd', // Grid line between columns
-                fontWeight: 'bold',
-              },
-            },
-            rows: {
-              style: {
-                borderBottom: '1px solid #ddd', // Horizontal grid line between rows
-              },
-            },
-            cells: {
-              style: {
-
-                borderRight: '1px solid #ddd', // Vertical grid line between cells
-              },
-            },
-          }}
         />
       </div>
       {/* Modal */}
