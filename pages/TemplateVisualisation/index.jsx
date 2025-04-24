@@ -11,6 +11,7 @@ import {
   getStraightPath,
   Edge,
 } from "@xyflow/react";
+import { useRouter } from 'next/router';
 import {
   Container,
   Col,
@@ -35,9 +36,11 @@ import App from "@/components/Layout/App";
 import showSweetAlert from "@/components/Sweetalert";
 import Loader from "@/components/Layout/Loader";
 
-const TemplateVisualisation = ({ Id, type, onclose }) => {
+const TemplateVisualisation = () => {
   const dispatch = useDispatch();
   const [showUpdateFlow, setShowUpdateFlow] = useState(false);
+  const router = useRouter();
+  const { Id, type } = router.query;
   const [showUpdateTemplate, setShowUpdateTemplate] = useState(false);
   const [isInteractiveTemplate, setIsInteractiveTemplate] = useState(false);
   const [parentNodeId, setParentNodeId] = useState(null);
@@ -669,6 +672,10 @@ const TemplateVisualisation = ({ Id, type, onclose }) => {
     }, 1000);
   }, [setNodes, setEdges, initialData, parentNodeId]);
 
+  const onClose = () => {
+    dispatch(clearTemplateVisualization())
+    router.back();
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -681,6 +688,9 @@ const TemplateVisualisation = ({ Id, type, onclose }) => {
             templatetype: type,
           })
         );
+         return () => {
+              dispatch(clearTemplateVisualization());
+            };
         //console.log("Fetch response:", response);
         //setInitialData(templateVisualizationData);
       } catch (error) {
@@ -703,7 +713,7 @@ const TemplateVisualisation = ({ Id, type, onclose }) => {
   }, [templateVisualizationData]);
 
   return (
-    <>
+    <App>
       {!showUpdateFlow && !showUpdateTemplate ? (
         <div>
           <div>
@@ -717,7 +727,7 @@ const TemplateVisualisation = ({ Id, type, onclose }) => {
               border: "1px solid black",
             }}
           >
-            {(!initialData || loading) && <Loader />}
+            {(!initialData || loading || !router.isReady) && !error && <Loader />}
             <ReactFlow
               nodes={nodes}
               edges={edges}
@@ -741,7 +751,7 @@ const TemplateVisualisation = ({ Id, type, onclose }) => {
             <button
               type="button"
               className="flex items-center gap-2 text-gray-700 hover:text-whie font-medium transition-all Btn-Regular-1 mt-2"
-              onClick={onclose}
+              onClick={onClose}
             >
               Back
             </button>
@@ -760,7 +770,7 @@ const TemplateVisualisation = ({ Id, type, onclose }) => {
       {showUpdateTemplate && !isInteractiveTemplate && (
         <UpdateTemplate Template_Id={selectedId} onclose={closeModals} />
       )}
-    </>
+    </App>
   );
 };
 

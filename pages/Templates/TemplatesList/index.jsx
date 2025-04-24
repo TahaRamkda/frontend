@@ -135,7 +135,10 @@ const TemplateList = () => {
   };
   const handleViualizationClick = (templates_Id) => {
     settemplateId(templates_Id);
-    setShowVisualizationModal(true)
+    router.push({
+      pathname: '/TemplateVisualisation',
+      query: { Id: templates_Id, type: 1},
+    });
   };
 
   const handleDeleteClick = (templateId) => {

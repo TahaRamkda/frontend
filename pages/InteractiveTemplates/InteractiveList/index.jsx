@@ -24,6 +24,7 @@ import { toDate } from "date-fns";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
 import Updatetemplate from "../UpdateTemplate";
 import SendernamesDropdown from "@/components/MultiSelect/SendernameDropdown";
+import { type } from "jquery";
 const InteractiveTemplateList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -47,7 +48,10 @@ const InteractiveTemplateList = () => {
 
   const handleViualizationClick = (templates_Id) => {
     settemplateId(templates_Id);
-    setShowVisualizationModal(true);
+    router.push({
+      pathname: '/TemplateVisualisation',
+      query: { Id: templates_Id, type: 2},
+    });
   };
   const handleCloseVS = () => {
     setShowVisualizationModal(false);
