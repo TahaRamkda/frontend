@@ -34,7 +34,7 @@ import App from "@/components/Layout/App";
 import { HiPencilAlt, HiTrash, HiRefresh, HiEye, HiArrowsExpand} from "react-icons/hi";
 import { useSetRecoilState } from "recoil";
 import { TemplateState } from "@/components/recoil";
-import TemplateVisualisation from "@/pages/TemplateVisualisation";
+import TemplateVisualisation from "../../TemplateVisualisation/index";
 import { clearTemplateVisualization } from "@/slices/TemplateVisualizationSlice";
 import SearchBar from "@/components/SearchBar/SearchComponent";
 import Loading from "@/components/Layout/Loader";

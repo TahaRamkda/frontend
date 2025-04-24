@@ -248,17 +248,23 @@ const FlowPreview = ({
                               ] === option.optionText;
                             return (
                               <div className="w-full">
-                              <button
-                                key={optionIndex}
-                                className={`w-full text-left p-3 mb-2 rounded-lg text-base ${
-                                  isSelected ? "text-green-400" : " text-gray-800 hover:bg-gray-200"
-                                } flex items-center justify-between`}
-                                onClick={() => handleOptionSelect(option.optionText)}
-                              >
-                                <span>{option.optionText}</span>
-                                {isSelected && <HiCheck className="w-5 h-5 text-green-500" />}
-                              </button>
-                            </div>
+                                <button
+                                  key={optionIndex}
+                                  className={`w-full text-left p-3 mb-2 rounded-lg text-base ${
+                                    isSelected
+                                      ? "text-green-400"
+                                      : " text-gray-800 hover:bg-gray-200"
+                                  } flex items-center justify-between`}
+                                  onClick={() =>
+                                    handleOptionSelect(option.optionText)
+                                  }
+                                >
+                                  <span>{option.optionText}</span>
+                                  {isSelected && (
+                                    <HiCheck className="w-5 h-5 text-green-500" />
+                                  )}
+                                </button>
+                              </div>
                             );
                           })}
                         </div>
@@ -275,7 +281,11 @@ const FlowPreview = ({
                               <Input
                                 type="text"
                                 value={
-                                  answers[currentScreenIndex][childIndex] || ""
+                                  answers &&
+                                  answers[currentScreenIndex] &&
+                                  answers[currentScreenIndex][childIndex]
+                                    ? answers[currentScreenIndex][childIndex]
+                                    : ""
                                 }
                                 onChange={(e) => {
                                   const newAnswers = [...answers];
@@ -294,7 +304,11 @@ const FlowPreview = ({
                               <Input
                                 type="textarea"
                                 value={
-                                  answers[currentScreenIndex][childIndex] || ""
+                                  answers &&
+                                  answers[currentScreenIndex] &&
+                                  answers[currentScreenIndex][childIndex]
+                                    ? answers[currentScreenIndex][childIndex]
+                                    : ""
                                 }
                                 onChange={(e) => {
                                   const newAnswers = [...answers];
@@ -311,6 +325,7 @@ const FlowPreview = ({
                               />
                             )}
                             {child.type === QuestionTypes.RadioButtonsGroup &&
+                              QuestionTypes.Dropdown &&
                               child.flowOptions.map((option, optionIndex) => (
                                 <FormGroup
                                   check
@@ -322,9 +337,9 @@ const FlowPreview = ({
                                     name={`question_${childIndex}`}
                                     value={option.optionText}
                                     checked={
-                                      answers[currentScreenIndex][
-                                        childIndex
-                                      ] === option.optionText
+                                      answers[currentScreenIndex] && Array.isArray(answers[currentScreenIndex])
+                                        ? (answers[currentScreenIndex][childIndex] ?? '') === (option?.optionText ?? '')
+                                        : false
                                     }
                                     onChange={() => {
                                       const newAnswers = [...answers];
@@ -355,9 +370,11 @@ const FlowPreview = ({
                                   }
                                 >
                                   <span>
-                                  {answers && answers[currentScreenIndex] && answers[currentScreenIndex][childIndex] 
-  ? answers[currentScreenIndex][childIndex] 
-  : "Select an option"}
+                                    {answers &&
+                                    answers[currentScreenIndex] &&
+                                    answers[currentScreenIndex][childIndex]
+                                      ? answers[currentScreenIndex][childIndex]
+                                      : "Select an option"}
                                   </span>
                                   <FiChevronRight className="w-5 h-5 text-gray-600" />
                                 </button>
@@ -659,6 +676,7 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
     const updatedQuestion = { ...currentQuestion };
     if (
       updatedQuestion.type === QuestionTypes.RadioButtonsGroup ||
+      updatedQuestion.type === QuestionTypes.Dropdown ||
       updatedQuestion.type === QuestionTypes.CheckboxGroup
     ) {
       updatedQuestion.flowOptions.push({
@@ -674,6 +692,7 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
     const updatedQuestion = { ...currentQuestion };
     if (
       updatedQuestion.type === QuestionTypes.RadioButtonsGroup ||
+      updatedQuestion.type === QuestionTypes.Dropdown ||
       updatedQuestion.type === QuestionTypes.CheckboxGroup
     ) {
       updatedQuestion.flowOptions.splice(optionIndex, 1);
@@ -773,18 +792,15 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
   return (
     <>
       {isLoading && <Loader />}
-      <Container
-        fluid
-        className="py-4 create-flow-container"
-      >
-          <Row className="flex-grow-1" style={{ overflow: "hidden" }}>
-            {/* Left Side - Flow Editor */}
-            <Col
-              md={7}
-              className=""
-              style={{ overflowY: "auto", paddingRight: "15px" }}
-            >
-              <Card className="mb-4 shadow-sm max-h-[72vh] overflow-auto ">
+      <Container fluid className="py-4 create-flow-container">
+        <Row className="flex-grow-1" style={{ overflow: "hidden" }}>
+          {/* Left Side - Flow Editor */}
+          <Col
+            md={7}
+            className=""
+            style={{ overflowY: "auto", paddingRight: "15px" }}
+          >
+            <Card className="mb-4 shadow-sm max-h-[72vh] overflow-auto ">
               <CardTitle
                 style={{
                   position: "sticky",
@@ -804,238 +820,235 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
                   </h4>
                 </div>
               </CardTitle>
-                <CardBody>
-                  <Form>
-                    <FormGroup>
-                      <Label>Sender Name</Label>
-                      <SendernameDropdown
-                        value={flowData.senderId}
-                        onChange={handleSenderChange}
-                      />
-                    </FormGroup>
-                    <FormGroup>
-                      <Label>Flow Name</Label>
-                      <Input
-                        value={flowData.flowName}
-                        onChange={(e) =>{
-                          const value = e.target.value
+              <CardBody>
+                <Form>
+                  <FormGroup>
+                    <Label>Sender Name</Label>
+                    <SendernameDropdown
+                      value={flowData.senderId}
+                      onChange={handleSenderChange}
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label>Flow Name</Label>
+                    <Input
+                      value={flowData.flowName}
+                      onChange={(e) => {
+                        const value = e.target.value
                           .replace(/\s+/g, "_")
-                          .replace(/[^a-zA-Z0-9_]/g, "")
-                        updateField("flowName", value)
+                          .replace(/[^a-zA-Z0-9_]/g, "");
+                        updateField("flowName", value);
+                      }}
+                      className="rounded"
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label>Flow Language</Label>
+                    <LanguageDropdown
+                      value={flowData.flowLanguage}
+                      onChange={handleLanguageChange}
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label for="actionType">Select Action Type</Label>
+                    <Input
+                      type="select"
+                      id="actionType"
+                      value={flowData.actionType}
+                      onChange={(e) =>
+                        updateField("actionType", parseInt(e.target.value))
                       }
-                        }
-                         
-                        className="rounded"
+                    >
+                      {dropdownOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Input>
+                  </FormGroup>
+                  {(flowData.actionType === 1 ||
+                    flowData.actionType === "1") && (
+                    <FormGroup>
+                      <Label for="templateDropdown">Select Template</Label>
+                      <InteractiveTemplateDropdown
+                        id="templateDropdown"
+                        value={flowData.actionId}
+                        onChange={handleTemplateChange}
+                        TransactionType="0"
+                        SenderId={flowData.senderId}
                       />
                     </FormGroup>
+                  )}
+                  {(flowData.actionType === 8 ||
+                    flowData.actionType === "8") && (
                     <FormGroup>
-                      <Label>Flow Language</Label>
-                      <LanguageDropdown
-                        value={flowData.flowLanguage}
-                        onChange={handleLanguageChange}
+                      <Label for="FlowDropdown">Select Flows</Label>
+                      <FlowDropdown
+                        id="FlowDropdown"
+                        value={flowData.actionId}
+                        onChange={handleFlowChange}
                       />
                     </FormGroup>
-                    <FormGroup>
-                      <Label for="actionType">Select Action Type</Label>
-                      <Input
-                        type="select"
-                        id="actionType"
-                        value={flowData.actionType}
-                        onChange={(e) =>
-                          updateField("actionType", parseInt(e.target.value))
+                  )}
+                  <FormGroup check>
+                    <Input
+                      type="checkbox"
+                      checked={flowData.publishToFB}
+                      onChange={handlePublishToFBChange}
+                      style={{ marginRight: "10px" }}
+                    />
+                    <Label check>Publish to Facebook</Label>
+                  </FormGroup>
+                  <div className="d-flex justify-content-between mb-3">
+                    <Button
+                      color="primary"
+                      onClick={addScreen}
+                      className="uniform_btn"
+                      style={{ border: "none" }}
+                    >
+                      Add Screen
+                    </Button>
+                  </div>
+                  {flowData.flowScreens.length > 0 && (
+                    <>
+                      <Tabs
+                        activeKey={currentEditScreenIndex}
+                        onSelect={(key) =>
+                          setCurrentEditScreenIndex(parseInt(key))
                         }
+                        className="mb-3"
                       >
-                        {dropdownOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
+                        {flowData.flowScreens.map((screen, index) => (
+                          <Tab
+                            eventKey={index}
+                            title={`Screen ${index + 1}`}
+                            key={index}
+                          />
                         ))}
-                      </Input>
-                    </FormGroup>
-                    {(flowData.actionType === 1 ||
-                      flowData.actionType === "1") && (
-                      <FormGroup>
-                        <Label for="templateDropdown">Select Template</Label>
-                        <InteractiveTemplateDropdown
-                          id="templateDropdown"
-                          value={flowData.actionId}
-                          onChange={handleTemplateChange}
-                          TransactionType="0"
-                          SenderId={flowData.senderId}
-                        />
-                      </FormGroup>
-                    )}
-                    {(flowData.actionType === 8 ||
-                      flowData.actionType === "8") && (
-                      <FormGroup>
-                        <Label for="FlowDropdown">Select Flows</Label>
-                        <FlowDropdown
-                          id="FlowDropdown"
-                          value={flowData.actionId}
-                          onChange={handleFlowChange}
-                        />
-                      </FormGroup>
-                    )}
-                    <FormGroup check>
-                      <Input
-                        type="checkbox"
-                        checked={flowData.publishToFB}
-                        onChange={handlePublishToFBChange}
-                        style={{ marginRight: "10px" }}
-                      />
-                      <Label check>Publish to Facebook</Label>
-                    </FormGroup>
-                    <div className="d-flex justify-content-between mb-3">
-                      <Button
-                        color="primary"
-                        onClick={addScreen}
-                        className="uniform_btn"
-                        style={{ border: "none" }}
-                      >
-                        Add Screen
-                      </Button>
-                    </div>
-                    {flowData.flowScreens.length > 0 && (
-                      <>
-                        <Tabs
-                          activeKey={currentEditScreenIndex}
-                          onSelect={(key) =>
-                            setCurrentEditScreenIndex(parseInt(key))
-                          }
-                          className="mb-3"
-                        >
-                          {flowData.flowScreens.map((screen, index) => (
-                            <Tab
-                              eventKey={index}
-                              title={`Screen ${index + 1}`}
-                              key={index}
-                            />
-                          ))}
-                        </Tabs>
-                        <Card className="mb-3 shadow-sm border-0">
-                          <CardBody>
-                            <div className="d-flex justify-content-between align-items-center">
-                              <h5>
-                                Screen {currentEditScreenIndex + 1} of{" "}
-                                {flowData.flowScreens.length}
-                              </h5>
-                              <Button
-                                color="danger"
-                                size="sm"
-                                onClick={deleteScreen}
-                                disabled={flowData.flowScreens.length <= 1}
-                              >
-                                <HiTrash />
-                              </Button>
-                            </div>
-                            <FormGroup>
-                              <Label>Screen Title</Label>
-                              <Input
-                                value={
-                                  flowData.flowScreens[currentEditScreenIndex]
-                                    .title
-                                }
-                                onChange={(e) =>
-                                  updateScreenField("title", e.target.value)
-                                }
-                                className="rounded"
-                              />
-                            </FormGroup>
+                      </Tabs>
+                      <Card className="mb-3 shadow-sm border-0">
+                        <CardBody>
+                          <div className="d-flex justify-content-between align-items-center">
+                            <h5>
+                              Screen {currentEditScreenIndex + 1} of{" "}
+                              {flowData.flowScreens.length}
+                            </h5>
                             <Button
+                              color="danger"
                               size="sm"
-                              onClick={addQuestion}
-                              className="uniform_btn"
+                              onClick={deleteScreen}
+                              disabled={flowData.flowScreens.length <= 1}
                             >
-                              Add Control
+                              <HiTrash />
                             </Button>
-                            <ListGroup className="mt-3">
-                              {flowData.flowScreens[
-                                currentEditScreenIndex
-                              ].flowChildren.map((child, childIndex) => (
-                                <ListGroupItem
-                                  key={childIndex}
-                                  className="d-flex justify-content-between align-items-center"
-                                  action
-                                  onClick={() => openQuestionModal(childIndex)}
+                          </div>
+                          <FormGroup>
+                            <Label>Screen Title</Label>
+                            <Input
+                              value={
+                                flowData.flowScreens[currentEditScreenIndex]
+                                  .title
+                              }
+                              onChange={(e) =>
+                                updateScreenField("title", e.target.value)
+                              }
+                              className="rounded"
+                            />
+                          </FormGroup>
+                          <Button
+                            size="sm"
+                            onClick={addQuestion}
+                            className="uniform_btn"
+                          >
+                            Add Control
+                          </Button>
+                          <ListGroup className="mt-3">
+                            {flowData.flowScreens[
+                              currentEditScreenIndex
+                            ].flowChildren.map((child, childIndex) => (
+                              <ListGroupItem
+                                key={childIndex}
+                                className="d-flex justify-content-between align-items-center"
+                                action
+                                onClick={() => openQuestionModal(childIndex)}
+                              >
+                                <span>
+                                  <strong>{childIndex + 1}.</strong>{" "}
+                                  {child.text || `Question ${childIndex + 1}`}
+                                </span>
+                                <Button
+                                  color="danger"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteQuestion(childIndex);
+                                  }}
+                                  className="rounded-pill"
                                 >
-                                  <span>
-                                    <strong>{childIndex + 1}.</strong>{" "}
-                                    {child.text || `Question ${childIndex + 1}`}
-                                  </span>
-                                  <Button
-                                    color="danger"
-                                    size="sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      deleteQuestion(childIndex);
-                                    }}
-                                    className="rounded-pill"
-                                  >
-                                    <HiTrash />
-                                  </Button>
-                                </ListGroupItem>
-                              ))}
-                            </ListGroup>
-                            <FormGroup className="mt-3">
-                              <Label>Button Text</Label>
-                              <Input
-                                value={
-                                  flowData.flowScreens[currentEditScreenIndex]
-                                    .screenButtonText
-                                }
-                                onChange={(e) =>
-                                  updateScreenField(
-                                    "screenButtonText",
-                                    e.target.value
-                                  )
-                                }
-                                className="rounded"
-                              />
-                            </FormGroup>
-                          </CardBody>
-                        </Card>
-                      </>
-                    )}
-                  </Form>
-                </CardBody>
-              </Card>
-              {!isLoading && (
-                <div className="flex gap-4 justify-end">
-                  <button onClick={handleCancel} className="Btn-Regular-1">
-                    Cancel
-                  </button>
-                  <Button
-                    onClick={handleSaveFlow}
-                    className="uniform_btn"
-                    style={{ alignSelf: "flex-start", border: "none" }}
-                  >
-                    Save Flow
-                  </Button>
-                </div>
-              )}
-            </Col>
-
-            {/* Right Side - Live Preview */}
-            <Col
-              md={5}
-              className="h-100"
-              style={{
-                overflowY: "auto",
-                paddingLeft: "15px",
-                paddingRight: "15px",
-              }}
-            >
-              <div>
-                <FlowPreview
-                  flowData={flowData}
-                  currentScreenIndex={currentScreenIndex}
-                  setCurrentScreenIndex={setCurrentScreenIndex}
-                  senderNameData={SendernamesData}
-                />
+                                  <HiTrash />
+                                </Button>
+                              </ListGroupItem>
+                            ))}
+                          </ListGroup>
+                          <FormGroup className="mt-3">
+                            <Label>Button Text</Label>
+                            <Input
+                              value={
+                                flowData.flowScreens[currentEditScreenIndex]
+                                  .screenButtonText
+                              }
+                              onChange={(e) =>
+                                updateScreenField(
+                                  "screenButtonText",
+                                  e.target.value
+                                )
+                              }
+                              className="rounded"
+                            />
+                          </FormGroup>
+                        </CardBody>
+                      </Card>
+                    </>
+                  )}
+                </Form>
+              </CardBody>
+            </Card>
+            {!isLoading && (
+              <div className="flex gap-4 justify-end">
+                <button onClick={handleCancel} className="Btn-Regular-1">
+                  Cancel
+                </button>
+                <Button
+                  onClick={handleSaveFlow}
+                  className="uniform_btn"
+                  style={{ alignSelf: "flex-start", border: "none" }}
+                >
+                  Save Flow
+                </Button>
               </div>
-            </Col>
-          </Row>
-   
+            )}
+          </Col>
+
+          {/* Right Side - Live Preview */}
+          <Col
+            md={5}
+            className="h-100"
+            style={{
+              overflowY: "auto",
+              paddingLeft: "15px",
+              paddingRight: "15px",
+            }}
+          >
+            <div>
+              <FlowPreview
+                flowData={flowData}
+                currentScreenIndex={currentScreenIndex}
+                setCurrentScreenIndex={setCurrentScreenIndex}
+                senderNameData={SendernamesData}
+              />
+            </div>
+          </Col>
+        </Row>
 
         {/* Updated Question Configuration Modal */}
         <Modal
@@ -1073,6 +1086,7 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
                         <option value={QuestionTypes.RadioButtonsGroup}>
                           Radio Buttons
                         </option>
+                        <option value={QuestionTypes.Dropdown}>Dropdown</option>
                         <option value={QuestionTypes.CheckboxGroup}>
                           Checkbox Group
                         </option>
@@ -1121,6 +1135,7 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
                           </FormGroup>
                           {(currentQuestion.type ===
                             QuestionTypes.RadioButtonsGroup ||
+                            QuestionTypes.Dropdown ||
                             currentQuestion.type ===
                               QuestionTypes.CheckboxGroup) && (
                             <>
