@@ -701,7 +701,7 @@ const TemplateVisualisation = ({ Id, type, onclose }) => {
       {!showUpdateFlow && !showUpdateTemplate ? (
         <div>
           <div>
-            <h1>Template Visualization</h1>
+            <h1>Template Visualisation</h1>
           </div>
 
           <div
