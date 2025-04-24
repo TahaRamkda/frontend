@@ -279,6 +279,12 @@ const TemplateVisualisation = ({ Id, type, onclose }) => {
                   dangerouslySetInnerHTML={{ __html: data.bodyText }}
                 />
               )}
+              {data.footerText && (
+                <div
+                  style={{ marginBottom: "10px", fontSize: "1em" }}
+                  dangerouslySetInnerHTML={{ __html: data.footerText }}
+                />
+              )}
               {data.buttons?.length > 0 && (
                 <div style={{ marginTop: "10px" }}>
                   {data.buttons.map((button, index) => (
