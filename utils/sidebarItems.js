@@ -185,6 +185,13 @@ export const sidebarItems = [
       submenu: [],
     },
     {
+      href: '/AppSetting/AppSettingList',
+      icon: 'ti-settings', // Settings icon for Roles
+      text: 'App Setting',
+      module: 1,
+      submenu: [],
+    },
+    {
       href: '/dashboard',
       icon: 'ti-power-off', // Power-off icon for Logout
       text: 'Logout',

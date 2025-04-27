@@ -20,6 +20,7 @@ import agentTemplateSlice from "@/slices/AgentTemplateSlice";
 import agentShiftSlice from "@/slices/AgentsShift"
 import chatTestSlice from "@/slices/ChatTest";
 import ChatBridgeSlice from "@/slices/ChatBridgeSlice";
+import ClearCache from "@/slices/CacheSlice";
 import FlowSlice from "@/slices/FlowsSlice";
 import TemplateVisualizationSlice  from "@/slices/TemplateVisualizationSlice";
 import  AppSettingSlice  from "@/slices/AppSettingSlice";
@@ -52,6 +53,7 @@ export const store = configureStore({
     flows:FlowSlice,
     templateVisualization:TemplateVisualizationSlice,
     appsetting:AppSettingSlice,
+    clearCache:ClearCache,
 
     }
 })

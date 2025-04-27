@@ -53,7 +53,7 @@ const TemplateVisualisation = () => {
     (state) => state.templateVisualization
   );
   const handleNodeClick = (event, node) => {
-    debugger;
+    ;
     // Check if the click originated from the blue header or its contents
     const isHeaderClick =
       event.target.closest(".Nodeheader") ||
@@ -73,7 +73,7 @@ const TemplateVisualisation = () => {
     setSelectedId(template.id);
 
     if (template.type === 3) {
-      debugger;
+      ;
       // Flow node
       setShowUpdateFlow(true);
       setShowUpdateTemplate(false);
@@ -112,7 +112,7 @@ const TemplateVisualisation = () => {
     const dropdownRef = useRef(null);
 
     const handleParentTemplateClick = () => {
-      debugger;
+      ;
       setParentNodeId(data.templateId.toString());
       setIsParent(true);
       setIsDropdownOpen(false);
@@ -356,21 +356,21 @@ const TemplateVisualisation = () => {
     );
   };
 
-  const TemplateTypeDropdown = ({ onTemplateTypeChange, selectedType }) => {
-    return (
-      <div className="mb-3">
-        <select
-          className="form-select border border-gray-300 rounded-md w-full py-1 px-3 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          value={selectedType}
-          onChange={(e) => onTemplateTypeChange(e.target.value)}
-        >
-          <option value="">Select Template</option>
-          <option value="2">Interactive Template</option>
-          <option value="1">Marketing Template</option>
-        </select>
-      </div>
-    );
-  };
+  // const TemplateTypeDropdown = ({ onTemplateTypeChange, selectedType }) => {
+  //   return (
+  //     <div className="mb-3">
+  //       <select
+  //         className="form-select border border-gray-300 rounded-md w-full py-1 px-3 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+  //         value={selectedType}
+  //         onChange={(e) => onTemplateTypeChange(e.target.value)}
+  //       >
+  //         <option value="">Select Template</option>
+  //         <option value="2">Interactive Template</option>
+  //         <option value="1">Marketing Template</option>
+  //       </select>
+  //     </div>
+  //   );
+  // };
 
   const nodeTypes = {
     custom: CustomNode,
@@ -414,7 +414,7 @@ const TemplateVisualisation = () => {
       // Step 2: Find reachable nodes from parentNodeId (if set)
       let reachableNodes = new Set();
       if (parentNodeId) {
-        debugger
+        
         const queue = [parentNodeId];
         reachableNodes.add(parentNodeId);
         while (queue.length > 0) {
@@ -485,7 +485,7 @@ const TemplateVisualisation = () => {
         const startX = (viewportWidth - totalWidth) / 2; // Center the group of nodes
         templates.forEach((template, index) => {
           if (template.type === 3) {
-            debugger
+            
             newNodes.push({
               id: template.id.toString(),
               type: "custom",
@@ -506,7 +506,7 @@ const TemplateVisualisation = () => {
               },
             });
           } else {
-            debugger
+            
             newNodes.push({
               id: template.id.toString(),
               type: "custom",

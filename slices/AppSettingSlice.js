@@ -7,9 +7,9 @@ import { SETTINGLIST, SETTINGBYID, ADDSETTINGS,  UPDATEAPPSETTING, DELETEAPPSETT
 // Fatch Setting
 export const fetchSetting = createAsyncThunk(
     'appSettings/fetchSetting',
-    async ({ pageNo, pageSize, SearchStr}, { rejectWithValue }) => {
+    async ({ pageNo, pageSize, SearchStr, senderId, clientId}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${SETTINGLIST}?PageNo=${pageNo}${ SearchStr? `&SearchStr=${SearchStr}`:''}&PageSize=${pageSize}`);
+        const response = await API.get(`${SETTINGLIST}?PageNo=${pageNo}${ SearchStr? `&SearchStr=${SearchStr}`:''}&PageSize=${pageSize}&SenderId=${senderId}&ClientId=${clientId}`);
         if (response?.status === 200) {
           return {
             settingList: response.data.result,
@@ -53,6 +53,7 @@ export const addSettings = createAsyncThunk(
       }
     }
   );
+  
 // UPDATE APP SETTING
 export const updateAppSettings = createAsyncThunk(
     'appSettings/updateAppSettings',

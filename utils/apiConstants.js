@@ -162,3 +162,7 @@ export const ADDSETTINGS = "/AppSettings/addAppsettings";
 export const UPDATEAPPSETTING = "/AppSettings/updateappsettings";
 export const DELETEAPPSETTING ="/AppSettings/deleteappsetting";
 export const APPSETTING = "/AppSettings/getappsettings";
+
+// Clear Cache
+export const CLEARAPICACHE = "/Cache/Clear";
+export const CLEARBRIDGECACHE = "/Cache/ClearByPrefix"

@@ -115,6 +115,7 @@ const UserList = () => {
  
 
   const handleUpdateSubmit = async (e) => {
+    debugger
     e.preventDefault();
     try {
       const requestBody = {
@@ -148,6 +149,7 @@ const UserList = () => {
     dispatch(fetchUser({ clientId: localStorage.getItem("clientId"),searchValue:filterText }));
   };
   const handleDropdownChange = (selectedValues) => {
+    
     setUserForm({ ...userForm, userRoles: selectedValues.join(",") });
 
   };
@@ -205,8 +207,8 @@ const UserList = () => {
         columns={userColumns}
         highlightOnHover
         striped
-        pagination
-        paginationServer
+        // pagination
+        // paginationServer
         sortIcon
         sortServer
         subHeader
@@ -219,6 +221,7 @@ const UserList = () => {
 
       <Modal isOpen={isModalOpen} toggle={() => setIsModalOpen(!isModalOpen)} fade={false} >
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+        {loading && <Loading />}
           <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
             <ModalHeader toggle={() => setIsModalOpen(!isModalOpen)}>Edit User</ModalHeader>
             <ModalBody>

@@ -45,6 +45,7 @@ const InteractiveTemplateList = () => {
   const [TemplateLoading, setTemplateLoading] = useState(false);
   const [templateId, settemplateId] = useState(0);
   const [senderId, setsenderId] = useState(0);
+  const [languageId, setlanguageId] = useState(0);
 
   const handleViualizationClick = (templates_Id) => {
     settemplateId(templates_Id);
@@ -174,6 +175,7 @@ const InteractiveTemplateList = () => {
         clientId: localStorage.getItem("clientId"),
         senderId: senderId,
         toDate: ToDate,
+        Language: languageId,
         fromDate: FromDate,
         searchStr: filterText,
         pageNo: 1,
@@ -192,6 +194,7 @@ const InteractiveTemplateList = () => {
         clientId: localStorage.getItem("clientId"),
         toDate: ToDate,
         senderId: senderId,
+        Language: languageId,
         fromDate: FromDate,
         searchStr: filterText,
         pageNo: page,
@@ -204,6 +207,7 @@ const InteractiveTemplateList = () => {
       fetchInteractiveTemplates({
         clientId: localStorage.getItem("clientId"),
         searchStr: filterText,
+        Language: languageId,
         senderId: senderId,
         pageNo: currentPage,
         pageSize,
@@ -226,6 +230,7 @@ const InteractiveTemplateList = () => {
           toDate: ToDate,
           fromDate: FromDate,
           senderId: senderId,
+          Language: languageId,
           searchStr: searchValue,
           pageNo: currentPage,
           pageSize,
@@ -236,6 +241,10 @@ const InteractiveTemplateList = () => {
     setSearchTimeout(timeout); // Save the timeout reference
   };
 
+  const handleLanguageChange = (e) => {
+    const Id = e.target.value;
+    setlanguageId(Id);
+  }
   const handleSenderChange = (e) => {
     const senderId = e.target.value;
     setsenderId(senderId);
@@ -253,6 +262,7 @@ const InteractiveTemplateList = () => {
         fromDate: FromDate,
         senderId: senderId,
         searchStr: filterText,
+        Language: languageId,
         pageNo: currentPage,
         pageSize,
       })
@@ -260,7 +270,7 @@ const InteractiveTemplateList = () => {
     return () => {
       dispatch(clearInteractiveTemplateListState());
     };
-  }, [dispatch, ToDate, FromDate, senderId]);
+  }, [dispatch, ToDate, FromDate, senderId,languageId]);
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10;
   const subHeaderComponentMemo = useMemo(() => {
@@ -299,10 +309,25 @@ const InteractiveTemplateList = () => {
               onChange={settoDate}
             />
           </div>
+          <div className="flex flex-col text-start mb-1">
+            <label className="font-medium text-gray-700 text-sm mb-1">
+              Language
+            </label>
+            <select
+              id="languageId"
+              value={languageId}
+              onChange={handleLanguageChange}
+              className="border border-gray-300 rounded-md w-full py-1 px-3 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value={0}>Select</option>
+              <option value={1}>English</option>
+              <option value={2}>Arabic</option>
+            </select>
+          </div>
         </div>
       </div>
     );
-  }, [filterText, FromDate, ToDate]);
+  }, [filterText, FromDate, ToDate, languageId]);
 
   if (error) {
     return <Alert color="danger">{error}</Alert>;

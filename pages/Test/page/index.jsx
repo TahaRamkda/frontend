@@ -775,7 +775,7 @@ const collectNodesByLevel = (
           );
         }
       } else if (button.actionType === 8) {
-        // debugger
+        // 
         // FLOWS
         const nextFlow = templateMap[button.actionId];
         targetId = nextFlow ? `${nextFlow.id}` : null;
@@ -870,7 +870,7 @@ const collectNodesByLevel = (
 
 //Use getServerSideProps for server-side data fetching in Next.js
 // export async function getServerSideProps() {
-//   debugger
+//   
 //   const data = await fetchTemplateVisualization({templateId: 26, templatetype: 1});
 //   console.log(data);
 //   const initialData = data.result.templatevisualization;

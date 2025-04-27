@@ -6,8 +6,15 @@ import { uploadMedia, clearMediaUploadState } from "@/slices/MediaSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
 import { toast } from "react-toastify";
-
-const UploadMediaPage = ({ onUploadSuccess, onsenderChange, ispopUp, senderId }) => {
+import SearchBar from "@/components/SearchBar/SearchComponent";
+const UploadMediaPage = ({
+  onUploadSuccess,
+  onsenderChange,
+  ispopUp,
+  senderId,
+  handleSearch,
+  filterText,
+}) => {
   const dispatch = useDispatch();
   const [selectedSenderId, setSelectedSenderId] = useState(senderId || null);
   const fileInputRef = useRef(null);
@@ -21,20 +28,18 @@ const UploadMediaPage = ({ onUploadSuccess, onsenderChange, ispopUp, senderId })
   });
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-   
-      // Check senderId when ispopUp is true
-      if (ispopUp && (!senderId || senderId === "0")) {
-        toast.error("Please Select A Sendername Before Proceeding");
-        return;
-      }
-  
-  
+    debugger
+    if (ispopUp && (!senderId || senderId === "0")) {
+      toast.error("Please Select A Sendername Before Proceeding");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("ClientId", localStorage.getItem("clientId"));
     formData.append("SenderNameId", ispopUp ? senderId : values.senderId); // Use prop senderId when ispopUp is true
     formData.append("File", values.MediaFile);
     formData.append("ActionBy", localStorage.getItem("userId"));
-  
+
     try {
       const response = await dispatch(uploadMedia(formData)).unwrap();
       if (response.success) {
@@ -64,6 +69,7 @@ const UploadMediaPage = ({ onUploadSuccess, onsenderChange, ispopUp, senderId })
       });
     }
   };
+
   const handleSenderChange = (value) => {
     setSelectedSenderId(value);
     if (onsenderChange) {
@@ -73,20 +79,30 @@ const UploadMediaPage = ({ onUploadSuccess, onsenderChange, ispopUp, senderId })
 
   return (
     <Formik
-      initialValues={{ senderId: ispopUp ? senderId || "" : "", MediaFile: null }}
+      initialValues={{
+        senderId: ispopUp ? senderId || "" : "",
+        MediaFile: null,
+      }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
       {({ setFieldValue, values, isSubmitting, resetForm }) => (
         <Form>
-          {!ispopUp && (
-            <label className="font-medium text-gray-700 text-sm">
-              Sender Names
-            </label>
-          )}
-          <div className="grid grid-cols-4 gap-4 mb-5">
+         
+          <div className="grid grid-cols-5 gap-4 mb-5">
+
+          <div className={ispopUp ? `col-span-2` : `col-span-1`} >
+              <SearchBar
+                label="Search"
+                value={filterText}
+                onChange={handleSearch}
+              />
+            </div>
             {!ispopUp && (
               <div className="col-span-1">
+                <label className="font-medium text-gray-700 text-sm mb-1">
+              Sender Names
+            </label>
                 <Sendernames
                   name="senderId"
                   value={values.senderId}
@@ -104,12 +120,13 @@ const UploadMediaPage = ({ onUploadSuccess, onsenderChange, ispopUp, senderId })
                 />
               </div>
             )}
+           
 
             {/* File Upload */}
             <div className="col-span-2">
               <input
                 type="file"
-                className="form-control border rounded py-1 px-2"
+                className="form-control border rounded py-1 px-2 mt-[40px]"
                 style={{ lineHeight: "2" }}
                 accept="image/*,video/*,audio/*,.pdf"
                 onChange={(event) => {
@@ -125,10 +142,14 @@ const UploadMediaPage = ({ onUploadSuccess, onsenderChange, ispopUp, senderId })
                 className="text-red-500 text-sm mt-1"
               />
             </div>
-            {ispopUp && <div className=""></div>}
+           
             {/* Submit Button */}
             <div className="flex justify-end mt-1">
-              <button type="submit" className="uniform_btn px-4 py-2" disabled={isSubmitting}>
+              <button
+                type="submit"
+                className="uniform_btn px-4 py-2 mt-[40px]"
+                disabled={isSubmitting}
+              >
                 Upload
               </button>
             </div>

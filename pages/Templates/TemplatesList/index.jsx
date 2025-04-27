@@ -31,7 +31,13 @@ import {
 } from "@/slices/TemplateSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import App from "@/components/Layout/App";
-import { HiPencilAlt, HiTrash, HiRefresh, HiEye, HiArrowsExpand} from "react-icons/hi";
+import {
+  HiPencilAlt,
+  HiTrash,
+  HiRefresh,
+  HiEye,
+  HiArrowsExpand,
+} from "react-icons/hi";
 import { useSetRecoilState } from "recoil";
 import { TemplateState } from "@/components/recoil";
 import TemplateVisualisation from "../../TemplateVisualisation/index";
@@ -50,6 +56,8 @@ const TemplateList = () => {
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [filterText, setFilterText] = useState("");
   const [transactonType, setTransactonType] = useState(0);
+  const [catagoryId, setCatagoryId] = useState(0);
+  const [languageId, setLanguageId] = useState(0);
   const [showupdatemodel, setshowupdatemodel] = useState(false);
   const [showVisualizationModal, setShowVisualizationModal] = useState(false);
   const [templateId, settemplateId] = useState(0);
@@ -73,13 +81,13 @@ const TemplateList = () => {
       selector: (row) => row.category,
       sortable: true,
     },
-   
+
     {
       name: "Language",
       selector: (row) => row.language,
       sortable: true,
     },
-  
+
     { name: "Status", selector: (row) => row.status, sortable: true },
     {
       name: "Whatsapp Id",
@@ -91,14 +99,14 @@ const TemplateList = () => {
       selector: (row) => row.createdDate,
       sortable: true,
     },
-    
+
     {
       name: "Action",
       cell: (row) => (
         <center>
           <div className="flex gap-2">
             <button
-              title="Edit Template"
+              title="View Template"
               className="uniform_icon_btn"
               onClick={() => handleDetailClick(row.id)}
             >
@@ -109,7 +117,7 @@ const TemplateList = () => {
               className="uniform_icon_btn"
               onClick={() => handleViualizationClick(row.id)}
             >
-             <i class="fa fa-connectdevelop fa-lg" aria-hidden="true"></i>
+              <i class="fa fa-connectdevelop fa-lg" aria-hidden="true"></i>
             </button>
             <button
               title="Delete Template"
@@ -136,8 +144,8 @@ const TemplateList = () => {
   const handleViualizationClick = (templates_Id) => {
     settemplateId(templates_Id);
     router.push({
-      pathname: '/TemplateVisualisation',
-      query: { Id: templates_Id, type: 1},
+      pathname: "/TemplateVisualisation",
+      query: { Id: templates_Id, type: 1 },
     });
   };
 
@@ -177,6 +185,8 @@ const TemplateList = () => {
         TransactonType: transactonType,
         senderId: SenderId,
         searchStr: filterText,
+        Category: catagoryId,
+        Language: languageId,
         pageNo: 1,
         pageSize: newSize,
       })
@@ -191,6 +201,8 @@ const TemplateList = () => {
         TransactonType: transactonType,
         senderId: SenderId,
         searchStr: filterText,
+        Category: catagoryId,
+        Language: languageId,
         pageNo: page,
         pageSize,
       })
@@ -204,6 +216,8 @@ const TemplateList = () => {
         TransactonType: transactonType,
         senderId: SenderId,
         searchStr: filterText,
+        Category: catagoryId,
+        Language: languageId,
         pageNo: currentPage,
         pageSize,
       })
@@ -218,13 +232,15 @@ const TemplateList = () => {
         senderId: SenderId,
         searchStr: filterText,
         pageNo: currentPage,
+        Category: catagoryId,
+        Language: languageId,
         pageSize,
       })
     );
     return () => {
       dispatch(clearTemplateState());
     };
-  }, [dispatch, SenderId]);
+  }, [dispatch, SenderId, transactonType, catagoryId, languageId]);
 
   const filteredSendernames = templates.filter((template) =>
     template.templateName.toLowerCase().includes(filterText.toLowerCase())
@@ -240,8 +256,7 @@ const TemplateList = () => {
   };
   const handleCloseVS = () => {
     setShowVisualizationModal(false);
-    dispatch(clearTemplateVisualization())
-
+    dispatch(clearTemplateVisualization());
   };
   const handleSearchString = (setter) => (e) => {
     const searchValue = e;
@@ -256,12 +271,24 @@ const TemplateList = () => {
           clientId: localStorage.getItem("clientId"),
           TransactonType: transactonType,
           searchStr: searchValue,
+          senderId: SenderId,
+          Category: catagoryId,
+          Language: languageId,
           pageNo: currentPage,
           pageSize,
         })
       );
     }, 500);
     setSearchTimeout(timeout);
+  };
+  const handleCategoryChange = (e) => {
+    const categoryId = e.target.value;
+    setCatagoryId(categoryId);
+  };
+
+  const handleLanguageChange = (e) => {
+    const Id = e.target.value;
+    setLanguageId(Id);
   };
 
   const handleSenderChange = () => (e) => {
@@ -292,10 +319,40 @@ const TemplateList = () => {
               onChange={handleSenderChange()}
             />
           </div>
+          <div className="flex flex-col text-start mb-1">
+            <label className="font-medium text-gray-700 text-sm mb-1">
+              Category
+            </label>
+            <select
+              id="catagoryId"
+              value={catagoryId}
+              onChange={handleCategoryChange}
+              className="border border-gray-300 rounded-md w-full py-1 px-3 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value={0}>Select</option>
+              <option value={1}>Marketing</option>
+              <option value={2}>Utility</option>
+            </select>
+          </div>
+          <div className="flex flex-col text-start mb-1">
+            <label className="font-medium text-gray-700 text-sm mb-1">
+              Language
+            </label>
+            <select
+              id="languageId"
+              value={languageId}
+              onChange={handleLanguageChange}
+              className="border border-gray-300 rounded-md w-full py-1 px-3 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value={0}>Select</option>
+              <option value={1}>English</option>
+              <option value={2}>Arabic</option>
+            </select>
+          </div>
         </div>
       </div>
     );
-  }, [filterText]);
+  }, [filterText, SenderId, catagoryId, languageId]);
 
   if (error) {
     return <Alert color="danger">{error}</Alert>;
@@ -305,9 +362,13 @@ const TemplateList = () => {
     <App>
       {showupdatemodel ? (
         <Updatetemplate Template_Id={templateId} onclose={handleClose} />
-      )  : showVisualizationModal ? (
-        <TemplateVisualisation Id={templateId} type={1} onclose={handleCloseVS} />
-      ):(
+      ) : showVisualizationModal ? (
+        <TemplateVisualisation
+          Id={templateId}
+          type={1}
+          onclose={handleCloseVS}
+        />
+      ) : (
         <>
           <div className="flex items-center">
             {loading || TemplateLoading ? <Loading /> : null}

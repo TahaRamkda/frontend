@@ -6,12 +6,12 @@ import { CREATECAMPAIGN, CAMPAIGNLIST, ACTIVATECAMPAIGN ,CAMPAIGNDETAIL,UPDATECA
 // Thunks
 export const fetchCampaign = createAsyncThunk(
   'campaign/fetchCampaign',
-  async ({ FromDate, ToDate, srcStr, PageNo, pageSize}, { rejectWithValue }) => {
+  async ({ FromDate, ToDate, srcStr, PageNo, pageSize,templateId}, { rejectWithValue }) => {
     console.log("Fetching campaign data...");
    
     try {
       
-      const response = await API.get(`${CAMPAIGNLIST}?${srcStr ? `SearchStr=${srcStr}` : ''}&FromDate=${FromDate}&ToDate=${ToDate}&PageNo=${PageNo}&PageSize=${pageSize}`);
+      const response = await API.get(`${CAMPAIGNLIST}?${srcStr ? `SearchStr=${srcStr}` : ''}&FromDate=${FromDate}&ToDate=${ToDate}&PageNo=${PageNo}&PageSize=${pageSize}&TemplateId=${templateId}`);
       if (response?.status === 200) {
         return {
           campaigns: response.data.result,

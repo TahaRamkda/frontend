@@ -136,7 +136,7 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
     const initializeCampaignDetails = async () => {
       
       if (campaigndetail) {
-        debugger
+        
         setSelectedTemplateId(campaigndetail.templateId);
         setcampaignName(campaigndetail.campaignName);
         setexistinggroupId(
@@ -315,7 +315,7 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
   //submit function to update campaign main request body creates here
 const handleSubmit = async (values) => {
   setLoading(true);
-  debugger
+  
   const requestBody = {
     clientId: localStorage.getItem("clientId"),
     campaignId: SelectedCampaign,
@@ -347,7 +347,7 @@ const handleSubmit = async (values) => {
       })),
     ],
   };
-debugger
+
   try {
     const response = await dispatch(UpdateCampaign(requestBody)).unwrap();
     if (response.success) {
@@ -569,7 +569,7 @@ debugger
                                 : "application"
                             }
                             onSelectMedia={(mediaId, mediaPath, mimeType) => {
-                              debugger
+                              
                               setSelectedMediaId(mediaId);
                               setSelectedMediaPath(mediaPath);
                               setSelectedMediaType(mimeType);

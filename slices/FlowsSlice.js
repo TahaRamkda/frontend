@@ -7,9 +7,9 @@ import { FLOWSLIST, FLOWDETAILS,CREATEFLOW, UPDATEFLOW, DELETEFLOW, FLOWDROPDOWN
 // Fetch Group
 export const fetchFlowsListData = createAsyncThunk(
     'flow/fetchFlowsListData',
-    async ({clientId, pageNo, pageSize, SearchStr,senderId}, { rejectWithValue }) => {
+    async ({clientId, pageNo, pageSize, SearchStr,senderId, Language}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${FLOWSLIST}?senderId=${senderId}&PageNo=${pageNo}&PageSize=${pageSize}${ SearchStr? `&SearchStr=${SearchStr}`:''}`);
+        const response = await API.get(`${FLOWSLIST}?senderid=${senderId}&lang=${Language}&PageNo=${pageNo}&PageSize=${pageSize}${ SearchStr? `&SearchStr=${SearchStr}`:''}`);
         if (response?.status === 200) {
           return {
             flowsList: response.data.result,

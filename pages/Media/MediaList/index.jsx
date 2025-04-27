@@ -17,22 +17,41 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr,senderId }) => {
   const [selectedsenderId, setselectedsenderId] = useState(0);
   const { medias, loading, error } = useSelector((state) => state.media);
   const[Medialist,setmediaList] = useState([]);
+  const [searchTimeout, setSearchTimeout] = useState(null);
+  const [filterText, setFilterText] = useState("");
   useEffect(() => {
     setmediaList(null)
     // Send contentTypeStr only when isPopup is true, otherwise send an empty string
     const contentType = contentTypeStr  ;
-    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType,senderId:selectedsenderId }));
+    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType, FileName:filterText, senderId:selectedsenderId }));
     return () => clearMediaState();
   }, [dispatch, contentTypeStr,selectedMediaId]);
 
+  const handleSearchString  = (e) => {
+    const searchValue = e;
+    setFilterText(searchValue);
+
+
+    // Clear the previous timeout if any
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set a new timeout for 0.5 seconds
+    const timeout = setTimeout(() => {
+      dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentTypeStr,FileName:searchValue,senderId:selectedsenderId }));
+    }, 500);
+
+    setSearchTimeout(timeout); // Save the timeout reference
+  };
   const toggleModal = () => {
   setmediaList([]);
     setIsModalOpen(false);
   };
 useEffect(() =>{
-  debugger
+  
 if(medias && medias.length > 0){
-  debugger
+  
   setmediaList(medias)
 }
 },[medias])
@@ -64,7 +83,7 @@ if(medias && medias.length > 0){
    const refreshList = async () => {
     
     const contentType =   contentTypeStr ;
-    await dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType ,senderId:selectedsenderId}));
+    await dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType ,FileName:filterText,senderId:selectedsenderId}));
   };
 
   const handleSelectImage = (mediaId, mediaPath, mimeType) => {
@@ -152,6 +171,9 @@ if(medias && medias.length > 0){
           onUploadSuccess={refreshList}
           onsenderChange={handlesenderchange}
           ispopUp={isPopup}
+          handleSearch={handleSearchString}
+          fetchMedia={refreshList}
+          filterText={filterText}
         />
         <div className="row">
           {Medialist?.map((media) => (

@@ -16,9 +16,9 @@ import {
 
 export const fetchInteractiveTemplates = createAsyncThunk(
   'template/interactiveTemplateList',
-  async ({fromDate,searchStr,toDate,pageNo,pageSize, senderId}, { rejectWithValue }) => {
+  async ({fromDate,searchStr,toDate,pageNo,pageSize, senderId, Language}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${INRERACTIVETEMPLATELIST}?senderId=${senderId}${searchStr?`&searchStr=${searchStr}`:''}&senderId=${senderId}&fromDate=${fromDate}&toDate=${toDate}&pageNo=${pageNo}&pageSize=${pageSize}`);
+      const response = await API.get(`${INRERACTIVETEMPLATELIST}?senderId=${senderId}${searchStr?`&searchStr=${searchStr}`:''}&senderId=${senderId}&fromDate=${fromDate}&toDate=${toDate}&pageNo=${pageNo}&pageSize=${pageSize}&lang=${Language}`);
       if (response?.status === 200) {
         return {
           interactiveTemplateList: response.data.result,

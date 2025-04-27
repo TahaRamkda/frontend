@@ -1,97 +1,116 @@
-import React, { useState, useMemo, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Modal, ModalHeader, ModalBody } from "reactstrap";
+import React, { useMemo, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import SweetAlert from "sweetalert2";
-import { fetchFlowsListData,clearFlowListState, fetchFlowDetailsById, clearFlowDetailState, publishFlow,clearFlowPublishState, deleteFlow, clearFlowDeleteState, setCurrentPage, setPageSize } from "@/slices/FlowsSlice";
 import DataTable from "react-data-table-component";
-import { HiPencilAlt, HiTrash, HiUpload } from "react-icons/hi";
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+} from "reactstrap";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchSetting,
+  clearAppSettingState,
+  fetchSettingById,
+  clearAppSettingDetailState,
+  appSettings,
+  clearAppSettingDataState,
+  setPageSize,
+  setCurrentPage,
+  updateAppSettings,
+} from "@/slices/AppSettingSlice";
 import showSweetAlert from "@/components/Sweetalert";
-import SearchBar from "@/components/SearchBar/SearchComponent";
-import Loader from "@/components/Layout/Loader";
+import Loading from "@/components/Layout/Loader";
+import { HiPencilAlt, HiTrash } from "react-icons/hi";
+import SettingForm from "@/pages/AppSetting/CreateAppSetting";
 import App from "@/components/Layout/App";
-
-import { set } from "date-fns";
-
-const Flow = () => {
+import SearchBar from "@/components/SearchBar/SearchComponent";
+import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
+import ClientDropdown from "@/components/Dropdowns/ClientDropdown";
+const AppSettings = () => {
+  const router = useRouter();
   const dispatch = useDispatch();
-  const { flowsList, totalRecords, loading, error } = useSelector((state) => state.flows);
+  const { settingList, loading, error, pageSize, totalRecords, currentPage } =
+    useSelector((state) => state.appsetting);
+  const [senderId, setSelectedSenderId] = useState(0);
+  const [clientId, setSelectedClientId] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [flowForm, setFlowForm] = useState({});
-  const [filterText, setFilterText] = useState("");
-  const [PageNum, SetPageNum] = useState(1)
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
-  const [floawLoading, setFlowLoading] = useState(false);
-  const [page, SetPageSize] = useState(10)
-
-  const flowColumn = [
-    { name: "Flow Name", selector: (row) => row.flowName, sortable: true },
-    { name: "Flow Language", selector: (row) => row.flowLanguage, sortable: true },
+  const [settingForm, setSettingForm] = useState({});
+  const [filterText, setFilterText] = useState("");
+  const [CreateModalOpen, setCreateModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Start as true since we're fetching data
+  const settingColumns = [
+    { name: "Key Name", selector: (row) => row.keyName, sortable: true },
+    { name: "Value", selector: (row) => row.val, sortable: true },
     { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
+    { name: "Client Name", selector: (row) => row.clientName, sortable: true },
     {
       name: "Action",
       cell: (row) => (
-        <div className="flex gap-2">
-          <button onClick={() => handleDetailClick(row.flowId)} title="Edit Flow" className="uniform_icon_btn">
-            <HiPencilAlt style={{ fontSize: "15px" }} />
-          </button>
-          <button onClick={() => handlePublishClick(row.flowId)} title="Edit Flow" className="uniform_icon_btn">
-            <HiUpload style={{ fontSize: "15px" }} />
-          </button>
-          <button onClick={() => handleDeleteClick(row.flowId)} title="Delete Flow" className="uniform_icon_btn">
-            <HiTrash style={{ fontSize: "15px" }} />
-          </button>
-        </div>
+        <>
+          <div className="flex gap-2 justify-center w-full">
+            <button
+              title="Edit Group"
+              className="uniform_icon_btn"
+              onClick={() => handleDetailClick(row.id)}
+            >
+              <HiPencilAlt style={{ fontSize: "15px" }} />
+            </button>
+            <button
+              title="Delete Group"
+              className="uniform_icon_btn"
+              onClick={() => handleDeleteClick(row.groupId)}
+            >
+              <HiTrash style={{ fontSize: "15px" }} />
+            </button>
+          </div>
+        </>
       ),
+      style: {
+        textAlign: "right", // Align the entire column content to the center
+      },
     },
   ];
 
-  useEffect(() => {
-    dispatch(fetchFlowsListData({pageNo:PageNum, pageSize: page, SearchStr: filterText}));
-  }, [dispatch,PageNum,page]);
+  const handleClientChange = (e) => {
+    
+    const id = e.target.value;
+    setSelectedClientId(id);
+  };
+  const handleSenderChange = (e) => {
+    
+    const id = e.target.value;
+    setSelectedSenderId(id);
+  };
 
-  const handleDetailClick = async (groupId) => {
+  const handleDetailClick = async (id) => {
     try {
-      const response = await dispatch(fetchGroupById({groupId})).unwrap();
+      const response = await dispatch(fetchSettingById({ Id: id })).unwrap();
       if (response) {
-        setFlowForm(response.result);
+        setSettingForm(response.result);
         setIsModalOpen(true);
       } else {
-        showSweetAlert({ title: "Error", text: "Failed to fetch details", icon: "error" });
+        showSweetAlert({
+          title: "Error",
+          text: "Failed to fetch details",
+          icon: "error",
+        });
       }
     } catch (error) {
       alert("Failed to fetch group details: " + error.message);
     }
   };
-  const handlePublishClick = async (flowId) => {
-    try {
-      const response = await dispatch(publishFlow(flowId)).unwrap();
-      if (response.success) {
-        dispatch(clearFlowPublishState());
-        showSweetAlert({
-          title: "published Successfully",
-          text: "",
-          icon: "success",
-        });
-      } else {
-        showSweetAlert({
-          title: "Failed",
-          text: response.result.message || "",
-          icon: "error",
-        });
-      }
-    } catch (err) {
-      console.error("Failed to Upload", err);
-      showSweetAlert({
-        title: "Failed",
-        text: err.message || "",
-        icon: "error",
-      });
-    }
-  }
-  
-
-  const handleDeleteClick = (id) => {
+  const handleCancel = () => {
+    setCreateModalOpen(false);
+  };
+  const handleDeleteClick = (groupId) => {
     SweetAlert.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -103,11 +122,14 @@ const Flow = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          dispatch(deleteFlow({ id })).then(() => {
-            showSweetAlert({ title: "Deleted Successfully", text: "", icon: "success" });
+          dispatch(deleteGroup({ groupId })).then(() => {
+            showSweetAlert({
+              title: "Deleted Successfully",
+              text: "",
+              icon: "success",
+            });
+            refreshSettingList();
           });
-
-
         } catch (error) {
           alert("An unexpected error occurred: " + error.message);
         }
@@ -115,58 +137,142 @@ const Flow = () => {
     });
   };
 
-   const handlePageSizeChange = async (newSize) => {
-      SetPageSize(newSize)
-      dispatch(setPageSize(newSize));
-      dispatch(setCurrentPage(1)); // Reset to first page
-      setFlowLoading(true);
-      await dispatch(
-        fetchFlowsListData({
-          SearchStr: filterText,
-          pageSize: newSize,
-          pageNo: 1,
-        })
-      );
-    };
+  const handlePageChange = async (page) => {
+    // Update current page state in Redux
+    dispatch(setCurrentPage(page));
 
-     const handlePageChange = async (pageNo) => {
-        SetPageNum(pageNo)
-        dispatch(setCurrentPage(pageNo));
-        setFlowLoading(true);
-        await dispatch(
-          fetchFlowsListData({
-            SearchStr: filterText ,
-            pageSize:page,
-            pageNo: pageNo,
-          })
-        );
-    
-      };
+    // Fetch clients for the new page
+    await dispatch(
+      fetchSetting({
+        clientId: localStorage.getItem("clientId"),
+        pageSize,
+        senderId: senderId,
+        clientId: clientId,
+        pageNo: page,
+        SearchStr: filterText,
+      })
+    );
+  };
+
+  const handlePageSizeChange = async (newSize) => {
+    // Update page size and reset to the first page
+    dispatch(setPageSize(newSize));
+    dispatch(setCurrentPage(1)); // Reset to first page
+    await dispatch(
+      fetchSetting({
+        clientId: localStorage.getItem("clientId"),
+        pageSize: newSize,
+        senderId: senderId,
+        clientId: clientId,
+        pageNo: 1,
+        SearchStr: filterText,
+      })
+    );
+  };
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setSettingForm({ ...settingForm, [name]: value });
+  };
+  const toggleModal = () => {
+    setIsModalOpen(false);
+  };
 
   const handleSearchString = (setter) => (e) => {
-     const searchValue = e;
-     setFilterText(searchValue);
-     
-     setter(e);
- 
-     if (searchTimeout) {
-       clearTimeout(searchTimeout);
-     }
- 
-     const timeout = setTimeout(() => {
-       dispatch(
-         fetchFlowsListData({
-           SearchStr: searchValue,
-           pageSize:page,
-           pageNo: PageNum,
-         })
-       );
-     }, 500);
- 
-     setSearchTimeout(timeout); // Save the timeout reference
-   };
- 
+    const searchValue = e;
+    setFilterText(searchValue);
+    setter(e);
 
+    // Clear the previous timeout if any
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set a new timeout for 0.5 seconds
+    const timeout = setTimeout(() => {
+      dispatch(
+        fetchSetting({
+          clientId: localStorage.getItem("clientId"),
+          pageSize,
+          pageNo: currentPage,
+          SearchStr: searchValue,
+        })
+      );
+    }, 500);
+
+    setSearchTimeout(timeout); // Save the timeout reference
+  };
+  const handleUpdateSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const requestBody = {
+        id: settingForm.id || 0,
+        keyName: settingForm.keyName || "string",
+        val: settingForm.val || "string",
+        senderId: settingForm.senderId || 0,
+      };
+
+      const response = await dispatch(updateAppSettings(requestBody)).unwrap();
+      if (response.success) {
+        showSweetAlert({
+          title: "Updated Successfully",
+          text: "",
+          icon: "success",
+        });
+        setIsLoading(false);
+        setIsModalOpen(false);
+        refreshSettingList();
+      } else {
+        showSweetAlert({
+          title: "Error",
+          text: response.message,
+          icon: "error",
+        });
+      }
+    } catch (error) {
+      alert("Failed to update group: " + error.message);
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const refreshSettingList = () => {
+    dispatch(
+      fetchSetting({
+        clientId: localStorage.getItem("clientId"),
+        pageSize,
+        senderId: senderId,
+        clientId: clientId,
+        pageNo: currentPage,
+        SearchStr: filterText,
+      })
+    );
+  };
+
+  useEffect(() => {
+    dispatch(
+      fetchSetting({
+        clientId: localStorage.getItem("clientId"),
+        pageSize,
+        senderId: senderId,
+        clientId: clientId,
+        pageNo: currentPage,
+        SearchStr: filterText,
+      })
+    );
+    return () => {
+      dispatch(clearAppSettingState());
+    };
+  }, [dispatch,senderId,clientId]);
+
+  const handleCreate = () => {
+    setCreateModalOpen(true);
+  };
+
+  const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
+  const defultpagessize = 10;
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className="w-full">
@@ -178,157 +284,170 @@ const Flow = () => {
               onChange={handleSearchString(setFilterText)}
             />
           </div>
+          <div className="flex flex-col space-y-1 text-start mb-1 ">
+          <label className="font-medium text-gray-700 text-sm ">
+              Sender Name
+            </label>
+            <SendernameDropdown name="senderId" onChange={handleSenderChange} />
+          </div>
+          <div className="flex flex-col space-y-1 text-start mb-1 ">
+          <label className="font-medium text-gray-700 text-sm ">
+              Client Name
+            </label>
+            <ClientDropdown
+              name="client_Id"
+              value={clientId}
+              onChange={handleClientChange}
+              className="block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
         </div>
-
       </div>
-
     );
-  }, [filterText]);
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFlowForm((prev) => ({ ...prev, [name]: value }));
-  };
-  const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
-  // const handleSave = () => {
-  //   setFlowsList((prevFlows) =>
-  //     prevFlows.map((flow) => (flow.id === flowForm.id ? flowForm : flow))
-  //   );
-  //   setIsModalOpen(false);
-  // };
+  }, [filterText, clientId, senderId]);
 
-  
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
+
   return (
     <App>
-      {floawLoading && loading && <Loader />}
-     <div className="flex items-center">
-        {/* {loading && <Loader />} */}
-        <div className=''>
-          <h4 className="font-bold">FLows</h4>
+      <div className="flex items-center">
+        {(loading || isLoading) && <Loading />}
+        <div className="">
+          <h4 className="font-bold">App Settings </h4>
         </div>
         <div className="ml-auto mb-1">
-          <button
-            className="uniform_btn"
-            // onClick={handleCreate}
-          >
-            Create Flows
+          <button className="uniform_btn" onClick={handleCreate}>
+            Create Settings
           </button>
         </div>
       </div>
-
       <div className="overflow-auto">
-      <DataTable
-        data={flowsList}
-        columns={flowColumn}
-        highlightOnHover
-        striped
-        pagination
-        paginationServer
-        paginationTotalRows={totalRecords}
-        onChangePage={handlePageChange}
-        onChangeRowsPerPage={handlePageSizeChange}
-        sortIcon
-        sortServer
-        
-        paginationRowsPerPageOptions={customPageSizes}
-        subHeader
-        subHeaderComponent={subHeaderComponentMemo}
-        className="w-full border"
-        customStyles={{
-          table: {
-            style: {
-              width: "100%",
-              borderCollapse: "collapse",
+        <DataTable
+          data={settingList}
+          columns={settingColumns}
+          highlightOnHover
+          striped
+          pagination
+          paginationServer
+          paginationTotalRows={totalRecords}
+          sortIcon
+          sortServer
+          onChangePage={handlePageChange}
+          onChangeRowsPerPage={handlePageSizeChange}
+          paginationPerPage={defultpagessize} // Default number of rows per page
+          paginationRowsPerPageOptions={customPageSizes} // Custom page size options
+          subHeader
+          subHeaderComponent={subHeaderComponentMemo}
+          className="w-full border"
+          customStyles={{
+            table: {
+              style: {
+                width: "100%",
+                borderCollapse: "collapse", // Ensures borders collapse for proper grid appearance
+              },
             },
-          },
-          headRow: {
-            style: {
-              borderBottom: "1px solid #ddd",
-              padding: "0px",
+            headRow: {
+              style: {
+                borderBottom: "1px solid #ddd",
+                padding: "0px",
+              },
             },
-          },
-          headCells: {
-            style: {
-              borderRight: "1px solid #ddd",
-              fontWeight: "bold",
+            headCells: {
+              style: {
+                borderRight: "1px solid #ddd", // Grid line between columns
+                fontWeight: "bold",
+              },
             },
-          },
-          rows: {
-            style: {
-              borderBottom: "1px solid #ddd",
+            rows: {
+              style: {
+                borderBottom: "1px solid #ddd", // Horizontal grid line between rows
+              },
             },
-          },
-          cells: {
-            style: {
-              borderRight: "1px solid #ddd",
+            cells: {
+              style: {
+                borderRight: "1px solid #ddd", // Vertical grid line between cells
+              },
             },
-          },
-        }}
-      />
+          }}
+        />
       </div>
 
       {isModalOpen && (
-        <Modal isOpen={true} toggle={() => setIsModalOpen(false)} fade={false}>
+        <Modal isOpen={true} toggle={() => toggleModal()} fade={false}>
           <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
-              <ModalHeader toggle={() => setIsModalOpen(false)}>Edit Flow</ModalHeader>
+              {/* Loader for update operation */}
+              {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center z-50 ">
+                  <Loading />
+                </div>
+              )}
+              <ModalHeader toggle={() => toggleModal()}>
+                Edit Settings
+              </ModalHeader>
               <ModalBody>
-                <div className="space-y-4">
-                  <div>
-                    <label className="font-medium text-gray-700 text-sm">Flow Name</label>
+                <form onSubmit={handleUpdateSubmit}>
+                  <div className="flex flex-col">
+                    <label
+                      htmlFor="keyName"
+                      className="font-medium text-gray-700 text-sm"
+                    >
+                      Key Name
+                    </label>
                     <input
                       type="text"
-                      name="FlowName"
-                      value={flowForm.FlowName || ""}
-                      onChange={handleInputChange}
+                      id="keyName"
+                      name="keyName"
+                      value={settingForm.keyName || ""}
+                      onChange={handleFormChange}
                       className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                      disabled={isLoading} // Disable input while loading
                     />
                   </div>
-                  <div>
-                    <label className="font-medium text-gray-700 text-sm">Agent First Name</label>
+                  <div className="flex flex-col">
+                    <label
+                      htmlFor="val"
+                      className="font-medium text-gray-700 text-sm"
+                    >
+                      Value
+                    </label>
                     <input
                       type="text"
-                      name="agentFName"
-                      value={flowForm.agentFName || ""}
-                      onChange={handleInputChange}
+                      id="val"
+                      name="val"
+                      value={settingForm.val || ""}
+                      onChange={handleFormChange}
                       className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                      disabled={isLoading} // Disable input while loading
                     />
                   </div>
-                  <div>
-                    <label className="font-medium text-gray-700 text-sm">Agent Last Name</label>
-                    <input
-                      type="text"
-                      name="agentLName"
-                      value={flowForm.agentLName || ""}
-                      onChange={handleInputChange}
-                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
-                    />
+                  <div className="mt-4 w-full flex justify-end">
+                    <button
+                      type="submit"
+                      className="uniform_btn"
+                      disabled={isLoading} // Disable button while loading
+                    >
+                      Save
+                    </button>
                   </div>
-                  <div>
-                    <label className="font-medium text-gray-700 text-sm">Screen Name</label>
-                    <input
-                      type="text"
-                      name="ScreenName"
-                      value={flowForm.ScreenName || ""}
-                      onChange={handleInputChange}
-                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
-                    />
-                  </div>
-                </div>
-                <div className="flex mt-6 justify-end space-x-2">
-                  <button className="uniform_btn bg-gray-500" onClick={() => setIsModalOpen(false)}>
-                    Cancel
-                  </button>
-                  <button className="uniform_btn bg-blue-500" onClick={handleSave}>
-                    Save Changes
-                  </button>
-                </div>
+                </form>
               </ModalBody>
             </div>
           </div>
         </Modal>
       )}
+
+      {CreateModalOpen && (
+        <SettingForm
+          isVisible={true}
+          onClose={handleCancel}
+          onsuccess={refreshSettingList}
+        />
+      )}
     </App>
   );
 };
 
-export default Flow;
+export default AppSettings;

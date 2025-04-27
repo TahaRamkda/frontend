@@ -31,13 +31,15 @@ import { HiPencilAlt, HiTrash } from "react-icons/hi";
 import SettingForm from "@/pages/AppSetting/CreateAppSetting";
 import App from "@/components/Layout/App";
 import SearchBar from "@/components/SearchBar/SearchComponent";
-
+import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
+import ClientDropdown from "@/components/Dropdowns/ClientDropdown";
 const AppSettings = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { settingList, loading, error, pageSize, totalRecords, currentPage } =
     useSelector((state) => state.appsetting);
-
+  const [senderId, setSelectedSenderId] = useState(null);
+  const [clientId, setSelectedClientId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [settingForm, setSettingForm] = useState({});
@@ -74,6 +76,13 @@ const AppSettings = () => {
       },
     },
   ];
+
+  const handleClientChange = (clientId) => {
+    setSelectedClientId(clientId);
+  };
+  const handleSenderChange = (senderId) => {
+    setSelectedSenderId(senderId);
+  };
 
   const handleDetailClick = async (id) => {
     try {
@@ -131,6 +140,8 @@ const AppSettings = () => {
       fetchSetting({
         clientId: localStorage.getItem("clientId"),
         pageSize,
+        senderId: senderId,
+        clientId: clientId, 
         pageNo: page,
         SearchStr: filterText,
       })
@@ -145,6 +156,8 @@ const AppSettings = () => {
       fetchSetting({
         clientId: localStorage.getItem("clientId"),
         pageSize: newSize,
+        senderId: senderId,
+        clientId: clientId, 
         pageNo: 1,
         SearchStr: filterText,
       })
@@ -224,6 +237,8 @@ const AppSettings = () => {
       fetchSetting({
         clientId: localStorage.getItem("clientId"),
         pageSize,
+        senderId: senderId,
+        clientId: clientId, 
         pageNo: currentPage,
         SearchStr: filterText,
       })
@@ -235,6 +250,8 @@ const AppSettings = () => {
       fetchSetting({
         clientId: localStorage.getItem("clientId"),
         pageSize,
+        senderId: senderId,
+        clientId: clientId, 
         pageNo: currentPage,
         SearchStr: filterText,
       })
@@ -260,6 +277,20 @@ const AppSettings = () => {
               value={filterText}
               onChange={handleSearchString(setFilterText)}
             />
+          </div>
+          <div className="flex flex-col space-y-1 text-start mb-1 ">
+            <SendernameDropdown
+              name="senderId"
+              onChange={handleSenderChange}
+            />
+          </div>
+          <div className="flex flex-col space-y-1 text-start mb-1 ">
+          <ClientDropdown
+                        name="client_Id"
+                        value={clientId}
+                        onChange={handleClientChange}
+                        className="block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
           </div>
         </div>
       </div>

@@ -3,12 +3,23 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { Modal, ModalHeader, ModalBody } from "reactstrap";
 import SweetAlert from "sweetalert2";
-import { fetchFlowsListData,clearFlowListState, fetchFlowDetailsById, clearFlowDetailState, publishFlow,clearFlowPublishState, deleteFlow, clearFlowDeleteState, setCurrentPage, setPageSize } from "@/slices/FlowsSlice";
+import {
+  fetchFlowsListData,
+  clearFlowListState,
+  fetchFlowDetailsById,
+  clearFlowDetailState,
+  publishFlow,
+  clearFlowPublishState,
+  deleteFlow,
+  clearFlowDeleteState,
+  setCurrentPage,
+  setPageSize,
+} from "@/slices/FlowsSlice";
 import DataTable from "react-data-table-component";
 import { HiPencilAlt, HiTrash, HiUpload } from "react-icons/hi";
 import showSweetAlert from "@/components/Sweetalert";
 import SearchBar from "@/components/SearchBar/SearchComponent";
-import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown"; 
+import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 import Loader from "@/components/Layout/Loader";
 import App from "@/components/Layout/App";
 import { useSetRecoilState } from "recoil";
@@ -18,48 +29,85 @@ import UpdateFlow from "../FlowDetails";
 const Flow = () => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const { flowsList, totalRecords, loading, error } = useSelector((state) => state.flows);
+  const { flowsList, totalRecords, loading, error } = useSelector(
+    (state) => state.flows
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [flowForm, setFlowForm] = useState({});
   const [filterText, setFilterText] = useState("");
-  const [PageNum, SetPageNum] = useState(1)
+  const [PageNum, SetPageNum] = useState(1);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [floawLoading, setFlowLoading] = useState(false);
-  const [page, SetPageSize] = useState(10)
-  const [SenderId , setSenderId] = useState(0);
-  const[showupdateflowmodel,setshowupdateflowmodel] = useState(false);
-  const[flowId, setflowId] = useState(0);
- // const setFlowsId = useSetRecoilState(FlowState);
- const flowColumn = [
-  { name: "Flow Name", selector: (row) => row.flowName, sortable: true },
-  { name: "Flow Language", selector: (row) => row.flowLanguage, sortable: true },
-  { name: "Status", selector: (row) => row.status, sortable: true },
-  { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
-  { name: "Created Date", selector: (row) => row.createdDate, sortable: true },
-  {
-    name: "Action",
-    cell: (row) => (
-      <div className="flex gap-2">
-        <button onClick={() => handleDetailClick(row.flowId)} title="Edit Flow" className="uniform_icon_btn">
-          <HiPencilAlt style={{ fontSize: "15px" }} />
-        </button>
-        <button onClick={() => handlePublishClick(row.flowId)} title="Publish Flow" className="uniform_icon_btn">
-          <HiUpload style={{ fontSize: "15px" }} />
-        </button>
-        <button onClick={() => handleDeleteClick(row.flowId)} title="Delete Flow" className="uniform_icon_btn">
-          <HiTrash style={{ fontSize: "15px" }} />
-        </button>
-      </div>
-    ),
-  },
-];
+  const [page, SetPageSize] = useState(10);
+  const [languageId, setLanguageId] = useState(0);
+  const [SenderId, setSenderId] = useState(0);
+  const [showupdateflowmodel, setshowupdateflowmodel] = useState(false);
+  const [flowId, setflowId] = useState(0);
+  // const setFlowsId = useSetRecoilState(FlowState);
+  const flowColumn = [
+    { name: "Flow Name", selector: (row) => row.flowName, sortable: true },
+    {
+      name: "Flow Language",
+      selector: (row) => row.flowLanguage,
+      sortable: true,
+    },
+    { name: "Status", selector: (row) => row.status, sortable: true },
+    { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
+    {
+      name: "Created Date",
+      selector: (row) => row.createdDate,
+      sortable: true,
+    },
+    {
+      name: "Action",
+      cell: (row) => (
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleDetailClick(row.flowId)}
+            title="Edit Flow"
+            className="uniform_icon_btn"
+          >
+            <HiPencilAlt style={{ fontSize: "15px" }} />
+          </button>
+          <button
+            onClick={() => handlePublishClick(row.flowId)}
+            title="Publish Flow"
+            className="uniform_icon_btn"
+          >
+            <HiUpload style={{ fontSize: "15px" }} />
+          </button>
+          <button
+            onClick={() => handleDeleteClick(row.flowId)}
+            title="Delete Flow"
+            className="uniform_icon_btn"
+          >
+            <HiTrash style={{ fontSize: "15px" }} />
+          </button>
+        </div>
+      ),
+    },
+  ];
 
   const handleCreate = () => {
     router.push("/Flows/CreateFlow");
   };
+
   useEffect(() => {
-    dispatch(fetchFlowsListData({pageNo:PageNum, pageSize: page, SearchStr: filterText, senderId:SenderId}));
-  }, [dispatch,PageNum,page, SenderId]);
+    dispatch(
+      fetchFlowsListData({
+        pageNo: PageNum,
+        pageSize: page,
+        Language: languageId,
+        SearchStr: filterText,
+        senderId: SenderId,
+      })
+    );
+  }, [dispatch, PageNum, page, SenderId, languageId]);
+
+  const handleLanguageChange = (e) => {
+    const id = e.target.value;
+    setLanguageId(id);
+  };
 
   const handleDetailClick = (flowId) => {
     setflowId(flowId);
@@ -90,8 +138,7 @@ const Flow = () => {
         icon: "error",
       });
     }
-  }
-  
+  };
 
   const handleDeleteClick = (id) => {
     SweetAlert.fire({
@@ -106,10 +153,12 @@ const Flow = () => {
       if (result.isConfirmed) {
         try {
           dispatch(deleteFlow({ id })).then(() => {
-            showSweetAlert({ title: "Deleted Successfully", text: "", icon: "success" });
+            showSweetAlert({
+              title: "Deleted Successfully",
+              text: "",
+              icon: "success",
+            });
           });
-
-
         } catch (error) {
           alert("An unexpected error occurred: " + error.message);
         }
@@ -118,61 +167,65 @@ const Flow = () => {
   };
 
   const handleSenderChange = () => (e) => {
-    const senderId = e.target.value;  
-      setSenderId(senderId);
-    }
-  
-   const handlePageSizeChange = async (newSize) => {
-      SetPageSize(newSize)
-      dispatch(setPageSize(newSize));
-      dispatch(setCurrentPage(1)); // Reset to first page
-      setFlowLoading(true);
-      await dispatch(
-        fetchFlowsListData({
-          SearchStr: filterText,
-          pageSize: newSize,
-          pageNo: 1, senderId:SenderId
-        })
-      );
-    };
+    const senderId = e.target.value;
+    setSenderId(senderId);
+  };
 
-     const handlePageChange = async (pageNo) => {
-        SetPageNum(pageNo)
-        dispatch(setCurrentPage(pageNo));
-        setFlowLoading(true);
-        await dispatch(
-          fetchFlowsListData({
-            SearchStr: filterText ,
-            pageSize:page,
-            pageNo: pageNo, senderId:SenderId
-          })
-        );
-    
-      };
+  const handlePageSizeChange = async (newSize) => {
+    SetPageSize(newSize);
+    dispatch(setPageSize(newSize));
+    dispatch(setCurrentPage(1)); // Reset to first page
+    setFlowLoading(true);
+    await dispatch(
+      fetchFlowsListData({
+        SearchStr: filterText,
+        pageSize: newSize,
+        Language: languageId,
+        pageNo: 1,
+        senderId: SenderId,
+      })
+    );
+  };
+
+  const handlePageChange = async (pageNo) => {
+    SetPageNum(pageNo);
+    dispatch(setCurrentPage(pageNo));
+    setFlowLoading(true);
+    await dispatch(
+      fetchFlowsListData({
+        SearchStr: filterText,
+        pageSize: page,
+        Language: languageId,
+        pageNo: pageNo,
+        senderId: SenderId,
+      })
+    );
+  };
 
   const handleSearchString = (setter) => (e) => {
-     const searchValue = e;
-     setFilterText(searchValue);
-     
-     setter(e);
- 
-     if (searchTimeout) {
-       clearTimeout(searchTimeout);
-     }
- 
-     const timeout = setTimeout(() => {
-       dispatch(
-         fetchFlowsListData({
-           SearchStr: searchValue,
-           pageSize:page,
-           pageNo: PageNum, senderId:SenderId
-         })
-       );
-     }, 500);
- 
-     setSearchTimeout(timeout); // Save the timeout reference
-   };
- 
+    const searchValue = e;
+    setFilterText(searchValue);
+
+    setter(e);
+
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    const timeout = setTimeout(() => {
+      dispatch(
+        fetchFlowsListData({
+          SearchStr: searchValue,
+          pageSize: page,
+          Language: languageId,
+          pageNo: PageNum,
+          senderId: SenderId,
+        })
+      );
+    }, 500);
+
+    setSearchTimeout(timeout); // Save the timeout reference
+  };
 
   const subHeaderComponentMemo = useMemo(() => {
     return (
@@ -186,18 +239,33 @@ const Flow = () => {
             />
           </div>
           <div className="flex flex-col space-y-1 text-start mb-1">
-          <label className="font-medium text-gray-700 text-sm ">Sender Names</label>
+            <label className="font-medium text-gray-700 text-sm ">
+              Sender Names
+            </label>
             <SendernameDropdown
-              value={filterText}
-              onChange={handleSearchString(setFilterText)}
+              value={SenderId}
+              onChange={handleSenderChange()}
             />
           </div>
+          <div className="flex flex-col space-y-1 text-start mb-1">
+            <label className="font-medium text-gray-700 text-sm ">
+              Language
+            </label>
+            <select
+              id="languageId"
+              value={languageId}
+              onChange={handleLanguageChange}
+              className="border border-gray-300 rounded-md w-full py-1 px-3 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value={0}>Select</option>
+              <option value={1}>English</option>
+              <option value={2}>Arabic</option>
+            </select>
+          </div>
         </div>
-
       </div>
-
     );
-  }, [filterText]);
+  }, [filterText, SenderId, languageId]);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFlowForm((prev) => ({ ...prev, [name]: value }));
@@ -209,120 +277,134 @@ const Flow = () => {
   //   );
   //   setIsModalOpen(false);
   // };
- 
+
   const handleClose = () => {
     setshowupdateflowmodel(false);
     setFlowLoading(false);
   };
-  
+
   return (
     <App>
       {floawLoading && loading && <Loader />}
       {showupdateflowmodel ? (
-        <UpdateFlow 
-        Flow_Id={flowId}
-        onclose={handleClose} />
+        <UpdateFlow Flow_Id={flowId} onclose={handleClose} />
       ) : (
         <>
-     <div className="flex items-center">
-        {/* {loading && <Loader />} */}
-        <div className=''>
-          <h4 className="font-bold">Flows</h4>
-        </div>
-        <div className="ml-auto mb-1">
-          <button
-            className="uniform_btn"
-            onClick={handleCreate}
-          >
-            Create Flows
-          </button>
-        </div>
-      </div>
-
-      <div className="overflow-auto">
-      <DataTable
-        data={flowsList}
-        columns={flowColumn}
-        highlightOnHover
-        striped
-        pagination
-        paginationServer
-        paginationTotalRows={totalRecords}
-        onChangePage={handlePageChange}
-        onChangeRowsPerPage={handlePageSizeChange}
-        sortIcon
-        sortServer
-        
-        paginationRowsPerPageOptions={customPageSizes}
-        subHeader
-        subHeaderComponent={subHeaderComponentMemo}
-        className="w-full border"
-      />
-      </div>
-
-      {isModalOpen && (
-        <Modal isOpen={true} toggle={() => setIsModalOpen(false)} fade={false}>
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
-              <ModalHeader toggle={() => setIsModalOpen(false)}>Edit Flow</ModalHeader>
-              <ModalBody>
-                <div className="space-y-4">
-                  <div>
-                    <label className="font-medium text-gray-700 text-sm">Flow Name</label>
-                    <input
-                      type="text"
-                      name="FlowName"
-                      value={flowForm.FlowName || ""}
-                      onChange={handleInputChange}
-                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-medium text-gray-700 text-sm">Agent First Name</label>
-                    <input
-                      type="text"
-                      name="agentFName"
-                      value={flowForm.agentFName || ""}
-                      onChange={handleInputChange}
-                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-medium text-gray-700 text-sm">Agent Last Name</label>
-                    <input
-                      type="text"
-                      name="agentLName"
-                      value={flowForm.agentLName || ""}
-                      onChange={handleInputChange}
-                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-medium text-gray-700 text-sm">Screen Name</label>
-                    <input
-                      type="text"
-                      name="ScreenName"
-                      value={flowForm.ScreenName || ""}
-                      onChange={handleInputChange}
-                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
-                    />
-                  </div>
-                </div>
-                <div className="flex mt-6 justify-end space-x-2">
-                  <button className="uniform_btn bg-gray-500" onClick={() => setIsModalOpen(false)}>
-                    Cancel
-                  </button>
-                  <button className="uniform_btn bg-blue-500" onClick={handleSave}>
-                    Save Changes
-                  </button>
-                </div>
-              </ModalBody>
+          <div className="flex items-center">
+            {/* {loading && <Loader />} */}
+            <div className="">
+              <h4 className="font-bold">Flows</h4>
+            </div>
+            <div className="ml-auto mb-1">
+              <button className="uniform_btn" onClick={handleCreate}>
+                Create Flows
+              </button>
             </div>
           </div>
-        </Modal>
+
+          <div className="overflow-auto">
+            <DataTable
+              data={flowsList}
+              columns={flowColumn}
+              highlightOnHover
+              striped
+              pagination
+              paginationServer
+              paginationTotalRows={totalRecords}
+              onChangePage={handlePageChange}
+              onChangeRowsPerPage={handlePageSizeChange}
+              sortIcon
+              sortServer
+              paginationRowsPerPageOptions={customPageSizes}
+              subHeader
+              subHeaderComponent={subHeaderComponentMemo}
+              className="w-full border"
+            />
+          </div>
+
+          {isModalOpen && (
+            <Modal
+              isOpen={true}
+              toggle={() => setIsModalOpen(false)}
+              fade={false}
+            >
+              <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
+                  <ModalHeader toggle={() => setIsModalOpen(false)}>
+                    Edit Flow
+                  </ModalHeader>
+                  <ModalBody>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="font-medium text-gray-700 text-sm">
+                          Flow Name
+                        </label>
+                        <input
+                          type="text"
+                          name="FlowName"
+                          value={flowForm.FlowName || ""}
+                          onChange={handleInputChange}
+                          className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-medium text-gray-700 text-sm">
+                          Agent First Name
+                        </label>
+                        <input
+                          type="text"
+                          name="agentFName"
+                          value={flowForm.agentFName || ""}
+                          onChange={handleInputChange}
+                          className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-medium text-gray-700 text-sm">
+                          Agent Last Name
+                        </label>
+                        <input
+                          type="text"
+                          name="agentLName"
+                          value={flowForm.agentLName || ""}
+                          onChange={handleInputChange}
+                          className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-medium text-gray-700 text-sm">
+                          Screen Name
+                        </label>
+                        <input
+                          type="text"
+                          name="ScreenName"
+                          value={flowForm.ScreenName || ""}
+                          onChange={handleInputChange}
+                          className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex mt-6 justify-end space-x-2">
+                      <button
+                        className="uniform_btn bg-gray-500"
+                        onClick={() => setIsModalOpen(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        className="uniform_btn bg-blue-500"
+                        onClick={handleSave}
+                      >
+                        Save Changes
+                      </button>
+                    </div>
+                  </ModalBody>
+                </div>
+              </div>
+            </Modal>
+          )}
+        </>
       )}
-      </>
-       )}
     </App>
   );
 };
