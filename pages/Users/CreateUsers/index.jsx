@@ -128,7 +128,7 @@ const UserForm = ({ onClose, isVisible, onsuccess }) => {
                     name="isActive"
                     value={formData.isActive}
                     onChange={handleChange}
-                    className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                    className="border rounded py-1 px-2 ml-2 text-sm"
                   />
                 </div>
 
