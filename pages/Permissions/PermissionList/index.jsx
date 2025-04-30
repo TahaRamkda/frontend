@@ -121,6 +121,7 @@ const PermissionList = () => {
 
   const handleSave = async () => {
     try {
+      
       const requestBody = {
         clientId: localStorage["clientId"],
         roleId: selectedRole,

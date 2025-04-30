@@ -192,12 +192,13 @@ const GroupList = () => {
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    debugger
     try {
       const requestBody = {
         groupId: groupForm.groupId || 0,
         groupName: groupForm.groupName || "string",
         actionBy: localStorage.getItem("userId"),
-        clientId: localStorage.getItem("clientId"),
+        clientId: groupForm.clientId || 0,
       };
 
       const response = await dispatch(updateGroup(requestBody)).unwrap();

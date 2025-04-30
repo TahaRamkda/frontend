@@ -104,6 +104,7 @@ const RoleList = () => {
 
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
+    debugger
     try {
       const requestBody = {
         roleId: roleForm.roleId || 0,

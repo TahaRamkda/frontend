@@ -124,7 +124,7 @@ const UserForm = ({ onClose, isVisible, onsuccess }) => {
                   <label className="font-medium text-gray-700 text-sm">Is Active?</label>
                   <input
                     required
-                    type="text"
+                    type="checkbox"
                     name="isActive"
                     value={formData.isActive}
                     onChange={handleChange}

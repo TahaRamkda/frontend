@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { createClient } from "@/slices/ClientSlice"; // Assuming this action exists
+import { createClient } from "@/slices/clientSlice"; // Assuming this action exists
 import showSweetAlert from "@/components/Sweetalert"; // Import your SweetAlert utility
 import { useRouter } from "next/navigation";
 import App from '@/components/Layout/App';

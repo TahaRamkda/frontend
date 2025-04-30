@@ -13,7 +13,7 @@ import {
   updateClient,
   setPageSize,
   setCurrentPage
-} from "@/slices/ClientSlice";
+} from "@/slices/clientSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Layout/Loader";
 import App from '@/components/Layout/App';

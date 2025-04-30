@@ -260,10 +260,10 @@ const InteractiveTemplateUpdate = ({Template_Id,onclose}) => {
     const bodysupresult = bodysubresult.replace(/<sub>.*?<\/sub>/g, "~");
     const bodyreplaceX = bodysupresult.replace(/`/g, "_");
     const bodyfinalReplace = bodyreplaceX.replace(/\+/g, "*");
-
+debugger
     const requestBody = {
       Id: Template_Id,
-      clientId: localStorage.getItem("clientId"),
+      clientId: interactivetemplatedetail.clientId,
       senderNameId: selectedSenderId,
       name: values.templateName,
       language: language,

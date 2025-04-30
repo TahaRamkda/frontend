@@ -244,6 +244,7 @@ const AgentsList = () => {
 
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
+    debugger
     try {
       const requestBody = {
         id: AgentId || 0,

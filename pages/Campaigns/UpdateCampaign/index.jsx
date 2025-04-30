@@ -315,9 +315,9 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
   //submit function to update campaign main request body creates here
 const handleSubmit = async (values) => {
   setLoading(true);
-  
+  debugger
   const requestBody = {
-    clientId: localStorage.getItem("clientId"),
+    clientId: template.clientId,
     campaignId: SelectedCampaign,
     campaignName: campaignName,
     senderId: template.senderId,
@@ -683,8 +683,8 @@ const handleSubmit = async (values) => {
             <div
               className="border "
                style={{
-                // maxHeight: "700px",
-                minHeight: "400px",
+                maxHeight: "600px",
+                overflowY: "scroll",
                 backgroundColor: "#e0e0e0",
                 backgroundImage: `url(${bagroundimage.src})`, // Update this path
                 backgroundSize: "cover",

@@ -25,7 +25,7 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr,senderId }) => {
     const contentType = contentTypeStr  ;
     dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType, FileName:filterText, senderId:selectedsenderId }));
     return () => clearMediaState();
-  }, [dispatch, contentTypeStr,selectedMediaId]);
+  }, [dispatch, contentTypeStr,selectedMediaId,selectedsenderId]);
 
   const handleSearchString  = (e) => {
     const searchValue = e;

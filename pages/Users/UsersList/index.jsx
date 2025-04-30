@@ -1,57 +1,93 @@
 import React, { useMemo, useState, useEffect } from "react";
 import {
-  Card, CardBody, CardHeader, Col, Input, Label, Alert, Button, Modal, ModalBody, ModalHeader, Form, FormGroup, Row,
+  Card,
+  CardBody,
+  CardHeader,
+  Col,
+  Input,
+  Label,
+  Alert,
+  Button,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  Form,
+  FormGroup,
+  Row,
 } from "reactstrap";
 import { useRouter } from "next/navigation";
 import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
 import RolesDropdown from "@/components/MultiSelect/RoleDropdown";
-import { fetchUser, clearUserState, deleteUser, fetchUserById, updateUser } from "@/slices/UserSlice";
+import {
+  fetchUser,
+  clearUserState,
+  deleteUser,
+  fetchUserById,
+  updateUser,
+} from "@/slices/UserSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
 import UserForm from "../CreateUsers";
-import App from '@/components/Layout/App';
+import App from "@/components/Layout/App";
 import Loading from "@/components/Layout/Loader";
-import SearchBar from '@/components/SearchBar/SearchComponent';
+import SearchBar from "@/components/SearchBar/SearchComponent";
 const UserList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { users, loading, error } = useSelector((state) => state.users);
   const { user } = useSelector((state) => state.users);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [CreateModalOpen, setCreateModalOpen] = useState(false)
-  const[existingRoleId, setexistingRoleId] = useState([]);
+  const [CreateModalOpen, setCreateModalOpen] = useState(false);
+  const [existingRoleId, setexistingRoleId] = useState([]);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [userForm, setUserForm] = useState({});
   const [filterText, setFilterText] = useState("");
 
   const userColumns = [
-
     { name: "User Name", selector: (row) => row.userName, sortable: true },
     { name: "Full Name", selector: (row) => row.fullName, sortable: true },
-    { name: "Is Active?", selector: (row) => (row.isActive ? "Yes" : "No"), sortable: true },
+    {
+      name: "Is Active?",
+      selector: (row) => (row.isActive ? "Yes" : "No"),
+      sortable: true,
+    },
     {
       name: "Action",
       cell: (row) => (
         <>
           <div className="flex gap-2 w-full ">
-            <button className="uniform_icon_btn" title="Edit Users" onClick={() => handleDetailClick(row.userId)}><HiPencilAlt style={{ fontSize: "15px" }} /></button>
-            <button className="uniform_icon_btn" title="Delete Users" onClick={() => handleDeleteClick(row.userId)}><HiTrash style={{ fontSize: "15px" }} /></button>
+            <button
+              className="uniform_icon_btn"
+              title="Edit Users"
+              onClick={() => handleDetailClick(row.userId)}
+            >
+              <HiPencilAlt style={{ fontSize: "15px" }} />
+            </button>
+            <button
+              className="uniform_icon_btn"
+              title="Delete Users"
+              onClick={() => handleDeleteClick(row.userId)}
+            >
+              <HiTrash style={{ fontSize: "15px" }} />
+            </button>
           </div>
         </>
       ),
     },
   ];
   const handleCancel = () => {
-    setCreateModalOpen(false)
-  }
+    setCreateModalOpen(false);
+  };
   const handleDetailClick = async (userId) => {
     try {
-      const response = await dispatch(fetchUserById({userId})).unwrap();
+      const response = await dispatch(fetchUserById({ userId })).unwrap();
       if (response) {
         setUserForm(response.result);
-        setexistingRoleId(response.result.roleIds.replace(/['"]+/g, '').split(',').map(Number))
+        setexistingRoleId(
+          response.result.roleIds.replace(/['"]+/g, "").split(",").map(Number)
+        );
         setIsModalOpen(true);
       } else {
         showSweetAlert({ title: "Error", text: "", icon: "error" });
@@ -76,7 +112,11 @@ const UserList = () => {
         dispatch(deleteUser({ userId }))
           .unwrap()
           .then(() => {
-            showSweetAlert({ title: "Deleted Successfully", text: "", icon: "success" });
+            showSweetAlert({
+              title: "Deleted Successfully",
+              text: "",
+              icon: "success",
+            });
             refreshUserList();
           })
           .catch((error) => {
@@ -86,7 +126,7 @@ const UserList = () => {
     });
   };
   const handleCreate = () => {
-    setCreateModalOpen(true)
+    setCreateModalOpen(true);
   };
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -96,7 +136,7 @@ const UserList = () => {
   const handleSearchString = (setter) => (e) => {
     const searchValue = e;
     setFilterText(searchValue);
-    setter(e)
+    setter(e);
 
     // Clear the previous timeout if any
     if (searchTimeout) {
@@ -106,21 +146,24 @@ const UserList = () => {
     // Set a new timeout for 0.5 seconds
     const timeout = setTimeout(() => {
       dispatch(
-        fetchUser({ clientId: localStorage.getItem("clientId"),searchStr:searchValue })
+        fetchUser({
+          clientId: localStorage.getItem("clientId"),
+          searchStr: searchValue,
+        })
       );
     }, 500);
 
     setSearchTimeout(timeout); // Save the timeout reference
   };
- 
 
   const handleUpdateSubmit = async (e) => {
-    debugger
+    debugger;
     e.preventDefault();
+    debugger
     try {
       const requestBody = {
-        userId:localStorage.getItem("userId") || 0,
-        clientId: localStorage.getItem('clientId') || 0,
+        userId: userForm.userId || 0,
+        clientId: userForm.clientId || 0,
         userName: userForm.userName || "string",
         isActive: userForm.isActive || false,
         fullName: userForm.fullName || "string",
@@ -138,65 +181,81 @@ const UserList = () => {
         setIsModalOpen(false);
         refreshUserList();
       } else {
-        showSweetAlert({ title: "Error", text: response.message, icon: "error" });
+        showSweetAlert({
+          title: "Error",
+          text: response.message,
+          icon: "error",
+        });
       }
     } catch (error) {
-      showSweetAlert({ title: "Error", text: "Failed to Update", icon: "error" });
+      showSweetAlert({
+        title: "Error",
+        text: "Failed to Update",
+        icon: "error",
+      });
     }
   };
 
   const refreshUserList = () => {
-    dispatch(fetchUser({ clientId: localStorage.getItem("clientId"),searchValue:filterText }));
+    dispatch(
+      fetchUser({
+        clientId: localStorage.getItem("clientId"),
+        searchValue: filterText,
+      })
+    );
   };
   const handleDropdownChange = (selectedValues) => {
-    
     setUserForm({ ...userForm, userRoles: selectedValues.join(",") });
-
   };
   const handleCheckboxChange = (value) => {
     setUserForm((prev) => ({ ...prev, isActive: value }));
   };
 
   useEffect(() => {
-    dispatch(fetchUser({ clientId: localStorage.getItem("clientId"),searchValue:filterText }));
+    dispatch(
+      fetchUser({
+        clientId: localStorage.getItem("clientId"),
+        searchValue: filterText,
+      })
+    );
     return () => {
       dispatch(clearUserState());
     };
-  }, [dispatch])
+  }, [dispatch]);
 
-  const filteredUsers = users?.filter((user) =>
-    user.userName.toLowerCase().includes(filterText.toLowerCase())
-    || user.fullName.toLowerCase().includes(filterText.toLowerCase())
+  const filteredUsers = users?.filter(
+    (user) =>
+      user.userName.toLowerCase().includes(filterText.toLowerCase()) ||
+      user.fullName.toLowerCase().includes(filterText.toLowerCase())
   );
-  const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
-  const defultpagessize = 10
-  const subHeaderComponentMemo = useMemo(() => (
-    <div className="w-full">
-      <div className="grid grid-cols-5 gap-4">
-        <div className="flex flex-col space-y-1 text-start mb-1 ">
-        <SearchBar
+  const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
+  const defultpagessize = 10;
+  const subHeaderComponentMemo = useMemo(
+    () => (
+      <div className="w-full">
+        <div className="grid grid-cols-5 gap-4">
+          <div className="flex flex-col space-y-1 text-start mb-1 ">
+            <SearchBar
               label="Search"
               value={filterText}
               onChange={handleSearchString(setFilterText)}
             />
+          </div>
         </div>
       </div>
-    </div>
-  ), [filterText]);
-
+    ),
+    [filterText]
+  );
 
   return (
     <App>
       <div className="flex items-center">
         {loading && <Loading />}
-        <div className=''>
+        <div className="">
           <h4 className="font-bold">Users </h4>
         </div>
         <div className="ml-auto mb-1">
-          <button
-            className="uniform_btn"
-            onClick={handleCreate}
-          >
+          <button className="uniform_btn" onClick={handleCreate}>
             Create User
           </button>
         </div>
@@ -218,71 +277,87 @@ const UserList = () => {
         className="w-full border"
       />
 
-
-      <Modal isOpen={isModalOpen} toggle={() => setIsModalOpen(!isModalOpen)} fade={false} >
+      <Modal
+        isOpen={isModalOpen}
+        toggle={() => setIsModalOpen(!isModalOpen)}
+        fade={false}
+      >
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-        {loading && <Loading />}
           <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
-            <ModalHeader toggle={() => setIsModalOpen(!isModalOpen)}>Edit User</ModalHeader>
+            {/* Loader for update operation */}
+            {loading && <Loading />}
+            <ModalHeader toggle={() => setIsModalOpen(!isModalOpen)}>
+              Edit User
+            </ModalHeader>
             <ModalBody>
-              {userForm && (
-                <Form onSubmit={handleUpdateSubmit}>
-                  <Row form>
-                    <Col md={6}>
-                      <FormGroup>
-                        <Label for="userName">User Name</Label>
-                        <Input
-                          type="text"
-                          id="userName"
-                          name="userName"
-                          value={userForm.userName || ""}
-                          onChange={handleFormChange}
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col md={7}>
-                      <FormGroup>
-                        <Label for="fullName">Full name</Label>
-                        <Input
-                          type="text"
-                          id="fullName"
-                          name="fullName"
-                          value={userForm.fullName || ""}
-                          onChange={handleFormChange}
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col md={7}>
-                      <FormGroup>
-                        <Label for="userRoles">User Roles</Label>
-                        <RolesDropdown
-                          name="userRoles"
-                          value={userForm.userRoles || ""}
-                          existingdata={existingRoleId}
-                          onChange={(value) =>handleDropdownChange(value)}
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col md={6}>
-                      <FormGroup>
-                        <Label for="isActive">Is Active? </Label>
-                        <Input
-                          type="checkbox"
-                          id="isActive"
-                          name="isActive"
-                          checked={userForm.isActive || false}
-                          onChange={(e) => handleCheckboxChange(e.target.checked)}
-                        />
-                      </FormGroup>
-                    </Col>
-                  </Row>
-                  <div className="flex justify-end">
-                  <Button className='uniform_btn'color="primary" type="submit">
+              <form onSubmit={handleUpdateSubmit}>
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="userName"
+                    className="font-medium text-gray-700 text-sm"
+                  >
+                    User Name
+                  </label>
+                  <input
+                    type="text"
+                    id="userName"
+                    name="userName"
+                    value={userForm.userName || ""}
+                    onChange={handleFormChange}
+                    className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="fullName"
+                    className="font-medium text-gray-700 text-sm"
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    id="fullName"
+                    name="fullName"
+                    value={userForm.fullName || ""}
+                    onChange={handleFormChange}
+                    className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="userRoles"
+                    className="font-medium text-gray-700 text-sm"
+                  >
+                    User Roles
+                  </label>
+                  <RolesDropdown
+                    name="userRoles"
+                    value={userForm.userRoles || ""}
+                    existingdata={existingRoleId}
+                    onChange={(value) => handleDropdownChange(value)}
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="groupName"
+                    className="font-medium text-gray-700 text-sm"
+                  >
+                    Is Active?
+                  </label>
+                  <Input
+                    type="checkbox"
+                    id="isActive"
+                    name="isActive"
+                    checked={userForm.isActive || false}
+                    onChange={(e) => handleCheckboxChange(e.target.checked)}
+                  />
+                </div>
+                <div className="mt-4 w-full flex justify-end">
+                  <button type="submit" className="uniform_btn">
                     Save
-                  </Button>
-                  </div>
-                </Form>
-              )}
+                  </button>
+                </div>
+              </form>
             </ModalBody>
           </div>
         </div>
@@ -291,7 +366,8 @@ const UserList = () => {
         <UserForm
           isVisible={true}
           onClose={handleCancel}
-          onsuccess={refreshUserList} />
+          onsuccess={refreshUserList}
+        />
       )}
     </App>
   );

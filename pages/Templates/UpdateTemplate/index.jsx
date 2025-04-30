@@ -1611,8 +1611,8 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
             <div
               className="border "
               style={{
-                // maxHeight: "700px",
-                minHeight: "400px",
+                maxHeight: "600px",
+                overflow: "auto",
                 backgroundColor: "#e0e0e0",
                 backgroundImage: `url(${bagroundimage.src})`, // Update this path
                 backgroundSize: "cover",

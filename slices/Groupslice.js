@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+  import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
 import { GROUPLIST, CREATEGROUP, GROUPDETAILS,  UPDATEGROUP, DELETEGROUP, GROUPDROPDOWN } from '@/utils/apiConstants';
