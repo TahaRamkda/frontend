@@ -6,12 +6,13 @@ import SweetAlert from "sweetalert2";
 import App from '@/components/Layout/App';
 import UploadMedia from "../UploadMedia";
 import { Image } from "react-bootstrap";
-
+import { usePermissions } from "@/context/PermissionsContext";
 import Loader from "@/components/Layout/Loader";
 import { BASE_URL } from "@/utils/apiConstants";
 
 const MediaList = ({ isPopup, onSelectMedia, contentTypeStr,senderId }) => {
   const dispatch = useDispatch();
+  const { hasPermission } = usePermissions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMediaId, setSelectedMediaId] = useState(null);
   const [selectedsenderId, setselectedsenderId] = useState(0);
@@ -180,14 +181,16 @@ if(medias && medias.length > 0){
             <div key={media.mediaId} className="flex flex-col items-center space-y-2 col-lg-2 col-md-3 mb-5">
               <div className="w-full overflow-hidden text-center">
                 {renderMediaPreview(media.mediaPath, media.contentType || "application/pdf")}
-                <span className="text-xs font-bold font-sans ">{media.fileName}</span>
+                <span className="text-xs font-bold font-sans truncate ">{media.fileName}</span>
               </div>
+              {hasPermission("Media", "delete") && (
                 <button
                   className="Btn-Regular-3"
                   onClick={() => handleDeleteClick(media.id)}
                 ><i className="fa fa-trash mr-2"></i>
                   Delete
                 </button>
+              )}
             </div>
           ))}
         </div>

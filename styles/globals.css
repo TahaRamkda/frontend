@@ -32,6 +32,12 @@ input[readonly] {
   position: relative;
 }
 
+.login-Bg{
+  background-image: url("/images/icons8-whatsapp.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 .popup-overlay {
   position: absolute;
   top: 0;

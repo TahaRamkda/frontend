@@ -10,12 +10,14 @@ import {
 import Loading from "@/components/Layout/Loader";
 import showSweetAlert from "@/components/Sweetalert";
 import App from '@/components/Layout/App';
+import { usePermissions } from "@/context/PermissionsContext";
 import Loader from "@/components/Layout/Loader"
 const PermissionList = () => {
   const dispatch = useDispatch();
   const { permissions, loading, error } = useSelector((state) => state.permission);
   const [selectedRole, setSelectedRole] = useState(0);
   const [Data, setData] = useState([]);
+const { hasPermission } = usePermissions();
 
   const handleCheckboxChangeCanView = (permissionId) => {
     //alert("change permission for Id: " +permissionId);
@@ -206,9 +208,11 @@ const PermissionList = () => {
           <h4 className="font-bold ">Permission </h4>
         </div>
         <div className="ml-auto mb-1">
+        {hasPermission("Permissions", "update") && (
           <button className="uniform_btn" onClick={handleSave}>
             Save
           </button>
+        )}
         </div>
       </div>
       <DataTable

@@ -12,10 +12,12 @@ import Loading from "@/components/Layout/Loader";
 import { HiPencilAlt, HiTrash, HiRefresh } from "react-icons/hi";
 import BulkUpload from "../BulkUpload";
 import App from '@/components/Layout/App';
+import { usePermissions } from "@/context/PermissionsContext";
 import SearchBar from '@/components/SearchBar/SearchComponent';
 const ContactList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { hasPermission } = usePermissions();
   const { contacts, loading, error, pageSize, totalRecords, currentPage } = useSelector((state) => state.contacts);
   const { client } = useSelector((state) => state.clients);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,9 +45,11 @@ const ContactList = () => {
             <button className="uniform_icon_btn" title="Edit Contact" onClick={() => handleDetailClick(row.contactId)}>
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
+            {hasPermission("Contacts", "delete") && (
             <button className="uniform_icon_btn" title="Delete Contact" onClick={() => handleDeleteClick(row.contactId)}>
               <HiTrash style={{ fontSize: "15px" }} />
             </button>
+            )}
             {/* <button
           className="uniform_icon_btn"
             onClick={() => handleAsynClick(row.id)}>
@@ -249,10 +253,11 @@ const ContactList = () => {
           <button className="uniform_btn" onClick={handleBulkUpload}>
             Bulk Upload
           </button>
+          {hasPermission("Contacts", "create") && (
           <button className="uniform_btn" onClick={handleCreate}>
             Create Contact
           </button>
-
+          )}
         </div>
       </div>
       <div className="overflow-auto">
@@ -356,7 +361,7 @@ const ContactList = () => {
                       className="border rounded py-1 px-2 w-full mt-1 text-sm"
                     />
                   </div>
-
+                  {hasPermission("Contacts", "update") && (
                   <div className="mt-4 w-full flex justify-end">
                     <button
                       type="submit"
@@ -366,6 +371,7 @@ const ContactList = () => {
                     </button>
 
                   </div>
+                  )}
                 </form>
               </ModalBody>
             </div>

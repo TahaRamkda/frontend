@@ -29,6 +29,7 @@ import { HiPencilAlt, HiTrash } from "react-icons/hi";
 import GroupForm from "../CreateGroup";
 import App from "@/components/Layout/App";
 import SearchBar from "@/components/SearchBar/SearchComponent";
+import { usePermissions } from "@/context/PermissionsContext";
 
 const GroupList = () => {
   const router = useRouter();
@@ -40,6 +41,7 @@ const GroupList = () => {
   const [groupForm, setGroupForm] = useState({});
   const [filterText, setFilterText] = useState("");
   const [CreateModalOpen, setCreateModalOpen] = useState(false);
+  const { hasPermission } = usePermissions();
   const [isLoading, setIsLoading] = useState(false); // Start as true since we're fetching data
   const groupColumns = [
     { name: "Group Name", selector: (row) => row.groupName, sortable: true },
@@ -65,6 +67,7 @@ const GroupList = () => {
             >
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
+            {hasPermission("Groups", "delete") && (
             <button
               title="Delete Group"
               className="uniform_icon_btn"
@@ -72,6 +75,7 @@ const GroupList = () => {
             >
               <HiTrash style={{ fontSize: "15px" }} />
             </button>
+            )}
           </div>
         </>
       ),
@@ -288,11 +292,13 @@ const GroupList = () => {
         <div className="">
           <h4 className="font-bold">Groups </h4>
         </div>
+        {hasPermission("Groups", "create") && (
         <div className="ml-auto mb-1">
           <button className="uniform_btn" onClick={handleCreate}>
             Create Group
           </button>
         </div>
+        )}
       </div>
       <div className="overflow-auto">
         <DataTable
@@ -345,6 +351,7 @@ const GroupList = () => {
                       disabled={isLoading} // Disable input while loading
                     />
                   </div>
+                  {hasPermission("Groups", "update") && (
                   <div className="mt-4 w-full flex justify-end">
                     <button
                       type="submit"
@@ -354,6 +361,7 @@ const GroupList = () => {
                       Save
                     </button>
                   </div>
+                  )}
                 </form>
               </ModalBody>
             </div>

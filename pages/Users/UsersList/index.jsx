@@ -32,6 +32,7 @@ import { HiPencilAlt, HiTrash } from "react-icons/hi";
 import UserForm from "../CreateUsers";
 import App from "@/components/Layout/App";
 import Loading from "@/components/Layout/Loader";
+import { usePermissions } from "@/context/PermissionsContext";
 import SearchBar from "@/components/SearchBar/SearchComponent";
 const UserList = () => {
   const router = useRouter();
@@ -44,6 +45,7 @@ const UserList = () => {
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [userForm, setUserForm] = useState({});
   const [filterText, setFilterText] = useState("");
+  const { hasPermission } = usePermissions();
 
   const userColumns = [
     { name: "User Name", selector: (row) => row.userName, sortable: true },
@@ -65,6 +67,7 @@ const UserList = () => {
             >
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
+            {hasPermission("Users", "delete") && (
             <button
               className="uniform_icon_btn"
               title="Delete Users"
@@ -72,6 +75,7 @@ const UserList = () => {
             >
               <HiTrash style={{ fontSize: "15px" }} />
             </button>
+            )}
           </div>
         </>
       ),
@@ -255,9 +259,11 @@ const UserList = () => {
           <h4 className="font-bold">Users </h4>
         </div>
         <div className="ml-auto mb-1">
+        {hasPermission("Users", "create") && (
           <button className="uniform_btn" onClick={handleCreate}>
             Create User
           </button>
+        )}
         </div>
       </div>
 
@@ -353,9 +359,11 @@ const UserList = () => {
                   />
                 </div>
                 <div className="mt-4 w-full flex justify-end">
+                {hasPermission("Users", "update") && (
                   <button type="submit" className="uniform_btn">
                     Save
                   </button>
+                )}
                 </div>
               </form>
             </ModalBody>

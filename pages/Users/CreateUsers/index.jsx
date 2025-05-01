@@ -29,10 +29,10 @@ const UserForm = ({ onClose, isVisible, onsuccess }) => {
     }
   };
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value, // Use checked for checkboxes
     }));
   };
 

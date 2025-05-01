@@ -36,12 +36,14 @@ import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 import AgentsForm from "../CreateAgents";
 import App from "@/components/Layout/App";
 import SearchBar from "@/components/SearchBar/SearchComponent";
+import { usePermissions } from "@/context/PermissionsContext";
 import ChatReasonDropdown from "@/components/MultiSelect/ChatReasonDropdown";
 //import AgentTiming from "../AgentsTiming/index";
 const AgentTiming = dynamic(() => import("../AgentsTiming"), { ssr: false });
 const AgentsList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { hasPermission } = usePermissions();
   const {
     agents = [],
     loading,
@@ -115,6 +117,7 @@ const AgentsList = () => {
             >
               <HiClock style={{ fontSize: "15px" }} />
             </button> */}
+            {hasPermission("Agents", "delete") && (
             <button
               onClick={() => handleDeleteClick(row.id)}
               title="Delete Agent"
@@ -122,6 +125,7 @@ const AgentsList = () => {
             >
               <HiTrash style={{ fontSize: "15px" }} />
             </button>
+            )}
           </div>
         </>
       ),
@@ -419,12 +423,14 @@ const AgentsList = () => {
           <h4 className="font-bold ">Agents</h4>
         </div>
         <div className="flex ml-auto mb-1 gap-4">
+        {hasPermission("Agents", "create") && (
           <button
             className="uniform_btn"
             onClick={() => setCreateModalOpen(true)}
           >
             Create Agent
           </button>
+        )}
           <button className="uniform_btn" onClick={HandelClickModal}>
             Bulk Shift Upload
           </button>
@@ -538,11 +544,13 @@ const AgentsList = () => {
                       className="border rounded py-1 px-2 w-full mt-1 text-sm"
                     />
                   </div>
+                  {hasPermission("Agents", "update") && (
                   <div className="flex mt-6 justify-end">
                     <button className="uniform_btn" type="submit">
                       Save
                     </button>
                   </div>
+                  )}
                 </form>
               </ModalBody>
             </div>

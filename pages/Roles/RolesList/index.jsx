@@ -9,12 +9,14 @@ import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Layout/Loader";
 import CreateRole from "../CreateRoles";
 import App from '@/components/Layout/App';
+import { usePermissions } from "@/context/PermissionsContext";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
 const RoleList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { roles, loading, error } = useSelector((state) => state.roles);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { hasPermission } = usePermissions();
   const [roleForm, setRoleForm] = useState({});
   const [filterText, setFilterText] = useState("");
   const [CreateModalOpen, setCreateModalOpen] = useState(false)
@@ -36,6 +38,7 @@ const RoleList = () => {
           >
             <HiPencilAlt style={{ fontSize: "15px" }} />
           </button>
+          {hasPermission("Roles", "delete") && (
           <button
           title="Delete Roles"
             className="uniform_icon_btn"
@@ -43,6 +46,7 @@ const RoleList = () => {
           >
             <HiTrash style={{ fontSize: "15px" }} />
           </button>
+          )}
         </div>
       ),
     },
@@ -179,9 +183,11 @@ const RoleList = () => {
           <h4 className="font-bold ">Roles </h4>
         </div>
         <div className="ml-auto mb-1">
+        {hasPermission("Roles", "create") && (
           <button className="uniform_btn" onClick={handleCreate}>
             Create Roles
           </button>
+        )}
         </div>
       </div>
 
@@ -225,12 +231,14 @@ const RoleList = () => {
                     />
                   </div>
                   <div className="flex mt-6 justify-end">
+                  {hasPermission("Roles", "update") && (
                     <button
                       type="submit"
                       className="uniform_btn"
                     >
                       Save
                     </button>
+                  )}
                   </div>
                 </form>
               </ModalBody>

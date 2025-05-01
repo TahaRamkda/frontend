@@ -17,6 +17,7 @@ import {
   fetchTemplatesById,
   clearTemplateDetailState,
 } from "@/slices/TemplateSlice";
+import { usePermissions } from "@/context/PermissionsContext";
 import {
   createCampaign,
   clearCampaignCreeateState,
@@ -42,6 +43,7 @@ import {
 } from "@/slices/campaignSlice";
 const CampaignUpdate = ({ campaignId , onclose}) => {
   const router = useRouter();
+  const { hasPermission } = usePermissions();
   const dispatch = useDispatch();
   //const CampaignID = useRecoilValue(CampaignState);
   const [Loading, setLoading] = useState(false);
@@ -650,13 +652,15 @@ const handleSubmit = async (values) => {
                       >
                         Cancel
                       </button>
-
-                      <Button
+                      {hasPermission("Campaigns", "update") && (
+                        <Button
                         className="uniform_btn mt-4 "
                         onClick={() => handleSubmit(values)}
                       >
                         Submit
                       </Button>
+                      )}
+                      
                     </div>
                   </Form>
                 );

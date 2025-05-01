@@ -45,10 +45,12 @@ import { clearTemplateVisualization } from "@/slices/TemplateVisualizationSlice"
 import SearchBar from "@/components/SearchBar/SearchComponent";
 import Loading from "@/components/Layout/Loader";
 import Updatetemplate from "../UpdateTemplate";
+import { usePermissions } from "@/context/PermissionsContext";
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 const TemplateList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { hasPermission } = usePermissions();
   const { templates, loading, error, pageSize, totalRecords, currentPage } =
     useSelector((state) => state.templates);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -119,6 +121,7 @@ const TemplateList = () => {
             >
               <i class="fa fa-connectdevelop fa-lg" aria-hidden="true"></i>
             </button>
+            {hasPermission("Templates", "delete") && (
             <button
               title="Delete Template"
               className="uniform_icon_btn"
@@ -126,6 +129,7 @@ const TemplateList = () => {
             >
               <HiTrash style={{ fontSize: "15px" }} />
             </button>
+            )}
           </div>
         </center>
       ),
@@ -376,9 +380,11 @@ const TemplateList = () => {
               <h4 className="font-bold mb-2">Templates</h4>
             </div>
             <div className="ml-auto mb-2">
+            {hasPermission("Templates", "create") && (
               <button className="uniform_btn" onClick={handleCreateClick}>
                 Create Template
               </button>
+            )}
             </div>
           </div>
 

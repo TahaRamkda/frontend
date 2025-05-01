@@ -1,5 +1,5 @@
 // context/PermissionsContext.js
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 
 const PermissionsContext = createContext();
 

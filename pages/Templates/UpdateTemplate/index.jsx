@@ -22,6 +22,7 @@ import {HiArrowNarrowLeft, HiEye } from "react-icons/hi";
 import { useRouter } from "next/navigation";
 import { FaTimes } from "react-icons/fa";
 import { FaRegTrashCan } from "react-icons/fa6";
+import { usePermissions } from "@/context/PermissionsContext";
 import {
   createTemplates,
   clearTemplateCreateState,
@@ -56,6 +57,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
   //const Template_Id = useRecoilValue(TemplateState);
   const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
   const router = useRouter();
+  const { hasPermission } = usePermissions();
   const { sendername } = useSelector((state) => state.sendernames);
   const dispatch = useDispatch();
   const [Loading, setLoading] = useState(true);

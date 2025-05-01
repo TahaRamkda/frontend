@@ -55,7 +55,7 @@ import UpdateCampaign from "../UpdateCampaign";
 import { usePermissions } from "@/context/PermissionsContext";
 const CampaignsList = () => {
   const dispatch = useDispatch();
-  // const { hasPermission } = usePermissions();
+   const { hasPermission } = usePermissions();
   const router = useRouter();
   const [templateId, settemplateId] = useState(0);
   const [status, setstatus] = useState(0);
@@ -482,7 +482,7 @@ const CampaignsList = () => {
               <h4 className="font-bold mb-2">Campaign</h4>
             </div>
             <div className="ml-auto mb-2">
-              {/* {hasPermission("Campaigns", "create") && ( */}
+              {hasPermission("Campaigns", "create") && (
                 <Button
                   color="primary"
                   className="uniform_btn"
@@ -491,7 +491,7 @@ const CampaignsList = () => {
                 >
                   Create Campaign
                 </Button>
-              {/* )} */}
+               )} 
             </div>
           </div>
 

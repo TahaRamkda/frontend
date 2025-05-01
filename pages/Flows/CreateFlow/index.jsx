@@ -190,7 +190,7 @@ const FlowPreview = ({
               {flowData.flowScreens.length}
             </CardTitle>
 
-            <div className="relative mx-auto my-8 w-[18vw] max-w-[360px] h-[640px] bg-white border-8 border-gray-800 rounded-3xl shadow-xl overflow-hidden">
+            <div className="relative mx-auto my-8 w-[18vw] max-w-[360px] h-[600px] bg-white border-8 border-gray-800 rounded-3xl shadow-xl overflow-hidden">
               {/* Header */}
               <div className="flex items-center justify-start p-2 bg-white border-b border-gray-200">
                 <div className="flex items-center space-x-2">

@@ -6,6 +6,7 @@ import { uploadMedia, clearMediaUploadState } from "@/slices/MediaSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
 import { toast } from "react-toastify";
+import { usePermissions } from "@/context/PermissionsContext";
 import SearchBar from "@/components/SearchBar/SearchComponent";
 const UploadMediaPage = ({
   onUploadSuccess,
@@ -18,6 +19,7 @@ const UploadMediaPage = ({
   const dispatch = useDispatch();
   const [selectedSenderId, setSelectedSenderId] = useState(senderId || null);
   const fileInputRef = useRef(null);
+  const { hasPermission } = usePermissions();
 
   // Form validation schema
   const validationSchema = Yup.object().shape({
@@ -145,6 +147,7 @@ const UploadMediaPage = ({
            
             {/* Submit Button */}
             <div className="flex justify-end mt-1">
+            {hasPermission("Media", "create") && (
               <button
                 type="submit"
                 className="uniform_btn px-4 py-2 mt-[40px]"
@@ -152,6 +155,7 @@ const UploadMediaPage = ({
               >
                 Upload
               </button>
+            )}
             </div>
           </div>
         </Form>
