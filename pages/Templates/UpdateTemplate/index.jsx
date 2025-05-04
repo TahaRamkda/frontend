@@ -17,8 +17,11 @@ import "react-quill/dist/quill.snow.css";
 import { IoClose } from "react-icons/io5";
 import { Image } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchSendernameById , clearSendernameState} from "@/slices/sendernameSlice";
-import {HiArrowNarrowLeft, HiEye } from "react-icons/hi";
+import {
+  fetchSendernameById,
+  clearSendernameState,
+} from "@/slices/sendernameSlice";
+import { HiArrowNarrowLeft, HiEye } from "react-icons/hi";
 import { useRouter } from "next/navigation";
 import { FaTimes } from "react-icons/fa";
 import { FaRegTrashCan } from "react-icons/fa6";
@@ -53,7 +56,7 @@ const CustomEditor = dynamic(
   () => import("../../../components/CustomEditor/CustomEditor"),
   { ssr: false }
 );
-const TemplateUpdatePage = ({Template_Id , onclose}) => {
+const TemplateUpdatePage = ({ Template_Id, onclose }) => {
   //const Template_Id = useRecoilValue(TemplateState);
   const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
   const router = useRouter();
@@ -116,7 +119,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
   const [Templatetype, setTemplatetype] = useState("");
   const [language, setlanguage] = useState("");
   const [urlerror, seturlerror] = useState("");
-  const[MessagePreviewupdated,setMessagePreviewupdated] = useState(false);
+  const [MessagePreviewupdated, setMessagePreviewupdated] = useState(false);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const replaceClosingPTagsWithNewline = (content) => {
     return content
@@ -130,7 +133,6 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
   console.log("!@#$%^&", bodyFinalContent);
 
   useEffect(() => {
-    
     if (Template_Id) {
       setLoading(true);
       dispatch(
@@ -154,23 +156,23 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
   }, [dispatch, Template_Id]);
 
   useEffect(() => {
-    
     if (Loading || !template) return;
-  
+    debugger;
     // Map buttons with conditional logic for phoneNumber or URL
-    const customButtons = template.buttons?.map(button => ({
-      actionId: button.actionId,
-      actionType:button.actionType,
-      buttonValue:button.buttonValue,
-      type: button.buttonType, // Copy over the type
-      text: button.buttonText, // Copy over the label
-      ...(button.buttonType === 2
-        ? { phoneNumber: button.buttonValue }
-        : button.buttonType === 3
-        ? { url: button.buttonValue }
-        : {})
-    })) ?? [];
-  
+    const customButtons =
+      template.buttons?.map((button) => ({
+        actionId: button.actionId,
+        actionType: button.actionType,
+        buttonValue: button.buttonValue,
+        type: button.buttonType, // Copy over the type
+        text: button.buttonText, // Copy over the label
+        ...(button.buttonType === 2
+          ? { phoneNumber: button.buttonValue }
+          : button.buttonType === 3
+          ? { url: button.buttonValue }
+          : {}),
+      })) ?? [];
+    debugger;
     // Construct the complete message preview locally
     const updatedMessagePreview = {
       body: template.bodyText,
@@ -181,19 +183,19 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
       visitWebsiteButtonCount: 0,
       header: template.headerType === 1 ? template.headerText : undefined,
     };
-  
+
     // Set messagePreview state only if it has changed and not already set
-    setMessagePreview(prevPreview =>
+    setMessagePreview((prevPreview) =>
       JSON.stringify(prevPreview) !== JSON.stringify(updatedMessagePreview)
         ? updatedMessagePreview
         : prevPreview
     );
-  
+
     // Mark messagePreview as set
     if (!MessagePreviewupdated) {
       setMessagePreviewupdated(true);
     }
-  
+
     // Update Header State
     if (template.headerType === 1) {
       setHeadContent(template.headerText);
@@ -204,73 +206,84 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
       setSelectedMediaPath(template.mediaPath);
       setSelectedMediaType(template.contentType);
     }
-  
+
     // Update Body State
     setupdatedvercontent(template.bodyText);
     setbodyTextCount(template.bodyParamCount);
-  
+
     // Update Other Template-Related States
     setSelectedSenderId(template.senderId);
     setTemplatetype(template.category);
     setlanguage(template.language);
     setTotalButtonCount(updatedMessagePreview.buttons.length);
-  
   }, [Loading, template]);
-  
+
   useEffect(() => {
     if (!MessagePreviewupdated || Loading || !template.parameters) return;
-  
+
     // Use a flag to ensure this runs only once
     let parametersProcessed = false;
     if (parametersProcessed) return;
-  
+
     // Process Parameters
     const filteredHeaderValues = template.parameters.filter(
-      variable => variable?.paramType === 1
+      (variable) => variable?.paramType === 1
     );
     if (filteredHeaderValues.length > 0) {
-      const allVariables = filteredHeaderValues.map(variable => variable.paramName);
+      const allVariables = filteredHeaderValues.map(
+        (variable) => variable.paramName
+      );
       addHeaderVariable(null, allVariables);
-      filteredHeaderValues.forEach(variable => {
+      filteredHeaderValues.forEach((variable) => {
         if (variable?.paramDefaultValue !== undefined) {
-          handleheaderVariableChange(variable.paramName, variable.paramDefaultValue);
+          handleheaderVariableChange(
+            variable.paramName,
+            variable.paramDefaultValue
+          );
         }
       });
     }
-  
+
     const filteredBodyValues = template.parameters.filter(
-      variable => variable?.paramType === 2
+      (variable) => variable?.paramType === 2
     );
     if (filteredBodyValues.length > 0) {
-      const allVariables = filteredBodyValues.map(variable => variable.paramName);
+      const allVariables = filteredBodyValues.map(
+        (variable) => variable.paramName
+      );
       addVariable(null, allVariables);
-      filteredBodyValues.forEach(variable => {
+      filteredBodyValues.forEach((variable) => {
         if (variable?.paramDefaultValue !== undefined) {
           handleVariableChange(variable.paramName, variable.paramDefaultValue);
         }
       });
     }
-  
+
     const filteredURLValues = template.parameters.filter(
-      variable => variable?.paramType === 3
+      (variable) => variable?.paramType === 3
     );
     if (filteredURLValues.length > 0) {
-      const allVariables = filteredURLValues.map(variable => variable.paramName);
-      filteredURLValues.forEach(variable => {
+      const allVariables = filteredURLValues.map(
+        (variable) => variable.paramName
+      );
+      filteredURLValues.forEach((variable) => {
         if (variable?.paramDefaultValue !== undefined) {
-          addURLVariable(variable.sequence , variable.paramName);
-          handleurlVariableChange(variable.sequence , variable.paramDefaultValue);
+          addURLVariable(variable.sequence, variable.paramName);
+          handleurlVariableChange(
+            variable.sequence,
+            variable.paramDefaultValue
+          );
         }
       });
     }
-  
+
     // Mark parameters as processed
     parametersProcessed = true;
-  
+
     // Clear Template Detail State
     clearTemplateDetailState();
-  }, [ MessagePreviewupdated]);
-  
+  }, [MessagePreviewupdated]);
+
   useEffect(() => {
     setAPIheadContent(replaceClosingPTagsWithNewline(headContent));
   }, [headContent]); // Trigger only when headContent changes
@@ -312,7 +325,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
       };
     });
   };
- 
+
   // const handleSubmit = async (values) => {
   //   // let trimmedBodyContent = APIbodyContent.replace(/\*\*/g, "*").trimEnd();
   //   // let APIbodyContent = "**Latest**<sub>Text</sub>*Example*   "; // Example content
@@ -421,8 +434,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
   //   }
   // };
 
- 
-//function to add veriable in header
+  //function to add veriable in header
   const addHeaderVariable = (variablename, allVariables) => {
     setHeaderVariable((prev) => {
       // Reset variables array if this is the first call with allVariables
@@ -448,7 +460,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
 
     setErrorMessage(""); // Clear error message after adding or updating variable
   };
- //function to add body variable
+  //function to add body variable
   const addVariable = (variablename, allVariables) => {
     // If this is the first call, clear the existing array
     setVariables((prev) => {
@@ -503,41 +515,35 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
     };
   }, [selectedSenderId, dispatch]);
 
-
-
-
- //function to add url veriable
-  const addURLVariable = (index,veriablename) => {
-    
+  //function to add url veriable
+  const addURLVariable = (index, veriablename) => {
     const newIndex = 1;
 
     const updatedButtons = [...messagePreview.buttons];
-   if(updatedButtons.length>0){
-    if (updatedButtons[index].url?.includes(veriablename)) {
-      //const html = updatedButtons[index].websiteUrl;
-      //.replace(/<p[^>]*>/g, '') // Remove opening <p> tags
-      // .replace(/<\/p>/g, '<br />'); // Replace closing </p> tags with <br />
-      //.replace(/<br\s*\/?>/g, ''); // Remove existing <br /> tag
-      //var a = `${html}{{${newIndex}}}`;
-      //var value = bodyTextCount;
-      //setbodyTextCount(value+1);
-      //updatedButtons[index].websiteUrl = a;
-      updatedButtons[index].urlveriable = veriablename;
-      updatedButtons[index].urlveriablevalue = "";
-      //updatedButtons[index].urlverindex = newIndex;
-      //setwebsiteUrl(e.target.value)
-      setMessagePreview({ ...messagePreview, buttons: updatedButtons });
-      //console.log("Updated Buttons:", messagePreview.buttons);
-      //setwebsiteUrl(a);
-      // alert(websiteUrl);
-      //seturlvariables((prev) => [...prev, ""]);
-      setErrorMessage("");
-    } else {
-      setErrorMessage(`Variable {${newIndex}} already exists in the body.`);
+    if (updatedButtons.length > 0) {
+      if (updatedButtons[index].url?.includes(veriablename)) {
+        //const html = updatedButtons[index].websiteUrl;
+        //.replace(/<p[^>]*>/g, '') // Remove opening <p> tags
+        // .replace(/<\/p>/g, '<br />'); // Replace closing </p> tags with <br />
+        //.replace(/<br\s*\/?>/g, ''); // Remove existing <br /> tag
+        //var a = `${html}{{${newIndex}}}`;
+        //var value = bodyTextCount;
+        //setbodyTextCount(value+1);
+        //updatedButtons[index].websiteUrl = a;
+        updatedButtons[index].urlveriable = veriablename;
+        updatedButtons[index].urlveriablevalue = "";
+        //updatedButtons[index].urlverindex = newIndex;
+        //setwebsiteUrl(e.target.value)
+        setMessagePreview({ ...messagePreview, buttons: updatedButtons });
+        //console.log("Updated Buttons:", messagePreview.buttons);
+        //setwebsiteUrl(a);
+        // alert(websiteUrl);
+        //seturlvariables((prev) => [...prev, ""]);
+        setErrorMessage("");
+      } else {
+        setErrorMessage(`Variable {${newIndex}} already exists in the body.`);
+      }
     }
-
-   }
-   
   };
 
   // const loadurlVariables = (index) => {
@@ -555,8 +561,6 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
   //   }
   // };
 
-
- 
   // const removeWebsiteVariable = (index) => {
   //   const updatedButtons = [...messagePreview.buttons];
 
@@ -624,8 +628,8 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
       return updatedVariables;
     });
   };
-  
- //function to handle body variable change
+
+  //function to handle body variable change
   const handleVariableChange = (variableName, newValue) => {
     setVariables((prev) => {
       // Update the variable's value in the array
@@ -665,18 +669,15 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
     });
   };
 
-//function to handle url variable change
+  //function to handle url variable change
   const handleurlVariableChange = (index, value) => {
     const updatedButtons = [...messagePreview.buttons];
-    if(updatedButtons.length>0){
+    if (updatedButtons.length > 0) {
       updatedButtons[index].urlveriablevalue = value; // Update the variable value
       setMessagePreview({ ...messagePreview, buttons: updatedButtons });
-      
+    } else {
+      return;
     }
-    else{
-      return
-    }
-   
   };
 
   // const addheaderVariable = () => {
@@ -738,9 +739,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
   //   }
   // };
 
-  
-
- //function to handle body change
+  //function to handle body change
   const handleBodyChange = (value) => {
     // Allow typing without interruptions
     setBodyContent(value);
@@ -797,10 +796,6 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
   //     );
   //   }
   // };
-
-
-
-  
 
   const handleButtonSelect = (type) => {
     if (type === "2" && callPhoneNumberButtonCount >= 1) {
@@ -950,7 +945,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
   //     }));
   //   }
   // }, [bodyFinalContent]);
-  
+
   useEffect(() => {
     let updatedBody = bodyFinalContent;
 
@@ -975,12 +970,10 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
     }));
   }, [bodyFinalContent]);
 
-  
   return (
     <>
       {(Loading || loading) && <Loader />}
       <Container fluid className="mt-0">
-       
         <Row style={{ height: "100vh" }}>
           <Col
             md={6}
@@ -992,30 +985,22 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
             {/* <CustomEditor /> */}
             <label className="block mb-1 mt-1">Sender Names</label>
             <div style={{ pointerEvents: "none" }}>
-  <Sendernames
-    name="senderId"
-    value={selectedSenderId}
-  />
-</div>
+              <Sendernames name="senderId" value={selectedSenderId} />
+            </div>
 
             <label className="block mb-1 mt-1">Template type</label>
             <div style={{ pointerEvents: "none" }}>
-            <TemplateCategoryDropdown
-              name="templatetype"
-              value={Templatetype}
-              
-            />
+              <TemplateCategoryDropdown
+                name="templatetype"
+                value={Templatetype}
+              />
             </div>
-           
 
             <label className="block mb-1 mt-1">Language</label>
             <div style={{ pointerEvents: "none" }}>
-            <LanguageDropdown
-              name="language"
-              value={language}
-            />
+              <LanguageDropdown name="language" value={language} />
             </div>
-            
+
             <Formik
               initialValues={{
                 templateName: template?.templateName,
@@ -1031,42 +1016,40 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                 bodyValues: [],
                 buttonValues: [],
               }}
-              enableReinitialize={true}  // ✅ Add this
+              enableReinitialize={true} // ✅ Add this
               //onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
-                
                 return (
                   <Form>
                     <div style={{ background: "#fff" }}>
                       <FormGroup>
-                        <div style={{pointerEvents: "none"}}>
-                        <Label
-                          for="templateName"
-                          className="font-semibold text-sm mb-0"
-                        >
-                          Template Name
-                        </Label>
-                        <Field
-                          as={Input}
-                          type="text"
-                          name="templateName"
-                          id="templateName"
-                          value={values.templateName} // Ensure it syncs with Formik's state
-                          onClick={(e) => {
-                            // Allow user interactions like selecting or focusing the input
-                            e.preventDefault();
-                          }}
-                          onChange={(e) => {
-                            const value = e.target.value
-                              .replace(/\s+/g, "_")
-                              .replace(/[^a-zA-Z0-9_]/g, "")
-                              .toLowerCase();
-                            setFieldValue("templateName", value); // Update Formik's state
-                          }}
-                        />
+                        <div style={{ pointerEvents: "none" }}>
+                          <Label
+                            for="templateName"
+                            className="font-semibold text-sm mb-0"
+                          >
+                            Template Name
+                          </Label>
+                          <Field
+                            as={Input}
+                            type="text"
+                            name="templateName"
+                            id="templateName"
+                            value={values.templateName} // Ensure it syncs with Formik's state
+                            onClick={(e) => {
+                              // Allow user interactions like selecting or focusing the input
+                              e.preventDefault();
+                            }}
+                            onChange={(e) => {
+                              const value = e.target.value
+                                .replace(/\s+/g, "_")
+                                .replace(/[^a-zA-Z0-9_]/g, "")
+                                .toLowerCase();
+                              setFieldValue("templateName", value); // Update Formik's state
+                            }}
+                          />
                         </div>
-                       
                       </FormGroup>
                     </div>
                     <div style={{ background: "#fff" }}>
@@ -1077,25 +1060,25 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                         >
                           Header Type
                         </Label>
-                        <div  style={{ pointerEvents: "none" }}>
-                        <Field
-                          as={Input}
-                          type="select"
-                          name="headerType"
-                          className="form-control"
-                          style={{ height: "46px" }}
-                        >
-                          {["none", "text", "image", "video", "document"].map(
-                            (type, index) => (
-                              <option
-                                key={type}
-                                value={index === 0 ? 0 : index}
-                              >
-                                {type.charAt(0).toUpperCase() + type.slice(1)}
-                              </option>
-                            )
-                          )}
-                        </Field>
+                        <div style={{ pointerEvents: "none" }}>
+                          <Field
+                            as={Input}
+                            type="select"
+                            name="headerType"
+                            className="form-control"
+                            style={{ height: "46px" }}
+                          >
+                            {["none", "text", "image", "video", "document"].map(
+                              (type, index) => (
+                                <option
+                                  key={type}
+                                  value={index === 0 ? 0 : index}
+                                >
+                                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                                </option>
+                              )
+                            )}
+                          </Field>
                         </div>
                       </FormGroup>
                       <div>
@@ -1109,26 +1092,24 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                               Header Content
                             </Label>
                             <div style={{ pointerEvents: "none" }}>
-
-                            
-                            <CustomMagicEditor
-                              errorMessage={errorMessage}
-                              variables={variables}
-                              setheaderPayloaddatawithVar={
-                                setheaderPayloaddatawithVar
-                              }
-                              onFunction={addHeaderVariable}
-                              headerVariable={headerVariable}
-                              handleheaderVariableChange={
-                                handleheaderVariableChange
-                              }
-                              setHeaderVariable={setHeaderVariable}
-                              headContent={headContent}
-                              setFinalContent={setFinalContent}
-                              body={false}
-                              existingContent={updatedheadvercontent}
-                              showaddvarbutton={false}
-                            />
+                              <CustomMagicEditor
+                                errorMessage={errorMessage}
+                                variables={variables}
+                                setheaderPayloaddatawithVar={
+                                  setheaderPayloaddatawithVar
+                                }
+                                onFunction={addHeaderVariable}
+                                headerVariable={headerVariable}
+                                handleheaderVariableChange={
+                                  handleheaderVariableChange
+                                }
+                                setHeaderVariable={setHeaderVariable}
+                                headContent={headContent}
+                                setFinalContent={setFinalContent}
+                                body={false}
+                                existingContent={updatedheadvercontent}
+                                showaddvarbutton={false}
+                              />
                             </div>
                             {/* <ReactQuill
                               value={headContent}
@@ -1150,7 +1131,6 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                         {/* {console.log("Value Mania", ["2", "3", "4"].includes(values.headerType))} */}
                         {["2", "3", "4"].includes(values.headerType) && (
                           <>
-                          
                             <MediaPopUp
                               key={values.headerType} // This forces re-rendering when headerType changes
                               isPopup={["2", "3", "4"].includes(
@@ -1170,7 +1150,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                                 setSelectedMediaType(mimeType);
                               }}
                             />
-                           
+
                             {/* <div className="mt-3 text-sm">
                               <button
                                 type="button" // Explicitly prevent form submission
@@ -1234,21 +1214,21 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                           formats={['bold', 'underline', 'clean']} // Limit formats to avoid block tags
                           placeholder="Message body"
                         /> */}
-                        <div style={{ pointerEvents: "none" }}>
-                          <CustomMagicEditor
-                            errorMessage={errorMessage}
-                            variables={variables}
-                            setBodyPayloadDatawithVar={
-                              setBodyPayloadDatawithVar
-                            }
-                            setBodyFinalContent={setBodyFinalContent}
-                            handleVariableChange={handleVariableChange}
-                            addVariable={addVariable}
-                            handleBodyChange={handleBodyChange}
-                            body={true}
-                            existingBodyContent={updatedvercontent}
-                            showaddvarbutton={false}
-                          />
+                          <div style={{ pointerEvents: "none" }}>
+                            <CustomMagicEditor
+                              errorMessage={errorMessage}
+                              variables={variables}
+                              setBodyPayloadDatawithVar={
+                                setBodyPayloadDatawithVar
+                              }
+                              setBodyFinalContent={setBodyFinalContent}
+                              handleVariableChange={handleVariableChange}
+                              addVariable={addVariable}
+                              handleBodyChange={handleBodyChange}
+                              body={true}
+                              existingBodyContent={updatedvercontent}
+                              showaddvarbutton={false}
+                            />
                           </div>
                         </div>
                         {errorMessage && (
@@ -1287,22 +1267,22 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
 
                     <div>
                       {values.footer && (
- <FormGroup>
- <Label for="footer" className="text-sm font-semibold">
-   Footer
- </Label>
- <div style={{ pointerEvents: "none" }}>
- <Field
-   as={Input}
-   name="footer"
-   placeholder="Add footer text"
-   className="form-control"
-   maxLength="50"
- />
- </div>
-</FormGroup>
+                        <FormGroup>
+                          <Label for="footer" className="text-sm font-semibold">
+                            Footer
+                          </Label>
+                          <div style={{ pointerEvents: "none" }}>
+                            <Field
+                              as={Input}
+                              name="footer"
+                              placeholder="Add footer text"
+                              className="form-control"
+                              maxLength="50"
+                            />
+                          </div>
+                        </FormGroup>
                       )}
-                     
+
                       {/* Button dropdown */}
                       {/* <Dropdown
                         isOpen={dropdownOpen}
@@ -1347,113 +1327,127 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                       </Dropdown> */}
                     </div>
                     <Label for="footer" className="text-sm font-semibold">
-                          Buttons
-                        </Label>
+                      Buttons
+                    </Label>
                     {messagePreview.buttons.map((button, index) => (
                       <div
                         key={index}
                         className="d-flex align-items-center my-3 border-b-2 pb-3 gap-3"
                       >
                         {/* Button Text Input */}
-                        <div style={{ pointerEvents: "none" }} className="w-full">
-                        <Input
-                          type="text"
-                          value={button.text }
-                          placeholder="Button Text"
-                          onChange={(e) => {
-                            const updatedButtons = [...messagePreview.buttons];
-                            updatedButtons[index].text = e.target.value;
-                            setMessagePreview({
-                              ...messagePreview,
-                              buttons: updatedButtons,
-                            });
-                          }}
-                          className="mb-2"
-                          style={{
-                            flex: "1 1 40%",
-                            minWidth: "250px",
-                            marginBottom: "10px",
-                          }}
-                        />
+                        <div
+                          style={{ pointerEvents: "none" }}
+                          className="w-full"
+                        >
+                          <Input
+                            type="text"
+                            value={button.text}
+                            placeholder="Button Text"
+                            onChange={(e) => {
+                              const updatedButtons = [
+                                ...messagePreview.buttons,
+                              ];
+                              updatedButtons[index].text = e.target.value;
+                              setMessagePreview({
+                                ...messagePreview,
+                                buttons: updatedButtons,
+                              });
+                            }}
+                            className="mb-2"
+                            style={{
+                              flex: "1 1 40%",
+                              minWidth: "250px",
+                              marginBottom: "10px",
+                            }}
+                          />
                         </div>
 
                         {/* Type 1 Action Button */}
                         {button.type === "1" ||
                           (button.type === 1 && (
-                            <div >
-                            <Button
-                              style={{
-                                backgroundColor: "grey",
-                                borderColor: "green",
-                                color: "white",
-                              }}
-                              className="mr-2"
-                              onClick={() =>
-                                handlebuttonaction(
-                                  index,
-                                  button.actionId,
-                                  button.actionType,
-                                  button.buttonValue
-                                )
-                              }
-                            >
-                              <i className="fa fa-bolt"></i>
-                            </Button>
+                            <div>
+                              <Button
+                                style={{
+                                  backgroundColor: "grey",
+                                  borderColor: "green",
+                                  color: "white",
+                                }}
+                                className="mr-2"
+                                onClick={() =>
+                                  handlebuttonaction(
+                                    index,
+                                    button.actionId,
+                                    button.actionType,
+                                    button.buttonValue
+                                  )
+                                }
+                              >
+                                <i className="fa fa-bolt"></i>
+                              </Button>
                             </div>
                           ))}
 
                         {/* Type 2: Phone Number Input */}
                         {button.type === "2" ||
                           (button.type === 2 && (
-                            <div className="d-flex align-items-center border rounded px-2" style={{ flex: "1 1 60%", minWidth: "300px" }}>
+                            <div
+                              className="d-flex align-items-center border rounded px-2"
+                              style={{ flex: "1 1 60%", minWidth: "300px" }}
+                            >
                               <div style={{ pointerEvents: "none" }}>
-                              <Input
-                                type="select"
-                                value={button.countryCode}
-                                onChange={(e) => {
-                                  const updatedButtons = [
-                                    ...messagePreview.buttons,
-                                  ];
-                                  updatedButtons[index].countryCode =
-                                    e.target.value;
-                                  setMessagePreview({
-                                    ...messagePreview,
-                                    buttons: updatedButtons,
-                                  });
-                                  setCountryCode(e.target.value);
-                                }}
-                                style={{
-                                  border: "none",
-                                  width: "80px",
-                                  appearance: "none",
-                                  background: "transparent",
-                                  paddingRight: "8px",
-                                }}
-                                className="me-2"
-                              >
-                                <option value="+965">KW +965</option>
-                                <option value="+1">US +1</option>
-                                <option value="+91">IN +91</option>
-                              </Input>
+                                <Input
+                                  type="select"
+                                  value={button.countryCode}
+                                  onChange={(e) => {
+                                    const updatedButtons = [
+                                      ...messagePreview.buttons,
+                                    ];
+                                    updatedButtons[index].countryCode =
+                                      e.target.value;
+                                    setMessagePreview({
+                                      ...messagePreview,
+                                      buttons: updatedButtons,
+                                    });
+                                    setCountryCode(e.target.value);
+                                  }}
+                                  style={{
+                                    border: "none",
+                                    width: "80px",
+                                    appearance: "none",
+                                    background: "transparent",
+                                    paddingRight: "8px",
+                                  }}
+                                  className="me-2"
+                                >
+                                  <option value="+965">KW +965</option>
+                                  <option value="+1">US +1</option>
+                                  <option value="+91">IN +91</option>
+                                </Input>
                               </div>
                               <div style={{ pointerEvents: "none" }}>
-                              <Input
-                                type="text"
-                                value={button.phoneNumber}
-                                placeholder="Phone Number"
-                                onChange={(e) => {
-                                  const updatedButtons = [
-                                    ...messagePreview.buttons,
-                                  ];
-                                  updatedButtons[index].phoneNumber =
-                                    e.target.value;
-                                  setMessagePreview({
-                                    ...messagePreview,
-                                    buttons: updatedButtons,
-                                  });
-                                }}
-                                style={{ flex: 1, border: "none" }}
-                              />
+                                <Input
+                                  type="text"
+                                  value={button.phoneNumber.replace(
+                                    /^\+\d{1,4}-?/,
+                                    ""
+                                  )} // to display trimmed
+                                  placeholder="Phone Number"
+                                  onChange={(e) => {
+                                    
+                                    const updatedButtons = [
+                                      ...messagePreview.buttons,
+                                    ];
+
+                                    updatedButtons[index].phoneNumber =
+                                      rawValue;
+
+                                    setMessagePreview({
+                                      ...messagePreview,
+                                      buttons: updatedButtons,
+                                    });
+                                  }}
+                                  style={{ flex: 1, border: "none" }}
+                                />
                               </div>
                             </div>
                           ))}
@@ -1465,24 +1459,27 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                               <div className="mb-2" style={{ flex: "1 1 60%" }}>
                                 {/* Website URL Input */}
                                 <div className="d-flex flex-column">
-                                <div style={{ pointerEvents: "none" }} className="d-flex align-items-center">
-                                  <Input
-                                    type="text"
-                                    value={button.url}
-                                    placeholder="Website URL"
-                                    onChange={(e) => {
-                                      const updatedButtons = [
-                                        ...messagePreview.buttons,
-                                      ];
-                                      updatedButtons[index].websiteUrl =
-                                        e.target.value;
-                                      setMessagePreview({
-                                        ...messagePreview,
-                                        buttons: updatedButtons,
-                                      });
-                                    }}
-                                    className="me-2"
-                                  />
+                                  <div
+                                    style={{ pointerEvents: "none" }}
+                                    className="d-flex align-items-center"
+                                  >
+                                    <Input
+                                      type="text"
+                                      value={button.url}
+                                      placeholder="Website URL"
+                                      onChange={(e) => {
+                                        const updatedButtons = [
+                                          ...messagePreview.buttons,
+                                        ];
+                                        updatedButtons[index].websiteUrl =
+                                          e.target.value;
+                                        setMessagePreview({
+                                          ...messagePreview,
+                                          buttons: updatedButtons,
+                                        });
+                                      }}
+                                      className="me-2"
+                                    />
                                   </div>
                                   {/* <Button
                                     onClick={() => loadurlVariables(index)}
@@ -1497,23 +1494,26 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
 
                                 {/* URL Variable Input */}
                                 {button.urlveriablevalue != null && (
-                                  <div className="mt-2" style={{ width: "100%" }}>
+                                  <div
+                                    className="mt-2"
+                                    style={{ width: "100%" }}
+                                  >
                                     <Row className="align-items-center">
                                       <Col>
-                                      <div style={{ pointerEvents: "none" }}>
-                                        <Input
-                                          type="text"
-                                          value={button.urlveriablevalue}
-                                          onChange={(e) =>
-                                            handleurlVariableChange(
-                                              index,
-                                              e.target.value
-                                            )
-                                          }
-                                          placeholder={`Enter Sample value for {${
-                                            index + 1
-                                          }}`}
-                                        />
+                                        <div style={{ pointerEvents: "none" }}>
+                                          <Input
+                                            type="text"
+                                            value={button.urlveriablevalue}
+                                            onChange={(e) =>
+                                              handleurlVariableChange(
+                                                index,
+                                                e.target.value
+                                              )
+                                            }
+                                            placeholder={`Enter Sample value for {${
+                                              index + 1
+                                            }}`}
+                                          />
                                         </div>
                                       </Col>
                                       {/* <Col xs="auto">
@@ -1556,11 +1556,11 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
                     ))}
 
                     <div className="w-full flex justify-end gap-3">
-                      <button type="button"
+                      <button
+                        type="button"
                         className="flex items-center gap-2 text-gray-700 hover:text-whie font-medium transition-all Btn-Regular-1 mt-4"
                         onClick={onclose}
                       >
-                        
                         Back
                       </button>
                       {/* <Button
@@ -1625,57 +1625,57 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
               }}
             >
               {sendername && (
-                  <div
-                    className="flex items-center justify-between text-black px-2 shadow-md bg-white"
-                    style={{
-                      position: "sticky", // Make this section sticky
-                      top: "0", // Stick it to the top
-                      zIndex: "10", // Ensure it stays above other content
-                      backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white for readability
-                    }}
-                  >
-                    {/* Left Section: Display sender's image, name, and phone number */}
-                    <div className="flex items-center space-x-3">
-                      {/* Display Image */}
-                      {sendername.mediaPath && (
-                        <Image
-                          src={`${BASE_URL}${sendername.mediaPath}`}
-                          alt="Sender Logo"
-                          className="rounded-circle me-2 img-fluid"
-                          style={{
-                            width: "40px",
-                            height: "40px",
-                            objectFit: "cover",
-                          }}
-                        />
-                      )}
-                      {/* Display Name and Phone */}
-                      <div className="p-1">
-                        <div className=" ">{sendername.senderName}</div>
-                        <div className="text-xs text-gray-600">
-                          {sendername.phoneNumber}
-                        </div>
+                <div
+                  className="flex items-center justify-between text-black px-2 shadow-md bg-white"
+                  style={{
+                    position: "sticky", // Make this section sticky
+                    top: "0", // Stick it to the top
+                    zIndex: "10", // Ensure it stays above other content
+                    backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white for readability
+                  }}
+                >
+                  {/* Left Section: Display sender's image, name, and phone number */}
+                  <div className="flex items-center space-x-3">
+                    {/* Display Image */}
+                    {sendername.mediaPath && (
+                      <Image
+                        src={`${BASE_URL}${sendername.mediaPath}`}
+                        alt="Sender Logo"
+                        className="rounded-circle me-2 img-fluid"
+                        style={{
+                          width: "40px",
+                          height: "40px",
+                          objectFit: "cover",
+                        }}
+                      />
+                    )}
+                    {/* Display Name and Phone */}
+                    <div className="p-1">
+                      <div className=" ">{sendername.senderName}</div>
+                      <div className="text-xs text-gray-600">
+                        {sendername.phoneNumber}
                       </div>
                     </div>
-                    {/* Right Section: Placeholder for future actions */}
-                    <div className="flex items-center space-x-4">
-                      {/* Add any buttons or actions here */}
-                    </div>
                   </div>
-                )}
+                  {/* Right Section: Placeholder for future actions */}
+                  <div className="flex items-center space-x-4">
+                    {/* Add any buttons or actions here */}
+                  </div>
+                </div>
+              )}
               <div
                 className="chat_bubble"
                 style={{
                   position: "relative",
-                    backgroundColor: "#ffff",
-                    borderRadius: "5px",
-                    padding: "20px 10px",
-                    wordWrap: "break-word",
-                    marginTop: "15px",
-                    marginBottom: "10px",
-                    marginRight: "0", // Remove any margin from the right side
-                    marginLeft: "22px",
-                    width: "60%",
+                  backgroundColor: "#ffff",
+                  borderRadius: "5px",
+                  padding: "20px 10px",
+                  wordWrap: "break-word",
+                  marginTop: "15px",
+                  marginBottom: "10px",
+                  marginRight: "0", // Remove any margin from the right side
+                  marginLeft: "22px",
+                  width: "60%",
                 }}
               >
                 <span className="time_bubble">
@@ -1822,7 +1822,7 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
           </Col>
         </Row>
       </Container>
-      
+
       <ButtonAction
         isOpen={showaction}
         toggle={togglePopup}
@@ -1831,7 +1831,6 @@ const TemplateUpdatePage = ({Template_Id , onclose}) => {
         SenderId={selectedSenderId}
         existingData={actionbuttonvalues}
       />
-
     </>
   );
 };

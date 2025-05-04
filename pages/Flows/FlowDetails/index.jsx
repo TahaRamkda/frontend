@@ -247,9 +247,8 @@ const FlowPreview = ({
                                 dropdownChildIndex
                               ] === option.optionText;
                             return (
-                              <div className="w-full">
+                              <div key={optionIndex} className="w-full">
                                 <button
-                                  key={optionIndex}
                                   className={`w-full text-left p-3 mb-2 rounded-lg text-base ${
                                     isSelected
                                       ? "text-green-400"

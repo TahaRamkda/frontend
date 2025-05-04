@@ -190,7 +190,7 @@ const FlowPreview = ({
               {flowData.flowScreens.length}
             </CardTitle>
 
-            <div className="relative mx-auto my-8 w-[18vw] max-w-[360px] h-[600px] bg-white border-8 border-gray-800 rounded-3xl shadow-xl overflow-hidden">
+            <div className="relative mx-auto my-8 w-[18vw] max-w-[360px] h-[640px] bg-white border-8 border-gray-800 rounded-3xl shadow-xl overflow-hidden">
               {/* Header */}
               <div className="flex items-center justify-start p-2 bg-white border-b border-gray-200">
                 <div className="flex items-center space-x-2">
@@ -250,9 +250,8 @@ const FlowPreview = ({
                                 dropdownChildIndex
                               ] === option.optionText;
                             return (
-                              <div className="w-full">
+                              <div key={optionIndex} className="w-full">
                               <button
-                                key={optionIndex}
                                 className={`w-full text-left p-3 mb-2 rounded-lg text-base ${
                                   isSelected ? "text-green-400" : " text-gray-800 hover:bg-gray-200"
                                 } flex items-center justify-between`}
