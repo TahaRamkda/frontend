@@ -19,7 +19,7 @@ import UserBadge from "@/public/images/User.jpg";
 import AppSettings from "@/pages/AppSetting/AppSettingList";
 import ChangePass from "./ChangePassword";
 import LiveReportingSwitch from "./LiveReportingSwitch";
-import { clearAPICache, clearAPICacheState } from "@/slices/CacheSlice";
+import { clearAPICache, clearAPICacheState,clearBridgeCache,clearBridgeCacheState } from "@/slices/CacheSlice";
 import Switch from "react-switch";
 import Loader from "./Loader";
 import { set } from "date-fns";
@@ -70,7 +70,7 @@ export function Header({ toggleSidebar }) {
     setShowChangePass(false);
   };
 
-  const handleSettingClick = async () => {
+  const handleClearApiCacheClick = async () => {
     try {
       const response = await dispatch(clearAPICache()).unwrap();
       showSweetAlert({
@@ -86,6 +86,24 @@ export function Header({ toggleSidebar }) {
         icon: "error",
       });
       dispatch(clearAPICacheState()); // Reset state after error
+    }
+  };
+  const handleClearBridgeCacheClick = async () => {
+    try {
+      const response = await dispatch(clearBridgeCache()).unwrap();
+      showSweetAlert({
+        title: "Success",
+        text: response?.message || "Bridge cache cleared successfully",
+        icon: "success",
+      });
+      dispatch(clearBridgeCacheState()); // Reset state after success
+    } catch (err) {
+      showSweetAlert({
+        title: "Error",
+        text: err.message || "Failed to clear API cache",
+        icon: "error",
+      });
+      dispatch(clearBridgeCacheState()); // Reset state after error
     }
   };
 
@@ -252,19 +270,19 @@ export function Header({ toggleSidebar }) {
                     <span>Change Password</span>
                   </button>
                   <button
-                    onClick={handleSettingClick}
+                    onClick={handleClearApiCacheClick}
                     className="flex items-center w-full text-left px-2 py-2 text-gray-200 hover:bg-gray-600 relative"
                   >
                     <HiCog className="mr-2" />
                     <span>Clear API Cache</span>
                   </button>
-                  {/* <button
-                    onClick={handleSettingClick}
+                  <button
+                    onClick={handleClearBridgeCacheClick}
                     className="flex items-center w-full text-left px-2 py-2 text-gray-200 hover:bg-gray-600 relative"
                   >
                     <HiCog className="mr-2" />
                     <span>Clear Bridge Cache</span>
-                  </button> */}
+                  </button> 
                 </div>
               )}
             </div>

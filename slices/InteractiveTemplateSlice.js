@@ -216,6 +216,7 @@ const interactiveTemplateSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchInteractiveTemplatesById.fulfilled, (state, action) => {
+        debugger
         state.loading = false;
         state.interactivetemplatedetail = action.payload.result;
         state.message = action.payload?.message || "";

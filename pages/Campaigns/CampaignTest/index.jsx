@@ -3,12 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, Label } from "reactstrap";
 import showSweetAlert from "@/components/Sweetalert";
 import { sendCampaign, clearCampaignSendState } from "@/slices/campaignSlice";
-
+import Loader from "@/components/Layout/Loader";
 const CampaignTest = ({ isVisible, onClose, onsuccess, CampaignId }) => {
   const dispatch = useDispatch();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [activatecampaignId, setactivatecampaignId] = useState(0);
-
+  const { loading, error } =
+    useSelector((state) => state.campaigns);
 
 
   useEffect(() => {
@@ -56,8 +57,10 @@ const CampaignTest = ({ isVisible, onClose, onsuccess, CampaignId }) => {
 
   return (
     <Modal isOpen={isVisible} toggle={onClose} fade={false}>
+      
       <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
+        {loading && <Loader />}
           <ModalHeader toggle={onClose}>Test Campaign</ModalHeader>
           <ModalBody>
             <Label>Phone Number</Label>

@@ -34,7 +34,7 @@ import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
 import { updateFlow, fetchFlowDetailsById } from "@/slices/FlowsSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import { toast } from "react-toastify";
-import { HiCheck, HiTrash } from "react-icons/hi"; // Added for the checkmark icon
+import { HiCheck, HiTrash, HiPlus } from "react-icons/hi"; // Added for the checkmark icon
 import { dropdownOptions } from "@/utils/constants";
 import InteractiveTemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropWithoutParam";
 import FlowDropdown from "@/components/Dropdowns/FlowsDropdown";
@@ -336,8 +336,12 @@ const FlowPreview = ({
                                     name={`question_${childIndex}`}
                                     value={option.optionText}
                                     checked={
-                                      answers[currentScreenIndex] && Array.isArray(answers[currentScreenIndex])
-                                        ? (answers[currentScreenIndex][childIndex] ?? '') === (option?.optionText ?? '')
+                                      answers[currentScreenIndex] &&
+                                      Array.isArray(answers[currentScreenIndex])
+                                        ? (answers[currentScreenIndex][
+                                            childIndex
+                                          ] ?? "") ===
+                                          (option?.optionText ?? "")
                                         : false
                                     }
                                     onChange={() => {
@@ -898,34 +902,58 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
                     />
                     <Label check>Publish to Facebook</Label>
                   </FormGroup>
-                  <div className="d-flex justify-content-between mb-3">
-                    <Button
-                      color="primary"
-                      onClick={addScreen}
-                      className="uniform_btn"
-                      style={{ border: "none" }}
-                    >
-                      Add Screen
-                    </Button>
-                  </div>
-                  {flowData.flowScreens.length > 0 && (
-                    <>
+                  <div className="flex justify-between ">
+                    <div className="d-flex justify-content-between align-items-center">
                       <Tabs
                         activeKey={currentEditScreenIndex}
                         onSelect={(key) =>
                           setCurrentEditScreenIndex(parseInt(key))
                         }
-                        className="mb-3"
+                        className=""
+                        variant="pills"
+                        style={{
+                          backgroundColor: "#f8f9fa",
+                          padding: "10px",
+                          borderRadius: "8px",
+                        }}
                       >
                         {flowData.flowScreens.map((screen, index) => (
                           <Tab
                             eventKey={index}
                             title={`Screen ${index + 1}`}
                             key={index}
+                            tabClassName="px-3 py-2"
+                            style={{
+                              backgroundColor:
+                                currentEditScreenIndex === index
+                                  ? "#00a884"
+                                  : "transparent",
+                              color:
+                                currentEditScreenIndex === index
+                                  ? "white"
+                                  : "#333",
+                              borderRadius: "20px",
+                              marginRight: "5px",
+                            }}
                           />
                         ))}
                       </Tabs>
-                      <Card className="mb-3 shadow-sm border-0">
+                    </div>
+
+                    <div className="d-flex justify-content-between mt-4">
+                      <Button
+                        color="primary"
+                        onClick={addScreen}
+                        className="uniform_icon_btn"
+                        style={{ backgroundColor: "#00a884", border: "none" }}
+                      >
+                        <HiPlus />
+                      </Button>
+                    </div>
+                  </div>
+                  {flowData.flowScreens.length > 0 && (
+                    <>
+                      <Card className="mb-3 shadow-sm ">
                         <CardBody>
                           <div className="d-flex justify-content-between align-items-center">
                             <h5>
@@ -954,13 +982,15 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
                               className="rounded"
                             />
                           </FormGroup>
+                          <div className="w-full flex justify-end">
                           <Button
                             size="sm"
                             onClick={addQuestion}
-                            className="uniform_btn"
+                            className="uniform_icon_btn"
                           >
-                            Add Control
+                            <HiPlus/>
                           </Button>
+                          </div>
                           <ListGroup className="mt-3">
                             {flowData.flowScreens[
                               currentEditScreenIndex

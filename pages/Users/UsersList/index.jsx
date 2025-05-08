@@ -268,20 +268,24 @@ const UserList = () => {
       </div>
 
       <DataTable
-        data={filteredUsers}
-        columns={userColumns}
-        highlightOnHover
-        striped
-        // pagination
-        // paginationServer
-        sortIcon
-        sortServer
-        subHeader
-        subHeaderComponent={subHeaderComponentMemo}
-        paginationPerPage={defultpagessize} // Default number of rows per page
-        paginationRowsPerPageOptions={customPageSizes} // Custom page size options
-        className="w-full border"
-      />
+  data={filteredUsers}
+  columns={userColumns}
+  highlightOnHover
+  striped
+  pagination
+  paginationPerPage={defultpagessize} // Default number of rows per page
+  paginationRowsPerPageOptions={customPageSizes} // Custom page size options
+  paginationComponentOptions={{
+    rowsPerPageText: "Rows per page:",
+    rangeSeparatorText: "of",
+    noRowsPerPage: false,
+    selectAllRowsItem: false,
+  }}
+  sortIcon
+  subHeader
+  subHeaderComponent={subHeaderComponentMemo}
+  className="w-full border"
+/>
 
       <Modal
         isOpen={isModalOpen}

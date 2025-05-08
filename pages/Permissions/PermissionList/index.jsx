@@ -160,6 +160,7 @@ const { hasPermission } = usePermissions();
   };
 
   useEffect(() => {
+    debugger
     refreshPermissionList(selectedRole);
     return () => {
       dispatch(clearPermissionState());
@@ -167,6 +168,7 @@ const { hasPermission } = usePermissions();
   }, [dispatch, selectedRole]);
 
   useEffect(() => {
+    debugger
     if (permissions?.length > 0) {
       setData(permissions);
     }

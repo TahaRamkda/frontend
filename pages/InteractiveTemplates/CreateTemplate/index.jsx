@@ -56,7 +56,12 @@ const InteractiveTemplateCreation = () => {
     buttons: [],
     visitWebsiteButtonCount: 0,
   });
-
+  const locationButtonExists = messagePreview?.buttons?.some(
+    (btn) => btn.type === "7"
+  );
+  const otherButtonsExist = messagePreview?.buttons?.some(
+    (btn) => btn.type !== "7"
+  );
   const { loading, error } = useSelector((state) => state.interactiveTemplates);
   const [bodyContent, setBodyContent] = useState("");
   const [variables, setVariables] = useState([]);
@@ -199,7 +204,9 @@ const InteractiveTemplateCreation = () => {
             return;
           }
           break;
-
+        case "7":
+        case 7:
+          break;
         default:
           toast.error(`Invalid button type for Button ${index + 1}.`);
           isValid = false;
@@ -347,42 +354,70 @@ const InteractiveTemplateCreation = () => {
   }, [typingTimeout]);
 
   const handleButtonSelect = (type) => {
-    if (type === "2" && callPhoneNumberButtonCount >= 1) {
-      toast.error("You can only add one call phone number button.");
+    const locationButtonCount = messagePreview.buttons.filter(
+      (button) => button.type === "7"
+    ).length;
+    const otherButtonsExist = messagePreview.buttons.some(
+      (btn) => btn.type !== "7"
+    );
+
+    if (type === "7" && otherButtonsExist) {
+      toast.error(
+        "You cannot add a location button when other buttons already exist."
+      );
       setButtonType(null);
-    } else if (
-      type === "3" &&
-      messagePreview.buttons.filter((button) => button.type === "3").length >= 2
-    ) {
-      toast.error("You can only add two visit website buttons.");
+      return;
+    }
+
+    if (locationButtonCount >= 1 && type !== "7") {
+      toast.error(
+        "You cannot add other buttons when a location button is already added."
+      );
       setButtonType(null);
-      setButtonText("");
-      setwebsiteUrl("");
+      return;
+    }
+    if (type === "7" && locationButtonCount >= 1) {
+      toast.error("You can only add one location button.");
+      setButtonType(null);
     } else {
-      setButtonType(type);
-      setButtonText("");
-      setPhoneNumber("");
-      setCountryCode("+965");
-      setwebsiteUrl("");
-      setActionId(0);
-      setActionType(0);
-      if (type === "1") {
+      if (type === "2" && callPhoneNumberButtonCount >= 1) {
+        toast.error("You can only add one call phone number button.");
+        setButtonType(null);
+      } else if (
+        type === "3" &&
+        messagePreview.buttons.filter((button) => button.type === "3").length >=
+          2
+      ) {
+        toast.error("You can only add two visit website buttons.");
+        setButtonType(null);
         setButtonText("");
-        setMarketingOptOutAdded(true);
-        setTotalButtonCount((prev) => prev + 1);
-      } else if (type === "2") {
-        setButtonText("Call Phone Number");
-        setCallPhoneNumberButtonCount((prev) => prev + 1);
-        setTotalButtonCount((prev) => prev + 1);
-      } else if (type === "3") {
-        setButtonText("Visit Website");
-        setVisitWebsiteButtonCount(
-          messagePreview.buttons.filter((button) => button.type === "3")
-            .length + 1
-        );
-        setTotalButtonCount((prev) => prev + 1);
+        setwebsiteUrl("");
       } else {
+        setButtonType(type);
         setButtonText("");
+        setPhoneNumber("");
+        setCountryCode("+965");
+        setwebsiteUrl("");
+        setActionId(0);
+        setActionType(0);
+        if (type === "1") {
+          setButtonText("");
+          setMarketingOptOutAdded(true);
+          setTotalButtonCount((prev) => prev + 1);
+        } else if (type === "2") {
+          setButtonText("Call Phone Number");
+          setCallPhoneNumberButtonCount((prev) => prev + 1);
+          setTotalButtonCount((prev) => prev + 1);
+        } else if (type === "3") {
+          setButtonText("Visit Website");
+          setVisitWebsiteButtonCount(
+            messagePreview.buttons.filter((button) => button.type === "3")
+              .length + 1
+          );
+          setTotalButtonCount((prev) => prev + 1);
+        } else {
+          setButtonText("");
+        }
       }
     }
   };
@@ -450,7 +485,6 @@ const InteractiveTemplateCreation = () => {
 
   // Handle sender change
   const handleSenderChange = async (e) => {
-    
     const senderId = e.target.value;
     console.log("Selected Sender ID:", senderId); // Debugging
     setSelectedSenderId(senderId);
@@ -462,9 +496,8 @@ const InteractiveTemplateCreation = () => {
           senderId: senderId,
           clientId: localStorage.getItem("clientId"),
         })
-      ).unwrap()
+      ).unwrap();
       if (response) {
-        
         console.log("Fetched Sender Data:", response.result); // Debugging
         setSendernamesData(response.result);
       } else {
@@ -537,7 +570,7 @@ const InteractiveTemplateCreation = () => {
   return (
     <App>
       <Container fluid className="mt-0">
-      {(loading ||  senderLoading) && <Loader />}
+        {(loading || senderLoading) && <Loader />}
         <Row style={{ height: "100vh" }}>
           <Col
             md={6}
@@ -577,9 +610,9 @@ const InteractiveTemplateCreation = () => {
               onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
-                const ToggleModal = ()=>{
-                  setShowMediaPopup(false)
-                }
+                const ToggleModal = () => {
+                  setShowMediaPopup(false);
+                };
                 return (
                   <Form>
                     <div className="">
@@ -810,25 +843,56 @@ const InteractiveTemplateCreation = () => {
                           <DropdownItem header className="fw-bold">
                             Quick reply buttons
                           </DropdownItem>
-                          <DropdownItem onClick={() => handleButtonSelect("1")}>
+
+                          <DropdownItem
+                            onClick={() => handleButtonSelect("1")}
+                            className={
+                              locationButtonExists ? "bg-light text-muted" : ""
+                            }
+                          >
                             Quick Reply
                             <small className="text-muted d-block">
                               Recommended
                             </small>
                           </DropdownItem>
+
                           <DropdownItem header className="fw-bold">
                             Call-To-Action buttons
                           </DropdownItem>
-                          <DropdownItem onClick={() => handleButtonSelect("2")}>
+
+                          <DropdownItem
+                            onClick={() => handleButtonSelect("2")}
+                            className={
+                              locationButtonExists ? "bg-light text-muted" : ""
+                            }
+                          >
                             Call Phone Number
                             <small className="text-muted d-block">
                               1 button maximum
                             </small>
                           </DropdownItem>
-                          <DropdownItem onClick={() => handleButtonSelect("3")}>
+
+                          <DropdownItem
+                            onClick={() => handleButtonSelect("3")}
+                            className={
+                              locationButtonExists ? "bg-light text-muted" : ""
+                            }
+                          >
                             Visit website
                             <small className="text-muted d-block">
                               2 button maximum
+                            </small>
+                          </DropdownItem>
+
+                          <DropdownItem
+                            onClick={() => handleButtonSelect("7")}
+                            className={
+                              otherButtonsExist ? "bg-light text-muted" : ""
+                            }
+                          >
+                            Location
+                            <small className="text-muted d-block">
+                              1 button maximum
                             </small>
                           </DropdownItem>
                         </DropdownMenu>
@@ -965,7 +1029,7 @@ const InteractiveTemplateCreation = () => {
 
                     <div className="w-full flex justify-end gap-3">
                       <button
-                      type="button"
+                        type="button"
                         className="Btn-Regular-1 mt-4"
                         onClick={handelCancel}
                       >
@@ -1024,7 +1088,7 @@ const InteractiveTemplateCreation = () => {
                   boxShadow: "0 0 10px rgba(0,0,0,0.1)",
                   maxWidth: "800px", // Increased width of preview container
                   position: "relative", // Keep the container relative for positioning
-}}
+                }}
               >
                 {sendername && (
                   <div
@@ -1032,7 +1096,7 @@ const InteractiveTemplateCreation = () => {
                       position: "sticky", // Make this section sticky
                       top: "0", // Stick it to the top
                       zIndex: "10", // Ensure it stays above other content
-                      backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white for readability  
+                      backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white for readability
                     }}
                   >
                     {/* Left Section: Display sender's image, name, and phone number */}
@@ -1052,19 +1116,15 @@ const InteractiveTemplateCreation = () => {
                       )}
                       {/* Display Name and Phone */}
                       <div className="p-1 ">
-                        <div >
-                          {sendername.senderName}
-                        </div>
+                        <div>{sendername.senderName}</div>
                         <div className="text-xs text-gray-600">
                           {sendername.phoneNumber}
                         </div>
                       </div>
                     </div>
-                   
-                    
                   </div>
                 )}
-   
+
                 {/* Rest of the content (message preview, etc.) */}
                 <div
                   className="chat_bubble"
@@ -1180,6 +1240,12 @@ const InteractiveTemplateCreation = () => {
                         {button.type == 3 && (
                           <span style={{ color: "#00a9ee" }}>
                             <i className="fa fa-external-link me-2"></i>
+                            {button.text || "Button"}
+                          </span>
+                        )}
+                        {button.type == 7 && (
+                          <span style={{ color: "#00a9ee" }}>
+                            <i className="fa fa-map-pin me-2"></i>
                             {button.text || "Button"}
                           </span>
                         )}

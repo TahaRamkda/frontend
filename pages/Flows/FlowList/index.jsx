@@ -116,6 +116,7 @@ const Flow = () => {
   const handlePublishClick = async (flowId) => {
     try {
       const response = await dispatch(publishFlow(flowId)).unwrap();
+      debugger
       if (response.success) {
         dispatch(clearFlowPublishState());
         showSweetAlert({

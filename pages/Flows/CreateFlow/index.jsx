@@ -35,7 +35,7 @@ import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
 import { createFlows } from "@/slices/FlowsSlice";
 import App from "@/components/Layout/App";
 import { toast } from "react-toastify";
-import { HiTrash, HiCheck } from "react-icons/hi";
+import { HiTrash, HiCheck, HiPlus } from "react-icons/hi";
 import { is } from "immutable";
 import Loader from "@/components/Layout/Loader";
 import showSweetAlert from "@/components/Sweetalert";
@@ -251,16 +251,22 @@ const FlowPreview = ({
                               ] === option.optionText;
                             return (
                               <div key={optionIndex} className="w-full">
-                              <button
-                                className={`w-full text-left p-3 mb-2 rounded-lg text-base ${
-                                  isSelected ? "text-green-400" : " text-gray-800 hover:bg-gray-200"
-                                } flex items-center justify-between`}
-                                onClick={() => handleOptionSelect(option.optionText)}
-                              >
-                                <span>{option.optionText}</span>
-                                {isSelected && <HiCheck className="w-5 h-5 text-green-500" />}
-                              </button>
-                            </div>
+                                <button
+                                  className={`w-full text-left p-3 mb-2 rounded-lg text-base ${
+                                    isSelected
+                                      ? "text-green-400"
+                                      : " text-gray-800 hover:bg-gray-200"
+                                  } flex items-center justify-between`}
+                                  onClick={() =>
+                                    handleOptionSelect(option.optionText)
+                                  }
+                                >
+                                  <span>{option.optionText}</span>
+                                  {isSelected && (
+                                    <HiCheck className="w-5 h-5 text-green-500" />
+                                  )}
+                                </button>
+                              </div>
                             );
                           })}
                         </div>
@@ -357,9 +363,11 @@ const FlowPreview = ({
                                   }
                                 >
                                   <span>
-                                  {answers && answers[currentScreenIndex] && answers[currentScreenIndex][childIndex] 
-  ? answers[currentScreenIndex][childIndex] 
-  : "Select an option"}
+                                    {answers &&
+                                    answers[currentScreenIndex] &&
+                                    answers[currentScreenIndex][childIndex]
+                                      ? answers[currentScreenIndex][childIndex]
+                                      : "Select an option"}
                                   </span>
                                   <FiChevronRight className="w-5 h-5 text-gray-600" />
                                 </button>
@@ -992,24 +1000,14 @@ const CreateFlowPage = () => {
                     />
                     <Label check>Publish to Facebook</Label>
                   </FormGroup>
-                  <div className="d-flex justify-content-between mb-3">
-                    <Button
-                      color="primary"
-                      onClick={addScreen}
-                      className="uniform_btn"
-                      style={{ backgroundColor: "#00a884", border: "none" }}
-                    >
-                      Add Screen
-                    </Button>
-                  </div>
-                  {flowData.flowScreens.length > 0 && (
-                    <>
+                  <div className="flex justify-between ">
+                    <div className="d-flex justify-content-between align-items-center">
                       <Tabs
                         activeKey={currentEditScreenIndex}
                         onSelect={(key) =>
                           setCurrentEditScreenIndex(parseInt(key))
                         }
-                        className="mb-3"
+                        className=""
                         variant="pills"
                         style={{
                           backgroundColor: "#f8f9fa",
@@ -1038,6 +1036,22 @@ const CreateFlowPage = () => {
                           />
                         ))}
                       </Tabs>
+                    </div>
+
+                    <div className="d-flex justify-content-between mt-4">
+                      <Button
+                        color="primary"
+                        onClick={addScreen}
+                        className="uniform_icon_btn"
+                        style={{ backgroundColor: "#00a884", border: "none" }}
+                      >
+                        <HiPlus/>
+                      </Button>
+                    </div>
+                  </div>
+
+                  {flowData.flowScreens.length > 0 && (
+                    <>
                       <Card className="mb-3 shadow-sm">
                         <CardBody>
                           <div className="flex justify-end">
@@ -1063,13 +1077,16 @@ const CreateFlowPage = () => {
                               required
                             />
                           </FormGroup>
+                          <div className="w-full flex justify-end">
                           <Button
                             size="sm"
                             onClick={addQuestion}
-                            className="uniform_btn"
+                            className="uniform_icon_btn"
                           >
-                            Add Control
+                           <HiPlus/>
                           </Button>
+                          </div>
+                          
                           <ListGroup className="mt-3">
                             {flowData.flowScreens[
                               currentEditScreenIndex

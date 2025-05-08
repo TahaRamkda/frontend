@@ -181,7 +181,9 @@ if(medias && medias.length > 0){
             <div key={media.mediaId} className="flex flex-col items-center space-y-2 col-lg-2 col-md-3 mb-5">
               <div className="w-full overflow-hidden text-center">
                 {renderMediaPreview(media.mediaPath, media.contentType || "application/pdf")}
-                <span className="text-xs font-bold font-sans truncate ">{media.fileName}</span>
+                <span className="text-xs font-bold font-sans truncate  block">
+  {media.fileName}
+</span>
               </div>
               {hasPermission("Media", "delete") && (
                 <button

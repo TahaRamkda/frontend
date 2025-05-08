@@ -178,7 +178,7 @@ const MediaPopUp = ({
                             media?.mediaPath,
                             media?.contentType || "application/pdf"
                           )}
-                          <span  className="text-xs font-bold font-sans ">{media?.fileName}</span>
+                          <span  className="text-xs font-bold font-sans  truncate  block">{media?.fileName}</span>
                         </div>
                         {isPopup ? (
                           <button

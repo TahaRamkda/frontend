@@ -724,7 +724,6 @@ const TemplateVisualisation = () => {
             style={{
               height: "75vh",
               textAlign: "center",
-              border: "1px solid black",
             }}
           >
             {(!initialData || loading || !router.isReady) && !error && <Loader />}

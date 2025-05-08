@@ -9,7 +9,6 @@ import {
   Input,
   Container,
   Row,
-
   Col,
   Button,
   Dropdown,
@@ -48,11 +47,12 @@ import { useRecoilValue } from "recoil";
 import { TemplateState } from "@/components/recoil";
 import MonitorFormikContext from "@/components/monitorformikcontext";
 import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
+import { toast } from "react-toastify";
 const CustomEditor = dynamic(
   () => import("../../../components/CustomEditor/CustomEditor"),
   { ssr: false }
 );
-const InteractiveTemplateUpdate = ({Template_Id,onclose}) => {
+const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
   //const Template_Id = useRecoilValue(TemplateState);
   //const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
   const router = useRouter();
@@ -62,7 +62,7 @@ const InteractiveTemplateUpdate = ({Template_Id,onclose}) => {
   const { interactivetemplatedetail, loading, error } = useSelector(
     (state) => state.interactiveTemplates
   );
-  
+
   const { sendername } = useSelector((state) => state.sendernames);
   const stripHtml = (input) => input.replace(/<[^>]*>/g, "");
   const [messagePreview, setMessagePreview] = useState({
@@ -73,6 +73,13 @@ const InteractiveTemplateUpdate = ({Template_Id,onclose}) => {
     buttons: [],
     visitWebsiteButtonCount: 0,
   });
+  debugger
+  const locationButtonExists = messagePreview?.buttons?.some(
+    (btn) => btn.buttonType == 7
+  );
+  const otherButtonsExist = messagePreview?.buttons?.some(
+    (btn) => btn.buttonType != 7
+  );
   const [bodyContent, setBodyContent] = useState("");
   const [variables, setVariables] = useState([]);
   const [urlvariables, seturlvariables] = useState([]);
@@ -260,7 +267,7 @@ const InteractiveTemplateUpdate = ({Template_Id,onclose}) => {
     const bodysupresult = bodysubresult.replace(/<sub>.*?<\/sub>/g, "~");
     const bodyreplaceX = bodysupresult.replace(/`/g, "_");
     const bodyfinalReplace = bodyreplaceX.replace(/\+/g, "*");
-debugger
+    debugger;
     const requestBody = {
       Id: Template_Id,
       clientId: interactivetemplatedetail.clientId,
@@ -305,7 +312,7 @@ debugger
           text: "",
           icon: "success",
         });
-       onclose();
+        onclose();
       } else {
         showSweetAlert({
           title: "Failed",
@@ -354,7 +361,6 @@ debugger
   }, [selectedSenderId, dispatch]);
 
   useEffect(() => {
-    
     let updatedBody = bodyFinalContent;
 
     // Replace variables in the body content
@@ -457,42 +463,71 @@ debugger
   };
 
   const handleButtonSelect = (type) => {
-    if (type === "2" && callPhoneNumberButtonCount >= 1) {
-      toast.error("You can only add one call phone number button.");
+    debugger
+    const locationButtonCount = messagePreview.buttons.filter(
+      (button) => button.buttonType == 7
+    ).length;
+    const otherButtonsExist = messagePreview.buttons.some(
+      (btn) => btn.buttonType != 7
+    );
+debugger
+    if (type == 7 && otherButtonsExist) {
+      toast.error(
+        "You cannot add a location button when other buttons already exist."
+      );
       setButtonType(null);
-    } else if (
-      type === "3" &&
-      messagePreview.buttons.filter((button) => button.type === "3").length >= 2
-    ) {
-      toast.error("You can only add two visit website buttons.");
+      return;
+    }
+
+    if (locationButtonCount >= 1 && type != 7) {
+      toast.error(
+        "You cannot add other buttons when a location button is already added."
+      );
       setButtonType(null);
-      setButtonText("");
-      setwebsiteUrl("");
+      return;
+    }
+    if (type == 7 && locationButtonCount >= 1) {
+      toast.error("You can only add one location button.");
+      setButtonType(null);
     } else {
-      setButtonType(type);
-      setButtonText("");
-      setPhoneNumber("");
-      setCountryCode("+965");
-      setwebsiteUrl("");
-      setActionId(0);
-      setActionType(0);
-      if (type === "1") {
-        setButtonText(" ");
-        setMarketingOptOutAdded(true);
-        setTotalButtonCount((prev) => prev + 1);
-      } else if (type === "2") {
-        setButtonText("Call Phone Number");
-        setCallPhoneNumberButtonCount((prev) => prev + 1);
-        setTotalButtonCount((prev) => prev + 1);
-      } else if (type === "3") {
-        setButtonText("Visit Website");
-        setVisitWebsiteButtonCount(
-          messagePreview.buttons.filter((button) => button.type === "3")
-            .length + 1
-        );
-        setTotalButtonCount((prev) => prev + 1);
-      } else {
+      if (type === "2" && callPhoneNumberButtonCount >= 1) {
+        toast.error("You can only add one call phone number button.");
+        setButtonType(null);
+      } else if (
+        type === "3" &&
+        messagePreview.buttons.filter((button) => button.type === "3").length >=
+          2
+      ) {
+        toast.error("You can only add two visit website buttons.");
+        setButtonType(null);
         setButtonText("");
+        setwebsiteUrl("");
+      } else {
+        setButtonType(type);
+        setButtonText("");
+        setPhoneNumber("");
+        setCountryCode("+965");
+        setwebsiteUrl("");
+        setActionId(0);
+        setActionType(0);
+        if (type === "1") {
+          setButtonText(" ");
+          setMarketingOptOutAdded(true);
+          setTotalButtonCount((prev) => prev + 1);
+        } else if (type === "2") {
+          setButtonText("Call Phone Number");
+          setCallPhoneNumberButtonCount((prev) => prev + 1);
+          setTotalButtonCount((prev) => prev + 1);
+        } else if (type === "3") {
+          setButtonText("Visit Website");
+          setVisitWebsiteButtonCount(
+            messagePreview.buttons.filter((button) => button.type === "3")
+              .length + 1
+          );
+          setTotalButtonCount((prev) => prev + 1);
+        } else {
+          setButtonText("");
+        }
       }
     }
   };
@@ -567,7 +602,6 @@ debugger
   };
 
   useEffect(() => {
-    
     if (finalContent) {
       console.log("MineFinalContent", finalContent);
       let formattedContent = finalContent?.replace(
@@ -583,7 +617,6 @@ debugger
     }
   }, [finalContent]);
   useEffect(() => {
-    
     let updatedBody = bodyFinalContent;
     variables.forEach((variable, index) => {
       updatedBody = updatedBody.replace(`{{${index + 1}}}`, variable);
@@ -611,14 +644,12 @@ debugger
 
   //console.log("BodyFinalContent12", bodyContent, finalContent);
   if (Loading)
-    
     return (
       <App>
         <Loader />
       </App>
     );
-    
-    
+
   return (
     <>
       <Container fluid className="mt-0">
@@ -644,7 +675,7 @@ debugger
               value={language}
               disabled={true}
             />
-           <Formik
+            <Formik
               initialValues={{
                 templateName: interactivetemplatedetail.templateName,
                 headerType: interactivetemplatedetail.headerType,
@@ -671,9 +702,9 @@ debugger
                   }
                 };
 
-                const ToggleModal =() =>{
-                  setShowMediaPopup(false)
-                }
+                const ToggleModal = () => {
+                  setShowMediaPopup(false);
+                };
                 const getMediaTypeText = (headerType) => {
                   switch (headerType) {
                     case "2":
@@ -906,25 +937,56 @@ debugger
                           <DropdownItem header className="fw-bold">
                             Quick reply buttons
                           </DropdownItem>
-                          <DropdownItem onClick={() => handleButtonSelect("1")}>
+
+                          <DropdownItem
+                            onClick={() => handleButtonSelect("1")}
+                            className={
+                              locationButtonExists ? "bg-light text-muted" : ""
+                            }
+                          >
                             Quick Reply
                             <small className="text-muted d-block">
                               Recommended
                             </small>
                           </DropdownItem>
+
                           <DropdownItem header className="fw-bold">
                             Call-To-Action buttons
                           </DropdownItem>
-                          <DropdownItem onClick={() => handleButtonSelect("2")}>
+
+                          <DropdownItem
+                            onClick={() => handleButtonSelect("2")}
+                            className={
+                              locationButtonExists ? "bg-light text-muted" : ""
+                            }
+                          >
                             Call Phone Number
                             <small className="text-muted d-block">
                               1 button maximum
                             </small>
                           </DropdownItem>
-                          <DropdownItem onClick={() => handleButtonSelect("3")}>
+
+                          <DropdownItem
+                            onClick={() => handleButtonSelect("3")}
+                            className={
+                              locationButtonExists ? "bg-light text-muted" : ""
+                            }
+                          >
                             Visit website
                             <small className="text-muted d-block">
                               2 button maximum
+                            </small>
+                          </DropdownItem>
+
+                          <DropdownItem
+                            onClick={() => handleButtonSelect("7")}
+                            className={
+                              otherButtonsExist ? "bg-light text-muted" : ""
+                            }
+                          >
+                            Location
+                            <small className="text-muted d-block">
+                              1 button maximum
                             </small>
                           </DropdownItem>
                         </DropdownMenu>
@@ -1332,6 +1394,12 @@ debugger
                       {button.buttonType == 3 && (
                         <span style={{ color: "#00a9ee" }}>
                           <i className="fa fa-external-link me-2"></i>
+                          {button.buttonText || "Button"}
+                        </span>
+                      )}
+                      {button.buttonType == 7 && (
+                        <span style={{ color: "#00a9ee" }}>
+                          <i className="fa fa-map-pin me-2"></i>
                           {button.buttonText || "Button"}
                         </span>
                       )}

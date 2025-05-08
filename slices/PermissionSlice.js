@@ -10,19 +10,22 @@ export const fetchPermissions = createAsyncThunk(
     'permission/fetchPermissions',
     async ({role_Id,client_Id}, { rejectWithValue }) => {
       try {
-
-       
-
+        debugger
         // Ensure that the Client_Id and role_Id parameters are correctly formatted
         const response = await API.get(`${PERMISSIONLIST}?RoleId=${role_Id}`);
         if (response?.status === 200) {
-          return {
-            permissions: response.data.result,
-            totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
-          };
+          debugger
+          if(response.data.result != null){
+            return {
+              permissions: response?.data?.result,
+              totalRecords: response?.data?.result.length > 0 ? response?.data.result[0].totalRecords  : 0,
+            };
+          }
+         
         } else {
           throw new Error('Failed to fetch details');
         }
+        debugger
       } catch (err) {
         const handledError = handleError(err);
         return rejectWithValue(handledError);
@@ -95,11 +98,12 @@ const permissionSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchPermissions.fulfilled, (state, action) => {
+        debugger
         state.loading = false;
-        state.permissions = action.payload.permissions;
-        state.totalRecords = action.payload.totalRecords;
+        state.permissions = action.payload?.permissions;
+        state.totalRecords = action.payload?.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
-        state.message = action.payload.message || '';
+        state.message = action.payload?.message || '';
       })
       .addCase(fetchPermissions.rejected, (state, action) => {
         state.loading = false;
@@ -116,6 +120,7 @@ const permissionSlice = createSlice({
         state.success = false;
       })
       .addCase(createPermission.fulfilled, (state, action) => {
+        
         state.loading = false;
         state.success = true;
         state.message = action.payload.message || 'Created Successfully';

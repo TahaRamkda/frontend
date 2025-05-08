@@ -77,9 +77,15 @@ export const publishFlow = createAsyncThunk(
   'publishflow/publishFlow',
   async (id, { rejectWithValue }) => {
     try {
-      
+      debugger
       const response = await API.post(`${PUBLISHFLOW}?flowId=${id}`);
-      return response.data;
+      debugger
+      if(response.data.result === null){
+        throw new Error(response.data.message);
+      }else{
+        return response.data;
+      }
+      
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -258,7 +264,7 @@ const FlowSlice = createSlice({
         .addCase(publishFlow.fulfilled, (state, action) => {
           state.loading = false;
           state.success = true;
-          state.message = action.payload.message || 'Uploaded Successfully';
+          state.message = action.payload?.message || 'Uploaded Successfully';
         })
         .addCase(publishFlow.rejected, (state, action) => {
           state.loading = false;

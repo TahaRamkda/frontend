@@ -26,7 +26,10 @@ import {
   createTemplates,
   clearTemplateCreateState,
 } from "@/slices/TemplateSlice";
-import { fetchSendernameById , clearSendernameState } from "@/slices/sendernameSlice";
+import {
+  fetchSendernameById,
+  clearSendernameState,
+} from "@/slices/sendernameSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import defaultimage from "@/public/images/12.jpg";
 import bagroundimage from "@/public/images/baground.jpg";
@@ -79,7 +82,8 @@ const TemplateCreationPage = () => {
   const [websiteUrl, setwebsiteUrl] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [marketingOptOutAdded, setMarketingOptOutAdded] = useState(false);
-  const [callPhoneNumberButtonCount, setCallPhoneNumberButtonCount] = useState(0);
+  const [callPhoneNumberButtonCount, setCallPhoneNumberButtonCount] =
+    useState(0);
   const [visitWebsiteButtonCount, setVisitWebsiteButtonCount] = useState(0);
   const [headContent, setHeadContent] = useState("");
   const [APIheadContent, setAPIheadContent] = useState("");
@@ -110,6 +114,7 @@ const TemplateCreationPage = () => {
   const [language, setlanguage] = useState("");
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [actionbuttonvalues, setactionbuttonvalues] = useState([]);
+  
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const replaceClosingPTagsWithNewline = (content) => {
     return content
@@ -186,19 +191,20 @@ const TemplateCreationPage = () => {
     const bodyreplaceX = bodysupresult.replace(/`/g, "_");
     const bodyfinalReplace = bodyreplaceX.replace(/\+/g, "*");
 
-
     const variablePattern = /{{(.*?)}}/g;
     const matches = bodyfinalReplace.match(variablePattern);
     if (matches && variables && matches.length !== variables.length) {
-
       toast.error("Please load all body variables before proceeding.");
       return;
     }
     const headmatches = finalHeaderReplace.match(variablePattern);
-    if (headmatches &&  headerVariable && headmatches.length !== headerVariable.length) {
+    if (
+      headmatches &&
+      headerVariable &&
+      headmatches.length !== headerVariable.length
+    ) {
       toast.error("Please load all  header variables before proceeding.");
     }
-
 
     const requestBody = {
       clientId: localStorage.getItem("clientId"),
@@ -216,7 +222,6 @@ const TemplateCreationPage = () => {
           acc.paramValue = variable.value;
           return acc;
         }, {}),
-
       },
       body: {
         text: bodyfinalReplace,
@@ -231,9 +236,10 @@ const TemplateCreationPage = () => {
       buttons: messagePreview.buttons.map((button, index) => ({
         buttonType: button.type,
         buttonText: button.text,
-        buttonValue: button.type === "2"
-          ? `${button.countryCode}-${button.phoneNumber}`
-          : button.websiteUrl,
+        buttonValue:
+          button.type === "2"
+            ? `${button.countryCode}-${button.phoneNumber}`
+            : button.websiteUrl,
         sequence: index,
         dynamicValue: {
           paramName: button.urlveriable,
@@ -278,9 +284,7 @@ const TemplateCreationPage = () => {
     }
   };
 
-
   const loadurlVariables = (index) => {
-    
     seturlerror("");
     const updatedButtons = [...messagePreview.buttons];
     const variablePattern = /{{(.*?)}}/g;
@@ -296,7 +300,6 @@ const TemplateCreationPage = () => {
   };
 
   const addURLVariable = (index, veriablename) => {
-    
     const newIndex = 1;
 
     const updatedButtons = [...messagePreview.buttons];
@@ -448,7 +451,6 @@ const TemplateCreationPage = () => {
   };
 
   const handleheaderVariableChange = (variableName, newValue) => {
-    ;
     setHeaderVariable((prev) => {
       // Update the variable's value in the array
       const updatedVariables = prev.map((v) =>
@@ -530,7 +532,6 @@ const TemplateCreationPage = () => {
     setErrorMessage(""); // Clear error message after adding or updating variable
   };
 
-
   const handleBodyChange = (value) => {
     // Allow typing without interruptions
     setBodyContent(value);
@@ -583,7 +584,6 @@ const TemplateCreationPage = () => {
       console.error("Invalid input or message preview state.");
       return;
     }
-
     const callPhoneNumberButtonCount = messagePreview.buttons.filter(
       (button) => button.type === "2"
     ).length;
@@ -722,9 +722,7 @@ const TemplateCreationPage = () => {
     } finally {
       setLocalLoading(false);
     }
-};
-
-
+  };
 
   const handlebuttonaction = (index, actionId, actionType, buttonValue) => {
     setbuttonindex(index);
@@ -782,15 +780,16 @@ const TemplateCreationPage = () => {
     const Language = e.target.value;
     setlanguage(Language);
   };
-  
+
   return (
     <App>
       <Container fluid className="mt-0">
-      {(loading || localLoading) && <Loader />}
+        {(loading || localLoading) && <Loader />}
 
         <Row style={{ height: "100vh" }}>
           <Col
-            md={6} lg={7}
+            md={6}
+            lg={7}
             className="overflow-auto templete-leftsection"
             style={{ padding: "20px", background: "#fffff" }}
           >
@@ -836,9 +835,9 @@ const TemplateCreationPage = () => {
             >
               {({ values, setFieldValue }) => {
                 const ToggleModal = () => {
-                  setShowMediaPopup(false)
-                }
-                
+                  setShowMediaPopup(false);
+                };
+
                 return (
                   <Form>
                     <div className="">
@@ -932,8 +931,8 @@ const TemplateCreationPage = () => {
                                 values.headerType === "2"
                                   ? "image"
                                   : values.headerType === "3"
-                                    ? "video"
-                                    : "application"
+                                  ? "video"
+                                  : "application"
                               }
                               senderId={selectedSenderId}
                               onSelectMedia={(mediaId, mediaPath, mimeType) => {
@@ -957,8 +956,8 @@ const TemplateCreationPage = () => {
                                 {values.headerType === "2"
                                   ? "Image"
                                   : values.headerType === "3"
-                                    ? "Video"
-                                    : "Document"}
+                                  ? "Video"
+                                  : "Document"}
                               </button>
 
                               {showMediaPopup && (
@@ -970,8 +969,8 @@ const TemplateCreationPage = () => {
                                     values.headerType === "2"
                                       ? "image"
                                       : values.headerType === "3"
-                                        ? "video"
-                                        : "application"
+                                      ? "video"
+                                      : "application"
                                   }
                                   onSelectMedia={(
                                     mediaId,
@@ -1212,8 +1211,9 @@ const TemplateCreationPage = () => {
                                             e.target.value
                                           )
                                         }
-                                        placeholder={`Enter Sample value for ${index + 1
-                                          }`}
+                                        placeholder={`Enter Sample value for ${
+                                          index + 1
+                                        }`}
                                         className="w-100"
                                       />
                                     </Col>
@@ -1227,7 +1227,6 @@ const TemplateCreationPage = () => {
                               </Alert>
                             )}
                           </div>
-
                         )}
 
                         {/* Action Button for Type 1 */}
@@ -1264,8 +1263,8 @@ const TemplateCreationPage = () => {
                     ))}
 
                     <div className="w-full flex justify-end gap-3">
-                    <button
-                    type="button"
+                      <button
+                        type="button"
                         className="Btn-Regular-1 mt-4"
                         onClick={handelCancel}
                       >
@@ -1289,17 +1288,18 @@ const TemplateCreationPage = () => {
           </Col>
 
           <Col
-            md={6} lg={5}
+            md={6}
+            lg={5}
             className=" h-screen right-10 templete_chatSection "
-          // style={{
-          //   position: "fixed", // Fix the position
-          //   top: "-20", // Adjust to your layout
-          //   right: "0", // Align to the right side of the screen
-          //   height: "100vh", // Full viewport height to ensure scrollability
-          //   overflowY: "auto", // Enable vertical scrolling
-          //   backgroundColor: "#f8f9fa", // Optional: background color for contrast
-          //   boxShadow: "0 0 10px rgba(0,0,0,0.1)", // Optional: Add shadow for emphasis
-          // }}
+            // style={{
+            //   position: "fixed", // Fix the position
+            //   top: "-20", // Adjust to your layout
+            //   right: "0", // Align to the right side of the screen
+            //   height: "100vh", // Full viewport height to ensure scrollability
+            //   overflowY: "auto", // Enable vertical scrolling
+            //   backgroundColor: "#f8f9fa", // Optional: background color for contrast
+            //   boxShadow: "0 0 10px rgba(0,0,0,0.1)", // Optional: Add shadow for emphasis
+            // }}
           >
             <div
               style={{
@@ -1342,7 +1342,7 @@ const TemplateCreationPage = () => {
                       position: "sticky", // Make this section sticky
                       top: "0", // Stick it to the top
                       zIndex: "10", // Ensure it stays above other content
-                      backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white 
+                      backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white
                     }}
                   >
                     {/* Left Section: Display sender's image, name, and phone number */}

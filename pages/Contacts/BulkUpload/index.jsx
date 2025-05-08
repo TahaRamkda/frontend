@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState} from "react";
+import { useSelector } from "react-redux";
 import { Formik, Form } from "formik";
 import { FormGroup, Input, Container, Row, Col, Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
+import Loader from "@/components/Layout/Loader";
 import { bulkUpload, clearBulkUploadState } from "@/slices/ContactSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Sendernames from "@/components/Dropdowns/SendernameDropdown";
@@ -11,7 +13,7 @@ const BulkUpload = ({ onClose, onsuccess, isVisible }) => {
   const dispatch = useDispatch();
   const [selectedSenderId, setSelectedSenderId] = useState(null);
   const [FieldValue, setFieldValue] = useState(null); // Track uploaded file URL
-
+  const {  loading, error} = useSelector((state) => state.contacts);
   const handleSubmit = async (values, { setSubmitting }) => {
     
     const formData = new FormData();
@@ -55,7 +57,8 @@ const BulkUpload = ({ onClose, onsuccess, isVisible }) => {
   };
 
   return (
-    <Modal isOpen={isVisible} toggle={onClose} fade={false}>
+    <Modal isOpen={isVisible} toggle={onClose} fade={false}> 
+      {loading && <Loader />}
       <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center ">
         <div className="bg-white p-6 rounded shadow-lg w-2/5  relative">
 
