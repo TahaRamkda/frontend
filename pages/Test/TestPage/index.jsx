@@ -26,6 +26,9 @@ import {
   updateAppSettings,
 } from "@/slices/AppSettingSlice";
 import showSweetAlert from "@/components/Sweetalert";
+import { Logger } from 'next-axiom';
+import logChatDetails from '@/components/logger';
+import { LogerType } from '@/utils/constants';
 import Loading from "@/components/Layout/Loader";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
 import SettingForm from "@/pages/AppSetting/CreateAppSetting";
@@ -39,11 +42,13 @@ const AppSettings = () => {
   const { settingList, loading, error, pageSize, totalRecords, currentPage } =
     useSelector((state) => state.appsetting);
   const [senderId, setSelectedSenderId] = useState(0);
+  const logger = new Logger();
   const [clientId, setSelectedClientId] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [settingForm, setSettingForm] = useState({});
   const [filterText, setFilterText] = useState("");
+  const startTime = Date.now();
   const [CreateModalOpen, setCreateModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // Start as true since we're fetching data
   const settingColumns = [
@@ -267,8 +272,12 @@ const AppSettings = () => {
     };
   }, [dispatch,senderId,clientId]);
 
-  const handleCreate = () => {
-    setCreateModalOpen(true);
+  const handleCreate = async() => {
+    await logChatDetails(logger, 'API call completed', 'info', {
+     
+      clientId: localStorage.getItem('clientId') ,
+      actionBy: localStorage.getItem('actionBy') 
+    });
   };
 
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options

@@ -78,7 +78,7 @@ instance.interceptors.response.use(
         actionBy: localStorage.getItem('actionBy') || null,
         startTime: formatDateTime(startTime),
         endTime: formatDateTime(endTime),
-        completionTime: formatTime(responseTime),
+        completionTime:  parseFloat((responseTime / 1000).toFixed(2)) 
       });
     }
     return response;
@@ -101,7 +101,7 @@ instance.interceptors.response.use(
         logtype: 'error',
         startTime: formatDateTime(startTime),
         endTime: formatDateTime(endTime),
-        completionTime: formatTime(responseTime),
+        completionTime: parseFloat((responseTime / 1000).toFixed(2)) 
       });
 
       if (error.response?.status === 401) {
