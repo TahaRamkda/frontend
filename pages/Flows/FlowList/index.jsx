@@ -45,17 +45,18 @@ const Flow = () => {
   const [flowId, setflowId] = useState(0);
   // const setFlowsId = useSetRecoilState(FlowState);
   const flowColumn = [
-    { name: "Flow Name", selector: (row) => row.flowName, sortable: true },
+    { name: "Flow Name", selector: (row) => row.flowName, sortable: true, minWidth: "200px", },
     {
       name: "Flow Language",
       selector: (row) => row.flowLanguage,
       sortable: true,
     },
     { name: "Status", selector: (row) => row.status, sortable: true },
-    { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
+    { name: "Sender Name", selector: (row) => row.senderName, sortable: true, minWidth: "190px", },
     {
       name: "Created Date",
       selector: (row) => row.createdDate,
+      minWidth: "200px",
       sortable: true,
     },
     {
@@ -85,6 +86,7 @@ const Flow = () => {
           </button>
         </div>
       ),
+      minWidth: "150px",
     },
   ];
 
@@ -116,7 +118,7 @@ const Flow = () => {
   const handlePublishClick = async (flowId) => {
     try {
       const response = await dispatch(publishFlow(flowId)).unwrap();
-      debugger
+      
       if (response.success) {
         dispatch(clearFlowPublishState());
         showSweetAlert({

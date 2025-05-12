@@ -63,13 +63,13 @@ const InteractiveTemplateList = () => {
       name: "Template",
       selector: (row) => row.templateName,
       sortable: true,
-      width: "20%",
+      minWidth: "200px",
     },
     {
       name: " Sender Name",
       selector: (row) => row.senderName,
       sortable: true,
-      width: "17%",
+      minWidth: "200px",
     },
     {
       name: "Language",
@@ -82,13 +82,13 @@ const InteractiveTemplateList = () => {
       name: "Created Date",
       selector: (row) => row.createdDate,
       sortable: true,
-      width: "20%",
+      minWidth: "200px",
     },
     {
       name: "System Template",
       selector: (row) => (row.defaultTypeId === 0 ? "No" : "Yes"),
       sortable: true,
-      width: "16%",
+
     },
     {
       name: "Action",

@@ -317,7 +317,7 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
   //submit function to update campaign main request body creates here
 const handleSubmit = async (values) => {
   setLoading(true);
-  debugger
+  
   const requestBody = {
     clientId: template.clientId,
     campaignId: SelectedCampaign,

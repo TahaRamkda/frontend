@@ -73,7 +73,7 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
     buttons: [],
     visitWebsiteButtonCount: 0,
   });
-  debugger
+  
   const locationButtonExists = messagePreview?.buttons?.some(
     (btn) => btn.buttonType == 7
   );
@@ -267,7 +267,7 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
     const bodysupresult = bodysubresult.replace(/<sub>.*?<\/sub>/g, "~");
     const bodyreplaceX = bodysupresult.replace(/`/g, "_");
     const bodyfinalReplace = bodyreplaceX.replace(/\+/g, "*");
-    debugger;
+    ;
     const requestBody = {
       Id: Template_Id,
       clientId: interactivetemplatedetail.clientId,
@@ -463,14 +463,14 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
   };
 
   const handleButtonSelect = (type) => {
-    debugger
+    
     const locationButtonCount = messagePreview.buttons.filter(
       (button) => button.buttonType == 7
     ).length;
     const otherButtonsExist = messagePreview.buttons.some(
       (btn) => btn.buttonType != 7
     );
-debugger
+
     if (type == 7 && otherButtonsExist) {
       toast.error(
         "You cannot add a location button when other buttons already exist."

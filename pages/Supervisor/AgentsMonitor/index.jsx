@@ -51,7 +51,7 @@ const MessageSummary = () => {
   const [clientId, setClientId] = useState(null);
   const [refreshpage, setrefreshpage] = useState(false); // Track if page is refreshing
   const ChatsReportColumn = [
-    { name: "Agent", selector: (row) => row?.agentName, sortable: true, width: "15%" },
+    { name: "Agent", selector: (row) => row?.agentName, sortable: true, minWidth: "200px", },
     {
       name: "Status",
       selector: (row) => row?.status,

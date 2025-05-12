@@ -31,12 +31,12 @@ const ContactList = () => {
   const [CreateModalOPen, setCreateModalOpen] = useState(false);
   const [BulkUploadModal, setBulkUploadModal] = useState(false);
   const clientColumns = [
-    { name: "Groups", selector: (row) => row.groupName, sortable: true,  },
-    { name: "First name", selector: (row) => row.firstName, sortable: true },
-    { name: "Last Name", selector: (row) => row.lastName, sortable: true },
-    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true, width: '17%' },
-    { name: "Email", selector: (row) => row.emailAddress, sortable: true },
-    { name: "Area", selector: (row) => row.areaName, sortable: true },
+    { name: "Groups", selector: (row) => row.groupName, sortable: true,  minWidth: "200px",  },
+    { name: "First name", selector: (row) => row.firstName, sortable: true,  minWidth: "180px", },
+    { name: "Last Name", selector: (row) => row.lastName, sortable: true, minWidth: "180px" },
+    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true, minWidth: "120px" },
+    { name: "Email", selector: (row) => row.emailAddress, sortable: true, minWidth: "200px" },
+    { name: "Area", selector: (row) => row.areaName, sortable: true, minWidth: "150px" },
     {
       name: "Action",
       cell: (row) => (

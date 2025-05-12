@@ -51,13 +51,13 @@ const ChatsMonitor = () => {
     { value: '5', label: "Chat Force Closed" },
   ];
   const ChatsReportColumn = [
-    { name: "Name", selector: (row) => row.fullName, sortable: true,  width: '9%' },
-    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true,  width: '11.11%'   },
-    { name: "Created Date", selector: (row) => row.createdDate, sortable: true,  width: '18%'  },
-    { name: "Status", selector: (row) => row.statusName, sortable: true,  width: '10%' },
-    { name: "Sender Name", selector: (row) => row.senderName, sortable: true,  width: '11%' },
-    { name: "Agent", selector: (row) => row.agentName, sortable: true },
-    { name: "Total Messages", selector: (row) => row.totalMessages, sortable: true,  width: '11.11%'  },
+    { name: "Name", selector: (row) => row.fullName, sortable: true, minWidth: "150px", },
+    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true,  minWidth: "120px",   },
+    { name: "Created Date", selector: (row) => row.createdDate, sortable: true,  minWidth: "200px",  },
+    { name: "Status", selector: (row) => row.statusName, sortable: true,  minWidth: "200px", },
+    { name: "Sender Name", selector: (row) => row.senderName, sortable: true,  minWidth: "150px", },
+    { name: "Agent", selector: (row) => row.agentName, sortable: true, minWidth: "200px", },
+    { name: "Total Messages", selector: (row) => row.totalMessages, sortable: true  },
     { name: "Unread", selector: (row) => row.unreadCount, sortable: true },
       {
         name: "Action",
@@ -90,7 +90,7 @@ const ChatsMonitor = () => {
             </div>
           </center>
         ),
-        width: "11.11%",
+         minWidth: "150px", 
       },
     ];
     

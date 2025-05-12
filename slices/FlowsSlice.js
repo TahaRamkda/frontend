@@ -77,9 +77,9 @@ export const publishFlow = createAsyncThunk(
   'publishflow/publishFlow',
   async (id, { rejectWithValue }) => {
     try {
-      debugger
+      
       const response = await API.post(`${PUBLISHFLOW}?flowId=${id}`);
-      debugger
+      
       if(response.data.result === null){
         throw new Error(response.data.message);
       }else{

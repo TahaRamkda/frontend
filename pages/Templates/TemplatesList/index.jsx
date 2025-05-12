@@ -71,12 +71,13 @@ const TemplateList = () => {
       name: "Template",
       selector: (row) => row.templateName,
       sortable: true,
-      width: "20%",
+      minWidth: "250px",
     },
     {
       name: "Sender Name",
       selector: (row) => row.senderName,
       sortable: true,
+      minWidth: "200px"
     },
     {
       name: "Category",
@@ -95,11 +96,13 @@ const TemplateList = () => {
       name: "Whatsapp Id",
       selector: (row) => row.templateId,
       sortable: true,
+      minWidth: "150px"
     },
     {
       name: "Created Date",
       selector: (row) => row.createdDate,
       sortable: true,
+      minWidth: "200px"
     },
 
     {
@@ -133,6 +136,7 @@ const TemplateList = () => {
           </div>
         </center>
       ),
+      minWidth: "200px"
     },
   ];
 

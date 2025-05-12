@@ -29,7 +29,7 @@ const MessageReport = () => {
   const [clientId, setClientId] = useState(null);
   const [reportloading, setreportloading] = useState(false);
   const ReportColumns = [
-    { name: "Sender Name", selector: (row) => row.senderName, sortable: true, width: '16%' },
+    { name: "Sender Name", selector: (row) => row.senderName, sortable: true, minWidth: "200px", },
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true, width: '12%'},
     { name: "Status", selector: (row) => row.currentStatusName, sortable: true },
     { name: "Category", selector: (row) => row.category, sortable: true },

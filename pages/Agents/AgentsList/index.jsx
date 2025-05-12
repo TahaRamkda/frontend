@@ -75,7 +75,7 @@ const AgentsList = () => {
   const [existingChatReasonId, SetExistingChatReasonId] = useState([]);
 
   const agentColumn = [
-    { name: "User Name", selector: (row) => row.userName, sortable: true },
+    { name: "User Name", selector: (row) => row.userName, sortable: true, minWidth: "200px" },
     {
       name: "Agent Name",
       selector: (row) => `${row.agentFName} ${row.agentLName}`,
@@ -84,7 +84,7 @@ const AgentsList = () => {
         <div style={{ width: "100%" }}>
           {row.agentFName} {row.agentLName}
         </div>
-      ),
+      ), minWidth: "200px"
     },
 
     {
@@ -248,7 +248,7 @@ const AgentsList = () => {
 
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
-    debugger
+    
     try {
       const requestBody = {
         id: AgentId || 0,
@@ -449,6 +449,8 @@ const AgentsList = () => {
           sortServer
           paginationTotalRows={totalRecords}
           onChangePage={handlePageChange}
+          fixedHeader
+          fixedHeaderScrollHeight="500px"
           onChangeRowsPerPage={handlePageSizeChange}
           paginationPerPage={defultpagessize} // Default number of rows per page
           paginationRowsPerPageOptions={customPageSizes} // Custom page size options

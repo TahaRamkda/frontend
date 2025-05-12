@@ -33,7 +33,6 @@ import showSweetAlert from "@/components/Sweetalert";
 import App from "@/components/Layout/App";
 import { useRouter } from "next/router"; // Correct import
 import DataTable from "react-data-table-component";
-import Loading from "@/components/Layout/Loader";
 import {
   HiPencilAlt,
   HiTrash,
@@ -53,6 +52,7 @@ import SearchBar from "@/components/SearchBar/SearchComponent";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
 import UpdateCampaign from "../UpdateCampaign";
 import { usePermissions } from "@/context/PermissionsContext";
+import Loader from "@/components/Layout/Loader";
 const CampaignsList = () => {
   const dispatch = useDispatch();
    const { hasPermission } = usePermissions();
@@ -320,56 +320,57 @@ const CampaignsList = () => {
       name: "Campaign Name",
       selector: (row) => row.campaignName,
       sortable: true,
-      width: "15%"
+     minWidth: "200px",
       // Prevents wrapping, forces width to fit content
     },
     {
       name: "Schedule Date",
       selector: (row) => row.scheduleDate,
       sortable: true,
-      width: "15%"
+     minWidth: "200px",
+      
     },
     {
       name: "Status",
       selector: (row) => row.statusName,
       sortable: true,
-      width: "10%"
+      
     },
     {
       name: "Contacts",
       selector: (row) => row.totalContacts,
       sortable: true,
-      width: "6%"
+      
     },
     {
       name: "Sent",
       selector: (row) => row.sentCount,
       sortable: true,
-      width: "6%"
+      
     },
     {
       name: "Delivered",
       selector: (row) => row.deliveredCount,
       sortable: true,
-      width: "6%"
+     
     },
     {
       name: "Read",
       selector: (row) => row.readCount,
       sortable: true,
-      width: "6%"
+      
     },
     {
       name: "Failed",
       selector: (row) => row.failedCount,
       sortable: true,
-      width: "6%"
+      
     },
     {
       name: "Created Date",
       selector: (row) => row.createdDate,
       sortable: true,
-      width: "15%"
+      minWidth: "200px",
     },
     {
       name: "Action",
@@ -421,7 +422,6 @@ const CampaignsList = () => {
           </div>
         );
       },
-      width: "10%"
     },
   ];
   const subHeaderComponentMemo = useMemo(() => {
@@ -472,7 +472,7 @@ const CampaignsList = () => {
 
   return (
     <App>
-      {campaignloading && <Loading />}
+      {(campaignloading || loading) && <Loader />}
       {showUpdateModel ? (
         <UpdateCampaign campaignId={CampaignId} onclose={handleClose} />
       ) : (
@@ -495,7 +495,7 @@ const CampaignsList = () => {
             </div>
           </div>
 
-          <div className="overflow-auto">
+          <div className="overflow-x-auto w-full">
             <DataTable
               data={campaigns}
               columns={campaignColumns}
@@ -512,7 +512,6 @@ const CampaignsList = () => {
               subHeader
               subHeaderComponent={subHeaderComponentMemo}
               className="w-full border"
-              
             />
           </div>
           <Modal
@@ -521,6 +520,7 @@ const CampaignsList = () => {
             fade={false}
           >
             <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+              {loading && <Loader />}
               <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
                 <ModalHeader toggle={() => setIsModalOpen(!isModalOpen)}>
                   Schedule Campaign

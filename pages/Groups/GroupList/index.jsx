@@ -41,7 +41,9 @@ const GroupList = () => {
   const [groupForm, setGroupForm] = useState({});
   const [filterText, setFilterText] = useState("");
   const [CreateModalOpen, setCreateModalOpen] = useState(false);
+  
   const { hasPermission } = usePermissions();
+  
   const [isLoading, setIsLoading] = useState(false); // Start as true since we're fetching data
   const groupColumns = [
     { name: "Group Name", selector: (row) => row.groupName, sortable: true },
@@ -196,7 +198,7 @@ const GroupList = () => {
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    debugger
+    
     try {
       const requestBody = {
         groupId: groupForm.groupId || 0,

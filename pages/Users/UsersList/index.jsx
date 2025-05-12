@@ -161,9 +161,9 @@ const UserList = () => {
   };
 
   const handleUpdateSubmit = async (e) => {
-    debugger;
+    ;
     e.preventDefault();
-    debugger
+    
     try {
       const requestBody = {
         userId: userForm.userId || 0,

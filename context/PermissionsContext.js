@@ -4,7 +4,9 @@ import React, { createContext, useContext, useEffect } from 'react';
 const PermissionsContext = createContext();
 
 export const usePermissions = () => {
+  
   const permissions = useContext(PermissionsContext);
+  
 
   const hasPermission = (taskName, action) => {
     if (!permissions || !Array.isArray(permissions)) return false;
