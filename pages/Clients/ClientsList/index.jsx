@@ -177,7 +177,7 @@ const ClientList = () => {
   }, [dispatch]);
 
   const filteredClients = clients.filter((client) =>
-    client.clientName.toLowerCase().includes(filterText.toLowerCase())
+    client?.clientName?.toLowerCase().includes(filterText.toLowerCase())
   );
 
 

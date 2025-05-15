@@ -136,7 +136,8 @@ const TemplateInsight = () => {
               Template
             </label>
             <TemplateDropdown
-              name="role_Id"
+              name="templateId"
+              value={TemplateId}
               onChange={handleTemplateChange}
               className="border rounded m-0 mb-0 w-100"
             />

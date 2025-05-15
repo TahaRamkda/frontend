@@ -42,7 +42,7 @@ const ChatsMonitor = () => {
  const [PageNum, SetPageNum] = useState(1);
  const [page, SetPageSize] = useState(10);
  const [Logo,setLogo] = useState('');
-  const statusOptions = [
+ const statusOptions = [
     { value: '0', label: "Auto Chat" },
     { value: '1', label: "Looking For Agent" },
     { value: '2', label: "Agent Assigned" },
@@ -50,6 +50,53 @@ const ChatsMonitor = () => {
     { value: '4', label: "Chat Expired" },
     { value: '5', label: "Chat Force Closed" },
   ];
+ const messageTypeOptions = [
+    { value: 0, label: "Conversations" },
+    { value: 1, label: "Campaigns" },
+    { value: 2, label: "API Messages" },
+  ];
+
+  const selectedOption = messageTypeOptions.find((opt) => opt.value === initiated) || "";
+
+  const customStyles = {
+    control: (base, state) => ({
+      ...base,
+      border: "1px solid #D1D5DB",
+      borderRadius: "0.375rem",
+      boxShadow: state.isFocused ? "0 0 0 1px #3B82F6" : "none",
+      "&:hover": {
+        borderColor: "#3B82F6",
+      },
+      minHeight: "2.5rem",
+      outline: "none",
+    }),
+    input: (base) => ({
+      ...base,
+      margin: 0,
+      padding: 0,
+      outline: "none",
+      boxShadow: "none",
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? "#3B82F6"
+        : state.isFocused
+        ? "#DBEAFE"
+        : "white",
+      color: state.isSelected ? "white" : "#111827",
+      cursor: "pointer",
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: "#111827",
+    }),
+    menu: (base) => ({
+      ...base,
+      zIndex: 9999,
+    }),
+  };
+  
   const ChatsReportColumn = [
     { name: "Name", selector: (row) => row.fullName, sortable: true, minWidth: "150px", },
     { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true,  minWidth: "120px",   },
@@ -289,6 +336,10 @@ useEffect(() => {
     };
   }, [dispatch, clientId, senderid, Status, initiated, agentId]);
  
+   const handleInitiateChange = (selected) => {
+    SetInitiated(selected ? selected.value : '');
+  };
+
   const handlePageSizeChange = async (newSize) => {
     SetPageSize(newSize);
     dispatch(setPageSize(newSize));
@@ -339,18 +390,22 @@ useEffect(() => {
           </div>
          <div className='flex flex-col text-start'>
             <label className="font-medium text-gray-700 text-sm mb-1">Source</label>
-          <select  id="initiated" value={initiated} onChange={(e) => SetInitiated(e.target.value)}  className='border rounded  w-100 h-[47px] '> 
-            <option value="">Select </option>
-            <option value="0">Conversations  </option>
-            <option value="1">Campaigns</option>
-            <option value="2">API Messages</option>
-          </select>
+          <Select
+              id="initiated"
+              value={selectedOption}
+              onChange={handleInitiateChange}
+              options={messageTypeOptions}
+              isClearable
+              classNamePrefix="react-select"
+              styles={customStyles}
+            />
           </div>
 
           <div className='flex flex-col text-start '>
             <label className="font-medium text-gray-700 text-sm mb-1">Agents</label>
             <AgentDropdown
               name="agentId"
+              value={agentId}
               onChange={handleAgentChange}
               className="border rounded w-100"
             />
@@ -359,6 +414,7 @@ useEffect(() => {
             <label className="font-medium text-gray-700 text-sm mb-1">Sender Names</label>
             <SendernameDropdown
               name="senderId"
+              value={senderid}
               onChange={handleSenderChange}
               className="border rounded w-100"
             />

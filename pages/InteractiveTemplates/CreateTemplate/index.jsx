@@ -256,12 +256,14 @@ const InteractiveTemplateCreation = () => {
         buttonText: button.text,
         actionId: button.actionId,
         actionType: button.actionType,
+        systemActionId: 0,
         sequence: index + 1,
         buttonValue: button.websiteUrl?.trim()
           ? button.websiteUrl
           : `${button.countryCode}${button.phoneNumber}`,
       })),
     };
+    
     try {
       const response = await dispatch(
         createInteractiveTemplates(requestBody)

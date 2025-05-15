@@ -117,9 +117,9 @@ const ContactList = () => {
   };
 
   const handleChange = (e) => {
+    
     const groupId = e.target.value;
     setGroupId(groupId)
-    dispatch(fetchContact({ clientId: localStorage.getItem("clientId"), groupId: groupId, searchStr: SearchStr, pageNo: currentPage, pageSize, }))
     console.log("Total Records:", totalRecords);
   };
 
@@ -188,7 +188,7 @@ const ContactList = () => {
     return () => {
       dispatch(clearContactState());
     };
-  }, [dispatch]);
+  }, [dispatch,GroupId]);
 
   const filteredClients = contacts.filter((contact) =>
     contact.firstName.toLowerCase().includes(filterText.toLowerCase())
@@ -225,7 +225,7 @@ const ContactList = () => {
             
             <label className="font-medium text-gray-700 text-sm mb-1">Group</label>
             <GroupDropdown
-              name="Group"
+              name="groupId"
               value={GroupId}
               onChange={handleChange}
               className="border rounded w-full"
@@ -236,7 +236,7 @@ const ContactList = () => {
       </div>
 
     );
-  }, [filterText]);
+  }, [filterText, GroupId]);
 
   if (error) {
     return <div className="bg-red-500 text-white p-4 rounded">{error}</div>;

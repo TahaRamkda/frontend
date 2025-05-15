@@ -405,7 +405,7 @@ const AgentsList = () => {
             <label className="font-medium text-gray-700 text-sm mb-1">
               Sender Names
             </label>
-            <SendernameDropdown name="senderId" onChange={handleChange} />
+            <SendernameDropdown name="senderId" value={SenderId} onChange={handleChange} />
           </div>
         </div>
       </div>

@@ -35,6 +35,7 @@ import {
 } from "@/components/Timepicker/datetimepicker";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
 import Select from "react-select";
+
 import { FORMATEDATE } from "@/utils/constants";
 import Loader from "@/components/Layout/Loader";
 const ChatsReport = () => {
@@ -75,6 +76,52 @@ const ChatsReport = () => {
   const [oldAgentId, setoldAgentId] = useState(0);
   const [refreshpage, setrefreshpage] = useState(false); // Track if page is refreshing
   const [Logo, setLogo] = useState("");
+  const messageTypeOptions = [
+    { value: 0, label: "Conversations" },
+    { value: 1, label: "Campaigns" },
+    { value: 2, label: "API Messages" },
+  ];
+
+  const selectedOption = messageTypeOptions.find((opt) => opt.value === initiated) || "";
+
+  const customStyles = {
+    control: (base, state) => ({
+      ...base,
+      border: "1px solid #D1D5DB",
+      borderRadius: "0.375rem",
+      boxShadow: state.isFocused ? "0 0 0 1px #3B82F6" : "none",
+      "&:hover": {
+        borderColor: "#3B82F6",
+      },
+      minHeight: "2.5rem",
+      outline: "none",
+    }),
+    input: (base) => ({
+      ...base,
+      margin: 0,
+      padding: 0,
+      outline: "none",
+      boxShadow: "none",
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? "#3B82F6"
+        : state.isFocused
+        ? "#DBEAFE"
+        : "white",
+      color: state.isSelected ? "white" : "#111827",
+      cursor: "pointer",
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: "#111827",
+    }),
+    menu: (base) => ({
+      ...base,
+      zIndex: 9999,
+    }),
+  };
 
   const ChatsReportColumn = [
     {
@@ -107,14 +154,24 @@ const ChatsReport = () => {
       sortable: true,
       minWidth: "150px",
     },
-    { name: "Sender Name", selector: (row) => row.senderName, sortable: true, minWidth: "150px", },
-    { name: "Agent", selector: (row) => row.agentName, sortable: true, minWidth: "200px", },
+    {
+      name: "Sender Name",
+      selector: (row) => row.senderName,
+      sortable: true,
+      minWidth: "150px",
+    },
+    {
+      name: "Agent",
+      selector: (row) => row.agentName,
+      sortable: true,
+      minWidth: "200px",
+    },
     {
       name: "Total Messages",
       selector: (row) => row.totalMessages,
       sortable: true,
     },
-    { name: "Unread", selector: (row) => row.unreadCount, sortable: true, },
+    { name: "Unread", selector: (row) => row.unreadCount, sortable: true },
     {
       name: "Action",
       cell: (row) => (
@@ -382,8 +439,8 @@ const ChatsReport = () => {
       })
     );
   };
-  const handleInitiateChange = (e) => {
-    SetInitiated(e.target.value);
+  const handleInitiateChange = (selected) => {
+    SetInitiated(selected ? selected.value : '');
   };
 
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
@@ -404,17 +461,15 @@ const ChatsReport = () => {
             <label className="font-medium text-gray-700 text-sm mb-1">
               Source
             </label>
-            <select
+             <Select
               id="initiated"
-              value={initiated}
+              value={selectedOption}
               onChange={handleInitiateChange}
-              className="border rounded  w-100 h-[47px]"
-            >
-              <option value="">Select </option>
-              <option value="0">Conversations </option>
-              <option value="1">Campaigns</option>
-              <option value="2">API message</option>
-            </select>
+              options={messageTypeOptions}
+              isClearable
+              classNamePrefix="react-select"
+              styles={customStyles}
+            />
           </div>
 
           <div className="flex flex-col text-start ">
@@ -423,6 +478,7 @@ const ChatsReport = () => {
             </label>
             <SendernameDropdown
               name="senderId"
+              value={senderid}
               onChange={handleSenderChange}
               className="border rounded w-100"
             />
@@ -433,6 +489,7 @@ const ChatsReport = () => {
             </label>
             <AgentDropdown
               name="agentId"
+              value={agentId}
               onChange={handleAgentChange}
               className="border rounded w-100"
             />
@@ -481,8 +538,7 @@ const ChatsReport = () => {
 
             <div className="bg-white stats shadow-md mb-3 p-2 text-left">
               <h3 className="font-bold mb-0">
-                Utility Messages:{" "}
-                {chatReportStats.utilityConversation ?? "-/-"}
+                Utility Messages: {chatReportStats.utilityConversation ?? "-/-"}
               </h3>
             </div>
 

@@ -216,6 +216,7 @@ const ChatsReportColumn = [
             <label className="font-medium text-gray-700 text-sm mb-1">Sender Names</label>
             <SendernameDropdown
               name="senderId"
+              value={senderId}
               onChange={handleSenderChange}
               className="border rounded w-100"
             />
@@ -238,7 +239,7 @@ const ChatsReportColumn = [
         </div>
       </div>
     );
-  }, [srcStr,FromDate,ToDate]);
+  }, [srcStr,FromDate,ToDate,senderId]);
  
   return (
     <App>

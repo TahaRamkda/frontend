@@ -294,11 +294,12 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
         buttonText: button.buttonText,
         actionId: button.actionId,
         actionType: button.actionType,
+        systemActionId: button.systemActionId,
         index: index,
         buttonValue: button.buttonValue,
       })),
     };
-
+    
     //console.log("TimingData", requestBody)
 
     try {
@@ -586,8 +587,8 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
   };
 
   const handleSenderChange = (e) => {
-    const role = e.target.value;
-    setSelectedSenderId(role);
+    const sender = e.target.value;
+    setSelectedSenderId(sender);
   };
 
   const handlebuttonaction = (index, actionId, actionType, buttonValue) => {
@@ -642,6 +643,11 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
     }));
   }, [bodyFinalContent, variables]);
 
+  const HandleTemplateLanguagechange = (e) => {
+    const Language = e.target.value;
+    setlanguage(Language);
+  };
+
   //console.log("BodyFinalContent12", bodyContent, finalContent);
   if (Loading)
     return (
@@ -666,15 +672,18 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
             <Sendernames
               name="senderId"
               value={selectedSenderId}
+              onChange={handleSenderChange}
               disabled={true}
             />
 
             <label className="block mb-1 mt-1">Language</label>
             <LanguageDropdown
               name="language"
+              onChange={HandleTemplateLanguagechange}
               value={language}
               disabled={true}
             />
+            
             <Formik
               initialValues={{
                 templateName: interactivetemplatedetail.templateName,

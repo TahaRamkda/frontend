@@ -18,6 +18,7 @@ import {
 import { useRouter } from "next/navigation";
 import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
+import Select from "react-select";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchTemplates,
@@ -38,10 +39,12 @@ import {
   HiEye,
   HiArrowsExpand,
 } from "react-icons/hi";
+import TemplateCategoryDropdown from "@/components/Dropdowns/TemplateCategorydropdown";
 import { useSetRecoilState } from "recoil";
 import { TemplateState } from "@/components/recoil";
 import TemplateVisualisation from "../../TemplateVisualisation/index";
 import { clearTemplateVisualization } from "@/slices/TemplateVisualizationSlice";
+import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
 import SearchBar from "@/components/SearchBar/SearchComponent";
 import Loading from "@/components/Layout/Loader";
 import Updatetemplate from "../UpdateTemplate";
@@ -65,7 +68,11 @@ const TemplateList = () => {
   const [templateId, settemplateId] = useState(0);
   const [SenderId, setSenderId] = useState(0);
   //const settemplateId = useSetRecoilState(TemplateState);
-
+  const categoryOptions = [
+    { value: 0, label: "Select" },
+    { value: 1, label: "Marketing" },
+    { value: 2, label: "Utility" },
+  ];
   const templateColumns = [
     {
       name: "Template",
@@ -77,7 +84,7 @@ const TemplateList = () => {
       name: "Sender Name",
       selector: (row) => row.senderName,
       sortable: true,
-      minWidth: "200px"
+      minWidth: "200px",
     },
     {
       name: "Category",
@@ -96,13 +103,13 @@ const TemplateList = () => {
       name: "Whatsapp Id",
       selector: (row) => row.templateId,
       sortable: true,
-      minWidth: "150px"
+      minWidth: "150px",
     },
     {
       name: "Created Date",
       selector: (row) => row.createdDate,
       sortable: true,
-      minWidth: "200px"
+      minWidth: "200px",
     },
 
     {
@@ -125,21 +132,24 @@ const TemplateList = () => {
               <i class="fa fa-connectdevelop fa-lg" aria-hidden="true"></i>
             </button>
             {hasPermission("Templates", "delete") && (
-            <button
-              title="Delete Template"
-              className="uniform_icon_btn"
-              onClick={() => handleDeleteClick(row.id)}
-            >
-              <HiTrash style={{ fontSize: "15px" }} />
-            </button>
+              <button
+                title="Delete Template"
+                className="uniform_icon_btn"
+                onClick={() => handleDeleteClick(row.id)}
+              >
+                <HiTrash style={{ fontSize: "15px" }} />
+              </button>
             )}
           </div>
         </center>
       ),
-      minWidth: "200px"
+      minWidth: "160px",
     },
   ];
 
+  const selectedCategoryOption = categoryOptions.find(
+    (opt) => opt.value === catagoryId
+  );
   const handleDetailClick = (templates_Id) => {
     setTemplateLoading(true);
     try {
@@ -149,6 +159,7 @@ const TemplateList = () => {
       alert("Failed to fetch Template details: " + error.message);
     }
   };
+
   const handleViualizationClick = (templates_Id) => {
     settemplateId(templates_Id);
     router.push({
@@ -156,7 +167,44 @@ const TemplateList = () => {
       query: { Id: templates_Id, type: 1 },
     });
   };
-
+  const customStyles = {
+    control: (base, state) => ({
+      ...base,
+      border: "1px solid #D1D5DB",
+      borderRadius: "0.375rem",
+      boxShadow: state.isFocused ? "0 0 0 1px #3B82F6" : "none",
+      "&:hover": {
+        borderColor: "#3B82F6",
+      },
+      minHeight: "2.5rem",
+      outline: "none",
+    }),
+    input: (base) => ({
+      ...base,
+      margin: 0,
+      padding: 0,
+      outline: "none",
+      boxShadow: "none",
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? "#3B82F6"
+        : state.isFocused
+        ? "#DBEAFE"
+        : "white",
+      color: state.isSelected ? "white" : "#111827",
+      cursor: "pointer",
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: "#111827",
+    }),
+    menu: (base) => ({
+      ...base,
+      zIndex: 9999,
+    }),
+  };
   const handleDeleteClick = (templateId) => {
     SweetAlert.fire({
       title: "Are you sure?",
@@ -290,13 +338,15 @@ const TemplateList = () => {
     setSearchTimeout(timeout);
   };
   const handleCategoryChange = (e) => {
-    const categoryId = e.target.value;
-    setCatagoryId(categoryId);
+    ;
+    const categoryId = e?.target.value;
+    setCatagoryId(categoryId ? categoryId : 0);
   };
 
   const handleLanguageChange = (e) => {
-    const Id = e.target.value;
-    setLanguageId(Id);
+    ;
+    const languageId = e?.target.value;
+    setLanguageId(languageId ? languageId : 0);
   };
 
   const handleSenderChange = () => (e) => {
@@ -331,31 +381,23 @@ const TemplateList = () => {
             <label className="font-medium text-gray-700 text-sm mb-1">
               Category
             </label>
-            <select
-              id="catagoryId"
+
+            <TemplateCategoryDropdown
+              name="catagoryId"
               value={catagoryId}
               onChange={handleCategoryChange}
-              className="border border-gray-300 rounded-md w-full py-1 px-3 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value={0}>Select</option>
-              <option value={1}>Marketing</option>
-              <option value={2}>Utility</option>
-            </select>
+              required
+            />
           </div>
           <div className="flex flex-col text-start mb-1">
             <label className="font-medium text-gray-700 text-sm mb-1">
               Language
             </label>
-            <select
-              id="languageId"
+            <LanguageDropdown
+              name="lang"
               value={languageId}
               onChange={handleLanguageChange}
-              className="border border-gray-300 rounded-md w-full py-1 px-3 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value={0}>Select</option>
-              <option value={1}>English</option>
-              <option value={2}>Arabic</option>
-            </select>
+            />
           </div>
         </div>
       </div>
@@ -384,11 +426,11 @@ const TemplateList = () => {
               <h4 className="font-bold mb-2">Templates</h4>
             </div>
             <div className="ml-auto mb-2">
-            {hasPermission("Templates", "create") && (
-              <button className="uniform_btn" onClick={handleCreateClick}>
-                Create Template
-              </button>
-            )}
+              {hasPermission("Templates", "create") && (
+                <button className="uniform_btn" onClick={handleCreateClick}>
+                  Create Template
+                </button>
+              )}
             </div>
           </div>
 

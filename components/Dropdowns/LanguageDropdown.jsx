@@ -1,71 +1,83 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import $ from 'jquery';
-import 'select2/dist/css/select2.min.css';
-import Loader from '../Layout/Loader';
-import 'select2/dist/js/select2.min.js';
-import { fetchlanguage, clearLanguageState } from '@/slices/MasterSlice';
-import { FormGroup, Label, Input, FormText } from 'reactstrap';
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import Loader from "../Layout/Loader";
+import Select from "react-select";
+import { fetchlanguage } from "@/slices/MasterSlice";
 
 const LanguageDropdown = ({ name, value, onChange, disabled }) => {
   const dispatch = useDispatch();
-  const selectRef = useRef(null);
   const { languages, loading, error } = useSelector((state) => state.Master);
 
   useEffect(() => {
     dispatch(fetchlanguage({}));
-
   }, [dispatch]);
 
-  useEffect(() => {
-    if (selectRef.current) {
-      $(selectRef.current).select2({
-        placeholder: 'Select',
-        allowClear: true,
-      });
+  const options =
+    languages?.map((item) => ({
+      value: item.id,
+      label: item.name,
+    })) || [];
 
-      $(selectRef.current).on('change', (e) => {
-        let selectedValue = e.target.value;
-        if (!selectedValue) {
-          selectedValue = "0";
-        }
-        onChange({ target: { name, value: selectedValue } });
-      });
-    }
+  const selectedOption = options.find((opt) => opt.value === value) || 0;
 
-    return () => {
-      if (selectRef.current) {
-        $(selectRef.current).off('change');
-      }
-    };
-  }, [languages, onChange]);
+  const handleChange = (selected) => {
+    const selectedValue = selected ? selected.value : 0;
+    onChange({ target: { name, value: selectedValue } });
+  };
+  const customStyles = {
+    control: (base, state) => ({
+      ...base,
+      border: "1px solid #D1D5DB",
+      borderRadius: "0.375rem",
+      boxShadow: state.isFocused ? "0 0 0 1px #3B82F6" : "none",
+      "&:hover": {
+        borderColor: "#3B82F6",
+      },
+      minHeight: "2.5rem",
+      outline: "none",
+    }),
+    input: (base) => ({
+      ...base,
+      margin: 0,
+      padding: 0,
+      outline: "none",
+      boxShadow: "none",
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? "#3B82F6"
+        : state.isFocused
+        ? "#DBEAFE"
+        : "white",
+      color: state.isSelected ? "white" : "#111827",
+      cursor: "pointer",
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: "#111827",
+    }),
+    menu: (base) => ({
+      ...base,
+      zIndex: 9999,
+    }),
+  };
 
   if (loading) return <Loader />;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
 
   return (
     <div>
-      <Input
-        type="select"
-        innerRef={selectRef}
+      <Select
         name={name}
-        value={value}
-        onChange={onChange}
-        required
-        className='focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-        disabled={disabled}
-      >
-        <option value="0">Select</option>
-        {languages && languages.length > 0 ? (
-          languages.map((language) => (
-            <option key={language.id} value={language.id}>
-              {language.name}
-            </option>
-          ))
-        ) : (
-          <option disabled>No records found</option>
-        )}
-      </Input>
+        value={selectedOption}
+        onChange={handleChange}
+        options={options}
+        placeholder="Select"
+        isClearable
+        styles={customStyles}
+        classNamePrefix="react-select"
+      />
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { Modal, ModalHeader, ModalBody } from "reactstrap";
 import SweetAlert from "sweetalert2";
+import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
 import {
   fetchFlowsListData,
   clearFlowListState,
@@ -45,14 +46,24 @@ const Flow = () => {
   const [flowId, setflowId] = useState(0);
   // const setFlowsId = useSetRecoilState(FlowState);
   const flowColumn = [
-    { name: "Flow Name", selector: (row) => row.flowName, sortable: true, minWidth: "200px", },
+    {
+      name: "Flow Name",
+      selector: (row) => row.flowName,
+      sortable: true,
+      minWidth: "200px",
+    },
     {
       name: "Flow Language",
       selector: (row) => row.flowLanguage,
       sortable: true,
     },
     { name: "Status", selector: (row) => row.status, sortable: true },
-    { name: "Sender Name", selector: (row) => row.senderName, sortable: true, minWidth: "190px", },
+    {
+      name: "Sender Name",
+      selector: (row) => row.senderName,
+      sortable: true,
+      minWidth: "190px",
+    },
     {
       name: "Created Date",
       selector: (row) => row.createdDate,
@@ -118,7 +129,7 @@ const Flow = () => {
   const handlePublishClick = async (flowId) => {
     try {
       const response = await dispatch(publishFlow(flowId)).unwrap();
-      
+
       if (response.success) {
         dispatch(clearFlowPublishState());
         showSweetAlert({
@@ -254,16 +265,11 @@ const Flow = () => {
             <label className="font-medium text-gray-700 text-sm ">
               Language
             </label>
-            <select
+            <LanguageDropdown
               id="languageId"
               value={languageId}
               onChange={handleLanguageChange}
-              className="border border-gray-300 rounded-md w-full py-1 px-3 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value={0}>Select</option>
-              <option value={1}>English</option>
-              <option value={2}>Arabic</option>
-            </select>
+            />
           </div>
         </div>
       </div>

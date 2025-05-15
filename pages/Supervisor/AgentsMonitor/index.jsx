@@ -422,6 +422,7 @@ const MessageSummary = () => {
             </label>
             <SendernameDropdown
               name="senderId"
+              value={senderid}
               onChange={handleSenderChange}
               className="border rounded  w-100"
             />

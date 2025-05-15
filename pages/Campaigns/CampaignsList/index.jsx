@@ -434,7 +434,8 @@ const CampaignsList = () => {
           <div className="flex flex-col text-start mb-1">
             <Label className="font-medium text-sm mb-1"> Templates</Label>
             <TemplateDropdown
-              name="role_Id"
+              name="templateId"
+              value={templateId}
               onChange={handleTemplateChange}
               className="border rounded w-100 MarginBOt"
               TransactionType={1}

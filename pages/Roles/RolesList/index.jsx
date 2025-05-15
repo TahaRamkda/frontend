@@ -156,12 +156,12 @@ const RoleList = () => {
       <div className="w-full">
         <div className='grid grid-cols-5 gap-4'>
           <div className="flex flex-col text-start mb-1">
-            <label className="font-medium text-gray-700 text-sm">Search Roles</label>
+            <label className="font-medium text-gray-700 text-sm">Search</label>
             <input
               type="search"
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
-              placeholder="Search by role name"
+              placeholder=""
               className="border px-3 py-2 rounded"
             />
           </div>
