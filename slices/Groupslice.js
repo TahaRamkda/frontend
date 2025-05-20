@@ -9,8 +9,15 @@ export const fetchGroup = createAsyncThunk(
     'group/fetchGroup',
     async ({clientId, pageNo, pageSize, SearchStr}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${GROUPLIST}?${ SearchStr? `SearchStr=${SearchStr}`:''}&PageNo=${pageNo}&PageSize=${pageSize}`);
+        debugger
+        const response = await API.post("/api", {
+          endpoint: `${GROUPLIST}?${ SearchStr? `SearchStr=${SearchStr}`:''}&PageNo=${pageNo}&PageSize=${pageSize}`,
+          method: "GET",
+          //payload: {},
+        });
+            debugger
         if (response?.status === 200) {
+          debugger
           return {
             groups: response.data.result,
             totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,

@@ -1,112 +1,33 @@
 import axios from 'axios';
 import { BASE_URL } from './apiConstants';
-import { Logger } from 'next-axiom';
-import logChatDetails from '@/components/logger';
-import { LogerType } from '@/utils/constants';
-import { formatDateTime, formatTime } from '@/utils/constants';
+
 const instance = axios.create({
-  baseURL: BASE_URL,
+  baseURL: '/api/NextApi', // Important: Always use your own backend route
+  timeout: 1000000000,
 });
-const logger = new Logger();
 
 instance.interceptors.request.use(
-  async (config) => {
-    
+  (config) => {
     
     if (typeof window !== 'undefined') {
-      const accessToken = localStorage.getItem('accessToken');
-      const clientId = localStorage.getItem('clientId');
-      const actionBy = localStorage.getItem('userId');
-      const startTime = Date.now();
-      config.metadata = { startTime };
-      if (accessToken) {
-        config.headers.Authorization = `Bearer ${accessToken}`;
-      }
-
-      if (config.method === 'get') {
-        const params = new URLSearchParams(config.params || {});
-        if (clientId) params.append('clientId', clientId);
-        if (actionBy) params.append('actionBy', actionBy);
-        config.params = params;
-      }
-
-      await logChatDetails(logger, 'API call initiated', 'info', {
-        Obj: config.data || null,
-        endpoint: `${config.baseURL}${config.url}`,
-        method: config.method.toUpperCase(),
-        clientId: clientId || null,
-        actionBy: actionBy || null,
-        type: LogerType.Apicallinitiated,
-        startTime: formatDateTime(startTime),
-      });
+      //const accessToken = localStorage.getItem('accessToken');
+      //if (accessToken) {
+        //config.headers.Authorization = `Bearer ${accessToken}`;
+      //}
     }
     return config;
   },
-  async (error) => {
-    
-    if (typeof window !== 'undefined') {
-      const startTime = error.config?.metadata?.startTime;
-      await logChatDetails(logger, 'API call request failed', 'error', {
-        endpoint: error.config ? `${error.config.baseURL}${error.config.url}` : 'unknown',
-        method: error.config?.method?.toUpperCase() || 'UNKNOWN',
-        error: error.message,
-        logtype: 'error',
-        actionBy: localStorage.getItem('userId') || null,
-        type: LogerType.Error,
-        startTime: formatDateTime(startTime),
-      });
-    }
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 instance.interceptors.response.use(
-  async (response) => {
+  (response) => response,
+  (error) => {
     
-    if (typeof window !== 'undefined') {
-      const endTime = Date.now();
-      const startTime = response.config.metadata.startTime;
-      const responseTime = endTime - startTime;
-
-      await logChatDetails(logger, 'API call completed', 'info', {
-        endpoint: `${response.config.baseURL}${response.config.url}`,
-        method: response.config.method.toUpperCase(),
-        statusCode: response.status,
-        data: response.data.result,
-        type: LogerType.Apicallcompleted,
-        clientId: localStorage.getItem('clientId') || null,
-        actionBy: localStorage.getItem('actionBy') || null,
-        startTime: formatDateTime(startTime),
-        endTime: formatDateTime(endTime),
-        completionTime:  parseFloat((responseTime / 1000).toFixed(2)) 
-      });
-    }
-    return response;
-  },
-  async (error) => {
-    
-    if (typeof window !== 'undefined') {
-      const startTime = error.config?.metadata?.startTime;
-      const endTime = Date.now();
-      const responseTime = startTime ? endTime - startTime : null;
-
-      await logChatDetails(logger, 'API call failed', 'error', {
-        endpoint: error.config ? `${error.config.baseURL}${error.config.url}` : 'unknown',
-        method: error.config?.method?.toUpperCase() || 'UNKNOWN',
-        statusCode: error.response?.status,
-        error: error.message,
-        type: LogerType.Error,
-        clientId: localStorage.getItem('clientId') || null,
-        actionBy: localStorage.getItem('actionBy') || null,
-        logtype: 'error',
-        startTime: formatDateTime(startTime),
-        endTime: formatDateTime(endTime),
-        completionTime: parseFloat((responseTime / 1000).toFixed(2)) 
-      });
-
-      if (error.response?.status === 401) {
+    if (error.response?.status === 401) {
+      if (typeof window !== 'undefined') {
         localStorage.removeItem('accessToken');
-        window.location.href = '/auth/login';
+        window.location.href = '/';
       }
     }
     return Promise.reject(error);
