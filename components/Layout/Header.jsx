@@ -222,7 +222,7 @@ export function Header({ toggleSidebar }) {
               <HiMenu className="w-6 h-6" />
             </button>
           </div>
-
+          {/* live reporting */}
           <div className="flex items-center space-x-4">
             <LiveReportingSwitch />
             {/* Fullscreen Toggle Icon */}
