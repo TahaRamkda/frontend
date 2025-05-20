@@ -649,7 +649,7 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
   };
 
   //console.log("BodyFinalContent12", bodyContent, finalContent);
-  if (Loading)
+  if (Loading || loading)
     return (
       <App>
         <Loader />
@@ -683,7 +683,7 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
               value={language}
               disabled={true}
             />
-            
+
             <Formik
               initialValues={{
                 templateName: interactivetemplatedetail.templateName,

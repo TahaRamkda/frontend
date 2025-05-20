@@ -6,75 +6,75 @@ import {
   Modal,
   ModalHeader,
   ModalBody,
-  ModalFooter,
-  Button,
-  Form,
-  FormGroup,
-  Label,
-  Input,
+  
 } from "reactstrap";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchSetting,
-  clearAppSettingState,
-  fetchSettingById,
-  clearAppSettingDetailState,
-  appSettings,
-  clearAppSettingDataState,
+  fetchOrderReport,
+  clearOrderReportState,
+  deleteOrderReport,
+  fetchOrderReportById,
+  updateOrderReport,
   setPageSize,
   setCurrentPage,
-  updateAppSettings,
-} from "@/slices/AppSettingSlice";
+} from "@/slices/OrderReportSlice";
 import showSweetAlert from "@/components/Sweetalert";
-import { Logger } from 'next-axiom';
-import logChatDetails from '@/components/logger';
-import { LogerType } from '@/utils/constants';
 import Loading from "@/components/Layout/Loader";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
-import SettingForm from "@/pages/AppSetting/CreateAppSetting";
+import OrderReportForm from "../CreateOrderReport";
 import App from "@/components/Layout/App";
 import SearchBar from "@/components/SearchBar/SearchComponent";
-import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
-import ClientDropdown from "@/components/Dropdowns/ClientDropdown";
-const AppSettings = () => {
+import { usePermissions } from "@/context/PermissionsContext";
+
+const OrderReportList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { settingList, loading, error, pageSize, totalRecords, currentPage } =
-    useSelector((state) => state.appsetting);
-  const [senderId, setSelectedSenderId] = useState(0);
-  const logger = new Logger();
-  const [clientId, setSelectedClientId] = useState(0);
+  const { orderReports, loading, error, pageSize, totalRecords, currentPage } =
+    useSelector((state) => state.orderReports);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
-  const [settingForm, setSettingForm] = useState({});
+  const [orderReportForm, setOrderReportForm] = useState({});
   const [filterText, setFilterText] = useState("");
-  const startTime = Date.now();
   const [CreateModalOpen, setCreateModalOpen] = useState(false);
+  
+  const { hasPermission } = usePermissions();
+  
   const [isLoading, setIsLoading] = useState(false); // Start as true since we're fetching data
-  const settingColumns = [
-    { name: "Key Name", selector: (row) => row.keyName, sortable: true },
-    { name: "Value", selector: (row) => row.val, sortable: true },
-    { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
-    { name: "Client Name", selector: (row) => row.clientName, sortable: true },
+  const orderReportColumns = [
+    { name: "OrderReport Id", selector: (row) => row.id, sortable: true },
+    { name: "OrderReport Name", selector: (row) => row.orderReportName, sortable: true },
+    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
+    {
+      name: "OrderReportDate",
+      selector: (row) => row.createdDate,
+      sortable: true,
+    },
+    {
+      name: "Status",
+      selector: (row) => row.status,
+      sortable: true,
+    },
     {
       name: "Action",
       cell: (row) => (
         <>
-          <div className="flex gap-2 justify-center w-full">
+          <div className="flex gap-2 w-full">
             <button
-              title="Edit Group"
+              title="Edit OrderReport"
               className="uniform_icon_btn"
-              onClick={() => handleDetailClick(row.id)}
+            //   onClick={() => handleDetailClick(row.orderReportId)}
             >
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
+            {hasPermission("OrderReports", "delete") && (
             <button
-              title="Delete Group"
+              title="Delete OrderReport"
               className="uniform_icon_btn"
-              onClick={() => handleDeleteClick(row.id)}
+            //   onClick={() => handleDeleteClick(row.orderReportId)}
             >
               <HiTrash style={{ fontSize: "15px" }} />
             </button>
+            )}
           </div>
         </>
       ),
@@ -84,26 +84,11 @@ const AppSettings = () => {
     },
   ];
 
-  const handleClientChange = (e) => {
-    
-    const id = e.target.value;
-    setSelectedClientId(id);
-  };
-  const handleSenderChange = (e) => {
-    
-    const id = e.target.value;
-    setSelectedSenderId(id);
-  };
-
-  const handleDetailClick = async (id) => {
-    
+  const handleDetailClick = async (orderReportId) => {
     try {
-      
-      const response = await dispatch(fetchSettingById({ Id: id })).unwrap();
-      
+      const response = await dispatch(fetchOrderReportById({ orderReportId })).unwrap();
       if (response) {
-        
-        setSettingForm(response.result);
+        setOrderReportForm(response.result);
         setIsModalOpen(true);
       } else {
         showSweetAlert({
@@ -113,13 +98,13 @@ const AppSettings = () => {
         });
       }
     } catch (error) {
-      alert("Failed to fetch group details: " + error.message);
+      alert("Failed to fetch orderReport details: " + error.message);
     }
   };
   const handleCancel = () => {
     setCreateModalOpen(false);
   };
-  const handleDeleteClick = (groupId) => {
+  const handleDeleteClick = (orderReportId) => {
     SweetAlert.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -131,13 +116,13 @@ const AppSettings = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          dispatch(deleteGroup({ groupId })).then(() => {
+          dispatch(deleteOrderReport({ orderReportId })).then(() => {
             showSweetAlert({
               title: "Deleted Successfully",
               text: "",
               icon: "success",
             });
-            refreshSettingList();
+            refreshOrderReportList();
           });
         } catch (error) {
           alert("An unexpected error occurred: " + error.message);
@@ -152,13 +137,10 @@ const AppSettings = () => {
 
     // Fetch clients for the new page
     await dispatch(
-      fetchSetting({
+      fetchOrderReport({
         clientId: localStorage.getItem("clientId"),
         pageSize,
-        senderId: senderId,
-        clientId: clientId,
         pageNo: page,
-        SearchStr: filterText,
       })
     );
   };
@@ -167,12 +149,11 @@ const AppSettings = () => {
     // Update page size and reset to the first page
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1)); // Reset to first page
+    // Fetch data with updated page size and reset to page 1
     await dispatch(
-      fetchSetting({
+      fetchOrderReport({
         clientId: localStorage.getItem("clientId"),
         pageSize: newSize,
-        senderId: senderId,
-        clientId: clientId,
         pageNo: 1,
         SearchStr: filterText,
       })
@@ -181,7 +162,7 @@ const AppSettings = () => {
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    setSettingForm({ ...settingForm, [name]: value });
+    setOrderReportForm({ ...orderReportForm, [name]: value });
   };
   const toggleModal = () => {
     setIsModalOpen(false);
@@ -200,7 +181,7 @@ const AppSettings = () => {
     // Set a new timeout for 0.5 seconds
     const timeout = setTimeout(() => {
       dispatch(
-        fetchSetting({
+        fetchOrderReport({
           clientId: localStorage.getItem("clientId"),
           pageSize,
           pageNo: currentPage,
@@ -214,15 +195,16 @@ const AppSettings = () => {
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    
     try {
       const requestBody = {
-        id: settingForm.id || 0,
-        keyName: settingForm.keyName || "string",
-        val: settingForm.val || "string",
-        senderId: settingForm.senderId || 0,
+        orderReportId: orderReportForm.orderReportId || 0,
+        orderReportName: orderReportForm.orderReportName || "string",
+        actionBy: localStorage.getItem("userId"),
+        clientId: orderReportForm.clientId || 0,
       };
 
-      const response = await dispatch(updateAppSettings(requestBody)).unwrap();
+      const response = await dispatch(updateOrderReport(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({
           title: "Updated Successfully",
@@ -231,7 +213,7 @@ const AppSettings = () => {
         });
         setIsLoading(false);
         setIsModalOpen(false);
-        refreshSettingList();
+        refreshOrderReportList();
       } else {
         showSweetAlert({
           title: "Error",
@@ -240,20 +222,17 @@ const AppSettings = () => {
         });
       }
     } catch (error) {
-      alert("Failed to update group: " + error.message);
+      alert("Failed to update orderReport: " + error.message);
       setIsLoading(false);
     } finally {
       setIsLoading(false);
     }
   };
-
-  const refreshSettingList = () => {
+  const refreshOrderReportList = () => {
     dispatch(
-      fetchSetting({
+      fetchOrderReport({
         clientId: localStorage.getItem("clientId"),
         pageSize,
-        senderId: senderId,
-        clientId: clientId,
         pageNo: currentPage,
         SearchStr: filterText,
       })
@@ -262,28 +241,27 @@ const AppSettings = () => {
 
   useEffect(() => {
     dispatch(
-      fetchSetting({
+      fetchOrderReport({
         clientId: localStorage.getItem("clientId"),
         pageSize,
-        senderId: senderId,
-        clientId: clientId,
         pageNo: currentPage,
         SearchStr: filterText,
       })
     );
     return () => {
-      dispatch(clearAppSettingState());
+      dispatch(clearOrderReportState());
     };
-  }, [dispatch,senderId,clientId]);
+  }, [dispatch]);
 
-  const handleCreate = async() => {
-    await logChatDetails(logger, 'API call completed', 'info', {
-     
-      clientId: localStorage.getItem('clientId') ,
-      actionBy: localStorage.getItem('actionBy') 
-    });
+  const handleCreate = () => {
+    setCreateModalOpen(true);
   };
 
+  const filteredOrderReport = orderReports.filter(
+    (orderReport) =>
+      orderReport.orderReportName &&
+      orderReport.orderReportName.toLowerCase().includes(filterText.toLowerCase())
+  );
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10;
   const subHeaderComponentMemo = useMemo(() => {
@@ -297,27 +275,10 @@ const AppSettings = () => {
               onChange={handleSearchString(setFilterText)}
             />
           </div>
-          <div className="flex flex-col space-y-1 text-start mb-1 ">
-          <label className="font-medium text-gray-700 text-sm ">
-              Sender Name
-            </label>
-            <SendernameDropdown name="senderId" value onChange={handleSenderChange} />
-          </div>
-          <div className="flex flex-col space-y-1 text-start mb-1 ">
-          <label className="font-medium text-gray-700 text-sm ">
-              Client Name
-            </label>
-            <ClientDropdown
-              name="client_Id"
-              value={clientId}
-              onChange={handleClientChange}
-              className="block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
         </div>
       </div>
     );
-  }, [filterText, clientId, senderId]);
+  }, [filterText]);
 
   if (error) {
     return <div className="text-red-500">{error}</div>;
@@ -328,18 +289,20 @@ const AppSettings = () => {
       <div className="flex items-center">
         {(loading || isLoading) && <Loading />}
         <div className="">
-          <h4 className="font-bold">App Settings </h4>
+          <h4 className="font-bold">Order Reports </h4>
         </div>
+        {/* {hasPermission("OrderReports", "create") && (
         <div className="ml-auto mb-1">
           <button className="uniform_btn" onClick={handleCreate}>
-            Create Settings
+            Create OrderReport
           </button>
         </div>
+        )} */}
       </div>
       <div className="overflow-auto">
         <DataTable
-          data={settingList}
-          columns={settingColumns}
+          data={filteredOrderReport}
+          columns={orderReportColumns}
           highlightOnHover
           striped
           pagination
@@ -353,37 +316,7 @@ const AppSettings = () => {
           paginationRowsPerPageOptions={customPageSizes} // Custom page size options
           subHeader
           subHeaderComponent={subHeaderComponentMemo}
-          className="w-full border"
-          customStyles={{
-            table: {
-              style: {
-                width: "100%",
-                borderCollapse: "collapse", // Ensures borders collapse for proper grid appearance
-              },
-            },
-            headRow: {
-              style: {
-                borderBottom: "1px solid #ddd",
-                padding: "0px",
-              },
-            },
-            headCells: {
-              style: {
-                borderRight: "1px solid #ddd", // Grid line between columns
-                fontWeight: "bold",
-              },
-            },
-            rows: {
-              style: {
-                borderBottom: "1px solid #ddd", // Horizontal grid line between rows
-              },
-            },
-            cells: {
-              style: {
-                borderRight: "1px solid #ddd", // Vertical grid line between cells
-              },
-            },
-          }}
+          className="w-full borderReport"
         />
       </div>
 
@@ -397,45 +330,27 @@ const AppSettings = () => {
                   <Loading />
                 </div>
               )}
-              <ModalHeader toggle={() => toggleModal()}>
-                Edit Settings
-              </ModalHeader>
+              <ModalHeader toggle={() => toggleModal()}>Edit OrderReport</ModalHeader>
               <ModalBody>
                 <form onSubmit={handleUpdateSubmit}>
                   <div className="flex flex-col">
                     <label
-                      htmlFor="keyName"
+                      htmlFor="orderReportName"
                       className="font-medium text-gray-700 text-sm"
                     >
-                      Key Name
+                      OrderReport Name
                     </label>
                     <input
                       type="text"
-                      id="keyName"
-                      name="keyName"
-                      value={settingForm.keyName || ""}
+                      id="orderReportName"
+                      name="orderReportName"
+                      value={orderReportForm.orderReportName || ""}
                       onChange={handleFormChange}
-                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                      className="borderReport rounded py-1 px-2 w-full mt-1 text-sm"
                       disabled={isLoading} // Disable input while loading
                     />
                   </div>
-                  <div className="flex flex-col">
-                    <label
-                      htmlFor="val"
-                      className="font-medium text-gray-700 text-sm"
-                    >
-                      Value
-                    </label>
-                    <input
-                      type="text"
-                      id="val"
-                      name="val"
-                      value={settingForm?.val || ""}
-                      onChange={handleFormChange}
-                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
-                      disabled={isLoading} // Disable input while loading
-                    />
-                  </div>
+                  {hasPermission("OrderReports", "update") && (
                   <div className="mt-4 w-full flex justify-end">
                     <button
                       type="submit"
@@ -445,6 +360,7 @@ const AppSettings = () => {
                       Save
                     </button>
                   </div>
+                  )}
                 </form>
               </ModalBody>
             </div>
@@ -453,14 +369,14 @@ const AppSettings = () => {
       )}
 
       {CreateModalOpen && (
-        <SettingForm
+        <OrderReportForm
           isVisible={true}
           onClose={handleCancel}
-          onsuccess={refreshSettingList}
+          onsuccess={refreshOrderReportList}
         />
       )}
     </App>
   );
 };
 
-export default AppSettings;
+export default OrderReportList;

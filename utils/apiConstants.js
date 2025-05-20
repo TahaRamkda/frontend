@@ -166,3 +166,18 @@ export const APPSETTING = "/AppSettings/getappsettings";
 // Clear Cache
 export const CLEARAPICACHE = "/Cache/Clear";
 export const CLEARBRIDGECACHE = "/Cache/ClearByPrefix"
+
+export const ORDERLIST = "#";
+export const ORDERDETAILS = "#";
+export const UPDATEORDER = "#";
+export const DELETEORDER = "#";
+
+export const ORDERREPORTLIST = "#";
+export const ORDERREPORTDETAILS = "#";
+export const UPDATEORDERREPORT = "#";
+export const DELETEORDERREPORT = "#";
+
+export const MENULIST = "#";
+export const MENUDETAILS = "#";
+export const UPDATEMENU = "#";
+export const DELETEMENU = "#";

@@ -6,7 +6,7 @@ import {
   clearInteractiveTemplateListState,
 } from "@/slices/TemplateSlice";
 import { FormGroup, Label, Input, FormText } from "reactstrap";
-
+import Loader from "../Layout/Loader";
 const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
