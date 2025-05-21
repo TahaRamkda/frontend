@@ -71,7 +71,7 @@ const AppSettings = () => {
             <button
               title="Delete Group"
               className="uniform_icon_btn"
-              onClick={() => handleDeleteClick(row.groupId)}
+              onClick={() => handleDeleteClick(row.id)}
             >
               <HiTrash style={{ fontSize: "15px" }} />
             </button>
@@ -96,9 +96,13 @@ const AppSettings = () => {
   };
 
   const handleDetailClick = async (id) => {
+    
     try {
+      
       const response = await dispatch(fetchSettingById({ Id: id })).unwrap();
+      
       if (response) {
+        
         setSettingForm(response.result);
         setIsModalOpen(true);
       } else {
@@ -297,7 +301,7 @@ const AppSettings = () => {
           <label className="font-medium text-gray-700 text-sm ">
               Sender Name
             </label>
-            <SendernameDropdown name="senderId" onChange={handleSenderChange} />
+            <SendernameDropdown name="senderId" value onChange={handleSenderChange} />
           </div>
           <div className="flex flex-col space-y-1 text-start mb-1 ">
           <label className="font-medium text-gray-700 text-sm ">
@@ -426,7 +430,7 @@ const AppSettings = () => {
                       type="text"
                       id="val"
                       name="val"
-                      value={settingForm.val || ""}
+                      value={settingForm?.val || ""}
                       onChange={handleFormChange}
                       className="border rounded py-1 px-2 w-full mt-1 text-sm"
                       disabled={isLoading} // Disable input while loading

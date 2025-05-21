@@ -24,6 +24,9 @@ import ClearCache from "@/slices/CacheSlice";
 import FlowSlice from "@/slices/FlowsSlice";
 import TemplateVisualizationSlice  from "@/slices/TemplateVisualizationSlice";
 import  AppSettingSlice  from "@/slices/AppSettingSlice";
+import orderSlice from "@/slices/OrderSlice";
+import orderReportSlice from "@/slices/OrderReportSlice";
+import menuSlice from "@/slices/MenuSlice";
 import { configureStore } from "@reduxjs/toolkit";
 
 export const store = configureStore({
@@ -54,6 +57,8 @@ export const store = configureStore({
     templateVisualization:TemplateVisualizationSlice,
     appsetting:AppSettingSlice,
     clearCache:ClearCache,
-
+    orders:orderSlice,
+    orderreport: orderReportSlice,
+    menu: menuSlice
     }
 })

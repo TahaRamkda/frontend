@@ -138,16 +138,7 @@ useEffect(() => {
   const handleChange = (e) => {
     const senderId = e.target.value;
     setSenderId(senderId);
-    const clientId = localStorage.getItem("clientId");
     setdataloading(true);
-    dispatch(
-      fetchDashboardSummary({
-        clientId: clientId,
-        fromDate,
-        toDate,
-        senderid: SenderId,
-      })
-    );
   };
   const lineChartData = {
     labels:
@@ -231,7 +222,7 @@ useEffect(() => {
               Sender Names
             </label>
             {isPageActive && (
-              <SendernameDropdown name="senderId" onChange={handleChange} />
+              <SendernameDropdown name="senderId" value={SenderId} onChange={handleChange} />
             )}
             
           </div>

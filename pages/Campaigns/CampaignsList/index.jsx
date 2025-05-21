@@ -33,7 +33,6 @@ import showSweetAlert from "@/components/Sweetalert";
 import App from "@/components/Layout/App";
 import { useRouter } from "next/router"; // Correct import
 import DataTable from "react-data-table-component";
-import Loading from "@/components/Layout/Loader";
 import {
   HiPencilAlt,
   HiTrash,
@@ -53,9 +52,10 @@ import SearchBar from "@/components/SearchBar/SearchComponent";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
 import UpdateCampaign from "../UpdateCampaign";
 import { usePermissions } from "@/context/PermissionsContext";
+import Loader from "@/components/Layout/Loader";
 const CampaignsList = () => {
   const dispatch = useDispatch();
-   const { hasPermission } = usePermissions();
+  const { hasPermission } = usePermissions();
   const router = useRouter();
   const [templateId, settemplateId] = useState(0);
   const [status, setstatus] = useState(0);
@@ -75,21 +75,21 @@ const CampaignsList = () => {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [activateCampaignId, setactivateCampaignId] = useState(null);
   const [CampaignForm, setCampaignForm] = useState({});
-  const { campaigns, loading, error, pageSize, totalRecords } =
-    useSelector((state) => state.campaigns);
+  const { campaigns, loading, error, pageSize, totalRecords } = useSelector(
+    (state) => state.campaigns
+  );
   const [clientId, setClientId] = useState(null);
   const isLiveReporting = useRef(false); // UseRef to track live reporting state
   const [CampaignId, setCampaignId] = useState(null);
   const [showUpdateModel, setShowUpdateModel] = useState(false);
   //const setCampaignsId = useSetRecoilState(CampaignState);
   const [campaignloading, setcampaignloading] = useState(false);
-  const customPageSizes = [1, 5, 10, 20, 50, 100]; 
+  const customPageSizes = [1, 5, 10, 20, 50, 100];
 
   const handleTemplateChange = (e) => {
     const template = e.target.value;
     settemplateId(template);
     setcampaignloading(true);
-
   };
 
   useEffect(() => {
@@ -113,11 +113,11 @@ const CampaignsList = () => {
             status: status,
             templateId: templateId,
             srcStr: keyword,
-            pageSize : page,
+            pageSize: page,
             PageNo: PageNum,
           })
         );
-      } 
+      }
     };
 
     const intervalId = setInterval(() => {
@@ -133,7 +133,16 @@ const CampaignsList = () => {
 
     // Cleanup the interval when the component unmounts
     return () => clearInterval(intervalId);
-  }, [dispatch, FromDate, ToDate, status, templateId, keyword, loading, isInitialLoad]);
+  }, [
+    dispatch,
+    FromDate,
+    ToDate,
+    status,
+    templateId,
+    keyword,
+    loading,
+    isInitialLoad,
+  ]);
 
   const HandleUpdateCampaign = (CampaignId) => {
     setcampaignloading(true);
@@ -165,7 +174,7 @@ const CampaignsList = () => {
           status: status,
           templateId: templateId,
           srcStr: searchValue,
-          pageSize : page,
+          pageSize: page,
           PageNo: PageNum,
         })
       );
@@ -226,16 +235,16 @@ const CampaignsList = () => {
         status: status,
         templateId: templateId,
         srcStr: keyword,
-        pageSize : page,
+        pageSize: page,
         PageNo: PageNum,
       })
     );
   };
 
   const handlePageSizeChange = async (newSize) => {
-    SetPageSize(newSize)
+    SetPageSize(newSize);
     dispatch(setPageSize(newSize));
-    dispatch(setCurrentPage(1)); 
+    dispatch(setCurrentPage(1));
     setcampaignloading(true);
     await dispatch(
       fetchCampaign({
@@ -253,7 +262,7 @@ const CampaignsList = () => {
 
   const handlePageChange = async (pageNo) => {
     setcampaignloading(true);
-    SetPageNum(pageNo)
+    SetPageNum(pageNo);
     dispatch(setCurrentPage(pageNo));
     await dispatch(
       fetchCampaign({
@@ -263,7 +272,7 @@ const CampaignsList = () => {
         status: status,
         templateId: templateId,
         srcStr: keyword,
-        pageSize : page,
+        pageSize: page,
         PageNo: pageNo,
       })
     );
@@ -320,56 +329,50 @@ const CampaignsList = () => {
       name: "Campaign Name",
       selector: (row) => row.campaignName,
       sortable: true,
-      width: "15%"
+      minWidth: "200px",
       // Prevents wrapping, forces width to fit content
     },
     {
       name: "Schedule Date",
       selector: (row) => row.scheduleDate,
       sortable: true,
-      width: "15%"
+      minWidth: "200px",
     },
     {
       name: "Status",
       selector: (row) => row.statusName,
       sortable: true,
-      width: "10%"
     },
     {
       name: "Contacts",
       selector: (row) => row.totalContacts,
       sortable: true,
-      width: "6%"
     },
     {
       name: "Sent",
       selector: (row) => row.sentCount,
       sortable: true,
-      width: "6%"
     },
     {
       name: "Delivered",
       selector: (row) => row.deliveredCount,
       sortable: true,
-      width: "6%"
     },
     {
       name: "Read",
       selector: (row) => row.readCount,
       sortable: true,
-      width: "6%"
     },
     {
       name: "Failed",
       selector: (row) => row.failedCount,
       sortable: true,
-      width: "6%"
     },
     {
       name: "Created Date",
       selector: (row) => row.createdDate,
       sortable: true,
-      width: "15%"
+      minWidth: "200px",
     },
     {
       name: "Action",
@@ -421,7 +424,7 @@ const CampaignsList = () => {
           </div>
         );
       },
-      width: "10%"
+      minWidth: "180px",
     },
   ];
   const subHeaderComponentMemo = useMemo(() => {
@@ -431,7 +434,8 @@ const CampaignsList = () => {
           <div className="flex flex-col text-start mb-1">
             <Label className="font-medium text-sm mb-1"> Templates</Label>
             <TemplateDropdown
-              name="role_Id"
+              name="templateId"
+              value={templateId}
               onChange={handleTemplateChange}
               className="border rounded w-100 MarginBOt"
               TransactionType={1}
@@ -472,7 +476,7 @@ const CampaignsList = () => {
 
   return (
     <App>
-      {campaignloading && <Loading />}
+      {(campaignloading || loading) && <Loader />}
       {showUpdateModel ? (
         <UpdateCampaign campaignId={CampaignId} onclose={handleClose} />
       ) : (
@@ -491,11 +495,11 @@ const CampaignsList = () => {
                 >
                   Create Campaign
                 </Button>
-               )} 
+              )}
             </div>
           </div>
 
-          <div className="overflow-auto">
+          <div className="overflow-x-auto w-full">
             <DataTable
               data={campaigns}
               columns={campaignColumns}
@@ -512,7 +516,6 @@ const CampaignsList = () => {
               subHeader
               subHeaderComponent={subHeaderComponentMemo}
               className="w-full border"
-              
             />
           </div>
           <Modal
@@ -521,6 +524,7 @@ const CampaignsList = () => {
             fade={false}
           >
             <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+              {loading && <Loader />}
               <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
                 <ModalHeader toggle={() => setIsModalOpen(!isModalOpen)}>
                   Schedule Campaign

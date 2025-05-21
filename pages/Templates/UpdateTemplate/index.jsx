@@ -157,7 +157,7 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
 
   useEffect(() => {
     if (Loading || !template) return;
-    debugger;
+    ;
     // Map buttons with conditional logic for phoneNumber or URL
     const customButtons =
       template.buttons?.map((button) => ({
@@ -172,7 +172,7 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
           ? { url: button.buttonValue }
           : {}),
       })) ?? [];
-    debugger;
+    ;
     // Construct the complete message preview locally
     const updatedMessagePreview = {
       body: template.bodyText,

@@ -10,11 +10,13 @@ export const fetchSendernames = createAsyncThunk(
   'sendername/fetchSendernames',
   async ({client_Id}, { rejectWithValue }) => {
     try {
+      debugger
       const response = await API.get(`${SENDERNAMELIST}`);
       if (response?.status === 200 ) {
+        debugger
         return {
-          sendernames: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+          sendernames: response?.data?.result,
+          totalRecords: response?.data?.result?.length > 0 ? response.data.result[0].totalRecords  : 0,
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -170,11 +172,13 @@ const sendernameSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchSendernames.fulfilled, (state, action) => {
+        debugger
         state.loading = false;
-        state.sendernames = action.payload.sendernames;
-        state.totalRecords = action.payload.totalRecords;
+        state.sendernames = action.payload?.sendernames;
+        state.totalRecords = action.payload?.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || '';
+        debugger
       })
       .addCase(fetchSendernames.rejected, (state, action) => {
         state.loading = false;

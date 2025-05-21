@@ -6,55 +6,52 @@ import {
   Modal,
   ModalHeader,
   ModalBody,
-  ModalFooter,
-  Button,
-  Form,
-  FormGroup,
-  Label,
-  Input,
+  
 } from "reactstrap";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchGroup,
-  clearGroupState,
-  deleteGroup,
-  fetchGroupById,
-  updateGroup,
+  fetchOrder,
+  clearOrderState,
+  deleteOrder,
+  fetchOrderById,
+  updateOrder,
   setPageSize,
   setCurrentPage,
-} from "@/slices/Groupslice";
+} from "@/slices/OrderSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Layout/Loader";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
-import GroupForm from "../CreateGroup";
+import OrderForm from "../CreateOrder";
 import App from "@/components/Layout/App";
 import SearchBar from "@/components/SearchBar/SearchComponent";
 import { usePermissions } from "@/context/PermissionsContext";
 
-const GroupList = () => {
+const OrderList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { groups, loading, error, pageSize, totalRecords, currentPage } =
-    useSelector((state) => state.groups);
+  const { orders, loading, error, pageSize, totalRecords, currentPage } =
+    useSelector((state) => state.orders);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
-  const [groupForm, setGroupForm] = useState({});
+  const [orderForm, setOrderForm] = useState({});
   const [filterText, setFilterText] = useState("");
   const [CreateModalOpen, setCreateModalOpen] = useState(false);
   
   const { hasPermission } = usePermissions();
   
   const [isLoading, setIsLoading] = useState(false); // Start as true since we're fetching data
-  const groupColumns = [
-    { name: "Group Name", selector: (row) => row.groupName, sortable: true },
+  const orderColumns = [
+    { name: "Order Id", selector: (row) => row.id, sortable: true },
+    { name: "Order Name", selector: (row) => row.orderName, sortable: true },
+    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
     {
-      name: "Created Date",
+      name: "OrderDate",
       selector: (row) => row.createdDate,
       sortable: true,
     },
     {
-      name: "Total Contacts",
-      selector: (row) => row.totalContacts,
+      name: "Status",
+      selector: (row) => row.status,
       sortable: true,
     },
     {
@@ -63,17 +60,17 @@ const GroupList = () => {
         <>
           <div className="flex gap-2 w-full">
             <button
-              title="Edit Group"
+              title="Edit Order"
               className="uniform_icon_btn"
-              onClick={() => handleDetailClick(row.groupId)}
+            //   onClick={() => handleDetailClick(row.orderId)}
             >
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
-            {hasPermission("Groups", "delete") && (
+            {hasPermission("Orders", "delete") && (
             <button
-              title="Delete Group"
+              title="Delete Order"
               className="uniform_icon_btn"
-              onClick={() => handleDeleteClick(row.groupId)}
+            //   onClick={() => handleDeleteClick(row.orderId)}
             >
               <HiTrash style={{ fontSize: "15px" }} />
             </button>
@@ -87,11 +84,11 @@ const GroupList = () => {
     },
   ];
 
-  const handleDetailClick = async (groupId) => {
+  const handleDetailClick = async (orderId) => {
     try {
-      const response = await dispatch(fetchGroupById({ groupId })).unwrap();
+      const response = await dispatch(fetchOrderById({ orderId })).unwrap();
       if (response) {
-        setGroupForm(response.result);
+        setOrderForm(response.result);
         setIsModalOpen(true);
       } else {
         showSweetAlert({
@@ -101,13 +98,13 @@ const GroupList = () => {
         });
       }
     } catch (error) {
-      alert("Failed to fetch group details: " + error.message);
+      alert("Failed to fetch order details: " + error.message);
     }
   };
   const handleCancel = () => {
     setCreateModalOpen(false);
   };
-  const handleDeleteClick = (groupId) => {
+  const handleDeleteClick = (orderId) => {
     SweetAlert.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -119,13 +116,13 @@ const GroupList = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          dispatch(deleteGroup({ groupId })).then(() => {
+          dispatch(deleteOrder({ orderId })).then(() => {
             showSweetAlert({
               title: "Deleted Successfully",
               text: "",
               icon: "success",
             });
-            refreshGroupList();
+            refreshOrderList();
           });
         } catch (error) {
           alert("An unexpected error occurred: " + error.message);
@@ -140,7 +137,7 @@ const GroupList = () => {
 
     // Fetch clients for the new page
     await dispatch(
-      fetchGroup({
+      fetchOrder({
         clientId: localStorage.getItem("clientId"),
         pageSize,
         pageNo: page,
@@ -154,7 +151,7 @@ const GroupList = () => {
     dispatch(setCurrentPage(1)); // Reset to first page
     // Fetch data with updated page size and reset to page 1
     await dispatch(
-      fetchGroup({
+      fetchOrder({
         clientId: localStorage.getItem("clientId"),
         pageSize: newSize,
         pageNo: 1,
@@ -165,7 +162,7 @@ const GroupList = () => {
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    setGroupForm({ ...groupForm, [name]: value });
+    setOrderForm({ ...orderForm, [name]: value });
   };
   const toggleModal = () => {
     setIsModalOpen(false);
@@ -184,7 +181,7 @@ const GroupList = () => {
     // Set a new timeout for 0.5 seconds
     const timeout = setTimeout(() => {
       dispatch(
-        fetchGroup({
+        fetchOrder({
           clientId: localStorage.getItem("clientId"),
           pageSize,
           pageNo: currentPage,
@@ -201,13 +198,13 @@ const GroupList = () => {
     
     try {
       const requestBody = {
-        groupId: groupForm.groupId || 0,
-        groupName: groupForm.groupName || "string",
+        orderId: orderForm.orderId || 0,
+        orderName: orderForm.orderName || "string",
         actionBy: localStorage.getItem("userId"),
-        clientId: groupForm.clientId || 0,
+        clientId: orderForm.clientId || 0,
       };
 
-      const response = await dispatch(updateGroup(requestBody)).unwrap();
+      const response = await dispatch(updateOrder(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({
           title: "Updated Successfully",
@@ -216,7 +213,7 @@ const GroupList = () => {
         });
         setIsLoading(false);
         setIsModalOpen(false);
-        refreshGroupList();
+        refreshOrderList();
       } else {
         showSweetAlert({
           title: "Error",
@@ -225,15 +222,15 @@ const GroupList = () => {
         });
       }
     } catch (error) {
-      alert("Failed to update group: " + error.message);
+      alert("Failed to update order: " + error.message);
       setIsLoading(false);
     } finally {
       setIsLoading(false);
     }
   };
-  const refreshGroupList = () => {
+  const refreshOrderList = () => {
     dispatch(
-      fetchGroup({
+      fetchOrder({
         clientId: localStorage.getItem("clientId"),
         pageSize,
         pageNo: currentPage,
@@ -244,7 +241,7 @@ const GroupList = () => {
 
   useEffect(() => {
     dispatch(
-      fetchGroup({
+      fetchOrder({
         clientId: localStorage.getItem("clientId"),
         pageSize,
         pageNo: currentPage,
@@ -252,7 +249,7 @@ const GroupList = () => {
       })
     );
     return () => {
-      dispatch(clearGroupState());
+      dispatch(clearOrderState());
     };
   }, [dispatch]);
 
@@ -260,10 +257,10 @@ const GroupList = () => {
     setCreateModalOpen(true);
   };
 
-  const filteredGroup = groups.filter(
-    (group) =>
-      group.groupName &&
-      group.groupName.toLowerCase().includes(filterText.toLowerCase())
+  const filteredOrder = orders.filter(
+    (order) =>
+      order.orderName &&
+      order.orderName.toLowerCase().includes(filterText.toLowerCase())
   );
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10;
@@ -292,20 +289,20 @@ const GroupList = () => {
       <div className="flex items-center">
         {(loading || isLoading) && <Loading />}
         <div className="">
-          <h4 className="font-bold">Groups </h4>
+          <h4 className="font-bold">Orders </h4>
         </div>
-        {hasPermission("Groups", "create") && (
+        {/* {hasPermission("Orders", "create") && (
         <div className="ml-auto mb-1">
           <button className="uniform_btn" onClick={handleCreate}>
-            Create Group
+            Create Order
           </button>
         </div>
-        )}
+        )} */}
       </div>
       <div className="overflow-auto">
         <DataTable
-          data={filteredGroup}
-          columns={groupColumns}
+          data={filteredOrder}
+          columns={orderColumns}
           highlightOnHover
           striped
           pagination
@@ -333,27 +330,27 @@ const GroupList = () => {
                   <Loading />
                 </div>
               )}
-              <ModalHeader toggle={() => toggleModal()}>Edit Group</ModalHeader>
+              <ModalHeader toggle={() => toggleModal()}>Edit Order</ModalHeader>
               <ModalBody>
                 <form onSubmit={handleUpdateSubmit}>
                   <div className="flex flex-col">
                     <label
-                      htmlFor="groupName"
+                      htmlFor="orderName"
                       className="font-medium text-gray-700 text-sm"
                     >
-                      Group Name
+                      Order Name
                     </label>
                     <input
                       type="text"
-                      id="groupName"
-                      name="groupName"
-                      value={groupForm.groupName || ""}
+                      id="orderName"
+                      name="orderName"
+                      value={orderForm.orderName || ""}
                       onChange={handleFormChange}
                       className="border rounded py-1 px-2 w-full mt-1 text-sm"
                       disabled={isLoading} // Disable input while loading
                     />
                   </div>
-                  {hasPermission("Groups", "update") && (
+                  {hasPermission("Orders", "update") && (
                   <div className="mt-4 w-full flex justify-end">
                     <button
                       type="submit"
@@ -372,14 +369,14 @@ const GroupList = () => {
       )}
 
       {CreateModalOpen && (
-        <GroupForm
+        <OrderForm
           isVisible={true}
           onClose={handleCancel}
-          onsuccess={refreshGroupList}
+          onsuccess={refreshOrderList}
         />
       )}
     </App>
   );
 };
 
-export default GroupList;
+export default OrderList;

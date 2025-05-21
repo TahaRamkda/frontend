@@ -30,7 +30,7 @@ const UploadMediaPage = ({
   });
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    debugger
+    
     if (ispopUp && (!senderId || senderId === "0")) {
       toast.error("Please Select A Sendername Before Proceeding");
       return;

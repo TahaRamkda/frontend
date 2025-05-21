@@ -1,15 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import $ from "jquery";
-import "select2/dist/css/select2.min.css";
-import "select2/dist/js/select2.min.js";
-import Loader from "../Layout/Loader";
+import Select from 'react-select';
 import {
     fetchInteractiveTemplateDrop,
   clearInteractiveTemplateListState,
 } from "@/slices/TemplateSlice";
 import { FormGroup, Label, Input, FormText } from "reactstrap";
-
+import Loader from "../Layout/Loader";
 const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
@@ -33,56 +30,76 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
 
   }, [dispatch, transactionType]);
 
-  useEffect(() => {
-    if (selectRef.current) {
-      $(selectRef.current).select2({
-        placeholder: "Select",
-        allowClear: true,
-      });
+  const options = interactiveTemplateList?.map((item) => ({
+    value: item.id,
+    label: item.name,
+  })) || [];
 
-      $(selectRef.current).on("change", (e) => {
-        let selectedValue = e.target.value;
-        if (!selectedValue) {
-          selectedValue = "0";
-        }
-        onChange({ target: { name, value: selectedValue } });
-      });
-    }
+  const selectedOption = options.find((opt) => opt.value === value) || null;
 
-    return () => {
-      if (selectRef.current) {
-        $(selectRef.current).off("change");
-      }
-    };
-  }, [interactiveTemplateList, onChange]);
+  const handleChange = (selected) => {
+    const selectedValue = selected ? selected.value : '0';
+    onChange({ target: { name, value: selectedValue } });
+  };
+
+  // Inline styles for react-select
+  const customStyles = {
+  control: (base, state) => ({
+    ...base,
+    border: '1px solid #D1D5DB',
+    borderRadius: '0.375rem',
+    boxShadow: state.isFocused ? '0 0 0 1px #3B82F6' : 'none',
+    '&:hover': {
+      borderColor: '#3B82F6',
+    },
+    minHeight: '2.5rem',
+    outline: 'none',
+  }),
+  input: (base) => ({
+    ...base,
+    margin: 0,
+    padding: 0,
+    outline: 'none',
+    boxShadow: 'none',
+  }),
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? '#3B82F6'
+      : state.isFocused
+      ? '#DBEAFE'
+      : 'white',
+    color: state.isSelected ? 'white' : '#111827',
+    cursor: 'pointer',
+  }),
+  singleValue: (base) => ({
+    ...base,
+    color: '#111827',
+  }),
+  menu: (base) => ({
+    ...base,
+    zIndex: 9999,
+  }),
+};
 
   if (loading) return <Loader />;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
 
   return (
     <div>
-      <Input
-        type="select"
-        innerRef={selectRef}
+      <Select
         name={name}
-        value={value}
-        className='focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-        onChange={onChange}
-        required
-      >
-        <option value="0">Select</option>
-        {interactiveTemplateList && interactiveTemplateList.length > 0 ? (
-          interactiveTemplateList.map((template) => (
-            <option key={template.interactiveTemplateId} value={template.interactiveTemplateId}>
-              {template.templateName}
-            </option>
-          ))
-        ) : (
-          <option disabled>No records found</option>
-        )}
-      </Input>
+        value={selectedOption}
+        onChange={handleChange}
+        options={options}
+        placeholder="Select"
+        isClearable
+        styles={customStyles}
+        classNamePrefix="react-select"
+      />
     </div>
   );
 };
 
 export default TemplateDropdown;
+

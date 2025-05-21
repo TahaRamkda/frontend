@@ -5,6 +5,7 @@ import SweetAlert from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
+import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
 import {
   fetchInteractiveTemplates,
   clearInteractiveTemplateListState,
@@ -13,7 +14,12 @@ import {
 } from "@/slices/InteractiveTemplateSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import App from "@/components/Layout/App";
-import { HiPencilAlt, HiTrash, HiRefresh, HiArrowsExpand } from "react-icons/hi";
+import {
+  HiPencilAlt,
+  HiTrash,
+  HiRefresh,
+  HiArrowsExpand,
+} from "react-icons/hi";
 import { useSetRecoilState } from "recoil";
 import { TemplateState } from "@/components/recoil";
 import Loader from "@/components/Layout/Loader";
@@ -50,8 +56,8 @@ const InteractiveTemplateList = () => {
   const handleViualizationClick = (templates_Id) => {
     settemplateId(templates_Id);
     router.push({
-      pathname: '/TemplateVisualisation',
-      query: { Id: templates_Id, type: 2},
+      pathname: "/TemplateVisualisation",
+      query: { Id: templates_Id, type: 2 },
     });
   };
   const handleCloseVS = () => {
@@ -63,13 +69,13 @@ const InteractiveTemplateList = () => {
       name: "Template",
       selector: (row) => row.templateName,
       sortable: true,
-      width: "20%",
+      minWidth: "200px",
     },
     {
       name: " Sender Name",
       selector: (row) => row.senderName,
       sortable: true,
-      width: "17%",
+      minWidth: "200px",
     },
     {
       name: "Language",
@@ -82,13 +88,12 @@ const InteractiveTemplateList = () => {
       name: "Created Date",
       selector: (row) => row.createdDate,
       sortable: true,
-      width: "20%",
+      minWidth: "200px",
     },
     {
       name: "System Template",
       selector: (row) => (row.defaultTypeId === 0 ? "No" : "Yes"),
       sortable: true,
-      width: "16%",
     },
     {
       name: "Action",
@@ -244,7 +249,7 @@ const InteractiveTemplateList = () => {
   const handleLanguageChange = (e) => {
     const Id = e.target.value;
     setlanguageId(Id);
-  }
+  };
   const handleSenderChange = (e) => {
     const senderId = e.target.value;
     setsenderId(senderId);
@@ -270,7 +275,7 @@ const InteractiveTemplateList = () => {
     return () => {
       dispatch(clearInteractiveTemplateListState());
     };
-  }, [dispatch, ToDate, FromDate, senderId,languageId]);
+  }, [dispatch, ToDate, FromDate, senderId, languageId]);
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10;
   const subHeaderComponentMemo = useMemo(() => {
@@ -313,21 +318,16 @@ const InteractiveTemplateList = () => {
             <label className="font-medium text-gray-700 text-sm mb-1">
               Language
             </label>
-            <select
-              id="languageId"
+            <LanguageDropdown
+              name="languageId"
               value={languageId}
               onChange={handleLanguageChange}
-              className="border border-gray-300 rounded-md w-full py-1 px-3 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value={0}>Select</option>
-              <option value={1}>English</option>
-              <option value={2}>Arabic</option>
-            </select>
+            />
           </div>
         </div>
       </div>
     );
-  }, [filterText, FromDate, ToDate, languageId]);
+  }, [filterText, FromDate, ToDate, languageId, senderId]);
 
   if (error) {
     return <Alert color="danger">{error}</Alert>;

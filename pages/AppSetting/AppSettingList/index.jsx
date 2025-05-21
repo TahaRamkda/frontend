@@ -26,6 +26,9 @@ import {
   updateAppSettings,
 } from "@/slices/AppSettingSlice";
 import showSweetAlert from "@/components/Sweetalert";
+import { Logger } from 'next-axiom';
+import logChatDetails from '@/components/logger';
+import { LogerType } from '@/utils/constants';
 import Loading from "@/components/Layout/Loader";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
 import SettingForm from "@/pages/AppSetting/CreateAppSetting";
@@ -38,17 +41,21 @@ const AppSettings = () => {
   const dispatch = useDispatch();
   const { settingList, loading, error, pageSize, totalRecords, currentPage } =
     useSelector((state) => state.appsetting);
-  const [senderId, setSelectedSenderId] = useState(null);
-  const [clientId, setSelectedClientId] = useState(null);
+  const [senderId, setSelectedSenderId] = useState(0);
+  const logger = new Logger();
+  const [clientId, setSelectedClientId] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [settingForm, setSettingForm] = useState({});
   const [filterText, setFilterText] = useState("");
+  const startTime = Date.now();
   const [CreateModalOpen, setCreateModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // Start as true since we're fetching data
   const settingColumns = [
     { name: "Key Name", selector: (row) => row.keyName, sortable: true },
     { name: "Value", selector: (row) => row.val, sortable: true },
+    { name: "Sender Name", selector: (row) => row.senderName, sortable: true },
+    { name: "Client Name", selector: (row) => row.clientName, sortable: true },
     {
       name: "Action",
       cell: (row) => (
@@ -64,7 +71,7 @@ const AppSettings = () => {
             <button
               title="Delete Group"
               className="uniform_icon_btn"
-              onClick={() => handleDeleteClick(row.groupId)}
+              onClick={() => handleDeleteClick(row.id)}
             >
               <HiTrash style={{ fontSize: "15px" }} />
             </button>
@@ -77,17 +84,25 @@ const AppSettings = () => {
     },
   ];
 
-  const handleClientChange = (clientId) => {
-    setSelectedClientId(clientId);
+  const handleClientChange = (e) => {
+    
+    const id = e.target.value;
+    setSelectedClientId(id);
   };
-  const handleSenderChange = (senderId) => {
-    setSelectedSenderId(senderId);
+  const handleSenderChange = (e) => {
+    
+    const id = e.target.value;
+    setSelectedSenderId(id);
   };
 
   const handleDetailClick = async (id) => {
+    
     try {
+      
       const response = await dispatch(fetchSettingById({ Id: id })).unwrap();
+      
       if (response) {
+        
         setSettingForm(response.result);
         setIsModalOpen(true);
       } else {
@@ -141,7 +156,7 @@ const AppSettings = () => {
         clientId: localStorage.getItem("clientId"),
         pageSize,
         senderId: senderId,
-        clientId: clientId, 
+        clientId: clientId,
         pageNo: page,
         SearchStr: filterText,
       })
@@ -157,7 +172,7 @@ const AppSettings = () => {
         clientId: localStorage.getItem("clientId"),
         pageSize: newSize,
         senderId: senderId,
-        clientId: clientId, 
+        clientId: clientId,
         pageNo: 1,
         SearchStr: filterText,
       })
@@ -238,7 +253,7 @@ const AppSettings = () => {
         clientId: localStorage.getItem("clientId"),
         pageSize,
         senderId: senderId,
-        clientId: clientId, 
+        clientId: clientId,
         pageNo: currentPage,
         SearchStr: filterText,
       })
@@ -251,7 +266,7 @@ const AppSettings = () => {
         clientId: localStorage.getItem("clientId"),
         pageSize,
         senderId: senderId,
-        clientId: clientId, 
+        clientId: clientId,
         pageNo: currentPage,
         SearchStr: filterText,
       })
@@ -259,10 +274,14 @@ const AppSettings = () => {
     return () => {
       dispatch(clearAppSettingState());
     };
-  }, [dispatch]);
+  }, [dispatch,senderId,clientId]);
 
-  const handleCreate = () => {
-    setCreateModalOpen(true);
+  const handleCreate = async() => {
+    await logChatDetails(logger, 'API call completed', 'info', {
+     
+      clientId: localStorage.getItem('clientId') ,
+      actionBy: localStorage.getItem('actionBy') 
+    });
   };
 
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
@@ -279,23 +298,26 @@ const AppSettings = () => {
             />
           </div>
           <div className="flex flex-col space-y-1 text-start mb-1 ">
-            <SendernameDropdown
-              name="senderId"
-              onChange={handleSenderChange}
-            />
+          <label className="font-medium text-gray-700 text-sm ">
+              Sender Name
+            </label>
+            <SendernameDropdown name="senderId" value onChange={handleSenderChange} />
           </div>
           <div className="flex flex-col space-y-1 text-start mb-1 ">
-          <ClientDropdown
-                        name="client_Id"
-                        value={clientId}
-                        onChange={handleClientChange}
-                        className="block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
+          <label className="font-medium text-gray-700 text-sm ">
+              Client Name
+            </label>
+            <ClientDropdown
+              name="client_Id"
+              value={clientId}
+              onChange={handleClientChange}
+              className="block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
         </div>
       </div>
     );
-  }, [filterText]);
+  }, [filterText, clientId, senderId]);
 
   if (error) {
     return <div className="text-red-500">{error}</div>;
@@ -408,7 +430,7 @@ const AppSettings = () => {
                       type="text"
                       id="val"
                       name="val"
-                      value={settingForm.val || ""}
+                      value={settingForm?.val || ""}
                       onChange={handleFormChange}
                       className="border rounded py-1 px-2 w-full mt-1 text-sm"
                       disabled={isLoading} // Disable input while loading

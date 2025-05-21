@@ -194,7 +194,8 @@ const SendernameList = () => {
       </div>
 
       <div className="overflow-auto">
-        <DataTable
+        {sendernames?.length > 0 && sendernames !== null ? (
+ <DataTable
           data={sendernames}
           columns={sendernameColumns}
           highlightOnHover
@@ -237,6 +238,12 @@ const SendernameList = () => {
             },
           }}
         />
+        ): (
+          <div className="text-center">
+            <h4 className="text-gray-500">No Data Found</h4>
+          </div>
+        )}
+       
       </div>
 
 

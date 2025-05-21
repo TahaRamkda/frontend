@@ -66,7 +66,7 @@ const MediaPopUp = ({
     setSearchTimeout(timeout); // Save the timeout reference
   };
   useEffect(() => {
-    debugger
+    
     if (medias.length > 0) {
       setmediaList(medias);
     }

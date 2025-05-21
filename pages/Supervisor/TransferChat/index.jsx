@@ -67,6 +67,7 @@ const TransferChat = ({ ChatId, onClose, isVisible ,SenderId ,oldAgentId , refre
                 <label className="font-medium text-gray-700 text-sm">Active Agents</label>
                   <Agentsdrop
                     SenderId={SenderId}
+                    value={agentId}
                     Agentid={agentId}
                     onChange={(e) => setAgentId(e.target.value)}
                   />

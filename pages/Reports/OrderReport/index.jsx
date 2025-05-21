@@ -6,55 +6,52 @@ import {
   Modal,
   ModalHeader,
   ModalBody,
-  ModalFooter,
-  Button,
-  Form,
-  FormGroup,
-  Label,
-  Input,
+  
 } from "reactstrap";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchGroup,
-  clearGroupState,
-  deleteGroup,
-  fetchGroupById,
-  updateGroup,
+  fetchOrderReport,
+  clearOrderReportState,
+  deleteOrderReport,
+  fetchOrderReportById,
+  updateOrderReport,
   setPageSize,
   setCurrentPage,
-} from "@/slices/Groupslice";
+} from "@/slices/OrderReportSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Layout/Loader";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
-import GroupForm from "../CreateGroup";
+import OrderReportForm from "../CreateOrderReport";
 import App from "@/components/Layout/App";
 import SearchBar from "@/components/SearchBar/SearchComponent";
 import { usePermissions } from "@/context/PermissionsContext";
 
-const GroupList = () => {
+const OrderReportList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { groups, loading, error, pageSize, totalRecords, currentPage } =
-    useSelector((state) => state.groups);
+  const { orderReports, loading, error, pageSize, totalRecords, currentPage } =
+    useSelector((state) => state.orderReports);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
-  const [groupForm, setGroupForm] = useState({});
+  const [orderReportForm, setOrderReportForm] = useState({});
   const [filterText, setFilterText] = useState("");
   const [CreateModalOpen, setCreateModalOpen] = useState(false);
   
   const { hasPermission } = usePermissions();
   
   const [isLoading, setIsLoading] = useState(false); // Start as true since we're fetching data
-  const groupColumns = [
-    { name: "Group Name", selector: (row) => row.groupName, sortable: true },
+  const orderReportColumns = [
+    { name: "OrderReport Id", selector: (row) => row.id, sortable: true },
+    { name: "OrderReport Name", selector: (row) => row.orderReportName, sortable: true },
+    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true },
     {
-      name: "Created Date",
+      name: "OrderReportDate",
       selector: (row) => row.createdDate,
       sortable: true,
     },
     {
-      name: "Total Contacts",
-      selector: (row) => row.totalContacts,
+      name: "Status",
+      selector: (row) => row.status,
       sortable: true,
     },
     {
@@ -63,17 +60,17 @@ const GroupList = () => {
         <>
           <div className="flex gap-2 w-full">
             <button
-              title="Edit Group"
+              title="Edit OrderReport"
               className="uniform_icon_btn"
-              onClick={() => handleDetailClick(row.groupId)}
+            //   onClick={() => handleDetailClick(row.orderReportId)}
             >
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
-            {hasPermission("Groups", "delete") && (
+            {hasPermission("OrderReports", "delete") && (
             <button
-              title="Delete Group"
+              title="Delete OrderReport"
               className="uniform_icon_btn"
-              onClick={() => handleDeleteClick(row.groupId)}
+            //   onClick={() => handleDeleteClick(row.orderReportId)}
             >
               <HiTrash style={{ fontSize: "15px" }} />
             </button>
@@ -87,11 +84,11 @@ const GroupList = () => {
     },
   ];
 
-  const handleDetailClick = async (groupId) => {
+  const handleDetailClick = async (orderReportId) => {
     try {
-      const response = await dispatch(fetchGroupById({ groupId })).unwrap();
+      const response = await dispatch(fetchOrderReportById({ orderReportId })).unwrap();
       if (response) {
-        setGroupForm(response.result);
+        setOrderReportForm(response.result);
         setIsModalOpen(true);
       } else {
         showSweetAlert({
@@ -101,13 +98,13 @@ const GroupList = () => {
         });
       }
     } catch (error) {
-      alert("Failed to fetch group details: " + error.message);
+      alert("Failed to fetch orderReport details: " + error.message);
     }
   };
   const handleCancel = () => {
     setCreateModalOpen(false);
   };
-  const handleDeleteClick = (groupId) => {
+  const handleDeleteClick = (orderReportId) => {
     SweetAlert.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -119,13 +116,13 @@ const GroupList = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          dispatch(deleteGroup({ groupId })).then(() => {
+          dispatch(deleteOrderReport({ orderReportId })).then(() => {
             showSweetAlert({
               title: "Deleted Successfully",
               text: "",
               icon: "success",
             });
-            refreshGroupList();
+            refreshOrderReportList();
           });
         } catch (error) {
           alert("An unexpected error occurred: " + error.message);
@@ -140,7 +137,7 @@ const GroupList = () => {
 
     // Fetch clients for the new page
     await dispatch(
-      fetchGroup({
+      fetchOrderReport({
         clientId: localStorage.getItem("clientId"),
         pageSize,
         pageNo: page,
@@ -154,7 +151,7 @@ const GroupList = () => {
     dispatch(setCurrentPage(1)); // Reset to first page
     // Fetch data with updated page size and reset to page 1
     await dispatch(
-      fetchGroup({
+      fetchOrderReport({
         clientId: localStorage.getItem("clientId"),
         pageSize: newSize,
         pageNo: 1,
@@ -165,7 +162,7 @@ const GroupList = () => {
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    setGroupForm({ ...groupForm, [name]: value });
+    setOrderReportForm({ ...orderReportForm, [name]: value });
   };
   const toggleModal = () => {
     setIsModalOpen(false);
@@ -184,7 +181,7 @@ const GroupList = () => {
     // Set a new timeout for 0.5 seconds
     const timeout = setTimeout(() => {
       dispatch(
-        fetchGroup({
+        fetchOrderReport({
           clientId: localStorage.getItem("clientId"),
           pageSize,
           pageNo: currentPage,
@@ -201,13 +198,13 @@ const GroupList = () => {
     
     try {
       const requestBody = {
-        groupId: groupForm.groupId || 0,
-        groupName: groupForm.groupName || "string",
+        orderReportId: orderReportForm.orderReportId || 0,
+        orderReportName: orderReportForm.orderReportName || "string",
         actionBy: localStorage.getItem("userId"),
-        clientId: groupForm.clientId || 0,
+        clientId: orderReportForm.clientId || 0,
       };
 
-      const response = await dispatch(updateGroup(requestBody)).unwrap();
+      const response = await dispatch(updateOrderReport(requestBody)).unwrap();
       if (response.success) {
         showSweetAlert({
           title: "Updated Successfully",
@@ -216,7 +213,7 @@ const GroupList = () => {
         });
         setIsLoading(false);
         setIsModalOpen(false);
-        refreshGroupList();
+        refreshOrderReportList();
       } else {
         showSweetAlert({
           title: "Error",
@@ -225,15 +222,15 @@ const GroupList = () => {
         });
       }
     } catch (error) {
-      alert("Failed to update group: " + error.message);
+      alert("Failed to update orderReport: " + error.message);
       setIsLoading(false);
     } finally {
       setIsLoading(false);
     }
   };
-  const refreshGroupList = () => {
+  const refreshOrderReportList = () => {
     dispatch(
-      fetchGroup({
+      fetchOrderReport({
         clientId: localStorage.getItem("clientId"),
         pageSize,
         pageNo: currentPage,
@@ -244,7 +241,7 @@ const GroupList = () => {
 
   useEffect(() => {
     dispatch(
-      fetchGroup({
+      fetchOrderReport({
         clientId: localStorage.getItem("clientId"),
         pageSize,
         pageNo: currentPage,
@@ -252,7 +249,7 @@ const GroupList = () => {
       })
     );
     return () => {
-      dispatch(clearGroupState());
+      dispatch(clearOrderReportState());
     };
   }, [dispatch]);
 
@@ -260,10 +257,10 @@ const GroupList = () => {
     setCreateModalOpen(true);
   };
 
-  const filteredGroup = groups.filter(
-    (group) =>
-      group.groupName &&
-      group.groupName.toLowerCase().includes(filterText.toLowerCase())
+  const filteredOrderReport = orderReports.filter(
+    (orderReport) =>
+      orderReport.orderReportName &&
+      orderReport.orderReportName.toLowerCase().includes(filterText.toLowerCase())
   );
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10;
@@ -292,20 +289,20 @@ const GroupList = () => {
       <div className="flex items-center">
         {(loading || isLoading) && <Loading />}
         <div className="">
-          <h4 className="font-bold">Groups </h4>
+          <h4 className="font-bold">Order Reports </h4>
         </div>
-        {hasPermission("Groups", "create") && (
+        {/* {hasPermission("OrderReports", "create") && (
         <div className="ml-auto mb-1">
           <button className="uniform_btn" onClick={handleCreate}>
-            Create Group
+            Create OrderReport
           </button>
         </div>
-        )}
+        )} */}
       </div>
       <div className="overflow-auto">
         <DataTable
-          data={filteredGroup}
-          columns={groupColumns}
+          data={filteredOrderReport}
+          columns={orderReportColumns}
           highlightOnHover
           striped
           pagination
@@ -319,7 +316,7 @@ const GroupList = () => {
           paginationRowsPerPageOptions={customPageSizes} // Custom page size options
           subHeader
           subHeaderComponent={subHeaderComponentMemo}
-          className="w-full border"
+          className="w-full borderReport"
         />
       </div>
 
@@ -333,27 +330,27 @@ const GroupList = () => {
                   <Loading />
                 </div>
               )}
-              <ModalHeader toggle={() => toggleModal()}>Edit Group</ModalHeader>
+              <ModalHeader toggle={() => toggleModal()}>Edit OrderReport</ModalHeader>
               <ModalBody>
                 <form onSubmit={handleUpdateSubmit}>
                   <div className="flex flex-col">
                     <label
-                      htmlFor="groupName"
+                      htmlFor="orderReportName"
                       className="font-medium text-gray-700 text-sm"
                     >
-                      Group Name
+                      OrderReport Name
                     </label>
                     <input
                       type="text"
-                      id="groupName"
-                      name="groupName"
-                      value={groupForm.groupName || ""}
+                      id="orderReportName"
+                      name="orderReportName"
+                      value={orderReportForm.orderReportName || ""}
                       onChange={handleFormChange}
-                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
+                      className="borderReport rounded py-1 px-2 w-full mt-1 text-sm"
                       disabled={isLoading} // Disable input while loading
                     />
                   </div>
-                  {hasPermission("Groups", "update") && (
+                  {hasPermission("OrderReports", "update") && (
                   <div className="mt-4 w-full flex justify-end">
                     <button
                       type="submit"
@@ -372,14 +369,14 @@ const GroupList = () => {
       )}
 
       {CreateModalOpen && (
-        <GroupForm
+        <OrderReportForm
           isVisible={true}
           onClose={handleCancel}
-          onsuccess={refreshGroupList}
+          onsuccess={refreshOrderReportList}
         />
       )}
     </App>
   );
 };
 
-export default GroupList;
+export default OrderReportList;

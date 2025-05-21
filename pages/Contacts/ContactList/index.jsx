@@ -31,12 +31,12 @@ const ContactList = () => {
   const [CreateModalOPen, setCreateModalOpen] = useState(false);
   const [BulkUploadModal, setBulkUploadModal] = useState(false);
   const clientColumns = [
-    { name: "Groups", selector: (row) => row.groupName, sortable: true,  },
-    { name: "First name", selector: (row) => row.firstName, sortable: true },
-    { name: "Last Name", selector: (row) => row.lastName, sortable: true },
-    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true, width: '17%' },
-    { name: "Email", selector: (row) => row.emailAddress, sortable: true },
-    { name: "Area", selector: (row) => row.areaName, sortable: true },
+    { name: "Groups", selector: (row) => row.groupName, sortable: true,  minWidth: "200px",  },
+    { name: "First name", selector: (row) => row.firstName, sortable: true,  minWidth: "180px", },
+    { name: "Last Name", selector: (row) => row.lastName, sortable: true, minWidth: "180px" },
+    { name: "Phone Number", selector: (row) => row.phoneNumber, sortable: true, minWidth: "120px" },
+    { name: "Email", selector: (row) => row.emailAddress, sortable: true, minWidth: "200px" },
+    { name: "Area", selector: (row) => row.areaName, sortable: true, minWidth: "150px" },
     {
       name: "Action",
       cell: (row) => (
@@ -117,9 +117,9 @@ const ContactList = () => {
   };
 
   const handleChange = (e) => {
+    
     const groupId = e.target.value;
     setGroupId(groupId)
-    dispatch(fetchContact({ clientId: localStorage.getItem("clientId"), groupId: groupId, searchStr: SearchStr, pageNo: currentPage, pageSize, }))
     console.log("Total Records:", totalRecords);
   };
 
@@ -188,7 +188,7 @@ const ContactList = () => {
     return () => {
       dispatch(clearContactState());
     };
-  }, [dispatch]);
+  }, [dispatch,GroupId]);
 
   const filteredClients = contacts.filter((contact) =>
     contact.firstName.toLowerCase().includes(filterText.toLowerCase())
@@ -225,7 +225,7 @@ const ContactList = () => {
             
             <label className="font-medium text-gray-700 text-sm mb-1">Group</label>
             <GroupDropdown
-              name="Group"
+              name="groupId"
               value={GroupId}
               onChange={handleChange}
               className="border rounded w-full"
@@ -236,7 +236,7 @@ const ContactList = () => {
       </div>
 
     );
-  }, [filterText]);
+  }, [filterText, GroupId]);
 
   if (error) {
     return <div className="bg-red-500 text-white p-4 rounded">{error}</div>;

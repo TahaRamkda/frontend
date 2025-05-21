@@ -7,7 +7,7 @@ import 'select2/dist/js/select2.min.js';
 import { fetchSurveyDropdown } from '@/slices/ReportSlice';
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
-const AgentDropdown = ({ name, value, onChange }) => {
+const SurveyDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
   const {SurveyDropdown,loading,error} = useSelector((state) => state.reports);
@@ -71,4 +71,4 @@ const AgentDropdown = ({ name, value, onChange }) => {
   );
 };
 
-export default AgentDropdown;
+export default SurveyDropdown;

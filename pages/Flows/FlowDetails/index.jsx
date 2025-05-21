@@ -394,7 +394,7 @@ const FlowPreview = ({
                                     type="checkbox"
                                     value={option.optionText}
                                     checked={
-                                      answers[currentScreenIndex][
+                                      answers?.[currentScreenIndex]?.[
                                         childIndex
                                       ]?.includes(option.optionText) || false
                                     }
@@ -545,6 +545,7 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
           const response = await dispatch(
             fetchFlowDetailsById({ id: Flow_Id })
           ).unwrap();
+
           if (response) {
             setSenderId(response.senderId);
             setFlowData(JSON.parse(JSON.stringify(response))); // Deep copy
@@ -572,9 +573,11 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
   }, [dispatch, Flow_Id]);
 
   useEffect(() => {
-    if (!isLoading && flowData.flowScreens.length > 0) {
-      if (currentEditScreenIndex >= flowData.flowScreens.length) {
-        setCurrentEditScreenIndex(Math.max(0, flowData.flowScreens.length - 1));
+    if (!isLoading && flowData?.flowScreens.length > 0) {
+      if (currentEditScreenIndex >= flowData?.flowScreens.length) {
+        setCurrentEditScreenIndex(
+          Math.max(0, flowData?.flowScreens.length - 1)
+        );
       }
       setCurrentScreenIndex(currentEditScreenIndex);
     }
@@ -727,7 +730,6 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
   };
 
   const handleSenderChange = async (e) => {
-    setIsLoading(true);
     const selectedSenderId = e.target.value;
     setFlowData({ ...flowData, senderId: selectedSenderId });
   };
@@ -983,13 +985,13 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
                             />
                           </FormGroup>
                           <div className="w-full flex justify-end">
-                          <Button
-                            size="sm"
-                            onClick={addQuestion}
-                            className="uniform_icon_btn"
-                          >
-                            <HiPlus/>
-                          </Button>
+                            <Button
+                              size="sm"
+                              onClick={addQuestion}
+                              className="uniform_icon_btn"
+                            >
+                              <HiPlus />
+                            </Button>
                           </div>
                           <ListGroup className="mt-3">
                             {flowData.flowScreens[
