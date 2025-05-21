@@ -11,7 +11,7 @@ export const fetchGroup = createAsyncThunk(
     async ({clientId, pageNo, pageSize, SearchStr}, { rejectWithValue }) => {
       try {
         const response = await API.post("/api", {
-          endpoint: `${GROUPLIST}?PageNo=${pageNo}&PageSize=${pageSize}`,
+          endpoint: `${GROUPLIST}?PageNo=${pageNo}${SearchStr ?`&SearchStr=${SearchStr}`:''}&PageSize=${pageSize}`,
           method: "GET",
           //payload: {},
         });
@@ -33,13 +33,13 @@ export const fetchGroupsDrop = createAsyncThunk(
     'group/fetchGroupsDrop',
     async ({clientId, SearchStr}, { rejectWithValue }) => {
       try {
-        debugger
+        
         const response = await API.post("/api", {
           endpoint: `${GROUPDROPDOWN}`,
           method: "GET",
           //payload: {},
         });
-        debugger
+        
         if (response?.status === 200) {
           return {
             groupDrop: response.data.data.result,
@@ -58,14 +58,14 @@ export const fetchGroupsDrop = createAsyncThunk(
 export const fetchGroupById = createAsyncThunk(
     'group/fetchGroupById',
     async ({groupId, clientId=localStorage.getItem("clientId")}, { rejectWithValue }) => {
-      debugger
+      
       try {
          const response = await API.post("/api", {
           endpoint: `${ GROUPDETAILS}?Id=${groupId}`,
           method: "GET",
           //payload: {},
         });
-        debugger
+        
         return response.data.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -78,14 +78,14 @@ export const fetchGroupById = createAsyncThunk(
 export const createGroup = createAsyncThunk(
   'group/createGroups',
   async (groupData, { rejectWithValue }) => {
-    debugger
+    
     try {
       const response = await API.post("/api", {
           endpoint: `${CREATEGROUP}`,
           method: "POST",
           payload: groupData,
         });
-        debugger
+        
       return response.data.data.message;
     } catch (error) {
       const handledError = handleError(error);
@@ -99,13 +99,13 @@ export const updateGroup = createAsyncThunk(
     'group/updateGroups',
     async (groupData, { rejectWithValue }) => {
       try {
-        debugger
+        
         const response = await API.post("/api", {
           endpoint: `${UPDATEGROUP}`,
           method: "PUT",
           payload: groupData,
         });
-        debugger
+        
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -118,14 +118,14 @@ export const updateGroup = createAsyncThunk(
 export const deleteGroup = createAsyncThunk(
   'group/deleteGroup',
   async ({ groupId, onSuccess }, { rejectWithValue }) => {
-    debugger
+    
     try {
       const response = await API.post("/api", {
           endpoint: `${DELETEGROUP}?GroupId=${groupId}`,
           method: "DELETE",
           // payload: {},
         });
-      debugger
+      
       if (onSuccess) onSuccess(); // Handle success callback
       return response.data;
     } catch (error) {

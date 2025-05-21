@@ -1,16 +1,17 @@
 import { BASE_URL } from '@/utils/apiConstants';
 import API from '@/utils/nextapi.axios';
 
-export const callExternalApi = async ({ endpoint, payload, method, accessToken }) => {
+export const callExternalApi = async ({ endpoint, payload, method, accessToken,ContentType='application/json' }) => {
   try {
     const config = {
       headers: {
-        'Content-Type': 'application/json',
+        // 'Content-Type': `${ContentType}`,
         'Authorization': `Bearer ${accessToken}`,
         Accept: '*/*',
       },
     };
 
+   
     const url = `${BASE_URL}${endpoint}`;
 
     let response;

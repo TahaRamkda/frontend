@@ -15,13 +15,13 @@ export const fetchLogin = createAsyncThunk(
   "auth/login",
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      debugger
+      
       const response = await API.post("/api", {
         endpoint: `${LOGINAPI}?Username=${email}&Password=${password}`,
         method: "GET",
         //payload: {},
       });
-       debugger
+       
        console.log("response", response);
       if (response && response.status === 200) {
         const { result } = response.data.data;
@@ -77,7 +77,7 @@ const authSlice = createSlice({
       state.error = null; // Clear error on new request
     });
     builder.addCase(fetchLogin.fulfilled, (state, action) => {
-        debugger
+        
       state.loading = false;
       state.authData = action.payload;
       state.message = ""; // Clear message on successful login

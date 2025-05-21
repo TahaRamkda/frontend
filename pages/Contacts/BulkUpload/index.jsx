@@ -21,10 +21,12 @@ const BulkUpload = ({ onClose, onsuccess, isVisible }) => {
     formData.append("File", FieldValue);
     formData.append("ActionBy", localStorage.getItem("userId"));
     try {
-      const response = await dispatch(bulkUpload(formData)).unwrap();
+      debugger
+      const response = await dispatch(bulkUpload({contactData:formData})).unwrap();
+      debugger
       onClose()
       onsuccess();
-      if (response.success) {
+      if (response.data.success) {
         dispatch(clearBulkUploadState());
         setSubmitting(false);
 
@@ -38,7 +40,7 @@ const BulkUpload = ({ onClose, onsuccess, isVisible }) => {
       } else {
         showSweetAlert({
           title: "Failed",
-          text: response.result.message || "",
+          text: response.data.message || "",
           icon: "error",
         });
       }

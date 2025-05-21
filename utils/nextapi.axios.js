@@ -9,7 +9,7 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
   (config) => {
-    debugger
+    
     if (typeof window !== 'undefined') {
       const accessToken = localStorage.getItem('accessToken');
       

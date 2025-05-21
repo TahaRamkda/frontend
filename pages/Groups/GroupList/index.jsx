@@ -138,7 +138,7 @@ const GroupList = () => {
   const handlePageChange = async (page) => {
     // Update current page state in Redux
     dispatch(setCurrentPage(page));
-
+    
     // Fetch clients for the new page
     await dispatch(
       fetchGroup({
@@ -152,6 +152,7 @@ const GroupList = () => {
   const handlePageSizeChange = async (newSize) => {
     // Update page size and reset to the first page
     dispatch(setPageSize(newSize));
+    
     dispatch(setCurrentPage(1)); // Reset to first page
     // Fetch data with updated page size and reset to page 1
     await dispatch(
@@ -207,9 +208,9 @@ const GroupList = () => {
         actionBy: localStorage.getItem("userId"),
         clientId: groupForm.clientId || 0,
       };
-      debugger
+      
       const response = await dispatch(updateGroup(requestBody)).unwrap();
-      debugger
+      
       if (response.data.success) {
         showSweetAlert({
           title: "Updated Successfully",
@@ -234,6 +235,7 @@ const GroupList = () => {
     }
   };
   const refreshGroupList = () => {
+    
     dispatch(
       fetchGroup({
         clientId: localStorage.getItem("clientId"),
@@ -245,6 +247,7 @@ const GroupList = () => {
   };
 
   useEffect(() => {
+    
     dispatch(
       fetchGroup({
         clientId: localStorage.getItem("clientId"),
