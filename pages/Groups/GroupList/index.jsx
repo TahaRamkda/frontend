@@ -117,6 +117,7 @@ const GroupList = () => {
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
     }).then((result) => {
+      
       if (result.isConfirmed) {
         try {
           dispatch(deleteGroup({ groupId })).then(() => {
@@ -206,9 +207,10 @@ const GroupList = () => {
         actionBy: localStorage.getItem("userId"),
         clientId: groupForm.clientId || 0,
       };
-
+      debugger
       const response = await dispatch(updateGroup(requestBody)).unwrap();
-      if (response.success) {
+      debugger
+      if (response.data.success) {
         showSweetAlert({
           title: "Updated Successfully",
           text: "",
@@ -283,9 +285,7 @@ const GroupList = () => {
     );
   }, [filterText]);
 
-  if (error) {
-    return <div className="text-red-500">{error}</div>;
-  }
+  
 
   return (
     <App>

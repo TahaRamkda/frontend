@@ -33,10 +33,16 @@ export const fetchGroupsDrop = createAsyncThunk(
     'group/fetchGroupsDrop',
     async ({clientId, SearchStr}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${GROUPDROPDOWN}`);
+        debugger
+        const response = await API.post("/api", {
+          endpoint: `${GROUPDROPDOWN}`,
+          method: "GET",
+          //payload: {},
+        });
+        debugger
         if (response?.status === 200) {
           return {
-            groupDrop: response.data.result,
+            groupDrop: response.data.data.result,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -52,9 +58,15 @@ export const fetchGroupsDrop = createAsyncThunk(
 export const fetchGroupById = createAsyncThunk(
     'group/fetchGroupById',
     async ({groupId, clientId=localStorage.getItem("clientId")}, { rejectWithValue }) => {
+      debugger
       try {
-        const response = await API.get(`${ GROUPDETAILS}?Id=${groupId}`);
-        return response.data;
+         const response = await API.post("/api", {
+          endpoint: `${ GROUPDETAILS}?Id=${groupId}`,
+          method: "GET",
+          //payload: {},
+        });
+        debugger
+        return response.data.data;
       } catch (error) {
         const handledError = handleError(error);
         return rejectWithValue(handledError);
@@ -66,9 +78,15 @@ export const fetchGroupById = createAsyncThunk(
 export const createGroup = createAsyncThunk(
   'group/createGroups',
   async (groupData, { rejectWithValue }) => {
+    debugger
     try {
-      const response = await API.post(CREATEGROUP, groupData);
-      return response.data;
+      const response = await API.post("/api", {
+          endpoint: `${CREATEGROUP}`,
+          method: "POST",
+          payload: groupData,
+        });
+        debugger
+      return response.data.data.message;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -81,7 +99,13 @@ export const updateGroup = createAsyncThunk(
     'group/updateGroups',
     async (groupData, { rejectWithValue }) => {
       try {
-        const response = await API.put( UPDATEGROUP, groupData);
+        debugger
+        const response = await API.post("/api", {
+          endpoint: `${UPDATEGROUP}`,
+          method: "PUT",
+          payload: groupData,
+        });
+        debugger
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -94,8 +118,14 @@ export const updateGroup = createAsyncThunk(
 export const deleteGroup = createAsyncThunk(
   'group/deleteGroup',
   async ({ groupId, onSuccess }, { rejectWithValue }) => {
+    debugger
     try {
-      const response = await API.delete(`${DELETEGROUP}?GroupId=${groupId}`);
+      const response = await API.post("/api", {
+          endpoint: `${DELETEGROUP}?GroupId=${groupId}`,
+          method: "DELETE",
+          // payload: {},
+        });
+      debugger
       if (onSuccess) onSuccess(); // Handle success callback
       return response.data;
     } catch (error) {
@@ -207,7 +237,7 @@ const GroupSlice = createSlice({
       })
       .addCase(fetchGroupById.fulfilled, (state, action) => {
         state.loading = false;
-        state.group = action.payload;
+        state.group = action.payload.result;
         state.message = action.payload?.message || '';
       })
       .addCase(fetchGroupById.rejected, (state, action) => {
@@ -225,7 +255,7 @@ const GroupSlice = createSlice({
       .addCase(createGroup.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || ' Created Successfully';
+        state.message = action.payload || ' Created Successfully';
       })
       .addCase(createGroup.rejected, (state, action) => {
         state.loading = false;
@@ -242,7 +272,7 @@ const GroupSlice = createSlice({
       .addCase(updateGroup.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Updated Successfully';
+        state.message = action.payload.data.message || 'Updated Successfully';
       })
       .addCase(updateGroup.rejected, (state, action) => {
         state.loading = false;
@@ -259,7 +289,7 @@ const GroupSlice = createSlice({
       .addCase(deleteGroup.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Deleted Successfully';
+        state.message = action.payload.data.message || 'Deleted Successfully';
       })
       .addCase(deleteGroup.rejected, (state, action) => {
         state.loading = false;
