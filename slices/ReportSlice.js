@@ -33,12 +33,14 @@ export const fetchMessageSummary = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await API.get(
-        `${MESSAGESUMMARY}?FromDate=${fromDate}&ToDate=${toDate}&Status=${status}&templateId=${templateId}&PageSize=${pageSize}&PageNo=${pageNo}&SearchStr=${srcStr}`
-      );
+      const response = await API.post("/api", {
+        endpoint: `${MESSAGESUMMARY}?FromDate=${fromDate}&ToDate=${toDate}&Status=${status}&templateId=${templateId}&PageSize=${pageSize}&PageNo=${pageNo}&SearchStr=${srcStr}`,
+        method: "GET",
+        //payload: {},
+      });
       if (response?.status === 200) {
         return {
-          messageSummary: response.data.result,
+          messageSummary: response.data.data.result,
           totalRecords:
             response.data.result.length > 0
               ? response.data.result[0].totalRecords
@@ -72,17 +74,19 @@ export const fetchMessageReport = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await API.get(
-        `${MESSAGEREPORT}?ModuleId=${moduleId}&SenderId=${senderid}&FromDate=${fromDate}&ToDate=${toDate}&CurrentStatus=${status}&SearchStr=${srcStr}&PageNo=${pageNo}&PageSize=${pageSize}`
-      );
+       const response = await API.post("/api", {
+        endpoint: `${MESSAGEREPORT}?ModuleId=${moduleId}&SenderId=${senderid}&FromDate=${fromDate}&ToDate=${toDate}&CurrentStatus=${status}&SearchStr=${srcStr}&PageNo=${pageNo}&PageSize=${pageSize}`,
+        method: "GET",
+        //payload: {},
+      });
       if (response?.status === 200) {
         const obj = JSON.stringify(response.data, 2);
 
         return {
-          messagereport: response.data.result,
+          messagereport: response.data.data.result,
           totalRecords:
-            response.data.result.length > 0
-              ? response.data.result[0].totalRecords
+            response.data.data.result.length > 0
+              ? response.data.data.result[0].totalRecords
               : 0,
         };
       } else {
@@ -113,17 +117,18 @@ export const fetchConversationReport = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await API.get(
-        `${CONVERSATIONREPORT}?senderId=${senderId}${
-          srcStr ? `&searchStr=${srcStr}` : ""
-        }&status=${status}&agentId=${agentId}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}&fChatInitiated=${fChatInitiated}`
-      );
-      if (response?.status === 200 && response.data?.result) {
+      const response = await API.post("/api", {
+        endpoint: `${CONVERSATIONREPORT}?senderId=${senderId}${
+          srcStr ? `&searchStr=${srcStr}` : ""}&status=${status}&agentId=${agentId}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}&fChatInitiated=${fChatInitiated}`,
+        method: "GET",
+        //payload: {},
+      });
+      if (response?.status === 200 && response.data.data.result) {
         return {
-          ConversationReport: response.data.result,
+          ConversationReport: response.data.data.result,
           totalRecords:
-            response.data.result.length > 0
-              ? response.data.result[0].totalRecords
+            response.data.data.result.length > 0
+              ? response.data.data.result[0].totalRecords
               : 0,
         };
       } else {
@@ -141,14 +146,16 @@ export const fetchSupervisorDashboard = createAsyncThunk(
   "supervisordashboard /fetchSupervisorDashboard",
   async ({ senderid }, { rejectWithValue }) => {
     try {
-      const response = await API.get(
-        `${SUPERVISORDASHBOARD}?SenderId=${senderid}`
-      );
+       const response = await API.post("/api", {
+        endpoint: `${SUPERVISORDASHBOARD}?SenderId=${senderid}`,
+        method: "GET",
+        //payload: {},
+      });
       if (response?.status === 200) {
         // const parseddata= JSON.parse(response.data, 2);
 
         return {
-          supervisorDashboard: response.data.result,
+          supervisorDashboard: response.data.data.result,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -190,17 +197,19 @@ export const fetchAgentReport = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await API.get(
-        `${AGENTREPORT}?pageSize=${pageSize}&senderId=${senderId}${
-          srcStr ? `&searchStr=${srcStr}` : ""
-        }&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`
-      );
-      if (response?.status === 200 && response.data?.result) {
+      debugger
+      const response = await API.post("/api", {
+        endpoint:  `${AGENTREPORT}?pageSize=${pageSize}&senderId=${senderId}${srcStr ? `&searchStr=${srcStr}` : ""}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`,
+        method: "GET",
+        //payload: {},
+      });
+      debugger
+      if (response?.status === 200 && response.data?.data.result) {
         return {
-          AgentReportList: response.data.result,
+          AgentReportList: response.data.data.result,
           totalRecords:
-            response.data.result.length > 0
-              ? response.data.result[0].totalRecords
+            response.data.data.result.length > 0
+              ? response.data.data.result[0].totalRecords
               : 0,
         };
       } else {
@@ -231,14 +240,14 @@ export const fetchChatReportStats = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await API.get(
-        `${CHATREPORTSTATS}?pageSize=${pageSize}&senderId=${senderId}${
-          srcStr ? `&searchStr=${srcStr}` : ""
-        }&fChatInitiated=${fChatInitiated}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}&agentId=${agentId}`
-      );
-      if (response?.status === 200 && response.data?.result) {
+       const response = await API.post("/api", {
+        endpoint: `${CHATREPORTSTATS}?pageSize=${pageSize}&senderId=${senderId}${srcStr ? `&searchStr=${srcStr}` : ""}&fChatInitiated=${fChatInitiated}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}&agentId=${agentId}`,
+        method: "GET",
+        //payload: {},
+      });
+      if (response?.status === 200 && response.data?.data.result) {
         return {
-          chatReportStats: response.data.result,
+          chatReportStats: response.data.data.result,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -279,9 +288,13 @@ export const fetchTemplateInsight = createAsyncThunk(
   "templateinsight /fetchTemplateInsight",
   async ({ clientId, fromDate, toDate, TemplateId }, { rejectWithValue }) => {
     try {
-      const response = await API.get(
-        `${TEMPLATEINSIGHT}?templateId=${TemplateId}&FromDate=${fromDate}&ToDate=${toDate}`
-      );
+      
+      const response = await API.post("/api", {
+        endpoint: `${TEMPLATEINSIGHT}?templateId=${TemplateId}&FromDate=${fromDate}&ToDate=${toDate}`,
+        method: "GET",
+        //payload: {},
+      });
+      
       if (response?.status === 200 && response.data?.result) {
         // const parseddata= JSON.parse(response.data, 2);
 

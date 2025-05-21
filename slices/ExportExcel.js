@@ -11,8 +11,10 @@ export const excelExportChatReport = createAsyncThunk(
     
     try {
       const chatReportExportUrl = `${EXCELEXPORTCHATREPORT}?senderId=${senderId}&id=${chatId}&agentId=${agentId}&searchStr=${searchStr}&status=${status}&fChatInitiated=${fChatInitiated}&fromDate=${fromDate}&toDate=${toDate}`;
+
       // Make API request and get blob data for Excel file
       const response = await API.get(chatReportExportUrl, { responseType: 'blob' });
+      
       const fileBlob = new Blob([response.data], { type: response.headers['content-type'] });
       
       // Create download link for Excel file

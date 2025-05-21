@@ -8,12 +8,15 @@ export const fetchChatsMonitor = createAsyncThunk(
     'chatsmonitor /fetchChatsMonitor',
     async ({status, pageSize,pageNo,senderId,srcStr,fChatInitiated,agentId}, { rejectWithValue }) => {
       try {
-
-        const response = await API.get(`${CHATSMONITOR}?senderId=${senderId}&agentId=${agentId}${srcStr? `&searchStr=${srcStr}`: ''}&status=${status}&fChatInitiated=${fChatInitiated}&pageSize=${pageSize}&pageNo=${pageNo}`);
+         const response = await API.post("/api", {
+        endpoint: `${CHATSMONITOR}?senderId=${senderId}&agentId=${agentId}${srcStr? `&searchStr=${srcStr}`: ''}&status=${status}&fChatInitiated=${fChatInitiated}&pageSize=${pageSize}&pageNo=${pageNo}`,
+        method: "GET",
+        //payload: {},
+      });
         if (response?.status === 200 ) {
           return {
-          chatsMonitor: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
+          chatsMonitor: response.data.data.result,
+          totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords : 0,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -29,11 +32,15 @@ export const fetchAgentsMonitor = createAsyncThunk(
     'agentmonitor/fetchAgentsMonitor',
     async ({clientId, fromDate, toDate, senderId, srcStr,}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${AGENTSMONITOR}?senderId=${senderId}${srcStr? `&searchStr=${srcStr}`:''}`);
+        const response = await API.post("/api", {
+        endpoint: `${AGENTSMONITOR}?senderId=${senderId}${srcStr? `&searchStr=${srcStr}`:''}`,
+        method: "GET",
+        //payload: {},
+      });
         if (response?.status === 200 ) {
           return {
-          agentsMonitor: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
+          agentsMonitor: response.data.data.result,
+          totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords : 0,
           };
         } else {
           throw new Error('Failed to fetch details');

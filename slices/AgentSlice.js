@@ -51,13 +51,13 @@ export const fetchActiveAgentsDrop = createAsyncThunk(
   "agent/fetchActiveAgentsDrop",
   async ({ clientId, senderId }, { rejectWithValue }) => {
     try {
-      debugger
+      
       const response = await API.post("/api", {
         endpoint: `${ACTIVEAGENTS}?senderId=${senderId}`,
         method: "GET",
         //payload: {},
       });
-      debugger
+      
       if (response.status === 200) {
         return {
           activeAgentDrop: response.data.data.result,
@@ -79,14 +79,14 @@ export const fetchAgentsDrop = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await API.get(
-        `${AGENTDROPDOWN}?senderId=${senderId}${
-          searchStr ? `&searchStr=${searchStr}` : ""
-        }`
-      );
+       const response = await API.post("/api", {
+        endpoint: `${AGENTDROPDOWN}?senderId=${senderId}${searchStr ? `&searchStr=${searchStr}` : ""}`,
+        method: "GET",
+        //payload: {},
+      });
       if (response?.status === 200) {
         return {
-          agentDrop: response.data.result,
+          agentDrop: response.data.data.result,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -126,9 +126,14 @@ export const setAgentStatus = createAsyncThunk(
   "agent/setAgentStatus",
   async ({ agentId, statusId }, { rejectWithValue }) => {
     try {
-      const response = await API.get(
-        `${AGENTSTATUS}?agentId=${agentId}&status=${statusId}`
-      );
+      debugger
+       const response = await API.post("/api", {
+        endpoint:  `${AGENTSTATUS}?agentId=${agentId}&status=${statusId}`,
+        method: "GET",
+        //payload: {},
+      });
+      
+      debugger
       if (response.status === 200) {
         return response.data;
       } else {
@@ -178,12 +183,14 @@ export const fetchAgentStats = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await API.get(
-        `${GETAGENTSTATS}?senderId=${senderId}&agentId=${agentId}`
-      );
+      const response = await API.post("/api", {
+        endpoint: `${GETAGENTSTATS}?senderId=${senderId}&agentId=${agentId}`,
+        method: "GET",
+        //payload: {},
+      });
       if (response?.status === 200) {
         return {
-          AgentStats: response.data.result,
+          AgentStats: response.data.data.result,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -228,13 +235,13 @@ export const fetchAgentsById = createAsyncThunk(
   "agent/fetchAgentsById",
   async ({ agentId, clientId }, { rejectWithValue }) => {
     try {
-      debugger;
+      ;
       const response = await API.post("/api", {
         endpoint: `${AGENTDETAILS}?agentId=${agentId}`,
         method: "GET",
         //payload: {},
       });
-      debugger;
+      ;
       return response.data.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -248,13 +255,13 @@ export const createAgent = createAsyncThunk(
   "agent/createAgent",
   async (agentData, { rejectWithValue }) => {
     try {
-      debugger
+      
       const response = await API.post("/api", {
           endpoint: `${CREATEAGENT}`,
           method: "POST",
           payload: agentData,
         });
-        debugger
+        
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -268,13 +275,13 @@ export const updateAgent = createAsyncThunk(
   "agent/updateAgent",
   async (agentData, { rejectWithValue }) => {
     try {
-      debugger
+      
       const response = await API.post("/api", {
           endpoint: `${UPDATEAGENT}`,
           method: "PUT",
           payload: agentData,
         });
-        debugger
+        
       return response.data;
     } catch (error) {
       const handledError = handleError(error);

@@ -17,7 +17,6 @@ import { REFRESH_INTERVAL } from '@/utils/constants';
 import SearchBar from '@/components/SearchBar/SearchComponent';
 import Select from "react-select";
 import AgentDropdown from '@/components/Dropdowns/AgentDropdown';
-
 import SweetAlert from 'sweetalert2';
 const ChatsMonitor = () => {
   const dispatch = useDispatch();

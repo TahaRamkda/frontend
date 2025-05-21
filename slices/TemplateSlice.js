@@ -24,14 +24,14 @@ export const fetchTemplates = createAsyncThunk(
   async ({TransactonType,searchStr,pageNo,pageSize,senderId,Language, Category }, { rejectWithValue }) => {
     
     try {
-      debugger
+      
       //const response = await API.get(`${TEMPLATELIST}?TransactionType=${TransactonType ? TransactonType : 1}${searchStr?`&searchStr=${searchStr}`:''}&senderId=${senderId}&pageNo=${pageNo}&lang=${Language}&Category=${Category}&pageSize=${pageSize}`);
         const response = await API.post("/api", {
         endpoint: `${TEMPLATELIST}?TransactionType=${TransactonType ? TransactonType : 1}${searchStr?`&searchStr=${searchStr}`:''}&senderId=${senderId}&pageNo=${pageNo}&lang=${Language}&Category=${Category}&pageSize=${pageSize}`,
         method: "GET",
         //payload: {},
       });
-      debugger
+      
       if (response?.status === 200 ) {
         return {
           templates: response.data.data.result,
@@ -53,6 +53,7 @@ export const fetchTemplatesDrop = createAsyncThunk(
 
   async ({ clientId, TransactionType }, { rejectWithValue }) => {
     try {
+      
       const response = await API.post("/api", {
         endpoint: `${TEMPLATEDROPDOWN}?transactionType=${
           TransactionType ? TransactionType : 0
@@ -79,8 +80,7 @@ export const fetchTemplatesById = createAsyncThunk(
   "template/fetchTemplatesById",
  
   async ({ templateId, ClientId }, { rejectWithValue }) => {
-    
-    
+
     try {
        const response = await API.post("/api", {
         endpoint: `${TEMPLATEDETAILS}?Id=${templateId}`,
