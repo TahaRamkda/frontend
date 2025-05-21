@@ -61,7 +61,7 @@ const AgentsForm = ({ onClose, isVisible, onsuccess }) => {
 
     try {
       const response = await dispatch(createAgent(requestBody)).unwrap();
-      if (response.success) {
+      if (response) {
         showSweetAlert({
           title: "Created Successfully",
           text: "",

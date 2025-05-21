@@ -24,13 +24,11 @@ export const fetchAgents = createAsyncThunk(
   "agent/fetchAgents",
   async ({ searchStr, senderId, pageSize, pageNo }, { rejectWithValue }) => {
     try {
-      
       const response = await API.post("/api", {
         endpoint: `${AGENTLIST}?senderId=${senderId}${searchStr ? `&searchStr=${searchStr}` : ""}&pageNo=${pageNo}&pageSize=${pageSize}`,
-        method: "GET"
+        method: "GET",
         //payload: {},
       });
-      
       if (response?.status === 200) {
         return {
           agents: response.data.data.result,
@@ -53,10 +51,16 @@ export const fetchActiveAgentsDrop = createAsyncThunk(
   "agent/fetchActiveAgentsDrop",
   async ({ clientId, senderId }, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${ACTIVEAGENTS}?senderId=${senderId}`);
+      debugger
+      const response = await API.post("/api", {
+        endpoint: `${ACTIVEAGENTS}?senderId=${senderId}`,
+        method: "GET",
+        //payload: {},
+      });
+      debugger
       if (response.status === 200) {
         return {
-          activeAgentDrop: response.data.result,
+          activeAgentDrop: response.data.data.result,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -97,14 +101,13 @@ export const fetchAgentsDrop = createAsyncThunk(
 export const fetchMasterData = createAsyncThunk(
   "agent/fetchMasterData",
   async ({ type }, { rejectWithValue }) => {
-    
     try {
-       const response = await API.post("/api", {
+      const response = await API.post("/api", {
         endpoint: `${MASTERDATA}?type=${type}`,
         method: "GET",
         //payload: {},
       });
-      
+
       if (response?.status === 200) {
         return {
           masterData: response.data.data.result,
@@ -225,13 +228,13 @@ export const fetchAgentsById = createAsyncThunk(
   "agent/fetchAgentsById",
   async ({ agentId, clientId }, { rejectWithValue }) => {
     try {
-      debugger
+      debugger;
       const response = await API.post("/api", {
         endpoint: `${AGENTDETAILS}?agentId=${agentId}`,
-        method: "GET"
+        method: "GET",
         //payload: {},
       });
-      debugger
+      debugger;
       return response.data.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -245,7 +248,13 @@ export const createAgent = createAsyncThunk(
   "agent/createAgent",
   async (agentData, { rejectWithValue }) => {
     try {
-      const response = await API.post(CREATEAGENT, agentData);
+      debugger
+      const response = await API.post("/api", {
+          endpoint: `${CREATEAGENT}`,
+          method: "POST",
+          payload: agentData,
+        });
+        debugger
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -259,7 +268,13 @@ export const updateAgent = createAsyncThunk(
   "agent/updateAgent",
   async (agentData, { rejectWithValue }) => {
     try {
-      const response = await API.put(UPDATEAGENT, agentData);
+      debugger
+      const response = await API.post("/api", {
+          endpoint: `${UPDATEAGENT}`,
+          method: "PUT",
+          payload: agentData,
+        });
+        debugger
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -273,7 +288,10 @@ export const deleteAgent = createAsyncThunk(
   "agent/deleteAgent",
   async ({ agentId, onSuccess }, { rejectWithValue }) => {
     try {
-      const response = await API.delete(`${DELETEAGENT}?Id=${agentId}`);
+       const response = await API.post("/api", {
+          endpoint: `${DELETEAGENT}?Id=${agentId}`,
+          method: "DELETE",
+        });
       if (onSuccess) onSuccess(); // Handle success callback
       return response.data;
     } catch (error) {
@@ -514,7 +532,7 @@ const agentSlice = createSlice({
       .addCase(createAgentTiming.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || "Created Successfully";
+        state.message = action.payload.data.message || "Created Successfully";
       })
       .addCase(createAgentTiming.rejected, (state, action) => {
         state.loading = false;
