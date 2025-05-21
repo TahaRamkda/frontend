@@ -10,19 +10,15 @@ export const fetchGroup = createAsyncThunk(
     'group/fetchGroup',
     async ({clientId, pageNo, pageSize, SearchStr}, { rejectWithValue }) => {
       try {
-        debugger
         const response = await API.post("/api", {
           endpoint: `${GROUPLIST}?PageNo=${pageNo}&PageSize=${pageSize}`,
           method: "GET",
-          accessToken: localStorage.getItem("accessToken"),
           //payload: {},
         });
-            debugger
         if (response?.status === 200) {
-          debugger
           return {
-            groups: response.data.result,
-            totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+            groups: response.data.data.result,
+            totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
           };
         } else {
           throw new Error('Failed to fetch details');

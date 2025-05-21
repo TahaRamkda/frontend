@@ -1,48 +1,32 @@
 import { BASE_URL } from '@/utils/apiConstants';
+import API from '@/utils/nextapi.axios';
 
-export const callExternalApi = async ({ endpoint, payload, method ,accessToken}) => {
- // return `${BASE_URL}${endpoint}`
-  // try {
-   
-const accessToken = localStorage.getItem('accessToken');
-    // const options = {
-    //   method,
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization' : `Bearer ${accessToken}`,
-    //     Accept: '*/*', // <- Accept everything (JSON or plain text)
-    //   },
-    //   body: payload ? JSON.stringify(payload) : undefined,
-    // };
-    //  const response = await fetch(`${BASE_URL}${endpoint}`, options);
+export const callExternalApi = async ({ endpoint, payload, method, accessToken }) => {
+  try {
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+        Accept: '*/*',
+      },
+    };
 
-     return accessToken;
+    const url = `${BASE_URL}${endpoint}`;
 
-    // const contentType = response.headers.get('content-type') || '';
+    let response;
 
-    // const raw = await response.text(); // Always read as text first
+    if (['get', 'delete'].includes(method.toLowerCase())) {
+      response = await API[method.toLowerCase()](url, config);
+    } else if (['post', 'put', 'patch'].includes(method.toLowerCase())) {
+      response = await API[method.toLowerCase()](url, payload, config);
+    } else {
+      throw new Error(`Unsupported HTTP method: ${method}`);
+    }
 
-  //   if (!response.ok) {
-  //     // Try parsing JSON error, fallback to raw text
-  //     try {
-  //       const errorJson = JSON.parse(raw);
-  //       throw new Error(errorJson.message || 'External API returned an error');
-  //     } catch {
-  //       throw new Error(raw || 'External API returned an unknown error');
-  //     }
-  //   }
-  //   // Try parsing JSON if possible
-  //   try {
-  //     if (contentType.includes('application/json')) {
-  //       return JSON.parse(raw); // ✅ Parsed JSON
-  //     } else {
-  //       return { message: raw }; // ✅ Return plain text as object
-  //     }
-  //   } catch {
-  //     return { message: raw }; // ✅ Fallback: plain text was not JSON
-  //   }
-  // } catch (error) {
-  //   console.error('API Error:', error);
-  //   throw new Error(error.message || 'Failed to fetch data');
-  // }
+    return response.data;
+  } catch (error) {
+    const errorMsg = error?.response?.data?.message || error?.message || 'Failed to fetch data';
+    console.error('API Error:', errorMsg);
+    throw new Error(errorMsg);
+  }
 };

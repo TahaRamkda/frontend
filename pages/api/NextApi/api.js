@@ -1,20 +1,20 @@
 import { callExternalApi } from '@/src/lib/Middleware';
 
 export default async function handler(req, res) {
-  debugger
   if (req.method === 'POST') {
-    debugger
     try {
-      const { endpoint , payload , method ,accessToken} = req.body; // Extract endpoint from the request body
+      const { endpoint, payload, method } = req.body;
+
+      // Safely extract accessToken from header, or set to empty string
+      const authHeader = req.headers.authorization || '';
+      const accessToken = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : '';
 
       if (!endpoint) {
         return res.status(400).json({ error: 'Endpoint is required' });
       }
 
-      // Call the external API with the endpoint
-      const data = await callExternalApi({ endpoint , payload , method ,accessToken});
+      const data = await callExternalApi({ endpoint, payload, method, accessToken });
 
-      // Return the response data back to the frontend
       return res.status(200).json({ data });
     } catch (error) {
       console.error('Error while calling external API:', error);
@@ -24,7 +24,6 @@ export default async function handler(req, res) {
       });
     }
   } else {
-    
     return res.status(405).json({ error: 'Method Not Allowed, please use POST method.' });
   }
 }
