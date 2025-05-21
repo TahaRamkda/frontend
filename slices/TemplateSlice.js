@@ -29,7 +29,6 @@ export const fetchTemplates = createAsyncThunk(
         const response = await API.post("/api", {
         endpoint: `${TEMPLATELIST}?TransactionType=${TransactonType ? TransactonType : 1}${searchStr?`&searchStr=${searchStr}`:''}&senderId=${senderId}&pageNo=${pageNo}&lang=${Language}&Category=${Category}&pageSize=${pageSize}`,
         method: "GET",
-        //payload: {},
       });
       debugger
       if (response?.status === 200 ) {
