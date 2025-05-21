@@ -1,17 +1,18 @@
 import { callExternalApi } from '@/src/lib/Middleware';
 
 export default async function handler(req, res) {
-  
+  debugger
   if (req.method === 'POST') {
+    debugger
     try {
-      const { endpoint , payload , method } = req.body; // Extract endpoint from the request body
+      const { endpoint , payload , method ,accessToken} = req.body; // Extract endpoint from the request body
 
       if (!endpoint) {
         return res.status(400).json({ error: 'Endpoint is required' });
       }
 
       // Call the external API with the endpoint
-      const data = await callExternalApi({ endpoint , payload , method });
+      const data = await callExternalApi({ endpoint , payload , method ,accessToken});
 
       // Return the response data back to the frontend
       return res.status(200).json({ data });

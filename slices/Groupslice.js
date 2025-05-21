@@ -3,6 +3,7 @@ import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
 import { GROUPLIST, CREATEGROUP, GROUPDETAILS,  UPDATEGROUP, DELETEGROUP, GROUPDROPDOWN } from '@/utils/apiConstants';
 
+
 // Thunks
 // Fetch Group
 export const fetchGroup = createAsyncThunk(
@@ -11,8 +12,9 @@ export const fetchGroup = createAsyncThunk(
       try {
         debugger
         const response = await API.post("/api", {
-          endpoint: `${GROUPLIST}?${ SearchStr? `SearchStr=${SearchStr}`:''}&PageNo=${pageNo}&PageSize=${pageSize}`,
+          endpoint: `${GROUPLIST}?PageNo=${pageNo}&PageSize=${pageSize}`,
           method: "GET",
+          accessToken: localStorage.getItem("accessToken"),
           //payload: {},
         });
             debugger
