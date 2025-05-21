@@ -5,18 +5,23 @@ import { SENDERNAMELIST, SENDERNAMEDETAIL, CREATESENDERNAME, DELETESENDERNAME, U
 
 // Thunks
 
-// Fetch Clients
+
 export const fetchSendernames = createAsyncThunk(
   'sendername/fetchSendernames',
-  async ({client_Id}, { rejectWithValue }) => {
+  async ({ client_Id }, { rejectWithValue }) => {
     try {
-      
-      const response = await API.get(`${SENDERNAMELIST}`);
-      if (response?.status === 200 ) {
-        
+      const response = await API.post("/api", {
+        endpoint: `${SENDERNAMELIST}`,
+        method: "GET",
+      });
+
+      if (response?.status === 200) {
         return {
           sendernames: response?.data?.result,
-          totalRecords: response?.data?.result?.length > 0 ? response.data.result[0].totalRecords  : 0,
+          totalRecords:
+            response.data?.result?.length > 0
+              ? response.data.result[0].totalRecords
+              : 0,
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -27,6 +32,7 @@ export const fetchSendernames = createAsyncThunk(
     }
   }
 );
+
 export const fetchSendernamesDrop = createAsyncThunk(
   'sendername/fetchSendernamesDrop',
   async ({clientId}, { rejectWithValue }) => {

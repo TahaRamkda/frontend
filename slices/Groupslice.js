@@ -17,8 +17,8 @@ export const fetchGroup = createAsyncThunk(
         });
         if (response?.status === 200) {
           return {
-            groups: response.data.data.result,
-            totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
+            groups: response.data,
+            totalRecords: response.data.data.length > 0 ? response.data.data[0].totalRecords  : 0,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -42,7 +42,7 @@ export const fetchGroupsDrop = createAsyncThunk(
         
         if (response?.status === 200) {
           return {
-            groupDrop: response.data.data.result,
+            groupDrop: response.data.data,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -66,7 +66,7 @@ export const fetchGroupById = createAsyncThunk(
           //payload: {},
         });
         
-        return response.data.data;
+        return response.data;
       } catch (error) {
         const handledError = handleError(error);
         return rejectWithValue(handledError);
@@ -106,7 +106,7 @@ export const updateGroup = createAsyncThunk(
           payload: groupData,
         });
         
-        return response.data;
+        return response.data.data;
       } catch (error) {
         const handledError = handleError(error);
         return rejectWithValue(handledError);
@@ -127,7 +127,7 @@ export const deleteGroup = createAsyncThunk(
         });
       
       if (onSuccess) onSuccess(); // Handle success callback
-      return response.data;
+      return response.data.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -203,8 +203,9 @@ const GroupSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchGroup.fulfilled, (state, action) => {
+        debugger
         state.loading = false;
-        state.groups = action.payload.groups;
+        state.groups = action.payload.groups.data;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || '';
@@ -236,9 +237,10 @@ const GroupSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchGroupById.fulfilled, (state, action) => {
+        debugger
         state.loading = false;
-        state.group = action.payload.result;
-        state.message = action.payload?.message || '';
+        state.group = action.payload.data;
+        //state.message = action.payload?.message || '';
       })
       .addCase(fetchGroupById.rejected, (state, action) => {
         state.loading = false;

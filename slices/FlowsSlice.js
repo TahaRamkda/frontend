@@ -9,11 +9,16 @@ export const fetchFlowsListData = createAsyncThunk(
     'flow/fetchFlowsListData',
     async ({clientId, pageNo, pageSize, SearchStr,senderId, Language}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${FLOWSLIST}?senderid=${senderId}&lang=${Language}&PageNo=${pageNo}&PageSize=${pageSize}${ SearchStr? `&SearchStr=${SearchStr}`:''}`);
+        //const response = await API.get(`${FLOWSLIST}?senderid=${senderId}&lang=${Language}&PageNo=${pageNo}&PageSize=${pageSize}${ SearchStr? `&SearchStr=${SearchStr}`:''}`);
+         const response = await API.post("/api", {
+        endpoint: `${FLOWSLIST}?senderid=${senderId}&lang=${Language}&PageNo=${pageNo}&PageSize=${pageSize}${ SearchStr? `&SearchStr=${SearchStr}`:''}`,
+        method: "GET",
+        //payload: {},
+      });
         if (response?.status === 200) {
           return {
-            flowsList: response.data.result,
-            totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+            flowsList: response.data.data.result,
+            totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -29,10 +34,14 @@ export const fetchFlowDropdown = createAsyncThunk(
     'flowdropdown/fetchFlowDropdown',
     async ({clientId, SearchStr}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${FLOWDROPDOWN}`);
+         const response = await API.post("/api", {
+        endpoint: `${FLOWDROPDOWN}`,
+        method: "GET",
+        //payload: {},
+      });
         if (response?.status === 200) {
           return {
-            flowDropdownData: response.data.result,
+            flowDropdownData: response.data.data.result,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -49,9 +58,12 @@ export const fetchFlowDetailsById = createAsyncThunk(
     'flowdetails/fetchFlowDetailsById',
     async ({id}, { rejectWithValue }) => {
       try {
-        
-        const response = await API.get(`${FLOWDETAILS}?flowId=${id}`);
-        return response.data;
+         const response = await API.post("/api", {
+        endpoint: `${FLOWDETAILS}?flowId=${id}`,
+        method: "GET",
+        //payload: {},
+      });
+        return response.data.data;
       } catch (error) {
         const handledError = handleError(error);
         return rejectWithValue(handledError);
@@ -62,10 +74,14 @@ export const fetchFlowDetailsById = createAsyncThunk(
   // Create Group
 export const createFlows = createAsyncThunk(
   'flowcreate/createFlows',
-  async (groupData, { rejectWithValue }) => {
+  async (flowData, { rejectWithValue }) => {
     try {
-      const response = await API.post(CREATEFLOW, groupData);
-      return response.data;
+         const response = await API.post("/api", {
+                endpoint: `${CREATEFLOW}`,
+                method: "POST",
+                payload: flowData,
+              });
+      return response.data.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -77,13 +93,15 @@ export const publishFlow = createAsyncThunk(
   'publishflow/publishFlow',
   async (id, { rejectWithValue }) => {
     try {
-      
-      const response = await API.post(`${PUBLISHFLOW}?flowId=${id}`);
-      
-      if(response.data.result === null){
-        throw new Error(response.data.message);
+       const response = await API.post("/api", {
+                endpoint: `${PUBLISHFLOW}?flowId=${id}`,
+                method: "POST",
+                payload: '',
+              });
+      if(response.data.data.result === null){
+        throw new Error(response.data.data.message);
       }else{
-        return response.data;
+        return response.data.data;
       }
       
     } catch (error) {
@@ -93,12 +111,17 @@ export const publishFlow = createAsyncThunk(
   }
 );
 
+
 // Update Group
 export const updateFlow = createAsyncThunk(
     'flowupdate/updateFlow',
-    async (groupData, { rejectWithValue }) => {
+    async (flowData, { rejectWithValue }) => {
       try {
-        const response = await API.put( UPDATEFLOW, groupData);
+        const response = await API.post("/api", {
+                endpoint: `${UPDATEFLOW}`,
+                method: "POST",
+                payload: flowData,
+              });
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -106,14 +129,17 @@ export const updateFlow = createAsyncThunk(
       }
     }
   );
-  
-  // Delete Client
-export const deleteFlow = createAsyncThunk(
+// Delete Flow
+  export const deleteFlow = createAsyncThunk(
   'flowdelete/deleteFlow',
   async ({ id, onSuccess }, { rejectWithValue }) => {
     try {
-      const response = await API.delete(`${DELETEFLOW}?flowId=${id}`);
-      if (onSuccess) onSuccess(); // Handle success callback
+      const response = await API.post("/api", {
+        endpoint: `${DELETEFLOW}?flowId=${id}`,
+        method: "DELETE",
+      });
+
+      if (onSuccess) onSuccess();
       return response.data;
     } catch (error) {
       const handledError = handleError(error);

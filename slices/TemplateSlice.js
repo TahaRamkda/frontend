@@ -105,7 +105,7 @@ export const createTemplates = createAsyncThunk(
           method: "POST",
           payload: templateData,
         });
-      return response.data.data;
+      return response.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -124,7 +124,7 @@ export const syncTemplates = createAsyncThunk(
           method: "POST",
           payload: templateData,
         });
-      return response.data.data;
+      returnresponse.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -160,7 +160,7 @@ export const deleteTemplates = createAsyncThunk(
           method: "DELETE",
           // payload: {},
         });
-      return response.data.data;
+      returnresponse.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
