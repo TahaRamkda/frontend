@@ -241,8 +241,8 @@ export const fetchAgentsById = createAsyncThunk(
         method: "GET",
         //payload: {},
       });
-      ;
-      return response.data.data;
+      debugger;
+      returnresponse.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);

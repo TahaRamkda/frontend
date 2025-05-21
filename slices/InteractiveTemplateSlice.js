@@ -18,12 +18,16 @@ export const fetchInteractiveTemplates = createAsyncThunk(
   'template/interactiveTemplateList',
   async ({fromDate,searchStr,toDate,pageNo,pageSize, senderId, Language}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${INRERACTIVETEMPLATELIST}?senderId=${senderId}${searchStr?`&searchStr=${searchStr}`:''}&senderId=${senderId}&fromDate=${fromDate}&toDate=${toDate}&pageNo=${pageNo}&pageSize=${pageSize}&lang=${Language}`);
+       const response = await API.post("/api", {
+        endpoint: `${INRERACTIVETEMPLATELIST}?senderId=${senderId}${searchStr?`&searchStr=${searchStr}`:''}&senderId=${senderId}&fromDate=${fromDate}&toDate=${toDate}&pageNo=${pageNo}&pageSize=${pageSize}&lang=${Language}`,
+        method: "GET",
+        //payload: {},
+      });
       if (response?.status === 200) {
         return {
-          interactiveTemplateList: response.data.result,
+          interactiveTemplateList: response.data.data.result,
           totalRecords:
-            response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+            response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -39,10 +43,14 @@ export const fetchInteractiveTemplateDrop = createAsyncThunk(
   'template/interactiveTemplateList',
   async ({clientId = localStorage.getItem("clientId")}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${INRERACTIVETEMPLATELIST}`);
+       const response = await API.post("/api", {
+        endpoint: `${INRERACTIVETEMPLATELIST}`,
+        method: "GET",
+        //payload: {},
+      });
       if (response?.status === 200) {
         return {
-          interactiveTemplateList: response.data.result,
+          interactiveTemplateList: response.data.data.result,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -57,10 +65,14 @@ export const fetchInteractiveTemplateDropWithoutParam = createAsyncThunk(
   'template/fetchInteractiveTemplateDropWithoutParam',
   async ({clientId = localStorage.getItem("clientId"),senderId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${INTERACTIVETEMPLATEDROPWITHOUTPARAM}?senderId=${senderId}`);
+       const response = await API.post("/api", {
+        endpoint: `${INTERACTIVETEMPLATEDROPWITHOUTPARAM}?senderId=${senderId}`,
+        method: "GET",
+        //payload: {},
+      });
       if (response?.status === 200 ) {
         return {
-          interactiveTemplateDropList: response.data.result,
+          interactiveTemplateDropList: response.data.data.result,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -78,10 +90,12 @@ export const fetchInteractiveTemplatesById = createAsyncThunk(
   "template/fetchInteractiveTemplatesById",
   async ({ templateId, ClientId }, { rejectWithValue }) => {
     try {
-      const response = await API.get(
-        `${INTERACTIVETEMPLATEDETAILS}?interactiveTemplateId=${templateId}`
-      );
-      return response.data;
+        const response = await API.post("/api", {
+        endpoint: `${INTERACTIVETEMPLATEDETAILS}?interactiveTemplateId=${templateId}`,
+        method: "GET",
+        //payload: {},
+      });
+      return response.data.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -95,8 +109,13 @@ export const createInteractiveTemplates = createAsyncThunk(
   "template/createInteractiveTemplates",
   async (templateData, { rejectWithValue }) => {
     try {
-      const response = await API.post(CREATEINTERACTIVETEMPLATE, templateData);
-      return response.data;
+      //const response = await API.post(CREATEINTERACTIVETEMPLATE, templateData);
+       const response = await API.post("/api", {
+          endpoint: `${CREATEINTERACTIVETEMPLATE}`,
+          method: "POST",
+          payload: templateData,
+        });
+      return response.data.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -111,7 +130,11 @@ export const updateInteractiveTemplates = createAsyncThunk(
   "template/updateInteractiveTemplates",
   async (templateData, { rejectWithValue }) => {
     try {
-      const response = await API.post(UPDATEINTERACTIVETEMPLATE, templateData);
+       const response = await API.post("/api", {
+          endpoint: `${UPDATEINTERACTIVETEMPLATE}`,
+          method: "POST",
+          payload: templateData,
+        });
       return response.data;
     } catch (error) {
       const handledError = handleError(error);

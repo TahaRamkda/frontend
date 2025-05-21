@@ -29,7 +29,6 @@ export const fetchTemplates = createAsyncThunk(
         const response = await API.post("/api", {
         endpoint: `${TEMPLATELIST}?TransactionType=${TransactonType ? TransactonType : 1}${searchStr?`&searchStr=${searchStr}`:''}&senderId=${senderId}&pageNo=${pageNo}&lang=${Language}&Category=${Category}&pageSize=${pageSize}`,
         method: "GET",
-        //payload: {},
       });
       
       if (response?.status === 200 ) {
@@ -106,7 +105,7 @@ export const createTemplates = createAsyncThunk(
           method: "POST",
           payload: templateData,
         });
-      return response.data.data;
+      return response.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -125,7 +124,7 @@ export const syncTemplates = createAsyncThunk(
           method: "POST",
           payload: templateData,
         });
-      return response.data.data;
+      returnresponse.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -161,7 +160,7 @@ export const deleteTemplates = createAsyncThunk(
           method: "DELETE",
           // payload: {},
         });
-      return response.data.data;
+      returnresponse.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
