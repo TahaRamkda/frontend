@@ -104,10 +104,10 @@ instance.interceptors.response.use(
         completionTime: parseFloat((responseTime / 1000).toFixed(2)) 
       });
 
-      if (error.response?.status === 401) {
-        localStorage.removeItem('accessToken');
-        window.location.href = '/auth/login';
-      }
+      // if (error.response?.status === 401) {
+      //   localStorage.removeItem('accessToken');
+      //   window.location.href = '/auth/login';
+      // }
     }
     return Promise.reject(error);
   }
