@@ -24,32 +24,19 @@ export const fetchTemplates = createAsyncThunk(
   async ({TransactonType,searchStr,pageNo,pageSize,senderId,Language, Category }, { rejectWithValue }) => {
     
     try {
-      const response = await API.get(`${TEMPLATELIST}?TransactionType=${TransactonType ? TransactonType : 1}${searchStr?`&searchStr=${searchStr}`:''}&senderId=${senderId}&pageNo=${pageNo}&lang=${Language}&Category=${Category}&pageSize=${pageSize}`);
+      debugger
+      //const response = await API.get(`${TEMPLATELIST}?TransactionType=${TransactonType ? TransactonType : 1}${searchStr?`&searchStr=${searchStr}`:''}&senderId=${senderId}&pageNo=${pageNo}&lang=${Language}&Category=${Category}&pageSize=${pageSize}`);
+        const response = await API.post("/api", {
+        endpoint: `${TEMPLATELIST}?TransactionType=${TransactonType ? TransactonType : 1}${searchStr?`&searchStr=${searchStr}`:''}&senderId=${senderId}&pageNo=${pageNo}&lang=${Language}&Category=${Category}&pageSize=${pageSize}`,
+        method: "GET",
+        //payload: {},
+      });
+      debugger
       if (response?.status === 200 ) {
         return {
-          templates: response.data.result,
+          templates: response.data.data.result,
           totalRecords:
-            response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
-        };
-      } else {
-        throw new Error("Failed to fetch details");
-      }
-    } catch (err) {
-      const handledError = handleError(err);
-      return rejectWithValue(handledError);
-    }
-  }
-);
-export const fetchInteractiveTemplates = createAsyncThunk(
-  'template/interactiveTemplateList',
-  async ({clientId = localStorage.getItem("clientId"),fromDate,searchStr,toDate,pageNo,pageSize}, { rejectWithValue }) => {
-    try {
-      const response = await API.get(`${INRERACTIVETEMPLATELIST}?${searchStr?`searchStr=${searchStr}`:''}&fromDate=${fromDate}&toDate=${toDate}&pageNo=${pageNo}&pageSize=${pageSize}`);
-      if (response?.status === 200) {
-        return {
-          interactiveTemplateList: response.data.result,
-          totalRecords:
-            response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+            response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -61,39 +48,21 @@ export const fetchInteractiveTemplates = createAsyncThunk(
   }
 );
 
-export const fetchInteractiveTemplateDrop = createAsyncThunk(
-  'template/interactiveTemplateList',
-  async ({clientId = localStorage.getItem("clientId")}, { rejectWithValue }) => {
-    try {
-      const response = await API.get(`${INRERACTIVETEMPLATELIST}`);
-      if (response?.status === 200) {
-        return {
-          interactiveTemplateList: response.data.result,
-          totalRecords:
-            response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
-        };
-      } else {
-        throw new Error("Failed to fetch details");
-      }
-    } catch (err) {
-      const handledError = handleError(err);
-      return rejectWithValue(handledError);
-    }
-  }
-);
 export const fetchTemplatesDrop = createAsyncThunk(
   "template/fetchTemplatesDrop",
 
   async ({ clientId, TransactionType }, { rejectWithValue }) => {
     try {
-      const response = await API.get(
-        `${TEMPLATEDROPDOWN}?transactionType=${
+      const response = await API.post("/api", {
+        endpoint: `${TEMPLATEDROPDOWN}?transactionType=${
           TransactionType ? TransactionType : 0
-        }`
-      );
+        }`,
+        method: "GET",
+        //payload: {},
+      });
       if (response?.status === 200 ) {
         return {
-          templateDrop: response.data.result,
+          templateDrop: response.data.data.result,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -113,10 +82,11 @@ export const fetchTemplatesById = createAsyncThunk(
     
     
     try {
-      const response = await API.get(
-        `${TEMPLATEDETAILS}?Id=${templateId}`
-      );
-      return response.data.result;
+       const response = await API.post("/api", {
+        endpoint: `${TEMPLATEDETAILS}?Id=${templateId}`,
+        method: "GET",
+      });
+      return response.data.data.result;
       
     } catch (error) {
       const handledError = handleError(error);
@@ -124,41 +94,19 @@ export const fetchTemplatesById = createAsyncThunk(
     }
   }
 );
-
-export const fetchInteractiveTemplatesById = createAsyncThunk(
-  "template/fetchInteractiveTemplatesById",
-  async ({ templateId, ClientId }, { rejectWithValue }) => {
-    try {
-      const response = await API.get(
-        `${INTERACTIVETEMPLATEDETAILS}?interactiveTemplateId=${templateId}`
-      );
-      return response.data;
-    } catch (error) {
-      const handledError = handleError(error);
-      return rejectWithValue(handledError);
-    }
-  }
-);
-
 // Create Template
 export const createTemplates = createAsyncThunk(
   "template/createTemplates",
   async (templateData, { rejectWithValue }) => {
     try {
-      const response = await API.post(CREATETEMPLATE, templateData);
-      return response.data;
-    } catch (error) {
-      const handledError = handleError(error);
-      return rejectWithValue(handledError);
-    }
-  }
-);
-export const createInteractiveTemplates = createAsyncThunk(
-  "template/createInteractiveTemplates",
-  async (templateData, { rejectWithValue }) => {
-    try {
-      const response = await API.post(CREATEINTERACTIVETEMPLATE, templateData);
-      return response.data;
+      //const response = await API.post(CREATETEMPLATE, templateData);
+
+       const response = await API.post("/api", {
+          endpoint: `${CREATETEMPLATE}`,
+          method: "POST",
+          payload: templateData,
+        });
+      return response.data.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -171,8 +119,13 @@ export const syncTemplates = createAsyncThunk(
   "template/syncTemplates",
   async (templateData, { rejectWithValue }) => {
     try {
-      const response = await API.post(SYNCTEMPLATE, templateData);
-      return response.data;
+     // const response = await API.post(SYNCTEMPLATE, templateData);
+       const response = await API.post("/api", {
+          endpoint: `${SYNCTEMPLATE}`,
+          method: "POST",
+          payload: templateData,
+        });
+      return response.data.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -185,7 +138,12 @@ export const updateTemplates = createAsyncThunk(
   "template/updateTemplates",
   async (templateData, { rejectWithValue }) => {
     try {
-      const response = await API.put(UPDATETEMPLATE, templateData);
+      //const response = await API.put(UPDATETEMPLATE, templateData);
+       const response = await API.post("/api", {
+          endpoint: `${UPDATETEMPLATE}`,
+          method: "POST",
+          payload: templateData,
+        });
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -193,27 +151,17 @@ export const updateTemplates = createAsyncThunk(
     }
   }
 );
-
-export const updateInteractiveTemplates = createAsyncThunk(
-  "template/updateInteractiveTemplates",
-  async (templateData, { rejectWithValue }) => {
-    try {
-      const response = await API.post(UPDATEINTERACTIVETEMPLATE, templateData);
-      return response.data;
-    } catch (error) {
-      const handledError = handleError(error);
-      return rejectWithValue(handledError);
-    }
-  }
-);
-
 // Delete Template
 export const deleteTemplates = createAsyncThunk(
   "template/deleteTemplate",
   async ({ templateId }, { rejectWithValue }) => {
     try {
-      const response = await API.delete(`${DELETETEMPLATE}?Id=${templateId}`);
-      return response.data;
+       const response = await API.post("/api", {
+          endpoint: `${DELETETEMPLATE}?Id=${templateId}`,
+          method: "DELETE",
+          // payload: {},
+        });
+      return response.data.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -322,23 +270,6 @@ const templateSlice = createSlice({
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
-      
-      .addCase(fetchInteractiveTemplates.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchInteractiveTemplates.fulfilled, (state, action) => {
-        state.loading = false;
-        state.interactiveTemplateList = action.payload.interactiveTemplateList;
-        state.totalRecords = action.payload.totalRecords;
-        state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
-        state.message = action.payload.message || "";
-      })
-      .addCase(fetchInteractiveTemplates.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
       // Template Dropdown
       .addCase(fetchTemplatesDrop.pending, (state) => {
         state.loading = true;
@@ -373,22 +304,6 @@ const templateSlice = createSlice({
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
-
-      .addCase(fetchInteractiveTemplatesById.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchInteractiveTemplatesById.fulfilled, (state, action) => {
-        state.loading = false;
-        state.interactivetemplatedetail = action.payload.result;
-        state.message = action.payload?.message || "";
-      })
-      .addCase(fetchInteractiveTemplatesById.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
-
       // Create Template
       .addCase(createTemplates.pending, (state) => {
         state.loading = true;
@@ -405,23 +320,6 @@ const templateSlice = createSlice({
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
-      // Create Interactive Template
-      .addCase(createInteractiveTemplates.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.success = false;
-      })
-      .addCase(createInteractiveTemplates.fulfilled, (state, action) => {
-        state.loading = false;
-        state.success = true;
-        state.message = action.payload.message || "Created Successfully";
-      })
-      .addCase(createInteractiveTemplates.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
-
       // Update Template
       .addCase(updateTemplates.pending, (state) => {
         state.loading = true;
@@ -438,23 +336,6 @@ const templateSlice = createSlice({
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
-
-      .addCase(updateInteractiveTemplates.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.success = false;
-      })
-      .addCase(updateInteractiveTemplates.fulfilled, (state, action) => {
-        state.loading = false;
-        state.success = true;
-        state.message = action.payload.message || "Updated Successfully";
-      })
-      .addCase(updateInteractiveTemplates.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
-
       // Delete Template
       .addCase(deleteTemplates.pending, (state) => {
         state.loading = true;
