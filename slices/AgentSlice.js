@@ -1,25 +1,46 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import API from '../utils/api.axios';
-import handleError from '../utils/handleError';
-import { AGENTLIST, AGENTDETAILS, CREATEAGENT, DELETEAGENT, UPDATEAGENT, AGENTSTIMINGLIST, ADDAGENTSTIMING, AGENTDROPDOWN ,GETAGENTSTATS,ACTIVEAGENTS, AGENTSHIFTBULKUPLOAD, MASTERDATA, AGENTSTATUS } from '@/utils/apiConstants';
-
-
+import API from "../utils/api.axios";
+import handleError from "../utils/handleError";
+import {
+  AGENTLIST,
+  AGENTDETAILS,
+  CREATEAGENT,
+  DELETEAGENT,
+  UPDATEAGENT,
+  AGENTSTIMINGLIST,
+  ADDAGENTSTIMING,
+  AGENTDROPDOWN,
+  GETAGENTSTATS,
+  ACTIVEAGENTS,
+  AGENTSHIFTBULKUPLOAD,
+  MASTERDATA,
+  AGENTSTATUS,
+} from "@/utils/apiConstants";
 
 // Thunks
 
 // Fetch Clients
 export const fetchAgents = createAsyncThunk(
-  'agent/fetchAgents',
-  async ({ searchStr,senderId,pageSize,pageNo}, { rejectWithValue }) => {
+  "agent/fetchAgents",
+  async ({ searchStr, senderId, pageSize, pageNo }, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${AGENTLIST}?${searchStr?`searchStr=${searchStr}`:''}&senderId=${senderId}&pageNo=${pageNo}&pageSize=${pageSize}`);
+      
+      const response = await API.post("/api", {
+        endpoint: `${AGENTLIST}?senderId=${senderId}${searchStr ? `&searchStr=${searchStr}` : ""}&pageNo=${pageNo}&pageSize=${pageSize}`,
+        method: "GET"
+        //payload: {},
+      });
+      
       if (response?.status === 200) {
         return {
-          agents: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+          agents: response.data.data.result,
+          totalRecords:
+            response.data.data.result.length > 0
+              ? response.data.data.result[0].totalRecords
+              : 0,
         };
       } else {
-        throw new Error('Failed to fetch details');
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -28,19 +49,17 @@ export const fetchAgents = createAsyncThunk(
   }
 );
 
-
 export const fetchActiveAgentsDrop = createAsyncThunk(
-  'agent/fetchActiveAgentsDrop',
-  async ({clientId,senderId}, { rejectWithValue }) => {
+  "agent/fetchActiveAgentsDrop",
+  async ({ clientId, senderId }, { rejectWithValue }) => {
     try {
-      
       const response = await API.get(`${ACTIVEAGENTS}?senderId=${senderId}`);
       if (response.status === 200) {
         return {
           activeAgentDrop: response.data.result,
         };
       } else {
-        throw new Error('Failed to fetch details');
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -49,20 +68,24 @@ export const fetchActiveAgentsDrop = createAsyncThunk(
   }
 );
 
-
-
 export const fetchAgentsDrop = createAsyncThunk(
-  'agent/fetchAgentsDrop',
-  async ({clientId,senderId,pageNo,pageSize,searchStr}, { rejectWithValue }) => {
+  "agent/fetchAgentsDrop",
+  async (
+    { clientId, senderId, pageNo, pageSize, searchStr },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await API.get(`${AGENTDROPDOWN}?senderId=${senderId}${searchStr?`&searchStr=${searchStr}`: ''}`);
+      const response = await API.get(
+        `${AGENTDROPDOWN}?senderId=${senderId}${
+          searchStr ? `&searchStr=${searchStr}` : ""
+        }`
+      );
       if (response?.status === 200) {
         return {
           agentDrop: response.data.result,
-         
         };
       } else {
-        throw new Error('Failed to fetch details');
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -72,16 +95,22 @@ export const fetchAgentsDrop = createAsyncThunk(
 );
 
 export const fetchMasterData = createAsyncThunk(
-  'agent/fetchMasterData',
-  async ({type}, { rejectWithValue }) => {
+  "agent/fetchMasterData",
+  async ({ type }, { rejectWithValue }) => {
+    
     try {
-      const response = await API.get(`${MASTERDATA}?type=${type}`);
+       const response = await API.post("/api", {
+        endpoint: `${MASTERDATA}?type=${type}`,
+        method: "GET",
+        //payload: {},
+      });
+      
       if (response?.status === 200) {
         return {
-          masterData: response.data.result,
+          masterData: response.data.data.result,
         };
       } else {
-        throw new Error('Failed to fetch details');
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -91,15 +120,16 @@ export const fetchMasterData = createAsyncThunk(
 );
 
 export const setAgentStatus = createAsyncThunk(
-  'agent/setAgentStatus',
-  async ({agentId,statusId}, { rejectWithValue }) => {
+  "agent/setAgentStatus",
+  async ({ agentId, statusId }, { rejectWithValue }) => {
     try {
-      
-      const response = await API.get(`${AGENTSTATUS}?agentId=${agentId}&status=${statusId}`);
+      const response = await API.get(
+        `${AGENTSTATUS}?agentId=${agentId}&status=${statusId}`
+      );
       if (response.status === 200) {
-        return response.data
+        return response.data;
       } else {
-        throw new Error('Failed to fetch details');
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -108,19 +138,24 @@ export const setAgentStatus = createAsyncThunk(
   }
 );
 
-
 export const fetchAgentsTimingList = createAsyncThunk(
-  'agent/fetchAgentsTimingList',
-  async ({clientId, agentId, senderId, pageNo, pageSize}, { rejectWithValue }) => {
+  "agent/fetchAgentsTimingList",
+  async (
+    { clientId, agentId, senderId, pageNo, pageSize },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await API.get(`${AGENTSTIMINGLIST}?agentId=${agentId}`);
       if (response?.status === 200) {
         return {
           agentsTiming: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+          totalRecords:
+            response.data.result.length > 0
+              ? response.data.result[0].totalRecords
+              : 0,
         };
       } else {
-        throw new Error('Failed to fetch details');
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -129,18 +164,26 @@ export const fetchAgentsTimingList = createAsyncThunk(
   }
 );
 
-
 export const fetchAgentStats = createAsyncThunk(
-  'agent/fetchAgentStats',
-  async ({clientId = localStorage.getItem("clientId"), agentId = localStorage.getItem("userId"),senderId = 0}, { rejectWithValue }) => {
+  "agent/fetchAgentStats",
+  async (
+    {
+      clientId = localStorage.getItem("clientId"),
+      agentId = localStorage.getItem("userId"),
+      senderId = 0,
+    },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await API.get(`${GETAGENTSTATS}?senderId=${senderId}&agentId=${agentId}`);
+      const response = await API.get(
+        `${GETAGENTSTATS}?senderId=${senderId}&agentId=${agentId}`
+      );
       if (response?.status === 200) {
         return {
           AgentStats: response.data.result,
         };
       } else {
-        throw new Error('Failed to fetch details');
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -149,11 +192,8 @@ export const fetchAgentStats = createAsyncThunk(
   }
 );
 
-
-
-
 export const createAgentTiming = createAsyncThunk(
-  'agent/createAgentTiming',
+  "agent/createAgentTiming",
   async (agentTimingData, { rejectWithValue }) => {
     try {
       const response = await API.post(ADDAGENTSTIMING, agentTimingData);
@@ -166,10 +206,13 @@ export const createAgentTiming = createAsyncThunk(
 );
 
 export const agentShiftBulkUpload = createAsyncThunk(
-  'agent/agentShiftBulkUpload',
+  "agent/agentShiftBulkUpload",
   async (agentShiftUploadData, { rejectWithValue }) => {
     try {
-      const response = await API.post(AGENTSHIFTBULKUPLOAD, agentShiftUploadData);
+      const response = await API.post(
+        AGENTSHIFTBULKUPLOAD,
+        agentShiftUploadData
+      );
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -179,11 +222,17 @@ export const agentShiftBulkUpload = createAsyncThunk(
 );
 // Fetch Client by ID
 export const fetchAgentsById = createAsyncThunk(
-  'agent/fetchAgentsById',
-  async ({agentId,clientId}, { rejectWithValue }) => {
+  "agent/fetchAgentsById",
+  async ({ agentId, clientId }, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${AGENTDETAILS}?agentId=${agentId}`);
-      return response.data;
+      debugger
+      const response = await API.post("/api", {
+        endpoint: `${AGENTDETAILS}?agentId=${agentId}`,
+        method: "GET"
+        //payload: {},
+      });
+      debugger
+      return response.data.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -193,7 +242,7 @@ export const fetchAgentsById = createAsyncThunk(
 
 // Create Client
 export const createAgent = createAsyncThunk(
-  'agent/createAgent',
+  "agent/createAgent",
   async (agentData, { rejectWithValue }) => {
     try {
       const response = await API.post(CREATEAGENT, agentData);
@@ -205,10 +254,9 @@ export const createAgent = createAsyncThunk(
   }
 );
 
-
 // Update Client
 export const updateAgent = createAsyncThunk(
-  'agent/updateAgent',
+  "agent/updateAgent",
   async (agentData, { rejectWithValue }) => {
     try {
       const response = await API.put(UPDATEAGENT, agentData);
@@ -222,7 +270,7 @@ export const updateAgent = createAsyncThunk(
 
 // Delete Client
 export const deleteAgent = createAsyncThunk(
-  'agent/deleteAgent',
+  "agent/deleteAgent",
   async ({ agentId, onSuccess }, { rejectWithValue }) => {
     try {
       const response = await API.delete(`${DELETEAGENT}?Id=${agentId}`);
@@ -237,20 +285,20 @@ export const deleteAgent = createAsyncThunk(
 
 // Slice
 const agentSlice = createSlice({
-  name: 'agent',
+  name: "agent",
   initialState: {
     agents: [],
-    agentDrop:[],
+    agentDrop: [],
     agentsTiming: [],
     AgentStats: [],
     masterData: [],
     agentTagsDropdown: [],
-    activeAgentDrop:[],
+    activeAgentDrop: [],
     agent: null,
     loading: false,
     error: null,
     success: false,
-    message: '',
+    message: "",
     currentPage: 1,
     totalPages: 1,
     pageSize: 10,
@@ -281,28 +329,24 @@ const agentSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.success = false;
-      
     },
     cleaActiveAgenDroptState: (state) => {
       state.activeAgentDrop = [];
       state.loading = false;
       state.error = null;
       state.success = false;
-      
     },
     clearAgentTagsDroptState: (state) => {
       state.activeAgentDrop = [];
       state.loading = false;
       state.error = null;
       state.success = false;
-      
     },
     clearMasterDataState: (state) => {
       state.masterData = [];
       state.loading = false;
       state.error = null;
       state.success = false;
-      
     },
     clearAgentsTimingListState: (state) => {
       state.agentsTiming = [];
@@ -310,7 +354,7 @@ const agentSlice = createSlice({
       state.error = null;
       state.success = false;
     },
-   
+
     cleaAgentStats: (state) => {
       state.AgentStats = [];
       state.loading = false;
@@ -332,7 +376,7 @@ const agentSlice = createSlice({
       state.error = null;
       state.success = false;
     },
-    
+
     clearAgentDeleteState: (state) => {
       state.agent = null;
       state.loading = false;
@@ -347,7 +391,7 @@ const agentSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch Agents 
+      // Fetch Agents
       .addCase(fetchAgents.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -357,15 +401,14 @@ const agentSlice = createSlice({
         state.agents = action.payload.agents;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
-        state.message = action.payload.message || '';
       })
       .addCase(fetchAgents.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
-      // Fetch Agents Perfomance 
-     
+      // Fetch Agents Perfomance
+
       // Agents Dropdown
       .addCase(fetchAgentsDrop.pending, (state) => {
         state.loading = true;
@@ -374,7 +417,7 @@ const agentSlice = createSlice({
       .addCase(fetchAgentsDrop.fulfilled, (state, action) => {
         state.loading = false;
         state.agentDrop = action.payload.agentDrop;
-        state.message = action.payload.message || '';
+        state.message = action.payload.message || "";
       })
       .addCase(fetchAgentsDrop.rejected, (state, action) => {
         state.loading = false;
@@ -382,7 +425,7 @@ const agentSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      // Active Agents Dropdown 
+      // Active Agents Dropdown
       .addCase(fetchActiveAgentsDrop.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -390,14 +433,14 @@ const agentSlice = createSlice({
       .addCase(fetchActiveAgentsDrop.fulfilled, (state, action) => {
         state.loading = false;
         state.activeAgentDrop = action.payload.activeAgentDrop;
-        state.message = action.payload.message || '';
+        state.message = action.payload.message || "";
       })
       .addCase(fetchActiveAgentsDrop.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
-      // Active Agents Reasons Dropdown 
+      // Active Agents Reasons Dropdown
       .addCase(fetchMasterData.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -405,7 +448,7 @@ const agentSlice = createSlice({
       .addCase(fetchMasterData.fulfilled, (state, action) => {
         state.loading = false;
         state.masterData = action.payload.masterData;
-        state.message = action.payload.message || '';
+        state.message = action.payload.message || "";
       })
       .addCase(fetchMasterData.rejected, (state, action) => {
         state.loading = false;
@@ -422,7 +465,7 @@ const agentSlice = createSlice({
       .addCase(agentShiftBulkUpload.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Uploaded Successfully';
+        state.message = action.payload.message || "Uploaded Successfully";
       })
       .addCase(agentShiftBulkUpload.rejected, (state, action) => {
         state.loading = false;
@@ -438,7 +481,7 @@ const agentSlice = createSlice({
       .addCase(fetchAgentsTimingList.fulfilled, (state, action) => {
         state.loading = false;
         state.agentsTiming = action.payload.agentsTiming; // Correct payload key
-        state.message = action.payload.message || '';
+        state.message = action.payload.message || "";
       })
       .addCase(fetchAgentsTimingList.rejected, (state, action) => {
         state.loading = false;
@@ -454,15 +497,13 @@ const agentSlice = createSlice({
       .addCase(fetchAgentStats.fulfilled, (state, action) => {
         state.loading = false;
         state.AgentStats = action.payload.AgentStats; // Correct payload key
-        state.message = action.payload.message || '';
+        state.message = action.payload.message || "";
       })
       .addCase(fetchAgentStats.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
-
-
 
       // Create Agents Timming
       .addCase(createAgentTiming.pending, (state) => {
@@ -473,7 +514,7 @@ const agentSlice = createSlice({
       .addCase(createAgentTiming.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Created Successfully';
+        state.message = action.payload.message || "Created Successfully";
       })
       .addCase(createAgentTiming.rejected, (state, action) => {
         state.loading = false;
@@ -489,7 +530,7 @@ const agentSlice = createSlice({
       .addCase(fetchAgentsById.fulfilled, (state, action) => {
         state.loading = false;
         state.agent = action.payload.result;
-        state.message = action.payload?.message || '';
+        state.message = action.payload?.message || "";
       })
       .addCase(fetchAgentsById.rejected, (state, action) => {
         state.loading = false;
@@ -506,14 +547,13 @@ const agentSlice = createSlice({
       .addCase(createAgent.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Updated Successfully';
+        state.message = action.payload.message || "Updated Successfully";
       })
       .addCase(createAgent.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
-      
 
       // Update Agents
       .addCase(updateAgent.pending, (state) => {
@@ -524,7 +564,7 @@ const agentSlice = createSlice({
       .addCase(updateAgent.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Updated Successfully';
+        state.message = action.payload.message || "Updated Successfully";
       })
       .addCase(updateAgent.rejected, (state, action) => {
         state.loading = false;
@@ -541,7 +581,7 @@ const agentSlice = createSlice({
       .addCase(deleteAgent.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Deleted Successfully';
+        state.message = action.payload.message || "Deleted Successfully";
       })
       .addCase(deleteAgent.rejected, (state, action) => {
         state.loading = false;

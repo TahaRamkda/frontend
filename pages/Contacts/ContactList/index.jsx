@@ -338,9 +338,6 @@ const ContactList = () => {
     );
   }, [filterText, GroupId]);
 
-  if (error) {
-    return <div className="bg-red-500 text-white p-4 rounded">{error}</div>;
-  }
   return (
     <App>
       {loading && <Loading />}

@@ -412,9 +412,7 @@ const AgentsList = () => {
     ),
     [filterText, SenderId]
   );
-  if (error) {
-    return <div className="p-4 text-red-500">{error}</div>;
-  }
+
   return (
     <App>
       <div className="flex items-center">

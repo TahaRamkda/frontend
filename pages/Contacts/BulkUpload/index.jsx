@@ -21,9 +21,9 @@ const BulkUpload = ({ onClose, onsuccess, isVisible }) => {
     formData.append("File", FieldValue);
     formData.append("ActionBy", localStorage.getItem("userId"));
     try {
-      debugger
+      
       const response = await dispatch(bulkUpload({contactData:formData})).unwrap();
-      debugger
+      
       onClose()
       onsuccess();
       if (response.data.success) {

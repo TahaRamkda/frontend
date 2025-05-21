@@ -20,9 +20,7 @@ export const fetchContact = createAsyncThunk(
   ) => {
     try {
       const response = await API.post("/api", {
-        endpoint: `${CONTACTLIST}?GroupId=${groupId}&PageNo=${pageNo}&PageSize=${pageSize}${
-          searchStr ? `&SearchStr=${searchStr}` : ""
-        }`,
+        endpoint: `${CONTACTLIST}?GroupId=${groupId}&PageNo=${pageNo}&PageSize=${pageSize}${searchStr ? `&SearchStr=${searchStr}` : ""}`,
         method: "GET",
         //payload: {},
       });
@@ -72,13 +70,13 @@ export const createContact = createAsyncThunk(
   "contact/createContact",
   async (contactData, { rejectWithValue }) => {
     try {
-      debugger
+      
       const response = await API.post("/api", {
           endpoint: `${CREATECONTACT}`,
           method: "POST",
           payload: contactData,
         });
-        debugger
+        
       return response.data.data.message;
     } catch (error) {
       const handledError = handleError(error);
@@ -95,7 +93,7 @@ export const updateContact = createAsyncThunk(
        const response = await API.post("/api", {
                 endpoint: `${UPDATECONTACT}`,
                 method: "PUT",
-                payload: {contactData},
+                payload: contactData,
               });
       return response.data;
     } catch (error) {
@@ -110,13 +108,13 @@ export const deleteContact = createAsyncThunk(
   "contact/deleteContact",
   async ({ contactId, onSuccess }, { rejectWithValue }) => {
     try {
-      debugger
+      
       const response = await API.post("/api", {
           endpoint: `${DELETECONTACT}?ContactId=${contactId}`,
           method: "DELETE",
           // payload: {},
         });
-        debugger
+        
       if (onSuccess) onSuccess(); // Handle success callback
       return response.data;
     } catch (error) {
@@ -131,14 +129,13 @@ export const bulkUpload = createAsyncThunk(
   "media/bulkUpload",
   async ({contactData}, { rejectWithValue }) => {
     try {
-      debugger
+      
       const response = await API.post("/api", {
           endpoint: `${BULKUPLOAD}`,
           method: "POST",
           payload: contactData,
-          ContentType:'multipart/form-data'
         });
-        debugger
+        
       return response.data;
     } catch (error) {
       const handledError = handleError(error);

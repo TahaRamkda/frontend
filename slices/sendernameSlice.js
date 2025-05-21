@@ -31,10 +31,14 @@ export const fetchSendernamesDrop = createAsyncThunk(
   'sendername/fetchSendernamesDrop',
   async ({clientId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${SENDERNAMEDROP}`);
+      const response = await API.post("/api", {
+        endpoint: `${SENDERNAMEDROP}`,
+        method: "GET",
+        //payload: {},
+      });
       if (response?.status === 200 ) {
         return {
-          sendernameDrop: response.data.result,
+          sendernameDrop: response.data.data.result,
         };
       } else {
         throw new Error('Failed to fetch details');
