@@ -15,7 +15,7 @@ export const fetchUser = createAsyncThunk(
                   method: "GET",
                   //payload: {},
                 });
-                debugger
+                
         if (response?.status === 200) {
           return {
             users: response.data.data.result,

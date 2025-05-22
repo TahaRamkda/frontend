@@ -40,7 +40,7 @@ export const fetchSettingById = createAsyncThunk(
           method: "GET",
           //payload: {},
         });
-        debugger
+        
         return response.data.data.result;
       } catch (error) {
         const handledError = handleError(error);
@@ -95,7 +95,7 @@ export const deleteAppSetting = createAsyncThunk(
           method: "DELETE",
           // payload: {},
         });
-        debugger
+        
       if (onSuccess) onSuccess(); // Handle success callback
       return response.data;
     } catch (error) {

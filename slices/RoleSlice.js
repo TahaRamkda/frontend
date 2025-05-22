@@ -57,13 +57,13 @@ export const  fetchRolesDrop = createAsyncThunk(
     ' role/ fetchRoleById',
     async ( {roleId,clientId=localStorage.getItem("clientId")}, { rejectWithValue }) => { 
       try {
-        debugger
+        
         const response = await API.post("/api", {
           endpoint: `${ROLEDETAILS}?Id=${roleId}`,
           method: "GET",
           //payload: {},
         });
-        debugger
+        
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -82,7 +82,7 @@ export const  fetchRolesDrop = createAsyncThunk(
                   method: "POST",
                   payload: roleData,
                 });
-                debugger
+                
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -101,7 +101,7 @@ export const  fetchRolesDrop = createAsyncThunk(
           method: "PUT",
           payload: roleData,
         });
-        debugger
+        
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -120,7 +120,7 @@ export const  fetchRolesDrop = createAsyncThunk(
           method: "DELETE",
           // payload: {},
         });
-        debugger
+        
         if (onSuccess) onSuccess(); // Handle success callback
         return response.data;
       } catch (error) {

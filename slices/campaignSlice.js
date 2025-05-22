@@ -61,7 +61,7 @@ export const fetchCampaignFrequentDelete = createAsyncThunk(
         method: "GET",
       });
       if (response?.status === 200) {
-        debugger
+        
         return {
           campaignFreqDelete: response.data.data.result,
         };
@@ -108,7 +108,7 @@ export const fetchCampaignDetail = createAsyncThunk(
                   method: "POST",
                   payload: campaignData,
                 });
-                debugger
+                
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -145,7 +145,7 @@ export const fetchCampaignDetail = createAsyncThunk(
                   method: "POST",
                   payload: campaignData,
                 });
-                debugger
+                
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -158,13 +158,13 @@ export const fetchCampaignDetail = createAsyncThunk(
     'campaign/sendCampaign',
     async ( sendData, { rejectWithValue }) => {
       try {
-        debugger
+        
         const response = await API.post("/api", {
                   endpoint: `${SENDCAMPAIGN}`,
                   method: "POST",
                   payload: sendData,
                 });
-                debugger
+                
         return response.data;
       } catch (error) {
         const handledError = handleError(error);

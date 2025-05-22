@@ -92,7 +92,7 @@ export const SendInteractivetemp = createAsyncThunk(
         method: "POST",
         payload: templatedata,
       });
-      debugger
+      
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -113,7 +113,7 @@ export const Transferchat = createAsyncThunk(
         method: "GET",
         //payload: {},
       });
-      debugger;
+      ;
       if (response?.status === 200) {
         return response.data.data.result; // Pass API response to fulfilled reducer
       } else {

@@ -129,8 +129,7 @@ export const bulkUpload = createAsyncThunk(
   "media/bulkUpload",
   async ({contactData}, { rejectWithValue }) => {
     try {
-      
-      const response = await API.post("/api", {
+      const response = await API.post("/formData", {
           endpoint: `${BULKUPLOAD}`,
           method: "POST",
           payload: contactData,

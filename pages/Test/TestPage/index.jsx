@@ -103,7 +103,7 @@ const AppSettings = () => {
     try {
       
       const response = await dispatch(fetchSettingById({ Id: id })).unwrap();
-      debugger
+      
       if (response) {
         
         setSettingForm(response);
@@ -226,7 +226,7 @@ const AppSettings = () => {
       };
 
       const response = await dispatch(updateAppSettings(requestBody)).unwrap();
-      debugger
+      
       if (response.data.success) {
         showSweetAlert({
           title: "Updated Successfully",
