@@ -42,7 +42,7 @@ const SettingForm = ({ onClose, isVisible, onsuccess }) => {
     }
     try {
       const response = await dispatch(addSettings(requestBody)).unwrap();
-      if (response.success) {
+      if (response.data.success) {
         showSweetAlert({
           title: "Created Successfully",
           text: "",

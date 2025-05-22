@@ -54,10 +54,10 @@ const RoleList = () => {
 
   const handleDetailClick = async (roleId) => {
     try {
-      
       const response = await dispatch(fetchRoleById({roleId:roleId})).unwrap();
       if (response) {
-        setRoleForm(response.result);
+        debugger
+        setRoleForm(response.data.result);
         setIsModalOpen(true);
       } else {
         showSweetAlert({ title: "Error", text: "", icon: "error" });
@@ -118,7 +118,7 @@ const RoleList = () => {
       };
 
       const response = await dispatch(updateRole(requestBody)).unwrap();
-      if (response.success) {
+      if (response.data.success) {
         showSweetAlert({
           title: "Updated Successfully",
           text: "",

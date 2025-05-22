@@ -126,14 +126,14 @@ export const setAgentStatus = createAsyncThunk(
   "agent/setAgentStatus",
   async ({ agentId, statusId }, { rejectWithValue }) => {
     try {
-      debugger
+      
        const response = await API.post("/api", {
         endpoint:  `${AGENTSTATUS}?agentId=${agentId}&status=${statusId}`,
         method: "GET",
         //payload: {},
       });
       
-      debugger
+      
       if (response.status === 200) {
         return response.data;
       } else {
@@ -153,13 +153,17 @@ export const fetchAgentsTimingList = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await API.get(`${AGENTSTIMINGLIST}?agentId=${agentId}`);
+       const response = await API.post("/api", {
+        endpoint:  `${AGENTSTIMINGLIST}?agentId=${agentId}`,
+        method: "GET",
+        //payload: {},
+      });
       if (response?.status === 200) {
         return {
-          agentsTiming: response.data.result,
+          agentsTiming: response.data.data.result,
           totalRecords:
-            response.data.result.length > 0
-              ? response.data.result[0].totalRecords
+            response.data.data.result.length > 0
+              ? response.data.data.result[0].totalRecords
               : 0,
         };
       } else {
@@ -235,14 +239,14 @@ export const fetchAgentsById = createAsyncThunk(
   "agent/fetchAgentsById",
   async ({ agentId, clientId }, { rejectWithValue }) => {
     try {
-      ;
+      
       const response = await API.post("/api", {
         endpoint: `${AGENTDETAILS}?agentId=${agentId}`,
         method: "GET",
         //payload: {},
       });
-      debugger;
-      returnresponse.data;
+      
+      return response.data.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);

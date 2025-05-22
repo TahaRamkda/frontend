@@ -57,7 +57,11 @@ export const fetchAgentsMonitor = createAsyncThunk(
     'agent/agentDisable',
     async ({agentId, disable,clientId}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${AGENTDISABLE}?agentId=${agentId}&disable=${disable}`);
+         const response = await API.post("/api", {
+        endpoint: `${AGENTDISABLE}?agentId=${agentId}&disable=${disable}`,
+        method: "GET",
+        //payload: {},
+      });
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -70,8 +74,12 @@ export const fetchAgentsMonitor = createAsyncThunk(
     'chat/sendCloseChatTemplate',
     async (ChatId, { rejectWithValue }) => {
       try {
-        
-        const response = await API.get(`${SENDCLOSECHATTEMPLATE}?id=${ChatId}`);
+        const response = await API.post("/api", {
+        endpoint: `${SENDCLOSECHATTEMPLATE}?id=${ChatId}`,
+        method: "GET",
+        //payload: {},
+      });
+      debugger
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -176,7 +184,7 @@ const Supervisor = createSlice({
               .addCase(agentDisable.fulfilled, (state, action) => {
                 state.loading = false;
                 state.success = true;
-                state.message = action.payload.message || 'Updated Successfully';
+                state.message = action.payload.data.message || 'Updated Successfully';
               })
               .addCase(agentDisable.rejected, (state, action) => {
                 state.loading = false;
@@ -194,7 +202,7 @@ const Supervisor = createSlice({
                     .addCase(SupervisorCloseChat.fulfilled, (state, action) => {
                       state.loading = false;
                       state.success = true;
-                      state.message = action.payload.message || 'Closed Successfully';
+                      state.message = action.payload.data.message || 'Closed Successfully';
                     })
                     .addCase(SupervisorCloseChat.rejected, (state, action) => {
                       state.loading = false;

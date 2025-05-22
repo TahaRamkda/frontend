@@ -8,10 +8,14 @@ export const fetchtemplatecategory = createAsyncThunk(
   'master/fetchtemplatecategory',
   async ({}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${TEMPLATECATEGORY}`);
+       const response = await API.post("/api", {
+                endpoint: `${TEMPLATECATEGORY}`,
+                method: "GET",
+                //payload: {},
+              });
       if (response?.status === 200) {
         return {
-          templatecategory: response.data.result
+          templatecategory: response.data.data.result
         };
       } else {
         throw new Error('Failed to fetch category');
@@ -28,10 +32,14 @@ export const fetchlanguage = createAsyncThunk(
   'master/fetchlanguage',
   async ({}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${TEMPLATELANGUAGE}`);
+      const response = await API.post("/api", {
+                endpoint: `${TEMPLATELANGUAGE}`,
+                method: "GET",
+                //payload: {},
+              });
       if (response?.status === 200) {
         return {
-          languages: response.data.result
+          languages: response.data.data.result
         };
       } else {
         throw new Error('Failed to fetch category');

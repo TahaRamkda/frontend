@@ -24,6 +24,7 @@ import {
   setPageSize,
   setCurrentPage,
   updateAppSettings,
+  deleteAppSetting
 } from "@/slices/AppSettingSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import { Logger } from 'next-axiom';
@@ -49,6 +50,7 @@ const AppSettings = () => {
   const [settingForm, setSettingForm] = useState({});
   const [filterText, setFilterText] = useState("");
   const startTime = Date.now();
+  const [showSettingForm, setShowSettingForm] = useState(false)
   const [CreateModalOpen, setCreateModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // Start as true since we're fetching data
   const settingColumns = [
@@ -95,15 +97,16 @@ const AppSettings = () => {
     setSelectedSenderId(id);
   };
 
+  
   const handleDetailClick = async (id) => {
     
     try {
       
       const response = await dispatch(fetchSettingById({ Id: id })).unwrap();
-      
+      debugger
       if (response) {
         
-        setSettingForm(response.result);
+        setSettingForm(response);
         setIsModalOpen(true);
       } else {
         showSweetAlert({
@@ -119,7 +122,7 @@ const AppSettings = () => {
   const handleCancel = () => {
     setCreateModalOpen(false);
   };
-  const handleDeleteClick = (groupId) => {
+  const handleDeleteClick = (Id) => {
     SweetAlert.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -131,7 +134,7 @@ const AppSettings = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          dispatch(deleteGroup({ groupId })).then(() => {
+          dispatch(deleteAppSetting({ Id })).then(() => {
             showSweetAlert({
               title: "Deleted Successfully",
               text: "",
@@ -223,7 +226,8 @@ const AppSettings = () => {
       };
 
       const response = await dispatch(updateAppSettings(requestBody)).unwrap();
-      if (response.success) {
+      debugger
+      if (response.data.success) {
         showSweetAlert({
           title: "Updated Successfully",
           text: "",
@@ -277,12 +281,9 @@ const AppSettings = () => {
   }, [dispatch,senderId,clientId]);
 
   const handleCreate = async() => {
-    await logChatDetails(logger, 'API call completed', 'info', {
-     
-      clientId: localStorage.getItem('clientId') ,
-      actionBy: localStorage.getItem('actionBy') 
-    });
+    setCreateModalOpen(true);
   };
+
 
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10;
@@ -301,7 +302,7 @@ const AppSettings = () => {
           <label className="font-medium text-gray-700 text-sm ">
               Sender Name
             </label>
-            <SendernameDropdown name="senderId" value onChange={handleSenderChange} />
+            <SendernameDropdown name="senderId" value={senderId} onChange={handleSenderChange} />
           </div>
           <div className="flex flex-col space-y-1 text-start mb-1 ">
           <label className="font-medium text-gray-700 text-sm ">

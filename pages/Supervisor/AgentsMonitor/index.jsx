@@ -361,7 +361,7 @@ const MessageSummary = () => {
           })
         ).unwrap();
 
-        if (response.result) {
+        if (response.data.result) {
           sweetalert.fire(
             "Success",
             `Agent has been ${action}d successfully.`,

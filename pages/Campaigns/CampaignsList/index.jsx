@@ -299,7 +299,8 @@ const CampaignsList = () => {
       setIsModalOpen(false);
 
       const response = await dispatch(activateCampaign(requestBody)).unwrap();
-      if (response.success) {
+      debugger
+      if (response) {
         refreshCampaignList();
         showSweetAlert({
           title: "Schedule Successfully",

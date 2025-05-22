@@ -306,7 +306,8 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
       const response = await dispatch(
         updateInteractiveTemplates(requestBody)
       ).unwrap();
-      if (response.success) {
+      
+      if (response.data.success) {
         clearInteractiveTemplateDetailState();
         showSweetAlert({
           title: "Updated Successfully",
@@ -317,7 +318,7 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
       } else {
         showSweetAlert({
           title: "Failed",
-          text: response.message || "",
+          text: response.data.message || "",
           icon: "error",
         });
 

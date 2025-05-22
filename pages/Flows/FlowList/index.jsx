@@ -101,6 +101,17 @@ const Flow = () => {
     },
   ];
 
+  const refreshFlowList =()=>{
+    dispatch(
+      fetchFlowsListData({
+        pageNo: PageNum,
+        pageSize: page,
+        Language: languageId,
+        SearchStr: filterText,
+        senderId: SenderId,
+      })
+    );
+  }
   const handleCreate = () => {
     router.push("/Flows/CreateFlow");
   };
@@ -137,6 +148,7 @@ const Flow = () => {
           text: "",
           icon: "success",
         });
+        refreshFlowList()
       } else {
         showSweetAlert({
           title: "Failed",
@@ -172,6 +184,7 @@ const Flow = () => {
               text: "",
               icon: "success",
             });
+            refreshFlowList()
           });
         } catch (error) {
           alert("An unexpected error occurred: " + error.message);

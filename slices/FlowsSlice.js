@@ -81,6 +81,7 @@ export const createFlows = createAsyncThunk(
                 method: "POST",
                 payload: flowData,
               });
+              debugger
       return response.data.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -117,11 +118,13 @@ export const updateFlow = createAsyncThunk(
     'flowupdate/updateFlow',
     async (flowData, { rejectWithValue }) => {
       try {
-        const response = await API.post("/api", {
+        debugger
+         const response = await API.post("/api", {
                 endpoint: `${UPDATEFLOW}`,
-                method: "POST",
+                method: "PUT",
                 payload: flowData,
               });
+              debugger
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -307,7 +310,7 @@ const FlowSlice = createSlice({
       .addCase(updateFlow.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Updated Successfully';
+        state.message = action.payload.data.message || 'Updated Successfully';
       })
       .addCase(updateFlow.rejected, (state, action) => {
         state.loading = false;

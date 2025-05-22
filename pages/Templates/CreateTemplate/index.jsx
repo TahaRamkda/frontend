@@ -254,13 +254,15 @@ const TemplateCreationPage = () => {
       alert("Please select Languaage");
     }
     try {
+      
       const response = await dispatch(createTemplates(requestBody)).unwrap();
-      if (response.success) {
+      
+      if (response.data.result) {
         clearTemplateCreateState();
         showSweetAlert({
           title: "Template Created",
           text:
-            response.result.message ||
+            response.data.message ||
             "The Template has been successfully created.",
           icon: "success",
         });

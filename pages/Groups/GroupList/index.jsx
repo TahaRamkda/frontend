@@ -34,7 +34,7 @@ import { usePermissions } from "@/context/PermissionsContext";
 const GroupList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { groups, loading, error, pageSize, totalRecords, currentPage } =
+  const { groups,group, loading, error, pageSize, totalRecords, currentPage } =
     useSelector((state) => state.groups);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
@@ -91,7 +91,6 @@ const GroupList = () => {
     try {
       const response = await dispatch(fetchGroupById({ groupId })).unwrap();
       if (response) {
-        setGroupForm(response.result);
         setIsModalOpen(true);
       } else {
         showSweetAlert({
@@ -135,6 +134,7 @@ const GroupList = () => {
     });
   };
 
+  
   const handlePageChange = async (page) => {
     // Update current page state in Redux
     dispatch(setCurrentPage(page));
@@ -211,7 +211,7 @@ const GroupList = () => {
       
       const response = await dispatch(updateGroup(requestBody)).unwrap();
       
-      if (response.data.success) {
+      if (response) {
         showSweetAlert({
           title: "Updated Successfully",
           text: "",
@@ -260,6 +260,13 @@ const GroupList = () => {
       dispatch(clearGroupState());
     };
   }, [dispatch]);
+
+  useEffect(() => {
+    
+   if(group){
+    setGroupForm(group)
+   }
+  }, [group]);
 
   const handleCreate = () => {
     setCreateModalOpen(true);

@@ -10,11 +10,16 @@ export const fetchUser = createAsyncThunk(
     'user/fetchUser',
     async ({clientId, searchStr}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${USERLIST}?${searchStr?`searchStr=${searchStr}`:''}`);
+        const response = await API.post("/api", {
+                  endpoint: `${USERLIST}?${searchStr?`searchStr=${searchStr}`:''}`,
+                  method: "GET",
+                  //payload: {},
+                });
+                debugger
         if (response?.status === 200) {
           return {
-            users: response.data.result,
-            totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+            users: response.data.data.result,
+            totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
           };
         } else {
           throw new Error('Failed to fetch details');

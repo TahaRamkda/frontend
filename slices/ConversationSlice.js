@@ -1,23 +1,35 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import API from '../utils/api.axios';
-import handleError from '../utils/handleError';
-import { CONVERSATIONLIST, CONVERSATIONMESSAGE ,AGENTMESSAGE,SENDAGENTINTERACTIVETEMPLATLIS,TRANSFERCHAT} from '@/utils/apiConstants';
+import API from "../utils/api.axios";
+import handleError from "../utils/handleError";
+import {
+  CONVERSATIONLIST,
+  CONVERSATIONMESSAGE,
+  AGENTMESSAGE,
+  SENDAGENTINTERACTIVETEMPLATLIS,
+  TRANSFERCHAT,
+} from "@/utils/apiConstants";
 
 // Thunks
 
-
 export const fetchConversationList = createAsyncThunk(
-  'conversation/fetchConversationList',
-  async ({clientId,AgentId}, { rejectWithValue }) => {
+  "conversation/fetchConversationList",
+  async ({ clientId, AgentId }, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${CONVERSATIONLIST}?agentId=${AgentId}`);
+      const response = await API.post("/api", {
+        endpoint: `${CONVERSATIONLIST}?agentId=${AgentId}`,
+        method: "GET",
+        //payload: {},
+      });
       if (response?.status === 200) {
         return {
-          conversations: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+          conversations: response.data.data.result,
+          totalRecords:
+            response.data.data.result.length > 0
+              ? response.data.data.result[0].totalRecords
+              : 0,
         };
       } else {
-        throw new Error('Failed to fetch details');
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -27,21 +39,25 @@ export const fetchConversationList = createAsyncThunk(
 );
 
 export const fetchConversationMessage = createAsyncThunk(
-  'conversation/fetchConversationMessage',
-  async ({ clientId, ChatId, pageNo=0 }, { rejectWithValue }) => {
+  "conversation/fetchConversationMessage",
+  async ({ clientId, ChatId, pageNo = 0 }, { rejectWithValue }) => {
     try {
-      
-      const response = await API.get(
-        `${CONVERSATIONMESSAGE}?id=${ChatId}`
-      );
-      if (response?.status === 200 ) {
+      const response = await API.post("/api", {
+        endpoint: `${CONVERSATIONMESSAGE}?id=${ChatId}`,
+        method: "GET",
+        //payload: {},
+      });
+      if (response?.status === 200) {
         return {
-          conversationMessage: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+          conversationMessage: response.data.data.result,
+          totalRecords:
+            response.data.data.result.length > 0
+              ? response.data.data.result[0].totalRecords
+              : 0,
           pageNo,
         };
       } else {
-        throw new Error('Failed to fetch details');
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -49,78 +65,93 @@ export const fetchConversationMessage = createAsyncThunk(
     }
   }
 );
-  
-  export const NewAgentMessage = createAsyncThunk(
-    'conversation/NewAgentMessage',
-    async (messageData, { rejectWithValue }) => {
-      try {
-        const response = await API.post(AGENTMESSAGE, messageData);
-        return response.data;
-      } catch (error) {
-        const handledError = handleError(error);
-        return rejectWithValue(handledError);
-      }
-    }
-  );
 
-  export const SendInteractivetemp = createAsyncThunk(
-    'conversation/SendInteractivetemp',
-    async (templatedata, { rejectWithValue }) => {
-      try {
-        const response = await API.post(SENDAGENTINTERACTIVETEMPLATLIS, templatedata);
-        return response.data;
-      } catch (error) {
-        const handledError = handleError(error);
-        return rejectWithValue(handledError);
-      }
+export const NewAgentMessage = createAsyncThunk(
+  "conversation/NewAgentMessage",
+  async (messageData, { rejectWithValue }) => {
+    try {
+      const response = await API.post("/api", {
+        endpoint: `${AGENTMESSAGE}`,
+        method: "POST",
+        payload: messageData,
+      });
+      return response.data;
+    } catch (error) {
+      const handledError = handleError(error);
+      return rejectWithValue(handledError);
     }
-  );
+  }
+);
 
-  export const Transferchat = createAsyncThunk(
-    'conversation/Transferchat',
-    async ({ clientId, AgentId, ChatId, Comment,oldAgentId }, { rejectWithValue }) => {
-      try {
-        const response = await API.get(`${TRANSFERCHAT}?oldAgentId=${oldAgentId}&agentId=${AgentId}&id=${ChatId}&Comment=${Comment}`);
-        
-        if (response?.status === 200) {
-          return response.data; // Pass API response to fulfilled reducer
-        } else {
-          throw new Error('Failed to transfer chat');
-        }
-      } catch (err) {
-        const handledError = handleError(err);
-        return rejectWithValue(handledError);
-      }
+export const SendInteractivetemp = createAsyncThunk(
+  "conversation/SendInteractivetemp",
+  async (templatedata, { rejectWithValue }) => {
+    try {
+      const response = await API.post("/api", {
+        endpoint: `${SENDAGENTINTERACTIVETEMPLATLIS}`,
+        method: "POST",
+        payload: templatedata,
+      });
+      debugger
+      return response.data;
+    } catch (error) {
+      const handledError = handleError(error);
+      return rejectWithValue(handledError);
     }
-  );
-  
-  export const fetchConversationMessageReport = createAsyncThunk(
-    'conversation/fetchConversationMessageReport',
-    async ({ clientId, ChatId }, { rejectWithValue }) => {
-      try {
-        
-        const response = await API.get(
-          `${CONVERSATIONMESSAGE}?id=${ChatId}`
-        );
-        if (response?.status === 200 && response.data?.result) {
-          return {
-            conversationMessagereport: response.data.result,
-      
-          };
-        } else {
-          throw new Error('Failed to fetch details');
-        }
-      } catch (err) {
-        const handledError = handleError(err);
-        return rejectWithValue(handledError);
-      }
-    }
-  );
+  }
+);
 
+export const Transferchat = createAsyncThunk(
+  "conversation/Transferchat",
+  async (
+    { clientId, AgentId, ChatId, Comment, oldAgentId },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await API.post("/api", {
+        endpoint: `${TRANSFERCHAT}?oldAgentId=${oldAgentId}&agentId=${AgentId}&id=${ChatId}&Comment=${Comment}`,
+        method: "GET",
+        //payload: {},
+      });
+      debugger;
+      if (response?.status === 200) {
+        return response.data.data.result; // Pass API response to fulfilled reducer
+      } else {
+        throw new Error("Failed to transfer chat");
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
+export const fetchConversationMessageReport = createAsyncThunk(
+  "conversation/fetchConversationMessageReport",
+  async ({ clientId, ChatId }, { rejectWithValue }) => {
+    try {
+      const response = await API.post("/api", {
+        endpoint: `${CONVERSATIONMESSAGE}?id=${ChatId}`,
+        method: "GET",
+        //payload: {},
+      });
+      if (response?.status === 200 && response.data?.data.result) {
+        return {
+          conversationMessagereport: response.data.data.result,
+        };
+      } else {
+        throw new Error("Failed to fetch details");
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
 
 // Slice
 const conversationslice = createSlice({
-  name: 'conversation',
+  name: "conversation",
   initialState: {
     conversations: [],
     messages: [],
@@ -128,7 +159,7 @@ const conversationslice = createSlice({
     loading: false,
     error: null,
     success: false,
-    message: '',
+    message: "",
     currentPage: 1,
     totalPages: 1,
     pageSize: 10,
@@ -155,26 +186,25 @@ const conversationslice = createSlice({
     },
 
     clearMessagesReportState: (state) => {
-      state.conversationMessagereport =[]
+      state.conversationMessagereport = [];
       state.loading = false;
       state.error = null;
       state.success = false;
     },
     resetMessages: (state) => {
-      
       state.messages = [];
       state.currentPage = 1;
       state.hasMore = true;
     },
     clearConversationMessageState: (state) => {
-        state.conversationMessage = [];
-        state.loading = false;
-        state.error = null;
-        state.success = false;
-        state.currentPage = 1;
-        state.totalPages = 1;
-        state.pageSize = 10;
-        state.totalRecords = 0;
+      state.conversationMessage = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+      state.currentPage = 1;
+      state.totalPages = 1;
+      state.pageSize = 10;
+      state.totalRecords = 0;
     },
     clearNewAgentMessageState: (state) => {
       state.loading = false;
@@ -199,7 +229,7 @@ const conversationslice = createSlice({
         state.conversations = action.payload.conversations;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
-        state.message = action.payload.message || '';
+        state.message = action.payload.message || "";
       })
       .addCase(fetchConversationList.rejected, (state, action) => {
         state.loading = false;
@@ -211,97 +241,95 @@ const conversationslice = createSlice({
         state.loading = true;
       })
       .addCase(fetchConversationMessage.fulfilled, (state, { payload }) => {
-        
         const { conversationMessage, totalRecords, pageNo } = payload;
-      
+
         // Append messages if loading next page
         if (pageNo > state.currentPage) {
-          state.messages = [...state.messages,...conversationMessage];
+          state.messages = [...state.messages, ...conversationMessage];
         } else if (pageNo === 1) {
           // On first page or reset, replace all messages
           state.messages = [...conversationMessage];
         }
-      
+
         state.totalRecords = totalRecords;
         state.currentPage = pageNo;
-      
+
         // Determine if more messages can be fetched
         state.hasMore = state.messages.length < totalRecords;
         state.loading = false;
       })
-      
+
       .addCase(fetchConversationMessage.rejected, (state) => {
         state.loading = false;
       })
-
 
       .addCase(fetchConversationMessageReport.pending, (state) => {
         state.loading = true;
       })
       .addCase(fetchConversationMessageReport.fulfilled, (state, action) => {
         state.loading = false;
-        state.conversationMessagereport = action.payload.conversationMessagereport.reverse();
+        state.conversationMessagereport =
+          action.payload.conversationMessagereport.reverse();
 
-        state.message = action.payload.message || '';
+        state.message = action.payload.message || "";
       })
-     
-      
+
       .addCase(fetchConversationMessageReport.rejected, (state) => {
         state.loading = false;
       })
 
-
-       .addCase(NewAgentMessage.pending, (state) => {
+      .addCase(NewAgentMessage.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.success = false;
-       })
+      })
       .addCase(NewAgentMessage.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
         state.message = action.payload.message;
-       })
+      })
       .addCase(NewAgentMessage.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
-        })
-        .addCase(SendInteractivetemp.pending, (state) => {
-          state.loading = true;
-          state.error = null;
-          state.success = false;
-         })
-        .addCase(SendInteractivetemp.fulfilled, (state, action) => {
-          state.loading = false;
-          state.success = true;
-          state.message = action.payload.message;
-         })
-        .addCase(SendInteractivetemp.rejected, (state, action) => {
-          state.loading = false;
-          state.error = action.payload || action.error.message;
-          state.message = action.payload?.message || action.error.message;
-          })
-          .addCase(Transferchat.pending, (state) => {
-            state.loading = true;
-            state.error = null;
-          })
-          .addCase(Transferchat.fulfilled, (state, action) => {
-            state.loading = false;
-            state.success = true;
-            state.message = action.payload?.message || 'Chat transferred successfully!';
-          })          
-          .addCase(Transferchat.rejected, (state, action) => {
-            state.loading = false;
-            state.error = action.payload || action.error.message;
-            state.message = action.payload?.message || action.error.message;
-          })
+      })
+      .addCase(SendInteractivetemp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(SendInteractivetemp.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.message = action.payload.message;
+      })
+      .addCase(SendInteractivetemp.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+      .addCase(Transferchat.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(Transferchat.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.message =
+          action.payload?.message || "Chat transferred successfully!";
+      })
+      .addCase(Transferchat.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      });
   },
 });
 
 // Export actions
 export const {
   setPageSize,
-  resetMessages ,
+  resetMessages,
   setCurrentPage,
   clearConversationMessageState,
   clearconversationstate,

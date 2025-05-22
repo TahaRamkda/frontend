@@ -1,13 +1,19 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import API from '../utils/api.axios';
-import handleError from '../utils/handleError';
-import { SENDERNAMELIST, SENDERNAMEDETAIL, CREATESENDERNAME, DELETESENDERNAME, UPDATESENDERNAME, SENDERNAMEDROP } from '@/utils/apiConstants';
+import API from "../utils/api.axios";
+import handleError from "../utils/handleError";
+import {
+  SENDERNAMELIST,
+  SENDERNAMEDETAIL,
+  CREATESENDERNAME,
+  DELETESENDERNAME,
+  UPDATESENDERNAME,
+  SENDERNAMEDROP,
+} from "@/utils/apiConstants";
 
 // Thunks
 
-
 export const fetchSendernames = createAsyncThunk(
-  'sendername/fetchSendernames',
+  "sendername/fetchSendernames",
   async ({ client_Id }, { rejectWithValue }) => {
     try {
       const response = await API.post("/api", {
@@ -17,14 +23,14 @@ export const fetchSendernames = createAsyncThunk(
 
       if (response?.status === 200) {
         return {
-          sendernames: response?.data?.result,
+          sendernames: response?.data?.data.result,
           totalRecords:
-            response.data?.result?.length > 0
-              ? response.data.result[0].totalRecords
+            response.data?.data.result?.length > 0
+              ? response.data.data.result[0].totalRecords
               : 0,
         };
       } else {
-        throw new Error('Failed to fetch details');
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -34,20 +40,20 @@ export const fetchSendernames = createAsyncThunk(
 );
 
 export const fetchSendernamesDrop = createAsyncThunk(
-  'sendername/fetchSendernamesDrop',
-  async ({clientId}, { rejectWithValue }) => {
+  "sendername/fetchSendernamesDrop",
+  async ({ clientId }, { rejectWithValue }) => {
     try {
       const response = await API.post("/api", {
         endpoint: `${SENDERNAMEDROP}`,
         method: "GET",
         //payload: {},
       });
-      if (response?.status === 200 ) {
+      if (response?.status === 200) {
         return {
           sendernameDrop: response.data.data.result,
         };
       } else {
-        throw new Error('Failed to fetch details');
+        throw new Error("Failed to fetch details");
       }
     } catch (err) {
       const handledError = handleError(err);
@@ -58,12 +64,16 @@ export const fetchSendernamesDrop = createAsyncThunk(
 
 // Fetch Client by ID
 export const fetchSendernameById = createAsyncThunk(
-  'sendername/fetchSendernameById',
-  async ({senderId,clientId}, { rejectWithValue }) => {
-    
+  "sendername/fetchSendernameById",
+  async ({ senderId, clientId }, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${SENDERNAMEDETAIL}?id=${senderId}`);
-      return response.data;
+      const response = await API.post("/api", {
+        endpoint: `${SENDERNAMEDETAIL}?id=${senderId}`,
+        method: "GET",
+        //payload: {},
+      });
+
+      return response.data.data.result;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -73,7 +83,7 @@ export const fetchSendernameById = createAsyncThunk(
 
 // Create Client
 export const createSendername = createAsyncThunk(
-  'sendername/createSendername',
+  "sendername/createSendername",
   async (sendernameData, { rejectWithValue }) => {
     try {
       const response = await API.post(CREATESENDERNAME, sendernameData);
@@ -87,7 +97,7 @@ export const createSendername = createAsyncThunk(
 
 // Update Client
 export const updateSendername = createAsyncThunk(
-  'sendername/updateSendername',
+  "sendername/updateSendername",
   async (sendernameData, { rejectWithValue }) => {
     try {
       const response = await API.put(UPDATESENDERNAME, sendernameData);
@@ -101,10 +111,12 @@ export const updateSendername = createAsyncThunk(
 
 // Delete Client
 export const deleteSendername = createAsyncThunk(
-  'sendername/deleteSendername',
+  "sendername/deleteSendername",
   async ({ senderId, onSuccess }, { rejectWithValue }) => {
     try {
-      const response = await API.delete(`${DELETESENDERNAME}?SenderNameId=${senderId}`);
+      const response = await API.delete(
+        `${DELETESENDERNAME}?SenderNameId=${senderId}`
+      );
       if (onSuccess) onSuccess(); // Handle success callback
       return response.data;
     } catch (error) {
@@ -116,15 +128,15 @@ export const deleteSendername = createAsyncThunk(
 
 // Slice
 const sendernameSlice = createSlice({
-  name: 'sendername',
+  name: "sendername",
   initialState: {
     sendernames: [],
-    sendernameDrop:[],
+    sendernameDrop: [],
     sendername: null,
     loading: false,
     error: null,
     success: false,
-    message: '',
+    message: "",
     currentPage: 1,
     totalPages: 1,
     pageSize: 10,
@@ -156,7 +168,7 @@ const sendernameSlice = createSlice({
       state.error = null;
       state.success = false;
     },
-    
+
     clearSendernameDetailState: (state) => {
       state.sendername = null;
       state.loading = false;
@@ -182,13 +194,11 @@ const sendernameSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchSendernames.fulfilled, (state, action) => {
-        
         state.loading = false;
         state.sendernames = action.payload?.sendernames;
         state.totalRecords = action.payload?.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
-        state.message = action.payload.message || '';
-        
+        state.message = action.payload.message || "";
       })
       .addCase(fetchSendernames.rejected, (state, action) => {
         state.loading = false;
@@ -203,7 +213,7 @@ const sendernameSlice = createSlice({
       .addCase(fetchSendernamesDrop.fulfilled, (state, action) => {
         state.loading = false;
         state.sendernameDrop = action.payload.sendernameDrop;
-        state.message = action.payload.message || '';
+        state.message = action.payload.message || "";
       })
       .addCase(fetchSendernamesDrop.rejected, (state, action) => {
         state.loading = false;
@@ -211,16 +221,14 @@ const sendernameSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      
       .addCase(fetchSendernameById.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchSendernameById.fulfilled, (state, action) => {
-        
         state.loading = false;
-        state.sendername = action.payload.result;
-        state.message = action.payload?.message || '';
+        state.sendername = action.payload;
+        // state.message = action.payload?.message || '';
       })
       .addCase(fetchSendernameById.rejected, (state, action) => {
         state.loading = false;
@@ -228,7 +236,6 @@ const sendernameSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      
       .addCase(createSendername.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -237,7 +244,7 @@ const sendernameSlice = createSlice({
       .addCase(createSendername.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Created Successfully';
+        state.message = action.payload.message || "Created Successfully";
       })
       .addCase(createSendername.rejected, (state, action) => {
         state.loading = false;
@@ -245,7 +252,6 @@ const sendernameSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      
       .addCase(updateSendername.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -254,7 +260,7 @@ const sendernameSlice = createSlice({
       .addCase(updateSendername.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Updated Successfully';
+        state.message = action.payload.message || "Updated Successfully";
       })
       .addCase(updateSendername.rejected, (state, action) => {
         state.loading = false;
@@ -262,7 +268,6 @@ const sendernameSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      
       .addCase(deleteSendername.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -271,7 +276,7 @@ const sendernameSlice = createSlice({
       .addCase(deleteSendername.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Deleted Successfully';
+        state.message = action.payload.message || "Deleted Successfully";
       })
       .addCase(deleteSendername.rejected, (state, action) => {
         state.loading = false;

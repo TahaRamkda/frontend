@@ -197,13 +197,13 @@ export const fetchAgentReport = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      debugger
+      
       const response = await API.post("/api", {
         endpoint:  `${AGENTREPORT}?pageSize=${pageSize}&senderId=${senderId}${srcStr ? `&searchStr=${srcStr}` : ""}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`,
         method: "GET",
         //payload: {},
       });
-      debugger
+      
       if (response?.status === 200 && response.data?.data.result) {
         return {
           AgentReportList: response.data.data.result,
@@ -264,14 +264,16 @@ export const fetchDashboardSummary = createAsyncThunk(
   "dashboardsummary /fetchDashboardSummary",
   async ({ clientId, fromDate, toDate, senderid }, { rejectWithValue }) => {
     try {
-      const response = await API.get(
-        `${DASHBOARDSUMMARY}?SenderId=${senderid}&FromDate=${fromDate}&ToDate=${toDate}`
-      );
+      const response = await API.post("/api", {
+        endpoint: `${DASHBOARDSUMMARY}?SenderId=${senderid}&FromDate=${fromDate}&ToDate=${toDate}`,
+        method: "GET",
+        //payload: {},
+      });
       if (response?.status === 200) {
         // const parseddata= JSON.parse(response.data, 2);
 
         return {
-          dashboardsummary: response.data.result,
+          dashboardsummary: response.data.data.result,
         };
       } else {
         throw new Error("Failed to fetch details");

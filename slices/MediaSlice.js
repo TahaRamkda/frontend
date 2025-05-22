@@ -10,11 +10,14 @@ export const fetchMedia = createAsyncThunk(
   'media/fetchMedia',
   async ({ClientId,contentTypeStr,senderId,FileName}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${MEDIALIST}?contentTypeStr=${contentTypeStr ? contentTypeStr : ''}&senderId=${senderId}&FileName=${FileName}`);
+       const response = await API.post("/api", {
+        endpoint: `${MEDIALIST}?contentTypeStr=${contentTypeStr ? contentTypeStr : ''}&senderId=${senderId}&FileName=${FileName}`,
+        method: "GET",
+      });
       if (response?.status === 200) {
         return {
-          medias: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+          medias: response.data.data.result,
+          totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
         };
       } else {
         throw new Error('Failed to fetch details');

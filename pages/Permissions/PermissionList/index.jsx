@@ -131,7 +131,7 @@ const { hasPermission } = usePermissions();
         permissions: Data,
       };
       const response = await dispatch(createPermission(requestBody)).unwrap();
-      if (response.success) {
+      if (response.data.success) {
         showSweetAlert({
           title: "Saved Successfully",
           text: "",

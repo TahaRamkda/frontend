@@ -7,7 +7,12 @@ export const fetchTemplateVisualization = createAsyncThunk(
     'templatevisualization/fetchTemplateVisualization',
     async ({templateId,templatetype}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${TEMPLATEVISUALIZATION}?templateType=${templatetype}&templateId=${templateId}`);
+         const response = await API.post("/api", {
+        endpoint: `${TEMPLATEVISUALIZATION}?templateType=${templatetype}&templateId=${templateId}`,
+        method: "GET",
+        //payload: {},
+      });
+      
         if (response?.status === 200) {
           return {
             templateVisualizationData: response.data,
@@ -47,8 +52,9 @@ const TemplateVisualizationSlice = createSlice({
             state.error = null;
         })
         .addCase(fetchTemplateVisualization.fulfilled, (state, action) => {
+          
             state.loading = false;
-            state.templateVisualizationData = action.payload.templateVisualizationData;
+            state.templateVisualizationData = action.payload.templateVisualizationData.data.data;
             state.message = action.payload.message || '';
         })
         .addCase(fetchTemplateVisualization.rejected, (state, action) => {

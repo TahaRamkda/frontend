@@ -10,11 +10,15 @@ export const fetchClients = createAsyncThunk(
   'client/fetchClients',
   async ({_,pageNo,pageSize,SearchStr}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${CLIENTLIST}?PageNo=${pageNo}&PageSize=${pageSize}${SearchStr?`&SearchStr=${SearchStr}`:''}`);
+      const response = await API.post("/api", {
+                  endpoint: `${CLIENTLIST}?PageNo=${pageNo}&PageSize=${pageSize}${SearchStr?`&SearchStr=${SearchStr}`:''}`,
+                  method: "GET",
+                  //payload: {},
+                });
       if (response?.status === 200) {
         return {
-          clients: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+          clients: response.data.data.result,
+          totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -30,10 +34,14 @@ export const fetchClientsDrop = createAsyncThunk(
   'client/fetchClientsDrop',
   async ({clientId,searchStr}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${CLIENTDROPDOWN}?${searchStr ?`SearchStr=${searchStr}`: ''}`);
+      const response = await API.post("/api", {
+                  endpoint: `${CLIENTDROPDOWN}?${searchStr ?`SearchStr=${searchStr}`: ''}`,
+                  method: "GET",
+                  //payload: {},
+                });
       if (response?.status === 200 ) {
         return {
-          clientsDrop: response.data.result,
+          clientsDrop: response.data.data.result,
         };
       } else {
         throw new Error('Failed to fetch details');

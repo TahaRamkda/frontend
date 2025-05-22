@@ -21,6 +21,7 @@ import {
   clearAppSettingDetailState,
   appSettings,
   clearAppSettingDataState,
+  deleteAppSetting,
   setPageSize,
   setCurrentPage,
   updateAppSettings,
@@ -131,7 +132,7 @@ const AppSettings = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          dispatch(deleteGroup({ groupId })).then(() => {
+          dispatch(deleteAppSetting({ groupId })).then(() => {
             showSweetAlert({
               title: "Deleted Successfully",
               text: "",
@@ -277,11 +278,6 @@ const AppSettings = () => {
   }, [dispatch,senderId,clientId]);
 
   const handleCreate = async() => {
-    await logChatDetails(logger, 'API call completed', 'info', {
-     
-      clientId: localStorage.getItem('clientId') ,
-      actionBy: localStorage.getItem('actionBy') 
-    });
   };
 
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options

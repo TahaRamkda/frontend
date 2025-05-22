@@ -23,8 +23,9 @@ export const fetchLogin = createAsyncThunk(
       });
        
        console.log("response", response);
+       debugger
       if (response && response.status === 200) {
-        const { result } =response.data;
+        const result  =response.data.data.result;
         localStorage.setItem("permission", JSON.stringify(result.permission));
         localStorage.setItem("accessToken", result.accessToken);
         localStorage.setItem("tokenexpiry", result.refreshTokenExpiry);

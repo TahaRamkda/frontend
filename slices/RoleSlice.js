@@ -10,12 +10,15 @@ export const  fetchRoles = createAsyncThunk(
     'role/fetchRoles',
     async ({clientId}, { rejectWithValue }) => {
       try {
-      
-        const response = await API.get(`${ROLELIST}`);
+         const response = await API.post("/api", {
+                  endpoint: `${ROLELIST}`,
+                  method: "GET",
+                  //payload: {},
+                });
         if (response?.status === 200 ) { 
           return {
-             roles: response.data.result,
-            totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+             roles: response.data.data.result,
+            totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -30,11 +33,14 @@ export const  fetchRolesDrop = createAsyncThunk(
     'role/fetchRolesDrop',
     async ({clientId}, { rejectWithValue }) => {
       try {
-      
-        const response = await API.get(`${ROLEDROP}`);
+        const response = await API.post("/api", {
+          endpoint: `${ROLEDROP}`,
+          method: "GET",
+          //payload: {},
+        });
         if (response?.status === 200 ) { 
           return {
-             roleDrop: response.data.result,
+             roleDrop: response.data.data.result,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -51,7 +57,13 @@ export const  fetchRolesDrop = createAsyncThunk(
     ' role/ fetchRoleById',
     async ( {roleId,clientId=localStorage.getItem("clientId")}, { rejectWithValue }) => { 
       try {
-        const response = await API.get(`${ROLEDETAILS}?id=${roleId}`);
+        debugger
+        const response = await API.post("/api", {
+          endpoint: `${ROLEDETAILS}?Id=${roleId}`,
+          method: "GET",
+          //payload: {},
+        });
+        debugger
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -65,7 +77,12 @@ export const  fetchRolesDrop = createAsyncThunk(
     ' role/ createRole',
     async ( roleData, { rejectWithValue }) => {
       try {
-        const response = await API.post(CREATEROLES,  roleData);
+        const response = await API.post("/api", {
+                  endpoint: `${CREATEROLES}`,
+                  method: "POST",
+                  payload: roleData,
+                });
+                debugger
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -79,7 +96,12 @@ export const  fetchRolesDrop = createAsyncThunk(
     ' role/ updateRole',
     async ( roleData, { rejectWithValue }) => {
       try {
-        const response = await API.put( UPDATEROLES,  roleData);
+        const response = await API.post("/api", {
+          endpoint: `${UPDATEROLES}`,
+          method: "PUT",
+          payload: roleData,
+        });
+        debugger
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -93,7 +115,12 @@ export const  fetchRolesDrop = createAsyncThunk(
     ' role/deleteRole',
     async ({  roleId, onSuccess }, { rejectWithValue }) => {
       try {
-        const response = await API.delete(`${ DELETEROLES}?roleId=${ roleId}`);
+        const response = await API.post("/api", {
+          endpoint: `${ DELETEROLES}?roleId=${ roleId}`,
+          method: "DELETE",
+          // payload: {},
+        });
+        debugger
         if (onSuccess) onSuccess(); // Handle success callback
         return response.data;
       } catch (error) {
@@ -206,8 +233,8 @@ export const  fetchRolesDrop = createAsyncThunk(
         })
         .addCase( fetchRoleById.fulfilled, (state, action) => {
           state.loading = false;
-          state. role = action.payload;
-          state.message = action.payload?.message || '';
+          state. role = action.payload.data.result;
+          state.message = action.payload.data?.message || '';
         })
         .addCase( fetchRoleById.rejected, (state, action) => {
           state.loading = false;
@@ -224,7 +251,7 @@ export const  fetchRolesDrop = createAsyncThunk(
         .addCase( createRole.fulfilled, (state, action) => {
           state.loading = false;
           state.success = true;
-          state.message = action.payload.message || 'Created Successfully';
+          state.message = action.payload.data.message || 'Created Successfully';
         })
         .addCase( createRole.rejected, (state, action) => {
           state.loading = false;
@@ -241,7 +268,7 @@ export const  fetchRolesDrop = createAsyncThunk(
         .addCase( updateRole.fulfilled, (state, action) => {
           state.loading = false;
           state.success = true;
-          state.message = action.payload.message || 'Updated Successfully';
+          state.message = action.payload.data.message || 'Updated Successfully';
         })
         .addCase( updateRole.rejected, (state, action) => {
           state.loading = false;

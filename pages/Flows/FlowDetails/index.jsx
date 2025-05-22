@@ -627,7 +627,7 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
         ).unwrap();
 
         // Set the data directly from the response
-        setSendernamesData(response.result);
+        setSendernamesData(response);
       } catch (error) {
         console.error("Error fetching sender name:", error);
         // Optionally set error state
@@ -766,6 +766,7 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
       senderId: parseInt(flowData.senderId, 10),
       id: Flow_Id,
     };
+    debugger
     dispatch(updateFlow(requestBody))
       .unwrap()
       .then(() => {

@@ -7,15 +7,15 @@ import { CREATECAMPAIGN, CAMPAIGNLIST, ACTIVATECAMPAIGN ,CAMPAIGNDETAIL,UPDATECA
 export const fetchCampaign = createAsyncThunk(
   'campaign/fetchCampaign',
   async ({ FromDate, ToDate, srcStr, PageNo, pageSize,templateId}, { rejectWithValue }) => {
-    console.log("Fetching campaign data...");
-   
     try {
-      
-      const response = await API.get(`${CAMPAIGNLIST}?${srcStr ? `SearchStr=${srcStr}` : ''}&FromDate=${FromDate}&ToDate=${ToDate}&PageNo=${PageNo}&PageSize=${pageSize}&TemplateId=${templateId}`);
+      const response = await API.post("/api", {
+        endpoint: `${CAMPAIGNLIST}?${srcStr ? `SearchStr=${srcStr}` : ''}&FromDate=${FromDate}&ToDate=${ToDate}&PageNo=${PageNo}&PageSize=${pageSize}&TemplateId=${templateId}`,
+        method: "GET",
+      });
       if (response?.status === 200) {
         return {
-          campaigns: response.data.result,
-          totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords : 0,
+          campaigns: response.data.data.result,
+          totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords : 0,
          
         };
       } else {
@@ -34,10 +34,13 @@ export const fetchCampaignContactState = createAsyncThunk(
   'campaign/fetchCampaignContactState',
   async ({ClientId , CampaignId}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${CAMPAIGNCONTACTFREQUENTSTATE}?CampaignId=${CampaignId}`);
+      const response = await API.post("/api", {
+        endpoint:`${CAMPAIGNCONTACTFREQUENTSTATE}?CampaignId=${CampaignId}`,
+        method: "GET",
+      });
       if (response?.status === 200) {
         return {
-          campaignContactState: response.data.result,
+          campaignContactState: response.data.data.result,
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -53,10 +56,14 @@ export const fetchCampaignFrequentDelete = createAsyncThunk(
   'campaign/fetchCampaignFrequentDelete',
   async ({ClientId,CampaignId,Removedays}, { rejectWithValue }) => {
     try {
-      const response = await API.get(`${CAMPAIGNCONTACTFREQUENTREMOVE}?CampaignId=${CampaignId}&LastContactedInDays=${Removedays}`);
+      const response = await API.post("/api", {
+        endpoint: `${CAMPAIGNCONTACTFREQUENTREMOVE}?CampaignId=${CampaignId}&LastContactedInDays=${Removedays}`,
+        method: "GET",
+      });
       if (response?.status === 200) {
+        debugger
         return {
-          campaignFreqDelete: response.data.result,
+          campaignFreqDelete: response.data.data.result,
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -72,11 +79,13 @@ export const fetchCampaignDetail = createAsyncThunk(
   'campaign/fetchCampaignDetail',
   async ({CampaignId ,ClientId}, { rejectWithValue }) => {
     try {
-      
-      const response = await API.get(`${CAMPAIGNDETAIL}?CampaignId=${CampaignId}`);
+      const response = await API.post("/api", {
+        endpoint: `${CAMPAIGNDETAIL}?CampaignId=${CampaignId}`,
+        method: "GET",
+      });
       if (response?.status === 200) {
         return {
-          campaigndetail: response.data.result,
+          campaigndetail: response.data.data.result,
  
         };
       } else {
@@ -94,7 +103,12 @@ export const fetchCampaignDetail = createAsyncThunk(
     'campaign/createCampaign',
     async ( campaignData, { rejectWithValue }) => {
       try {
-        const response = await API.post(CREATECAMPAIGN,  campaignData);
+        const response = await API.post("/api", {
+                  endpoint: `${CREATECAMPAIGN}`,
+                  method: "POST",
+                  payload: campaignData,
+                });
+                debugger
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -108,7 +122,11 @@ export const fetchCampaignDetail = createAsyncThunk(
     'campaign/UpdateCampaign',
     async ( campaignData, { rejectWithValue }) => {
       try {
-        const response = await API.put(UPDATECAMPAIGN,  campaignData);
+        const response = await API.post("/api", {
+                  endpoint: `${UPDATECAMPAIGN}`,
+                  method: "PUT",
+                  payload: campaignData,
+                });
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -122,7 +140,12 @@ export const fetchCampaignDetail = createAsyncThunk(
     'campaign/activateCampaign',
     async (campaignData, { rejectWithValue }) => {
       try {
-        const response = await API.post(ACTIVATECAMPAIGN, campaignData);
+        const response = await API.post("/api", {
+                  endpoint: `${ACTIVATECAMPAIGN}`,
+                  method: "POST",
+                  payload: campaignData,
+                });
+                debugger
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -135,7 +158,13 @@ export const fetchCampaignDetail = createAsyncThunk(
     'campaign/sendCampaign',
     async ( sendData, { rejectWithValue }) => {
       try {
-        const response = await API.post(SENDCAMPAIGN,  sendData);
+        debugger
+        const response = await API.post("/api", {
+                  endpoint: `${SENDCAMPAIGN}`,
+                  method: "POST",
+                  payload: sendData,
+                });
+                debugger
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -232,7 +261,7 @@ export const fetchCampaignDetail = createAsyncThunk(
         .addCase( createCampaign.fulfilled, (state, action) => {
           state.loading = false;
           state.success = true;
-          state.message = action.payload.message || 'Created Successfully';
+          state.message = action.payload.data.message || 'Created Successfully';
         })
         .addCase( createCampaign.rejected, (state, action) => {
           state.loading = false;
@@ -248,7 +277,7 @@ export const fetchCampaignDetail = createAsyncThunk(
         .addCase( UpdateCampaign.fulfilled, (state, action) => {
           state.loading = false;
           state.success = true;
-          state.message = action.payload.message || 'Updated Successfully';
+          state.message = action.payload.data.message || 'Updated Successfully';
         })
         .addCase( UpdateCampaign.rejected, (state, action) => {
           state.loading = false;
@@ -300,7 +329,7 @@ export const fetchCampaignDetail = createAsyncThunk(
           state.campaignFreqDelete = action.payload.campaignFreqDelete;
           state.loading = false;
           state.success = true;
-          state.message = action.payload.message || 'Created Successfully';
+          // state.message = action.payload.message || 'Created Successfully';
         })
         .addCase( fetchCampaignFrequentDelete.rejected, (state, action) => {
           state.loading = false;
@@ -332,7 +361,7 @@ export const fetchCampaignDetail = createAsyncThunk(
         .addCase( activateCampaign.fulfilled, (state, action) => {
           state.loading = false;
           state.success = true;
-          state.message = action.payload.message || 'Created Successfully';
+          state.message = action.payload.data.message || 'Created Successfully';
         })
         .addCase( activateCampaign.rejected, (state, action) => {
           state.loading = false;
@@ -347,7 +376,7 @@ export const fetchCampaignDetail = createAsyncThunk(
         .addCase( sendCampaign.fulfilled, (state, action) => {
           state.loading = false;
           state.success = true;
-          state.message = action.payload.message;
+          state.message = action.payload.data.message;
         })
         .addCase( sendCampaign.rejected, (state, action) => {
           state.loading = false;

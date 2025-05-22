@@ -10,11 +10,13 @@ export const fetchGroup = createAsyncThunk(
     'group/fetchGroup',
     async ({clientId, pageNo, pageSize, SearchStr}, { rejectWithValue }) => {
       try {
+        
         const response = await API.post("/api", {
           endpoint: `${GROUPLIST}?PageNo=${pageNo}${SearchStr ?`&SearchStr=${SearchStr}`:''}&PageSize=${pageSize}`,
           method: "GET",
           //payload: {},
         });
+        
         if (response?.status === 200) {
           return {
             groups: response.data,
@@ -42,7 +44,7 @@ export const fetchGroupsDrop = createAsyncThunk(
         
         if (response?.status === 200) {
           return {
-            groupDrop: response.data.data,
+            groupDrop: response.data.data.result,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -66,7 +68,7 @@ export const fetchGroupById = createAsyncThunk(
           //payload: {},
         });
         
-        return response.data;
+        return response.data.data.result;
       } catch (error) {
         const handledError = handleError(error);
         return rejectWithValue(handledError);
@@ -98,6 +100,7 @@ export const createGroup = createAsyncThunk(
 export const updateGroup = createAsyncThunk(
     'group/updateGroups',
     async (groupData, { rejectWithValue }) => {
+      
       try {
         
         const response = await API.post("/api", {
@@ -106,7 +109,7 @@ export const updateGroup = createAsyncThunk(
           payload: groupData,
         });
         
-        return response.data.data;
+        return response.data.data.message;
       } catch (error) {
         const handledError = handleError(error);
         return rejectWithValue(handledError);
@@ -127,7 +130,7 @@ export const deleteGroup = createAsyncThunk(
         });
       
       if (onSuccess) onSuccess(); // Handle success callback
-      return response.data.data;
+      return response.data.data.result;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -197,15 +200,15 @@ const GroupSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch Clients
+      // Fetch Groups
       .addCase(fetchGroup.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchGroup.fulfilled, (state, action) => {
-        debugger
+        
         state.loading = false;
-        state.groups = action.payload.groups.data;
+        state.groups = action.payload.groups.data.result;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || '';
@@ -231,15 +234,15 @@ const GroupSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      // Fetch Client by ID
+      // Fetch group by ID
       .addCase(fetchGroupById.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchGroupById.fulfilled, (state, action) => {
-        debugger
+        
         state.loading = false;
-        state.group = action.payload.data;
+        state.group = action.payload;
         //state.message = action.payload?.message || '';
       })
       .addCase(fetchGroupById.rejected, (state, action) => {
@@ -274,7 +277,7 @@ const GroupSlice = createSlice({
       .addCase(updateGroup.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.data.message || 'Updated Successfully';
+        state.message = action.payload || 'Updated Successfully';
       })
       .addCase(updateGroup.rejected, (state, action) => {
         state.loading = false;
@@ -291,7 +294,7 @@ const GroupSlice = createSlice({
       .addCase(deleteGroup.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.data.message || 'Deleted Successfully';
+        state.message = action.payload || 'Deleted Successfully';
       })
       .addCase(deleteGroup.rejected, (state, action) => {
         state.loading = false;

@@ -97,6 +97,7 @@ export const fetchTemplatesById = createAsyncThunk(
 export const createTemplates = createAsyncThunk(
   "template/createTemplates",
   async (templateData, { rejectWithValue }) => {
+    
     try {
       //const response = await API.post(CREATETEMPLATE, templateData);
 
@@ -105,6 +106,7 @@ export const createTemplates = createAsyncThunk(
           method: "POST",
           payload: templateData,
         });
+        
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -160,7 +162,7 @@ export const deleteTemplates = createAsyncThunk(
           method: "DELETE",
           // payload: {},
         });
-      returnresponse.data;
+      return response.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -312,7 +314,7 @@ const templateSlice = createSlice({
       .addCase(createTemplates.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || "Created Successfully";
+        state.message = action.payload.data.message || "Created Successfully";
       })
       .addCase(createTemplates.rejected, (state, action) => {
         state.loading = false;

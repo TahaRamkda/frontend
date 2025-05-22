@@ -9,11 +9,15 @@ export const fetchSetting = createAsyncThunk(
     'appSettings/fetchSetting',
     async ({ pageNo, pageSize, SearchStr, senderId, clientId}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${SETTINGLIST}?PageNo=${pageNo}${ SearchStr? `&SearchStr=${SearchStr}`:''}&PageSize=${pageSize}&SenderId=${senderId}&ClientId=${clientId}`);
+        const response = await API.post("/api", {
+                  endpoint: `${SETTINGLIST}?PageNo=${pageNo}${ SearchStr? `&SearchStr=${SearchStr}`:''}&PageSize=${pageSize}&SenderId=${senderId}&ClientId=${clientId}`,
+                  method: "GET",
+                  //payload: {},
+                });
         if (response?.status === 200) {
           return {
-            settingList: response.data.result,
-            totalRecords: response.data.result.length > 0 ? response.data.result[0].totalRecords  : 0,
+            settingList: response.data.data.result,
+            totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -31,8 +35,13 @@ export const fetchSettingById = createAsyncThunk(
     'appSettings/fetchSettingById',
     async ({Id}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${ SETTINGBYID}?id=${Id}`);
-        return response.data;
+        const response = await API.post("/api", {
+          endpoint: `${ SETTINGBYID}?id=${Id}`,
+          method: "GET",
+          //payload: {},
+        });
+        debugger
+        return response.data.data.result;
       } catch (error) {
         const handledError = handleError(error);
         return rejectWithValue(handledError);
@@ -43,9 +52,13 @@ export const fetchSettingById = createAsyncThunk(
 // ADD GROUP
 export const addSettings = createAsyncThunk(
     'appSettings/addSettings',
-    async (Groupdata, { rejectWithValue }) => {
+    async (SettingData, { rejectWithValue }) => {
       try {
-        const response = await API.post(ADDSETTINGS, Groupdata);
+         const response = await API.post("/api", {
+          endpoint: `${ADDSETTINGS}`,
+          method: "POST",
+          payload: SettingData,
+        });
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -59,7 +72,11 @@ export const updateAppSettings = createAsyncThunk(
     'appSettings/updateAppSettings',
     async (updateSetting, { rejectWithValue }) => {
       try {
-        const response = await API.put( UPDATEAPPSETTING, updateSetting);
+        const response = await API.post("/api", {
+          endpoint: `${UPDATEAPPSETTING}`,
+          method: "PUT",
+          payload: updateSetting,
+        });
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -73,7 +90,12 @@ export const deleteAppSetting = createAsyncThunk(
   'appSettings/deleteAppSetting',
   async ({ Id, onSuccess }, { rejectWithValue }) => {
     try {
-      const response = await API.delete(`${DELETEAPPSETTING}?Id=${Id}`);
+      const response = await API.post("/api", {
+          endpoint: `${DELETEAPPSETTING}?Id=${Id}`,
+          method: "DELETE",
+          // payload: {},
+        });
+        debugger
       if (onSuccess) onSuccess(); // Handle success callback
       return response.data;
     } catch (error) {
@@ -192,7 +214,7 @@ const AppSettingSlice = createSlice({
       .addCase(fetchSettingById.fulfilled, (state, action) => {
         state.loading = false;
         state.setting = action.payload;
-        state.message = action.payload?.message || '';
+        // state.message = action.payload || '';
       })
       .addCase(fetchSettingById.rejected, (state, action) => {
         state.loading = false;
@@ -209,7 +231,7 @@ const AppSettingSlice = createSlice({
       .addCase(addSettings.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || ' Created Successfully';
+        state.message = action.payload.data.message || ' Created Successfully';
       })
       .addCase(addSettings.rejected, (state, action) => {
         state.loading = false;
@@ -226,7 +248,7 @@ const AppSettingSlice = createSlice({
       .addCase(updateAppSettings.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Updated Successfully';
+        state.message = action.payload.data.message || 'Updated Successfully';
       })
       .addCase(updateAppSettings.rejected, (state, action) => {
         state.loading = false;
@@ -243,7 +265,7 @@ const AppSettingSlice = createSlice({
       .addCase(deleteAppSetting.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Deleted Successfully';
+        state.message = action.payload.data.message || 'Deleted Successfully';
       })
       .addCase(deleteAppSetting.rejected, (state, action) => {
         state.loading = false;

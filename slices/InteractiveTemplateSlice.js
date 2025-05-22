@@ -115,6 +115,7 @@ export const createInteractiveTemplates = createAsyncThunk(
           method: "POST",
           payload: templateData,
         });
+        
       return response.data.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -130,11 +131,13 @@ export const updateInteractiveTemplates = createAsyncThunk(
   "template/updateInteractiveTemplates",
   async (templateData, { rejectWithValue }) => {
     try {
+      
        const response = await API.post("/api", {
           endpoint: `${UPDATEINTERACTIVETEMPLATE}`,
           method: "POST",
           payload: templateData,
         });
+        
       return response.data;
     } catch (error) {
       const handledError = handleError(error);

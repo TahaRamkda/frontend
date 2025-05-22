@@ -33,8 +33,8 @@ const TransferChat = ({ ChatId, onClose, isVisible ,SenderId ,oldAgentId , refre
         oldAgentId:oldAgentId,
         clientId
       }));
-  
-      if (response.payload?.success) {
+  debugger
+      if (response.payload) {
         Sweetalert.fire({
           icon: "success",
           title: "Success",

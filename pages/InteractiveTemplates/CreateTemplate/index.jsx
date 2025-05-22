@@ -268,12 +268,13 @@ const InteractiveTemplateCreation = () => {
       const response = await dispatch(
         createInteractiveTemplates(requestBody)
       ).unwrap();
+      
       if (response.success) {
         clearInteractiveTemplateCreateState();
         showSweetAlert({
           title: "Template Created",
           text:
-            response.result.message ||
+            response.message ||
             "The Template has been successfully created.",
           icon: "success",
         });

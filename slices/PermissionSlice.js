@@ -12,13 +12,17 @@ export const fetchPermissions = createAsyncThunk(
       try {
         
         // Ensure that the Client_Id and role_Id parameters are correctly formatted
-        const response = await API.get(`${PERMISSIONLIST}?RoleId=${role_Id}`);
+        const response = await API.post("/api", {
+                  endpoint: `${PERMISSIONLIST}?RoleId=${role_Id}`,
+                  method: "GET",
+                  //payload: {},
+                });
         if (response?.status === 200) {
           
-          if(response.data.result != null){
+          if(response.data.data.result != null){
             return {
-              permissions: response?.data?.result,
-              totalRecords: response?.data?.result.length > 0 ? response?.data.result[0].totalRecords  : 0,
+              permissions: response?.data.data?.result,
+              totalRecords: response?.data?.data.result.length > 0 ? response?.data.data.result[0].totalRecords  : 0,
             };
           }
          
@@ -38,7 +42,11 @@ export const createPermission = createAsyncThunk(
   'permission/createPermission',
   async (permissionData, { rejectWithValue }) => {
     try {
-      const response = await API.post(CREATEPERMISSION, permissionData);
+      const response = await API.post("/api", {
+          endpoint: `${CREATEPERMISSION}`,
+          method: "POST",
+          payload: permissionData,
+        });
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -123,7 +131,7 @@ const permissionSlice = createSlice({
         
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Created Successfully';
+        state.message = action.payload.data.message || 'Created Successfully';
       })
       .addCase(createPermission.rejected, (state, action) => {
         state.loading = false;
