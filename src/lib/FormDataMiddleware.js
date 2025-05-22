@@ -3,6 +3,16 @@ import { BASE_URL } from '@/utils/apiConstants';
 
 export const callFormApi = async ({ endpoint, formData, method = 'POST', accessToken }) => {
   try {
+      console.log("Form data",formData)
+    console.log("Form method",method)
+    console.log("Form endpoint",endpoint)
+    console.log("Form access token",accessToken) 
+    const url = `${BASE_URL}${endpoint}`;
+
+    if (!['post', 'put', 'patch'].includes(method.toLowerCase())) {
+      throw new Error('FormData requests must use POST, PUT, or PATCH');
+    }
+
     const config = {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -10,12 +20,6 @@ export const callFormApi = async ({ endpoint, formData, method = 'POST', accessT
         Accept: '*/*',
       },
     };
-
-    const url = `${BASE_URL}${endpoint}`;
-
-    if (!['post', 'put', 'patch'].includes(method.toLowerCase())) {
-      throw new Error('FormData requests must use POST, PUT, or PATCH');
-    }
 
     const response = await API[method.toLowerCase()](url, formData, config);
     return response.data;
@@ -25,4 +29,3 @@ export const callFormApi = async ({ endpoint, formData, method = 'POST', accessT
     throw new Error(errorMsg);
   }
 };
-

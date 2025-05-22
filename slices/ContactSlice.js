@@ -127,14 +127,18 @@ export const deleteContact = createAsyncThunk(
 // Bulk Upload
 export const bulkUpload = createAsyncThunk(
   "media/bulkUpload",
-  async ({contactData}, { rejectWithValue }) => {
+  async ({ contactData }, { rejectWithValue }) => {
     try {
-      const response = await API.post("/formData", {
-          endpoint: `${BULKUPLOAD}`,
-          method: "POST",
-          payload: contactData,
-        });
-        
+      // Append endpoint and method to FormData so backend can extract them
+      contactData.append("endpoint", `${BULKUPLOAD}`);
+      contactData.append("method", "POST");
+     
+      const response = await API.post("/formData", contactData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       return response.data;
     } catch (error) {
       const handledError = handleError(error);

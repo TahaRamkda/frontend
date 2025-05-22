@@ -1,9 +1,11 @@
 import formidable from 'formidable';
+import FormData from 'form-data'; // ✅ Correct package
+import fs from 'fs';
 import { callFormApi } from '@/src/lib/FormDataMiddleware';
 
 export const config = {
   api: {
-    bodyParser: false, // Disable Next.js default body parsing
+    bodyParser: false,
   },
 };
 
@@ -13,58 +15,58 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Initialize formidable
     const form = formidable({ multiples: true });
 
-    // Parse the incoming form data
     const { fields, files } = await new Promise((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
-        if (err) {
-          reject(err);
-          return;
-        }
+        if (err) return reject(err);
         resolve({ fields, files });
       });
     });
 
-    // Log the parsed fields and files for debugging
-    console.log('Parsed Fields:', fields);
-    console.log('Parsed Files:', files);
+    const formData = new FormData();
 
-    // Extract endpoint and method from fields
-    const { endpoint, method } = fields;
+    // ✅ Append all fields to FormData
+    for (const [key, value] of Object.entries(fields)) {
+      if (Array.isArray(value)) {
+        value.forEach(v => formData.append(key, v));
+      } else {
+        formData.append(key, value);
+      }
+    }
 
-    // Validate required fields
+    // ✅ Append all files to FormData using streams
+    for (const [key, file] of Object.entries(files)) {
+      const f = Array.isArray(file) ? file[0] : file;
+      const stream = fs.createReadStream(f.filepath);
+      formData.append(key, stream, f.originalFilename);
+    }
+
+    // ✅ Log formData (fields only, for debugging)
+    console.log("======= Middleware FormData Contents =======");
+    for (const [key, value] of formData.entries()) {
+      if (typeof value === 'object' && value.path) {
+        console.log(`${key}: File ->`, value.path);
+      } else {
+        console.log(`${key}:`, value);
+      }
+    }
+    console.log("============================================");
+
+    const endpoint = fields.endpoint?.toString();
+    const method = fields.method?.toString();
+
     if (!endpoint || !method) {
       return res.status(400).json({
         error: 'Missing required fields',
-        details: 'Endpoint and method are required.',
+        details: 'Both endpoint and method are required.',
       });
     }
 
-    // Create FormData object for callFormApi
-    const formData = new FormData();
-
-    // Append all fields (e.g., ClientId, ActionBy) to FormData
-    Object.entries(fields).forEach(([key, value]) => {
-      if (key !== 'endpoint' && key !== 'method') {
-        formData.append(key, value);
-      }
-    });
-
-    // Append files (e.g., File) to FormData
-    Object.entries(files).forEach(([key, file]) => {
-      formData.append(key, file, file.name);
-    });
-
-    // Safely extract accessToken from header
     const authHeader = req.headers.authorization || '';
     const accessToken = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : '';
 
-    // Log the data being sent to callFormApi
-    console.log('Calling callFormApi with:', { endpoint, method, formData: Object.fromEntries(formData), accessToken });
-
-    // Call the external API
+    // ✅ Send form with fields + files
     const data = await callFormApi({ endpoint, formData, method, accessToken });
 
     return res.status(200).json({ data });
@@ -72,7 +74,7 @@ export default async function handler(req, res) {
     console.error('Error while calling external API:', error);
     return res.status(500).json({
       error: 'Failed to call external API',
-      details: error.message || 'An unknown error occurred while fetching data.',
+      details: error.message || 'Unknown error',
     });
   }
 }
