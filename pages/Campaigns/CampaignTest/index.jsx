@@ -36,7 +36,7 @@ const CampaignTest = ({ isVisible, onClose, onsuccess, CampaignId }) => {
         ]
       }
       const response = await dispatch(sendCampaign(Requestbody)).unwrap();
-      debugger
+      
       if (response) {
         showSweetAlert({
           title: "Message Sent Successfully",

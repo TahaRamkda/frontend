@@ -299,7 +299,7 @@ const CampaignsList = () => {
       setIsModalOpen(false);
 
       const response = await dispatch(activateCampaign(requestBody)).unwrap();
-      debugger
+      
       if (response) {
         refreshCampaignList();
         showSweetAlert({

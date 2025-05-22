@@ -737,9 +737,9 @@ const CreateFlowPage = () => {
           clientId: localStorage.getItem("clientId"),
         })
       ).unwrap();
-      debugger
+      
       if (response) {
-        debugger
+        
         console.log("Fetched Sender Data:", response); // Debugging
         setSendernamesData(response);
       } else {
@@ -824,7 +824,7 @@ const CreateFlowPage = () => {
     dispatch(createFlows(requestBody))
       .unwrap()
       .then((response) => {
-        debugger
+        
         if (response?.result?.status === 1) {
           showSweetAlert({
             title: response?.message || "Flow created successfully",

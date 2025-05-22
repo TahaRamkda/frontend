@@ -707,9 +707,9 @@ const TemplateVisualisation = () => {
   }, [templateId, dispatch]);
 
   useEffect(() => {
-    debugger
+    
     if (templateVisualizationData ) {
-      debugger
+      
       setInitialData(templateVisualizationData);
     }
   }, [templateVisualizationData]);

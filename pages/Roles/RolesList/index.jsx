@@ -56,7 +56,7 @@ const RoleList = () => {
     try {
       const response = await dispatch(fetchRoleById({roleId:roleId})).unwrap();
       if (response) {
-        debugger
+        
         setRoleForm(response.data.result);
         setIsModalOpen(true);
       } else {

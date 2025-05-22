@@ -395,7 +395,7 @@ const CampaignCreate = () => {
     setCampaignLoading(true);
     try {
       const response = await dispatch(createCampaign(requestBody)).unwrap();
-      debugger
+      
       if (response.data.success) {
         dispatch(clearTemplateDetailState());
         showSweetAlert({

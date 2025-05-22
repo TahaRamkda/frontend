@@ -87,6 +87,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
   // Update preview when agenttemplatedetails, selectedOption, or parameterValues change
   useEffect(() => {
     if (selectedOption) {
+      
       const selectedDetail = agenttemplatedetails.find(
         (detail) => detail.templateId === selectedOption && detail.senderId === SenderId
       );

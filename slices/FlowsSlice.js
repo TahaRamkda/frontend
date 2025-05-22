@@ -81,7 +81,7 @@ export const createFlows = createAsyncThunk(
                 method: "POST",
                 payload: flowData,
               });
-              debugger
+              
       return response.data.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -118,13 +118,13 @@ export const updateFlow = createAsyncThunk(
     'flowupdate/updateFlow',
     async (flowData, { rejectWithValue }) => {
       try {
-        debugger
+        
          const response = await API.post("/api", {
                 endpoint: `${UPDATEFLOW}`,
                 method: "PUT",
                 payload: flowData,
               });
-              debugger
+              
         return response.data;
       } catch (error) {
         const handledError = handleError(error);

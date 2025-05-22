@@ -126,19 +126,20 @@ const ChatPage = () => {
     setAgentStatus(StatusId);
     try {
       const response = await dispatch(setAgentstatus({ agentId: UserId, statusId: StatusId })).unwrap();
-      if (response.success) {
+      debugger
+      if (response.data.success) {
         await loggerdetails(logger, `agent status updated to ${StatusId} `,"info", {
           agentId: UserId,
           type: LogerType.logoutOrstatuschange,
         });
         showSweetAlert({
-          title: response.message || "Status updated successfully",
+          title: response.data.message || "Status updated successfully",
           text: "",
           icon: "success",
         });
       } else {
         showSweetAlert({
-          title: response.message || "Status updated successfully",
+          title: response.data.message || "Status updated successfully",
           text: "",
           icon: "danger",
         });
@@ -247,7 +248,7 @@ const ChatPage = () => {
       if (result.isConfirmed) {
         try {
           const response = await dispatch(setAgentstatus({ agentId: UserId, statusId: "0" })).unwrap();
-          if (response.success) {
+          if (response.data.success) {
            await loggerdetails(logger, `Agent with ID:${UserId} logged out`, "info", {
              agentId: UserId,
              type: LogerType.logoutOrstatuschange,
