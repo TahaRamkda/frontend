@@ -22,6 +22,7 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }
   }, [existingData]);
 
   const handleTemplateChange = (e) => {
+    
     const templateId = e.target.value;
     setSelectedTemplateId(templateId);
   };
@@ -32,6 +33,7 @@ const SimplePopup = ({ isOpen, toggle, onSubmit, index, existingData, SenderId }
   };
 
   const handleSubmit = () => {
+    debugger
     const data = {
       actionType: actionType,
       actionId: actionType === 1 || actionType === "1" ? selectedTemplateId : actionType === 8 || actionType === "8" ? selectedFlowId : 0,

@@ -101,6 +101,17 @@ const Flow = () => {
     },
   ];
 
+  const refreshFlowList = () => {
+    dispatch(
+      fetchFlowsListData({
+        pageNo: PageNum,
+        pageSize: page,
+        Language: languageId,
+        SearchStr: filterText,
+        senderId: SenderId,
+      })
+    );
+  }
   const handleCreate = () => {
     router.push("/Flows/CreateFlow");
   };
@@ -167,6 +178,7 @@ const Flow = () => {
       if (result.isConfirmed) {
         try {
           dispatch(deleteFlow({ id })).then(() => {
+            refreshFlowList();
             showSweetAlert({
               title: "Deleted Successfully",
               text: "",
@@ -294,7 +306,7 @@ const Flow = () => {
 
   return (
     <App>
-      {floawLoading && loading && <Loader />}
+      {loading && <Loader />}
       {showupdateflowmodel ? (
         <UpdateFlow Flow_Id={flowId} onclose={handleClose} />
       ) : (
