@@ -70,11 +70,15 @@ export const NewAgentMessage = createAsyncThunk(
   "conversation/NewAgentMessage",
   async (messageData, { rejectWithValue }) => {
     try {
-      const response = await API.post("/api", {
-        endpoint: `${AGENTMESSAGE}`,
-        method: "POST",
-        payload: messageData,
-      });
+       messageData.append("endpoint", `${AGENTMESSAGE}`);
+                  messageData.append("method", "POST");
+                 
+                  const response = await API.post("/formData", messageData, {
+                    headers: {
+                      "Content-Type": "multipart/form-data",
+                    },
+                  });
+
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -87,11 +91,14 @@ export const SendInteractivetemp = createAsyncThunk(
   "conversation/SendInteractivetemp",
   async (templatedata, { rejectWithValue }) => {
     try {
-      const response = await API.post("/api", {
-        endpoint: `${SENDAGENTINTERACTIVETEMPLATLIS}`,
-        method: "POST",
-        payload: templatedata,
-      });
+       templatedata.append("endpoint", `${SENDAGENTINTERACTIVETEMPLATLIS}`);
+            templatedata.append("method", "POST");
+           
+            const response = await API.post("/formData", templatedata, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            });
       
       return response.data;
     } catch (error) {
@@ -301,7 +308,7 @@ const conversationslice = createSlice({
       .addCase(SendInteractivetemp.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message;
+        state.message = action.payload.data.message;
       })
       .addCase(SendInteractivetemp.rejected, (state, action) => {
         state.loading = false;

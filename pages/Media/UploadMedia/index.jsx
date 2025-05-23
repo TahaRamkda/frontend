@@ -44,7 +44,7 @@ const UploadMediaPage = ({
 
     try {
       const response = await dispatch(uploadMedia(formData)).unwrap();
-      if (response.success) {
+      if (response.data.success) {
         dispatch(clearMediaUploadState());
         setSubmitting(false);
         showSweetAlert({
@@ -58,7 +58,7 @@ const UploadMediaPage = ({
       } else {
         showSweetAlert({
           title: "Failed",
-          text: response.message || "",
+          text: response.data.message || "",
           icon: "error",
         });
       }

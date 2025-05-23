@@ -87,10 +87,11 @@ const UserList = () => {
   const handleDetailClick = async (userId) => {
     try {
       const response = await dispatch(fetchUserById({ userId })).unwrap();
+      debugger
       if (response) {
-        setUserForm(response.result);
+        setUserForm(response);
         setexistingRoleId(
-          response.result.roleIds.replace(/['"]+/g, "").split(",").map(Number)
+          response.roleIds.replace(/['"]+/g, "").split(",").map(Number)
         );
         setIsModalOpen(true);
       } else {

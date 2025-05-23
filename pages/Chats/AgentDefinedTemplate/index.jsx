@@ -114,6 +114,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
   }, [agenttemplatedetails, selectedOption, SenderId, parameterValues]);
 
   const handleSend = async (e) => {
+    debugger
     e.preventDefault();
     const values = parameterValues.map((val) => ({
       key: val.key,
@@ -135,7 +136,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
       setSending(true);
       const response = await dispatch(SendInteractivetemp(formData)).unwrap();
 
-      if (response.success) {
+      if (response.data.success) {
         dispatch(clearAgentTemplateSentState());
         if (onSend && typeof onSend === "function") {
           onSend(chatMessages);

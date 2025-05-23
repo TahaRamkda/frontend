@@ -172,12 +172,14 @@ export const fetchChatLogs = createAsyncThunk(
   "chatlogs /fetchChatLogs",
   async ({ conversationId }, { rejectWithValue }) => {
     try {
-      const response = await API.get(
-        `${CHATREPORTLOGS}?conversationId=${conversationId}`
-      );
-      if (response?.status === 200 && response.data?.result) {
+      const response = await API.post("/api", {
+        endpoint:`${CHATREPORTLOGS}?conversationId=${conversationId}`,
+        method: "GET",
+        //payload: {},
+      });
+      if (response?.status === 200 && response.data?.data.result) {
         return {
-          chatLogs: response.data.result,
+          chatLogs: response.data.data.result,
         };
       } else {
         throw new Error("Failed to fetch details");

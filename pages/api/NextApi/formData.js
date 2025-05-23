@@ -42,16 +42,7 @@ export default async function handler(req, res) {
       formData.append(key, stream, f.originalFilename);
     }
 
-    // ✅ Log formData (fields only, for debugging)
-    console.log("======= Middleware FormData Contents =======");
-    for (const [key, value] of formData.entries()) {
-      if (typeof value === 'object' && value.path) {
-        console.log(`${key}: File ->`, value.path);
-      } else {
-        console.log(`${key}:`, value);
-      }
-    }
-    console.log("============================================");
+    
 
     const endpoint = fields.endpoint?.toString();
     const method = fields.method?.toString();
@@ -62,7 +53,7 @@ export default async function handler(req, res) {
         details: 'Both endpoint and method are required.',
       });
     }
-
+    
     const authHeader = req.headers.authorization || '';
     const accessToken = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : '';
 

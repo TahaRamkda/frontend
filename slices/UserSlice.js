@@ -11,7 +11,7 @@ export const fetchUser = createAsyncThunk(
     async ({clientId, searchStr}, { rejectWithValue }) => {
       try {
         const response = await API.post("/api", {
-                  endpoint: `${USERLIST}?${searchStr?`searchStr=${searchStr}`:''}`,
+                  endpoint: `${USERLIST}?${searchStr?`searchStr=${searchStr}`:''}&ClientId=${clientId}`,
                   method: "GET",
                   //payload: {},
                 });
@@ -36,8 +36,13 @@ export const fetchUserById = createAsyncThunk(
     'user/fetchUserById',
     async ({userId,ClientId = localStorage.getItem("clientId")}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${USERDETAILS}?id=${userId}`);
-        return response.data;
+         const response = await API.post("/api", {
+        endpoint:`${USERDETAILS}?id=${userId}&ClientId=${ClientId}`,
+        method: "GET",
+        //payload: {},
+      });
+      debugger
+        return response.data.data.result;
       } catch (error) {
         const handledError = handleError(error);
         return rejectWithValue(handledError);
@@ -50,7 +55,11 @@ export const createUser = createAsyncThunk(
   'user/createUsers',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await API.post(CREATEUSER, userData);
+       const response = await API.post("/api", {
+          endpoint: `${CREATEUSER}`,
+          method: "POST",
+          payload: userData,
+        });
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -64,7 +73,11 @@ export const updateUser = createAsyncThunk(
     'user/updateUsers',
     async (userData, { rejectWithValue }) => {
       try {
-        const response = await API.put( UPDATEUSER, userData);
+        const response = await API.post("/api", {
+                endpoint: `${UPDATEUSER}`,
+                method: "PUT",
+                payload: userData,
+              });
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -78,7 +91,11 @@ export const deleteUser = createAsyncThunk(
   'user/deleteUser',
   async ({ userId, onSuccess }, { rejectWithValue }) => {
     try {
-      const response = await API.delete(`${DELETEUSER}?userId=${userId}`);
+      const response = await API.post("/api", {
+          endpoint: `${DELETEUSER}?userId=${userId}`,
+          method: "DELETE",
+          // payload: {},
+        });
       if (onSuccess) onSuccess(); // Handle success callback
       return response.data;
     } catch (error) {
@@ -186,7 +203,7 @@ const UserSlice = createSlice({
       .addCase(createUser.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Created Successfully';
+        state.message = action.payload.data.message || 'Created Successfully';
       })
       .addCase(createUser.rejected, (state, action) => {
         state.loading = false;
@@ -203,7 +220,7 @@ const UserSlice = createSlice({
       .addCase(updateUser.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Updated Successfully';
+        state.message = action.payload.data.message || 'Updated Successfully';
       })
       .addCase(updateUser.rejected, (state, action) => {
         state.loading = false;
@@ -220,7 +237,7 @@ const UserSlice = createSlice({
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Deleted Successfully';
+        state.message = action.payload.data.message || 'Deleted Successfully';
       })
       .addCase(deleteUser.rejected, (state, action) => {
         state.loading = false;

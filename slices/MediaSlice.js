@@ -35,7 +35,15 @@ export const uploadMedia = createAsyncThunk(
   'media/uploadMedia',
   async (mediaData, { rejectWithValue }) => {
     try {
-      const response = await API.post(UPLOADMEDIA, mediaData);
+       // Append endpoint and method to FormData so backend can extract them
+            mediaData.append("endpoint", `${UPLOADMEDIA}`);
+            mediaData.append("method", "POST");
+           
+            const response = await API.post("/formData", mediaData, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            });
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -50,7 +58,11 @@ export const deleteMedia = createAsyncThunk(
   'media/deleteMedia',
   async ({ mediaId }, { rejectWithValue }) => {
     try {
-      const response = await API.delete(`${DELETEMEDIA}?id=${mediaId}`);
+      const response = await API.post("/api", {
+          endpoint: `${DELETEMEDIA}?id=${mediaId}`,
+          method: "DELETE",
+          // payload: {},
+        });
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -138,7 +150,7 @@ const mediaSlice = createSlice({
       .addCase(uploadMedia.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Uploaded Successfully';
+        state.message = action.payload.data.message || 'Uploaded Successfully';
       })
       .addCase(uploadMedia.rejected, (state, action) => {
         state.loading = false;
@@ -157,7 +169,7 @@ const mediaSlice = createSlice({
       .addCase(deleteMedia.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Deleted Successfully';
+        state.message = action.payload.data.message || 'Deleted Successfully';
       })
       .addCase(deleteMedia.rejected, (state, action) => {
         state.loading = false;

@@ -79,7 +79,7 @@ export const fetchAgentsMonitor = createAsyncThunk(
         method: "GET",
         //payload: {},
       });
-      
+      debugger
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
