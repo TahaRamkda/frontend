@@ -4,8 +4,6 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const { endpoint, payload, method } = req.body;
-
-      // Safely extract accessToken from header, or set to empty string
       const authHeader = req.headers.authorization || '';
       const accessToken = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : '';
 
@@ -13,9 +11,34 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Endpoint is required' });
       }
 
-      const data = await callExternalApi({ endpoint, payload, method, accessToken });
+      const { data, headers } = await callExternalApi({
+        endpoint,
+        payload,
+        method,
+        accessToken
+      });
 
+      const contentType = headers['content-type'] || '';
+      const isFile =
+      contentType.includes('application/vnd.ms-excel') ||
+contentType.includes('application/octet-stream') ||
+contentType.includes('application/xml') ||
+contentType.includes('text/xml') ||
+headers['content-disposition']?.includes('attachment');
+
+      if (isFile) {
+        res.setHeader('Content-Type', contentType);
+        if (headers['content-disposition']) {
+          res.setHeader('Content-Disposition', headers['content-disposition']);
+        }
+        console.log("Returned data",data);
+        
+        return res.status(200).end(data); // ✅ correctly returns raw file
+      }
+
+      // Default JSON response
       return res.status(200).json({ data });
+
     } catch (error) {
       console.error('Error while calling external API:', error);
       return res.status(500).json({

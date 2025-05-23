@@ -23,7 +23,10 @@ export const callExternalApi = async ({ endpoint, payload, method, accessToken }
       throw new Error(`Unsupported HTTP method: ${method}`);
     }
 
-    return response.data;
+    return {
+    data: response.data,
+    headers: response.headers
+  };
   } catch (error) {
     const errorMsg = error?.response?.data?.message || error?.message || 'Failed to fetch data';
     console.error('API Error:', errorMsg);
