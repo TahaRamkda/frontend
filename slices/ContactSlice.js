@@ -19,18 +19,19 @@ export const fetchContact = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
+      debugger
       const response = await API.post("/api", {
         endpoint: `${CONTACTLIST}?GroupId=${groupId}&PageNo=${pageNo}&PageSize=${pageSize}${searchStr ? `&SearchStr=${searchStr}` : ""}`,
         method: "GET",
         //payload: {},
       });
-
+         debugger
       if (response?.status === 200) {
         return {
-          contacts: response.data.data.result,
+          contacts: response.data,
           totalRecords:
-            response.data.data.result.length > 0
-              ? response.data.data.result[0].totalRecords
+            response.data.length > 0
+              ? response.data[0].totalRecords
               : 0,
         };
       } else {
@@ -50,14 +51,14 @@ export const fetchContactById = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      
+      debugger
       const response = await API.post("/api", {
         endpoint: `${CONTACTDETAILS}?Id=${contactId}`,
         method: "GET",
         //payload: {},
       });
-      
-      return response.data.data;
+      debugger
+      return response.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -70,14 +71,14 @@ export const createContact = createAsyncThunk(
   "contact/createContact",
   async (contactData, { rejectWithValue }) => {
     try {
-      
+      debugger
       const response = await API.post("/api", {
           endpoint: `${CREATECONTACT}`,
           method: "POST",
           payload: contactData,
         });
-        
-      return response.data.data.message;
+        debugger
+      return response.data.message;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -230,9 +231,10 @@ const contactSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchContactById.fulfilled, (state, action) => {
+        debugger
         state.loading = false;
         state.contact = action.payload;
-        state.message = action.payload?.message || "";
+        //state.message = action.payload?.message || "";
       })
       .addCase(fetchContactById.rejected, (state, action) => {
         state.loading = false;

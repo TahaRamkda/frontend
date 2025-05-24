@@ -44,7 +44,7 @@ export const fetchGroupsDrop = createAsyncThunk(
         
         if (response?.status === 200) {
           return {
-            groupDrop: response.data.data.result,
+            groupDrop: response.data,
           };
         } else {
           throw new Error('Failed to fetch details');

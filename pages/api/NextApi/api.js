@@ -35,9 +35,9 @@ headers['content-disposition']?.includes('attachment');
         
         return res.status(200).end(data); // ✅ correctly returns raw file
       }
-
+      console.log("Returned data",data);
       // Default JSON response
-      return res.status(200).json({ data });
+      return res.status(200).json(data.result);
 
     } catch (error) {
       console.error('Error while calling external API:', error);
