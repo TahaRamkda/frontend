@@ -101,25 +101,37 @@ export const excelExportAgentReport = createAsyncThunk(
     try {
       const agentMonitorExportUrl = `${EXCELEXPORTAGENTREPORT}?senderId=${senderId}&searchStr=${searchStr}&fromDate=${fromDate}&toDate=${toDate}`;
       // Make API request and get blob data for Excel file
-      const response = await API.get(agentMonitorExportUrl, { responseType: 'blob' });
-      const fileBlob = new Blob([response.data], { type: response.headers['content-type'] });
       
-      // Create download link for Excel file
-      const link = document.createElement('a');
-      link.href = window.URL.createObjectURL(fileBlob);
-      let fileName = 'AgentReport.xlsx'; // Default filename
-      // Extract filename from headers if available
-      const contentDisposition = response.headers['content-disposition'];
-      if (contentDisposition && contentDisposition.indexOf('attachment') !== -1) {
-        const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-        if (fileNameMatch && fileNameMatch.length === 2) {
-          fileName = fileNameMatch[1];
-        }
-      }
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      const response = await API.post(
+  '/api',
+  {
+    endpoint: agentMonitorExportUrl,
+    method: 'GET'
+  },
+  {
+    responseType: 'blob', // Important!
+  }
+);
+
+const fileBlob = new Blob([response.data], { type: response.headers['content-type'] });
+
+const link = document.createElement('a');
+link.href = window.URL.createObjectURL(fileBlob);
+
+let fileName = 'AgentReport.xlsx';
+const contentDisposition = response.headers['content-disposition'];
+if (contentDisposition && contentDisposition.indexOf('attachment') !== -1) {
+  const fileNameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+  if (fileNameMatch && fileNameMatch.length > 1) {
+    fileName = fileNameMatch[1];
+  }
+}
+
+link.download = fileName;
+document.body.appendChild(link);
+link.click();
+link.remove();
+
       
       return { success: true }; // Return success status
     } catch (err) {

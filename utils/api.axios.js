@@ -4,6 +4,7 @@ import { BASE_URL } from './apiConstants';
 const instance = axios.create({
   baseURL: '/api/NextApi', // Important: Always use your own backend route
   timeout: 1000000000,
+  responseType: 'json',
 });
 
 instance.interceptors.request.use(

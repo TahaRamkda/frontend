@@ -26,15 +26,15 @@ contentType.includes('application/xml') ||
 contentType.includes('text/xml') ||
 headers['content-disposition']?.includes('attachment');
 
-      if (isFile) {
-        res.setHeader('Content-Type', contentType);
-        if (headers['content-disposition']) {
-          res.setHeader('Content-Disposition', headers['content-disposition']);
-        }
-        console.log("Returned data",data);
-        
-        return res.status(200).end(data); // ✅ correctly returns raw file
-      }
+     if (isFile) {
+  res.setHeader('Content-Type', contentType);
+  if (headers['content-disposition']) {
+    res.setHeader('Content-Disposition', headers['content-disposition']);
+  }
+
+  return res.status(200).send(Buffer.from(data)); // 👈 Ensure this is a Buffer
+}
+
 
       // Default JSON response
       return res.status(200).json({ data });
