@@ -17,7 +17,20 @@ import { useLogger } from "next-axiom"; // Import Axiom logger
 import loggerdetails from "@/components/logger";
 import { Image } from "react-bootstrap";
 import AgentStatusDropdown from "@/components/Dropdowns/AgentStatusDropdown";
-import { getAgentConversations ,getAgentMessages,addConversation, addMessageToConversation ,removeConversation , selectExpiredConversations ,checkForExpiredConversations ,setAgentstatus} from "@/slices/ChatBridgeSlice";
+import { 
+  getAgentConversations,
+  getAgentMessages,
+  addConversation, 
+  addMessageToConversation,
+  removeConversation,
+  selectExpiredConversations,
+  checkForExpiredConversations,
+  setAgentstatus,
+  getAgentTemplate,
+  getAgentTemplateDetail,
+  SendInteractivetemp,
+  clearAgentTemplateSentState
+} from "@/slices/ChatBridgeSlice";
 import UserBadge from "@/public/images/User.jpg";
 import { AiOutlineHourglass } from "react-icons/ai";
 import {
@@ -55,10 +68,15 @@ import {
 
 import {
   HiLogout,
+  HiMenuAlt2,
+  HiSearch,
+  HiCog,
 } from "react-icons/hi";
 import { sendPushNotification } from "@/components/SendPushNotification";
 import {AppId} from "@/utils/constants";
 import { LogerType } from "@/utils/constants";
+import { BsChatDots, BsChatDotsFill, BsCheckAll, BsCheck } from "react-icons/bs";
+
 const ChatPage = () => {
   const router = useRouter();
   const logger = useLogger();
@@ -77,36 +95,69 @@ const ChatPage = () => {
   const { AgentStats, loading: statsLoading } = useSelector(
     (state) => state.agents
   );
-
+  const agenttemplates = useSelector((state) => state.bridge.agenttemplates);
   
   const inputRef = useRef(null);
   const [chatMessages, setChatMessages] = useState([]);
   const [AgentConversation, setAgentConversation] = useState([]);
   const [ShowDetailedTemplate, setShowDetailedTemplate] = useState(false);
   const [messageInput, setMessageInput] = useState("");
-  const [mediaFile, setMediaFile] = useState(null); // To store the selected media file
-  const connectionRef = useRef(null); // ✅ Store connection persistently
+  const [mediaFile, setMediaFile] = useState(null);
+  const connectionRef = useRef(null);
   const [Activechat, setActiveChat] = useState(0);
   const [ActiveSenderId, setActiveSenderId] = useState(0);
-  const fileInputRef = useRef(null); // Reference for the file input
+  const fileInputRef = useRef(null);
   const [Errordisconnect, setErrordisconnect] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const toggleModal = () => setModalOpen((prevState) => !prevState);
-  const activeChatRef = useRef(Activechat);
-  const agentChatRef = useRef([AgentConversation]);
   const [AgentStatus, setAgentStatus] = useState(0);
-  const containerRef = useRef(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [Contactsloading, setContactsloading] = useState(false);
-  const [Chatsloading, setChatsloading] = useState(false);
-  const [fileType, setFileType] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const [filteredTemplates, setFilteredTemplates] = useState([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('all');
+  const [sendingMessages, setSendingMessages] = useState(new Set());
+  const [repliedMessages, setRepliedMessages] = useState(new Set());
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [parameters, setParameters] = useState([]);
+  const [parameterValues, setParameterValues] = useState([]);
+  const [templateView, setTemplateView] = useState("");
+  const agenttemplatedetails = useSelector((state) => state.bridge.agenttemplatedetails);
+
+  // Add debounce effect for search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Add effect to filter templates
+  useEffect(() => {
+    if (agenttemplates && ActiveSenderId) {
+      const filtered = agenttemplates.filter((template) => {
+        const matchesSenderId = template.senderId === ActiveSenderId;
+        const matchesSearchQuery = template.name
+          .toLowerCase()
+          .includes(debouncedSearchQuery.toLowerCase());
+        return matchesSenderId && matchesSearchQuery;
+      });
+      setFilteredTemplates(filtered);
+    } else {
+      setFilteredTemplates([]);
+    }
+  }, [debouncedSearchQuery, agenttemplates, ActiveSenderId]);
+
+  // Add effect to fetch templates when sender changes
+  useEffect(() => {
+    if (ActiveSenderId) {
+      dispatch(getAgentTemplate({ senderId: ActiveSenderId }));
+    }
+  }, [dispatch, ActiveSenderId]);
+
+  const [isManualScroll, setIsManualScroll] = useState(false);
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
-  const isManualScroll = useRef(false);
-  const audioRef = useRef(null);
-  const audioRef2 = useRef(null);
-  const scrollContainerRef = useRef(null);
-  const messagesEndRef = useRef(null);
-  const timersRef = useRef({});
   const [unrepliedChats, setUnrepliedChats] = useState([]);
   const [templateDetails, setTemplateDetails] = useState([]);
   const [heartbeatAttempts, setheartbeatAttempts] = useState(0);
@@ -118,7 +169,32 @@ const ChatPage = () => {
   const message = useSelector((state) =>
     state.bridge.conversations.find((c) => c.id === Activechat)?.messages || []
   );
-  
+  const containerRef = useRef(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [Contactsloading, setContactsloading] = useState(false);
+  const [Chatsloading, setChatsloading] = useState(false);
+  const [fileType, setFileType] = useState(null);
+  const audioRef = useRef(null);
+  const audioRef2 = useRef(null);
+  const scrollContainerRef = useRef(null);
+  const messagesEndRef = useRef(null);
+  const timersRef = useRef({});
+  const [activeChatRef, setActiveChatRef] = useState(null);
+  const agentChatRef = useRef([AgentConversation]);
+
+  // Filter conversations based on search and active tab
+  const filteredConversations = AgentConversation?.filter(conversation => {
+    const matchesSearch = conversation.phoneNumber.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    switch(activeTab) {
+      case 'unread':
+        return matchesSearch && conversation.unreadCount > 0;
+      case 'replied':
+        return matchesSearch && conversation.unreadCount === 0;
+      default:
+        return matchesSearch;
+    }
+  });
 
   const HandleAgentStatus = async (e) => {
     const StatusId = e.target.value;
@@ -200,8 +276,21 @@ const ChatPage = () => {
 
  useEffect(() => {
   if (message.length > 0) {
-    setChatMessages([...message]);
+    // Reverse the order to maintain correct sequence
+    setChatMessages([...message].reverse());
     setActiveSenderId(message[0].senderId);
+    
+    // Check for existing replies and update repliedMessages
+    const newRepliedMessages = new Set();
+    message.forEach((msg, index) => {
+      if (msg.typeId === 2) { // If it's a user message
+        // Mark all previous agent messages as replied
+        message.slice(index + 1)
+          .filter(m => m.typeId === 1)
+          .forEach(m => newRepliedMessages.add(m.messageId));
+      }
+    });
+    setRepliedMessages(newRepliedMessages);
   }
 }, [message]);
 
@@ -410,15 +499,42 @@ const ChatPage = () => {
     setActiveChat(conversationId);
     const conversation = conversations.find((conv) => conv.id === conversationId);
     if (conversation?.messages?.length > 0) {
-      setChatMessages(conversation.messages);
+      const messages = [...conversation.messages].reverse();
+      setChatMessages(messages);
       setActiveSenderId(conversation.messages[0].senderId);
+      
+      // Check for existing replies in this conversation
+      const newRepliedMessages = new Set();
+      messages.forEach((msg, index) => {
+        if (msg.typeId === 2) {
+          messages.slice(index + 1)
+            .filter(m => m.typeId === 1)
+            .forEach(m => newRepliedMessages.add(m.messageId));
+        }
+      });
+      setRepliedMessages(newRepliedMessages);
     } else {
-      setChatsloading(true); // Show loader
-      dispatch(getAgentMessages(conversationId)).then((response) => {
-        setChatMessages(response.payload.messages);
-        setChatsloading(false); // Hide loader
-      }).catch(() => {
-        setChatsloading(false); // Hide loader on error
+      setChatsloading(true);
+      dispatch(getAgentMessages(conversationId))
+        .then((response) => {
+          const messages = [...response.payload.messages].reverse();
+          setChatMessages(messages);
+          
+          // Check for replies in fetched messages
+          const newRepliedMessages = new Set();
+          messages.forEach((msg, index) => {
+            if (msg.typeId === 2) {
+              messages.slice(index + 1)
+                .filter(m => m.typeId === 1)
+                .forEach(m => newRepliedMessages.add(m.messageId));
+            }
+          });
+          setRepliedMessages(newRepliedMessages);
+          
+          setChatsloading(false);
+        })
+        .catch(() => {
+          setChatsloading(false);
       });
     }
   };
@@ -431,7 +547,7 @@ const ChatPage = () => {
 
   //to set the activechat
   useEffect(() => {
-    activeChatRef.current = Activechat;
+    setActiveChatRef(Activechat);
   }, [Activechat]);
 
   useEffect(() => {
@@ -459,6 +575,9 @@ const ChatPage = () => {
       return;
     }
 
+    const messageId = Date.now();
+    setSendingMessages(prev => new Set([...prev, messageId]));
+
     const formData = new FormData();
     formData.append("ClientId", localStorage.getItem("clientId"));
     formData.append("SenderId", message[0].senderId);
@@ -466,50 +585,53 @@ const ChatPage = () => {
     formData.append("ConversationId", Activechat);
 
     if (mediaFile) {
-      formData.append("File", mediaFile); // Append the selected media file
+      formData.append("File", mediaFile);
     }
 
     try {
       const newMessage = {
         id: Activechat,
         senderId: message[0].senderId,
-        messageId: Date.now(),
+        messageId: messageId,
         typeId: 1,
         messageContent: messageInput.trim(),
-        sentcontentType: fileType ? fileType : "", // Set content type if there's media
+        sentcontentType: fileType ? fileType : "",
         sentmediaPath: previewUrl ? previewUrl : "",
         createdDate: new Date().toLocaleString(),
-        sentime : new Date().toLocaleString(),
+        sentime: new Date().toLocaleString(),
       };
-      //logger.info("Agent sent message:", newMessage);
-       await loggerdetails(logger, "Agent sent message:","info", {
-        Obj : newMessage,
+
+      setChatMessages(prevMessages => [newMessage, ...prevMessages]);
+      dispatch(addMessageToConversation(newMessage));
+      
+      setPreviewUrl(null);
+      setFileType(null);
+      setMessageInput("");
+      
+      await dispatch(NewAgentMessage(formData)).unwrap();
+      setSendingMessages(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(messageId);
+        return newSet;
+      });
+      
+      await loggerdetails(logger, "Message sent successfully on time :", "info", {
+        Obj: new Date().toLocaleString(),
         conversationId: Activechat,
         agentId: UserId,
         type: LogerType.messagesent,
        });
-
-      //setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
-      dispatch(addMessageToConversation(newMessage));
+      
+      setMediaFile(null);
       setPreviewUrl(null);
       setFileType(null);
-      setFileType(null);
-      setMessageInput("");
-      await dispatch(NewAgentMessage(formData)).unwrap();
-      //toast.success("Message sent successfully!");
-      await loggerdetails(logger, "Message sent successfully on time :","info", {
-        Obj : new Date().toLocaleString(),
-        conversationId: Activechat,
-        agentId: UserId,
-        type:LogerType.messagesent,
-       });
-      setMediaFile(null); // Clear the selected file after sending the message
-      setPreviewUrl(null);
-      setFileType(null); //get the file type
-      //clearTimer(Activechat);
       removeUnrepliedMark(Activechat);
-     
     } catch (error) {
+      setSendingMessages(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(messageId);
+        return newSet;
+      });
       await loggerdetails(logger, " Error while sending message:","error", {
         Obj : error,
         logtype: "error",
@@ -588,19 +710,31 @@ const ChatPage = () => {
 
     // Message received handler
     const handleIncomingMessage = async (message) => {
-      await loggerdetails(logger, "Agent received message:","info", {
-        Obj : message,
+      await loggerdetails(logger, "Agent received message:", "info", {
+        Obj: message,
         conversationId: message.conversationId,
         agentId: UserId,
         type: LogerType.newincomingmessage,
-      })
+      });
       audioRef.current
         ?.play()
         .catch((err) =>
           console.error("Failed to play notification sound:", err)
         );
-        dispatch(addMessageToConversation(message));
-     
+
+      // If this is a user message (typeId === 2), mark previous agent messages as replied
+      if (message.typeId === 2) {
+        setRepliedMessages(prev => {
+          const newSet = new Set(prev);
+          // Find all agent messages sent before this reply
+          chatMessages
+            .filter(m => m.typeId === 1 && new Date(m.createdDate) < new Date(message.createdDate))
+            .forEach(m => newSet.add(m.messageId));
+          return newSet;
+        });
+      }
+      
+      dispatch(addMessageToConversation(message));
     };
 
     // Handles conversation assignment
@@ -778,202 +912,532 @@ const ChatPage = () => {
       .catch((error) => console.error("Download failed", error));
   };
 
+  // Toggle sidebar
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  // Function to check if a message has a reply
+  const hasReply = (messageId) => {
+    return chatMessages.some(msg => 
+      msg.typeId === 2 && // Message from user
+      msg.createdDate > chatMessages.find(m => m.messageId === messageId)?.createdDate // Created after the sent message
+    );
+  };
+
+  // Add scroll handler function
+  const handleScroll = (e) => {
+    const element = e.target;
+    const isScrolledUp = element.scrollTop < -100; // Negative because of reverse column
+    setShowScrollButton(isScrolledUp);
+  };
+
+  // Add scroll to bottom function
+  const scrollToBottom = () => {
+    const chatContainer = scrollContainerRef.current;
+    if (chatContainer) {
+      chatContainer.scrollTo({
+        top: -chatContainer.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // Add function to toggle status dropdown
+  const toggleStatusDropdown = () => {
+    setShowStatusDropdown(!showStatusDropdown);
+  };
+
+  const handleSelection = (templateId) => {
+    setSelectedOption(templateId);
+    // Don't modify chatMessages here
+    setParameterValues([]);
+    setParameters([]);
+    setTemplateView("");
+
+    if (templateId) {
+      const cachedDetail = agenttemplatedetails.find(
+        (detail) => detail.templateId === templateId && detail.senderId === ActiveSenderId
+      );
+      if (!cachedDetail) {
+        dispatch(getAgentTemplateDetail({ templateId, senderId: ActiveSenderId }));
+      }
+    }
+  };
+
+  // Update preview when agenttemplatedetails, selectedOption, or parameterValues change
+  useEffect(() => {
+    if (selectedOption) {
+      const selectedDetail = agenttemplatedetails.find(
+        (detail) => detail.templateId === selectedOption && detail.senderId === ActiveSenderId
+      );
+      if (selectedDetail) {
+        setParameters(selectedDetail.parameters || []);
+        let updatedView = selectedDetail.bodyText || "";
+        parameterValues.forEach((param) => {
+          updatedView = updatedView.replace(new RegExp(`{{${param.key}}}`, "g"), param.value);
+        });
+        setTemplateView(updatedView);
+        
+        // Create preview message
+        const previewMessage = {
+          messageId: `preview-${selectedOption}`,
+          typeId: 1,
+          contentType: selectedDetail.contentType || "",
+          mediaPath: selectedDetail.mediaPath || "",
+          conversationID: Activechat,
+          createdDate: new Date().toISOString(),
+          messageContent: updatedView,
+          headerText: selectedDetail.headerText || "",
+          buttonJson: selectedDetail.buttonsJson || [],
+          isPreview: true // Add this flag to identify preview messages
+        };
+
+        // Update chatMessages as an array
+        setChatMessages(prevMessages => {
+          // Filter out any previous preview messages
+          const filteredMessages = prevMessages?.filter(msg => !msg.isPreview) || [];
+          // Add the new preview message at the beginning
+          return [previewMessage, ...filteredMessages];
+        });
+      }
+    }
+  }, [agenttemplatedetails, selectedOption, ActiveSenderId, parameterValues, Activechat]);
+
+  // Add this effect to restore original messages when template preview is closed
+  useEffect(() => {
+    if (!ShowDetailedTemplate) {
+      // When template preview is closed, remove preview messages
+      setChatMessages(prevMessages => 
+        prevMessages?.filter(msg => !msg.isPreview) || []
+      );
+    }
+  }, [ShowDetailedTemplate]);
+
+  const handleParameterChange = (paramName, value) => {
+    setParameterValues((prevValues) => {
+      const updatedValues = prevValues.filter((item) => item.key !== paramName);
+      return [...updatedValues, { key: paramName, value }];
+    });
+  };
+
+  const handleSend = async (e) => {
+    e.preventDefault();
+    const values = parameterValues.map((val) => ({
+      key: val.key,
+      value: val.value,
+    }));
+
+    const formData = new FormData();
+    formData.append("ClientId", localStorage.getItem("clientId"));
+    formData.append("SenderId", ActiveSenderId);
+    formData.append("ConversationId", Activechat);
+    formData.append("InteractiveTemplateId", selectedOption);
+    formData.append("ActionBy", localStorage.getItem("userId"));
+    values.forEach((item, index) => {
+      formData.append(`Values[${index}].Key`, item.key);
+      formData.append(`Values[${index}].Value`, item.value);
+    });
+
+    try {
+      const response = await dispatch(SendInteractivetemp(formData)).unwrap();
+      if (response.success) {
+        dispatch(clearAgentTemplateSentState());
+        const selectedDetail = agenttemplatedetails.find(
+          detail => detail.templateId === selectedOption && detail.senderId === ActiveSenderId
+        );
+        if (selectedDetail) {
+          const messageDetails = {
+            messageId: Date.now(),
+            conversationID: Activechat,
+            messageContent: templateView,
+            contentType: selectedDetail.contentType || "",
+            mediaPath: selectedDetail.mediaPath || "",
+            buttonJson: selectedDetail.buttonsJson || "",
+            createdDate: new Date().toLocaleString(),
+          };
+          handleTemplateSend(messageDetails);
+        }
+        handleAgenttemplateclose();
+      } else {
+        toast.error(response.message || "Failed to send template");
+      }
+    } catch (err) {
+      toast.error("Failed to send template");
+    }
+  };
+
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between bg-gray-900 p-4 rounded shadow-md space-x-4">
-        {/* Assigned */}
-        <nav className="text-white bg-gray-900 fixed top-0 left-0 right-0 z-50 shadow-md w-full">
-          <Head>
-            <title>BCT-Chat Portal</title>
-            {/* <title>{props.title}</title> */}
-          </Head>
-          <div className="flex justify-between items-center headerchatmenu">
+      {/* Header wrapper with padding to prevent content overlap */}
+      <div className="w-full" style={{ height: '4rem' }}>
+        <nav className="text-gray-700 fixed top-0 left-0 right-0 z-40 w-full h-16 border-b" 
+             style={{ 
+               background: '#F8F9FA',
+               borderColor: 'rgba(229, 231, 235, 0.5)'
+             }}>
+          <div className="flex justify-between items-center h-full px-2 md:px-4 lg:px-6">
             {/* Logo Section on the Left Side */}
-            <div className="flex items-center space-x-3 gap-5">
-              <Image
-                className="m-l-10 h-10 w-auto"
-                src="/images/logo/Loader.svg"
-                alt="Logo"
-              />
-
+            <div className="flex items-center space-x-2 md:space-x-3">
+              <div className="relative w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
+                <div className="absolute inset-0 blur-md bg-gray-100 rounded-full"></div>
+                <Image
+                  className="relative drop-shadow-xl transform hover:scale-105 transition-transform duration-300 w-6 h-6 md:w-8 md:h-8"
+                  src="/images/logo/Loader.svg"
+                  alt="Logo"
+                  style={{ filter: 'brightness(1.05) drop-shadow(0 4px 6px rgba(0,0,0,0.1))' }}
+                />
+              </div>
+              <span className="hidden md:block text-base lg:text-lg font-semibold text-gray-700 drop-shadow-xl tracking-wide">
+                BCT-Chat Portal
+              </span>
             </div>
-            
-            {/* Action Buttons Section on the Right Side */}
-            <div className="">
-              {/* Sidebar Toggle Button */}
-              <div className="flex items-center space-x-4 HeaderChatmenuItemBar">
-                {/* Assigned */}
-                <div className="flex items-center space-x-2 menuitem">
-                  <FaComments className="text-blue-500" />
-                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
-                    Assigned:{" "}
-                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats?.assignedChat ?? "-/-"}
-                    </span>
-                  </span>
-                </div>
 
-                {/* Active */}
-                <div className="flex items-center space-x-2 menuitem">
-                  <FaCheckCircle className="text-green-500" />
-                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
-                    Active:{" "}
-                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats?.activeChat ?? "-/-"}
-                    </span>
-                  </span>
-                </div>
-                {/* Abandoned */}
-                <div className="flex items-center space-x-2 menuitem">
-                  <FaBan className="text-red-500" />
-                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
-                    Abandoned:{" "}
-                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats?.abandonChat ?? "-/-"}
-                    </span>
-                  </span>
-                </div>
-                {/* Closed */}
-                <div className="flex items-center space-x-2 menuitem">
-                  <FaTimesCircle className="text-red-500" />
-                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
-                    Closed:{" "}
-                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats?.closedChat ?? "-/-"}
-                    </span>
-                  </span>
-                </div>
-
-                {/* Expired */}
-                <div className="flex items-center space-x-2 menuitem">
-                  <AiOutlineHourglass className="text-yellow-100" />
-                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
-                    Expired:{" "}
-                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats?.expiredChat ?? "-/-"}
-                    </span>
-                  </span>
-                </div>
-                {/* Force Closed */}
-                <div className="flex items-center space-x-2 menuitem menuitem">
-                  <FaClock className="text-purple-500" />
-                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
-                    Force Closed:{" "}
-                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats?.forceClosedChat ?? "-/-"}
-                    </span>
-                  </span>
-                </div>
-                {/* Avg Duration */}
-                {/* <div className="flex items-center space-x-2 menuitem">
-                  <MdOutlineTimer className="text-orange-500" />
-                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
-                    Avg Duration:{" "}
-                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats.avgChatTime ?? "-/-"}
-                    </span>
-                  </span>
-                </div> */}
-                {/* Response Time */}
-                {/* <div className="flex items-center space-x-2 menuitem">
-                  <MdOutlineTimer className="text-green-500" />
-                  <span className="font-medium text-white text-base md:text-xs lg:text-xs xl:text-xs sm:text-xs xs:text-xs">
-                    Response Time:{" "}
-                    <span className="font-bold text-base md:text-sm lg:text-sm xl:text-sm sm:text-xs xs:text-xs">
-                      {AgentStats.avgResponseTime ?? "-/-"}
-                    </span>
-                  </span>
-                </div> */}
-                {/* User Badge with Name and Dropdown */}
-                <div className="relative menuitem menuitemButton">
-                  <div className="flex ButtonUserName items-center gap-3 space-x-2 menuitem ">
-                   
-                     <div className="relative">
-                    
-                        <AgentStatusDropdown
-                          name="agentStatusId"
-                          onChange={HandleAgentStatus}
-                          value={AgentStatus}
-                        />
-                      
-                     </div>
-                        
-                   
-                     
-                      
-                    <button
-                      className="flex  bg-gray-800 text-white-800 dark:bg-gray-700 dark:text-gray-200 rounded-md items-center hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none   p-2"
-                      onClick={() => setDropdownOpen(!dropdownOpen)}
-                    >
+            {/* User Profile Section - Remove status dropdown from here */}
+            <div className="flex items-center space-x-2">
+              <div className="relative menuitem menuitemButton">
+                <div className="flex ButtonUserName items-center gap-2 menuitem">
+                  <button className="flex items-center space-x-2 px-2 py-1 md:px-3 md:py-1.5 rounded-xl bg-[#F8F9FA] hover:bg-gray-100 transition-all duration-200 border border-gray-200">
+                    <div className="relative w-6 h-6 md:w-7 md:h-7 rounded-full overflow-hidden">
+                      <div className="absolute inset-0 blur-md bg-gray-50"></div>
                       <Image
                         src={UserBadge.src}
                         alt="User"
-                        className="w-8 h-8 rounded-full mr-2"
+                        className="relative w-full h-full object-cover"
                       />
-                      <span>{localStorage.getItem("userName")}</span>
-                    </button>
-                  {/* User Badge with Name and Dropdown */}
-                  </div>
-
-                  {/* Dropdown Menu */}
-                  {dropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-gray-700 shadow-lg rounded-md">
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center w-full text-left px-4 py-2 text-white-800 dark:text-gray-200 hover:bg-gray-600 dark:hover:bg-gray-600"
-                      >
-                        <HiLogout />
-                        <span>Logout</span>
-                      </button>
                     </div>
-                  )}
+                    <span className="text-gray-700 text-xs md:text-sm whitespace-nowrap">{localStorage.getItem("userName")}</span>
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </nav>
-      </div>                                              
-      <Container fluid className="h-100 MainContainer">
-      {(Chatsloading || Contactsloading) && <Loader />}
+      </div>
+
+      {/* Stats Sidebar */}
+      <div 
+        className="fixed left-0 top-16 h-[calc(100vh-4rem)] transform transition-width duration-300 ease-in-out flex flex-col justify-between w-20 hover:w-56 group bg-[#F8F9FA] border-r"
+        style={{ 
+          zIndex: 30,
+          borderColor: 'rgba(229, 231, 235, 0.5)'
+        }}
+      >
+        {/* Stats Container */}
+        <div className="h-full overflow-y-auto">
+          <div className="p-3 space-y-3">
+            {/* Agent Status Stats Item */}
+            <div>
+              <div 
+                onClick={toggleStatusDropdown}
+                className="flex items-center md:flex-col group-hover:flex-row space-x-3 p-2 rounded-xl hover:bg-white transition-colors duration-200 cursor-pointer"
+              >
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-50">
+                  <HiCog className={`text-xl ${
+                    AgentStatus === "1" ? "text-green-500" :
+                    AgentStatus === "2" ? "text-yellow-500" :
+                    AgentStatus === "3" ? "text-red-500" :
+                    AgentStatus === "4" ? "text-purple-500" :
+                    AgentStatus === "5" ? "text-blue-500" :
+                    "text-gray-500"
+                  }`} />
+                </div>
+                <div className="hidden group-hover:flex items-center justify-between flex-1">
+                  <div>
+                    <p className="text-xs text-gray-500">Agent Status</p>
+                    <p className="text-xs font-medium text-gray-700 mt-0.5">
+                      {AgentStatus === "1" ? "Ready to Chat" :
+                       AgentStatus === "2" ? "Away" :
+                       AgentStatus === "3" ? "Busy" :
+                       AgentStatus === "4" ? "Break" :
+                       AgentStatus === "5" ? "Meeting" :
+                       AgentStatus === "0" ? "Offline" :
+                       "Unknown"}
+                    </p>
+                  </div>
+                  <i className={`fas fa-chevron-${showStatusDropdown ? 'up' : 'down'} text-xs text-gray-400`}></i>
+                </div>
+              </div>
+
+              {/* Status Options Submenu */}
+              {showStatusDropdown && (
+                <div className="mt-1 ml-12 group-hover:ml-2 overflow-hidden transition-all duration-200">
+                  <div className="bg-white rounded-lg">
+                    <div 
+                      onClick={() => { HandleAgentStatus({ target: { value: "1" } }); setShowStatusDropdown(false); }}
+                      className="flex items-center space-x-2 px-3 py-2 hover:bg-gray-50 cursor-pointer"
+                    >
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                      <span className="text-xs text-gray-700">Ready to Chat</span>
+                    </div>
+                    <div 
+                      onClick={() => { HandleAgentStatus({ target: { value: "2" } }); setShowStatusDropdown(false); }}
+                      className="flex items-center space-x-2 px-3 py-2 hover:bg-gray-50 cursor-pointer"
+                    >
+                      <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                      <span className="text-xs text-gray-700">Away</span>
+                    </div>
+                    <div 
+                      onClick={() => { HandleAgentStatus({ target: { value: "3" } }); setShowStatusDropdown(false); }}
+                      className="flex items-center space-x-2 px-3 py-2 hover:bg-gray-50 cursor-pointer"
+                    >
+                      <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                      <span className="text-xs text-gray-700">Busy</span>
+                    </div>
+                    <div 
+                      onClick={() => { HandleAgentStatus({ target: { value: "4" } }); setShowStatusDropdown(false); }}
+                      className="flex items-center space-x-2 px-3 py-2 hover:bg-gray-50 cursor-pointer"
+                    >
+                      <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                      <span className="text-xs text-gray-700">Break</span>
+                    </div>
+                    <div 
+                      onClick={() => { HandleAgentStatus({ target: { value: "5" } }); setShowStatusDropdown(false); }}
+                      className="flex items-center space-x-2 px-3 py-2 hover:bg-gray-50 cursor-pointer"
+                    >
+                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                      <span className="text-xs text-gray-700">Meeting</span>
+                    </div>
+                    <div 
+                      onClick={() => { HandleAgentStatus({ target: { value: "0" } }); setShowStatusDropdown(false); }}
+                      className="flex items-center space-x-2 px-3 py-2 hover:bg-gray-50 cursor-pointer border-t border-gray-100"
+                    >
+                      <div className="w-2 h-2 rounded-full bg-gray-500"></div>
+                      <span className="text-xs text-gray-700">Offline</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Assigned */}
+            <div className="flex items-center md:flex-col group-hover:flex-row space-x-3 p-2 rounded-xl hover:bg-white transition-colors duration-200">
+              <div className="relative">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-50">
+                  <FaComments className="text-blue-600 text-xl" />
+              </div>
+                <div className="absolute -top-1 -right-1 bg-blue-100 rounded-full px-2 py-0.5 text-xs font-medium text-blue-600">
+                  {AgentStats?.assignedChat ?? "0"}
+                </div>
+              </div>
+              <div className="hidden group-hover:block">
+                <p className="text-xs text-gray-500">Assigned</p>
+              </div>
+            </div>
+
+            {/* Active */}
+            <div className="flex items-center md:flex-col group-hover:flex-row space-x-3 p-2 rounded-xl hover:bg-white transition-colors duration-200">
+              <div className="relative">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-green-50">
+                  <FaCheckCircle className="text-green-600 text-xl" />
+              </div>
+                <div className="absolute -top-1 -right-1 bg-green-100 rounded-full px-2 py-0.5 text-xs font-medium text-green-600">
+                  {AgentStats?.activeChat ?? "0"}
+                </div>
+              </div>
+              <div className="hidden group-hover:block">
+                <p className="text-xs text-gray-500">Active</p>
+              </div>
+            </div>
+
+            {/* Abandoned */}
+            <div className="flex items-center md:flex-col group-hover:flex-row space-x-3 p-2 rounded-xl hover:bg-white transition-colors duration-200">
+              <div className="relative">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-50">
+                  <FaBan className="text-red-600 text-xl" />
+              </div>
+                <div className="absolute -top-1 -right-1 bg-red-100 rounded-full px-2 py-0.5 text-xs font-medium text-red-600">
+                  {AgentStats?.abandonChat ?? "0"}
+                </div>
+              </div>
+              <div className="hidden group-hover:block">
+                <p className="text-xs text-gray-500">Abandoned</p>
+              </div>
+            </div>
+
+            {/* Closed */}
+            <div className="flex items-center md:flex-col group-hover:flex-row space-x-3 p-2 rounded-xl hover:bg-white transition-colors duration-200">
+              <div className="relative">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-50">
+                  <FaTimesCircle className="text-gray-600 text-xl" />
+              </div>
+                <div className="absolute -top-1 -right-1 bg-gray-100 rounded-full px-2 py-0.5 text-xs font-medium text-gray-600">
+                  {AgentStats?.closedChat ?? "0"}
+                </div>
+              </div>
+              <div className="hidden group-hover:block">
+                <p className="text-xs text-gray-500">Closed</p>
+              </div>
+            </div>
+
+            {/* Expired */}
+            <div className="flex items-center md:flex-col group-hover:flex-row space-x-3 p-2 rounded-xl hover:bg-white transition-colors duration-200">
+              <div className="relative">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-yellow-50">
+                  <AiOutlineHourglass className="text-yellow-600 text-xl" />
+              </div>
+                <div className="absolute -top-1 -right-1 bg-yellow-100 rounded-full px-2 py-0.5 text-xs font-medium text-yellow-600">
+                  {AgentStats?.expiredChat ?? "0"}
+                </div>
+              </div>
+              <div className="hidden group-hover:block">
+                <p className="text-xs text-gray-500">Expired</p>
+              </div>
+            </div>
+
+            {/* Force Closed */}
+            <div className="flex items-center md:flex-col group-hover:flex-row space-x-3 p-2 rounded-xl hover:bg-white transition-colors duration-200">
+              <div className="relative">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-purple-50">
+                  <FaClock className="text-purple-600 text-xl" />
+              </div>
+                <div className="absolute -top-1 -right-1 bg-purple-100 rounded-full px-2 py-0.5 text-xs font-medium text-purple-600">
+                  {AgentStats?.forceClosedChat ?? "0"}
+                </div>
+              </div>
+              <div className="hidden group-hover:block">
+                <p className="text-xs text-gray-500">Force Closed</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Logout Button */}
+        <div className="p-3 border-t border-gray-100">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center group-hover:justify-between p-2 rounded-xl text-red-600 hover:bg-red-50 transition-colors duration-200"
+          >
+            <div className="flex items-center space-x-2">
+              <HiLogout className="text-xl" />
+              <span className="hidden group-hover:block text-sm">Logout</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* Main Container */}
+      <Container fluid className="MainContainer pt-16">
         <Row className="g-0 h-100">
+          {/* Chat List Column */}
           <Col
             xxl="4"
             xl="3"
             lg="3"
             md="3"
             sm="3"
-            className="p-0"
+            className="chat-list-container"
             style={{
-              height: "calc(100vh - 100px)",
-              overflow: "hidden",
+              height: "calc(100vh - 64px)",
+              width: '280px',
+              position: 'fixed',
+              left: '5rem',
+              transition: 'left 0.3s ease-in-out',
+              background: '#F8F9FA',
+              borderRight: '1px solid rgba(229, 231, 235, 0.5)',
+              zIndex: 20
             }}
           >
-            {/* Content goes here */}
+            {/* Chat List Section */}
+            <Card className="left-sidebar-wrapper h-100" style={{ 
+              maxWidth: '280px', 
+              boxShadow: 'none',
+              background: '#F8F9FA'
+            }}>
+              {/* Search Bar */}
+              <div className="p-1.5 border-b border-gray-100">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search contacts..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-7 pr-2 py-1 text-xs rounded-lg border border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-300 outline-none transition-all duration-200 bg-white"
+                  />
+                  <HiSearch className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs" />
+                </div>
+              </div>
 
-            <Card className="left-sidebar-wrapper h-100">
-              {/* <div className="left-sidebar-chat ">
-                <InputGroup>
-                  <InputGroupText className="w-full">
-                    <i className="fa fa-search mr-2" aria-hidden="true"></i>
-                    <Input type="text" placeholder="Search here" />
-                  </InputGroupText>
-                </InputGroup>
-              </div> */}
+              {/* Chat Tabs */}
+              <div className="flex border-b border-gray-100">
+                <button
+                  onClick={() => setActiveTab('all')}
+                  className={`flex-1 py-1.5 text-xs font-medium transition-colors duration-200 relative ${
+                    activeTab === 'all'
+                      ? 'text-gray-700'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <div className="flex items-center justify-center space-x-1">
+                    <BsChatDots size={12} />
+                    <span>All</span>
+                  </div>
+                  {activeTab === 'all' && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-700"></div>
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab('unread')}
+                  className={`flex-1 py-1.5 text-xs font-medium transition-colors duration-200 relative ${
+                    activeTab === 'unread'
+                      ? 'text-gray-700'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <div className="flex items-center justify-center space-x-1">
+                    <BsChatDotsFill size={12} />
+                    <span>Unread</span>
+                  </div>
+                  {activeTab === 'unread' && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-700"></div>
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab('replied')}
+                  className={`flex-1 py-1.5 text-xs font-medium transition-colors duration-200 relative ${
+                    activeTab === 'replied'
+                      ? 'text-gray-700'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <div className="flex items-center justify-center space-x-1">
+                    <BsCheckAll size={12} />
+                    <span>Replied</span>
+                  </div>
+                  {activeTab === 'replied' && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-700"></div>
+                  )}
+                </button>
+              </div>
 
+              {/* Chat Messages */}
               <TabContent id="chat-options-tabContent">
                 <TabPane id="chats">
                   <ul
                     className="list-unstyled chats-user overflow-auto"
-                    style={{ height: "80vh", margin: "0" }}
+                    style={{ 
+                      height: "calc(100vh - 160px)", 
+                      margin: "0",
+                      backgroundColor: '#F8F9FA'
+                    }}
                   >
-                    {AgentConversation?.length === 0 && !loading && (
-                      <div className="text-center">No Chats Found</div>
+                    {filteredConversations?.length === 0 && !loading && (
+                      <div className="text-center py-6 text-gray-500 text-sm">
+                        {searchQuery 
+                          ? "No matching conversations found" 
+                          : activeTab === 'unread' 
+                            ? "No unread messages"
+                            : activeTab === 'replied'
+                              ? "No replied messages"
+                              : "No conversations found"
+                        }
+                      </div>
                     )}
-                    {AgentConversation?.map((conversation) => (
+                    {filteredConversations?.map((conversation) => (
                       <li
                         key={conversation.id}
-                        className={`d-flex justify-content-between align-items-center p-2 mb-1 chat-item ${
-                          Activechat === conversation.id ? " text-white" : ""
+                        className={`flex items-center py-1.5 px-2 chat-item hover:bg-gray-50 transition-colors duration-200 cursor-pointer ${
+                          Activechat === conversation.id ? "bg-blue-50" : ""
                         }`}
                         style={
                           Activechat !== conversation.id &&
@@ -982,61 +1446,36 @@ const ChatPage = () => {
                                 animation: "blink 1s infinite",
                                 backgroundColor: "#ffcccc",
                               }
-                            : Activechat === conversation.id
-                            ? {
-                                backgroundColor: "#ddffd9", // Dark gray color
-                                color: "white",
-                              }
-                            : { minHeight: "60px" }
+                            : {}
                         }
-                        onClick={() =>
-                          handleFetchMessages(conversation.id)
-                        }
+                        onClick={() => handleFetchMessages(conversation.id)}
                       >
-                        <div className="d-flex align-items-center w-75">
+                        <div className="flex items-center space-x-2 w-full min-w-0">
+                          <div className="relative flex-shrink-0">
                           <Image
                             src={`${BASE_URL}${conversation.logo}`}
                             alt="User Logo"
-                            className="rounded-circle me-2"
-                            style={{
-                              width: "40px",
-                              height: "40px",
-                              objectFit: "cover",
-                            }}
-                          />
-
-                          <div className="flex-grow-1">
-                            <span className="d-block text-truncate text-muted  text-left">
-                              {conversation.phoneNumber}
-                            </span>
-                            {conversation.lastMessageText !== "" ? (
-                              <p
-                                className="d-block text-truncate mt-2 text-muted text-left"
-                                style={{
-                                  maxWidth: "220px",
-                                  fontSize: "14px",
-                                  marginBottom: "0",
-                                }}
-                              >
-                                {conversation.lastMessageText}
-                              </p>
-                            ) : (
-                              <div className="d-flex align-items-center text-muted">
-                                <i className="fa fa-photo me-1"></i>
-                                <span style={{ fontSize: "12px" }}>Media</span>
+                              className="w-8 h-8 rounded-full object-cover"
+                            />
+                            {conversation.unreadCount > 0 && (
+                              <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
+                                <span className="text-white text-[10px]">{conversation.unreadCount}</span>
                               </div>
                             )}
                           </div>
-                        </div>
-                        <div className="d-flex flex-column align-items-end justify-content-between">
-                          <p className="text-xs text-gray-400">
-                            {extractTime(conversation.updatedDate)}
-                          </p>
-                          {conversation.unreadCount > 0 && (
-                            <span className="inline-block bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">
-                              @{conversation.unreadCount}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-start">
+                              <p className="text-xs font-medium text-gray-900 truncate">
+                                {conversation.phoneNumber}
+                              </p>
+                              <span className="text-[10px] text-gray-500 flex-shrink-0 ml-1">
+                                {extractTime(conversation.updatedDate)}
                             </span>
-                          )}
+                            </div>
+                            <p className="text-[10px] text-gray-500 truncate mt-0.5">
+                              {conversation.lastMessageText || "Media"}
+                            </p>
+                          </div>
                         </div>
                       </li>
                     ))}
@@ -1045,79 +1484,86 @@ const ChatPage = () => {
               </TabContent>
             </Card>
           </Col>
+
+          {/* Message Section */}
           <Col
-            xxl="8"
-            xl="9"
-            lg="9"
-            md="9"
-            sm="9"
-            className="p-0"
-            style={{ height: "calc(100vh - 100px)" }}
+            className="message-container"
+            style={{
+              height: "calc(100vh - 64px)",
+              marginLeft: 'calc(5rem + 280px)',
+              marginRight: '280px',
+              width: 'calc(100% - (5rem + 560px))',
+              transition: 'all 0.3s ease-in-out',
+              backgroundColor: '#F8F9FA',
+              position: 'relative'
+            }}
           >
             {Activechat !== 0 && (
-              <Card className="right-sidebar-chat h-100">
+              <Card 
+                className="right-sidebar-chat h-100 flex flex-col" 
+                style={{ 
+                  backgroundColor: '#F8F9FA', 
+                  boxShadow: 'none',
+                  maxWidth: '1200px',
+                  margin: '0 auto',
+                  width: '100%'
+                }}
+              >
+                {/* Chat Header */}
+                <div className="flex items-center justify-between text-black px-3 py-2 ChatHeader border-b border-gray-100">
                 {AgentConversation.filter(
                   (conversation) => conversation.id === Activechat
                 ).map((conversation) => (
                   <div
                     key={conversation.id}
-                    className="flex items-center justify-between text-black px-4 py-2 ChatHeader shadow-md"
+                      className="flex items-center justify-between w-full"
                   >
                     {/* Left Section */}
-                    <div
-                      key={conversation.id}
-                      className="flex items-center space-x-3"
-                    >
+                    <div className="flex items-center space-x-3">
                       <Image
                         src={`${BASE_URL}${conversation.logo}`}
                         alt="User Logo"
-                        className="rounded-circle me-2"
+                        className="rounded-circle"
                         style={{
-                          width: "40px",
-                          height: "40px",
+                          width: "36px",
+                          height: "36px",
                           objectFit: "cover",
                         }}
                       />
-                      <div>{conversation.fullName}</div>
-                      <div>
-                        <span>{conversation.phoneNumber}</span>
+                      <div className="flex items-center space-x-3">
+                        <span className="text-sm font-medium">{conversation.fullName}</span>
+                        <div className="flex items-center space-x-1">
+                          <span className="text-sm">{conversation.phoneNumber}</span>
                         <button
                           onClick={() => handleCopy(conversation.phoneNumber)}
-                          className="p-1 rounded hover:bg-gray-300 focus:outline-none"
+                            className="p-1 rounded hover:bg-gray-100 focus:outline-none transition-colors duration-200"
                           aria-label="Copy Phone Number"
                         >
-                          <FaCopy size={16} />
+                            <FaCopy size={14} className="text-gray-600" />
                         </button>
                       </div>
                     </div>
-
-                    {/* Right Section */}
-                    <div className="flex items-center space-x-4">
-                      {/* Search Input */}
                     </div>
                   </div>
                 ))}
-                <div className="right-sidebar-chat w-full height-chat-box overflow-y-auto chat-background h-100">
-                  <div className="msger flex flex-col  h-full">
+                </div>
+
+                {/* Chat Messages Container */}
+                <div className="flex-1 overflow-hidden flex flex-col h-[calc(100vh-180px)]">
+                  {/* Messages Section */}
+                  <div className="flex-1 overflow-y-auto pb-16">
                     <div
                       ref={scrollContainerRef}
-                      className={`msger-chat flex-grow overflow-y-auto space-y-4 px-4 py-2 ${
+                      onScroll={handleScroll}
+                      className={`msger-chat space-y-3 px-3 py-2 ${
                         previewUrl ? "hide-messages" : ""
                       }`}
-                      style={{
-                        overflowY: "auto",
-                        display: "flex",
-                        flexDirection: "column-reverse",
-                      }}
                     >
-                      
                       {chatMessages?.map((message) => (
                         <div
                           key={message.messageId}
                           className={`mt-2 flex ${
-                            message.typeId === 1
-                              ? "justify-end"
-                              : "justify-start"
+                            message.typeId === 1 ? "justify-end" : "justify-start"
                           }`}
                         >
                           <div
@@ -1319,37 +1765,38 @@ const ChatPage = () => {
                                     )}
                                   </>
                                 )}
-                              <div
-                                className="flex items-end justify-between rounded-lg"
-                                style={{ width: "auto" }}
-                              >
-                                <p
-                                  className="whitespace-pre-wrap break-words overflow-hidden messageText"
-                                  style={{
-                                    fontSize: "15px",
-                                    display: "inline-block",
-                                  }}
-                                >
+                              <div className="flex items-end justify-between rounded-lg" style={{ width: "auto" }}>
+                                <p className="whitespace-pre-wrap break-words overflow-hidden messageText"
+                                   style={{ fontSize: "15px", display: "inline-block" }}>
                                   {message.messageContent
-                                    ? message.messageContent
-                                        .split("\n")
-                                        .map((line, index) => (
+                                    ? message.messageContent.split("\n").map((line, index) => (
                                           <span key={index}>
                                             {line}
-                                            {index <
-                                              message.messageContent.split("\n")
-                                                .length -
-                                                1 && <br />}
+                                          {index < message.messageContent.split("\n").length - 1 && <br />}
                                           </span>
                                         ))
                                     : null}
                                 </p>
-                                <span
-                                  className="ml-2 text-gray-500 text-xs"
-                                  style={{ whiteSpace: "nowrap" }}
-                                >
+                                <div className="ml-2 flex items-center space-x-1">
+                                  <span className="text-gray-500 text-xs" style={{ whiteSpace: "nowrap" }}>
                                   {extractTime(message.createdDate)}
                                 </span>
+                                  {message.typeId === 1 && (
+                                    <span className="message-status">
+                                      {sendingMessages.has(message.messageId) ? (
+                                        <BsCheck 
+                                          className="text-gray-400" 
+                                          size={20} 
+                                        />
+                                      ) : (
+                                        <BsCheckAll 
+                                          className={repliedMessages.has(message.messageId) ? "text-blue-500" : "text-gray-400"} 
+                                          size={20} 
+                                        />
+                                      )}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                               {message.buttonJson &&
                                 message.buttonJson.length > 0 && (
@@ -1400,224 +1847,61 @@ const ChatPage = () => {
                       ))}
                       <div ref={messagesEndRef} />
                     </div>
-                    {previewUrl && (
-                      <div className="absolute inset-0  flex items-center justify-center z-50">
-                        <div className="bg-transparent p-6 rounded w-2/5 ">
-                          <div
-                            style={{
-                              position: "relative",
-                              padding: "20px",
-                              borderRadius: "12px",
-                              maxWidth: "500px",
-                              width: "100%", // Full width within the max-width limit
-                              margin: "20px auto", // Center the container
-                            }}
-                          >
-                            {/* Close Button */}
-                            <button
-                              onClick={() => handleImageclose()}
-                              style={{
-                                position: "absolute",
-                                top: "15px",
-                                right: "15px",
-                                backgroundColor: "rgba(255, 0, 0, 0.8)",
-                                color: "white",
-                                border: "none",
-                                borderRadius: "50%",
-                                width: "30px",
-                                height: "30px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                cursor: "pointer",
-                                boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
-                                fontSize: "18px",
-                                lineHeight: "1",
-                                transition: "background-color 0.3s ease",
-                              }}
-                              onMouseOver={(e) =>
-                                (e.target.style.backgroundColor =
-                                  "rgba(255, 0, 0, 1)")
-                              }
-                              onMouseOut={(e) =>
-                                (e.target.style.backgroundColor =
-                                  "rgba(255, 0, 0, 0.8)")
-                              }
-                            >
-                              &times;
-                            </button>
 
-                            {fileType === "image" && (
-                              <div
-                                style={{
-                                  width: "400px", // Fixed width
-                                  height: "300px", // Fixed height
-                                  borderRadius: "8px",
-                                  overflow: "hidden", // Hide overflow
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  backgroundColor: "#f0f0f0", // Background for smaller images
-                                }}
-                              >
-                                <img
-                                  src={previewUrl}
-                                  alt="Preview"
-                                  style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "contain", // Ensures the image fits within the container
-                                  }}
-                                />
-                              </div>
-                            )}
-
-                            {/* Video Preview */}
-                            {fileType === "video" && (
-                              <div
-                                style={{
-                                  width: "400px", // Fixed width
-                                  height: "300px", // Fixed height
-                                  borderRadius: "8px",
-                                  overflow: "hidden", // Hide overflow
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  backgroundColor: "#f0f0f0", // Background for smaller videos
-                                }}
-                              >
-                                <video
-                                  controls
-                                  src={previewUrl}
-                                  style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "contain", // Ensures the video fits within the container
-                                  }}
-                                />
-                              </div>
-                            )}
-
-                            {/* Audio Preview */}
-                            {fileType === "audio" && (
-                              <div
-                                style={{
-                                  width: "100%",
-                                  marginTop: "10px",
-                                  borderRadius: "8px",
-                                  backgroundColor: "#f0f0f0",
-                                  padding: "15px",
-                                }}
-                              >
-                                <audio
-                                  controls
-                                  src={previewUrl}
-                                  style={{
-                                    width: "100%",
-                                  }}
-                                />
-                              </div>
-                            )}
-
-                            {/* Application/File Preview */}
-                            {fileType === "application" && (
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  marginTop: "10px",
-                                  padding: "15px",
-                                  borderRadius: "8px",
-                                  backgroundColor: "#f0f0f0",
-                                }}
-                              >
-                                <div
-                                  style={{
-                                    backgroundColor: "#ffffff",
-                                    borderRadius: "50%",
-                                    width: "50px",
-                                    height: "50px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    marginRight: "15px",
-                                    boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
-                                  }}
-                                >
-                                  <i
-                                    className="fa fa-file"
-                                    style={{
-                                      fontSize: "24px",
-                                      color: "#555",
-                                    }}
-                                  ></i>
-                                </div>
-                                <div>
-                                  <p
-                                    style={{
-                                      margin: "0 0 5px",
-                                      fontWeight: "600",
-                                      color: "#333",
-                                      fontSize: "16px",
-                                    }}
-                                  >
-                                    {mediaFile.name}
-                                  </p>
-                                  <a
-                                    href={previewUrl}
-                                    download={mediaFile.name}
-                                    style={{
-                                      color: "#007BFF",
-                                      textDecoration: "none",
-                                      fontSize: "14px",
-                                      fontWeight: "500",
-                                      transition: "color 0.3s ease",
-                                    }}
-                                    onMouseOver={(e) =>
-                                      (e.target.style.color = "#0056b3")
-                                    }
-                                    onMouseOut={(e) =>
-                                      (e.target.style.color = "#007BFF")
-                                    }
-                                  >
-                                    Download
-                                  </a>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="msger-inputs  flex items-center">
-                      <Button
-                        onClick={openFileManager}
-                        className="ClipButton  mr-2"
-                      >
-                        <i className="fa fa-paperclip"></i>
-                      </Button>
-                      {/* Emoji Picker Button */}
+                    {/* Back to Bottom Button */}
+                    {showScrollButton && (
                       <button
-                        className="mr-2 chatBarEMoji  hover:bg-gray-200 rounded-full"
+                        onClick={scrollToBottom}
+                        className="fixed bottom-20 right-6 bg-gray-700 hover:bg-gray-800 text-white rounded-full p-3 shadow-lg transition-all duration-200 transform hover:scale-105 z-50 flex items-center space-x-2"
+                      >
+                        <i className="fa fa-arrow-down text-sm"></i>
+                        <span className="text-sm">Back to Bottom</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Fixed Message Input Section at Bottom */}
+                  <div className="msger-inputs flex items-center px-3 py-2 bg-white border-t border-gray-100 sticky bottom-0 left-0 right-0">
+                    {/* Hidden file input */}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+
+                    {/* Attachment Button */}
+                    <Button
+                      onClick={openFileManager}
+                      className="ClipButton mr-2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                    >
+                      <i className="fa fa-paperclip text-gray-600"></i>
+                    </Button>
+
+                    {/* Emoji Button and Picker */}
+                    <div className="relative">
+                      <button
+                          className="mr-2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                         onClick={() => setShowEmojiPicker((prev) => !prev)}
-                        style={{ zIndex: "999" }}
                       >
                         <i className="fa fa-smile-o text-gray-600"></i>
                       </button>
 
-                      {/* Emoji Picker */}
+                        {/* Emoji Picker Dropdown */}
                       {showEmojiPicker && (
                         <div
-                          className="absolute bottom-16 left-0 bg-white border rounded-lg shadow-lg p-2 z-50"
-                          style={{ width: "auto" }}
-                        >
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-gray-700 font-semibold">
+                            className="absolute bottom-full left-0 mb-2 bg-white border rounded-lg shadow-lg p-2"
+                     style={{ 
+                              width: "350px",
+                              zIndex: 1000
+                            }}
+                          >
+                            <div className="flex justify-between items-center mb-2 border-b pb-2">
+                              <span className="text-gray-700 text-sm font-medium">
                               Select Emoji
                             </span>
                             <button
-                              className="text-red-500 hover:text-red-700"
+                                className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
                               onClick={() => setShowEmojiPicker(false)}
                             >
                               <i className="fa fa-times"></i>
@@ -1625,121 +1909,596 @@ const ChatPage = () => {
                           </div>
                           <EmojiPicker
                             onEmojiClick={(emojiData) => {
-                              addEmoji(emojiData.emoji); // Pass emoji value
+                                addEmoji(emojiData.emoji);
+                                setShowEmojiPicker(false);
                             }}
+                              width="100%"
+                              height="350px"
                           />
                         </div>
                       )}
-                      <Input
-                        type="text"
-                        value={messageInput}
-                        style={{ zIndex: "999" }}
-                        onChange={(e) => setMessageInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if ((e.shiftKey || e.altKey) && e.key === "Enter") {
-                            e.preventDefault();
-                            setMessageInput(
-                              (prevMessage) => prevMessage + "\n"
-                            );
-                            setMessageInput(
-                              (prevMessage) => prevMessage + "\n"
-                            );
-                          } else if (e.key === "Enter") {
-                            e.preventDefault();
-                            HandleSendMessage();
-                          }
-                        }}
-                        placeholder="Type a message..."
-                        className="rounded-lg border-0 shadow-sm"
-                      />
-
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        onChange={handleFileChange}
-                        className="hidden"
-                      />
-                      <div className="relative">
-                        <button
-                          onClick={handleAgentdefinetemplate}
-                          className="  rounded-full m-3 "
-                        >
-                          <i className="fa fa-comment"></i>
-                        </button>
-
-                        {ShowDetailedTemplate && (
-                          <DefinedTemplates
-                            isVisible={true}
-                            onClose={handleAgenttemplateclose}
-                            SenderId={ActiveSenderId}
-                            ChatId={Activechat}
-                            onSend={handleTemplateSend}
-                          />
-                        )}
-                      </div>
-                      <button
-                        type="submit"
-                        onClick={HandleSendMessage}
-                        color="primary"
-                        style={{ zIndex: "999" }}
-                      >
-                        <i className="fa fa-paper-plane"></i>
-                      </button>
                     </div>
+
+                    {/* Message Input */}
+                    <Input
+                      type="text"
+                      value={messageInput}
+                      onChange={(e) => setMessageInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if ((e.shiftKey || e.altKey) && e.key === "Enter") {
+                          e.preventDefault();
+                          setMessageInput((prevMessage) => prevMessage + "\n");
+                        } else if (e.key === "Enter") {
+                          e.preventDefault();
+                          HandleSendMessage();
+                        }
+                      }}
+                      placeholder="Type a message..."
+                      className="flex-1 rounded-lg border border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-300 px-3 py-2 text-sm bg-white"
+                    />
+
+                    {/* Template Button */}
+                    <div className="relative">
+                      <button
+                        onClick={handleAgentdefinetemplate}
+                        className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200 mx-2"
+                      >
+                        <i className="fa fa-comment text-gray-600"></i>
+                      </button>
+
+                      {ShowDetailedTemplate && (
+                        <div className="absolute bottom-full right-0 mb-2">
+                        <DefinedTemplates
+                          isVisible={true}
+                          onClose={handleAgenttemplateclose}
+                          SenderId={ActiveSenderId}
+                          ChatId={Activechat}
+                          onSend={handleTemplateSend}
+                        />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Send Button */}
+                    <button
+                      type="submit"
+                      onClick={HandleSendMessage}
+                      className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                    >
+                      <i className="fa fa-paper-plane text-gray-600"></i>
+                    </button>
                   </div>
                 </div>
-               
               </Card>
             )}
             {Activechat === 0 && (
               <div className="font-bold text-center mt-[30%] text-gray-400 text-2xl">
                 Select a chat from left panel
-                <div className='onesignal-customlink-container'></div>
               </div>
-              
             )}
           </Col>
+
+          {/* Right Padding Section */}
+          <div
+            className="fixed right-0 top-16 h-[calc(100vh-4rem)] bg-[#F8F9FA] border-l"
+            style={{
+              width: '280px',
+              borderColor: 'rgba(229, 231, 235, 0.5)',
+              zIndex: 20
+            }}
+          ></div>
+
+          {/* Right Templates Section */}
+          <div
+            className="fixed right-0 top-16 h-[calc(100vh-4rem)] bg-[#F8F9FA] border-l overflow-y-auto"
+            style={{
+              width: '280px',
+              borderColor: 'rgba(229, 231, 235, 0.5)',
+              zIndex: 20
+            }}
+          >
+            <div className="p-3">
+              <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
+                <h3 className="text-sm font-medium text-gray-700">Quick Templates</h3>
+              </div>
+              
+              {/* Search Bar */}
+              <div className="relative mb-3">
+                <input
+                  type="text"
+                  placeholder="Search templates..."
+                  className="w-full bg-white text-gray-800 pl-8 py-2 text-sm rounded-lg border border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-300 outline-none"
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <HiSearch className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
+              </div>
+
+              {/* Template List */}
+              {Activechat !== 0 ? (
+                <div className="space-y-1">
+                  {filteredTemplates?.length > 0 ? (
+                    filteredTemplates.map((template) => (
+                      <button
+                        key={template.id}
+                        onClick={() => {
+                          setShowDetailedTemplate(true);
+                          handleSelection(template.id);
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-white transition-colors duration-200"
+                      >
+                        {template.name}
+                      </button>
+                    ))
+                  ) : (
+                    <div className="text-center py-4 text-sm text-gray-500">
+                      No templates found
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-4 text-sm text-gray-500">
+                  Select a chat to view templates
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Template Preview Popup */}
+          {ShowDetailedTemplate && selectedOption && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-xl w-[600px] max-h-[80vh] overflow-hidden">
+                <div className="flex justify-between items-center px-4 py-3 border-b border-gray-100">
+                  <h3 className="text-lg font-medium text-gray-800">Template Preview</h3>
+                  <button 
+                    onClick={handleAgenttemplateclose}
+                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                  >
+                    <i className="fa fa-times"></i>
+                  </button>
+                </div>
+
+                <div className="p-4 flex">
+                  {/* Parameters Section */}
+                  <div className="w-1/2 pr-4">
+                    {parameters.length > 0 && (
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">Parameters</h4>
+                        {parameters.map((param) => (
+                          <div key={param.paramId} className="space-y-1">
+                            <label className="text-sm text-gray-600">{param.paramName}</label>
+                            <input
+                              type="text"
+                              value={parameterValues.find(p => p.key === param.paramName)?.value || ""}
+                              onChange={(e) => handleParameterChange(param.paramName, e.target.value)}
+                              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-gray-300 focus:ring-1 focus:ring-gray-300"
+                              placeholder="Enter value"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Preview Section */}
+                  <div className="w-1/2 pl-4 border-l border-gray-100">
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Message Preview</h4>
+                      <div className="bg-[#ddffd9] rounded-lg p-3 max-h-[400px] overflow-y-auto">
+                        {selectedOption && agenttemplatedetails.find(
+                          detail => detail.templateId === selectedOption && detail.senderId === ActiveSenderId
+                        ) && (
+                          <div>
+                            {/* Header Text */}
+                            {agenttemplatedetails.find(d => d.templateId === selectedOption)?.headerText && (
+                              <div className="mb-2 font-medium">
+                                {agenttemplatedetails.find(d => d.templateId === selectedOption)?.headerText}
+                              </div>
+                            )}
+
+                            {/* Media Content */}
+                            {agenttemplatedetails.find(d => d.templateId === selectedOption)?.contentType && (
+                              <div className="mb-2">
+                                {agenttemplatedetails.find(d => d.templateId === selectedOption)?.contentType.startsWith('image/') && (
+                                  <img
+                                    src={`${BASE_URL}${agenttemplatedetails.find(d => d.templateId === selectedOption)?.mediaPath}`}
+                                    alt="Template Media"
+                                    className="max-w-full rounded-lg"
+                                  />
+                                )}
+                              </div>
+                            )}
+
+                            {/* Message Content */}
+                            <div className="whitespace-pre-wrap">
+                              {templateView}
+                            </div>
+
+                            {/* Buttons */}
+                            {agenttemplatedetails.find(d => d.templateId === selectedOption)?.buttonsJson && (
+                              <div className="mt-3 space-y-2">
+                                {(typeof agenttemplatedetails.find(d => d.templateId === selectedOption)?.buttonsJson === 'string' 
+                                  ? JSON.parse(agenttemplatedetails.find(d => d.templateId === selectedOption)?.buttonsJson)
+                                  : agenttemplatedetails.find(d => d.templateId === selectedOption)?.buttonsJson
+                                )?.map((button, index) => (
+                                  <button
+                                    key={index}
+                                    className="w-full px-3 py-2 text-sm bg-white text-blue-600 rounded-lg border border-gray-200 hover:bg-gray-50"
+                                  >
+                                    {button.ButtonType === 1 && <i className="fa fa-share fa-flip-horizontal mr-2" />}
+                                    {button.ButtonType === 2 && <i className="fa fa-phone mr-2" />}
+                                    {button.ButtonType === 3 && <i className="fa fa-external-link mr-2" />}
+                                    {button.ButtonText || "Button"}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Send Button Section */}
+                <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-end">
+                  <button
+                    onClick={handleSend}
+                    disabled={parameters.length > 0 && parameterValues.length < parameters.length}
+                    className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
+                      parameters.length > 0 && parameterValues.length < parameters.length
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-blue-500 text-white hover:bg-blue-600'
+                    }`}
+                  >
+                    <i className="fa fa-paper-plane" />
+                    <span>Send Template</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <style jsx global>{`
+            /* Add styles for templates sidebar */
+            .templates-sidebar {
+              height: calc(100vh - 8rem);
+              overflow-y: auto;
+            }
+
+            .templates-sidebar::-webkit-scrollbar {
+              width: 6px;
+            }
+
+            .templates-sidebar::-webkit-scrollbar-track {
+              background: transparent;
+            }
+
+            .templates-sidebar::-webkit-scrollbar-thumb {
+              background-color: rgba(0, 0, 0, 0.1);
+              border-radius: 3px;
+            }
+
+            .templates-sidebar::-webkit-scrollbar-thumb:hover {
+              background-color: rgba(0, 0, 0, 0.2);
+            }
+          `}</style>
         </Row>
       </Container>
-      {/* {Errordisconnect && (
-        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
-          <div className="bg-red-500 p-8 rounded-lg shadow-md max-w-md w-full text-center">
-            <div className="flex justify-center mb-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-12 w-12 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-semibold text-white mb-4">
-              Disconnected
-            </h2>
-            <p className="text-white mb-6">
-              You have been disconnected from the server.
-            </p>
-            <button
-              className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600"
-              onClick={() => {
-                handleReload();
-              }}
-            >
-              Reconnect
-            </button>
-          </div>
-        </div>
-      )} */}
     </>
   );
 };
 
 export default ChatPage;
+
+<style jsx global>{`
+  /* Updated global styles */
+  :root {
+    --primary-color: #1a237e;
+    --primary-light: #534bae;
+    --primary-dark: #000051;
+    --text-on-primary: #ffffff;
+    --background-light: #f8f9fa;
+    --border-color: rgba(26, 35, 126, 0.1);
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  /* Updated transitions */
+  .menuitem, button {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  /* Updated shadows */
+  .shadow-lg {
+    box-shadow: 0 2px 10px rgba(26, 35, 126, 0.15);
+  }
+
+  /* Updated hover effects */
+  .stats-item:hover {
+    transform: translateY(-1px);
+    background-color: rgba(26, 35, 126, 0.05);
+  }
+
+  /* Updated chat list styles */
+  .chat-item {
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.2s ease-in-out;
+  }
+
+  .chat-item:hover {
+    background-color: rgba(26, 35, 126, 0.05);
+  }
+
+  .chat-item.active {
+    background-color: rgba(26, 35, 126, 0.1);
+  }
+
+  /* Updated message styles */
+  .message-sent {
+    background-color: #E3F2FD;
+    border-radius: 12px 12px 2px 12px;
+  }
+
+  .message-received {
+    background-color: #FFFFFF;
+    border-radius: 12px 12px 12px 2px;
+  }
+
+  /* Updated input styles */
+  .msger-input {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .msger-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(26, 35, 126, 0.1);
+  }
+
+  /* Updated button styles */
+  .action-button {
+    color: var(--primary-color);
+    background-color: transparent;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .action-button:hover {
+    background-color: rgba(26, 35, 126, 0.05);
+  }
+
+  /* Updated modal styles */
+  .modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 20px rgba(26, 35, 126, 0.15);
+  }
+
+  /* Updated emoji picker styles */
+  .emoji-picker-react {
+    box-shadow: 0 4px 20px rgba(26, 35, 126, 0.15) !important;
+    border-radius: 12px !important;
+    border: 1px solid var(--border-color) !important;
+  }
+
+  /* Updated scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--background-light);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(26, 35, 126, 0.2);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(26, 35, 126, 0.3);
+  }
+
+  /* Add these styles to your existing global styles */
+  .sidebar-icon {
+    position: relative;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .sidebar-icon:hover {
+    transform: scale(1.05);
+  }
+
+  .stat-number {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Updated status dropdown styles */
+  .status-dropdown-container {
+    position: relative;
+  }
+
+  .status-dropdown-menu {
+    transform-origin: top;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .status-dropdown-menu.enter {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  .status-dropdown-menu.enter-active {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .status-dropdown-menu.exit {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .status-dropdown-menu.exit-active {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  /* Status indicator dot */
+  .status-indicator {
+    transition: all 0.2s ease-in-out;
+  }
+
+  /* Status dropdown animation */
+  .status-dropdown-menu {
+    animation: slideIn 0.2s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Hover effect for status item */
+  .status-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  /* Status submenu animations */
+  .status-submenu-enter {
+    max-height: 0;
+    opacity: 0;
+  }
+
+  .status-submenu-enter-active {
+    max-height: 200px;
+    opacity: 1;
+    transition: all 0.2s ease-out;
+  }
+
+  .status-submenu-exit {
+    max-height: 200px;
+    opacity: 1;
+  }
+
+  .status-submenu-exit-active {
+    max-height: 0;
+    opacity: 0;
+    transition: all 0.2s ease-in;
+  }
+
+  /* Status option hover effect */
+  .status-option:hover {
+    background-color: #F8F9FA;
+  }
+
+  /* Softer borders for all elements */
+  .border {
+    border-color: rgba(229, 231, 235, 0.5) !important;
+  }
+
+  .border-t {
+    border-top-color: rgba(229, 231, 235, 0.5) !important;
+  }
+
+  .border-b {
+    border-bottom-color: rgba(229, 231, 235, 0.5) !important;
+  }
+
+  .border-r {
+    border-right-color: rgba(229, 231, 235, 0.5) !important;
+  }
+
+  .border-l {
+    border-left-color: rgba(229, 231, 235, 0.5) !important;
+  }
+
+  /* Update chat header border */
+  .ChatHeader {
+    border-bottom-color: rgba(229, 231, 235, 0.5) !important;
+  }
+
+  /* Update input section border */
+  .msger-inputs {
+    border-top-color: rgba(229, 231, 235, 0.5) !important;
+  }
+
+  /* Update status submenu borders */
+  .status-submenu {
+    border-color: rgba(229, 231, 235, 0.5) !important;
+  }
+
+  /* Update button borders */
+  button.border {
+    border-color: rgba(229, 231, 235, 0.5) !important;
+  }
+
+  /* Update input borders */
+  input.border {
+    border-color: rgba(229, 231, 235, 0.5) !important;
+  }
+
+  /* Update card borders */
+  .card {
+    border-color: rgba(229, 231, 235, 0.5) !important;
+  }
+
+  /* Update dropdown borders */
+  .status-dropdown {
+    border-color: rgba(229, 231, 235, 0.5) !important;
+  }
+
+  /* Softer shadows */
+  .shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03) !important;
+  }
+
+  .shadow {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .shadow-lg {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  /* Update input section positioning */
+  .msger-inputs {
+    background-color: #ffffff;
+    border-top: 1px solid rgba(229, 231, 235, 0.5);
+    padding: 0.75rem 1rem;
+    position: fixed;
+    bottom: 0;
+    left: calc(5rem + 280px);
+    right: 280px;
+    z-index: 10;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: calc(100% - (5rem + 560px));
+  }
+
+  /* Center the chat content */
+  .msger-chat {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 1rem;
+  }
+
+  /* Ensure proper spacing for messages */
+  .message-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+`}</style>
