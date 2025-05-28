@@ -371,8 +371,9 @@ const ChatPage = () => {
           dispatch(getAgentConversations(AgentId));
           dispatch(fetchAgentStats({ clientId: ClientId, agentId: AgentId }));
           const response = await dispatch(fetchAgentsById({ agentId: AgentId })).unwrap();
-          if (response && response.result) {
-            setAgentStatus(response.result.status);
+          debugger
+          if (response) {
+            setAgentStatus(response.status);
           }
         } catch (error) {
           await loggerdetails(logger, " Error fetching agent data:","error", {
