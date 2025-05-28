@@ -1,5 +1,5 @@
 import formidable from 'formidable';
-import FormData from 'form-data'; // ✅ Correct package
+import FormData from 'form-data';
 import fs from 'fs';
 import { callFormApi } from '@/src/lib/FormDataMiddleware';
 
@@ -11,7 +11,10 @@ export const config = {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed, please use POST method.' });
+    return res.status(405).json({
+      error: 'Method Not Allowed',
+      message: 'Please use the POST method.',
+    });
   }
 
   try {
@@ -26,23 +29,18 @@ export default async function handler(req, res) {
 
     const formData = new FormData();
 
-    // ✅ Append all fields to FormData
+    // Handle form fields
     for (const [key, value] of Object.entries(fields)) {
-      if (Array.isArray(value)) {
-        value.forEach(v => formData.append(key, v));
-      } else {
-        formData.append(key, value);
-      }
+      const val = Array.isArray(value) ? value[0] : value;
+      formData.append(key, val);
     }
 
-    // ✅ Append all files to FormData using streams
+    // Handle file uploads (single file per field)
     for (const [key, file] of Object.entries(files)) {
       const f = Array.isArray(file) ? file[0] : file;
       const stream = fs.createReadStream(f.filepath);
       formData.append(key, stream, f.originalFilename);
     }
-
-    
 
     const endpoint = fields.endpoint?.toString();
     const method = fields.method?.toString();
@@ -50,17 +48,36 @@ export default async function handler(req, res) {
     if (!endpoint || !method) {
       return res.status(400).json({
         error: 'Missing required fields',
-        details: 'Both endpoint and method are required.',
+        details: 'Both "endpoint" and "method" are required.',
       });
     }
-    
+
     const authHeader = req.headers.authorization || '';
-    const accessToken = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : '';
+    const accessToken = authHeader.startsWith('Bearer ')
+      ? authHeader.split(' ')[1]
+      : '';
 
-    // ✅ Send form with fields + files
-    const data = await callFormApi({ endpoint, formData, method, accessToken });
+    // Call external API
+    const data = await callFormApi({
+      endpoint,
+      method,
+      formData,
+      accessToken,
+    });
 
-    return res.status(200).json({ data });
+    // Parse response (if it's a string)
+    let parsed;
+    try {
+      parsed = typeof data === 'string' ? JSON.parse(data) : data;
+    } catch (e) {
+      return res.status(502).json({
+        error: 'Invalid response from external API',
+        rawResponse: data,
+      });
+    }
+
+    return res.status(200).json(parsed?.result || parsed);
+
   } catch (error) {
     console.error('Error while calling external API:', error);
     return res.status(500).json({

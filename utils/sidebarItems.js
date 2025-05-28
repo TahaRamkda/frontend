@@ -185,7 +185,7 @@ export const sidebarItems = [
       submenu: [],
     },
     {
-      href: '/AppSetting/AppSettingList',
+      href: '/Settings/AppSettingList',
       icon: 'ti-settings', // Settings icon for Roles
       text: 'Settings',
       module: 1,

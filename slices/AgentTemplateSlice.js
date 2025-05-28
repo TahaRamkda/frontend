@@ -35,13 +35,13 @@ export const fetchAgentTemplatesDetail = createAsyncThunk(
   'agenttemplate/fetchAgentTemplatesDetail',
   async ({senderId,TemplateId,clientId}, { rejectWithValue }) => {
     try {
-      debugger
+      
       const response = await API.post("/api", {
                 endpoint: `${AGENTINTERACTIVETEMPLATLISTDETAIL}?interactiveTemplateId=${TemplateId}&senderId=${senderId}`,
                 method: "GET",
                 //payload: {},
               });
-              debugger
+              
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -101,7 +101,7 @@ const agenttemplateSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchAgentTemplatesDetail.fulfilled, (state, action) => {
-        debugger
+        
         state.loading = false;
         state.agenttemplatedetail = action.payload;
         // state.message = action.payload.message || '';

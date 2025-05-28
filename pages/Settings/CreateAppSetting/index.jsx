@@ -37,7 +37,7 @@ const SettingForm = ({ onClose, isVisible, onsuccess }) => {
       ...formData,
     };
     if (formData.keyName === "") {
-      alert("Group Name Cannot be empty");
+      alert("Key Name Cannot be empty");
       setIsSubmitting(false);
       return;
     }

@@ -28,7 +28,7 @@ import {
 import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Layout/Loader";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
-import SettingForm from "@/pages/AppSetting/CreateAppSetting";
+import SettingForm from "@/pages/Settings/CreateAppSetting";
 import App from "@/components/Layout/App";
 import SearchBar from "@/components/SearchBar/SearchComponent";
 

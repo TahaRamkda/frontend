@@ -160,7 +160,7 @@ export const getAgentTemplateDetail = createAsyncThunk(
 
     // Fetch the template detail if it doesn’t exist
     const response = await dispatch(fetchAgentTemplatesDetail({ senderId, TemplateId:templateId })).unwrap();
-    debugger
+    
     return { senderId, templateId, templatedetail: response }; // Assuming response is a single detail object
   }
 );

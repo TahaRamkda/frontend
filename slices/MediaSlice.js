@@ -35,6 +35,7 @@ export const uploadMedia = createAsyncThunk(
   'media/uploadMedia',
   async (mediaData, { rejectWithValue }) => {
     try {
+
        // Append endpoint and method to FormData so backend can extract them
             mediaData.append("endpoint", `${UPLOADMEDIA}`);
             mediaData.append("method", "POST");
@@ -44,6 +45,7 @@ export const uploadMedia = createAsyncThunk(
                 "Content-Type": "multipart/form-data",
               },
             });
+            debugger
       return response.data;
     } catch (error) {
       const handledError = handleError(error);

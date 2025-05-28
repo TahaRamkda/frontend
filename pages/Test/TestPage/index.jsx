@@ -32,7 +32,7 @@ import logChatDetails from '@/components/logger';
 import { LogerType } from '@/utils/constants';
 import Loading from "@/components/Layout/Loader";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
-import SettingForm from "@/pages/AppSetting/CreateAppSetting";
+import SettingForm from "@/pages/Settings/CreateAppSetting";
 import App from "@/components/Layout/App";
 import SearchBar from "@/components/SearchBar/SearchComponent";
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
@@ -226,7 +226,7 @@ const AppSettings = () => {
       };
 
       const response = await dispatch(updateAppSettings(requestBody)).unwrap();
-      debugger
+      
       if (response.status === 1) {
         showSweetAlert({
           title: "Updated Successfully",

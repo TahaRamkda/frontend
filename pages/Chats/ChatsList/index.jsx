@@ -121,13 +121,13 @@ const ChatPage = () => {
   
 
   const HandleAgentStatus = async (e) => {
-    debugger
+    
     const StatusId = e.target.value;
     setChatsloading(true);
     setAgentStatus(StatusId);
     try {
       const response = await dispatch(setAgentstatus({ agentId: UserId, statusId: StatusId })).unwrap();
-      debugger
+      
       if (response.status === 1) {
         await loggerdetails(logger, `agent status updated to ${StatusId} `,"info", {
           agentId: UserId,
@@ -249,7 +249,7 @@ const ChatPage = () => {
       if (result.isConfirmed) {
         try {
           const response = await dispatch(setAgentstatus({ agentId: UserId, statusId: "0" })).unwrap();
-          debugger
+          
           if (response.status === 1) {
            await loggerdetails(logger, `Agent with ID:${UserId} logged out`, "info", {
              agentId: UserId,
@@ -371,7 +371,7 @@ const ChatPage = () => {
           dispatch(getAgentConversations(AgentId));
           dispatch(fetchAgentStats({ clientId: ClientId, agentId: AgentId }));
           const response = await dispatch(fetchAgentsById({ agentId: AgentId })).unwrap();
-          debugger
+          
           if (response) {
             setAgentStatus(response.status);
           }

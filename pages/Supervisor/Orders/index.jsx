@@ -21,7 +21,7 @@ import {
 import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Layout/Loader";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
-import OrderForm from "../CreateOrder";
+// import OrderForm from "../CreateOrder";
 import App from "@/components/Layout/App";
 import SearchBar from "@/components/SearchBar/SearchComponent";
 import { usePermissions } from "@/context/PermissionsContext";
@@ -368,13 +368,13 @@ const OrderList = () => {
         </Modal>
       )}
 
-      {CreateModalOpen && (
+      {/* {CreateModalOpen && (
         <OrderForm
           isVisible={true}
           onClose={handleCancel}
           onsuccess={refreshOrderList}
         />
-      )}
+      )} */}
     </App>
   );
 };

@@ -21,10 +21,10 @@ import {
   clearAppSettingDetailState,
   appSettings,
   clearAppSettingDataState,
-  deleteAppSetting,
   setPageSize,
   setCurrentPage,
   updateAppSettings,
+  deleteAppSetting
 } from "@/slices/AppSettingSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import { Logger } from 'next-axiom';
@@ -32,7 +32,7 @@ import logChatDetails from '@/components/logger';
 import { LogerType } from '@/utils/constants';
 import Loading from "@/components/Layout/Loader";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
-import SettingForm from "@/pages/AppSetting/CreateAppSetting";
+import SettingForm from "@/pages/Settings/CreateAppSetting";
 import App from "@/components/Layout/App";
 import SearchBar from "@/components/SearchBar/SearchComponent";
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
@@ -50,6 +50,7 @@ const AppSettings = () => {
   const [settingForm, setSettingForm] = useState({});
   const [filterText, setFilterText] = useState("");
   const startTime = Date.now();
+  const [showSettingForm, setShowSettingForm] = useState(false)
   const [CreateModalOpen, setCreateModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // Start as true since we're fetching data
   const settingColumns = [
@@ -61,7 +62,7 @@ const AppSettings = () => {
       name: "Action",
       cell: (row) => (
         <>
-          <div className="flex gap-2 justify-center w-full">
+          <div className="flex gap-2 w-full">
             <button
               title="Edit Group"
               className="uniform_icon_btn"
@@ -69,13 +70,13 @@ const AppSettings = () => {
             >
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
-            <button
+            {/* <button
               title="Delete Group"
               className="uniform_icon_btn"
               onClick={() => handleDeleteClick(row.id)}
             >
               <HiTrash style={{ fontSize: "15px" }} />
-            </button>
+            </button> */}
           </div>
         </>
       ),
@@ -96,6 +97,7 @@ const AppSettings = () => {
     setSelectedSenderId(id);
   };
 
+  
   const handleDetailClick = async (id) => {
     
     try {
@@ -104,7 +106,7 @@ const AppSettings = () => {
       
       if (response) {
         
-        setSettingForm(response.result);
+        setSettingForm(response);
         setIsModalOpen(true);
       } else {
         showSweetAlert({
@@ -120,7 +122,7 @@ const AppSettings = () => {
   const handleCancel = () => {
     setCreateModalOpen(false);
   };
-  const handleDeleteClick = (groupId) => {
+  const handleDeleteClick = (Id) => {
     SweetAlert.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -132,7 +134,7 @@ const AppSettings = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          dispatch(deleteAppSetting({ groupId })).then(() => {
+          dispatch(deleteAppSetting({ Id })).then(() => {
             showSweetAlert({
               title: "Deleted Successfully",
               text: "",
@@ -202,10 +204,12 @@ const AppSettings = () => {
     const timeout = setTimeout(() => {
       dispatch(
         fetchSetting({
-          clientId: localStorage.getItem("clientId"),
-          pageSize,
-          pageNo: currentPage,
-          SearchStr: searchValue,
+           clientId: localStorage.getItem("clientId"),
+        pageSize,
+        senderId: senderId,
+        clientId: clientId,
+        pageNo: currentPage,
+        SearchStr: searchValue,
         })
       );
     }, 500);
@@ -224,7 +228,8 @@ const AppSettings = () => {
       };
 
       const response = await dispatch(updateAppSettings(requestBody)).unwrap();
-      if (response.success) {
+      
+      if (response.status === 1) {
         showSweetAlert({
           title: "Updated Successfully",
           text: "",
@@ -278,7 +283,9 @@ const AppSettings = () => {
   }, [dispatch,senderId,clientId]);
 
   const handleCreate = async() => {
+    setCreateModalOpen(true);
   };
+
 
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10;
@@ -297,7 +304,7 @@ const AppSettings = () => {
           <label className="font-medium text-gray-700 text-sm ">
               Sender Name
             </label>
-            <SendernameDropdown name="senderId" value onChange={handleSenderChange} />
+            <SendernameDropdown name="senderId" value={senderId} onChange={handleSenderChange} />
           </div>
           <div className="flex flex-col space-y-1 text-start mb-1 ">
           <label className="font-medium text-gray-700 text-sm ">
@@ -315,9 +322,7 @@ const AppSettings = () => {
     );
   }, [filterText, clientId, senderId]);
 
-  if (error) {
-    return <div className="text-red-500">{error}</div>;
-  }
+
 
   return (
     <App>
@@ -326,11 +331,11 @@ const AppSettings = () => {
         <div className="">
           <h4 className="font-bold">App Settings </h4>
         </div>
-        <div className="ml-auto mb-1">
+        {/* <div className="ml-auto mb-1">
           <button className="uniform_btn" onClick={handleCreate}>
             Create Settings
           </button>
-        </div>
+        </div> */}
       </div>
       <div className="overflow-auto">
         <DataTable
@@ -350,36 +355,6 @@ const AppSettings = () => {
           subHeader
           subHeaderComponent={subHeaderComponentMemo}
           className="w-full border"
-          customStyles={{
-            table: {
-              style: {
-                width: "100%",
-                borderCollapse: "collapse", // Ensures borders collapse for proper grid appearance
-              },
-            },
-            headRow: {
-              style: {
-                borderBottom: "1px solid #ddd",
-                padding: "0px",
-              },
-            },
-            headCells: {
-              style: {
-                borderRight: "1px solid #ddd", // Grid line between columns
-                fontWeight: "bold",
-              },
-            },
-            rows: {
-              style: {
-                borderBottom: "1px solid #ddd", // Horizontal grid line between rows
-              },
-            },
-            cells: {
-              style: {
-                borderRight: "1px solid #ddd", // Vertical grid line between cells
-              },
-            },
-          }}
         />
       </div>
 
@@ -398,6 +373,10 @@ const AppSettings = () => {
               </ModalHeader>
               <ModalBody>
                 <form onSubmit={handleUpdateSubmit}>
+                  <div>
+                    <label className="font-medium text-gray-700 text-sm">Sender Name</label>
+                    <SendernameDropdown name="senderId" value={settingForm.senderId} onChange={handleFormChange} />
+                  </div>
                   <div className="flex flex-col">
                     <label
                       htmlFor="keyName"

@@ -26,7 +26,7 @@ const BulkUpload = ({ onClose, onsuccess, isVisible }) => {
       
       onClose()
       onsuccess();
-      if (response.data.success) {
+      if (response.status === 1) {
         dispatch(clearBulkUploadState());
         setSubmitting(false);
 
@@ -40,7 +40,7 @@ const BulkUpload = ({ onClose, onsuccess, isVisible }) => {
       } else {
         showSweetAlert({
           title: "Failed",
-          text: response.data.message || "",
+          text: response.message || "",
           icon: "error",
         });
       }

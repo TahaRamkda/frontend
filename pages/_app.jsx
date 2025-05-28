@@ -95,7 +95,7 @@ function MyApp({ Component, pageProps }) {
           normalizeString(router.pathname.split("/")[2]) || "view";
 
         const permissionExists = hasPermission(router.pathname, currentAction);
-
+        
         if (!permissionExists) {
           router.push("/NotPermitted");
         }

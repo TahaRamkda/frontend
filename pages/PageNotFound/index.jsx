@@ -13,16 +13,7 @@ const PageNotFound = () => {
         {/* 404 Icon or Illustration */}
        
 
-        {/* Title */}
-        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-4">
-          404 - Page Not Found
-        </h1>
-
-        {/* Message */}
-        <p className="text-lg text-gray-600 mb-8">
-          Oops! It looks like the page you're looking for doesn't exist or has been moved.
-        </p>
-
+       
         {/* Button */}
         <button
           onClick={handleGoBack}
