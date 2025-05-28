@@ -325,13 +325,13 @@ const OrderList = () => {
         />
       </div>
 
-      {isModalOpen && (
+      {/* {isModalOpen && (
         <MenuSelection
         isVisible={true}
           onClose={handleCancel}
           onsuccess={refreshOrderList} 
           />
-      )}
+      )} */}
     </App>
   );
 };

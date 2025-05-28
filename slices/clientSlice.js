@@ -17,8 +17,8 @@ export const fetchClients = createAsyncThunk(
                 });
       if (response?.status === 200) {
         return {
-          clients: response.data.data.result,
-          totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
+          clients: response.data,
+          totalRecords: response.data.length > 0 ? response.data[0].totalRecords  : 0,
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -41,7 +41,7 @@ export const fetchClientsDrop = createAsyncThunk(
                 });
       if (response?.status === 200 ) {
         return {
-          clientsDrop: response.data.data.result,
+          clientsDrop: response.data,
         };
       } else {
         throw new Error('Failed to fetch details');

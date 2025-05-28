@@ -9,11 +9,12 @@ import { useRouter } from "next/navigation";
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import App from "@/components/Layout/App";
 import Loader from "@/components/Layout/Loader";
-
+import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 const SettingForm = ({ onClose, isVisible, onsuccess }) => {
   const [formData, setFormData] = useState({
-    groupName: "",
+    keyName: "",
     val: "",
+    senderId: 0,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -42,7 +43,7 @@ const SettingForm = ({ onClose, isVisible, onsuccess }) => {
     }
     try {
       const response = await dispatch(addSettings(requestBody)).unwrap();
-      if (response.data.success) {
+      if (response.status === 1) {
         showSweetAlert({
           title: "Created Successfully",
           text: "",
@@ -80,6 +81,12 @@ const SettingForm = ({ onClose, isVisible, onsuccess }) => {
             <ModalHeader toggle={onClose}>Create Group</ModalHeader>
             <ModalBody>
               <form onSubmit={handleSubmit}>
+                <div>
+                   <div>
+                  <label className="font-medium text-gray-700 text-sm">Sender Name</label>
+                  <SendernameDropdown name="senderId" value={formData.senderId} onChange={handleChange} />
+                </div>
+                </div>
                 <div>
                   <label className="font-medium text-gray-700 text-sm">
                     Key Name

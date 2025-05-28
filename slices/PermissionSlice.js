@@ -10,7 +10,7 @@ export const fetchPermissions = createAsyncThunk(
     'permission/fetchPermissions',
     async ({role_Id,client_Id}, { rejectWithValue }) => {
       try {
-        
+        debugger
         // Ensure that the Client_Id and role_Id parameters are correctly formatted
         const response = await API.post("/api", {
                   endpoint: `${PERMISSIONLIST}?RoleId=${role_Id}`,

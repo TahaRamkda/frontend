@@ -16,8 +16,8 @@ export const fetchSetting = createAsyncThunk(
                 });
         if (response?.status === 200) {
           return {
-            settingList: response.data.data.result,
-            totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
+            settingList: response.data,
+            totalRecords: response.data.length > 0 ? response.data[0].totalRecords  : 0,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -41,7 +41,7 @@ export const fetchSettingById = createAsyncThunk(
           //payload: {},
         });
         
-        return response.data.data.result;
+        return response.data;
       } catch (error) {
         const handledError = handleError(error);
         return rejectWithValue(handledError);
@@ -90,6 +90,7 @@ export const deleteAppSetting = createAsyncThunk(
   'appSettings/deleteAppSetting',
   async ({ Id, onSuccess }, { rejectWithValue }) => {
     try {
+      debugger
       const response = await API.post("/api", {
           endpoint: `${DELETEAPPSETTING}?Id=${Id}`,
           method: "DELETE",
@@ -111,7 +112,7 @@ export const appSettings = createAsyncThunk(
         const response = await API.get(`${APPSETTING}?${ SearchStr? `&SearchStr=${SearchStr}`:''}`);
         if (response?.status === 200) {
           return {
-            appSettingsData: response.data.result,
+            appSettingsData: response.data,
             
           };
         } else {
@@ -231,7 +232,7 @@ const AppSettingSlice = createSlice({
       .addCase(addSettings.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.data.message || ' Created Successfully';
+        state.message = action.payload.message || ' Created Successfully';
       })
       .addCase(addSettings.rejected, (state, action) => {
         state.loading = false;
@@ -248,7 +249,7 @@ const AppSettingSlice = createSlice({
       .addCase(updateAppSettings.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.data.message || 'Updated Successfully';
+        state.message = action.payload.message || 'Updated Successfully';
       })
       .addCase(updateAppSettings.rejected, (state, action) => {
         state.loading = false;
@@ -265,7 +266,7 @@ const AppSettingSlice = createSlice({
       .addCase(deleteAppSetting.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.data.message || 'Deleted Successfully';
+        state.message = action.payload.message || 'Deleted Successfully';
       })
       .addCase(deleteAppSetting.rejected, (state, action) => {
         state.loading = false;

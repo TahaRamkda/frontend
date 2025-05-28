@@ -226,8 +226,8 @@ const AppSettings = () => {
       };
 
       const response = await dispatch(updateAppSettings(requestBody)).unwrap();
-      
-      if (response.data.success) {
+      debugger
+      if (response.status === 1) {
         showSweetAlert({
           title: "Updated Successfully",
           text: "",
