@@ -25,17 +25,17 @@ export const fetchAgents = createAsyncThunk(
   async ({ searchStr, senderId, pageSize, pageNo }, { rejectWithValue }) => {
     try {
       const response = await API.post("/api", {
-        endpoint: `${AGENTLIST}?senderId=${senderId}${searchStr ? `&searchStr=${searchStr}` : ""}&pageNo=${pageNo}&pageSize=${pageSize}`,
+        endpoint: `${AGENTLIST}?senderId=${senderId}${
+          searchStr ? `&searchStr=${searchStr}` : ""
+        }&pageNo=${pageNo}&pageSize=${pageSize}`,
         method: "GET",
         //payload: {},
       });
       if (response?.status === 200) {
         return {
-          agents: response.data.data.result,
+          agents: response.data,
           totalRecords:
-            response.data.data.result.length > 0
-              ? response.data.data.result[0].totalRecords
-              : 0,
+            response.data.length > 0 ? response.data[0].totalRecords : 0,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -51,16 +51,15 @@ export const fetchActiveAgentsDrop = createAsyncThunk(
   "agent/fetchActiveAgentsDrop",
   async ({ clientId, senderId }, { rejectWithValue }) => {
     try {
-      
       const response = await API.post("/api", {
         endpoint: `${ACTIVEAGENTS}?senderId=${senderId}`,
         method: "GET",
         //payload: {},
       });
-      
+
       if (response.status === 200) {
         return {
-          activeAgentDrop: response.data.data.result,
+          activeAgentDrop: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -79,14 +78,16 @@ export const fetchAgentsDrop = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-       const response = await API.post("/api", {
-        endpoint: `${AGENTDROPDOWN}?senderId=${senderId}${searchStr ? `&searchStr=${searchStr}` : ""}`,
+      const response = await API.post("/api", {
+        endpoint: `${AGENTDROPDOWN}?senderId=${senderId}${
+          searchStr ? `&searchStr=${searchStr}` : ""
+        }`,
         method: "GET",
         //payload: {},
       });
       if (response?.status === 200) {
         return {
-          agentDrop: response.data.data.result,
+          agentDrop: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -110,7 +111,7 @@ export const fetchMasterData = createAsyncThunk(
 
       if (response?.status === 200) {
         return {
-          masterData: response.data.data.result,
+          masterData: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -126,14 +127,14 @@ export const setAgentStatus = createAsyncThunk(
   "agent/setAgentStatus",
   async ({ agentId, statusId }, { rejectWithValue }) => {
     try {
-      
-       const response = await API.post("/api", {
-        endpoint:  `${AGENTSTATUS}?agentId=${agentId}&status=${statusId}`,
+      debugger;
+      const response = await API.post("/api", {
+        endpoint: `${AGENTSTATUS}?agentId=${agentId}&status=${statusId}`,
         method: "GET",
         //payload: {},
       });
-      
-      
+      debugger;
+
       if (response.status === 200) {
         return response.data;
       } else {
@@ -153,18 +154,16 @@ export const fetchAgentsTimingList = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-       const response = await API.post("/api", {
-        endpoint:  `${AGENTSTIMINGLIST}?agentId=${agentId}`,
+      const response = await API.post("/api", {
+        endpoint: `${AGENTSTIMINGLIST}?agentId=${agentId}`,
         method: "GET",
         //payload: {},
       });
       if (response?.status === 200) {
         return {
-          agentsTiming: response.data.data.result,
+          agentsTiming: response.data,
           totalRecords:
-            response.data.data.result.length > 0
-              ? response.data.data.result[0].totalRecords
-              : 0,
+            response.data.length > 0 ? response.data[0].totalRecords : 0,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -194,7 +193,7 @@ export const fetchAgentStats = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          AgentStats: response.data.data.result,
+          AgentStats: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -239,14 +238,13 @@ export const fetchAgentsById = createAsyncThunk(
   "agent/fetchAgentsById",
   async ({ agentId, clientId }, { rejectWithValue }) => {
     try {
-      
       const response = await API.post("/api", {
         endpoint: `${AGENTDETAILS}?agentId=${agentId}`,
         method: "GET",
         //payload: {},
       });
-      
-      return response.data.data;
+
+      return response.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -259,13 +257,12 @@ export const createAgent = createAsyncThunk(
   "agent/createAgent",
   async (agentData, { rejectWithValue }) => {
     try {
-      
       const response = await API.post("/api", {
-          endpoint: `${CREATEAGENT}`,
-          method: "POST",
-          payload: agentData,
-        });
-        
+        endpoint: `${CREATEAGENT}`,
+        method: "POST",
+        payload: agentData,
+      });
+
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -279,13 +276,12 @@ export const updateAgent = createAsyncThunk(
   "agent/updateAgent",
   async (agentData, { rejectWithValue }) => {
     try {
-      
       const response = await API.post("/api", {
-          endpoint: `${UPDATEAGENT}`,
-          method: "PUT",
-          payload: agentData,
-        });
-        
+        endpoint: `${UPDATEAGENT}`,
+        method: "PUT",
+        payload: agentData,
+      });
+
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -299,10 +295,10 @@ export const deleteAgent = createAsyncThunk(
   "agent/deleteAgent",
   async ({ agentId, onSuccess }, { rejectWithValue }) => {
     try {
-       const response = await API.post("/api", {
-          endpoint: `${DELETEAGENT}?Id=${agentId}`,
-          method: "DELETE",
-        });
+      const response = await API.post("/api", {
+        endpoint: `${DELETEAGENT}?Id=${agentId}`,
+        method: "DELETE",
+      });
       if (onSuccess) onSuccess(); // Handle success callback
       return response.data;
     } catch (error) {
@@ -543,7 +539,7 @@ const agentSlice = createSlice({
       .addCase(createAgentTiming.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.data.message || "Created Successfully";
+        state.message = action.payload.message || "Created Successfully";
       })
       .addCase(createAgentTiming.rejected, (state, action) => {
         state.loading = false;
@@ -558,7 +554,7 @@ const agentSlice = createSlice({
       })
       .addCase(fetchAgentsById.fulfilled, (state, action) => {
         state.loading = false;
-        state.agent = action.payload.result;
+        state.agent = action.payload;
         state.message = action.payload?.message || "";
       })
       .addCase(fetchAgentsById.rejected, (state, action) => {

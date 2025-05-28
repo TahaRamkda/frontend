@@ -1775,6 +1775,12 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
                           {button.text || "Button"}
                         </span>
                       )}
+                       {button.type == 7 && (
+                          <span style={{ color: "#00a9ee" }}>
+                            <i className="fa fa-map-pin me-2"></i>
+                            {button.text || "Button"}
+                          </span>
+                        )}
                     </Button>
                   ))}
                 {TotalButtonCount > 3 && !Showallbutton && (

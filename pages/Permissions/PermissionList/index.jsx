@@ -131,6 +131,7 @@ const { hasPermission } = usePermissions();
         permissions: Data,
       };
       const response = await dispatch(createPermission(requestBody)).unwrap();
+      debugger
       if (response.data.success) {
         showSweetAlert({
           title: "Saved Successfully",
@@ -169,7 +170,7 @@ const { hasPermission } = usePermissions();
 
   useEffect(() => {
     
-    if (permissions?.length > 0) {
+    if (permissions) {
       setData(permissions);
     }
   }, [permissions]);

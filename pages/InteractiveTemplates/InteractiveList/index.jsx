@@ -301,7 +301,7 @@ const InteractiveTemplateList = () => {
           </div>
           <div className="flex flex-col text-start mb-1">
             <DateTimePicker
-              label="From Date"
+              label="FromDate"
               value={FromDate}
               onChange={setfromDate}
             />
@@ -309,7 +309,7 @@ const InteractiveTemplateList = () => {
           <div className="flex flex-col text-start mb-1">
             <DateTimePicker
               label="To Date"
-              value={toDate}
+              value={ToDate}
               minDate={FromDate}
               onChange={settoDate}
             />

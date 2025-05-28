@@ -51,7 +51,7 @@ const UserForm = ({ onClose, isVisible, onsuccess }) => {
     try {
 
       const response = await dispatch(createUser(requestBody)).unwrap();
-      if (response.data.success) {
+      if (response.status === 1) {
         showSweetAlert({
           title: "Created Successfully",
           text: "",

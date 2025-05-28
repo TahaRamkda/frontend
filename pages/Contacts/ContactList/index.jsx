@@ -113,8 +113,9 @@ const ContactList = () => {
       const response = await dispatch(
         fetchContactById({ contactId: contactId })
       ).unwrap();
-      if (response.success) {
-        setcontactForm(response.result);
+      
+      if (response) {
+        setcontactForm(response);
         setIsModalOpen(true);
       } else {
         showSweetAlert({
@@ -206,7 +207,8 @@ const ContactList = () => {
       };
 
       const response = await dispatch(updateContact(requestBody)).unwrap();
-      if (response.data.success) {
+      
+      if (response) {
         showSweetAlert({
           title: "Updated Successfully",
           text: "",

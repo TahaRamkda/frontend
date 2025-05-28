@@ -139,9 +139,10 @@ const Flow = () => {
   };
   const handlePublishClick = async (flowId) => {
     try {
+      
       const response = await dispatch(publishFlow(flowId)).unwrap();
-
-      if (response.success) {
+      
+      if (response.status === 1) {
         dispatch(clearFlowPublishState());
         showSweetAlert({
           title: "Published Successfully",
@@ -152,7 +153,7 @@ const Flow = () => {
       } else {
         showSweetAlert({
           title: "Failed",
-          text: response.result.message || "",
+          text: response.message || "",
           icon: "error",
         });
       }

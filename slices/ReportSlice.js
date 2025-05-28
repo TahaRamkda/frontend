@@ -40,10 +40,10 @@ export const fetchMessageSummary = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          messageSummary: response.data.data.result,
+          messageSummary: response.data,
           totalRecords:
-            response.data.result.length > 0
-              ? response.data.result[0].totalRecords
+            response.data.length > 0
+              ? response.data[0].totalRecords
               : 0,
         };
       } else {
@@ -83,10 +83,10 @@ export const fetchMessageReport = createAsyncThunk(
         const obj = JSON.stringify(response.data, 2);
 
         return {
-          messagereport: response.data.data.result,
+          messagereport: response.data,
           totalRecords:
-            response.data.data.result.length > 0
-              ? response.data.data.result[0].totalRecords
+            response.data.length > 0
+              ? response.data[0].totalRecords
               : 0,
         };
       } else {
@@ -123,12 +123,12 @@ export const fetchConversationReport = createAsyncThunk(
         method: "GET",
         //payload: {},
       });
-      if (response?.status === 200 && response.data.data.result) {
+      if (response?.status === 200 && response.data) {
         return {
-          ConversationReport: response.data.data.result,
+          ConversationReport: response.data,
           totalRecords:
-            response.data.data.result.length > 0
-              ? response.data.data.result[0].totalRecords
+            response.data.length > 0
+              ? response.data[0].totalRecords
               : 0,
         };
       } else {
@@ -155,7 +155,7 @@ export const fetchSupervisorDashboard = createAsyncThunk(
         // const parseddata= JSON.parse(response.data, 2);
 
         return {
-          supervisorDashboard: response.data.data.result,
+          supervisorDashboard: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -177,9 +177,9 @@ export const fetchChatLogs = createAsyncThunk(
         method: "GET",
         //payload: {},
       });
-      if (response?.status === 200 && response.data?.data.result) {
+      if (response?.status === 200 && response.data) {
         return {
-          chatLogs: response.data.data.result,
+          chatLogs: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -206,12 +206,12 @@ export const fetchAgentReport = createAsyncThunk(
         //payload: {},
       });
       
-      if (response?.status === 200 && response.data?.data.result) {
+      if (response?.status === 200 && response.data) {
         return {
-          AgentReportList: response.data.data.result,
+          AgentReportList: response.data,
           totalRecords:
-            response.data.data.result.length > 0
-              ? response.data.data.result[0].totalRecords
+            response.data.length > 0
+              ? response.data[0].totalRecords
               : 0,
         };
       } else {
@@ -247,9 +247,9 @@ export const fetchChatReportStats = createAsyncThunk(
         method: "GET",
         //payload: {},
       });
-      if (response?.status === 200 && response.data?.data.result) {
+      if (response?.status === 200 && response.data) {
         return {
-          chatReportStats: response.data.data.result,
+          chatReportStats: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -275,7 +275,7 @@ export const fetchDashboardSummary = createAsyncThunk(
         // const parseddata= JSON.parse(response.data, 2);
 
         return {
-          dashboardsummary: response.data.data.result,
+          dashboardsummary: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -299,11 +299,11 @@ export const fetchTemplateInsight = createAsyncThunk(
         //payload: {},
       });
       
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200 && response.data) {
         // const parseddata= JSON.parse(response.data, 2);
 
         return {
-          templateInsight: response.data.result,
+          templateInsight: response.data,
         };
       } else {
         throw new Error("Failed to fetch details ");
@@ -322,9 +322,9 @@ export const fetchSurveyDropdown = createAsyncThunk(
       const response = await API.get(
         `${SURVEYDROPDOWN}`
       );
-      if (response?.status === 200 && response.data?.result) {
+      if (response?.status === 200 && response.data) {
         return {
-          SurveyDropdown: response.data.result,
+          SurveyDropdown: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");

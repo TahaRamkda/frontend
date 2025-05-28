@@ -25,9 +25,9 @@ export const fetchInteractiveTemplates = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          interactiveTemplateList: response.data.data.result,
+          interactiveTemplateList: response.data,
           totalRecords:
-            response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
+            response.data.length > 0 ? response.data[0].totalRecords  : 0,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -50,7 +50,7 @@ export const fetchInteractiveTemplateDrop = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          interactiveTemplateList: response.data.data.result,
+          interactiveTemplateList: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -72,7 +72,7 @@ export const fetchInteractiveTemplateDropWithoutParam = createAsyncThunk(
       });
       if (response?.status === 200 ) {
         return {
-          interactiveTemplateDropList: response.data.data.result,
+          interactiveTemplateDropList: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -95,7 +95,8 @@ export const fetchInteractiveTemplatesById = createAsyncThunk(
         method: "GET",
         //payload: {},
       });
-      return response.data.data;
+      
+      return response.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -116,7 +117,7 @@ export const createInteractiveTemplates = createAsyncThunk(
           payload: templateData,
         });
         
-      return response.data.data;
+      return response.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -244,7 +245,7 @@ const interactiveTemplateSlice = createSlice({
       .addCase(fetchInteractiveTemplatesById.fulfilled, (state, action) => {
         
         state.loading = false;
-        state.interactivetemplatedetail = action.payload.result;
+        state.interactivetemplatedetail = action.payload;
         state.message = action.payload?.message || "";
       })
       .addCase(fetchInteractiveTemplatesById.rejected, (state, action) => {
@@ -278,11 +279,13 @@ const interactiveTemplateSlice = createSlice({
         state.success = false;
       })
       .addCase(updateInteractiveTemplates.fulfilled, (state, action) => {
+        
         state.loading = false;
         state.success = true;
         state.message = action.payload.message || "Updated Successfully";
       })
       .addCase(updateInteractiveTemplates.rejected, (state, action) => {
+        
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;

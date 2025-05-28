@@ -75,6 +75,12 @@ const TemplateCreationPage = () => {
   const [urlerror, seturlerror] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [buttonType, setButtonType] = useState(null);
+  const locationButtonExists = messagePreview?.buttons?.some(
+    (btn) => btn.type === "7"
+  );
+  const otherButtonsExist = messagePreview?.buttons?.some(
+    (btn) => btn.type !== "7"
+  );
   const [buttonText, setButtonText] = useState("");
   const [ButtonSelected, setButtonSelected] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -114,7 +120,7 @@ const TemplateCreationPage = () => {
   const [language, setlanguage] = useState("");
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [actionbuttonvalues, setactionbuttonvalues] = useState([]);
-  
+
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const replaceClosingPTagsWithNewline = (content) => {
     return content
@@ -254,15 +260,14 @@ const TemplateCreationPage = () => {
       alert("Please select Languaage");
     }
     try {
-      
       const response = await dispatch(createTemplates(requestBody)).unwrap();
-      
-      if (response.data.result) {
+
+      if (response) {
         clearTemplateCreateState();
         showSweetAlert({
           title: "Template Created",
           text:
-            response.data.message ||
+            response ||
             "The Template has been successfully created.",
           icon: "success",
         });
@@ -593,7 +598,32 @@ const TemplateCreationPage = () => {
       (button) => button.type === "3"
     ).length;
 
-    if (type === "2" && callPhoneNumberButtonCount >= 1) {
+    const locationButtonCount = messagePreview.buttons.filter(
+      (button) => button.type === "7"
+    ).length;
+    const otherButtonsExist = messagePreview.buttons.some(
+      (btn) => btn.type !== "7"
+    );
+
+    if (type === "7" && otherButtonsExist) {
+      toast.error(
+        "You cannot add a location button when other buttons already exist."
+      );
+      setButtonType(null);
+      return;
+    }
+
+    if (locationButtonCount >= 1 && type !== "7") {
+      toast.error(
+        "You cannot add other buttons when a location button is already added."
+      );
+      setButtonType(null);
+      return;
+    }
+    if (type === "7" && locationButtonCount >= 1) {
+      toast.error("You can only add one location button.");
+      setButtonType(null);
+    } else if (type === "2" && callPhoneNumberButtonCount >= 1) {
       toast.error("You can only add one call phone number button.");
       setButtonType(null);
     } else if (type === "3" && visitWebsiteButtonCount >= 2) {
@@ -1051,7 +1081,9 @@ const TemplateCreationPage = () => {
                           <DropdownItem header className="fw-bold">
                             Quick reply buttons
                           </DropdownItem>
-                          <DropdownItem onClick={() => handleButtonSelect("1")}>
+                          <DropdownItem onClick={() => handleButtonSelect("1")} className={
+                              locationButtonExists ? "bg-light text-muted" : ""
+                            }>
                             Quick Reply
                             <small className="text-muted d-block">
                               Recommended
@@ -1060,16 +1092,31 @@ const TemplateCreationPage = () => {
                           <DropdownItem header className="fw-bold">
                             Call-To-Action buttons
                           </DropdownItem>
-                          <DropdownItem onClick={() => handleButtonSelect("2")}>
+                          <DropdownItem onClick={() => handleButtonSelect("2")} className={
+                              locationButtonExists ? "bg-light text-muted" : ""
+                            }>
                             Call Phone Number
                             <small className="text-muted d-block">
                               1 button maximum
                             </small>
                           </DropdownItem>
-                          <DropdownItem onClick={() => handleButtonSelect("3")}>
+                          <DropdownItem onClick={() => handleButtonSelect("3")} className={
+                              locationButtonExists ? "bg-light text-muted" : ""
+                            }>
                             Visit website
                             <small className="text-muted d-block">
                               2 button maximum
+                            </small>
+                          </DropdownItem>
+                          <DropdownItem
+                            onClick={() => handleButtonSelect("7")}
+                            className={
+                              otherButtonsExist ? "bg-light text-muted" : ""
+                            }
+                          >
+                            Location
+                            <small className="text-muted d-block">
+                              1 button maximum
                             </small>
                           </DropdownItem>
                         </DropdownMenu>
@@ -1492,6 +1539,12 @@ const TemplateCreationPage = () => {
                         {button.type == 3 && (
                           <span style={{ color: "#00a9ee" }}>
                             <i className="fa fa-external-link me-2"></i>
+                            {button.text || "Button"}
+                          </span>
+                        )}
+                         {button.type == 7 && (
+                          <span style={{ color: "#00a9ee" }}>
+                            <i className="fa fa-map-pin me-2"></i>
                             {button.text || "Button"}
                           </span>
                         )}

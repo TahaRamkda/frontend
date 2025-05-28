@@ -17,9 +17,17 @@ const SurveyReportPage = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [senderId, setSenderId] = useState(0); // Added state for senderId
-    const [flowId, setFlowId] = useState(0);
-  const handleExportToExcel = () => {
-    dispatch(excelExportSurveyReport({ fromDate: fromDate, toDate: toDate, senderId: senderId, flowId:flowId }));
+  const [flowId, setFlowId] = useState(0);
+  const handleExportToExcel = (event) => {
+    event.preventDefault(); // Prevent the form from submitting and reloading the page
+    dispatch(
+      excelExportSurveyReport({
+        fromDate: fromDate,
+        toDate: toDate,
+        senderId: senderId,
+        flowId: flowId,
+      })
+    );
   };
 
   const handleSenderChange = (e) => {
@@ -31,7 +39,6 @@ const SurveyReportPage = () => {
     setFlowId(flowId);
   };
 
-  
   const renderMediaPreview = (mediaPath, mimeType) => {
     const previewStyle =
       "w-full popup_img_container overflow-hidden flex justify-center items-center rounded-lg bg-gray-100";
@@ -57,75 +64,69 @@ const SurveyReportPage = () => {
 
   return (
     <App>
-     <div className=" inset-0 flex items-center justify-center z-50">
-  <div className="bg-white p-6 rounded-lg shadow-lg w-2/5 border border-gray-200">
-    <div className="p-4 border-b border-gray-200">
-      <h4 className="font-bold text-lg text-gray-800">Survey Report</h4>
-    </div>
+      <div className=" inset-0 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-2/5 border border-gray-200">
+          <div className="p-4 border-b border-gray-200">
+            <h4 className="font-bold text-lg text-gray-800">Survey Report</h4>
+          </div>
 
-    <form className="p-4 space-y-6">
-      {/* Sender Name Dropdown */}
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
-          Sender Name
-        </label>
-        <SendernameDropdown
-          name="senderId"
-          value={senderId}
-          onChange={handleSenderChange}
-          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
-        />
-      </div>
+          <form className="p-4 space-y-6">
+            {/* Sender Name Dropdown */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Sender Name
+              </label>
+              <SendernameDropdown
+                name="senderId"
+                value={senderId}
+                onChange={handleSenderChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+              />
+            </div>
 
-      {/* Flow Dropdown */}
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
-          Flow
-        </label>
-        <FlowDropdown
-          name="flowId"
-          value={ flowId}
-          onChange={handleFlowChange}
-          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
-        />
-      </div>
+            {/* Flow Dropdown */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Flow
+              </label>
+              <FlowDropdown
+                name="flowId"
+                value={flowId}
+                onChange={handleFlowChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+              />
+            </div>
 
-      {/* From Date */}
-      <div className="space-y-2">
-        
-        <DateTimePicker
-          label="From Date"
-          value={fromDate}
-          onChange={setFromDate}
-          className="w-full  border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
-        />
-      </div>
+            {/* From Date */}
+            <div className="space-y-2">
+              <DateTimePicker
+                label="From Date"
+                value={fromDate}
+                onChange={setFromDate}
+                className="w-full  border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+              />
+            </div>
 
-      {/* To Date */}
-      <div className="space-y-2">
-        
-        <DateTimePicker
-          label="To Date"
-          value={toDate}
-          minDate={fromDate}
-          onChange={setToDate}
-          className="w-full  border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
-        />
-      </div>
+            {/* To Date */}
+            <div className="space-y-2">
+              <DateTimePicker
+                label="To Date"
+                value={toDate}
+                minDate={fromDate}
+                onChange={setToDate}
+                className="w-full  border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+              />
+            </div>
 
-      {/* Export Button */}
-      <div className="flex justify-end pt-4 border-t border-gray-200">
-        <button
-          onClick={handleExportToExcel}
-          className="uniform_btn"
-        >
-          Export to Excel
-        </button>
+            {/* Export Button */}
+            <div className="flex justify-end pt-4 border-t border-gray-200">
+              <button onClick={handleExportToExcel} className="uniform_btn">
+                Export to Excel
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </form>
-  </div>
-</div>
-     
     </App>
   );
 };

@@ -92,8 +92,30 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
   };
 
   const handleTemplateChange = (e) => {
-    
     const templateId = e.target.value;
+    setVariables([]);
+    setHeaderVariable([]);
+    setsenturlvariables([]);
+    setMessagePreview({
+      header: "",
+      body: "",
+      footer: "",
+      media: null,
+      buttons: [],
+      visitWebsiteButtonCount: 0,
+    });
+    setHeadContent("");
+    setBodyFinalContent("");
+    setSelectedMediaId(0);
+    setSelectedMediaPath("");
+    setSelectedMediaType("");
+    setTotalButtonCount(0);
+    setMessagePreviewupdated(false);
+    setErrorMessage("");
+    setSelectedSenderId(null);
+  
+    // Clear the template detail state in Redux
+    dispatch(clearTemplateDetailState());
     setSelectedTemplateId(templateId);
   };
 

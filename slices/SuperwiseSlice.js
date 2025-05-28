@@ -15,8 +15,8 @@ export const fetchChatsMonitor = createAsyncThunk(
       });
         if (response?.status === 200 ) {
           return {
-          chatsMonitor: response.data.data.result,
-          totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords : 0,
+          chatsMonitor: response.data,
+          totalRecords: response.data.length > 0 ? response.data[0].totalRecords : 0,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -39,8 +39,8 @@ export const fetchAgentsMonitor = createAsyncThunk(
       });
         if (response?.status === 200 ) {
           return {
-          agentsMonitor: response.data.data.result,
-          totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords : 0,
+          agentsMonitor: response.data,
+          totalRecords: response.data.length > 0 ? response.data[0].totalRecords : 0,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -79,7 +79,7 @@ export const fetchAgentsMonitor = createAsyncThunk(
         method: "GET",
         //payload: {},
       });
-      debugger
+      
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -175,7 +175,6 @@ const Supervisor = createSlice({
                 state.message = action.payload?.message || action.error.message;
               })
 
-              
               .addCase(agentDisable.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -184,7 +183,7 @@ const Supervisor = createSlice({
               .addCase(agentDisable.fulfilled, (state, action) => {
                 state.loading = false;
                 state.success = true;
-                state.message = action.payload.data.message || 'Updated Successfully';
+                state.message = action.payload.message || 'Updated Successfully';
               })
               .addCase(agentDisable.rejected, (state, action) => {
                 state.loading = false;
@@ -202,7 +201,7 @@ const Supervisor = createSlice({
                     .addCase(SupervisorCloseChat.fulfilled, (state, action) => {
                       state.loading = false;
                       state.success = true;
-                      state.message = action.payload.data.message || 'Closed Successfully';
+                      state.message = action.payload.message || 'Closed Successfully';
                     })
                     .addCase(SupervisorCloseChat.rejected, (state, action) => {
                       state.loading = false;

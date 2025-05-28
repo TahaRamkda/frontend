@@ -55,15 +55,16 @@ const RoleList = () => {
   const handleDetailClick = async (roleId) => {
     try {
       const response = await dispatch(fetchRoleById({roleId:roleId})).unwrap();
+      debugger
       if (response) {
         
-        setRoleForm(response.data.result);
+        setRoleForm(response);
         setIsModalOpen(true);
       } else {
         showSweetAlert({ title: "Error", text: "", icon: "error" });
       }
     } catch (error) {
-      alert(t("Failed to fetch role details: ") + error.message);
+      alert("Failed to fetch role details: " + error.message);
     }
   };
   const handleCreate = () => {
@@ -118,7 +119,8 @@ const RoleList = () => {
       };
 
       const response = await dispatch(updateRole(requestBody)).unwrap();
-      if (response.data.success) {
+      debugger
+      if (response.status === 1) {
         showSweetAlert({
           title: "Updated Successfully",
           text: "",

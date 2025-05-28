@@ -18,7 +18,7 @@ export const fetchAgentTemplate = createAsyncThunk(
               });
       if (response?.status === 200) {
         return {
-          agenttemplates: response.data.data.result,
+          agenttemplates: response.data,
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -35,12 +35,13 @@ export const fetchAgentTemplatesDetail = createAsyncThunk(
   'agenttemplate/fetchAgentTemplatesDetail',
   async ({senderId,TemplateId,clientId}, { rejectWithValue }) => {
     try {
+      debugger
       const response = await API.post("/api", {
                 endpoint: `${AGENTINTERACTIVETEMPLATLISTDETAIL}?interactiveTemplateId=${TemplateId}&senderId=${senderId}`,
                 method: "GET",
                 //payload: {},
               });
-              
+              debugger
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -100,9 +101,10 @@ const agenttemplateSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchAgentTemplatesDetail.fulfilled, (state, action) => {
+        debugger
         state.loading = false;
-        state.agenttemplatedetail = action.payload.data.result;
-        state.message = action.payload.data?.message || '';
+        state.agenttemplatedetail = action.payload;
+        // state.message = action.payload.message || '';
       })
       .addCase(fetchAgentTemplatesDetail.rejected, (state, action) => {
         state.loading = false;

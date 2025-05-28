@@ -18,8 +18,8 @@ export const fetchUser = createAsyncThunk(
                 
         if (response?.status === 200) {
           return {
-            users: response.data.data.result,
-            totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
+            users: response.data,
+            totalRecords: response.data.length > 0 ? response.data[0].totalRecords  : 0,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -41,8 +41,8 @@ export const fetchUserById = createAsyncThunk(
         method: "GET",
         //payload: {},
       });
-      debugger
-        return response.data.data.result;
+      
+        return response.data;
       } catch (error) {
         const handledError = handleError(error);
         return rejectWithValue(handledError);
@@ -203,7 +203,7 @@ const UserSlice = createSlice({
       .addCase(createUser.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.data.message || 'Created Successfully';
+        state.message = action.payload.message || 'Created Successfully';
       })
       .addCase(createUser.rejected, (state, action) => {
         state.loading = false;
@@ -220,7 +220,7 @@ const UserSlice = createSlice({
       .addCase(updateUser.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.data.message || 'Updated Successfully';
+        state.message = action.payload.message || 'Updated Successfully';
       })
       .addCase(updateUser.rejected, (state, action) => {
         state.loading = false;
@@ -237,7 +237,7 @@ const UserSlice = createSlice({
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.data.message || 'Deleted Successfully';
+        state.message = action.payload.message || 'Deleted Successfully';
       })
       .addCase(deleteUser.rejected, (state, action) => {
         state.loading = false;

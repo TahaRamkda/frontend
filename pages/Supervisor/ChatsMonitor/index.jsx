@@ -169,8 +169,8 @@ const ChatsMonitor = () => {
       });
       if (result.isConfirmed) {
         const response = await dispatch(SupervisorCloseChat(ChatId)).unwrap();
-  
-        if (response.data.success) {
+        debugger
+        if (response.status === 1) {
           showSweetAlert({
             title: "Closed Successfully",
             text: "",

@@ -25,19 +25,18 @@ contentType.includes('application/octet-stream') ||
 contentType.includes('application/xml') ||
 contentType.includes('text/xml') ||
 headers['content-disposition']?.includes('attachment');
-
       if (isFile) {
         res.setHeader('Content-Type', contentType);
         if (headers['content-disposition']) {
           res.setHeader('Content-Disposition', headers['content-disposition']);
         }
-        console.log("Returned data",data);
-        
         return res.status(200).end(data); // ✅ correctly returns raw file
       }
-
+       const jsonString = Buffer.from(data).toString('utf-8');
+      const parsed = JSON.parse(jsonString);
+      return res.status(200).json(parsed.result || parsed); // adjust if structure changes
       // Default JSON response
-      return res.status(200).json(data.result);
+      // return res.status(200).json(data.result);
 
     } catch (error) {
       console.error('Error while calling external API:', error);

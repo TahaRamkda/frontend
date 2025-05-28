@@ -1,14 +1,29 @@
 // src/redux/slices/chatMonitorSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import API from '../utils/api.axios';
-import handleError from '../utils/handleError';
-import { EXCELEXPORTCHATREPORT, EXCELEXPORTCHATMONITOR, EXCELEXPORTAGENTMONITOR,EXCELEXPORTAGENTREPORT, EXCELEXPORTSURVEYREPORT } from '@/utils/apiConstants';
+import API from "../utils/api.axios";
+import handleError from "../utils/handleError";
+import {
+  EXCELEXPORTCHATREPORT,
+  EXCELEXPORTCHATMONITOR,
+  EXCELEXPORTAGENTMONITOR,
+  EXCELEXPORTAGENTREPORT,
+  EXCELEXPORTSURVEYREPORT,
+} from "@/utils/apiConstants";
 
-// Excel Export Chat Report 
+// Excel Export Chat Report
 export const excelExportChatReport = createAsyncThunk(
-  'chatReport/excelExportChatReport',
+  "chatReport/excelExportChatReport",
   async (
-    { senderId, chatId, agentId, searchStr, fChatInitiated, fromDate, toDate, status },
+    {
+      senderId,
+      chatId,
+      agentId,
+      searchStr,
+      fChatInitiated,
+      fromDate,
+      toDate,
+      status,
+    },
     { rejectWithValue }
   ) => {
     try {
@@ -16,35 +31,37 @@ export const excelExportChatReport = createAsyncThunk(
 
       // ⚠️ IMPORTANT: Set responseType to 'blob' here
       const response = await API.post(
-        '/api',
+        "/api",
         {
           endpoint: chatReportExportUrl,
-          method: 'GET'
+          method: "GET",
         },
         {
-          responseType: 'blob' // ✅ Axios parses the blob correctly now
+          responseType: "blob", // ✅ Axios parses the blob correctly now
         }
       );
 
       // ✅ Create blob from response
       const fileBlob = new Blob([response.data], {
-        type: response.headers['content-type']
+        type: response.headers["content-type"],
       });
 
       // ✅ Extract filename from Content-Disposition
-      let fileName = 'ChatReport.xlsx';
-      const contentDisposition = response.headers['content-disposition'];
-      if (contentDisposition && contentDisposition.includes('attachment')) {
-        const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      let fileName = "ChatReport.xlsx";
+      const contentDisposition = response.headers["content-disposition"];
+      if (contentDisposition && contentDisposition.includes("attachment")) {
+        const fileNameMatch = contentDisposition.match(
+          /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+        );
         if (fileNameMatch && fileNameMatch[1]) {
-          fileName = fileNameMatch[1].replace(/['"]/g, '');
+          fileName = fileNameMatch[1].replace(/['"]/g, "");
         }
       }
 
       // ✅ Download via anchor element
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = window.URL.createObjectURL(fileBlob);
-      link.setAttribute('download', fileName);
+      link.setAttribute("download", fileName);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -57,34 +74,50 @@ export const excelExportChatReport = createAsyncThunk(
   }
 );
 
-
-// Export Excel Chat Monitor 
+// Export Excel Chat Monitor
 export const excelExportChatMonitor = createAsyncThunk(
-  'chatMonitor/excelExportChatMonitor',
-  async ({ senderId, chatId, agentId, searchStr,fChatInitiated,status }, { rejectWithValue }) => {
-    
+  "chatMonitor/excelExportChatMonitor",
+  async (
+    { senderId, chatId, agentId, searchStr, fChatInitiated, status },
+    { rejectWithValue }
+  ) => {
     try {
       const chatMonitorExportUrl = `${EXCELEXPORTCHATMONITOR}?senderId=${senderId}&id=${chatId}&agentId=${agentId}&searchStr=${searchStr}&fChatInitiated=${fChatInitiated}&status=${status}`;
       // Make API request and get blob data for Excel file
-      const response = await API.get(chatMonitorExportUrl, { responseType: 'blob' });
-      const fileBlob = new Blob([response.data], { type: response.headers['content-type'] });
-      // Create download link for Excel file
-      const link = document.createElement('a');
-      link.href = window.URL.createObjectURL(fileBlob);
-      let fileName = 'ChatMonitor.xlsx'; // Default filename
-      // Extract filename from headers if available
-      const contentDisposition = response.headers['content-disposition'];
-      if (contentDisposition && contentDisposition.indexOf('attachment') !== -1) {
-        const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-        if (fileNameMatch && fileNameMatch.length === 2) {
-          fileName = fileNameMatch[1];
+      const response = await API.post(
+        "/api",
+        {
+          endpoint: chatMonitorExportUrl,
+          method: "GET",
+        },
+        {
+          responseType: "blob", // ✅ Axios parses the blob correctly now
+        }
+      );
+      const fileBlob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      });
+
+      // ✅ Extract filename from Content-Disposition
+      let fileName = "ChatMonitorReport.xlsx";
+      const contentDisposition = response.headers["content-disposition"];
+      if (contentDisposition && contentDisposition.includes("attachment")) {
+        const fileNameMatch = contentDisposition.match(
+          /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+        );
+        if (fileNameMatch && fileNameMatch[1]) {
+          fileName = fileNameMatch[1].replace(/['"]/g, "");
         }
       }
-      link.download = fileName;
+
+      // ✅ Download via anchor element
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(fileBlob);
+      link.setAttribute("download", fileName);
       document.body.appendChild(link);
       link.click();
-      link.remove();
-      
+      document.body.removeChild(link);
+
       return { success: true }; // Return success status
     } catch (err) {
       handleError(err);
@@ -93,46 +126,48 @@ export const excelExportChatMonitor = createAsyncThunk(
   }
 );
 
-// Export Excel Agent Report 
+// Export Excel Agent Report
 export const excelExportAgentReport = createAsyncThunk(
-  'agentReport/excelExportAgentReport',
+  "agentReport/excelExportAgentReport",
   async ({ senderId, fromDate, toDate, searchStr }, { rejectWithValue }) => {
-    
     try {
       const agentMonitorExportUrl = `${EXCELEXPORTAGENTREPORT}?senderId=${senderId}&searchStr=${searchStr}&fromDate=${fromDate}&toDate=${toDate}`;
       // Make API request and get blob data for Excel file
-      
+
       const response = await API.post(
-  '/api',
-  {
-    endpoint: agentMonitorExportUrl,
-    method: 'GET'
-  },
-  {
-    responseType: 'blob', // Important!
-  }
-);
+        "/api",
+        {
+          endpoint: agentMonitorExportUrl,
+          method: "GET",
+        },
+        {
+          responseType: "blob", // Important!
+        }
+      );
+      const fileBlob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      });
 
-const fileBlob = new Blob([response.data], { type: response.headers['content-type'] });
+      // ✅ Extract filename from Content-Disposition
+      let fileName = "AgentReport.xlsx";
+      const contentDisposition = response.headers["content-disposition"];
+      if (contentDisposition && contentDisposition.includes("attachment")) {
+        const fileNameMatch = contentDisposition.match(
+          /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+        );
+        if (fileNameMatch && fileNameMatch[1]) {
+          fileName = fileNameMatch[1].replace(/['"]/g, "");
+        }
+      }
 
-const link = document.createElement('a');
-link.href = window.URL.createObjectURL(fileBlob);
+      // ✅ Download via anchor element
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(fileBlob);
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
-let fileName = 'AgentReport.xlsx';
-const contentDisposition = response.headers['content-disposition'];
-if (contentDisposition && contentDisposition.indexOf('attachment') !== -1) {
-  const fileNameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
-  if (fileNameMatch && fileNameMatch.length > 1) {
-    fileName = fileNameMatch[1];
-  }
-}
-
-link.download = fileName;
-document.body.appendChild(link);
-link.click();
-link.remove();
-
-      
       return { success: true }; // Return success status
     } catch (err) {
       handleError(err);
@@ -143,42 +178,44 @@ link.remove();
 
 // Excel Export Agent Monitor
 export const excelExportAgentMonitor = createAsyncThunk(
-  'agentMonitor/excelExportAgentMonitor',
+  "agentMonitor/excelExportAgentMonitor",
   async ({ senderId, fromDate, toDate, searchStr }, { rejectWithValue }) => {
     try {
-      const agentReportUrl = `${EXCELEXPORTAGENTMONITOR}?senderId=${senderId}&searchStr=${searchStr}&fromDate=${fromDate}&toDate=${toDate}`;
-      debugger
+      const agentReportUrl = `${EXCELEXPORTAGENTMONITOR}?senderId=${senderId}&searchStr=${searchStr}`;
+
       // ✅ Make API request and expect blob
       const response = await API.post(
-        '/api',
+        "/api",
         {
           endpoint: agentReportUrl,
-          method: 'GET'
+          method: "GET",
         },
         {
-          responseType: 'blob' // ✅ Axios parses the blob correctly now
+          responseType: "blob", // ✅ Axios parses the blob correctly now
         }
       );
-      debugger
+
       // ✅ Create a Blob object from response
       const fileBlob = new Blob([response.data], {
-        type: response.headers['content-type']
+        type: response.headers["content-type"],
       });
 
-      // ✅ Determine filename from headers or use default
-      let fileName = 'AgentMonitor.xlsx';
-      const contentDisposition = response.headers['content-disposition'];
-      if (contentDisposition && contentDisposition.includes('attachment')) {
-        const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      // ✅ Extract filename from Content-Disposition
+      let fileName = "AgentMonitorReport.xlsx";
+      const contentDisposition = response.headers["content-disposition"];
+      if (contentDisposition && contentDisposition.includes("attachment")) {
+        const fileNameMatch = contentDisposition.match(
+          /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+        );
         if (fileNameMatch && fileNameMatch[1]) {
-          fileName = fileNameMatch[1].replace(/['"]/g, '');
+          fileName = fileNameMatch[1].replace(/['"]/g, "");
         }
       }
 
-      // ✅ Trigger browser download
-      const link = document.createElement('a');
+      // ✅ Download via anchor element
+      const link = document.createElement("a");
       link.href = window.URL.createObjectURL(fileBlob);
-      link.setAttribute('download', fileName);
+      link.setAttribute("download", fileName);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -191,36 +228,50 @@ export const excelExportAgentMonitor = createAsyncThunk(
   }
 );
 
-
-
-// Export Excel Survey Report  
+// Export Excel Survey Report
 export const excelExportSurveyReport = createAsyncThunk(
-  'surveyReport/excelExportSurveyReport',
-  async ({ senderId, fromDate, toDate,flowId }, { rejectWithValue }) => {
-    
+  "surveyReport/excelExportSurveyReport",
+  async ({ senderId, fromDate, toDate, flowId }, { rejectWithValue }) => {
+    ;
     try {
       const surveyReportUrl = `${EXCELEXPORTSURVEYREPORT}?senderId=${senderId}&fromDate=${fromDate}&toDate=${toDate}&flowId=${flowId}`;
       // Make API request and get blob data for Excel file
-      const response = await API.get(surveyReportUrl, { responseType: 'blob' });
-      const fileBlob = new Blob([response.data], { type: response.headers['content-type'] });
       
-      // Create download link for Excel file
-      const link = document.createElement('a');
-      link.href = window.URL.createObjectURL(fileBlob);
-      let fileName = 'SurveyReport.xlsx'; // Default filename
-      // Extract filename from headers if available
-      const contentDisposition = response.headers['content-disposition'];
-      if (contentDisposition && contentDisposition.indexOf('attachment') !== -1) {
-        const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-        if (fileNameMatch && fileNameMatch.length === 2) {
-          fileName = fileNameMatch[1];
+      const response = await API.post(
+        "/api",
+        {
+          endpoint: surveyReportUrl,
+          method: "GET",
+        },
+        {
+          responseType: "blob", // ✅ Axios parses the blob correctly now
+        }
+      );
+      
+      const fileBlob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      });
+
+      // ✅ Extract filename from Content-Disposition
+      let fileName = "ChatReport.xlsx";
+      const contentDisposition = response.headers["content-disposition"];
+      if (contentDisposition && contentDisposition.includes("attachment")) {
+        const fileNameMatch = contentDisposition.match(
+          /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+        );
+        if (fileNameMatch && fileNameMatch[1]) {
+          fileName = fileNameMatch[1].replace(/['"]/g, "");
         }
       }
-      link.download = fileName;
+
+      // ✅ Download via anchor element
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(fileBlob);
+      link.setAttribute("download", fileName);
       document.body.appendChild(link);
       link.click();
-      link.remove();
-      
+      document.body.removeChild(link);
+
       return { success: true }; // Return success status
     } catch (err) {
       handleError(err);
@@ -228,4 +279,3 @@ export const excelExportSurveyReport = createAsyncThunk(
     }
   }
 );
-

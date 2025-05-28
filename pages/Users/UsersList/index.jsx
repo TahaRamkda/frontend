@@ -87,7 +87,7 @@ const UserList = () => {
   const handleDetailClick = async (userId) => {
     try {
       const response = await dispatch(fetchUserById({ userId })).unwrap();
-      debugger
+      
       if (response) {
         setUserForm(response);
         setexistingRoleId(

@@ -22,10 +22,11 @@ export const fetchLogin = createAsyncThunk(
         //payload: {},
       });
        
-       console.log("response", response);
+       debugger
        
       if (response && response.status === 200) {
-        const result  =response.data.data.result;
+        debugger
+        const result = response.data;
         localStorage.setItem("permission", JSON.stringify(result.permission));
         localStorage.setItem("accessToken", result.accessToken);
         localStorage.setItem("tokenexpiry", result.refreshTokenExpiry);
@@ -85,7 +86,7 @@ const authSlice = createSlice({
     });
     builder.addCase(fetchLogin.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.authData || "Incorrect Username Or Passwords"; // Set error from payload
+      state.error = action.payload || "Incorrect Username Or Passwords"; // Set error from payload
       state.message = state.error; // Optional: You might want to keep `message` as well
     });
     builder.addCase(changePassword.pending, (state) => {

@@ -20,12 +20,20 @@ const Login = () => {
   // Handler for form submission
   const handleLogin = async (event) => {
     event.preventDefault();
-
     try {
       const response = await dispatch(fetchLogin({ email, password })).unwrap();
-      console.log("Auth data:", response);
-      blankAuthState();
-      router.push("/");
+      debugger;
+      if (response.status === 1) {
+        console.log("Auth data:", response);
+        blankAuthState();
+        router.push("/");
+      } else {
+        SweetAlert.fire({
+          icon: "error",
+          title: "Oops...",
+          text: response.message || "Incorrect Username or Password!",
+        });
+      }
     } catch (err) {
       console.error("Login error:", err);
       // Handle errors (e.g., invalid credentials)

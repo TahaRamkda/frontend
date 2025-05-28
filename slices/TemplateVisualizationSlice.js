@@ -12,7 +12,7 @@ export const fetchTemplateVisualization = createAsyncThunk(
         method: "GET",
         //payload: {},
       });
-      
+        
         if (response?.status === 200) {
           return {
             templateVisualizationData: response.data,
@@ -54,7 +54,7 @@ const TemplateVisualizationSlice = createSlice({
         .addCase(fetchTemplateVisualization.fulfilled, (state, action) => {
           
             state.loading = false;
-            state.templateVisualizationData = action.payload.templateVisualizationData.data.data;
+            state.templateVisualizationData = action.payload.templateVisualizationData;
             state.message = action.payload.message || '';
         })
         .addCase(fetchTemplateVisualization.rejected, (state, action) => {

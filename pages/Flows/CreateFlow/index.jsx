@@ -825,7 +825,7 @@ const CreateFlowPage = () => {
       .unwrap()
       .then((response) => {
         
-        if (response?.result?.status === 1) {
+        if (response.status === 1) {
           showSweetAlert({
             title: response?.message || "Flow created successfully",
             text: "",

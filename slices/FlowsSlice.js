@@ -1,88 +1,102 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import API from '../utils/api.axios';
-import handleError from '../utils/handleError';
-import { FLOWSLIST, FLOWDETAILS,CREATEFLOW, UPDATEFLOW, DELETEFLOW, FLOWDROPDOWN ,PUBLISHFLOW} from '@/utils/apiConstants';
+import API from "../utils/api.axios";
+import handleError from "../utils/handleError";
+import {
+  FLOWSLIST,
+  FLOWDETAILS,
+  CREATEFLOW,
+  UPDATEFLOW,
+  DELETEFLOW,
+  FLOWDROPDOWN,
+  PUBLISHFLOW,
+} from "@/utils/apiConstants";
 
 // Thunks
 // Fetch Group
 export const fetchFlowsListData = createAsyncThunk(
-    'flow/fetchFlowsListData',
-    async ({clientId, pageNo, pageSize, SearchStr,senderId, Language}, { rejectWithValue }) => {
-      try {
-        //const response = await API.get(`${FLOWSLIST}?senderid=${senderId}&lang=${Language}&PageNo=${pageNo}&PageSize=${pageSize}${ SearchStr? `&SearchStr=${SearchStr}`:''}`);
-         const response = await API.post("/api", {
-        endpoint: `${FLOWSLIST}?senderid=${senderId}&lang=${Language}&PageNo=${pageNo}&PageSize=${pageSize}${ SearchStr? `&SearchStr=${SearchStr}`:''}`,
+  "flow/fetchFlowsListData",
+  async (
+    { clientId, pageNo, pageSize, SearchStr, senderId, Language },
+    { rejectWithValue }
+  ) => {
+    try {
+      //const response = await API.get(`${FLOWSLIST}?senderid=${senderId}&lang=${Language}&PageNo=${pageNo}&PageSize=${pageSize}${ SearchStr? `&SearchStr=${SearchStr}`:''}`);
+      const response = await API.post("/api", {
+        endpoint: `${FLOWSLIST}?senderid=${senderId}&lang=${Language}&PageNo=${pageNo}&PageSize=${pageSize}${
+          SearchStr ? `&SearchStr=${SearchStr}` : ""
+        }`,
         method: "GET",
         //payload: {},
       });
-        if (response?.status === 200) {
-          return {
-            flowsList: response.data.data.result,
-            totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
-          };
-        } else {
-          throw new Error('Failed to fetch details');
-        }
-      } catch (err) {
-        const handledError = handleError(err);
-        return rejectWithValue(handledError);
+      if (response?.status === 200) {
+        return {
+          flowsList: response.data,
+          totalRecords:
+            response.data.length > 0 ? response.data[0].totalRecords : 0,
+        };
+      } else {
+        throw new Error("Failed to fetch details");
       }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
     }
-  );
+  }
+);
 
 export const fetchFlowDropdown = createAsyncThunk(
-    'flowdropdown/fetchFlowDropdown',
-    async ({clientId, SearchStr}, { rejectWithValue }) => {
-      try {
-         const response = await API.post("/api", {
+  "flowdropdown/fetchFlowDropdown",
+  async ({ clientId, SearchStr }, { rejectWithValue }) => {
+    try {
+      const response = await API.post("/api", {
         endpoint: `${FLOWDROPDOWN}`,
         method: "GET",
         //payload: {},
       });
-        if (response?.status === 200) {
-          return {
-            flowDropdownData: response.data.data.result,
-          };
-        } else {
-          throw new Error('Failed to fetch details');
-        }
-      } catch (err) {
-        const handledError = handleError(err);
-        return rejectWithValue(handledError);
+      if (response?.status === 200) {
+        return {
+          flowDropdownData: response.data,
+        };
+      } else {
+        throw new Error("Failed to fetch details");
       }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
     }
-  );
+  }
+);
 
 // Fetch Group by ID
 export const fetchFlowDetailsById = createAsyncThunk(
-    'flowdetails/fetchFlowDetailsById',
-    async ({id}, { rejectWithValue }) => {
-      try {
-         const response = await API.post("/api", {
+  "flowdetails/fetchFlowDetailsById",
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const response = await API.post("/api", {
         endpoint: `${FLOWDETAILS}?flowId=${id}`,
         method: "GET",
         //payload: {},
       });
-        return response.data.data;
-      } catch (error) {
-        const handledError = handleError(error);
-        return rejectWithValue(handledError);
-      }
+      return response.data;
+    } catch (error) {
+      const handledError = handleError(error);
+      return rejectWithValue(handledError);
     }
-  );
+  }
+);
 
-  // Create Group
+// Create Group
 export const createFlows = createAsyncThunk(
-  'flowcreate/createFlows',
+  "flowcreate/createFlows",
   async (flowData, { rejectWithValue }) => {
     try {
-         const response = await API.post("/api", {
-                endpoint: `${CREATEFLOW}`,
-                method: "POST",
-                payload: flowData,
-              });
-              
-      return response.data.data;
+      const response = await API.post("/api", {
+        endpoint: `${CREATEFLOW}`,
+        method: "POST",
+        payload: flowData,
+      });
+
+      return response.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -91,20 +105,20 @@ export const createFlows = createAsyncThunk(
 );
 
 export const publishFlow = createAsyncThunk(
-  'publishflow/publishFlow',
+  "publishflow/publishFlow",
   async (id, { rejectWithValue }) => {
     try {
-       const response = await API.post("/api", {
-                endpoint: `${PUBLISHFLOW}?flowId=${id}`,
-                method: "POST",
-                payload: '',
-              });
-      if(response.data.data.result === null){
-        throw new Error(response.data.data.message);
-      }else{
-        return response.data.data;
-      }
+      const response = await API.post("/api", {
+        endpoint: `${PUBLISHFLOW}?flowId=${id}`,
+        method: "POST",
+        payload: "",
+      });
       
+      if (response.data.success === false) {
+        throw new Error(response.data.message);
+      } else {
+        return response.data;
+      }
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -112,29 +126,27 @@ export const publishFlow = createAsyncThunk(
   }
 );
 
-
 // Update Group
 export const updateFlow = createAsyncThunk(
-    'flowupdate/updateFlow',
-    async (flowData, { rejectWithValue }) => {
-      try {
-        
-         const response = await API.post("/api", {
-                endpoint: `${UPDATEFLOW}`,
-                method: "PUT",
-                payload: flowData,
-              });
-              
-        return response.data;
-      } catch (error) {
-        const handledError = handleError(error);
-        return rejectWithValue(handledError);
-      }
+  "flowupdate/updateFlow",
+  async (flowData, { rejectWithValue }) => {
+    try {
+      const response = await API.post("/api", {
+        endpoint: `${UPDATEFLOW}`,
+        method: "PUT",
+        payload: flowData,
+      });
+
+      return response.data;
+    } catch (error) {
+      const handledError = handleError(error);
+      return rejectWithValue(handledError);
     }
-  );
+  }
+);
 // Delete Flow
-  export const deleteFlow = createAsyncThunk(
-  'flowdelete/deleteFlow',
+export const deleteFlow = createAsyncThunk(
+  "flowdelete/deleteFlow",
   async ({ id, onSuccess }, { rejectWithValue }) => {
     try {
       const response = await API.post("/api", {
@@ -153,15 +165,15 @@ export const updateFlow = createAsyncThunk(
 
 // Slice
 const FlowSlice = createSlice({
-  name: 'flow',
+  name: "flow",
   initialState: {
     flowsList: [],
-    flowDropdownData:[],
+    flowDropdownData: [],
     flow: null,
     loading: false,
     error: null,
     success: false,
-    message: '',
+    message: "",
     currentPage: 1,
     totalPages: 1,
     pageSize: 10,
@@ -198,7 +210,7 @@ const FlowSlice = createSlice({
       state.error = null;
       state.success = false;
     },
-    
+
     clearFlowDetailState: (state) => {
       state.flow = null;
       state.loading = false;
@@ -228,7 +240,7 @@ const FlowSlice = createSlice({
         state.flowsList = action.payload.flowsList;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
-        state.message = action.payload.message || '';
+        state.message = action.payload.message || "";
       })
       .addCase(fetchFlowsListData.rejected, (state, action) => {
         state.loading = false;
@@ -243,7 +255,7 @@ const FlowSlice = createSlice({
       .addCase(fetchFlowDropdown.fulfilled, (state, action) => {
         state.loading = false;
         state.flowDropdownData = action.payload.flowDropdownData;
-        state.message = action.payload.message || '';
+        state.message = action.payload.message || "";
       })
       .addCase(fetchFlowDropdown.rejected, (state, action) => {
         state.loading = false;
@@ -259,7 +271,7 @@ const FlowSlice = createSlice({
       .addCase(fetchFlowDetailsById.fulfilled, (state, action) => {
         state.loading = false;
         state.flow = action.payload;
-        state.message = action.payload?.message || '';
+        state.message = action.payload?.message || "";
       })
       .addCase(fetchFlowDetailsById.rejected, (state, action) => {
         state.loading = false;
@@ -276,7 +288,7 @@ const FlowSlice = createSlice({
       .addCase(createFlows.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || ' Created Successfully';
+        state.message = action.payload.message || " Created Successfully";
       })
       .addCase(createFlows.rejected, (state, action) => {
         state.loading = false;
@@ -285,22 +297,22 @@ const FlowSlice = createSlice({
       })
 
       // Publish Flow
-       .addCase(publishFlow.pending, (state) => {
-          state.loading = true;
-          state.error = null;
-          state.success = false;
-        })
-        .addCase(publishFlow.fulfilled, (state, action) => {
-          state.loading = false;
-          state.success = true;
-          state.message = action.payload?.message || 'Uploaded Successfully';
-        })
-        .addCase(publishFlow.rejected, (state, action) => {
-          state.loading = false;
-          state.error = action.payload || action.error.message;
-          state.message = action.payload?.message || action.error.message;
-        })
-      
+      .addCase(publishFlow.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(publishFlow.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.message = action.payload?.message || "Uploaded Successfully";
+      })
+      .addCase(publishFlow.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+
       // Update Client
       .addCase(updateFlow.pending, (state) => {
         state.loading = true;
@@ -310,7 +322,7 @@ const FlowSlice = createSlice({
       .addCase(updateFlow.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.data.message || 'Updated Successfully';
+        state.message = action.payload.message || "Updated Successfully";
       })
       .addCase(updateFlow.rejected, (state, action) => {
         state.loading = false;
@@ -327,7 +339,7 @@ const FlowSlice = createSlice({
       .addCase(deleteFlow.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || 'Deleted Successfully';
+        state.message = action.payload.message || "Deleted Successfully";
       })
       .addCase(deleteFlow.rejected, (state, action) => {
         state.loading = false;

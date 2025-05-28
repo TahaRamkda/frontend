@@ -15,7 +15,7 @@ export const fetchtemplatecategory = createAsyncThunk(
               });
       if (response?.status === 200) {
         return {
-          templatecategory: response.data.data.result
+          templatecategory: response.data
         };
       } else {
         throw new Error('Failed to fetch category');
@@ -39,7 +39,7 @@ export const fetchlanguage = createAsyncThunk(
               });
       if (response?.status === 200) {
         return {
-          languages: response.data.data.result
+          languages: response.data
         };
       } else {
         throw new Error('Failed to fetch category');

@@ -14,8 +14,8 @@ export const fetchCampaign = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          campaigns: response.data.data.result,
-          totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords : 0,
+          campaigns: response.data,
+          totalRecords: response.data.length > 0 ? response.data[0].totalRecords : 0,
          
         };
       } else {
@@ -27,9 +27,9 @@ export const fetchCampaign = createAsyncThunk(
     }
   }
 );
- 
- 
- 
+
+
+
 export const fetchCampaignContactState = createAsyncThunk(
   'campaign/fetchCampaignContactState',
   async ({ClientId , CampaignId}, { rejectWithValue }) => {
@@ -40,7 +40,7 @@ export const fetchCampaignContactState = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          campaignContactState: response.data.data.result,
+          campaignContactState: response.data,
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -63,7 +63,7 @@ export const fetchCampaignFrequentDelete = createAsyncThunk(
       if (response?.status === 200) {
         
         return {
-          campaignFreqDelete: response.data.data.result,
+          campaignFreqDelete: response.data,
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -85,7 +85,7 @@ export const fetchCampaignDetail = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          campaigndetail: response.data.data.result,
+          campaigndetail: response.data,
  
         };
       } else {
@@ -259,9 +259,10 @@ export const fetchCampaignDetail = createAsyncThunk(
           state.success = false;
         })
         .addCase( createCampaign.fulfilled, (state, action) => {
+          
           state.loading = false;
           state.success = true;
-          state.message = action.payload.data.message || 'Created Successfully';
+          state.message = action.payload.message || 'Created Successfully';
         })
         .addCase( createCampaign.rejected, (state, action) => {
           state.loading = false;
@@ -277,7 +278,7 @@ export const fetchCampaignDetail = createAsyncThunk(
         .addCase( UpdateCampaign.fulfilled, (state, action) => {
           state.loading = false;
           state.success = true;
-          state.message = action.payload.data.message || 'Updated Successfully';
+          state.message = action.payload.message || 'Updated Successfully';
         })
         .addCase( UpdateCampaign.rejected, (state, action) => {
           state.loading = false;
@@ -361,7 +362,7 @@ export const fetchCampaignDetail = createAsyncThunk(
         .addCase( activateCampaign.fulfilled, (state, action) => {
           state.loading = false;
           state.success = true;
-          state.message = action.payload.data.message || 'Created Successfully';
+          state.message = action.payload.message || 'Created Successfully';
         })
         .addCase( activateCampaign.rejected, (state, action) => {
           state.loading = false;
@@ -376,7 +377,7 @@ export const fetchCampaignDetail = createAsyncThunk(
         .addCase( sendCampaign.fulfilled, (state, action) => {
           state.loading = false;
           state.success = true;
-          state.message = action.payload.data.message;
+          state.message = action.payload.message;
         })
         .addCase( sendCampaign.rejected, (state, action) => {
           state.loading = false;

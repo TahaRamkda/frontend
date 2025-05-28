@@ -51,6 +51,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
 
   // Filter templates based on senderId and search query
   useEffect(() => {
+    debugger
     const filtered = agenttemplates.filter((template) => {
       const matchesSenderId = template.senderId === SenderId;
       const matchesSearchQuery = template.name
@@ -114,7 +115,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
   }, [agenttemplatedetails, selectedOption, SenderId, parameterValues]);
 
   const handleSend = async (e) => {
-    debugger
+    
     e.preventDefault();
     const values = parameterValues.map((val) => ({
       key: val.key,

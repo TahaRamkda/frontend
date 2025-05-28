@@ -23,10 +23,10 @@ export const fetchSendernames = createAsyncThunk(
 
       if (response?.status === 200) {
         return {
-          sendernames: response?.data?.data.result,
+          sendernames: response?.data,
           totalRecords:
-            response.data?.data.result?.length > 0
-              ? response.data.data.result[0].totalRecords
+            response.data.length > 0
+              ? response.data[0].totalRecords
               : 0,
         };
       } else {
@@ -50,7 +50,7 @@ export const fetchSendernamesDrop = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          sendernameDrop: response.data.data.result,
+          sendernameDrop: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -73,7 +73,7 @@ export const fetchSendernameById = createAsyncThunk(
         //payload: {},
       });
 
-      return response.data.data.result;
+      return response.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -211,6 +211,7 @@ const sendernameSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchSendernamesDrop.fulfilled, (state, action) => {
+        
         state.loading = false;
         state.sendernameDrop = action.payload.sendernameDrop;
         state.message = action.payload.message || "";

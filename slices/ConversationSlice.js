@@ -22,11 +22,9 @@ export const fetchConversationList = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          conversations: response.data.data.result,
+          conversations: response.data,
           totalRecords:
-            response.data.data.result.length > 0
-              ? response.data.data.result[0].totalRecords
-              : 0,
+            response.data.length > 0 ? response.data[0].totalRecords : 0,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -49,11 +47,9 @@ export const fetchConversationMessage = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          conversationMessage: response.data.data.result,
+          conversationMessage: response.data,
           totalRecords:
-            response.data.data.result.length > 0
-              ? response.data.data.result[0].totalRecords
-              : 0,
+            response.data.length > 0 ? response.data[0].totalRecords : 0,
           pageNo,
         };
       } else {
@@ -70,14 +66,14 @@ export const NewAgentMessage = createAsyncThunk(
   "conversation/NewAgentMessage",
   async (messageData, { rejectWithValue }) => {
     try {
-       messageData.append("endpoint", `${AGENTMESSAGE}`);
-                  messageData.append("method", "POST");
-                 
-                  const response = await API.post("/formData", messageData, {
-                    headers: {
-                      "Content-Type": "multipart/form-data",
-                    },
-                  });
+      messageData.append("endpoint", `${AGENTMESSAGE}`);
+      messageData.append("method", "POST");
+
+      const response = await API.post("/formData", messageData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       return response.data;
     } catch (error) {
@@ -91,15 +87,15 @@ export const SendInteractivetemp = createAsyncThunk(
   "conversation/SendInteractivetemp",
   async (templatedata, { rejectWithValue }) => {
     try {
-       templatedata.append("endpoint", `${SENDAGENTINTERACTIVETEMPLATLIS}`);
-            templatedata.append("method", "POST");
-           
-            const response = await API.post("/formData", templatedata, {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            });
-      
+      templatedata.append("endpoint", `${SENDAGENTINTERACTIVETEMPLATLIS}`);
+      templatedata.append("method", "POST");
+
+      const response = await API.post("/formData", templatedata, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -120,9 +116,8 @@ export const Transferchat = createAsyncThunk(
         method: "GET",
         //payload: {},
       });
-      ;
       if (response?.status === 200) {
-        return response.data.data.result; // Pass API response to fulfilled reducer
+        return response.data; // Pass API response to fulfilled reducer
       } else {
         throw new Error("Failed to transfer chat");
       }
@@ -142,9 +137,9 @@ export const fetchConversationMessageReport = createAsyncThunk(
         method: "GET",
         //payload: {},
       });
-      if (response?.status === 200 && response.data?.data.result) {
+      if (response?.status === 200 && response.data) {
         return {
-          conversationMessagereport: response.data.data.result,
+          conversationMessagereport: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -308,7 +303,7 @@ const conversationslice = createSlice({
       .addCase(SendInteractivetemp.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.data.message;
+        state.message = action.payload.message;
       })
       .addCase(SendInteractivetemp.rejected, (state, action) => {
         state.loading = false;

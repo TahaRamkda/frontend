@@ -269,7 +269,8 @@ const InteractiveTemplateCreation = () => {
         createInteractiveTemplates(requestBody)
       ).unwrap();
       
-      if (response.success) {
+      if (response.status === 200) {
+        
         clearInteractiveTemplateCreateState();
         showSweetAlert({
           title: "Template Created",

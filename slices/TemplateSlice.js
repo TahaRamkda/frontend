@@ -33,9 +33,9 @@ export const fetchTemplates = createAsyncThunk(
       
       if (response?.status === 200 ) {
         return {
-          templates: response.data.data.result,
+          templates: response.data,
           totalRecords:
-            response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
+            response.data.length > 0 ? response.data[0].totalRecords  : 0,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -62,7 +62,7 @@ export const fetchTemplatesDrop = createAsyncThunk(
       });
       if (response?.status === 200 ) {
         return {
-          templateDrop: response.data.data.result,
+          templateDrop: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -85,7 +85,7 @@ export const fetchTemplatesById = createAsyncThunk(
         endpoint: `${TEMPLATEDETAILS}?Id=${templateId}`,
         method: "GET",
       });
-      return response.data.data.result;
+      return response.data;
       
     } catch (error) {
       const handledError = handleError(error);
@@ -314,7 +314,7 @@ const templateSlice = createSlice({
       .addCase(createTemplates.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.data.message || "Created Successfully";
+        state.message = action.payload.message || "Created Successfully";
       })
       .addCase(createTemplates.rejected, (state, action) => {
         state.loading = false;

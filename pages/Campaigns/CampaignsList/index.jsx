@@ -477,7 +477,7 @@ const CampaignsList = () => {
 
   return (
     <App>
-      {(campaignloading || loading) && <Loader />}
+      {(campaignloading) && <Loader />}
       {showUpdateModel ? (
         <UpdateCampaign campaignId={CampaignId} onclose={handleClose} />
       ) : (

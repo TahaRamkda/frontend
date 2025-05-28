@@ -17,8 +17,8 @@ export const  fetchRoles = createAsyncThunk(
                 });
         if (response?.status === 200 ) { 
           return {
-             roles: response.data.data.result,
-            totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
+             roles: response.data,
+            totalRecords: response.data.length > 0 ? response.data[0].totalRecords  : 0,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -40,7 +40,7 @@ export const  fetchRolesDrop = createAsyncThunk(
         });
         if (response?.status === 200 ) { 
           return {
-             roleDrop: response.data.data.result,
+             roleDrop: response.data,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -200,7 +200,7 @@ export const  fetchRolesDrop = createAsyncThunk(
         })
         .addCase( fetchRoles.fulfilled, (state, action) => {
           state.loading = false;
-          state. roles = action.payload. roles;
+          state. roles = action.payload.roles;
           state.totalRecords = action.payload.totalRecords;
           state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
           state.message = action.payload.message || '';
@@ -233,8 +233,8 @@ export const  fetchRolesDrop = createAsyncThunk(
         })
         .addCase( fetchRoleById.fulfilled, (state, action) => {
           state.loading = false;
-          state. role = action.payload.data.result;
-          state.message = action.payload.data?.message || '';
+          state. role = action.payload;
+          state.message = action.payload.message || '';
         })
         .addCase( fetchRoleById.rejected, (state, action) => {
           state.loading = false;
@@ -251,7 +251,7 @@ export const  fetchRolesDrop = createAsyncThunk(
         .addCase( createRole.fulfilled, (state, action) => {
           state.loading = false;
           state.success = true;
-          state.message = action.payload.data.message || 'Created Successfully';
+          state.message = action.payload.message || 'Created Successfully';
         })
         .addCase( createRole.rejected, (state, action) => {
           state.loading = false;
@@ -268,7 +268,7 @@ export const  fetchRolesDrop = createAsyncThunk(
         .addCase( updateRole.fulfilled, (state, action) => {
           state.loading = false;
           state.success = true;
-          state.message = action.payload.data.message || 'Updated Successfully';
+          state.message = action.payload.message || 'Updated Successfully';
         })
         .addCase( updateRole.rejected, (state, action) => {
           state.loading = false;

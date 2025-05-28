@@ -20,7 +20,7 @@ export const fetchGroup = createAsyncThunk(
         if (response?.status === 200) {
           return {
             groups: response.data,
-            totalRecords: response.data.data.length > 0 ? response.data.data[0].totalRecords  : 0,
+            totalRecords: response.data.length > 0 ? response.data[0].totalRecords  : 0,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -208,10 +208,10 @@ const GroupSlice = createSlice({
       .addCase(fetchGroup.fulfilled, (state, action) => {
         
         state.loading = false;
-        state.groups = action.payload.groups.data.result;
+        state.groups = action.payload.groups;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
-        state.message = action.payload.message || '';
+        // state.message = action.payload.message || '';
       })
       .addCase(fetchGroup.rejected, (state, action) => {
         state.loading = false;

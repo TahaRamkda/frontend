@@ -16,8 +16,8 @@ export const fetchMedia = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          medias: response.data.data.result,
-          totalRecords: response.data.data.result.length > 0 ? response.data.data.result[0].totalRecords  : 0,
+          medias: response.data,
+          totalRecords: response.data.length > 0 ? response.data[0].totalRecords  : 0,
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -150,7 +150,7 @@ const mediaSlice = createSlice({
       .addCase(uploadMedia.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.data.message || 'Uploaded Successfully';
+        state.message = action.payload.message || 'Uploaded Successfully';
       })
       .addCase(uploadMedia.rejected, (state, action) => {
         state.loading = false;
@@ -169,7 +169,7 @@ const mediaSlice = createSlice({
       .addCase(deleteMedia.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.data.message || 'Deleted Successfully';
+        state.message = action.payload.message || 'Deleted Successfully';
       })
       .addCase(deleteMedia.rejected, (state, action) => {
         state.loading = false;

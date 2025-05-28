@@ -19,13 +19,13 @@ export const fetchContact = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      debugger
+      
       const response = await API.post("/api", {
         endpoint: `${CONTACTLIST}?GroupId=${groupId}&PageNo=${pageNo}&PageSize=${pageSize}${searchStr ? `&SearchStr=${searchStr}` : ""}`,
         method: "GET",
         //payload: {},
       });
-         debugger
+         
       if (response?.status === 200) {
         return {
           contacts: response.data,
@@ -51,13 +51,13 @@ export const fetchContactById = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      debugger
+      
       const response = await API.post("/api", {
         endpoint: `${CONTACTDETAILS}?Id=${contactId}`,
         method: "GET",
         //payload: {},
       });
-      debugger
+      
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -71,13 +71,13 @@ export const createContact = createAsyncThunk(
   "contact/createContact",
   async (contactData, { rejectWithValue }) => {
     try {
-      debugger
+      
       const response = await API.post("/api", {
           endpoint: `${CREATECONTACT}`,
           method: "POST",
           payload: contactData,
         });
-        debugger
+        
       return response.data.message;
     } catch (error) {
       const handledError = handleError(error);
@@ -231,7 +231,7 @@ const contactSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchContactById.fulfilled, (state, action) => {
-        debugger
+        
         state.loading = false;
         state.contact = action.payload;
         //state.message = action.payload?.message || "";
@@ -268,7 +268,7 @@ const contactSlice = createSlice({
       .addCase(updateContact.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.data.message || "Updated Successfully";
+        state.message = action.payload.message || "Updated Successfully";
       })
       .addCase(updateContact.rejected, (state, action) => {
         state.loading = false;
@@ -285,7 +285,7 @@ const contactSlice = createSlice({
       .addCase(deleteContact.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.data.message || "Deleted Successfully";
+        state.message = action.payload.message || "Deleted Successfully";
       })
       .addCase(deleteContact.rejected, (state, action) => {
         state.loading = false;
@@ -302,7 +302,7 @@ const contactSlice = createSlice({
       .addCase(bulkUpload.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload.data.message || "Uploaded Successfully";
+        state.message = action.payload.message || "Uploaded Successfully";
       })
       .addCase(bulkUpload.rejected, (state, action) => {
         state.loading = false;

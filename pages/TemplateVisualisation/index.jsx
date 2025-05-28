@@ -331,6 +331,12 @@ const TemplateVisualisation = () => {
                             {button.buttonText.trim() || "Visit"}
                           </span>
                         )}
+                        {button.buttonType === 7 && (
+                          <span style={{ color: "#00a9ee" }}>
+                            <i className="fa fa-map-pin me-2"></i>
+                            {button.buttonText.trim() || "Location"}
+                          </span>
+                        )}
                       </Button>
                       <Handle
                         type="source"
@@ -379,6 +385,7 @@ const TemplateVisualisation = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   useEffect(() => {
+    
     setTimeout(() => {
       // Step 1: Build a graph representation
       const graph = {};
@@ -535,17 +542,18 @@ const TemplateVisualisation = () => {
       const actionNodes = [];
       const newEdges = [];
       let actionNodeCounter = 0;
-
+      
       initialData?.forEach((template) => {
         const templateId = template.id.toString();
         if (!reachableNodes.has(templateId)) return;
 
         const sourceNode = newNodes.find((n) => n.id === templateId);
         if (!sourceNode) return;
-
+        
         const actionTypeToButtons = {};
         template.details.buttons?.forEach((button) => {
           let targetId = null;
+          
           const actionTypeLabel =
             button.actionType === 3
               ? "unsubscribe"
@@ -559,17 +567,21 @@ const TemplateVisualisation = () => {
               ? "block"
               : button.buttonType === 2
               ? `phone_${button.buttonValue || button.buttonId}`
+              : button.buttonType === 7
+              ? `location_${button.buttonValue || button.buttonId}`
               : button.buttonType === 3
               ? `url_${button.buttonValue || button.buttonId}`
               : "action";
-
+          
           if (
             button.actionType !== 1 &&
             button.actionType !== 8 &&
             (button.buttonType === 1 ||
               button.buttonType === 2 ||
-              button.buttonType === 3)
+              button.buttonType === 3) ||
+            button.buttonType === 7
           ) {
+            
             if (!actionTypeToButtons[actionTypeLabel]) {
               actionTypeToButtons[actionTypeLabel] = [];
             }
@@ -595,13 +607,13 @@ const TemplateVisualisation = () => {
             }
           }
         });
-
+        
         Object.keys(actionTypeToButtons).forEach((actionTypeLabel) => {
           const buttons = actionTypeToButtons[actionTypeLabel];
           const firstButton = buttons[0];
           let actionNodeId = `action_${template.id}_${actionTypeLabel}`;
           let actionTitle, actionContent;
-
+          
           if (actionTypeLabel === "chat") {
             actionTitle = "Chat With Agent";
             actionContent = "Start Chat";
@@ -622,6 +634,11 @@ const TemplateVisualisation = () => {
             actionContent = `Call: ${
               firstButton.buttonValue || "Not provided"
             }`;
+            
+          } else if (actionTypeLabel.startsWith("location_")) {
+            
+            actionTitle = firstButton.buttonText;
+            actionContent = "Provide Location"
           } else if (actionTypeLabel.startsWith("url_")) {
             actionTitle = firstButton.buttonText;
             actionContent = `Visit: ${
@@ -710,7 +727,7 @@ const TemplateVisualisation = () => {
     
     if (templateVisualizationData ) {
       
-      setInitialData(templateVisualizationData);
+      setInitialData(templateVisualizationData.data);
     }
   }, [templateVisualizationData]);
 

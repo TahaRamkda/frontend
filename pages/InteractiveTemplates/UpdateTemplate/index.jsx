@@ -307,7 +307,7 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
         updateInteractiveTemplates(requestBody)
       ).unwrap();
       
-      if (response.data.success) {
+      if (response.status === 200) {
         clearInteractiveTemplateDetailState();
         showSweetAlert({
           title: "Updated Successfully",
@@ -315,10 +315,10 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
           icon: "success",
         });
         onclose();
-      } else {
+      } else  {
         showSweetAlert({
           title: "Failed",
-          text: response.data.message || "",
+          text: response.message || "",
           icon: "error",
         });
 
@@ -687,19 +687,19 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
 
             <Formik
               initialValues={{
-                templateName: interactivetemplatedetail.templateName,
-                headerType: interactivetemplatedetail.headerType,
-                headerContent: interactivetemplatedetail.headerText,
+                templateName: interactivetemplatedetail?.templateName,
+                headerType: interactivetemplatedetail?.headerType,
+                headerContent: interactivetemplatedetail?.headerText,
                 headerMedia: null,
                 body: "",
-                footer: interactivetemplatedetail.footerText,
-                senderId: interactivetemplatedetail.senderId,
+                footer: interactivetemplatedetail?.footerText,
+                senderId: interactivetemplatedetail?.senderId,
                 buttons: [],
                 variables: [],
                 headerVariable: [],
                 bodyValues: [],
                 buttonValues: [],
-                usedByAgent: interactivetemplatedetail.usedByAgent,
+                usedByAgent: interactivetemplatedetail?.usedByAgent,
               }}
               onSubmit={handleSubmit}
             >
@@ -913,7 +913,7 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
                     </div>
 
                     <div className="">
-                      {interactivetemplatedetail.footerText && (
+                      {interactivetemplatedetail?.footerText && (
                         <FormGroup>
                           <Label for="footer" className="text-sm font-semibold">
                             Footer
