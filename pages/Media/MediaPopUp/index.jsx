@@ -129,7 +129,7 @@ const MediaPopUp = ({
       );
     } else if (mimeType.startsWith("video/")) {
       return (
-        <video controls className="w-full h-full object-cover">
+        <video controls className="w-full popup_img_container overflow-hidden flex justify-center items-center rounded-lg bg-gray-100">
           <source src={`${BASE_URL}${mediaPath}`} type={mimeType} />
         </video>
       );

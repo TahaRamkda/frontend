@@ -15,17 +15,16 @@ export const fetchLogin = createAsyncThunk(
   "auth/login",
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      
       const response = await API.post("/api", {
         endpoint: `${LOGINAPI}?Username=${email}&Password=${password}`,
         method: "GET",
         //payload: {},
       });
-       
-       debugger
-       
+
+      debugger;
+
       if (response && response.status === 200) {
-        debugger
+        debugger;
         const result = response.data;
         localStorage.setItem("permission", JSON.stringify(result.permission));
         localStorage.setItem("accessToken", result.accessToken);
@@ -54,7 +53,12 @@ export const changePassword = createAsyncThunk(
   "auth/changePassword",
   async (changePass, { rejectWithValue }) => {
     try {
-      const response = await API.put(CHANGEPASSWORD, changePass);
+      const response = await API.post("/api", {
+        endpoint: `${CHANGEPASSWORD}`,
+        method: "PUT",
+        payload: changePass,
+      });
+      debugger
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -79,7 +83,6 @@ const authSlice = createSlice({
       state.error = null; // Clear error on new request
     });
     builder.addCase(fetchLogin.fulfilled, (state, action) => {
-        
       state.loading = false;
       state.authData = action.payload;
       state.message = ""; // Clear message on successful login

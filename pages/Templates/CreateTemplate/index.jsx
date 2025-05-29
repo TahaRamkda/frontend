@@ -211,7 +211,7 @@ const TemplateCreationPage = () => {
     ) {
       toast.error("Please load all  header variables before proceeding.");
     }
-
+    debugger
     const requestBody = {
       clientId: localStorage.getItem("clientId"),
       name: values.templateName,
@@ -261,13 +261,13 @@ const TemplateCreationPage = () => {
     }
     try {
       const response = await dispatch(createTemplates(requestBody)).unwrap();
-
-      if (response) {
+      debugger
+      if (response.status === 200) {
         clearTemplateCreateState();
         showSweetAlert({
           title: "Template Created",
           text:
-            response ||
+            response.message ||
             "The Template has been successfully created.",
           icon: "success",
         });
@@ -669,6 +669,7 @@ const TemplateCreationPage = () => {
 
   useEffect(() => {
     if (buttonType) {
+      
       const newButton = {
         type: buttonType,
         text: buttonText,
@@ -1453,6 +1454,7 @@ const TemplateCreationPage = () => {
                           width: "100%",
                           height: "100%",
                           objectFit: "contain",
+                          maxHeight: "200px",
                           borderRadius: "8px",
                           marginBottom: "5px",
                         }}
@@ -1495,7 +1497,7 @@ const TemplateCreationPage = () => {
                     <h6
                       style={{ marginBottom: "5px" }}
                       dangerouslySetInnerHTML={{
-                        __html: messagePreview.header,
+                         __html: messagePreview.header,
                       }}
                     />
                   )}

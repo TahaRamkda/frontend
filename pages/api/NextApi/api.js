@@ -32,9 +32,16 @@ headers['content-disposition']?.includes('attachment');
         }
         return res.status(200).end(data); // ✅ correctly returns raw file
       }
-       const jsonString = Buffer.from(data).toString('utf-8');
-      const parsed = JSON.parse(jsonString);
-      return res.status(200).json(parsed.result || parsed); // adjust if structure changes
+     const utf8String = Buffer.from(data).toString('utf-8');
+
+// Try to parse JSON, fallback to plain text
+try {
+  const parsed = JSON.parse(utf8String);
+  return res.status(200).json(parsed.result || parsed);
+} catch (err) {
+  // It's not JSON; return plain text
+  return res.status(200).send(utf8String);
+}
       // Default JSON response
       // return res.status(200).json(data.result);
 

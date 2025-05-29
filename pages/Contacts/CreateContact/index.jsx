@@ -48,7 +48,8 @@ const ContactForm = ({ isVisible, onClose, onsuccess }) => {
 
     try {
       const response = await dispatch(createContact(requestBody)).unwrap();
-      if (response) {
+      debugger
+      if (response.status === 1) {
         dispatch(clearContactCreateState()); // Fixed typo
         onsuccess();
         onClose();
@@ -67,7 +68,7 @@ const ContactForm = ({ isVisible, onClose, onsuccess }) => {
           text: response.message || "",
           icon: "error",
         });
-        window.location.reload();
+        
       }
     } catch (err) {
       console.error("Failed to create Contact", err);
@@ -78,7 +79,6 @@ const ContactForm = ({ isVisible, onClose, onsuccess }) => {
         text: err.message || "",
         icon: "error",
       });
-      window.location.reload();
     }
   };
 

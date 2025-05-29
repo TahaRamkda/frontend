@@ -374,11 +374,12 @@ const handleSubmit = async (values) => {
 
   try {
     const response = await dispatch(UpdateCampaign(requestBody)).unwrap();
-    if (response) {
+    debugger
+    if (response.status === 1) {
       dispatch(clearTemplateDetailState());
       showSweetAlert({
         title: "Updated Successfully",
-        text: "",
+        text: response.message || "",
         icon: "success",
       });
       onclose();

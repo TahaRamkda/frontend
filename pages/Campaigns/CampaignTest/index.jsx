@@ -36,8 +36,8 @@ const CampaignTest = ({ isVisible, onClose, onsuccess, CampaignId }) => {
         ]
       }
       const response = await dispatch(sendCampaign(Requestbody)).unwrap();
-      
-      if (response) {
+      debugger
+      if (response[0].sent === true) {
         showSweetAlert({
           title: "Message Sent Successfully",
           text: `Phone Number: ${phoneNumber}`,
@@ -47,7 +47,7 @@ const CampaignTest = ({ isVisible, onClose, onsuccess, CampaignId }) => {
       } else {
         showSweetAlert({
           title: "Error",
-          text: "Failed to Send Message.",
+          text: response[0].errors ||"Failed to Send Message.",
           icon: "error",
         });
       }

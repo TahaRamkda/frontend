@@ -53,7 +53,6 @@ const UploadMediaPage = ({
           text: "",
           icon: "success",
         });
-        onUploadSuccess();
         fileInputRef.current.value = null; // Clear file input
         resetForm();
       } else {

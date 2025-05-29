@@ -78,7 +78,7 @@ export const createContact = createAsyncThunk(
           payload: contactData,
         });
         
-      return response.data.message;
+      return response.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);

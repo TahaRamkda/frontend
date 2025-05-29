@@ -68,7 +68,7 @@ export const fetchGroupById = createAsyncThunk(
           //payload: {},
         });
         
-        return response.data.data.result;
+        return response.data;
       } catch (error) {
         const handledError = handleError(error);
         return rejectWithValue(handledError);
@@ -88,7 +88,7 @@ export const createGroup = createAsyncThunk(
           payload: groupData,
         });
         
-      return response.data.data.message;
+      return response.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);
@@ -109,7 +109,7 @@ export const updateGroup = createAsyncThunk(
           payload: groupData,
         });
         
-        return response.data.data.message;
+        return response.data;
       } catch (error) {
         const handledError = handleError(error);
         return rejectWithValue(handledError);
@@ -130,7 +130,7 @@ export const deleteGroup = createAsyncThunk(
         });
       
       if (onSuccess) onSuccess(); // Handle success callback
-      return response.data.data.result;
+      return response.data;
     } catch (error) {
       const handledError = handleError(error);
       return rejectWithValue(handledError);

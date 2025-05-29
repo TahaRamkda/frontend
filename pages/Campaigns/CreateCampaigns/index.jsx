@@ -395,12 +395,12 @@ const CampaignCreate = () => {
     setCampaignLoading(true);
     try {
       const response = await dispatch(createCampaign(requestBody)).unwrap();
-      
-      if (response) {
+      debugger
+      if (response.status === 1) {
         dispatch(clearTemplateDetailState());
         showSweetAlert({
           title: "Created Successfully",
-          text: "",
+          text: response.message ||"",
           icon: "success",
         });
         router.push("/Campaigns/CampaignsList");

@@ -70,10 +70,10 @@ const ChangePass = ({ isVisible, onClose, onsuccess }) => {
 
     try {
       const response = await dispatch(changePassword(requestBody));
-      if (response.payload.success) {
+      if (response.payload.status === 1) {
         showSweetAlert({
           title: "Success",
-          text: response.payload.message,
+          text: response.payload.message || "Changed Successfuly",
           icon: "success",
         });
         onsuccess?.();

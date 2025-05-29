@@ -268,6 +268,7 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
     const bodyreplaceX = bodysupresult.replace(/`/g, "_");
     const bodyfinalReplace = bodyreplaceX.replace(/\+/g, "*");
     ;
+    debugger
     const requestBody = {
       Id: Template_Id,
       clientId: interactivetemplatedetail.clientId,

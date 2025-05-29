@@ -30,20 +30,21 @@ import GroupForm from "../CreateGroup";
 import App from "@/components/Layout/App";
 import SearchBar from "@/components/SearchBar/SearchComponent";
 import { usePermissions } from "@/context/PermissionsContext";
+import { toast } from "react-toastify";
 
 const GroupList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { groups,group, loading, error, pageSize, totalRecords, currentPage } =
+  const { groups, group, loading, error, pageSize, totalRecords, currentPage } =
     useSelector((state) => state.groups);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [groupForm, setGroupForm] = useState({});
   const [filterText, setFilterText] = useState("");
   const [CreateModalOpen, setCreateModalOpen] = useState(false);
-  
+
   const { hasPermission } = usePermissions();
-  
+
   const [isLoading, setIsLoading] = useState(false); // Start as true since we're fetching data
   const groupColumns = [
     { name: "Group Name", selector: (row) => row.groupName, sortable: true },
@@ -70,13 +71,13 @@ const GroupList = () => {
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
             {hasPermission("Groups", "delete") && (
-            <button
-              title="Delete Group"
-              className="uniform_icon_btn"
-              onClick={() => handleDeleteClick(row.groupId)}
-            >
-              <HiTrash style={{ fontSize: "15px" }} />
-            </button>
+              <button
+                title="Delete Group"
+                className="uniform_icon_btn"
+                onClick={() => handleDeleteClick(row.groupId)}
+              >
+                <HiTrash style={{ fontSize: "15px" }} />
+              </button>
             )}
           </div>
         </>
@@ -90,17 +91,23 @@ const GroupList = () => {
   const handleDetailClick = async (groupId) => {
     try {
       const response = await dispatch(fetchGroupById({ groupId })).unwrap();
+      debugger;
       if (response) {
         setIsModalOpen(true);
       } else {
         showSweetAlert({
           title: "Error",
-          text: "Failed to fetch details",
+          text: response.message || "Failed to fetch details",
           icon: "error",
         });
       }
     } catch (error) {
-      alert("Failed to fetch group details: " + error.message);
+      console.error("Failed to create Template", error);
+      showSweetAlert({
+        title: "Creation Failed",
+        text: error.message || "Failed to create Template. Please try again.",
+        icon: "error",
+      });
     }
   };
   const handleCancel = () => {
@@ -116,10 +123,9 @@ const GroupList = () => {
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
     }).then((result) => {
-      
       if (result.isConfirmed) {
         try {
-          dispatch(deleteGroup({ groupId })).then(() => {
+         dispatch(deleteGroup({ groupId })).then(() => {
             showSweetAlert({
               title: "Deleted Successfully",
               text: "",
@@ -128,17 +134,22 @@ const GroupList = () => {
             refreshGroupList();
           });
         } catch (error) {
-          alert("An unexpected error occurred: " + error.message);
+          console.error("Failed to create Template", error);
+          showSweetAlert({
+            title: "Creation Failed",
+            text:
+              error.message || "Failed to create Template. Please try again.",
+            icon: "error",
+          });
         }
       }
     });
   };
 
-  
   const handlePageChange = async (page) => {
     // Update current page state in Redux
     dispatch(setCurrentPage(page));
-    
+
     // Fetch clients for the new page
     await dispatch(
       fetchGroup({
@@ -152,7 +163,7 @@ const GroupList = () => {
   const handlePageSizeChange = async (newSize) => {
     // Update page size and reset to the first page
     dispatch(setPageSize(newSize));
-    
+
     dispatch(setCurrentPage(1)); // Reset to first page
     // Fetch data with updated page size and reset to page 1
     await dispatch(
@@ -199,8 +210,11 @@ const GroupList = () => {
   };
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    
+
+    if (!groupForm.groupName) {
+      toast.error("Please enter group name");
+      return;
+    }
     try {
       const requestBody = {
         groupId: groupForm.groupId || 0,
@@ -208,16 +222,15 @@ const GroupList = () => {
         actionBy: localStorage.getItem("userId"),
         clientId: groupForm.clientId || 0,
       };
-      
+
       const response = await dispatch(updateGroup(requestBody)).unwrap();
-      
-      if (response) {
+      debugger;
+      if (response.status === 1) {
         showSweetAlert({
           title: "Updated Successfully",
           text: "",
           icon: "success",
         });
-        setIsLoading(false);
         setIsModalOpen(false);
         refreshGroupList();
       } else {
@@ -228,14 +241,15 @@ const GroupList = () => {
         });
       }
     } catch (error) {
-      alert("Failed to update group: " + error.message);
-      setIsLoading(false);
-    } finally {
-      setIsLoading(false);
+      console.error("Failed to create Template", err);
+      showSweetAlert({
+        title: "Creation Failed",
+        text: err.message || "Failed to create Template. Please try again.",
+        icon: "error",
+      });
     }
   };
   const refreshGroupList = () => {
-    
     dispatch(
       fetchGroup({
         clientId: localStorage.getItem("clientId"),
@@ -247,7 +261,6 @@ const GroupList = () => {
   };
 
   useEffect(() => {
-    
     dispatch(
       fetchGroup({
         clientId: localStorage.getItem("clientId"),
@@ -262,10 +275,9 @@ const GroupList = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    
-   if(group){
-    setGroupForm(group)
-   }
+    if (group) {
+      setGroupForm(group);
+    }
   }, [group]);
 
   const handleCreate = () => {
@@ -295,21 +307,19 @@ const GroupList = () => {
     );
   }, [filterText]);
 
-  
-
   return (
     <App>
       <div className="flex items-center">
-        {(loading || isLoading) && <Loading />}
+        {loading && <Loading />}
         <div className="">
           <h4 className="font-bold">Groups </h4>
         </div>
         {hasPermission("Groups", "create") && (
-        <div className="ml-auto mb-1">
-          <button className="uniform_btn" onClick={handleCreate}>
-            Create Group
-          </button>
-        </div>
+          <div className="ml-auto mb-1">
+            <button className="uniform_btn" onClick={handleCreate}>
+              Create Group
+            </button>
+          </div>
         )}
       </div>
       <div className="overflow-auto">
@@ -337,12 +347,6 @@ const GroupList = () => {
         <Modal isOpen={true} toggle={() => toggleModal()} fade={false}>
           <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
-              {/* Loader for update operation */}
-              {isLoading && (
-                <div className="absolute inset-0 flex items-center justify-center z-50 ">
-                  <Loading />
-                </div>
-              )}
               <ModalHeader toggle={() => toggleModal()}>Edit Group</ModalHeader>
               <ModalBody>
                 <form onSubmit={handleUpdateSubmit}>
@@ -364,15 +368,15 @@ const GroupList = () => {
                     />
                   </div>
                   {hasPermission("Groups", "update") && (
-                  <div className="mt-4 w-full flex justify-end">
-                    <button
-                      type="submit"
-                      className="uniform_btn"
-                      disabled={isLoading} // Disable button while loading
-                    >
-                      Save
-                    </button>
-                  </div>
+                    <div className="mt-4 w-full flex justify-end">
+                      <button
+                        type="submit"
+                        className="uniform_btn"
+                        disabled={isLoading} // Disable button while loading
+                      >
+                        Save
+                      </button>
+                    </div>
                   )}
                 </form>
               </ModalBody>

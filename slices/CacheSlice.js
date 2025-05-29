@@ -7,7 +7,17 @@ export const clearAPICache = createAsyncThunk(
   "clearapicache/clearAPICache",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await API.post(CLEARAPICACHE);
+      const response = await API.post(
+        "/api",
+        {
+          endpoint: `${CLEARAPICACHE}`,
+          method: "POST",
+          // payload: ,
+        },
+        {
+          responseType: "text", // <-- this is the key
+        }
+      );
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -20,7 +30,17 @@ export const clearBridgeCache = createAsyncThunk(
   "clearbridgecache/clearBridgeCache",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await API.post(CLEARBRIDGECACHE);
+      const response = await API.post(
+        "/api",
+        {
+          endpoint: `${CLEARBRIDGECACHE}`,
+          method: "POST",
+          // payload: ,
+        },
+        {
+          responseType: "text", // <-- this is the key
+        }
+      );
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -62,7 +82,8 @@ const ClearCache = createSlice({
       .addCase(clearAPICache.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload?.message || "API cache cleared successfully";
+        state.message =
+          action.payload?.message || "API cache cleared successfully";
       })
       .addCase(clearAPICache.rejected, (state, action) => {
         state.loading = false;
@@ -78,12 +99,14 @@ const ClearCache = createSlice({
       .addCase(clearBridgeCache.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.message = action.payload?.message || "Bridge cache cleared successfully";
+        state.message =
+          action.payload?.message || "Bridge cache cleared successfully";
       })
       .addCase(clearBridgeCache.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || "Failed to clear bridge cache";
+        state.message =
+          action.payload?.message || "Failed to clear bridge cache";
       });
   },
 });
