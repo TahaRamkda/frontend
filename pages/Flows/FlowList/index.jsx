@@ -180,6 +180,7 @@ const Flow = () => {
       if (result.isConfirmed) {
         try {
           dispatch(deleteFlow({ id })).then(() => {
+            refreshFlowList();
             showSweetAlert({
               title: "Deleted Successfully",
               text: "",
@@ -308,7 +309,7 @@ const Flow = () => {
 
   return (
     <App>
-      {floawLoading && loading && <Loader />}
+      {loading && <Loader />}
       {showupdateflowmodel ? (
         <UpdateFlow Flow_Id={flowId} onclose={handleClose} />
       ) : (
