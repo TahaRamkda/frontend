@@ -669,7 +669,6 @@ const TemplateCreationPage = () => {
 
   useEffect(() => {
     if (buttonType) {
-      
       const newButton = {
         type: buttonType,
         text: buttonText,
@@ -1454,7 +1453,6 @@ const TemplateCreationPage = () => {
                           width: "100%",
                           height: "100%",
                           objectFit: "contain",
-                          maxHeight: "200px",
                           borderRadius: "8px",
                           marginBottom: "5px",
                         }}
