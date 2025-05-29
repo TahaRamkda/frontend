@@ -11,6 +11,7 @@ import CreateRole from "../CreateRoles";
 import App from '@/components/Layout/App';
 import { usePermissions } from "@/context/PermissionsContext";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
+import { toast } from "react-toastify";
 const RoleList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -109,7 +110,10 @@ const RoleList = () => {
 
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
-    
+    if(!roleForm.roleName){
+      toast.error("Please enter Role Name");
+      return
+    }
     try {
       const requestBody = {
         roleId: roleForm.roleId || 0,

@@ -1,37 +1,53 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMedia, clearMediaState, deleteMedia } from "@/slices/MediaSlice";
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input } from "reactstrap";
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+} from "reactstrap";
 import SweetAlert from "sweetalert2";
-import App from '@/components/Layout/App';
+import App from "@/components/Layout/App";
 import UploadMedia from "../UploadMedia";
 import { Image } from "react-bootstrap";
 import { usePermissions } from "@/context/PermissionsContext";
 import Loader from "@/components/Layout/Loader";
 import { BASE_URL } from "@/utils/apiConstants";
 
-const MediaList = ({ isPopup, onSelectMedia, contentTypeStr,senderId }) => {
+const MediaList = ({ isPopup, onSelectMedia, contentTypeStr, senderId }) => {
   const dispatch = useDispatch();
   const { hasPermission } = usePermissions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMediaId, setSelectedMediaId] = useState(null);
   const [selectedsenderId, setselectedsenderId] = useState(0);
   const { medias, loading, error } = useSelector((state) => state.media);
-  const[Medialist,setmediaList] = useState([]);
+  const [Medialist, setmediaList] = useState([]);
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [filterText, setFilterText] = useState("");
   useEffect(() => {
-    setmediaList(null)
+    setmediaList(null);
     // Send contentTypeStr only when isPopup is true, otherwise send an empty string
-    const contentType = contentTypeStr  ;
-    dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType, FileName:filterText, senderId:selectedsenderId }));
+    const contentType = contentTypeStr;
+    dispatch(
+      fetchMedia({
+        ClientId: localStorage.getItem("clientId"),
+        contentTypeStr: contentType,
+        FileName: filterText,
+        senderId: selectedsenderId,
+      })
+    );
     return () => clearMediaState();
-  }, [dispatch, contentTypeStr,selectedMediaId,selectedsenderId]);
+  }, [dispatch, contentTypeStr, selectedMediaId, selectedsenderId]);
 
-  const handleSearchString  = (e) => {
+  const handleSearchString = (e) => {
     const searchValue = e;
     setFilterText(searchValue);
-
 
     // Clear the previous timeout if any
     if (searchTimeout) {
@@ -40,23 +56,28 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr,senderId }) => {
 
     // Set a new timeout for 0.5 seconds
     const timeout = setTimeout(() => {
-      dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentTypeStr,FileName:searchValue,senderId:selectedsenderId }));
+      dispatch(
+        fetchMedia({
+          ClientId: localStorage.getItem("clientId"),
+          contentTypeStr: contentTypeStr,
+          FileName: searchValue,
+          senderId: selectedsenderId,
+        })
+      );
     }, 500);
 
     setSearchTimeout(timeout); // Save the timeout reference
   };
   const toggleModal = () => {
-  setmediaList([]);
+    setmediaList([]);
     setIsModalOpen(false);
   };
-useEffect(() =>{
-  
-if(medias && medias.length > 0){
-  
-  setmediaList(medias)
-}
-},[medias])
- 
+  useEffect(() => {
+    if (medias && medias.length > 0) {
+      setmediaList(medias);
+    }
+  }, [medias]);
+
   const handleDeleteClick = (mediaId) => {
     SweetAlert.fire({
       title: "Are you sure?",
@@ -75,27 +96,32 @@ if(medias && medias.length > 0){
       }
     });
   };
-  const handlesenderchange = async(value) => {
-    
+  const handlesenderchange = async (value) => {
     setselectedsenderId(value);
     //await refreshList();
-  }
+  };
 
-   const refreshList = async () => {
-    
-    const contentType =   contentTypeStr ;
-    await dispatch(fetchMedia({ ClientId: localStorage.getItem("clientId"), contentTypeStr: contentType ,FileName:filterText,senderId:selectedsenderId}));
+  const refreshList = async () => {
+    const contentType = contentTypeStr;
+    await dispatch(
+      fetchMedia({
+        ClientId: localStorage.getItem("clientId"),
+        contentTypeStr: contentType,
+        FileName: filterText,
+        senderId: selectedsenderId,
+      })
+    );
   };
 
   const handleSelectImage = (mediaId, mediaPath, mimeType) => {
-
     setSelectedMediaId(mediaId);
     onSelectMedia(mediaId, mediaPath, mimeType);
     toggleModal();
   };
 
   const renderMediaPreview = (mediaPath, mimeType) => {
-    const previewStyle = "w-full popup_img_container overflow-hidden flex justify-center items-center rounded-lg bg-gray-100";
+    const previewStyle =
+      "w-full popup_img_container overflow-hidden flex justify-center items-center rounded-lg bg-gray-100";
 
     if (mimeType.startsWith("image/")) {
       return (
@@ -110,7 +136,10 @@ if(medias && medias.length > 0){
     } else if (mimeType.startsWith("video/")) {
       return (
         <div className={previewStyle}>
-          <video controls className=" w-full popup_img_container overflow-hidden flex justify-center items-center rounded-lg bg-gray-100">
+          <video
+            controls
+            className=" w-full popup_img_container overflow-hidden flex justify-center items-center rounded-lg bg-gray-100"
+          >
             <source src={`${BASE_URL}${mediaPath}`} type={mimeType} />
             Your browser does not support the video tag.
           </video>
@@ -134,23 +163,29 @@ if(medias && medias.length > 0){
         />
       );
     } else if (
-      mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+      mimeType ===
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
       mimeType === "application/vnd.ms-excel"
     ) {
       return (
         <iframe
-          src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(`${BASE_URL}${mediaPath}`)}`}
+          src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(
+            `${BASE_URL}${mediaPath}`
+          )}`}
           title="Excel Preview"
           className={`${previewStyle} h-full border-none`}
         />
       );
     } else if (
-      mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      mimeType ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
       mimeType === "application/msword"
     ) {
       return (
         <iframe
-          src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(`${BASE_URL}${mediaPath}`)}`}
+          src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(
+            `${BASE_URL}${mediaPath}`
+          )}`}
           title="Word Document Preview"
           className={`${previewStyle} h-full border-none`}
         />
@@ -160,46 +195,55 @@ if(medias && medias.length > 0){
     }
   };
 
- 
   return (
     <>
-          <App>
-             <div className={"w-full mt-4"}>
-      <div>
-        {loading && <div className="text-center text-blue-500"><Loader /></div>}
-        {error && <div className="text-center text-red-500">{error}</div>}
-        <UploadMedia
-          onUploadSuccess={refreshList}
-          onsenderChange={handlesenderchange}
-          ispopUp={isPopup}
-          handleSearch={handleSearchString}
-          fetchMedia={refreshList}
-          filterText={filterText}
-        />
-        <div className="row">
-          {Medialist?.map((media) => (
-            <div key={media.mediaId} className="flex flex-col items-center space-y-2 col-lg-2 col-md-3 mb-5">
-              <div className="w-full overflow-hidden text-center">
-                {renderMediaPreview(media.mediaPath, media.contentType || "application/pdf")}
-                <span className="text-xs font-bold font-sans truncate  block">
-  {media.fileName}
-</span>
+      <App>
+        <div className={"w-full mt-4"}>
+          <div>
+            {loading && (
+              <div className="text-center text-blue-500">
+                <Loader />
               </div>
-              {hasPermission("Media", "delete") && (
-                <button
-                  className="Btn-Regular-3"
-                  onClick={() => handleDeleteClick(media.id)}
-                ><i className="fa fa-trash mr-2"></i>
-                  Delete
-                </button>
-              )}
+            )}
+            {error && <div className="text-center text-red-500">{error}</div>}
+            <UploadMedia
+              onUploadSuccess={refreshList}
+              onsenderChange={handlesenderchange}
+              ispopUp={isPopup}
+              handleSearch={handleSearchString}
+              fetchMedia={refreshList}
+              filterText={filterText}
+            />
+            <div className="row">
+              {Medialist?.map((media) => (
+                <div
+                  key={media.mediaId}
+                  className="flex flex-col items-center space-y-2 col-lg-2 col-md-3 mb-5"
+                >
+                  <div className="w-full overflow-hidden text-center">
+                    {renderMediaPreview(
+                      media.mediaPath,
+                      media.contentType || "application/pdf"
+                    )}
+                    <span className="text-xs font-bold font-sans truncate  block">
+                      {media.fileName}
+                    </span>
+                  </div>
+                  {hasPermission("Media", "delete") && (
+                    <button
+                      className="Btn-Regular-3"
+                      onClick={() => handleDeleteClick(media.id)}
+                    >
+                      <i className="fa fa-trash mr-2"></i>
+                      Delete
+                    </button>
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
-      </div>
-    </div>
-          </App>
-       
+      </App>
     </>
   );
 };

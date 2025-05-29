@@ -29,7 +29,8 @@ const RoleForm = ({ isVisible, onClose, onsuccess }) => {
 
     try {
       const response = await dispatch(createRole(requestBody)).unwrap();
-      if (response) {
+      debugger
+      if (response.status === 1) {
         clearRoleCreateState();
         onClose()
         onsuccess()

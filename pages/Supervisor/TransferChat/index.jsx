@@ -33,11 +33,11 @@ const TransferChat = ({ ChatId, onClose, isVisible ,SenderId ,oldAgentId , refre
         oldAgentId:oldAgentId,
         clientId
       }));
-  
-      if (response.payload) {
+      debugger
+      if (response.payload.status === 1) {
         Sweetalert.fire({
           icon: "success",
-          title: "Success",
+          title: response.payload.message || "Success",
           text: "Chat transferred successfully!",
         });
         onClose(); // Close the modal

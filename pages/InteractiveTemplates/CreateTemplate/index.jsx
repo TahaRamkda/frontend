@@ -268,7 +268,7 @@ const InteractiveTemplateCreation = () => {
       const response = await dispatch(
         createInteractiveTemplates(requestBody)
       ).unwrap();
-      
+      debugger
       if (response.status === 200) {
         
         clearInteractiveTemplateCreateState();
@@ -1083,7 +1083,8 @@ const InteractiveTemplateCreation = () => {
               <div
                 className="border "
                 style={{
-                  // maxHeight: "700px",
+                 maxHeight: "600px",
+                  overflowY: "scroll",
                   minHeight: "400px",
                   backgroundColor: "#e0e0e0",
                   backgroundImage: `url(${bagroundimage.src})`, // Update this path

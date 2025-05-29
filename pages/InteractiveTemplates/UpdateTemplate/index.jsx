@@ -161,7 +161,7 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
   // Handle interactivetemplatedetail updates once it has been fetched (Second useEffect)
   useEffect(() => {
     if (Loading || !interactivetemplatedetail) return; // Wait for the data to be loaded
-
+    debugger
     const updatedMessagePreview = {
       body: interactivetemplatedetail.bodyText,
       footer: interactivetemplatedetail.footerText,
@@ -275,7 +275,7 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
       senderNameId: selectedSenderId,
       name: values.templateName,
       language: language,
-      usedByAgent: interactivetemplatedetail.usedByAgent,
+      usedByAgent: values.usedByAgent,
       mediaId: selectedMediaId,
       status: "1",
       defaultTypeId: interactivetemplatedetail.defaultTypeId,
@@ -1246,8 +1246,9 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
             <div
               className="border "
               style={{
-                // maxHeight: "700px",
-                minHeight: "400px",
+                 maxHeight: "600px",
+                  overflowY: "scroll",
+                  minHeight: "400px",
                 backgroundColor: "#e0e0e0",
                 backgroundImage: `url(${bagroundimage.src})`, // Update this path
                 backgroundSize: "cover",

@@ -187,7 +187,7 @@ const FlowPreview = ({
               {flowData.flowScreens.length}
             </CardTitle>
 
-            <div className="relative mx-auto my-8 w-[18vw] max-w-[360px] h-[640px] bg-white border-8 border-gray-800 rounded-3xl shadow-xl overflow-hidden">
+            <div className="relative mx-auto my-8 min-w-[300px] max-w-[300px] max-h-[550px] min-h-[550px] bg-white border-8 border-gray-800 rounded-3xl shadow-xl overflow-hidden">
               {/* Header */}
               <div className="flex items-center justify-start p-2 bg-white border-b border-gray-200">
                 <div className="flex items-center space-x-2">
@@ -214,7 +214,7 @@ const FlowPreview = ({
               </div>
               {contentShow ? (
                 <>
-                  <div className="h-[62vh] border-t border-black rounded-t-2xl flex flex-col">
+                  <div className="max-h-[480px] min-h-[480px] border-t border-black rounded-t-2xl flex flex-col">
                     {/* Header */}
                     <div className="flex items-center justify-start p-3 bg-white border-b rounded-t-2xl border-gray-200">
                       <div className="flex items-center space-x-5">
@@ -475,7 +475,7 @@ const FlowPreview = ({
                 </>
               ) : (
                 <>
-                  <div className="w-full h-[calc(100%-104px)] overflow-y-auto p-4 bg-[#ece4dd]">
+                  <div className="w-full min-h-[100vh] overflow-y-auto p-4 bg-[#ece4dd]">
                     <div className="flex justify-end mb-4 relative">
                       <div className="bg-green-200 text-gray-800 p-2 rounded-lg w-32 relative">
                         <div className="w-23 h-1 bg-gray-400 mb-1"></div>
