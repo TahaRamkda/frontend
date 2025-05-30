@@ -15,6 +15,7 @@ export const fetchLogin = createAsyncThunk(
   "auth/login",
   async ({ email, password }, { rejectWithValue }) => {
     try {
+      debugger
       const response = await API.post("/api", {
         endpoint: `${LOGINAPI}?Username=${email}&Password=${password}`,
         method: "GET",
