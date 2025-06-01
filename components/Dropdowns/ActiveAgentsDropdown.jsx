@@ -8,7 +8,7 @@ const ActiveAgentDropdown = ({ name, value, onChange,SenderId }) => {
  
 
    const dispatch = useDispatch();
-  const { activeAgentDrop, loading, error } = useSelector((state) => state.agents);
+  const { activeAgentDropList, loading, error } = useSelector((state) => state.agents);
 
    useEffect(() => {
     dispatch(fetchActiveAgentsDrop({ clientId: localStorage.getItem("clientId"), senderId:SenderId  }));
@@ -19,7 +19,7 @@ const ActiveAgentDropdown = ({ name, value, onChange,SenderId }) => {
   if (error) return <p className="text-danger">Error loading: {error}</p>;
 
   // Format sendername data for react-select
-  const options = activeAgentDrop?.map((item) => ({
+  const options = activeAgentDropList?.map((item) => ({
     value: item.id,
     label: item.name,
   })) || [];

@@ -34,6 +34,20 @@ export function Header({ toggleSidebar }) {
   const [settingModal, SetSettingModal] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { loading, error, success, message } = useSelector((state) => state.clearCache);
+  const [logoSrc, setLogoSrc] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const logoMap = JSON.parse(process.env.NEXT_PUBLIC_LOGO_MAP || '{}');
+  const companyNameMap = JSON.parse(process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || '{}');
+
+   useEffect(() => {
+    debugger
+    if (typeof window !== "undefined") {
+      const hostname = window.location.hostname;
+      setLogoSrc(logoMap[hostname]);
+      setCompanyName(companyNameMap[hostname]);
+    }
+  }, [ logoMap, companyNameMap ]);
+
   useEffect(() => {
     const checkFullScreen = () => {
       setIsFullScreen(
@@ -205,7 +219,7 @@ export function Header({ toggleSidebar }) {
           <Link href="/Dashboard" className="flex items-center space-x-3">
             <Image
               className="h-8 w-auto"
-              src="\images\logo\Loader.svg"
+              src={logoSrc}
               alt="Logo"
             />
           </Link>

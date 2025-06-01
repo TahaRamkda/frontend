@@ -30,7 +30,7 @@ const MediaPopUp = ({
   const fileInputRef = useRef(null);
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [filterText, setFilterText] = useState("");
-  const { medias, loading, error } = useSelector((state) => state.media);
+  const { mediaList, loading, error } = useSelector((state) => state.media);
   const [ispopUp, setispopUp] = useState(true);
   useEffect(() => {
     setmediaList([null]);
@@ -67,10 +67,10 @@ const MediaPopUp = ({
   };
   useEffect(() => {
     
-    if (medias.length > 0) {
-      setmediaList(medias);
+    if (mediaList.length > 0) {
+      setmediaList(mediaList);
     }
-  }, [medias]);
+  }, [mediaList]);
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);

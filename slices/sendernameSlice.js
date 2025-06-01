@@ -23,7 +23,7 @@ export const fetchSendernames = createAsyncThunk(
 
       if (response?.status === 200) {
         return {
-          sendernames: response?.data,
+          sendernameList: response?.data,
           totalRecords:
             response.data.length > 0
               ? response.data[0].totalRecords
@@ -130,7 +130,7 @@ export const deleteSendername = createAsyncThunk(
 const sendernameSlice = createSlice({
   name: "sendername",
   initialState: {
-    sendernames: [],
+    sendernameList: [],
     sendernameDrop: [],
     sendername: null,
     loading: false,
@@ -152,7 +152,7 @@ const sendernameSlice = createSlice({
       state.currentPage = action.payload;
     },
     clearSendernameState: (state) => {
-      state.sendernames = [];
+      state.sendernameList = [];
       state.sendername = null;
       state.loading = false;
       state.error = null;
@@ -195,7 +195,7 @@ const sendernameSlice = createSlice({
       })
       .addCase(fetchSendernames.fulfilled, (state, action) => {
         state.loading = false;
-        state.sendernames = action.payload?.sendernames;
+        state.sendernameList = action.payload?.sendernameList;
         state.totalRecords = action.payload?.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || "";

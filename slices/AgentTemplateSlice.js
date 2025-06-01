@@ -18,7 +18,7 @@ export const fetchAgentTemplate = createAsyncThunk(
               });
       if (response?.status === 200) {
         return {
-          agenttemplates: response.data,
+          agentTemplatesList: response.data,
         };
       } else {
         throw new Error('Failed to fetch details');
@@ -55,7 +55,7 @@ export const fetchAgentTemplatesDetail = createAsyncThunk(
 const agenttemplateSlice = createSlice({
   name: 'agenttemplate',
   initialState: {
-    agenttemplates: [],
+    agentTemplatesList: [],
     agenttemplatedetail: null,
     loading: false,
     error: null,
@@ -65,7 +65,7 @@ const agenttemplateSlice = createSlice({
   reducers: {
   
     cleaAgentTemplateState: (state) => {
-      state.agenttemplates = [];
+      state.agentTemplatesList = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -86,7 +86,7 @@ const agenttemplateSlice = createSlice({
       })
       .addCase(fetchAgentTemplate.fulfilled, (state, action) => {
         state.loading = false;
-        state.agenttemplates = action.payload.agenttemplates;
+        state.agentTemplatesList = action.payload.agentTemplatesList;
         state.message = action.payload.message || '';
       })
       .addCase(fetchAgentTemplate.rejected, (state, action) => {

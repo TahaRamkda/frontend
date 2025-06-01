@@ -46,7 +46,7 @@ const MessageSummary = () => {
   const [sortDirection, setSortDirection] = useState("asc"); // Sort direction: 'asc' or 'desc'
   const [sortedData, setSortedData] = useState([]); // Local state for sorted data
   const [ShowEditModal, setShowEditModal] = useState(false);
-  const { agentsMonitor, loading, error, currentPage, pageSize, totalRecords } =
+  const { agentsMonitorList, loading, error, currentPage, pageSize, totalRecords } =
     useSelector((state) => state.Supervisor);
   const [clientId, setClientId] = useState(null);
   const [refreshpage, setrefreshpage] = useState(false); // Track if page is refreshing
@@ -147,8 +147,8 @@ const MessageSummary = () => {
   ];
 
   useEffect(() => {
-    setSortedData(agentsMonitor);
-  }, [agentsMonitor]);
+    setSortedData(agentsMonitorList);
+  }, [agentsMonitorList]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -210,10 +210,10 @@ const MessageSummary = () => {
   }, [pageSize, senderid, currentPage, srcStr, dispatch]);
 
   useEffect(() => {
-    if (!loading && agentsMonitor) {
+    if (!loading && agentsMonitorList) {
       setAgentLoading(false);
     }
-  }, [loading, agentsMonitor]);
+  }, [loading, agentsMonitorList]);
 
 
   const handleSort = (column, direction) => {
@@ -280,10 +280,10 @@ const MessageSummary = () => {
       clearTimeout(searchTimeout);
     }
   
-    // Only filter if agentsMonitor is available
-    const filteredData = agentsMonitor && agentsMonitor.length > 0
+    // Only filter if agentsMonitorList is available
+    const filteredData = agentsMonitorList && agentsMonitorList.length > 0
       ? searchValue
-        ? agentsMonitor.filter((row) =>
+        ? agentsMonitorList.filter((row) =>
             ChatsReportColumn.some((column) => {
               // Skip columns without a selector (e.g., Action)
               if (!column.selector) return false;
@@ -292,8 +292,8 @@ const MessageSummary = () => {
               return value != null && value.toString().toLowerCase().includes(searchValue);
             })
           )
-        : [...agentsMonitor] // Reset to full copy of agentsMonitor if search is empty
-      : []; // Return empty array if agentsMonitor is not yet loaded
+        : [...agentsMonitorList] // Reset to full copy of agentsMonitorList if search is empty
+      : []; // Return empty array if agentsMonitorList is not yet loaded
   
     setSortedData(filteredData);
   

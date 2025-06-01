@@ -20,7 +20,7 @@ import SenderNameForm from "../CreateSenderName";
 const SendernameList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { sendernames, loading, error } = useSelector((state) => state.sendernames);
+  const { sendernameList, loading, error } = useSelector((state) => state.sendernames);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sendernameForm, setSendernameForm] = useState({});
   const [filterText, setFilterText] = useState("");
@@ -194,9 +194,9 @@ const SendernameList = () => {
       </div>
 
       <div className="overflow-auto">
-        {sendernames?.length > 0 && sendernames !== null ? (
+        {sendernameList?.length > 0 && sendernameList !== null ? (
  <DataTable
-          data={sendernames}
+          data={sendernameList}
           columns={sendernameColumns}
           highlightOnHover
           striped

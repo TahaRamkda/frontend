@@ -20,7 +20,7 @@ import { selector } from "recoil";
 const SendernameList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { sendernames, loading, error } = useSelector(
+  const { sendernameList, loading, error } = useSelector(
     (state) => state.sendernames
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -118,7 +118,7 @@ const SendernameList = () => {
     };
   }, [dispatch]);
 
-  const filteredSendernames = sendernames.filter((sender) =>
+  const filteredSendernames = sendernameList.filter((sender) =>
     sender.senderName?.toLowerCase().includes(filterText.toLowerCase())
   );
   const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options

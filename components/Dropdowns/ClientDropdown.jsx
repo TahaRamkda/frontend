@@ -11,7 +11,7 @@ import { FormGroup, Label, Input, FormText } from 'reactstrap';
 const ClientDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
-  const { clientsDrop, loading, error } = useSelector((state) => state.clients);
+  const { clientsDropList, loading, error } = useSelector((state) => state.clients);
   const [searchString, setsearchString] = useState("");
 
   useEffect(() => {
@@ -19,7 +19,7 @@ const ClientDropdown = ({ name, value, onChange }) => {
 
   }, [dispatch]);
 
-  const options = clientsDrop?.map((item) => ({
+  const options = clientsDropList?.map((item) => ({
     value: item.id,
     label: item.name,
   })) || [];

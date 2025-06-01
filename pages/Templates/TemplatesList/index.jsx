@@ -54,7 +54,7 @@ const TemplateList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { hasPermission } = usePermissions();
-  const { templates, loading, error, pageSize, totalRecords, currentPage } =
+  const { templateList, loading, error, pageSize, totalRecords, currentPage } =
     useSelector((state) => state.templates);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [TemplateLoading, setTemplateLoading] = useState(false);
@@ -298,7 +298,7 @@ const TemplateList = () => {
     };
   }, [dispatch, SenderId, transactonType, catagoryId, languageId]);
 
-  const filteredSendernames = templates.filter((template) =>
+  const filteredSendernames = templateList.filter((template) =>
     template.templateName.toLowerCase().includes(filterText.toLowerCase())
   );
 

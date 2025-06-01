@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 const RoleList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { roles, loading, error } = useSelector((state) => state.roles);
+  const { roleList, loading, error } = useSelector((state) => state.roles);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { hasPermission } = usePermissions();
   const [roleForm, setRoleForm] = useState({});
@@ -151,7 +151,7 @@ const RoleList = () => {
     };
   }, [dispatch]);
 
-  const filteredRoles = roles.filter((role) =>
+  const filteredRoles = roleList.filter((role) =>
     role.roleName.toLowerCase().includes(filterText.toLowerCase())
   );
 

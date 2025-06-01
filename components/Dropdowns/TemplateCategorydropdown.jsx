@@ -7,14 +7,14 @@ import { fetchtemplatecategory } from '@/slices/MasterSlice';
 const TemplateCategoryDropdown = ({ name, value, onChange, disabled }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
-  const { templatecategory, loading, error } = useSelector((state) => state.Master);
+  const { templateCategoryList, loading, error } = useSelector((state) => state.Master);
 
   useEffect(() => {
     dispatch(fetchtemplatecategory({}));
 
   }, [dispatch]);
 
- const options = templatecategory?.map((item) => ({
+ const options = templateCategoryList?.map((item) => ({
     value: item.id,
     label: item.name,
   })) || [];

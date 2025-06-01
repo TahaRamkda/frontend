@@ -28,7 +28,7 @@ export const fetchContact = createAsyncThunk(
          
       if (response?.status === 200) {
         return {
-          contacts: response.data,
+          contactList: response.data,
           totalRecords:
             response.data.length > 0
               ? response.data[0].totalRecords
@@ -152,8 +152,8 @@ export const bulkUpload = createAsyncThunk(
 const contactSlice = createSlice({
   name: "contact",
   initialState: {
-    contacts: [],
-    contact: null,
+    contactList: [],
+    contactDetails: null,
     loading: false,
     error: null,
     success: false,
@@ -173,8 +173,8 @@ const contactSlice = createSlice({
       state.currentPage = action.payload;
     },
     clearContactState: (state) => {
-      state.contacts = [];
-      state.contact = null;
+      state.contactList = [];
+      state.contactDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -184,7 +184,7 @@ const contactSlice = createSlice({
       state.totalRecords = 0;
     },
     clearContactDetailState: (state) => {
-      state.contact = null;
+      state.contactDetails = null;
       state.loading = false;
       state.error = null;
     },
@@ -194,7 +194,7 @@ const contactSlice = createSlice({
       state.success = false;
     },
     clearContactDeleteState: (state) => {
-      state.contact = null;
+      state.contactDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -214,7 +214,7 @@ const contactSlice = createSlice({
       })
       .addCase(fetchContact.fulfilled, (state, action) => {
         state.loading = false;
-        state.contacts = action.payload.contacts;
+        state.contactList = action.payload.contactList;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || "";
@@ -233,7 +233,7 @@ const contactSlice = createSlice({
       .addCase(fetchContactById.fulfilled, (state, action) => {
         
         state.loading = false;
-        state.contact = action.payload;
+        state.contactDetails = action.payload;
         //state.message = action.payload?.message || "";
       })
       .addCase(fetchContactById.rejected, (state, action) => {

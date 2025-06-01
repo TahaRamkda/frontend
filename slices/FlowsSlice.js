@@ -169,7 +169,7 @@ const FlowSlice = createSlice({
   initialState: {
     flowsList: [],
     flowDropdownData: [],
-    flow: null,
+    flowDetails: null,
     loading: false,
     error: null,
     success: false,
@@ -190,7 +190,7 @@ const FlowSlice = createSlice({
     },
     clearFlowListState: (state) => {
       state.flowsList = [];
-      state.flow = null;
+      state.flowDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -212,7 +212,7 @@ const FlowSlice = createSlice({
     },
 
     clearFlowDetailState: (state) => {
-      state.flow = null;
+      state.flowDetails = null;
       state.loading = false;
       state.error = null;
     },
@@ -222,7 +222,7 @@ const FlowSlice = createSlice({
       state.success = false;
     },
     clearFlowDeleteState: (state) => {
-      state.flow = null;
+      state.flowDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -270,7 +270,7 @@ const FlowSlice = createSlice({
       })
       .addCase(fetchFlowDetailsById.fulfilled, (state, action) => {
         state.loading = false;
-        state.flow = action.payload;
+        state.flowDetails = action.payload;
         state.message = action.payload?.message || "";
       })
       .addCase(fetchFlowDetailsById.rejected, (state, action) => {

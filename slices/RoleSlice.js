@@ -17,7 +17,7 @@ export const  fetchRoles = createAsyncThunk(
                 });
         if (response?.status === 200 ) { 
           return {
-             roles: response.data,
+             roleList: response.data,
             totalRecords: response.data.length > 0 ? response.data[0].totalRecords  : 0,
           };
         } else {
@@ -134,7 +134,7 @@ export const  fetchRolesDrop = createAsyncThunk(
   const roleSlice = createSlice({
     name: 'role',
     initialState: {
-      roles: [],
+      roleList: [],
       roleDrop:[],
       role: null,
       loading: false,
@@ -156,7 +156,7 @@ export const  fetchRolesDrop = createAsyncThunk(
         state.currentPage = action.payload;
       },
       clearRoleState: (state) => {
-        state.roles = [];
+        state.roleList = [];
         state.role = null;
         state.loading = false;
         state.error = null;
@@ -200,7 +200,7 @@ export const  fetchRolesDrop = createAsyncThunk(
         })
         .addCase( fetchRoles.fulfilled, (state, action) => {
           state.loading = false;
-          state. roles = action.payload.roles;
+          state. roleList = action.payload.roleList;
           state.totalRecords = action.payload.totalRecords;
           state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
           state.message = action.payload.message || '';

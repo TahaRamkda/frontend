@@ -15,7 +15,7 @@ export const fetchChatsMonitor = createAsyncThunk(
       });
         if (response?.status === 200 ) {
           return {
-          chatsMonitor: response.data,
+          chatsMonitorList: response.data,
           totalRecords: response.data.length > 0 ? response.data[0].totalRecords : 0,
           };
         } else {
@@ -39,7 +39,7 @@ export const fetchAgentsMonitor = createAsyncThunk(
       });
         if (response?.status === 200 ) {
           return {
-          agentsMonitor: response.data,
+          agentsMonitorList: response.data,
           totalRecords: response.data.length > 0 ? response.data[0].totalRecords : 0,
           };
         } else {
@@ -92,8 +92,8 @@ export const fetchAgentsMonitor = createAsyncThunk(
 const Supervisor = createSlice({
     name: 'messagereport',
     initialState: {
-      chatsMonitor:[],
-      agentsMonitor: [],
+      chatsMonitorList:[],
+      agentsMonitorList: [],
       loading: false,
       error: null,
       success: false,
@@ -112,7 +112,7 @@ const Supervisor = createSlice({
         state.currentPage = action.payload;
       },
         clearChatsMonitorState: (state) => {
-            state.chatsMonitor = [];
+            state.chatsMonitorList = [];
             state.loading = false;
             state.error = null;
             state.success = false;
@@ -123,7 +123,7 @@ const Supervisor = createSlice({
           }, 
        
         clearAgentMonitorState: (state) => {
-            state.agentsMonitor = [];
+            state.agentsMonitorList = [];
             state.loading = false;
             state.error = null;
             state.success = false;
@@ -147,7 +147,7 @@ const Supervisor = createSlice({
               })
               .addCase(fetchAgentsMonitor.fulfilled, (state, action) => {
                 state.loading = false;
-                state.agentsMonitor = action.payload.agentsMonitor;
+                state.agentsMonitorList = action.payload.agentsMonitorList;
                 state.totalRecords = action.payload.totalRecords;
                 state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
                 state.message = action.payload.message || '';
@@ -164,7 +164,7 @@ const Supervisor = createSlice({
               })
               .addCase(fetchChatsMonitor.fulfilled, (state, action) => {
                 state.loading = false;
-                state.chatsMonitor = action.payload.chatsMonitor;
+                state.chatsMonitorList = action.payload.chatsMonitorList;
                 state.totalRecords = action.payload.totalRecords;
                 state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
                 state.message = action.payload.message || '';

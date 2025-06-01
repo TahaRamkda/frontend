@@ -3,14 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import Select from 'react-select';
 import {
     fetchInteractiveTemplateDrop,
-  clearInteractiveTemplateListState,
+  clearinteractiveTemplateDropdownDataState,
 } from "@/slices/TemplateSlice";
 import { FormGroup, Label, Input, FormText } from "reactstrap";
 import Loader from "../Layout/Loader";
 const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
-  const { interactiveTemplateList, loading, error } = useSelector(
+  const { interactiveTemplateDropdownData, loading, error } = useSelector(
     (state) => state.templates
   );
   const [transactionType, settransactionType] = useState(0);
@@ -30,7 +30,7 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
 
   }, [dispatch, transactionType]);
 
-  const options = interactiveTemplateList?.map((item) => ({
+  const options = interactiveTemplateDropdownData?.map((item) => ({
     value: item.id,
     label: item.name,
   })) || [];

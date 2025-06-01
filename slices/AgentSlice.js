@@ -33,7 +33,7 @@ export const fetchAgents = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          agents: response.data,
+          agentList: response.data,
           totalRecords:
             response.data.length > 0 ? response.data[0].totalRecords : 0,
         };
@@ -59,7 +59,7 @@ export const fetchActiveAgentsDrop = createAsyncThunk(
 
       if (response.status === 200) {
         return {
-          activeAgentDrop: response.data,
+          activeAgentDropList: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -87,7 +87,7 @@ export const fetchAgentsDrop = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          agentDrop: response.data,
+          agentDropList: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -111,7 +111,7 @@ export const fetchMasterData = createAsyncThunk(
 
       if (response?.status === 200) {
         return {
-          masterData: response.data,
+          masterDataList: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -193,7 +193,7 @@ export const fetchAgentStats = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          AgentStats: response.data,
+          agentStatsList: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -312,14 +312,14 @@ export const deleteAgent = createAsyncThunk(
 const agentSlice = createSlice({
   name: "agent",
   initialState: {
-    agents: [],
-    agentDrop: [],
+    agentList: [],
+    agentDropList: [],
     agentsTiming: [],
-    AgentStats: [],
-    masterData: [],
+    agentStatsList: [],
+    masterDataList: [],
     agentTagsDropdown: [],
-    activeAgentDrop: [],
-    agent: null,
+    activeAgentDropList: [],
+    agentDetails: null,
     loading: false,
     error: null,
     success: false,
@@ -339,8 +339,8 @@ const agentSlice = createSlice({
       state.currentPage = action.payload;
     },
     cleaAgentState: (state) => {
-      state.agents = [];
-      state.agent = null;
+      state.agentList = [];
+      state.agentDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -350,25 +350,25 @@ const agentSlice = createSlice({
       state.totalRecords = 0;
     },
     cleaAgenDroptState: (state) => {
-      state.agentDrop = [];
+      state.agentDropList = [];
       state.loading = false;
       state.error = null;
       state.success = false;
     },
     cleaActiveAgenDroptState: (state) => {
-      state.activeAgentDrop = [];
+      state.activeAgentDropList = [];
       state.loading = false;
       state.error = null;
       state.success = false;
     },
     clearAgentTagsDroptState: (state) => {
-      state.activeAgentDrop = [];
+      state.activeAgentDropList = [];
       state.loading = false;
       state.error = null;
       state.success = false;
     },
     clearMasterDataState: (state) => {
-      state.masterData = [];
+      state.masterDataList = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -381,7 +381,7 @@ const agentSlice = createSlice({
     },
 
     cleaAgentStats: (state) => {
-      state.AgentStats = [];
+      state.agentStatsList = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -392,7 +392,7 @@ const agentSlice = createSlice({
       state.success = false;
     },
     clearAgentDetailState: (state) => {
-      state.agent = null;
+      state.agentDetails = null;
       state.loading = false;
       state.error = null;
     },
@@ -403,7 +403,7 @@ const agentSlice = createSlice({
     },
 
     clearAgentDeleteState: (state) => {
-      state.agent = null;
+      state.agentDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -423,7 +423,7 @@ const agentSlice = createSlice({
       })
       .addCase(fetchAgents.fulfilled, (state, action) => {
         state.loading = false;
-        state.agents = action.payload.agents;
+        state.agentList = action.payload.agentList;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
       })
@@ -441,7 +441,7 @@ const agentSlice = createSlice({
       })
       .addCase(fetchAgentsDrop.fulfilled, (state, action) => {
         state.loading = false;
-        state.agentDrop = action.payload.agentDrop;
+        state.agentDropList = action.payload.agentDropList;
         state.message = action.payload.message || "";
       })
       .addCase(fetchAgentsDrop.rejected, (state, action) => {
@@ -457,7 +457,7 @@ const agentSlice = createSlice({
       })
       .addCase(fetchActiveAgentsDrop.fulfilled, (state, action) => {
         state.loading = false;
-        state.activeAgentDrop = action.payload.activeAgentDrop;
+        state.activeAgentDropList = action.payload.activeAgentDropList;
         state.message = action.payload.message || "";
       })
       .addCase(fetchActiveAgentsDrop.rejected, (state, action) => {
@@ -472,7 +472,7 @@ const agentSlice = createSlice({
       })
       .addCase(fetchMasterData.fulfilled, (state, action) => {
         state.loading = false;
-        state.masterData = action.payload.masterData;
+        state.masterDataList = action.payload.masterDataList;
         state.message = action.payload.message || "";
       })
       .addCase(fetchMasterData.rejected, (state, action) => {
@@ -521,7 +521,7 @@ const agentSlice = createSlice({
       })
       .addCase(fetchAgentStats.fulfilled, (state, action) => {
         state.loading = false;
-        state.AgentStats = action.payload.AgentStats; // Correct payload key
+        state.agentStatsList = action.payload.agentStatsList; // Correct payload key
         state.message = action.payload.message || "";
       })
       .addCase(fetchAgentStats.rejected, (state, action) => {
@@ -554,7 +554,7 @@ const agentSlice = createSlice({
       })
       .addCase(fetchAgentsById.fulfilled, (state, action) => {
         state.loading = false;
-        state.agent = action.payload;
+        state.agentDetails = action.payload;
         state.message = action.payload?.message || "";
       })
       .addCase(fetchAgentsById.rejected, (state, action) => {

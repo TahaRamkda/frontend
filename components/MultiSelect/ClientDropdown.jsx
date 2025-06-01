@@ -7,7 +7,7 @@ import { fetchClientsDrop, clearClientDropState } from "@/slices/clientSlice";
 
 export const ClientsDropdown = ({ onChange }) => {
   const dispatch = useDispatch();
-  const { clientsDrop, loading, error } = useSelector((state) => state.clients);
+  const { clientsDropList, loading, error } = useSelector((state) => state.clients);
   const [selectedClientId, setSelectedClientId] = useState([]);
   const [searchString, setsearchString] = useState("")
   const selectRef = useRef(null);
@@ -25,7 +25,7 @@ export const ClientsDropdown = ({ onChange }) => {
     }
   }, [selectedClientId, onChange]);
 
-  const Options = clientsDrop?.map(client => ({
+  const Options = clientsDropList?.map(client => ({
     value: client.id,
     label: client.name
   })) || [];

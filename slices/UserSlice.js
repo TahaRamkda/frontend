@@ -18,7 +18,7 @@ export const fetchUser = createAsyncThunk(
                 
         if (response?.status === 200) {
           return {
-            users: response.data,
+            userList: response.data,
             totalRecords: response.data.length > 0 ? response.data[0].totalRecords  : 0,
           };
         } else {
@@ -109,8 +109,8 @@ export const deleteUser = createAsyncThunk(
 const UserSlice = createSlice({
   name: 'user',
   initialState: {
-    users: [],
-    user: null,
+    userList: [],
+    userDetails: null,
     loading: false,
     error: null,
     success: false,
@@ -130,8 +130,8 @@ const UserSlice = createSlice({
       state.currentPage = action.payload;
     },
     clearUserState: (state) => {
-      state.users = [];
-      state.user = null;
+      state.userList = [];
+      state.userDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -142,7 +142,7 @@ const UserSlice = createSlice({
     },
     
     clearUserDetailState: (state) => {
-      state.user = null;
+      state.userDetails = null;
       state.loading = false;
       state.error = null;
     },
@@ -152,7 +152,7 @@ const UserSlice = createSlice({
       state.success = false;
     },
     clearUserDeleteState: (state) => {
-      state.user = null;
+      state.userDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -167,7 +167,7 @@ const UserSlice = createSlice({
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.users = action.payload.users;
+        state.userList = action.payload.userList;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || '';
@@ -185,7 +185,7 @@ const UserSlice = createSlice({
       })
       .addCase(fetchUserById.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        state.userDetails = action.payload;
         state.message = action.payload?.message || '';
       })
       .addCase(fetchUserById.rejected, (state, action) => {

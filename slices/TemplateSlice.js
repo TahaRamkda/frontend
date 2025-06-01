@@ -9,10 +9,6 @@ import {
   DELETETEMPLATE,
   SYNCTEMPLATE,
   TEMPLATEDROPDOWN,
-  CREATEINTERACTIVETEMPLATE,
-  INRERACTIVETEMPLATELIST,
-  INTERACTIVETEMPLATEDETAILS,
-  UPDATEINTERACTIVETEMPLATE,
 } from "@/utils/apiConstants";
 
 // Thunks
@@ -33,7 +29,7 @@ export const fetchTemplates = createAsyncThunk(
       
       if (response?.status === 200 ) {
         return {
-          templates: response.data,
+          templateList: response.data,
           totalRecords:
             response.data.length > 0 ? response.data[0].totalRecords  : 0,
         };
@@ -62,7 +58,7 @@ export const fetchTemplatesDrop = createAsyncThunk(
       });
       if (response?.status === 200 ) {
         return {
-          templateDrop: response.data,
+          templateDropdownData: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -174,11 +170,9 @@ export const deleteTemplates = createAsyncThunk(
 const templateSlice = createSlice({
   name: "template",
   initialState: {
-    templates: [],
-    templateDrop: [],
-    interactiveTemplateList:[],
-    template: null,
-    interactivetemplatedetail: null,
+    templateList: [],
+    templateDropdownData: [],
+    templateDetails: null,
     loading: false,
     error: null,
     success: false,
@@ -197,8 +191,8 @@ const templateSlice = createSlice({
       state.currentPage = action.payload;
     },
     clearTemplateState: (state) => {
-      state.templates = [];
-      state.template = null;
+      state.templateList = [];
+      state.templateDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -208,30 +202,20 @@ const templateSlice = createSlice({
       state.totalRecords = 0;
     },
     clearTemplateDropState: (state) => {
-      state.templateDrop = [];
+      state.templateDropdownData = [];
       state.loading = false;
       state.error = null;
       state.success = false;
-      state.totalRecords = 0;
-    },
-    clearInteractiveTemplateListState: ()=>{
-      state.interactiveTemplateList = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
-      state.currentPage = 1;
-      state.totalPages = 1;
-      state.pageSize = 10;
       state.totalRecords = 0;
     },
     clearTemplateDetailState: (state) => {
       
-      state.template = null;
+      state.templateDetails = null;
       state.loading = false;
       state.error = null;
     },
     clearInteractiveTemplateDetailState: (state) => {
-      state.template = null;
+      state.templateDetails = null;
       state.loading = false;
       state.error = null;
     },
@@ -246,7 +230,7 @@ const templateSlice = createSlice({
       state.success = false;
     },
     clearTemplateDeleteState: (state) => {
-      state.template = null;
+      state.templateDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -261,7 +245,7 @@ const templateSlice = createSlice({
       })
       .addCase(fetchTemplates.fulfilled, (state, action) => {
         state.loading = false;
-        state.templates = action.payload.templates;
+        state.templateList = action.payload.templateList;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || "";
@@ -278,7 +262,7 @@ const templateSlice = createSlice({
       })
       .addCase(fetchTemplatesDrop.fulfilled, (state, action) => {
         state.loading = false;
-        state.templateDrop = action.payload.templateDrop;
+        state.templateDropdownData = action.payload.templateDropdownData;
         state.message = action.payload.message || "";
       })
       .addCase(fetchTemplatesDrop.rejected, (state, action) => {
@@ -296,7 +280,7 @@ const templateSlice = createSlice({
       .addCase(fetchTemplatesById.fulfilled, (state, action) => {
         
         state.loading = false;
-        state.template = action.payload;
+        state.templateDetails = action.payload;
         state.message = action.payload?.message || "";
       })
       .addCase(fetchTemplatesById.rejected, (state, action) => {

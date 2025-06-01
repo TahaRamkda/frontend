@@ -65,7 +65,7 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
   const dispatch = useDispatch();
   const [Loading, setLoading] = useState(true);
   const [actionbuttonvalues, setactionbuttonvalues] = useState([]);
-  const { template, loading, error } = useSelector((state) => state.templates);
+  const { templateDetails, loading, error } = useSelector((state) => state.templates);
   const stripHtml = (input) => input.replace(/<[^>]*>/g, "");
   const [messagePreview, setMessagePreview] = useState({
     header: "",
@@ -142,7 +142,7 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
         })
       )
         .then((response) => {
-          setTemplate(response); // Assuming response is the template object
+          setTemplate(response); // Assuming response is the templateDetails object
         })
         .catch((error) => {
           console.error("Error fetching template:", error);
@@ -156,11 +156,11 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
   }, [dispatch, Template_Id]);
 
   useEffect(() => {
-    if (Loading || !template) return;
+    if (Loading || !templateDetails) return;
     ;
     // Map buttons with conditional logic for phoneNumber or URL
     const customButtons =
-      template.buttons?.map((button) => ({
+      templateDetails.buttons?.map((button) => ({
         actionId: button.actionId,
         actionType: button.actionType,
         buttonValue: button.buttonValue,
@@ -175,13 +175,13 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
     ;
     // Construct the complete message preview locally
     const updatedMessagePreview = {
-      body: template.bodyText,
-      footer: template.footerText,
-      media: template.mediaPath,
+      body: templateDetails.bodyText,
+      footer: templateDetails.footerText,
+      media: templateDetails.mediaPath,
       buttons: customButtons,
-      templatename: template.templateName,
+      templatename: templateDetails.templateName,
       visitWebsiteButtonCount: 0,
-      header: template.headerType === 1 ? template.headerText : undefined,
+      header: templateDetails.headerType === 1 ? templateDetails.headerText : undefined,
     };
 
     // Set messagePreview state only if it has changed and not already set
@@ -197,36 +197,36 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
     }
 
     // Update Header State
-    if (template.headerType === 1) {
-      setHeadContent(template.headerText);
-      setupdatedheadvercontent(template.headerText);
-      setheaderTextCount(template.headerParamCount);
+    if (templateDetails.headerType === 1) {
+      setHeadContent(templateDetails.headerText);
+      setupdatedheadvercontent(templateDetails.headerText);
+      setheaderTextCount(templateDetails.headerParamCount);
     } else {
-      setSelectedMediaId(template.mediaId);
-      setSelectedMediaPath(template.mediaPath);
-      setSelectedMediaType(template.contentType);
+      setSelectedMediaId(templateDetails.mediaId);
+      setSelectedMediaPath(templateDetails.mediaPath);
+      setSelectedMediaType(templateDetails.contentType);
     }
 
     // Update Body State
-    setupdatedvercontent(template.bodyText);
-    setbodyTextCount(template.bodyParamCount);
+    setupdatedvercontent(templateDetails.bodyText);
+    setbodyTextCount(templateDetails.bodyParamCount);
 
     // Update Other Template-Related States
-    setSelectedSenderId(template.senderId);
-    setTemplatetype(template.category);
-    setlanguage(template.language);
+    setSelectedSenderId(templateDetails.senderId);
+    setTemplatetype(templateDetails.category);
+    setlanguage(templateDetails.language);
     setTotalButtonCount(updatedMessagePreview.buttons.length);
-  }, [Loading, template]);
+  }, [Loading, templateDetails]);
 
   useEffect(() => {
-    if (!MessagePreviewupdated || Loading || !template.parameters) return;
+    if (!MessagePreviewupdated || Loading || !templateDetails.parameters) return;
 
     // Use a flag to ensure this runs only once
     let parametersProcessed = false;
     if (parametersProcessed) return;
 
     // Process Parameters
-    const filteredHeaderValues = template.parameters.filter(
+    const filteredHeaderValues = templateDetails.parameters.filter(
       (variable) => variable?.paramType === 1
     );
     if (filteredHeaderValues.length > 0) {
@@ -244,7 +244,7 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
       });
     }
 
-    const filteredBodyValues = template.parameters.filter(
+    const filteredBodyValues = templateDetails.parameters.filter(
       (variable) => variable?.paramType === 2
     );
     if (filteredBodyValues.length > 0) {
@@ -259,7 +259,7 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
       });
     }
 
-    const filteredURLValues = template.parameters.filter(
+    const filteredURLValues = templateDetails.parameters.filter(
       (variable) => variable?.paramType === 3
     );
     if (filteredURLValues.length > 0) {
@@ -1003,13 +1003,13 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
 
             <Formik
               initialValues={{
-                templateName: template?.templateName,
-                headerType: template?.headerType,
-                headerContent: template?.headerText,
+                templateName: templateDetails?.templateName,
+                headerType: templateDetails?.headerType,
+                headerContent: templateDetails?.headerText,
                 headerMedia: null,
                 body: "",
-                footer: template?.footerText,
-                senderId: template?.senderId,
+                footer: templateDetails?.footerText,
+                senderId: templateDetails?.senderId,
                 buttons: [],
                 variables: [],
                 headerVariable: [],

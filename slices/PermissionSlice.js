@@ -21,7 +21,7 @@ export const fetchPermissions = createAsyncThunk(
           
           if(response.data != null){
             return {
-              permissions: response?.data,
+              permissionList: response?.data,
               totalRecords: response?.data.length > 0 ? response?.data[0].totalRecords  : 0,
             };
           }
@@ -59,8 +59,8 @@ export const createPermission = createAsyncThunk(
 const permissionSlice = createSlice({
   name: 'permission',
   initialState: {
-    permissions: [],
-    permission: null,
+    permissionList: [],
+    permissionDetails: null,
     loading: false,
     error: null,
     success: false,
@@ -80,8 +80,8 @@ const permissionSlice = createSlice({
       state.currentPage = action.payload;
     },
     clearPermissionState: (state) => {
-      state.permissions = [];
-      state.permission = null;
+      state.permissionList = [];
+      state.permissionDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -108,7 +108,7 @@ const permissionSlice = createSlice({
       .addCase(fetchPermissions.fulfilled, (state, action) => {
         
         state.loading = false;
-        state.permissions = action.payload?.permissions;
+        state.permissionList = action.payload?.permissionList;
         state.totalRecords = action.payload?.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload?.message || '';

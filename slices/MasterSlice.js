@@ -15,7 +15,7 @@ export const fetchtemplatecategory = createAsyncThunk(
               });
       if (response?.status === 200) {
         return {
-          templatecategory: response.data
+          templateCategoryList: response.data
         };
       } else {
         throw new Error('Failed to fetch category');
@@ -55,7 +55,7 @@ export const fetchlanguage = createAsyncThunk(
 const MasterSlice = createSlice({
   name: 'master',
   initialState: {
-    templatecategory: [],
+    templateCategoryList: [],
     languages:[],
     loading: false,
     error: null,
@@ -64,7 +64,7 @@ const MasterSlice = createSlice({
   },
   reducers: {
     cleaTemplateCategoryState: (state) => {
-      state.templatecategory = [];
+      state.templateCategoryList = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -87,7 +87,7 @@ const MasterSlice = createSlice({
       })
       .addCase(fetchtemplatecategory.fulfilled, (state, action) => {
         state.loading = false;
-        state.templatecategory = action.payload.templatecategory;
+        state.templateCategoryList = action.payload.templateCategoryList;
         state.message = action.payload.message || '';
       })
       .addCase(fetchtemplatecategory.rejected, (state, action) => {

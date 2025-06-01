@@ -45,7 +45,7 @@ const AgentsList = () => {
   const dispatch = useDispatch();
   const { hasPermission } = usePermissions();
   const {
-    agents = [],
+    agentList = [],
     loading,
     error,
     pageSize,
@@ -53,7 +53,7 @@ const AgentsList = () => {
     currentPage,
   } = useSelector((state) => state.agents);
   const {
-    agent = [],
+    agentDetails = [],
     loading: DetailLoading,
     error: DetailError,
   } = useSelector((state) => state.agents);
@@ -133,16 +133,17 @@ const AgentsList = () => {
   ];
 
   useEffect(() => {
-    if (agent) {
-      setagentForm(agent);
+    if (agentDetails) {
+      debugger
+      setagentForm(agentDetails);
       setexistingSenderId(
-        agent.senderIds?.replace(/['"]+/g, "").split(",").map(Number)
+        agentDetails.senderIds?.replace(/['"]+/g, "").split(",").map(Number)
       );
       SetExistingChatReasonId(
-        agent.chatReasonIds?.replace(/['"]+/g, "").split(",").map(Number)
+        agentDetails.chatReasonIds?.replace(/['"]+/g, "").split(",").map(Number)
       );
     }
-  }, [dispatch, agent]);
+  }, [dispatch, agentDetails]);
   const handleDetailClick = async (agentId) => {
     try {
       // Dispatch the action to fetch agent by ID
@@ -381,12 +382,12 @@ const AgentsList = () => {
 
   const filteredAgents = useMemo(
     () =>
-      (agents || []).filter(
+      (agentList || []).filter(
         (agent) =>
           agent.agentFName.toLowerCase().includes(filterText.toLowerCase()) ||
           agent.agentLName.toLowerCase().includes(filterText.toLowerCase())
       ),
-    [agents, filterText]
+    [agentList, filterText]
   );
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10;

@@ -48,7 +48,7 @@ const MessageReport = () => {
   const [sendernameId, setsendernameId] = useState(null);
   const [isfilteropen, setisfilteropen] = useState(false);
   const [showfilterbutton, setshowfilterbutton] = useState(true);
-  const { messagereport, loading, error, currentPage, pageSize, totalRecords } =
+  const { messageReportList, loading, error, currentPage, pageSize, totalRecords } =
     useSelector((state) => state.reports);
   const [clientId, setClientId] = useState(null);
   const [reportloading, setreportloading] = useState(false);
@@ -211,10 +211,10 @@ const MessageReport = () => {
     setshowfilterbutton((prevState) => !prevState); // Toggle showfilterbutton
   };
   useEffect(() => {
-    if (!loading && messagereport) {
+    if (!loading && messageReportList) {
       setreportloading(false);
     }
-  }, [loading, messagereport]);
+  }, [loading, messageReportList]);
 
   const handlePageSizeChange = async (newSize) => {
     // Update page size and reset to the first page
@@ -345,7 +345,7 @@ const MessageReport = () => {
         </div>
       </div>
       <DataTable
-        data={messagereport}
+        data={messageReportList}
         columns={ReportColumns}
         highlightOnHover
         striped

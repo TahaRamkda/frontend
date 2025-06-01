@@ -19,7 +19,7 @@ export const fetchGroup = createAsyncThunk(
         
         if (response?.status === 200) {
           return {
-            groups: response.data,
+            groupList: response.data,
             totalRecords: response.data.length > 0 ? response.data[0].totalRecords  : 0,
           };
         } else {
@@ -44,7 +44,7 @@ export const fetchGroupsDrop = createAsyncThunk(
         
         if (response?.status === 200) {
           return {
-            groupDrop: response.data,
+            groupDropdownData: response.data,
           };
         } else {
           throw new Error('Failed to fetch details');
@@ -142,9 +142,9 @@ export const deleteGroup = createAsyncThunk(
 const GroupSlice = createSlice({
   name: 'group',
   initialState: {
-    groups: [],
-    groupDrop:[],
-    group: null,
+    groupList: [],
+    groupDropdownData:[],
+    groupDetails: null,
     loading: false,
     error: null,
     success: false,
@@ -164,8 +164,8 @@ const GroupSlice = createSlice({
       state.currentPage = action.payload;
     },
     clearGroupState: (state) => {
-      state.groups = [];
-      state.group = null;
+      state.groupList = [];
+      state.groupDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -175,14 +175,14 @@ const GroupSlice = createSlice({
       state.totalRecords = 0;
     },
     clearGroupDropState: (state) => {
-      state.groupDrop = [];
+      state.groupDropdownData = [];
       state.loading = false;
       state.error = null;
       state.success = false;
     },
     
     clearGroupDetailState: (state) => {
-      state.group = null;
+      state.groupDetails = null;
       state.loading = false;
       state.error = null;
     },
@@ -192,7 +192,7 @@ const GroupSlice = createSlice({
       state.success = false;
     },
     clearGroupDeleteState: (state) => {
-      state.group = null;
+      state.groupDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -208,7 +208,7 @@ const GroupSlice = createSlice({
       .addCase(fetchGroup.fulfilled, (state, action) => {
         
         state.loading = false;
-        state.groups = action.payload.groups;
+        state.groupList = action.payload.groupList;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         // state.message = action.payload.message || '';
@@ -225,7 +225,7 @@ const GroupSlice = createSlice({
       })
       .addCase(fetchGroupsDrop.fulfilled, (state, action) => {
         state.loading = false;
-        state.groupDrop = action.payload.groupDrop;
+        state.groupDropdownData = action.payload.groupDropdownData;
         state.message = action.payload.message || '';
       })
       .addCase(fetchGroupsDrop.rejected, (state, action) => {
@@ -234,7 +234,7 @@ const GroupSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
 
-      // Fetch group by ID
+      // Fetch groupDetails by ID
       .addCase(fetchGroupById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -242,7 +242,7 @@ const GroupSlice = createSlice({
       .addCase(fetchGroupById.fulfilled, (state, action) => {
         
         state.loading = false;
-        state.group = action.payload;
+        state.groupDetails = action.payload;
         //state.message = action.payload?.message || '';
       })
       .addCase(fetchGroupById.rejected, (state, action) => {

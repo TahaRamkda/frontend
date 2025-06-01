@@ -6,14 +6,14 @@ import { fetchGroupsDrop, clearGroupDropState } from "@/slices/Groupslice";
 
 const GroupDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
-  const { groupDrop, loading, error } = useSelector((state) => state.groups);
+  const { groupDropdownData, loading, error } = useSelector((state) => state.groups);
   const [SearchStr, setSearchStr] = useState("")
 
   useEffect(() => {
     dispatch(fetchGroupsDrop({ clientId: localStorage.getItem('clientId') }));
   }, [dispatch]);
 
- const options = groupDrop?.map((item) => ({
+ const options = groupDropdownData?.map((item) => ({
     value: item.id,
     label: item.name,
   })) || [];

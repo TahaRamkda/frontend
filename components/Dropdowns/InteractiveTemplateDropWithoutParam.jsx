@@ -8,7 +8,7 @@ import { FormGroup, Label, Input, FormText } from "reactstrap";
 const InteractiveTemplateDropdown = ({ name, value, onChange, TransactionType, SenderId }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
-  const { interactiveTemplateDropList, loading, error } = useSelector(
+  const { interactiveTempWithoutParamDropdownData, loading, error } = useSelector(
     (state) => state.interactiveTemplates
   );
   const [transactionType, settransactionType] = useState(0);
@@ -28,7 +28,7 @@ const InteractiveTemplateDropdown = ({ name, value, onChange, TransactionType, S
     );
   }, [dispatch, transactionType]);
 
-  const options = interactiveTemplateDropList?.map((item) => ({
+  const options = interactiveTempWithoutParamDropdownData?.map((item) => ({
     value: item.id,
     label: item.name,
   })) || [];

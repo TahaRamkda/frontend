@@ -8,7 +8,7 @@ import { fetchTemplatesDrop, clearTemplateDropState } from "@/slices/TemplateSli
 
 export const TemplatesDropdown = ({ onChange }) => {
   const dispatch = useDispatch();
-  const { templateDrop, loading, error } = useSelector((state) => state.templates);
+  const { templateDropdownData, loading, error } = useSelector((state) => state.templates);
   const [selectedTemplateId, setSelectedTemplateId] = useState([]);
   const [searchString, setsearchString] = useState("")
   const [transactionType, settransactionType] = useState(0)
@@ -31,7 +31,7 @@ export const TemplatesDropdown = ({ onChange }) => {
     const selectedIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
     setSelectedTemplateId(selectedIds);
   };
- const Options = templateDrop?.map(template => ({
+ const Options = templateDropdownData?.map(template => ({
     value: template.id,
     label: template.name
   })) || [];

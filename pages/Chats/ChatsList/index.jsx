@@ -85,14 +85,14 @@ const ChatPage = () => {
   const dispatch = useDispatch();
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { conversations } = useSelector(state => state.bridge);
+  const { conversationList } = useSelector(state => state.bridge);
   const {
     messages,
     currentPage,
     hasMore,
     loading,
   } = useSelector((state) => state.conversations);
-  const { AgentStats, loading: statsLoading } = useSelector(
+  const { agentStatsList, loading: statsLoading } = useSelector(
     (state) => state.agents
   );
   const agenttemplates = useSelector((state) => state.bridge.agenttemplates);
@@ -167,7 +167,7 @@ const ChatPage = () => {
     const [IsOneSignalLoaded, setIsOneSignalLoaded] = useState(false);
   const expiredConversations = useSelector(selectExpiredConversations);
   const message = useSelector((state) =>
-    state.bridge.conversations.find((c) => c.id === Activechat)?.messages || []
+    state.bridge.conversationList.find((c) => c.id === Activechat)?.messages || []
   );
   const containerRef = useRef(null);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -182,7 +182,7 @@ const ChatPage = () => {
   const [activeChatRef, setActiveChatRef] = useState(null);
   const agentChatRef = useRef([AgentConversation]);
 
-  // Filter conversations based on search and active tab
+  // Filter conversationList based on search and active tab
   const filteredConversations = AgentConversation?.filter(conversation => {
     const matchesSearch = conversation.phoneNumber.toLowerCase().includes(searchQuery.toLowerCase());
     
@@ -249,7 +249,7 @@ const ChatPage = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    // Handle expired conversations
+    // Handle expired conversationList
     expiredConversations.forEach((conversation) => {
     
     
@@ -448,7 +448,7 @@ const ChatPage = () => {
     }
   }, [templateDetails]);
 
-  //call the fetchConversationList action to fetch agents conversations
+  //call the fetchConversationList action to fetch agents conversationList
   useEffect(() => {
     const fetchData = async () => {
       const AgentId = localStorage.getItem("userId");
@@ -486,22 +486,22 @@ const ChatPage = () => {
     };
   }, [dispatch]);
 
-  // //triggered each time when conversations changes and assign to local state
+  // //triggered each time when conversationList changes and assign to local state
   useEffect(() => {
     
-    if (conversations) {
+    if (conversationList) {
       setContactsloading(false);
-      setAgentConversation(conversations);
+      setAgentConversation(conversationList);
     } else {
       setContactsloading(false);
     }
-  }, [conversations]);
+  }, [conversationList]);
 
  
  
   const handleFetchMessages = (conversationId) => {
     setActiveChat(conversationId);
-    const conversation = conversations.find((conv) => conv.id === conversationId);
+    const conversation = conversationList.find((conv) => conv.id === conversationId);
     if (conversation?.messages?.length > 0) {
       const messages = [...conversation.messages].reverse();
       setChatMessages(messages);
@@ -1221,7 +1221,7 @@ const ChatPage = () => {
                   <FaComments className="text-blue-600 text-xl" />
               </div>
                 <div className="absolute -top-1 -right-1 bg-blue-100 rounded-full px-2 py-0.5 text-xs font-medium text-blue-600">
-                  {AgentStats?.assignedChat ?? "0"}
+                  {agentStatsList?.assignedChat ?? "0"}
                 </div>
               </div>
               <div className="hidden group-hover:block">
@@ -1236,7 +1236,7 @@ const ChatPage = () => {
                   <FaCheckCircle className="text-green-600 text-xl" />
               </div>
                 <div className="absolute -top-1 -right-1 bg-green-100 rounded-full px-2 py-0.5 text-xs font-medium text-green-600">
-                  {AgentStats?.activeChat ?? "0"}
+                  {agentStatsList?.activeChat ?? "0"}
                 </div>
               </div>
               <div className="hidden group-hover:block">
@@ -1251,7 +1251,7 @@ const ChatPage = () => {
                   <FaBan className="text-red-600 text-xl" />
               </div>
                 <div className="absolute -top-1 -right-1 bg-red-100 rounded-full px-2 py-0.5 text-xs font-medium text-red-600">
-                  {AgentStats?.abandonChat ?? "0"}
+                  {agentStatsList?.abandonChat ?? "0"}
                 </div>
               </div>
               <div className="hidden group-hover:block">
@@ -1266,7 +1266,7 @@ const ChatPage = () => {
                   <FaTimesCircle className="text-gray-600 text-xl" />
               </div>
                 <div className="absolute -top-1 -right-1 bg-gray-100 rounded-full px-2 py-0.5 text-xs font-medium text-gray-600">
-                  {AgentStats?.closedChat ?? "0"}
+                  {agentStatsList?.closedChat ?? "0"}
                 </div>
               </div>
               <div className="hidden group-hover:block">
@@ -1281,7 +1281,7 @@ const ChatPage = () => {
                   <AiOutlineHourglass className="text-yellow-600 text-xl" />
               </div>
                 <div className="absolute -top-1 -right-1 bg-yellow-100 rounded-full px-2 py-0.5 text-xs font-medium text-yellow-600">
-                  {AgentStats?.expiredChat ?? "0"}
+                  {agentStatsList?.expiredChat ?? "0"}
                 </div>
               </div>
               <div className="hidden group-hover:block">
@@ -1296,7 +1296,7 @@ const ChatPage = () => {
                   <FaClock className="text-purple-600 text-xl" />
               </div>
                 <div className="absolute -top-1 -right-1 bg-purple-100 rounded-full px-2 py-0.5 text-xs font-medium text-purple-600">
-                  {AgentStats?.forceClosedChat ?? "0"}
+                  {agentStatsList?.forceClosedChat ?? "0"}
                 </div>
               </div>
               <div className="hidden group-hover:block">

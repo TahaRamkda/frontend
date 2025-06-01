@@ -75,7 +75,7 @@ const CampaignsList = () => {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [activateCampaignId, setactivateCampaignId] = useState(null);
   const [CampaignForm, setCampaignForm] = useState({});
-  const { campaigns, loading, error, pageSize, totalRecords } = useSelector(
+  const { campaignList, loading, error, pageSize, totalRecords } = useSelector(
     (state) => state.campaigns
   );
   const [clientId, setClientId] = useState(null);
@@ -93,10 +93,10 @@ const CampaignsList = () => {
   };
 
   useEffect(() => {
-    if (!loading && campaigns) {
+    if (!loading && campaignList) {
       setcampaignloading(false);
     }
-  }, [loading, campaigns]);
+  }, [loading, campaignList]);
 
   useEffect(() => {
     const checkAndFetch = async () => {
@@ -502,7 +502,7 @@ const CampaignsList = () => {
 
           <div className="overflow-x-auto w-full">
             <DataTable
-              data={campaigns}
+              data={campaignList}
               columns={campaignColumns}
               highlightOnHover
               striped

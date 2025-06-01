@@ -7,7 +7,7 @@ import { fetchAgentsDrop } from '@/slices/AgentSlice';
 const AgentDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
-  const { agentDrop, loading, error } = useSelector((state) => state.agents);
+  const { agentDropList, loading, error } = useSelector((state) => state.agents);
   const [searchString, setsearchString] = useState("")
   const [SenderId, setSenderId] = useState(0)
 
@@ -16,7 +16,7 @@ const AgentDropdown = ({ name, value, onChange }) => {
 
   }, [dispatch]);
 
- const options = agentDrop?.map((item) => ({
+ const options = agentDropList?.map((item) => ({
     value: item.id,
     label: item.name,
   })) || [];

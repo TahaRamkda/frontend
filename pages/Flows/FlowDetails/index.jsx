@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import Loader from "@/components/Layout/Loader";
 import { BASE_URL } from "@/utils/apiConstants";
@@ -518,7 +518,9 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
   //const flowId = useRecoilValue(FlowState);
   const router = useRouter();
   const [SendernamesData, setSendernamesData] = useState([]);
-
+   const { flowDetails, totalRecords, loading, error } = useSelector(
+    (state) => state.flows
+  )
   const [flowData, setFlowData] = useState({
     senderId: "0",
     flowName: "",
@@ -538,6 +540,12 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
   const [currentQuestion, setCurrentQuestion] = useState(null);
 
   useEffect(() => {
+    if (flowDetails) {
+      setFlowData(flowDetails);
+    }
+  }, [flowDetails]);
+
+  useEffect(() => {
     const fetchFlowData = async () => {
       if (Flow_Id) {
         setIsLoading(true);
@@ -548,7 +556,6 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
 
           if (response) {
             setSenderId(response.senderId);
-            setFlowData(JSON.parse(JSON.stringify(response))); // Deep copy
           } else {
             showSweetAlert({
               title: "Error",

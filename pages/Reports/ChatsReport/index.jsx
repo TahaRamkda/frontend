@@ -43,9 +43,9 @@ const ChatsReport = () => {
   const [senderid, setsenderid] = useState(0);
   const [DetailModal, setDetailModal] = useState(false);
   const {
-    ConversationReport,
+    conversationReportList,
     chatReportStats,
-    chatLogs,
+    chatLogList,
     loading,
     error,
     currentPage,
@@ -256,10 +256,10 @@ const ChatsReport = () => {
   };
 
   useEffect(() => {
-    if (!loading && ConversationReport) {
+    if (!loading && conversationReportList) {
       setChatLoading(false);
     }
-  }, [loading, ConversationReport]);
+  }, [loading, conversationReportList]);
 
   const handleSenderChange = (e) => {
     const senderId = e.target.value;
@@ -594,7 +594,7 @@ const ChatsReport = () => {
       </div>
 
       <DataTable
-        data={ConversationReport}
+        data={conversationReportList}
         columns={ChatsReportColumn}
         highlightOnHover
         striped
@@ -629,7 +629,7 @@ const ChatsReport = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {chatLogs?.map((message, index) => (
+                    {chatLogList?.map((message, index) => (
                       <tr key={index} className="border-b hover:bg-gray-50">
                         <td className="py-2 px-4">
                           {message.agentFullName || "-"}

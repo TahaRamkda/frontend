@@ -34,17 +34,22 @@ export const DELETEGROUP = "/Groups/deletegroup";
 export const GROUPDROPDOWN = "/Groups/getgroups";
 //Template endpoints
 export const TEMPLATELIST = "/Templates/gettemplateslist";
-export const INRERACTIVETEMPLATELIST = "/InteractiveTemplates/getinteractivetemplateslist";
 export const TEMPLATEDETAILS = "/Templates/gettemplatedetails";
-export const INTERACTIVETEMPLATEDETAILS = "/InteractiveTemplates/getinteractivetemplatedetail";
 export const CREATETEMPLATE = "/Templates/addTemplate";
-export const CREATEINTERACTIVETEMPLATE = "/InteractiveTemplates/addinteractivetemplate";
 export const SYNCTEMPLATE = "/Templates/templatesync";
 export const UPDATETEMPLATE = "/Templates/updatetemplate";
-export const UPDATEINTERACTIVETEMPLATE = "/InteractiveTemplates/updateinteractivetemplate";
 export const DELETETEMPLATE = "/Templates/deletetemplate";
 export const TEMPLATEDROPDOWN = "/Templates/gettemplates";
+
+
+// interractive Templates
+export const INRERACTIVETEMPLATELIST = "/InteractiveTemplates/getinteractivetemplateslist";
+export const INTERACTIVETEMPLATEDETAILS = "/InteractiveTemplates/getinteractivetemplatedetail";
+export const CREATEINTERACTIVETEMPLATE = "/InteractiveTemplates/addinteractivetemplate";
+export const UPDATEINTERACTIVETEMPLATE = "/InteractiveTemplates/updateinteractivetemplate";
 export const INTERACTIVETEMPLATEDROPWITHOUTPARAM = "/InteractiveTemplates/getinteractivetemplatewithoutparams";
+export const INTERACTIVETEMPLATEDROPDOWN = "/InteractiveTemplates/getagentinteractivetemplates";
+
 //Role endpoints
 export const ROLELIST = "/Role/getRolelist";
 export const ROLEDETAILS = "/Role/getRolebyid";
@@ -125,7 +130,7 @@ export const TEMPLATELANGUAGE = "/Templates/getlanguages";
 
 
 
-//interactive templates
+//Agent interactive templates
 export const AGENTINTERACTIVETEMPLATLIST =  "/InteractiveTemplates/getagentinteractivetemplates";
 export const AGENTINTERACTIVETEMPLATLISTDETAIL = "/InteractiveTemplates/getinteractivetemplatedetail";
 export const SENDAGENTINTERACTIVETEMPLATLIS = "/Message/sendagentinteractivemessage";
