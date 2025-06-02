@@ -581,7 +581,7 @@ const ChatsReport = () => {
   return (
     <App>
       <div className="flex items-center">
-        {ChatLoading && <Loader />}
+        {(ChatLoading || loading) && <Loader />}
 
         <div className="">
           <h4 className="font-bold ">Chats Report</h4>

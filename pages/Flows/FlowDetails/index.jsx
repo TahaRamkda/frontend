@@ -718,24 +718,33 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
   };
 
   const updateScreenField = (field, value) => {
-    const updatedScreens = [...flowData.flowScreens];
-    updatedScreens[currentEditScreenIndex][field] = value;
-    setFlowData({ ...flowData, flowScreens: updatedScreens });
-  };
-
+  const updatedScreens = flowData.flowScreens.map((screen, index) => {
+    if (index === currentEditScreenIndex) {
+      return { ...screen, [field]: value }; // Create a new object with updated field
+    }
+    return screen; // Return unchanged screen for other indices
+  });
+  setFlowData({ ...flowData, flowScreens: updatedScreens });
+};
   const updateQuestionField = (field, value) => {
     if (!currentQuestion) return;
     const updatedQuestion = { ...currentQuestion, [field]: value };
     setCurrentQuestion(updatedQuestion);
   };
 
-  const updateOptionField = (optionIndex, field, value) => {
-    if (!currentQuestion) return;
-    const updatedQuestion = { ...currentQuestion };
-    updatedQuestion.flowOptions[optionIndex][field] = value;
-    setCurrentQuestion(updatedQuestion);
+const updateOptionField = (optionIndex, field, value) => {
+  if (!currentQuestion) return;
+  const updatedQuestion = {
+    ...currentQuestion,
+    flowOptions: currentQuestion.flowOptions.map((option, idx) => {
+      if (idx === optionIndex) {
+        return { ...option, [field]: value };
+      }
+      return option;
+    }),
   };
-
+  setCurrentQuestion(updatedQuestion);
+};
   const handleSenderChange = async (e) => {
     const selectedSenderId = e.target.value;
     setFlowData({ ...flowData, senderId: selectedSenderId });
@@ -750,18 +759,22 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
     setFlowData({ ...flowData, publishToFB: !flowData.publishToFB });
   };
 
-  const handleSaveQuestion = () => {
-    if (selectedQuestionIndex !== null && currentQuestion) {
-      const updatedScreens = [...flowData.flowScreens];
-      updatedScreens[currentEditScreenIndex].flowChildren[
-        selectedQuestionIndex
-      ] = { ...currentQuestion };
-      setFlowData({ ...flowData, flowScreens: updatedScreens });
-      setModalOpen(false);
-      setCurrentQuestion(null);
-      setSelectedQuestionIndex(null);
-    }
-  };
+const handleSaveQuestion = () => {
+  if (selectedQuestionIndex !== null && currentQuestion) {
+    const updatedScreens = flowData.flowScreens.map((screen, index) => {
+      if (index === currentEditScreenIndex) {
+        const updatedFlowChildren = [...screen.flowChildren];
+        updatedFlowChildren[selectedQuestionIndex] = { ...currentQuestion };
+        return { ...screen, flowChildren: updatedFlowChildren };
+      }
+      return screen;
+    });
+    setFlowData({ ...flowData, flowScreens: updatedScreens });
+    setModalOpen(false);
+    setCurrentQuestion(null);
+    setSelectedQuestionIndex(null);
+  }
+};
   const handleCancel = () => {
     setIsLoading(true);
     onclose();

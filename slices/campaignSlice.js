@@ -349,7 +349,7 @@ export const fetchCampaignDetail = createAsyncThunk(
           state.message = action.payload.message || 'Created Successfully';
         })
         .addCase( fetchCampaignDetail.rejected, (state, action) => {
-          state.campaigndetail ="";
+          state.campaigndetail = "";
           state.loading = false;
           state.error = action.payload || action.error.message;
           state.message = action.payload?.message || action.error.message;

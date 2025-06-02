@@ -91,7 +91,7 @@ const GroupList = () => {
   const handleDetailClick = async (groupId) => {
     try {
       const response = await dispatch(fetchGroupById({ groupId })).unwrap();
-      debugger;
+      ;
       if (response) {
         setIsModalOpen(true);
       } else {
@@ -224,7 +224,7 @@ const GroupList = () => {
       };
 
       const response = await dispatch(updateGroup(requestBody)).unwrap();
-      debugger;
+      ;
       if (response.status === 1) {
         showSweetAlert({
           title: "Updated Successfully",

@@ -41,7 +41,7 @@ const GroupForm = ({ onClose, isVisible, onsuccess }) => {
     try {
       
       const response = await dispatch(createGroup(requestBody)).unwrap();
-      debugger
+      
       if (response.status === 1) {
         showSweetAlert({
           title: "Created Successfully",

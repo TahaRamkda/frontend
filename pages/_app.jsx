@@ -18,7 +18,7 @@ import SweetAlert from "sweetalert2";
 import { sidebarItems } from "@/utils/sidebarItems";
 import { PermissionsProvider } from "@/context/PermissionsContext";
 import Loader from "@/components/Layout/Loader";
-
+import FaviconManager from "@/components/FavIconManager";
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
   const [permissions, setPermissions] = useState([]);
@@ -137,6 +137,7 @@ function MyApp({ Component, pageProps }) {
         <Provider store={store}>
           {/* Wrap the app with PermissionsProvider */}
           <PermissionsProvider permissions={permissions}>
+            <FaviconManager />
             <Component {...pageProps} />
             <ToastContainer autoClose={3000} />
             <ErrorComponent />

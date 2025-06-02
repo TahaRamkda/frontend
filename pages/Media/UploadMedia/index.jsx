@@ -44,7 +44,7 @@ const UploadMediaPage = ({
 
     try {
       const response = await dispatch(uploadMedia(formData)).unwrap();
-      debugger
+      
       if (response.status === 1) {
         dispatch(clearMediaUploadState());
         setSubmitting(false);

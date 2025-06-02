@@ -56,6 +56,7 @@ export const fetchTemplatesDrop = createAsyncThunk(
         method: "GET",
         //payload: {},
       });
+      
       if (response?.status === 200 ) {
         return {
           templateDropdownData: response.data,

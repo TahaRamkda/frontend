@@ -45,7 +45,7 @@ export const uploadMedia = createAsyncThunk(
                 "Content-Type": "multipart/form-data",
               },
             });
-            debugger
+            
       return response.data;
     } catch (error) {
       const handledError = handleError(error);

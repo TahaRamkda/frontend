@@ -48,7 +48,7 @@ const ContactForm = ({ isVisible, onClose, onsuccess }) => {
 
     try {
       const response = await dispatch(createContact(requestBody)).unwrap();
-      debugger
+      
       if (response.status === 1) {
         dispatch(clearContactCreateState()); // Fixed typo
         onsuccess();

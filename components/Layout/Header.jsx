@@ -40,7 +40,7 @@ export function Header({ toggleSidebar }) {
   const companyNameMap = JSON.parse(process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || '{}');
 
    useEffect(() => {
-    debugger
+    
     if (typeof window !== "undefined") {
       const hostname = window.location.hostname;
       setLogoSrc(logoMap[hostname]);

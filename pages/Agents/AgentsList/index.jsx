@@ -134,7 +134,7 @@ const AgentsList = () => {
 
   useEffect(() => {
     if (agentDetails) {
-      debugger
+      
       setagentForm(agentDetails);
       setexistingSenderId(
         agentDetails.senderIds?.replace(/['"]+/g, "").split(",").map(Number)
@@ -369,7 +369,7 @@ const AgentsList = () => {
   useEffect(() => {
     dispatch(
       fetchAgents({
-        senderId: 0,
+        senderId: SenderId,
         searchStr: "",
         pageNo: 1,
         pageSize,
@@ -430,9 +430,9 @@ const AgentsList = () => {
             Create Agent
           </button>
         )}
-          <button className="uniform_btn" onClick={HandelClickModal}>
+          {/* <button className="uniform_btn" onClick={HandelClickModal}>
             Bulk Shift Upload
-          </button>
+          </button> */}
         </div>
       </div>
 

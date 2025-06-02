@@ -56,7 +56,7 @@ const RoleList = () => {
   const handleDetailClick = async (roleId) => {
     try {
       const response = await dispatch(fetchRoleById({roleId:roleId})).unwrap();
-      debugger
+      
       if (response) {
         
         setRoleForm(response);
@@ -123,7 +123,7 @@ const RoleList = () => {
       };
 
       const response = await dispatch(updateRole(requestBody)).unwrap();
-      debugger
+      
       if (response.status === 1) {
         showSweetAlert({
           title: "Updated Successfully",

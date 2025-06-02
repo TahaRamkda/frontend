@@ -9,13 +9,13 @@ export const fetchSetting = createAsyncThunk(
     'appSettings/fetchSetting',
     async ({ pageNo, pageSize, SearchStr, senderId, clientId}, { rejectWithValue }) => {
       try {
-        debugger
+        
         const response = await API.post("/api", {
                   endpoint: `${SETTINGLIST}?PageNo=${pageNo}${ SearchStr? `&SearchStr=${SearchStr}`:''}&PageSize=${pageSize}&SenderId=${senderId}&ClientId=${clientId}`,
                   method: "GET",
                   //payload: {},
                 });
-                debugger
+                
         if (response?.status === 200) {
           return {
             settingList: response.data,

@@ -360,7 +360,7 @@ const MessageSummary = () => {
             clientId: clientId,
           })
         ).unwrap();
-        debugger
+        
         if (response.status === 1) {
           sweetalert.fire(
             "Success",

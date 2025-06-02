@@ -9,18 +9,19 @@ import {
 
 const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
   const dispatch = useDispatch();
-  const { templateDrop, loading, error } = useSelector(
+  const { templateDropdownData, loading, error } = useSelector(
     (state) => state.templates
   );
   const [transactionType, settransactionType] = useState(0);
-
+  
   useEffect(() => {
+    
     if (TransactionType) {
       settransactionType(TransactionType);
     }
   }, [TransactionType]);
   const options =
-    templateDrop?.map((item) => ({
+    templateDropdownData?.map((item) => ({
       value: item.id,
       label: item.name,
     })) || [];

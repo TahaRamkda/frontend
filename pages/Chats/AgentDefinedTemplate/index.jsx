@@ -136,7 +136,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
     try {
       setSending(true);
       const response = await dispatch(SendInteractivetemp(formData)).unwrap();
-      debugger
+      
       if (response.success === true) {
         dispatch(clearAgentTemplateSentState());
         if (onSend && typeof onSend === "function") {

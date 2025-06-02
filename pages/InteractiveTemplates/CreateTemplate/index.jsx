@@ -268,7 +268,7 @@ const InteractiveTemplateCreation = () => {
       const response = await dispatch(
         createInteractiveTemplates(requestBody)
       ).unwrap();
-      debugger
+      
       if (response.status === 200) {
         
         clearInteractiveTemplateCreateState();
