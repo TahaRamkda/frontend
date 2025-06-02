@@ -55,6 +55,7 @@ const UploadMediaPage = ({
         });
         fileInputRef.current.value = null; // Clear file input
         resetForm();
+        onUploadSuccess()
       } else {
         showSweetAlert({
           title: "Failed",

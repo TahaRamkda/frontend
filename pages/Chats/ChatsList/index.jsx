@@ -86,6 +86,10 @@ const ChatPage = () => {
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { conversationList } = useSelector(state => state.bridge);
+  const [logoSrc, setLogoSrc] = useState("");
+    const [companyName, setCompanyName] = useState("");
+    const logoMap = JSON.parse(process.env.NEXT_PUBLIC_LOGO_MAP || '{}');
+  const companyNameMap = JSON.parse(process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || '{}');
   const {
     messages,
     currentPage,
@@ -124,6 +128,15 @@ const ChatPage = () => {
   const [parameterValues, setParameterValues] = useState([]);
   const [templateView, setTemplateView] = useState("");
   const agenttemplatedetails = useSelector((state) => state.bridge.agenttemplatedetails);
+
+  useEffect(() => {
+      
+      if (typeof window !== "undefined") {
+        const hostname = window.location.hostname;
+        setLogoSrc(logoMap[hostname]);
+        setCompanyName(companyNameMap[hostname]);
+      }
+    }, [ logoMap, companyNameMap ]);
 
   // Add debounce effect for search
   useEffect(() => {
@@ -1087,7 +1100,7 @@ const ChatPage = () => {
                 <div className="absolute inset-0 blur-md bg-gray-100 rounded-full"></div>
                 <Image
                   className="relative drop-shadow-xl transform hover:scale-105 transition-transform duration-300 w-6 h-6 md:w-8 md:h-8"
-                  src="/images/logo/Loader.svg"
+                  src={logoSrc}
                   alt="Logo"
                   style={{ filter: 'brightness(1.05) drop-shadow(0 4px 6px rgba(0,0,0,0.1))' }}
                 />

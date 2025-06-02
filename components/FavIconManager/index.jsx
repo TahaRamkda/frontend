@@ -7,7 +7,7 @@ const FaviconManager = () => {
 
     let faviconMap = {};
     try {
-      faviconMap = JSON.parse(process.env.NEXT_PUBLIC_FAVICON_MAP || "{}");
+      faviconMap = JSON.parse(process.env.NEXT_PUBLIC_FAVICON_MAP );
     } catch (err) {
       console.error("Invalid favicon map in .env:", err);
     }

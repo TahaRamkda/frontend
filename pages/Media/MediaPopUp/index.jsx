@@ -67,7 +67,7 @@ const MediaPopUp = ({
   };
   useEffect(() => {
     
-    if (mediaList.length > 0) {
+    if (mediaList?.length > 0) {
       setmediaList(mediaList);
     }
   }, [mediaList]);
@@ -106,6 +106,7 @@ const MediaPopUp = ({
       fetchMedia({
         ClientId: localStorage.getItem("clientId"),
         senderId: senderId,
+        contentTypeStr: contentTypeStr,
         FileName:filterText,
       })
     );

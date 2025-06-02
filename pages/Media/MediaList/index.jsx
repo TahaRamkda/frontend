@@ -73,7 +73,7 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr, senderId }) => {
     setIsModalOpen(false);
   };
   useEffect(() => {
-    if (mediaList && mediaList.length > 0) {
+    if (mediaList ) {
       setmediaList(mediaList);
     }
   }, [mediaList]);
@@ -111,12 +111,6 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr, senderId }) => {
         senderId: selectedsenderId,
       })
     );
-  };
-
-  const handleSelectImage = (mediaId, mediaPath, mimeType) => {
-    setSelectedMediaId(mediaId);
-    onSelectMedia(mediaId, mediaPath, mimeType);
-    toggleModal();
   };
 
   const renderMediaPreview = (mediaPath, mimeType) => {
