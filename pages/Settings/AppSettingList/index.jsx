@@ -375,11 +375,11 @@ const AppSettings = () => {
               </ModalHeader>
               <ModalBody>
                 <form onSubmit={handleUpdateSubmit}>
-                  <div>
+                  <div className="pointer-events-none"> 
                     <label className="font-medium text-gray-700 text-sm">Sender Name</label>
-                    <SendernameDropdown name="senderId" value={settingForm.senderId} onChange={handleFormChange} />
+                    <SendernameDropdown name="senderId" value={settingForm.senderId} onChange={handleFormChange}  />
                   </div>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col pointer-events-none">
                     <label
                       htmlFor="keyName"
                       className="font-medium text-gray-700 text-sm"
