@@ -288,7 +288,7 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
 
   
   const addHeaderVariable = (variablename, allVariables) => {
-    debugger
+    
     setHeaderVariable((prev) => {
       // Reset variables array if this is the first call with allVariables
       if (allVariables) {
@@ -343,7 +343,7 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
   //submit function to update campaign main request body creates here
 const handleSubmit = async (values) => {
   setLoading(true);
-  debugger
+  
   const requestBody = {
     clientId: templateDetails.clientId,
     campaignId: SelectedCampaign,
@@ -375,7 +375,7 @@ const handleSubmit = async (values) => {
       })),
     ],
   };
-debugger
+
   try {
     const response = await dispatch(UpdateCampaign(requestBody)).unwrap();
     

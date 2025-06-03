@@ -5,12 +5,12 @@ import Loader from "../Layout/Loader";
 import {
   fetchTemplatesDrop,
   clearTemplateDropState,
-} from "@/slices/TemplateSlice";
+} from "@/slices/DropdownSlice";
 
 const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
   const dispatch = useDispatch();
   const { templateDropdownData, loading, error } = useSelector(
-    (state) => state.templates
+    (state) => state.dropdown
   );
   const [transactionType, settransactionType] = useState(0);
   

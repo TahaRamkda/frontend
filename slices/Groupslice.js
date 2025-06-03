@@ -31,30 +31,7 @@ export const fetchGroup = createAsyncThunk(
       }
     }
   );
-export const fetchGroupsDrop = createAsyncThunk(
-    'group/fetchGroupsDrop',
-    async ({clientId, SearchStr}, { rejectWithValue }) => {
-      try {
-        
-        const response = await API.post("/api", {
-          endpoint: `${GROUPDROPDOWN}`,
-          method: "GET",
-          //payload: {},
-        });
-        
-        if (response?.status === 200) {
-          return {
-            groupDropdownData: response.data,
-          };
-        } else {
-          throw new Error('Failed to fetch details');
-        }
-      } catch (err) {
-        const handledError = handleError(err);
-        return rejectWithValue(handledError);
-      }
-    }
-  );
+
 
 // Fetch Group by ID
 export const fetchGroupById = createAsyncThunk(
@@ -143,7 +120,6 @@ const GroupSlice = createSlice({
   name: 'group',
   initialState: {
     groupList: [],
-    groupDropdownData:[],
     groupDetails: null,
     loading: false,
     error: null,
@@ -173,12 +149,6 @@ const GroupSlice = createSlice({
       state.totalPages = 1;
       state.pageSize = 10;
       state.totalRecords = 0;
-    },
-    clearGroupDropState: (state) => {
-      state.groupDropdownData = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
     },
     
     clearGroupDetailState: (state) => {
@@ -214,21 +184,6 @@ const GroupSlice = createSlice({
         // state.message = action.payload.message || '';
       })
       .addCase(fetchGroup.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
-      // Group Dropdowns
-      .addCase(fetchGroupsDrop.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchGroupsDrop.fulfilled, (state, action) => {
-        state.loading = false;
-        state.groupDropdownData = action.payload.groupDropdownData;
-        state.message = action.payload.message || '';
-      })
-      .addCase(fetchGroupsDrop.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;

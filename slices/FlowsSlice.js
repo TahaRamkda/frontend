@@ -44,28 +44,7 @@ export const fetchFlowsListData = createAsyncThunk(
   }
 );
 
-export const fetchFlowDropdown = createAsyncThunk(
-  "flowdropdown/fetchFlowDropdown",
-  async ({ clientId, SearchStr }, { rejectWithValue }) => {
-    try {
-      const response = await API.post("/api", {
-        endpoint: `${FLOWDROPDOWN}`,
-        method: "GET",
-        //payload: {},
-      });
-      if (response?.status === 200) {
-        return {
-          flowDropdownData: response.data,
-        };
-      } else {
-        throw new Error("Failed to fetch details");
-      }
-    } catch (err) {
-      const handledError = handleError(err);
-      return rejectWithValue(handledError);
-    }
-  }
-);
+
 
 // Fetch Group by ID
 export const fetchFlowDetailsById = createAsyncThunk(
@@ -168,7 +147,6 @@ const FlowSlice = createSlice({
   name: "flow",
   initialState: {
     flowsList: [],
-    flowDropdownData: [],
     flowDetails: null,
     loading: false,
     error: null,
@@ -198,12 +176,6 @@ const FlowSlice = createSlice({
       state.totalPages = 1;
       state.pageSize = 10;
       state.totalRecords = 0;
-    },
-    clearFlowDropdownState: (state) => {
-      state.flowDropdownData = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
     },
     clearFlowPublishState: (state) => {
       state.loading = false;
@@ -243,21 +215,6 @@ const FlowSlice = createSlice({
         state.message = action.payload.message || "";
       })
       .addCase(fetchFlowsListData.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
-      // Group Dropdowns
-      .addCase(fetchFlowDropdown.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchFlowDropdown.fulfilled, (state, action) => {
-        state.loading = false;
-        state.flowDropdownData = action.payload.flowDropdownData;
-        state.message = action.payload.message || "";
-      })
-      .addCase(fetchFlowDropdown.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;

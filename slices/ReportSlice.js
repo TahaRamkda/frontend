@@ -307,9 +307,11 @@ export const fetchSurveyDropdown = createAsyncThunk(
   "survey /fetchSurveyDropdown",
   async ({  }, { rejectWithValue }) => {
     try {
-      const response = await API.get(
-        `${SURVEYDROPDOWN}`
-      );
+      const response = await API.post("/api", {
+        endpoint: `${SURVEYDROPDOWN}`,
+        method: "GET",
+        //payload: {},
+      });
       if (response?.status === 200 && response.data) {
         return {
           SurveyDropdown: response.data,

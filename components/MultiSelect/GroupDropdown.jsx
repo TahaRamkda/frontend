@@ -4,11 +4,11 @@ import { Input } from "reactstrap";
 import Loader from "../Layout/Loader";
 import $ from 'jquery';
 import Select from 'react-select';
-import { fetchGroupsDrop, clearGroupDropState } from "@/slices/Groupslice";
+import { fetchGroupsDrop, clearGroupDropState } from "@/slices/DropdownSlice";
 
 export const GroupsDropdown = ({ onChange ,existingdata}) => {
   const dispatch = useDispatch();
-  const { groupDropdownData, loading, error } = useSelector((state) => state.groups);
+  const { groupDropdownData, loading, error } = useSelector((state) => state.dropdown);
   const [selectedGroupId, setSelectedGroupId] = useState([]);
   const selectRef = useRef(null);
   const [SearchStr, setSearchStr] = useState("")

@@ -85,6 +85,7 @@ const agenttemplateSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchAgentTemplate.fulfilled, (state, action) => {
+        
         state.loading = false;
         state.agentTemplatesList = action.payload.agentTemplatesList;
         state.message = action.payload.message || '';

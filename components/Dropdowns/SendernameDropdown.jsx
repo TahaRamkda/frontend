@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
 import Loader from '../Layout/Loader';
-import { fetchSendernamesDrop } from '@/slices/sendernameSlice';
+import { fetchSendernamesDrop } from '@/slices/DropdownSlice';
 
 const SendernameDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const [selectedSenderId, setSelectedSenderId] = useState(0);
-  const { sendernameDrop, loading, error } = useSelector((state) => state.sendernames);
+  const { sendernameDrop, loading, error } = useSelector((state) => state.dropdown);
 
   useEffect(() => {
     dispatch(fetchSendernamesDrop({ clientId: localStorage.getItem('clientId') }));

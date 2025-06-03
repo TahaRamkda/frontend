@@ -4,11 +4,11 @@ import { Input } from "reactstrap";
 import Loader from "../Layout/Loader";
 import $ from 'jquery';
 import Select from 'react-select';
-import { fetchTemplatesDrop, clearTemplateDropState } from "@/slices/TemplateSlice";
+import { fetchTemplatesDrop, clearTemplateDropState } from "@/slices/DropdownSlice";
 
 export const TemplatesDropdown = ({ onChange }) => {
   const dispatch = useDispatch();
-  const { templateDropdownData, loading, error } = useSelector((state) => state.templates);
+  const { templateDropdownData, loading, error } = useSelector((state) => state.dropdown);
   const [selectedTemplateId, setSelectedTemplateId] = useState([]);
   const [searchString, setsearchString] = useState("")
   const [transactionType, settransactionType] = useState(0)

@@ -43,33 +43,7 @@ export const fetchTemplates = createAsyncThunk(
   }
 );
 
-export const fetchTemplatesDrop = createAsyncThunk(
-  "template/fetchTemplatesDrop",
 
-  async ({ clientId, TransactionType }, { rejectWithValue }) => {
-    try {
-      
-      const response = await API.post("/api", {
-        endpoint: `${TEMPLATEDROPDOWN}?transactionType=${
-          TransactionType ? TransactionType : 0
-        }`,
-        method: "GET",
-        //payload: {},
-      });
-      
-      if (response?.status === 200 ) {
-        return {
-          templateDropdownData: response.data,
-        };
-      } else {
-        throw new Error("Failed to fetch details");
-      }
-    } catch (err) {
-      const handledError = handleError(err);
-      return rejectWithValue(handledError);
-    }
-  }
-);
 
 // Fetch Template by ID
 export const fetchTemplatesById = createAsyncThunk(
@@ -172,7 +146,6 @@ const templateSlice = createSlice({
   name: "template",
   initialState: {
     templateList: [],
-    templateDropdownData: [],
     templateDetails: null,
     loading: false,
     error: null,
@@ -200,13 +173,6 @@ const templateSlice = createSlice({
       state.currentPage = 1;
       state.totalPages = 1;
       state.pageSize = 10;
-      state.totalRecords = 0;
-    },
-    clearTemplateDropState: (state) => {
-      state.templateDropdownData = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
       state.totalRecords = 0;
     },
     clearTemplateDetailState: (state) => {
@@ -252,21 +218,6 @@ const templateSlice = createSlice({
         state.message = action.payload.message || "";
       })
       .addCase(fetchTemplates.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
-      // Template Dropdown
-      .addCase(fetchTemplatesDrop.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchTemplatesDrop.fulfilled, (state, action) => {
-        state.loading = false;
-        state.templateDropdownData = action.payload.templateDropdownData;
-        state.message = action.payload.message || "";
-      })
-      .addCase(fetchTemplatesDrop.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;

@@ -3,11 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import $ from 'jquery';
 import Select from 'react-select';
 import Loader from "../Layout/Loader";
-import { fetchClientsDrop, clearClientDropState } from "@/slices/clientSlice";
+import { fetchClientsDrop, clearClientDropState } from "@/slices/DropdownSlice";
 
 export const ClientsDropdown = ({ onChange }) => {
   const dispatch = useDispatch();
-  const { clientsDropList, loading, error } = useSelector((state) => state.clients);
+  const { clientsDropList, loading, error } = useSelector((state) => state.dropdown);
   const [selectedClientId, setSelectedClientId] = useState([]);
   const [searchString, setsearchString] = useState("")
   const selectRef = useRef(null);

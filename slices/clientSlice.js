@@ -30,28 +30,7 @@ export const fetchClients = createAsyncThunk(
   }
 );
 
-export const fetchClientsDrop = createAsyncThunk(
-  'client/fetchClientsDrop',
-  async ({clientId,searchStr}, { rejectWithValue }) => {
-    try {
-      const response = await API.post("/api", {
-                  endpoint: `${CLIENTDROPDOWN}?${searchStr ?`SearchStr=${searchStr}`: ''}`,
-                  method: "GET",
-                  //payload: {},
-                });
-      if (response?.status === 200 ) {
-        return {
-          clientsDropList: response.data,
-        };
-      } else {
-        throw new Error('Failed to fetch details');
-      }
-    } catch (err) {
-      const handledError = handleError(err);
-      return rejectWithValue(handledError);
-    }
-  }
-);
+
 
 // Fetch Client by ID
 export const fetchClientById = createAsyncThunk(
@@ -115,7 +94,7 @@ const clientSlice = createSlice({
   name: 'client',
   initialState: {
     clientList: [],
-    clientsDropList:[],
+    
     clientDetails: null,
     loading: false,
     error: null,
@@ -145,12 +124,6 @@ const clientSlice = createSlice({
       state.totalPages = 1;
       state.pageSize = 10;
       state.totalRecords = 0;
-    },
-    clearClientDropState: (state) => {
-      state.clientsDropList = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
     },
     clearClientDetailState: (state) => {
       state.clientDetails = null;
@@ -184,22 +157,6 @@ const clientSlice = createSlice({
         state.message = action.payload.message || '';
       })
       .addCase(fetchClients.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
-
-      // Clients Dropdown
-      .addCase(fetchClientsDrop.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchClientsDrop.fulfilled, (state, action) => {
-        state.loading = false;
-        state.clientsDropList = action.payload.clientsDropList;
-        state.message = action.payload.message || '';
-      })
-      .addCase(fetchClientsDrop.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;

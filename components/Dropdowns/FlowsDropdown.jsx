@@ -2,13 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Select from 'react-select';
 import Loader from "../Layout/Loader";
-import { fetchFlowDropdown, clearFlowDropdownState } from "@/slices/FlowsSlice";
+import { fetchFlowDropdown, clearFlowDropdownState } from "@/slices/DropdownSlice";
 
 const FlowDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
   const { flowDropdownData, loading, error } = useSelector(
-    (state) => state.flows
+    (state) => state.dropdown
   );
   const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {

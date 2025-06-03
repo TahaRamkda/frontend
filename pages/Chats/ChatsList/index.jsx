@@ -28,9 +28,11 @@ import {
   setAgentstatus,
   getAgentTemplate,
   getAgentTemplateDetail,
-  SendInteractivetemp,
-  clearAgentTemplateSentState
 } from "@/slices/ChatBridgeSlice";
+import {
+  SendInteractivetemp,
+  clearAgentTemplateSentState,
+} from "@/slices/ConversationSlice";
 import UserBadge from "@/public/images/User.jpg";
 import { AiOutlineHourglass } from "react-icons/ai";
 import {
@@ -99,7 +101,7 @@ const ChatPage = () => {
   const { agentStatsList, loading: statsLoading } = useSelector(
     (state) => state.agents
   );
-  const agenttemplates = useSelector((state) => state.bridge.agenttemplates);
+  const agenttemplates = useSelector((state) => state.bridge.agentTemplatesList);
   
   const inputRef = useRef(null);
   const [chatMessages, setChatMessages] = useState([]);
@@ -1040,6 +1042,7 @@ const ChatPage = () => {
 
   const handleSend = async (e) => {
     e.preventDefault();
+    
     const values = parameterValues.map((val) => ({
       key: val.key,
       value: val.value,
@@ -1058,7 +1061,9 @@ const ChatPage = () => {
 
     try {
       const response = await dispatch(SendInteractivetemp(formData)).unwrap();
+      
       if (response.success) {
+        
         dispatch(clearAgentTemplateSentState());
         const selectedDetail = agenttemplatedetails.find(
           detail => detail.templateId === selectedOption && detail.senderId === ActiveSenderId

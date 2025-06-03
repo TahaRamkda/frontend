@@ -44,51 +44,9 @@ export const fetchInteractiveTemplates = createAsyncThunk(
   }
 );
 
-export const fetchInteractiveTemplateDrop = createAsyncThunk(
-  "template/fetchInteractiveTemplateDrop",
-  async ({ senderId }, { rejectWithValue }) => {
-    try {
-      const response = await API.post("/api", {
-        endpoint: `${INTERACTIVETEMPLATEDROPDOWN}?senderId=${senderId}`,
-        method: "GET",
-        //payload: {},
-      });
-      if (response?.status === 200) {
-        return {
-          interactiveTemplateDropdownData: response.data,
-        };
-      } else {
-        throw new Error("Failed to fetch details");
-      }
-    } catch (err) {
-      const handledError = handleError(err);
-      return rejectWithValue(handledError);
-    }
-  }
-);
 
-export const fetchInteractiveTemplateDropWithoutParam = createAsyncThunk(
-  "template/fetchInteractiveTemplateDropWithoutParam",
-  async ({ senderId }, { rejectWithValue }) => {
-    try {
-      const response = await API.post("/api", {
-        endpoint: `${INTERACTIVETEMPLATEDROPWITHOUTPARAM}?senderId=${senderId}`,
-        method: "GET",
-        //payload: {},
-      });
-      if (response?.status === 200) {
-        return {
-          interactiveTempWithoutParamDropdownData: response.data,
-        };
-      } else {
-        throw new Error("Failed to fetch details");
-      }
-    } catch (err) {
-      const handledError = handleError(err);
-      return rejectWithValue(handledError);
-    }
-  }
-);
+
+
 
 export const fetchInteractiveTemplatesById = createAsyncThunk(
   "template/fetchInteractiveTemplatesById",
@@ -150,8 +108,6 @@ const interactiveTemplateSlice = createSlice({
   name: "interactiveTemplate",
   initialState: {
     interactiveTemplateList: [],
-    interactiveTemplateDropdownData: [],
-    interactiveTempWithoutParamDropdownData: [],
     interactivetemplatedetail: null,
     loading: false,
     error: null,
@@ -191,12 +147,6 @@ const interactiveTemplateSlice = createSlice({
       state.error = null;
       state.success = false;
     },
-    clearInteractiveTemplateDropStateState: (state) => {
-      state.interactiveTempWithoutParamDropdownData = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -217,44 +167,6 @@ const interactiveTemplateSlice = createSlice({
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
-
-      .addCase(fetchInteractiveTemplateDrop.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchInteractiveTemplateDrop.fulfilled, (state, action) => {
-        state.loading = false;
-        state.interactiveTemplateDropdownData =
-          action.payload.interactiveTemplateDropdownData;
-        state.message = action.payload.message || "";
-      })
-      .addCase(fetchInteractiveTemplateDrop.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
-
-      .addCase(fetchInteractiveTemplateDropWithoutParam.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(
-        fetchInteractiveTemplateDropWithoutParam.fulfilled,
-        (state, action) => {
-          state.loading = false;
-          state.interactiveTempWithoutParamDropdownData =
-            action.payload.interactiveTempWithoutParamDropdownData;
-          state.message = action.payload.message || "";
-        }
-      )
-      .addCase(
-        fetchInteractiveTemplateDropWithoutParam.rejected,
-        (state, action) => {
-          state.loading = false;
-          state.error = action.payload || action.error.message;
-          state.message = action.payload?.message || action.error.message;
-        }
-      )
 
       .addCase(fetchInteractiveTemplatesById.pending, (state) => {
         state.loading = true;

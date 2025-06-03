@@ -2,11 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
 import Loader from '../Layout/Loader';
-import { fetchGroupsDrop, clearGroupDropState } from "@/slices/Groupslice";
+import { fetchGroupsDrop, clearGroupDropState } from "@/slices/DropdownSlice";
 
 const GroupDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
-  const { groupDropdownData, loading, error } = useSelector((state) => state.groups);
+  const { groupDropdownData, loading, error } = useSelector((state) => state.dropdown);
   const [SearchStr, setSearchStr] = useState("")
 
   useEffect(() => {

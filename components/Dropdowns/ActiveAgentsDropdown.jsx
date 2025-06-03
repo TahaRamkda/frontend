@@ -2,13 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../Layout/Loader';
 import Select from 'react-select';
-import { fetchActiveAgentsDrop, cleaActiveAgenDroptState } from '@/slices/AgentSlice';
+import { fetchActiveAgentsDrop, cleaActiveAgenDroptState } from '@/slices/DropdownSlice';
 
 const ActiveAgentDropdown = ({ name, value, onChange,SenderId }) => {
  
 
    const dispatch = useDispatch();
-  const { activeAgentDropList, loading, error } = useSelector((state) => state.agents);
+  const { activeAgentDropList, loading, error } = useSelector((state) => state.dropdown);
 
    useEffect(() => {
     dispatch(fetchActiveAgentsDrop({ clientId: localStorage.getItem("clientId"), senderId:SenderId  }));

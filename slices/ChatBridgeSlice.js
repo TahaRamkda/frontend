@@ -139,6 +139,7 @@ export const getAgentTemplate = createAsyncThunk(
 
     // If no template with the senderId exists, fetch the list of templates
     const response = await dispatch(fetchAgentTemplate({ senderId })).unwrap();
+    
     return { senderId, templates: response }; // Expecting response to be a list of templates
   }
 );

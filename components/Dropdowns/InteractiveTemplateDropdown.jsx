@@ -1,18 +1,19 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Select from 'react-select';
 import {
     fetchInteractiveTemplateDrop,
   clearinteractiveTemplateDropdownDataState,
-} from "@/slices/TemplateSlice";
+} from "@/slices/DropdownSlice";
 import { FormGroup, Label, Input, FormText } from "reactstrap";
 import Loader from "../Layout/Loader";
-const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
+const IntTemplateDropdown = ({ name, value, onChange, TransactionType, SenderId }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
   const { interactiveTemplateDropdownData, loading, error } = useSelector(
-    (state) => state.templates
+    (state) => state.dropdown
   );
+  
   const [transactionType, settransactionType] = useState(0);
 
   useEffect(() => {
@@ -24,7 +25,7 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
   useEffect(() => {
     dispatch(
         fetchInteractiveTemplateDrop({
-        clientId: localStorage.getItem("clientId"),
+        clientId: localStorage.getItem("clientId"),senderId:SenderId
       })
     );
 
@@ -101,5 +102,5 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
   );
 };
 
-export default TemplateDropdown;
+export default IntTemplateDropdown;
 

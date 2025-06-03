@@ -47,57 +47,8 @@ export const fetchAgents = createAsyncThunk(
   }
 );
 
-export const fetchActiveAgentsDrop = createAsyncThunk(
-  "agent/fetchActiveAgentsDrop",
-  async ({ clientId, senderId }, { rejectWithValue }) => {
-    try {
-      const response = await API.post("/api", {
-        endpoint: `${ACTIVEAGENTS}?senderId=${senderId}`,
-        method: "GET",
-        //payload: {},
-      });
 
-      if (response.status === 200) {
-        return {
-          activeAgentDropList: response.data,
-        };
-      } else {
-        throw new Error("Failed to fetch details");
-      }
-    } catch (err) {
-      const handledError = handleError(err);
-      return rejectWithValue(handledError);
-    }
-  }
-);
 
-export const fetchAgentsDrop = createAsyncThunk(
-  "agent/fetchAgentsDrop",
-  async (
-    { clientId, senderId, pageNo, pageSize, searchStr },
-    { rejectWithValue }
-  ) => {
-    try {
-      const response = await API.post("/api", {
-        endpoint: `${AGENTDROPDOWN}?senderId=${senderId}${
-          searchStr ? `&searchStr=${searchStr}` : ""
-        }`,
-        method: "GET",
-        //payload: {},
-      });
-      if (response?.status === 200) {
-        return {
-          agentDropList: response.data,
-        };
-      } else {
-        throw new Error("Failed to fetch details");
-      }
-    } catch (err) {
-      const handledError = handleError(err);
-      return rejectWithValue(handledError);
-    }
-  }
-);
 
 export const fetchMasterData = createAsyncThunk(
   "agent/fetchMasterData",
@@ -313,12 +264,10 @@ const agentSlice = createSlice({
   name: "agent",
   initialState: {
     agentList: [],
-    agentDropList: [],
     agentsTiming: [],
     agentStatsList: [],
     masterDataList: [],
     agentTagsDropdown: [],
-    activeAgentDropList: [],
     agentDetails: null,
     loading: false,
     error: null,
@@ -348,24 +297,6 @@ const agentSlice = createSlice({
       state.totalPages = 1;
       //state.pageSize = 10;
       state.totalRecords = 0;
-    },
-    cleaAgenDroptState: (state) => {
-      state.agentDropList = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
-    },
-    cleaActiveAgenDroptState: (state) => {
-      state.activeAgentDropList = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
-    },
-    clearAgentTagsDroptState: (state) => {
-      state.activeAgentDropList = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
     },
     clearMasterDataState: (state) => {
       state.masterDataList = [];
@@ -433,38 +364,7 @@ const agentSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
       // Fetch Agents Perfomance
-
-      // Agents Dropdown
-      .addCase(fetchAgentsDrop.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchAgentsDrop.fulfilled, (state, action) => {
-        state.loading = false;
-        state.agentDropList = action.payload.agentDropList;
-        state.message = action.payload.message || "";
-      })
-      .addCase(fetchAgentsDrop.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
-
-      // Active Agents Dropdown
-      .addCase(fetchActiveAgentsDrop.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchActiveAgentsDrop.fulfilled, (state, action) => {
-        state.loading = false;
-        state.activeAgentDropList = action.payload.activeAgentDropList;
-        state.message = action.payload.message || "";
-      })
-      .addCase(fetchActiveAgentsDrop.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
+      
       // Active Agents Reasons Dropdown
       .addCase(fetchMasterData.pending, (state) => {
         state.loading = true;
@@ -627,7 +527,6 @@ export const {
   cleaAgentStats,
   clearMasterDataState,
   clearAgentDeleteState,
-  cleaActiveAgenDroptState,
   clearAgentTagsDroptState,
   cleaAgenDroptState,
   clearAgentTimingCreateState,

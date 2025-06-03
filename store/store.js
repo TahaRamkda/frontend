@@ -27,6 +27,7 @@ import  AppSettingSlice  from "@/slices/AppSettingSlice";
 import orderSlice from "@/slices/OrderSlice";
 import orderReportSlice from "@/slices/OrderReportSlice";
 import menuSlice from "@/slices/MenuSlice";
+import dropdownSlice from "@/slices/DropdownSlice";
 import { configureStore } from "@reduxjs/toolkit";
 
 export const store = configureStore({
@@ -59,6 +60,7 @@ export const store = configureStore({
     clearCache:ClearCache,
     orders:orderSlice,
     orderreport: orderReportSlice,
-    menu: menuSlice
+    menu: menuSlice,
+    dropdown:dropdownSlice,
     }
 })

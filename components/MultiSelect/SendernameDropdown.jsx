@@ -2,12 +2,12 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
 import Loader from '../Layout/Loader';        
-import { fetchSendernamesDrop, clearSendernameDropState } from "@/slices/sendernameSlice";
+import { fetchSendernamesDrop, clearSendernameDropState } from "@/slices/DropdownSlice";
 
 
 const SendernamesDropdown = ({ name, value, onChange, error, existingdata  }) => {
   const dispatch = useDispatch();
-  const { sendernameDrop, loading, error: fetchError } = useSelector((state) => state.sendernames);
+  const { sendernameDrop, loading, error: fetchError } = useSelector((state) => state.dropdown);
   const selectRef = useRef(null);
   const [selectedSenderId, setSelectedSenderId] = useState([]);
 
