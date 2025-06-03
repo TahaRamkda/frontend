@@ -57,6 +57,7 @@ export const CREATEROLES = "/Role/addRole";
 export const UPDATEROLES = "/Role/updateRole";
 export const DELETEROLES = "/Role/deleteRole";
 export const ROLEDROP = "/Role/getroles";
+
 //Campaign endpoints
 export const CREATECAMPAIGN = "/Campaigns/addcampaign";
 export const CAMPAIGNLIST = "/Campaigns/getcampaignlist";
@@ -66,13 +67,16 @@ export const CAMPAIGNDETAIL = "/Campaigns/getcampaigndetail";
 export const CAMPAIGNCONTACTFREQUENTSTATE="/Campaigns/getcampaigncontactstats";
 export const CAMPAIGNCONTACTFREQUENTREMOVE="/Campaigns/deletefrequentlycontactedcontacts";
 export const SENDCAMPAIGN="/Campaigns/sendcampaign";
+
 //Media endpoints
 export const UPLOADMEDIA = "/Media/uploadmedia";
 export const MEDIALIST = "/Media/getmedialist";
 export const DELETEMEDIA = "/Media/deletemedia";
+
 //Permission endpoints
 export const PERMISSIONLIST = "/Permissions/getpermissionlist";
 export const CREATEPERMISSION = "/Permissions/addpermission";
+
 //user endpoints
 export const USERLIST = "/User/getuserslist";
 export const USERDETAILS = "/User/getuserbyid";
@@ -172,17 +176,21 @@ export const APPSETTING = "/AppSettings/getappsettings";
 export const CLEARAPICACHE = "/Cache/Clear";
 export const CLEARBRIDGECACHE = "/Cache/ClearByPrefix"
 
+// Order Endpoints
 export const ORDERLIST = "#";
 export const ORDERDETAILS = "#";
 export const UPDATEORDER = "#";
 export const DELETEORDER = "#";
-
+// Order Report
 export const ORDERREPORTLIST = "#";
 export const ORDERREPORTDETAILS = "#";
 export const UPDATEORDERREPORT = "#";
 export const DELETEORDERREPORT = "#";
-
+// Menu Endpoints
 export const MENULIST = "#";
 export const MENUDETAILS = "#";
 export const UPDATEMENU = "#";
 export const DELETEMENU = "#";
+
+// Wallet Endpoints
+export const WALLETBALANCE = "/Wallet/checkBalance";

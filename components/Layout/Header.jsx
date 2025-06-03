@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import { Image } from "react-bootstrap";
@@ -9,10 +9,12 @@ import {
   HiMoon,
   HiSun,
   HiMenu,
+  HiOutlineCreditCard,
   HiShieldExclamation,
   HiCog,
   HiSett,
 } from "react-icons/hi";
+import { fetchWalletBalance } from "@/slices/WalletSlice";
 import { useRouter } from "next/router";
 import SweetAlert from "sweetalert2";
 import UserBadge from "@/public/images/User.jpg";
@@ -38,7 +40,13 @@ export function Header({ toggleSidebar }) {
   const [companyName, setCompanyName] = useState("");
   const logoMap = JSON.parse(process.env.NEXT_PUBLIC_LOGO_MAP || '{}');
   const companyNameMap = JSON.parse(process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || '{}');
-
+  const {WalletData} = useSelector((state) => state.wallet);
+  useEffect(() => {
+    debugger
+    if (WalletData?.length === 0) {
+      dispatch(fetchWalletBalance({}));
+    }
+  },[WalletData])
    useEffect(() => {
     
     if (typeof window !== "undefined") {
@@ -243,6 +251,15 @@ export function Header({ toggleSidebar }) {
           {/* live reporting */}
           <div className="flex items-center space-x-3 md:space-x-4">
             <LiveReportingSwitch />
+            
+            
+            {WalletData.subscriptionType === 1 && (
+<div className="flex items-center gap-2 p-2 bg-white text-gray-800 border rounded-xl shadow-sm">
+    {/* <span className="text-sm text-gray-600 font-medium">My Wallet:</span> */}
+    <HiOutlineCreditCard className="text-3xl text-blue-600" />
+    <span className="text-lg font-semibold text-gray-900">${WalletData.balance || 0}</span>
+  </div>
+            )}
             
             {/* Fullscreen Toggle Icon */}
             <button
