@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { sidebarItems } from '@/utils/sidebarItems';
 import { useRouter } from 'next/router';
+
 const Sidebar = ({ isSidebarOpen }) => {
   const router = useRouter();
   const [isExpand, setIsExpand] = useState({});
@@ -21,103 +22,106 @@ const Sidebar = ({ isSidebarOpen }) => {
   };
 
   return (
-    <aside
-    className={` aside text-white bg-gray-900 fixed left-0 top-16 z-40 h-screen transition-all transform ${
-      isSidebarOpen ? 'translate-x-0 ' : 'translate-x-0 w-20'
-    }`}
-    aria-label="Sidebar"
-  >
-    <div className="h-full px-3 py-4 overflow-y-auto sidebar_panel">
-      <ul className="space-y-2">
-        {sidebarItems.map((menu) => {
-          const showSubMenu = menu.submenu.some((sm) =>
-            checkPermissions(permissions, sm.text, 'canView')
-          );
-  
-          if (showSubMenu && menu.submenu.length > 0) {
-            return (
-              <li key={menu.text}>
-                <button
-                  type="button"
-                  className={`flex items-center w-full p-2 font-semibold text-md text-gray-200 rounded-lg hover:bg-gray-700 focus:outline-none ${
-                    isExpand[menu.text] ? 'bg-gray-700' : ''
-                  }`}
-                  onClick={() => handleClickMultiLevelMenu(menu.text)}
-                >
-                  <i
-                    className={`mr-2 ${menu.icon || ''} ${
-                      isSidebarOpen ? '' : 'text-lg'
+    <nav className="h-full flex flex-col">
+      <div className="flex-1 px-2 py-2 overflow-y-auto">
+        <ul className="space-y-1">
+          {sidebarItems.map((menu) => {
+            const showSubMenu = menu.submenu.some((sm) =>
+              checkPermissions(permissions, sm.text, 'canView')
+            );
+
+            if (showSubMenu && menu.submenu.length > 0) {
+              return (
+                <li key={menu.text} className="mb-1">
+                  <button
+                    type="button"
+                    className={`flex items-center w-full p-2 text-base rounded-lg transition-all duration-200 ${
+                      isExpand[menu.text] 
+                        ? 'bg-white text-gray-900 shadow-sm' 
+                        : 'text-gray-900 hover:bg-white hover:shadow-sm'
                     }`}
-                  ></i>
-                  {isSidebarOpen && (
-                    <span className="flex-1 text-left text-md">{menu.text}</span>
-                  )}
-                  {isSidebarOpen && (
-                    <svg className="w-3 h-3 ml-2" fill="none" viewBox="0 0 10 6">
-                      <path
-                        d="M1 1l4 4 4-4"
-                        stroke="currentColor"
-                      ></path>
-                    </svg>
-                  )}
-                </button>
-                {isSidebarOpen && (
-                  <ul
-                    className={`pl-4 ${isExpand[menu.text] ? '' : 'hidden'}`}
+                    onClick={() => handleClickMultiLevelMenu(menu.text)}
                   >
-                    {menu.submenu.map(
-                      (sm) =>
-                        checkPermissions(permissions, sm.text, 'canView') && (
-                          <li key={sm.text}>
-                            <Link
-                              href={sm.href}
-                              className={`block p-2 text-md text-gray-200 items-center text-decoration-none rounded-lg ${
-                                router.pathname === sm.href
-                                  ? 'bg-gray-700 font-bold'
-                                  : 'hover:bg-gray-700'
-                              }`}
-                            >
-                              <i className={`mr-2 ${sm.icon || ''}`}></i>
-                              <span className="text-md font-semibold text-decoration-none">
-                                {sm.text}
-                              </span>
-                            </Link>
-                          </li>
-                        )
+                    <span className="mr-3 flex items-center justify-center w-5 h-5 flex-shrink-0">
+                      {menu.icon}
+                    </span>
+                    {isSidebarOpen && (
+                      <span className="flex-1 text-left whitespace-nowrap sidebar-text truncate">
+                        {menu.text}
+                      </span>
                     )}
-                  </ul>
-                )}
-              </li>
-            );
-          }
-  
-          if (checkPermissions(permissions, menu.text, 'canView')) {
-            return (
-              <li key={menu.text}>
-                <Link
-                  href={menu.href}
-                  className={`flex items-center p-2 font-semibold text-md rounded-lg text-decoration-none ${
-                    router.pathname === menu.href
-                      ? 'bg-gray-700 font-bold text-white'
-                      : 'text-gray-100 hover:bg-gray-700'
-                  }`}
-                >
-                  <i
-                    className={`mr-2 ${menu.icon || ''} ${
-                      isSidebarOpen ? '' : 'text-xl'
+                    {isSidebarOpen && (
+                      <svg className="w-4 h-4 ml-2 flex-shrink-0" fill="none" viewBox="0 0 10 6">
+                        <path
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          d="M1 1l4 4 4-4"
+                        ></path>
+                      </svg>
+                    )}
+                  </button>
+                  {isSidebarOpen && (
+                    <ul
+                      className={`pl-3 mt-1 space-y-1 ${isExpand[menu.text] ? '' : 'hidden'}`}
+                    >
+                      {menu.submenu.map(
+                        (sm) =>
+                          checkPermissions(permissions, sm.text, 'canView') && (
+                            <li key={sm.text}>
+                              <Link
+                                href={sm.href}
+                                className={`flex items-center p-2 rounded-lg transition-all duration-200 sidebar-link ${
+                                  router.pathname === sm.href
+                                    ? 'bg-white text-gray-900 shadow-sm'
+                                    : 'text-gray-900 hover:bg-white hover:shadow-sm'
+                                }`}
+                              >
+                                <span className="mr-3 flex items-center justify-center w-5 h-5 flex-shrink-0">
+                                  {sm.icon}
+                                </span>
+                                <span className="whitespace-nowrap sidebar-text truncate">
+                                  {sm.text}
+                                </span>
+                              </Link>
+                            </li>
+                          )
+                      )}
+                    </ul>
+                  )}
+                </li>
+              );
+            }
+
+            if (checkPermissions(permissions, menu.text, 'canView')) {
+              return (
+                <li key={menu.text} className="mb-1">
+                  <Link
+                    href={menu.href}
+                    className={`flex items-center p-2 rounded-lg transition-all duration-200 sidebar-link ${
+                      router.pathname === menu.href
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-900 hover:bg-white hover:shadow-sm'
                     }`}
-                  ></i>
-                  {isSidebarOpen && <span>{menu.text}</span>}
-                </Link>
-              </li>
-            );
-          }
-  
-          return null;
-        })}
-      </ul>
-    </div>
-  </aside>
+                  >
+                    <span className="mr-3 flex items-center justify-center w-5 h-5 flex-shrink-0">
+                      {menu.icon}
+                    </span>
+                    {isSidebarOpen && (
+                      <span className="whitespace-nowrap sidebar-text truncate">
+                        {menu.text}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              );
+            }
+
+            return null;
+          })}
+        </ul>
+      </div>
+    </nav>
   );
 };
 

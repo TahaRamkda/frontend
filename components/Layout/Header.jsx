@@ -211,11 +211,16 @@ export function Header({ toggleSidebar }) {
   };
 
   return (
-    <nav className="text-white bg-gray-900 fixed top-0 left-0 right-0 z-50 shadow-md">
+    <nav 
+      className="app-header fixed top-0 left-0 right-0 z-50" 
+      style={{ 
+        background: '#F8F9FA'
+      }}
+    >
       {loading && <Loader />}
-      <div className="flex justify-between items-center py-3 px-2">
+      <div className="flex justify-between items-center h-full px-4 md:px-6">
         {/* Logo Section on the Left Side */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-4">
           <Link href="/Dashboard" className="flex items-center space-x-3">
             <Image
               className="h-8 w-auto"
@@ -226,77 +231,79 @@ export function Header({ toggleSidebar }) {
         </div>
 
         {/* Action Buttons Section on the Right Side */}
-        <div className="flex items-center justify-between space-x-4 w-100">
+        <div className="flex items-center space-x-4 md:space-x-6">
           {/* Sidebar Toggle Button */}
-          <div className="ml-52">
-            <button
-              onClick={handleSidebarToggle}
-              className="p-2   bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 focus:outline-none"
-            >
-              <HiMenu className="w-6 h-6" />
-            </button>
-          </div>
+          <button
+            onClick={handleSidebarToggle}
+            className="p-2 md:p-2.5 bg-white text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none transition-all duration-200"
+          >
+            <HiMenu className="w-5 h-5" />
+          </button>
+
           {/* live reporting */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3 md:space-x-4">
             <LiveReportingSwitch />
+            
             {/* Fullscreen Toggle Icon */}
             <button
               onClick={toggleFullScreen}
-              className="p-2   bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 focus:outline-none"
+              className="p-2 md:p-2.5 bg-white text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none transition-all duration-200"
             >
               {isFullScreen ? (
-                <HiZoomOut className="w-6 h-6" />
+                <HiZoomOut className="w-5 h-5" />
               ) : (
-                <HiZoomIn className="w-6 h-6" />
+                <HiZoomIn className="w-5 h-5" />
               )}
             </button>
 
             {/* User Badge with Name and Dropdown */}
             <div className="relative">
               <button
-                className="flex items-center space-x-2 p-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 focus:outline-none"
+                className="flex items-center space-x-2 md:space-x-3 p-2 bg-white text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none transition-all duration-200"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
                 <Image
                   src={UserBadge.src}
                   alt="User"
-                  className="w-8 h-8 rounded-full"
+                  className="w-7 h-7 md:w-8 md:h-8 rounded-full"
                 />
-                <span>{localStorage.getItem("userName")}</span>
+                <span className="hidden md:inline font-semibold">{localStorage.getItem("userName")}</span>
               </button>
 
               {/* Dropdown Menu */}
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-gray-700 shadow-lg rounded-md">
+                <div className="absolute right-0 mt-2 w-48 md:w-56 bg-white rounded-lg shadow-lg border border-gray-100">
                   <button
                     onClick={handleLogout}
-                    className="flex items-center w-full text-left px-2 py-2 text-gray-200 hover:bg-gray-600"
+                    className="flex items-center w-full text-left px-4 py-2.5 text-gray-700 hover:bg-gray-50 border-b border-gray-100 transition-colors duration-200 font-medium"
                   >
-                    <HiLogout className="mr-2" />
+                    <HiLogout className="mr-3 w-5 h-5" />
                     <span>Logout</span>
                   </button>
 
                   <button
                     onClick={HandelChangePass}
-                    className="flex items-center w-full text-left px-2 py-2 text-gray-200 hover:bg-gray-600"
+                    className="flex items-center w-full text-left px-4 py-2.5 text-gray-700 hover:bg-gray-50 border-b border-gray-100 transition-colors duration-200 font-medium"
                   >
-                    <HiShieldExclamation className="mr-2" />
+                    <HiShieldExclamation className="mr-3 w-5 h-5" />
                     <span>Change Password</span>
                   </button>
+
                   <button
                     onClick={handleClearApiCacheClick}
-                    className="flex items-center w-full text-left px-2 py-2 text-gray-200 hover:bg-gray-600 relative"
+                    className="flex items-center w-full text-left px-4 py-2.5 text-gray-700 hover:bg-gray-50 border-b border-gray-100 transition-colors duration-200 font-medium"
                   >
-                    <HiCog className="mr-2" />
+                    <HiCog className="mr-3 w-5 h-5" />
                     <span>Clear API Cache</span>
                   </button>
+
                   <button
                     onClick={handleClearBridgeCacheClick}
-                    className="flex items-center w-full text-left px-2 py-2 text-gray-200 hover:bg-gray-600 relative"
+                    className="flex items-center w-full text-left px-4 py-2.5 text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium"
                   >
-                    <HiCog className="mr-2" />
+                    <HiCog className="mr-3 w-5 h-5" />
                     <span>Clear Bridge Cache</span>
-                  </button> 
+                  </button>
                 </div>
               )}
             </div>

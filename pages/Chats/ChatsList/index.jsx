@@ -2000,16 +2000,6 @@ const ChatPage = () => {
             )}
           </Col>
 
-          {/* Right Padding Section */}
-          <div
-            className="fixed right-0 top-16 h-[calc(100vh-4rem)] bg-[#F8F9FA] border-l"
-            style={{
-              width: '280px',
-              borderColor: 'rgba(229, 231, 235, 0.5)',
-              zIndex: 20
-            }}
-          ></div>
-
           {/* Right Templates Section */}
           <div
             className="fixed right-0 top-16 h-[calc(100vh-4rem)] bg-[#F8F9FA] border-l overflow-y-auto"
@@ -2219,8 +2209,8 @@ export default ChatPage;
     --primary-light: #534bae;
     --primary-dark: #000051;
     --text-on-primary: #ffffff;
-    --background-light: #f8f9fa;
-    --border-color: rgba(26, 35, 126, 0.1);
+    --background-light: #F8F9FA;
+    --border-color: rgba(229, 231, 235, 0.5);
   }
 
   .hide-scrollbar::-webkit-scrollbar {
@@ -2428,58 +2418,58 @@ export default ChatPage;
 
   /* Softer borders for all elements */
   .border {
-    border-color: rgba(229, 231, 235, 0.5) !important;
+    border-color: var(--border-color) !important;
   }
 
   .border-t {
-    border-top-color: rgba(229, 231, 235, 0.5) !important;
+    border-top-color: var(--border-color) !important;
   }
 
   .border-b {
-    border-bottom-color: rgba(229, 231, 235, 0.5) !important;
+    border-bottom-color: var(--border-color) !important;
   }
 
   .border-r {
-    border-right-color: rgba(229, 231, 235, 0.5) !important;
+    border-right-color: var(--border-color) !important;
   }
 
   .border-l {
-    border-left-color: rgba(229, 231, 235, 0.5) !important;
+    border-left-color: var(--border-color) !important;
   }
 
   /* Update chat header border */
   .ChatHeader {
-    border-bottom-color: rgba(229, 231, 235, 0.5) !important;
+    border-bottom-color: var(--border-color) !important;
   }
 
   /* Update input section border */
   .msger-inputs {
-    border-top-color: rgba(229, 231, 235, 0.5) !important;
+    border-top-color: var(--border-color) !important;
   }
 
   /* Update status submenu borders */
   .status-submenu {
-    border-color: rgba(229, 231, 235, 0.5) !important;
+    border-color: var(--border-color) !important;
   }
 
   /* Update button borders */
   button.border {
-    border-color: rgba(229, 231, 235, 0.5) !important;
+    border-color: var(--border-color) !important;
   }
 
   /* Update input borders */
   input.border {
-    border-color: rgba(229, 231, 235, 0.5) !important;
+    border-color: var(--border-color) !important;
   }
 
   /* Update card borders */
   .card {
-    border-color: rgba(229, 231, 235, 0.5) !important;
+    border-color: var(--border-color) !important;
   }
 
   /* Update dropdown borders */
   .status-dropdown {
-    border-color: rgba(229, 231, 235, 0.5) !important;
+    border-color: var(--border-color) !important;
   }
 
   /* Softer shadows */
@@ -2497,8 +2487,8 @@ export default ChatPage;
 
   /* Update input section positioning */
   .msger-inputs {
-    background-color: #ffffff;
-    border-top: 1px solid rgba(229, 231, 235, 0.5);
+    background-color: var(--background-light);
+    border-top: 1px solid var(--border-color);
     padding: 0.75rem 1rem;
     position: fixed;
     bottom: 0;
