@@ -35,7 +35,7 @@ import { toast } from "react-toastify";
 const GroupList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { groups, group, loading, error, pageSize, totalRecords, currentPage } =
+  const { groupList, groupDetails, loading, error, pageSize, totalRecords, currentPage } =
     useSelector((state) => state.groups);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
@@ -91,7 +91,7 @@ const GroupList = () => {
   const handleDetailClick = async (groupId) => {
     try {
       const response = await dispatch(fetchGroupById({ groupId })).unwrap();
-      debugger;
+      ;
       if (response) {
         setIsModalOpen(true);
       } else {
@@ -224,7 +224,7 @@ const GroupList = () => {
       };
 
       const response = await dispatch(updateGroup(requestBody)).unwrap();
-      debugger;
+      ;
       if (response.status === 1) {
         showSweetAlert({
           title: "Updated Successfully",
@@ -275,16 +275,16 @@ const GroupList = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (group) {
-      setGroupForm(group);
+    if (groupDetails) {
+      setGroupForm(groupDetails);
     }
-  }, [group]);
+  }, [groupDetails]);
 
   const handleCreate = () => {
     setCreateModalOpen(true);
   };
 
-  const filteredGroup = groups.filter(
+  const filteredGroup = groupList.filter(
     (group) =>
       group.groupName &&
       group.groupName.toLowerCase().includes(filterText.toLowerCase())

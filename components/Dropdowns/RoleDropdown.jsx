@@ -3,12 +3,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Input } from 'reactstrap';
 import Loader from '../Layout/Loader';
 import Select from "react-select";
-import { fetchRolesDrop, clearRoleDropState } from "@/slices/RoleSlice";
+import { fetchRolesDrop, clearRoleDropState } from "@/slices/DropdownSlice";
 
 const RoleDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
-  const { roleDrop, loading, error } = useSelector((state) => state.roles);
+  const { roleDrop, loading, error } = useSelector((state) => state.dropdown);
 
   useEffect(() => {
     dispatch(fetchRolesDrop({ clientId: localStorage.getItem("clientId") }));

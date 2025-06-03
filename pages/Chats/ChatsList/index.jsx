@@ -28,9 +28,11 @@ import {
   setAgentstatus,
   getAgentTemplate,
   getAgentTemplateDetail,
-  SendInteractivetemp,
-  clearAgentTemplateSentState
 } from "@/slices/ChatBridgeSlice";
+import {
+  SendInteractivetemp,
+  clearAgentTemplateSentState,
+} from "@/slices/ConversationSlice";
 import UserBadge from "@/public/images/User.jpg";
 import { AiOutlineHourglass } from "react-icons/ai";
 import {
@@ -85,17 +87,21 @@ const ChatPage = () => {
   const dispatch = useDispatch();
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { conversations } = useSelector(state => state.bridge);
+  const { conversationList } = useSelector(state => state.bridge);
+  const [logoSrc, setLogoSrc] = useState("");
+    const [companyName, setCompanyName] = useState("");
+    const logoMap = JSON.parse(process.env.NEXT_PUBLIC_LOGO_MAP || '{}');
+  const companyNameMap = JSON.parse(process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || '{}');
   const {
     messages,
     currentPage,
     hasMore,
     loading,
   } = useSelector((state) => state.conversations);
-  const { AgentStats, loading: statsLoading } = useSelector(
+  const { agentStatsList, loading: statsLoading } = useSelector(
     (state) => state.agents
   );
-  const agenttemplates = useSelector((state) => state.bridge.agenttemplates);
+  const agenttemplates = useSelector((state) => state.bridge.agentTemplatesList);
   
   const inputRef = useRef(null);
   const [chatMessages, setChatMessages] = useState([]);
@@ -124,6 +130,15 @@ const ChatPage = () => {
   const [parameterValues, setParameterValues] = useState([]);
   const [templateView, setTemplateView] = useState("");
   const agenttemplatedetails = useSelector((state) => state.bridge.agenttemplatedetails);
+
+  useEffect(() => {
+      
+      if (typeof window !== "undefined") {
+        const hostname = window.location.hostname;
+        setLogoSrc(logoMap[hostname]);
+        setCompanyName(companyNameMap[hostname]);
+      }
+    }, [ logoMap, companyNameMap ]);
 
   // Add debounce effect for search
   useEffect(() => {
@@ -167,7 +182,7 @@ const ChatPage = () => {
     const [IsOneSignalLoaded, setIsOneSignalLoaded] = useState(false);
   const expiredConversations = useSelector(selectExpiredConversations);
   const message = useSelector((state) =>
-    state.bridge.conversations.find((c) => c.id === Activechat)?.messages || []
+    state.bridge.conversationList.find((c) => c.id === Activechat)?.messages || []
   );
   const containerRef = useRef(null);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -182,7 +197,7 @@ const ChatPage = () => {
   const [activeChatRef, setActiveChatRef] = useState(null);
   const agentChatRef = useRef([AgentConversation]);
 
-  // Filter conversations based on search and active tab
+  // Filter conversationList based on search and active tab
   const filteredConversations = AgentConversation?.filter(conversation => {
     const matchesSearch = conversation.phoneNumber.toLowerCase().includes(searchQuery.toLowerCase());
     
@@ -249,7 +264,7 @@ const ChatPage = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    // Handle expired conversations
+    // Handle expired conversationList
     expiredConversations.forEach((conversation) => {
     
     
@@ -448,7 +463,7 @@ const ChatPage = () => {
     }
   }, [templateDetails]);
 
-  //call the fetchConversationList action to fetch agents conversations
+  //call the fetchConversationList action to fetch agents conversationList
   useEffect(() => {
     const fetchData = async () => {
       const AgentId = localStorage.getItem("userId");
@@ -486,22 +501,22 @@ const ChatPage = () => {
     };
   }, [dispatch]);
 
-  // //triggered each time when conversations changes and assign to local state
+  // //triggered each time when conversationList changes and assign to local state
   useEffect(() => {
     
-    if (conversations) {
+    if (conversationList) {
       setContactsloading(false);
-      setAgentConversation(conversations);
+      setAgentConversation(conversationList);
     } else {
       setContactsloading(false);
     }
-  }, [conversations]);
+  }, [conversationList]);
 
  
  
   const handleFetchMessages = (conversationId) => {
     setActiveChat(conversationId);
-    const conversation = conversations.find((conv) => conv.id === conversationId);
+    const conversation = conversationList.find((conv) => conv.id === conversationId);
     if (conversation?.messages?.length > 0) {
       const messages = [...conversation.messages].reverse();
       setChatMessages(messages);
@@ -1027,6 +1042,7 @@ const ChatPage = () => {
 
   const handleSend = async (e) => {
     e.preventDefault();
+    
     const values = parameterValues.map((val) => ({
       key: val.key,
       value: val.value,
@@ -1045,7 +1061,9 @@ const ChatPage = () => {
 
     try {
       const response = await dispatch(SendInteractivetemp(formData)).unwrap();
+      
       if (response.success) {
+        
         dispatch(clearAgentTemplateSentState());
         const selectedDetail = agenttemplatedetails.find(
           detail => detail.templateId === selectedOption && detail.senderId === ActiveSenderId
@@ -1087,7 +1105,7 @@ const ChatPage = () => {
                 <div className="absolute inset-0 blur-md bg-gray-100 rounded-full"></div>
                 <Image
                   className="relative drop-shadow-xl transform hover:scale-105 transition-transform duration-300 w-6 h-6 md:w-8 md:h-8"
-                  src="/images/logo/Loader.svg"
+                  src={logoSrc}
                   alt="Logo"
                   style={{ filter: 'brightness(1.05) drop-shadow(0 4px 6px rgba(0,0,0,0.1))' }}
                 />
@@ -1221,7 +1239,7 @@ const ChatPage = () => {
                   <FaComments className="text-blue-600 text-xl" />
               </div>
                 <div className="absolute -top-1 -right-1 bg-blue-100 rounded-full px-2 py-0.5 text-xs font-medium text-blue-600">
-                  {AgentStats?.assignedChat ?? "0"}
+                  {agentStatsList?.assignedChat ?? "0"}
                 </div>
               </div>
               <div className="hidden group-hover:block">
@@ -1236,7 +1254,7 @@ const ChatPage = () => {
                   <FaCheckCircle className="text-green-600 text-xl" />
               </div>
                 <div className="absolute -top-1 -right-1 bg-green-100 rounded-full px-2 py-0.5 text-xs font-medium text-green-600">
-                  {AgentStats?.activeChat ?? "0"}
+                  {agentStatsList?.activeChat ?? "0"}
                 </div>
               </div>
               <div className="hidden group-hover:block">
@@ -1251,7 +1269,7 @@ const ChatPage = () => {
                   <FaBan className="text-red-600 text-xl" />
               </div>
                 <div className="absolute -top-1 -right-1 bg-red-100 rounded-full px-2 py-0.5 text-xs font-medium text-red-600">
-                  {AgentStats?.abandonChat ?? "0"}
+                  {agentStatsList?.abandonChat ?? "0"}
                 </div>
               </div>
               <div className="hidden group-hover:block">
@@ -1266,7 +1284,7 @@ const ChatPage = () => {
                   <FaTimesCircle className="text-gray-600 text-xl" />
               </div>
                 <div className="absolute -top-1 -right-1 bg-gray-100 rounded-full px-2 py-0.5 text-xs font-medium text-gray-600">
-                  {AgentStats?.closedChat ?? "0"}
+                  {agentStatsList?.closedChat ?? "0"}
                 </div>
               </div>
               <div className="hidden group-hover:block">
@@ -1281,7 +1299,7 @@ const ChatPage = () => {
                   <AiOutlineHourglass className="text-yellow-600 text-xl" />
               </div>
                 <div className="absolute -top-1 -right-1 bg-yellow-100 rounded-full px-2 py-0.5 text-xs font-medium text-yellow-600">
-                  {AgentStats?.expiredChat ?? "0"}
+                  {agentStatsList?.expiredChat ?? "0"}
                 </div>
               </div>
               <div className="hidden group-hover:block">
@@ -1296,7 +1314,7 @@ const ChatPage = () => {
                   <FaClock className="text-purple-600 text-xl" />
               </div>
                 <div className="absolute -top-1 -right-1 bg-purple-100 rounded-full px-2 py-0.5 text-xs font-medium text-purple-600">
-                  {AgentStats?.forceClosedChat ?? "0"}
+                  {agentStatsList?.forceClosedChat ?? "0"}
                 </div>
               </div>
               <div className="hidden group-hover:block">

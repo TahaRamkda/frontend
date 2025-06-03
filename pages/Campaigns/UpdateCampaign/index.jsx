@@ -47,7 +47,8 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
   const dispatch = useDispatch();
   //const CampaignID = useRecoilValue(CampaignState);
   const [Loading, setLoading] = useState(false);
-  const { template, loading, error } = useSelector((state) => state.templates);
+  const { templateDetails, loading, error } = useSelector((state) => state.templates);
+  
   const formikRef = useRef(); // Add ref for Formik
   const [messagePreview, setMessagePreview] = useState({
     header: "",
@@ -86,6 +87,7 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
     loading: campaignloading,
     error: campaignerror,
   } = useSelector((state) => state.campaigns);
+  
   const handleGroupSelection = (groupIds) => {
     setSelectedGroups(groupIds);
     console.log("Selected Groups:", groupIds);
@@ -100,28 +102,24 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
       header: "",
       body: "",
       footer: "",
-      media: null,
       buttons: [],
       visitWebsiteButtonCount: 0,
     });
     setHeadContent("");
     setBodyFinalContent("");
     setSelectedMediaId(0);
-    setSelectedMediaPath("");
-    setSelectedMediaType("");
-    setTotalButtonCount(0);
     setMessagePreviewupdated(false);
     setErrorMessage("");
     setSelectedSenderId(null);
   
-    // Clear the template detail state in Redux
+    // Clear the templateDetails detail state in Redux
     dispatch(clearTemplateDetailState());
     setSelectedTemplateId(templateId);
   };
 
   useEffect(() => {
     if (campaignId) {
-      // Run only if a template is selected
+      // Run only if a templateDetails is selected
       setSelectedCampaign(campaignId);
     } else {
       onclose();
@@ -166,6 +164,7 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
         setexistinggroupId(
           campaigndetail.groupIds?.replace(/['"]+/g, "").split(",").map(Number)
         );
+        
         setSelectedMediaId(campaigndetail.mediaId);
         setSelectedMediaPath(campaigndetail.mediaURL);
         setSelectedMediaType(campaigndetail.contentType);
@@ -228,11 +227,15 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
   
   useEffect(() => {
     
-    if (loading || !template) return;
-    setSelectedSenderId(template.senderId);
+    if (loading || !campaigndetail) return;
+    
+    setSelectedMediaId(campaigndetail.mediaId || 0);
+  setSelectedMediaPath(campaigndetail.mediaURL || "");
+  setSelectedMediaType(campaigndetail.contentType || "");
+    setSelectedSenderId(campaigndetail.senderId);
     // Map buttons with conditional logic for phoneNumber or URL
     const customButtons =
-    template.buttons?.map((button) => ({
+    templateDetails?.buttons?.map((button) => ({
       type: button.buttonType, // Copy over the type
       text: button.buttonText, // Copy over the label
       ...(button.buttonType === 2
@@ -245,13 +248,13 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
   // Construct the complete message preview locally
   const updatedMessagePreview = {
    
-    body: template.bodyText,
-    footer: template.footerText,
-    media: template.mediaPath,
+    body: templateDetails?.bodyText,
+    footer: templateDetails?.footerText,
+    media: campaigndetail.mediaURL,
     buttons: customButtons,
-    templatename: template.templateName,
+    templatename: templateDetails?.templateName,
     visitWebsiteButtonCount: 0,
-    header: template.headerType === 1 ? template.headerText : undefined,
+    header: templateDetails?.headerType === 1 ? templateDetails?.headerText : undefined,
     
   };
 
@@ -268,23 +271,24 @@ const CampaignUpdate = ({ campaignId , onclose}) => {
   }
 
   // Update Header State
-  if (template.headerType === 1) {
-    setHeadContent(template.headerText);
-    //setupdatedheadvercontent(template.headerText);
-    //setheaderTextCount(template.headerParamCount);
+  if (templateDetails?.headerType === 1) {
+    setHeadContent(templateDetails?.headerText);
+    //setupdatedheadvercontent(templateDetails.headerText);
+    //setheaderTextCount(templateDetails.headerParamCount);
   } 
 
   // Update Body State
-  setBodyFinalContent(template.bodyText);
+  setBodyFinalContent(templateDetails?.bodyText);
   // Update Other Template-Related States
-  //setSelectedSenderId(template.senderId);
-  //setTemplatetype(template.category);
-  //setlanguage(template.language);
+  //setSelectedSenderId(templateDetails.senderId);
+  //setTemplatetype(templateDetails.category);
+  //setlanguage(templateDetails.language);
   setTotalButtonCount(updatedMessagePreview.buttons.length);
-  },[Loading, template]);
+  },[Loading, templateDetails]);
 
   
   const addHeaderVariable = (variablename, allVariables) => {
+    
     setHeaderVariable((prev) => {
       // Reset variables array if this is the first call with allVariables
       if (allVariables) {
@@ -341,10 +345,10 @@ const handleSubmit = async (values) => {
   setLoading(true);
   
   const requestBody = {
-    clientId: template.clientId,
+    clientId: templateDetails.clientId,
     campaignId: SelectedCampaign,
     campaignName: campaignName,
-    senderId: template.senderId,
+    senderId: templateDetails.senderId,
     templateId: selectedTemplateId,
     campaignType: "1",
     groupIds: selectedGroups.join(","),
@@ -374,7 +378,7 @@ const handleSubmit = async (values) => {
 
   try {
     const response = await dispatch(UpdateCampaign(requestBody)).unwrap();
-    debugger
+    
     if (response.status === 1) {
       dispatch(clearTemplateDetailState());
       showSweetAlert({
@@ -563,7 +567,7 @@ const handleSubmit = async (values) => {
                         />
                       </FormGroup>
                     </div>
-                    {template && [2, 3, 4].includes(template.headerType) && (
+                    {templateDetails && [2, 3, 4].includes(templateDetails.headerType) && (
                       <div className="mt-3 text-sm">
                         <button
                           type="button" // Explicitly prevent form submission
@@ -574,9 +578,9 @@ const handleSubmit = async (values) => {
                           }}
                         >
                           Change{" "}
-                          {template.headerType === 2
+                          {templateDetails.headerType === 2
                             ? "Image"
-                            : template.headerType === 3
+                            : templateDetails.headerType === 3
                             ? "Video"
                             : "Document"}
                         </button>
@@ -587,9 +591,9 @@ const handleSubmit = async (values) => {
                             ToggleModal={ToggleModal}
                             senderId={selectedSenderId}
                             contentTypeStr = {
-                              template.headerType === 2
+                              templateDetails.headerType === 2
                                 ? "image"
-                                : template.headerType === 3
+                                : templateDetails.headerType === 3
                                 ? "video"
                                 : "application"
                             }

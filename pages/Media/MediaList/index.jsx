@@ -26,7 +26,7 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr, senderId }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMediaId, setSelectedMediaId] = useState(null);
   const [selectedsenderId, setselectedsenderId] = useState(0);
-  const { medias, loading, error } = useSelector((state) => state.media);
+  const { mediaList, loading, error } = useSelector((state) => state.media);
   const [Medialist, setmediaList] = useState([]);
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [filterText, setFilterText] = useState("");
@@ -73,10 +73,10 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr, senderId }) => {
     setIsModalOpen(false);
   };
   useEffect(() => {
-    if (medias && medias.length > 0) {
-      setmediaList(medias);
+    if (mediaList ) {
+      setmediaList(mediaList);
     }
-  }, [medias]);
+  }, [mediaList]);
 
   const handleDeleteClick = (mediaId) => {
     SweetAlert.fire({
@@ -111,12 +111,6 @@ const MediaList = ({ isPopup, onSelectMedia, contentTypeStr, senderId }) => {
         senderId: selectedsenderId,
       })
     );
-  };
-
-  const handleSelectImage = (mediaId, mediaPath, mimeType) => {
-    setSelectedMediaId(mediaId);
-    onSelectMedia(mediaId, mediaPath, mimeType);
-    toggleModal();
   };
 
   const renderMediaPreview = (mediaPath, mimeType) => {

@@ -16,7 +16,7 @@ export const fetchMedia = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          medias: response.data,
+          mediaList: response.data,
           totalRecords: response.data.length > 0 ? response.data[0].totalRecords  : 0,
         };
       } else {
@@ -45,7 +45,7 @@ export const uploadMedia = createAsyncThunk(
                 "Content-Type": "multipart/form-data",
               },
             });
-            debugger
+            
       return response.data;
     } catch (error) {
       const handledError = handleError(error);
@@ -77,8 +77,8 @@ export const deleteMedia = createAsyncThunk(
 const mediaSlice = createSlice({
   name: 'media',
   initialState: {
-    medias: [],
-    media: null,
+    mediaList: [],
+    mediaDetails: null,
     loading: false,
     error: null,
     success: false,
@@ -98,8 +98,8 @@ const mediaSlice = createSlice({
       state.currentPage = action.payload;
     },
     clearMediaState: (state) => {
-      state.medias = [];
-      state.media = null;
+      state.mediaList = [];
+      state.mediaDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -115,7 +115,7 @@ const mediaSlice = createSlice({
       state.success = false;
     },
     clearMediaDeleteState: (state) => {
-      state.media = null;
+      state.mediaDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -130,7 +130,7 @@ const mediaSlice = createSlice({
       })
       .addCase(fetchMedia.fulfilled, (state, action) => {
         state.loading = false;
-        state.medias = action.payload.medias;
+        state.mediaList = action.payload.mediaList;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || '';

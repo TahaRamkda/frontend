@@ -4,11 +4,11 @@ import { Input } from "reactstrap";
 import $ from 'jquery';
 import Loader from "../Layout/Loader";
 import Select from 'react-select';
-import { fetchRolesDrop, clearRoleDropState } from "@/slices/RoleSlice";
+import { fetchRolesDrop, clearRoleDropState } from "@/slices/DropdownSlice";
 
 export const RolesDropdown = ({ onChange, error,existingdata }) => {
   const dispatch = useDispatch();
-  const { roleDrop, loading, error: fetchError } = useSelector((state) => state.roles);
+  const { roleDrop, loading, error: fetchError } = useSelector((state) => state.dropdown);
   const selectRef = useRef(null);
   const [selectedRoleId, setselectedRoleId] = useState([]);
 

@@ -18,6 +18,12 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [authuserData, setauthuserData] = useState(null);
   const { authData, loading, error } = useSelector((state) => state.authData);
+  const [logoSrc, setLogoSrc] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const logoMap = JSON.parse(process.env.NEXT_PUBLIC_LOGO_MAP || '{}');
+const companyNameMap = JSON.parse(process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || '{}');
+
+
 
   // Handler for form submission
   const handleLogin = async (event) => {
@@ -27,8 +33,8 @@ const Login = () => {
       console.log("Auth data:", response);
       if (rememberMe) {
         // Set remember me cookie
-        Cookies.set('rememberMe', 'true', { expires: 30 });
-        Cookies.set('email', email, { expires: 30 });
+        Cookies.set("rememberMe", "true", { expires: 30 });
+        Cookies.set("email", email, { expires: 30 });
       }
       blankAuthState();
       router.push("/");
@@ -42,10 +48,18 @@ const Login = () => {
     }
   };
 
+  useEffect(() => {
+    
+    if (typeof window !== "undefined") {
+      const hostname = window.location.hostname;
+      setLogoSrc(logoMap[hostname]);
+      setCompanyName(companyNameMap[hostname]);
+    }
+  }, [ logoMap, companyNameMap ]);
+
   // useEffect(() => {
 
   //   if (authData) {
-  //
   //     // Set login cookie
   //     blankAuthState();
   //     // Redirect to dashboard
@@ -65,25 +79,48 @@ const Login = () => {
   // }, [ error, router]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen" style={{ 
-      background: `linear-gradient(135deg, #CADCFC 0%, #EDF4F2 100%)`
-    }}>
-      <div className="relative w-full max-w-4xl h-[600px] bg-white/95 rounded-[30px] overflow-hidden border border-white/20 backdrop-filter backdrop-blur-sm"
-           style={{ 
-             boxShadow: '0 15px 50px rgba(115, 145, 206, 0.2), 0 5px 15px rgba(115, 145, 206, 0.1)'
-           }}>
+    <div
+      className="flex items-center justify-center min-h-screen"
+      style={{
+        background: `linear-gradient(135deg, #CADCFC 0%, #EDF4F2 100%)`,
+      }}
+    >
+      <div
+        className="relative w-full max-w-4xl h-[600px] bg-white/95 rounded-[30px] overflow-hidden border border-white/20 backdrop-filter backdrop-blur-sm"
+        style={{
+          boxShadow:
+            "0 15px 50px rgba(115, 145, 206, 0.2), 0 5px 15px rgba(115, 145, 206, 0.1)",
+        }}
+      >
         {/* Background Design */}
-        <div className="absolute top-0 left-0 w-3/5 h-full rounded-br-[120px]" 
-             style={{ 
-               background: 'linear-gradient(135deg, #7391CE 0%, #4A6CA2 100%)',
-               boxShadow: '0 4px 30px rgba(115, 145, 206, 0.2)'
-             }}>
-          <div className="absolute w-52 h-52 rounded-full -bottom-28 -right-[29rem] backdrop-blur-sm" 
-               style={{ background: 'linear-gradient(135deg, rgba(237, 244, 242, 0.3) 0%, rgba(202, 220, 252, 0.3) 100%)' }}></div>
-          <div className="absolute w-52 h-52 rounded-full top-[27rem] right-[2rem] transform -translate-y-1/2 backdrop-blur-sm" 
-               style={{ background: 'linear-gradient(135deg, rgba(202, 220, 252, 0.3) 0%, rgba(237, 244, 242, 0.3) 100%)' }}></div>
-          <div className="absolute w-80 h-80 rounded-full -bottom-28 -left-28 backdrop-blur-sm" 
-               style={{ background: 'linear-gradient(135deg, rgba(237, 244, 242, 0.3) 0%, rgba(202, 220, 252, 0.3) 100%)' }}></div>
+        <div
+          className="absolute top-0 left-0 w-3/5 h-full rounded-br-[120px]"
+          style={{
+            background: "linear-gradient(135deg, #7391CE 0%, #4A6CA2 100%)",
+            boxShadow: "0 4px 30px rgba(115, 145, 206, 0.2)",
+          }}
+        >
+          <div
+            className="absolute w-52 h-52 rounded-full -bottom-28 -right-[29rem] backdrop-blur-sm"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(237, 244, 242, 0.3) 0%, rgba(202, 220, 252, 0.3) 100%)",
+            }}
+          ></div>
+          <div
+            className="absolute w-52 h-52 rounded-full top-[27rem] right-[2rem] transform -translate-y-1/2 backdrop-blur-sm"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(202, 220, 252, 0.3) 0%, rgba(237, 244, 242, 0.3) 100%)",
+            }}
+          ></div>
+          <div
+            className="absolute w-80 h-80 rounded-full -bottom-28 -left-28 backdrop-blur-sm"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(237, 244, 242, 0.3) 0%, rgba(202, 220, 252, 0.3) 100%)",
+            }}
+          ></div>
         </div>
 
         {/* Company Logo and Name */}
@@ -91,54 +128,73 @@ const Login = () => {
           <div className="relative w-[90px] h-[90px] flex items-center justify-center">
             <div className="absolute inset-0 blur-md bg-white/30 rounded-full"></div>
             <Image
-              src="/images/logo/Loader.svg"
+              src={logoSrc}
               alt="Company Logo"
               width={80}
               height={80}
               className="relative drop-shadow-2xl transform hover:scale-105 transition-transform duration-300"
-              style={{ 
-                filter: 'brightness(1.05) drop-shadow(0 4px 6px rgba(0,0,0,0.1))'
+              style={{
+                filter:
+                  "brightness(1.05) drop-shadow(0 4px 6px rgba(0,0,0,0.1))",
               }}
             />
           </div>
-          <p className="text-2xl font-semibold text-white drop-shadow-xl tracking-wide mt-4"
-             style={{ textShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-            Babji Consult Techies
+          <p
+            className="text-2xl font-semibold text-white drop-shadow-xl tracking-wide mt-4"
+            style={{ textShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
+          >
+            {companyName}
           </p>
         </div>
 
         {/* Login Form */}
-        <div className="absolute right-10 top-1/2 transform -translate-y-1/2 w-[380px]"
-             style={{ 
-               filter: 'drop-shadow(0 25px 25px rgba(115, 145, 206, 0.15))'
-             }}>
+        <div
+          className="absolute right-10 top-1/2 transform -translate-y-1/2 w-[380px]"
+          style={{
+            filter: "drop-shadow(0 25px 25px rgba(115, 145, 206, 0.15))",
+          }}
+        >
           <div className="relative">
             {/* Card with shadow and border effect */}
-            <div className="absolute inset-0 rounded-[20px] bg-white/50 backdrop-blur-xl"
-                 style={{ 
-                   boxShadow: '0 15px 35px rgba(115, 145, 206, 0.2), 0 5px 15px rgba(115, 145, 206, 0.1)',
-                   border: '1px solid rgba(255, 255, 255, 0.5)'
-                 }}></div>
-            
+            <div
+              className="absolute inset-0 rounded-[20px] bg-white/50 backdrop-blur-xl"
+              style={{
+                boxShadow:
+                  "0 15px 35px rgba(115, 145, 206, 0.2), 0 5px 15px rgba(115, 145, 206, 0.1)",
+                border: "1px solid rgba(255, 255, 255, 0.5)",
+              }}
+            ></div>
+
             {/* Main card content */}
-            <div className="relative bg-white rounded-[20px] p-8"
-                 style={{ 
-                   boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 15px 35px rgba(115, 145, 206, 0.15), 0 5px 15px rgba(115, 145, 206, 0.1)'
-                 }}>
+            <div
+              className="relative bg-white rounded-[20px] p-8"
+              style={{
+                boxShadow:
+                  "inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 15px 35px rgba(115, 145, 206, 0.15), 0 5px 15px rgba(115, 145, 206, 0.1)",
+              }}
+            >
               <div className="text-center mb-8">
-                <h2 className="text-[28px] font-bold" 
-                    style={{ 
-                      color: '#4A6CA2',
-                      textShadow: '0 2px 4px rgba(115, 145, 206, 0.1)'
-                    }}>
+                <h2
+                  className="text-[28px] font-bold"
+                  style={{
+                    color: "#4A6CA2",
+                    textShadow: "0 2px 4px rgba(115, 145, 206, 0.1)",
+                  }}
+                >
                   Welcome Back
                 </h2>
-                <p className="text-sm mt-2" style={{ color: '#7391CE' }}>Sign in to continue to your account</p>
+                <p className="text-sm mt-2" style={{ color: "#7391CE" }}>
+                  Sign in to continue to your account
+                </p>
               </div>
-              
+
               <form onSubmit={handleLogin} className="space-y-6">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium mb-2" style={{ color: '#4A6CA2' }}>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium mb-2"
+                    style={{ color: "#4A6CA2" }}
+                  >
                     Username
                   </label>
                   <input
@@ -150,15 +206,19 @@ const Login = () => {
                     name="email"
                     onChange={(e) => setEmail(e.target.value)}
                     className="border rounded-xl py-3 px-4 w-full text-sm focus:outline-none focus:ring-2 transition-all duration-200"
-                    style={{ 
-                      backgroundColor: '#EDF4F2',
-                      borderColor: '#CADCFC',
-                      boxShadow: 'inset 0 2px 4px rgba(202, 220, 252, 0.1)'
+                    style={{
+                      backgroundColor: "#EDF4F2",
+                      borderColor: "#CADCFC",
+                      boxShadow: "inset 0 2px 4px rgba(202, 220, 252, 0.1)",
                     }}
                   />
                 </div>
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium mb-2" style={{ color: '#4A6CA2' }}>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium mb-2"
+                    style={{ color: "#4A6CA2" }}
+                  >
                     Password
                   </label>
                   <div className="relative">
@@ -170,15 +230,15 @@ const Login = () => {
                       value={password}
                       name="password"
                       className="border rounded-xl py-3 px-4 w-full text-sm focus:outline-none focus:ring-2 transition-all duration-200"
-                      style={{ 
-                        backgroundColor: '#EDF4F2',
-                        borderColor: '#CADCFC',
-                        boxShadow: 'inset 0 2px 4px rgba(202, 220, 252, 0.1)'
+                      style={{
+                        backgroundColor: "#EDF4F2",
+                        borderColor: "#CADCFC",
+                        boxShadow: "inset 0 2px 4px rgba(202, 220, 252, 0.1)",
                       }}
                     />
                     <span
                       className="absolute inset-y-0 right-0 flex items-center pr-4 cursor-pointer hover:text-blue-600"
-                      style={{ color: '#7391CE' }}
+                      style={{ color: "#7391CE" }}
                       onClick={() => setShow(!show)}
                     >
                       {show ? (
@@ -199,21 +259,27 @@ const Login = () => {
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
                       className="h-4 w-4 rounded-md cursor-pointer"
-                      style={{ 
-                        accentColor: '#7391CE',
-                        backgroundColor: '#EDF4F2',
-                        borderColor: '#CADCFC',
-                        boxShadow: 'inset 0 2px 4px rgba(202, 220, 252, 0.1)'
+                      style={{
+                        accentColor: "#7391CE",
+                        backgroundColor: "#EDF4F2",
+                        borderColor: "#CADCFC",
+                        boxShadow: "inset 0 2px 4px rgba(202, 220, 252, 0.1)",
                       }}
                     />
-                    <label htmlFor="remember-me" className="ml-2 block text-sm cursor-pointer" style={{ color: '#4A6CA2' }}>
+                    <label
+                      htmlFor="remember-me"
+                      className="ml-2 block text-sm cursor-pointer"
+                      style={{ color: "#4A6CA2" }}
+                    >
                       Remember me
                     </label>
                   </div>
                   <div className="text-sm">
-                    <a href="#" 
-                       className="font-medium transition-colors duration-200 hover:opacity-80"
-                       style={{ color: '#7391CE' }}>
+                    <a
+                      href="#"
+                      className="font-medium transition-colors duration-200 hover:opacity-80"
+                      style={{ color: "#7391CE" }}
+                    >
                       Forgot password?
                     </a>
                   </div>
@@ -224,18 +290,37 @@ const Login = () => {
                     type="submit"
                     disabled={loading}
                     className={`w-full py-3 px-4 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${
-                      loading ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 transform hover:-translate-y-0.5"
+                      loading
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:opacity-90 transform hover:-translate-y-0.5"
                     }`}
-                    style={{ 
-                      background: 'linear-gradient(135deg, #7391CE 0%, #4A6CA2 100%)',
-                      boxShadow: '0 4px 15px rgba(115, 145, 206, 0.3)'
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #7391CE 0%, #4A6CA2 100%)",
+                      boxShadow: "0 4px 15px rgba(115, 145, 206, 0.3)",
                     }}
                   >
                     {loading ? (
                       <span className="flex items-center justify-center">
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        <svg
+                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
                         </svg>
                         Signing in...
                       </span>

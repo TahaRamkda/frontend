@@ -161,7 +161,7 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
   // Handle interactivetemplatedetail updates once it has been fetched (Second useEffect)
   useEffect(() => {
     if (Loading || !interactivetemplatedetail) return; // Wait for the data to be loaded
-    debugger
+    
     const updatedMessagePreview = {
       body: interactivetemplatedetail.bodyText,
       footer: interactivetemplatedetail.footerText,
@@ -268,7 +268,7 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
     const bodyreplaceX = bodysupresult.replace(/`/g, "_");
     const bodyfinalReplace = bodyreplaceX.replace(/\+/g, "*");
     ;
-    debugger
+    
     const requestBody = {
       Id: Template_Id,
       clientId: interactivetemplatedetail.clientId,

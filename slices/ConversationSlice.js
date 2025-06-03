@@ -22,7 +22,7 @@ export const fetchConversationList = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          conversations: response.data,
+          conversationList: response.data,
           totalRecords:
             response.data.length > 0 ? response.data[0].totalRecords : 0,
         };
@@ -155,9 +155,10 @@ export const fetchConversationMessageReport = createAsyncThunk(
 const conversationslice = createSlice({
   name: "conversation",
   initialState: {
-    conversations: [],
+    conversationList: [],
     messages: [],
     conversationMessagereport: [],
+    conversationMessage: [],
     loading: false,
     error: null,
     success: false,
@@ -177,7 +178,7 @@ const conversationslice = createSlice({
       state.currentPage = action.payload;
     },
     clearconversationstate: (state) => {
-      state.conversations = [];
+      state.conversationList = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -228,7 +229,7 @@ const conversationslice = createSlice({
       })
       .addCase(fetchConversationList.fulfilled, (state, action) => {
         state.loading = false;
-        state.conversations = action.payload.conversations;
+        state.conversationList = action.payload.conversationList;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || "";

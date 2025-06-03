@@ -4,11 +4,11 @@ import { Input } from "reactstrap";
 import Loader from "../Layout/Loader";
 import $ from 'jquery';
 import Select from 'react-select';
-import { fetchFlowDropdown, clearFlowDropdownState } from "@/slices/FlowsSlice";
+import { fetchFlowDropdown, clearFlowDropdownState } from "@/slices/DropdownSlice";
 
 export const FlowsDropdown = ({ onChange }) => {
   const dispatch = useDispatch();
-  const { flowDropdownData, loading, error } = useSelector((state) => state.flows);
+  const { flowDropdownData, loading, error } = useSelector((state) => state.dropdown);
   const [selectedFlowId, setSelectedFlowId] = useState([]);
   const [searchString, setSearchString] = useState("");
   const selectRef = useRef(null);

@@ -14,10 +14,10 @@ import { usePermissions } from "@/context/PermissionsContext";
 import Loader from "@/components/Layout/Loader"
 const PermissionList = () => {
   const dispatch = useDispatch();
-  const { permissions, loading, error } = useSelector((state) => state.permission);
+  const { permissionList, loading, error } = useSelector((state) => state.permission);
   const [selectedRole, setSelectedRole] = useState(0);
   const [Data, setData] = useState([]);
-const { hasPermission } = usePermissions();
+  const { hasPermission } = usePermissions();
 
   const handleCheckboxChangeCanView = (permissionId) => {
     //alert("change permission for Id: " +permissionId);
@@ -128,7 +128,7 @@ const { hasPermission } = usePermissions();
         clientId: localStorage["clientId"],
         roleId: selectedRole,
         actionBy: localStorage["userId"],
-        permissions: Data,
+        permissionList: Data,
       };
       const response = await dispatch(createPermission(requestBody)).unwrap();
       if (response.status === 1) {
@@ -146,7 +146,7 @@ const { hasPermission } = usePermissions();
         });
       }
     } catch (error) {
-      console.log("Failed to save permissions", error);
+      console.log("Failed to save permission", error);
       showSweetAlert({
         title: "Failed",
         text: "",
@@ -169,16 +169,16 @@ const { hasPermission } = usePermissions();
 
   useEffect(() => {
     
-    if (permissions?.length > 0) {
-      setData(permissions);
+    if (permissionList?.length > 0) {
+      setData(permissionList);
     }
-  }, [permissions]);
+  }, [permissionList]);
 
   const handleRoleChange = (e) => {
     const role = e.target.value;
     setSelectedRole(role);
     refreshPermissionList(role);
-    setData(permissions);
+    setData(permissionList);
   };
   const customPageSizes = [1 ,5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 50

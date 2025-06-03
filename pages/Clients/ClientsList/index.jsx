@@ -21,7 +21,7 @@ import App from '@/components/Layout/App';
 const ClientList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { clients, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.clients);
+  const { clientList,clientDetails, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.clients);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [clientForm, setClientForm] = useState({});
@@ -55,6 +55,12 @@ const ClientList = () => {
       ),
     },
   ];
+
+  useEffect(()=>{
+    if(clientDetails){
+      setClientForm(clientDetails)
+    }
+  },[clientDetails])
  const handleSearchString = (e) => {
     const searchValue = e.target.value;
     setFilterText(searchValue);
@@ -77,7 +83,6 @@ const ClientList = () => {
     try {
       const response = await dispatch(fetchClientById(clientId)).unwrap();
       if (response.success) {
-        setClientForm(response.result);
         setIsModalOpen(true);
       } else {
         showSweetAlert({ title: "Error", text: response.message, icon: "error" });
@@ -164,7 +169,7 @@ const ClientList = () => {
     // Update current page state in Redux
     dispatch(setCurrentPage(page));
 
-    // Fetch clients for the new page
+    // Fetch clientList for the new page
     await dispatch(fetchClients({ pageSize, pageNo: page }));
   };
 
@@ -176,7 +181,7 @@ const ClientList = () => {
     };
   }, [dispatch]);
 
-  const filteredClients = clients.filter((client) =>
+  const filteredClients = clientList.filter((client) =>
     client?.clientName?.toLowerCase().includes(filterText.toLowerCase())
   );
 

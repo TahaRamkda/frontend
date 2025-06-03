@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
 import Loader from '../Layout/Loader';
-import { fetchAgentsDrop } from '@/slices/AgentSlice';
+import { fetchAgentsDrop } from '@/slices/DropdownSlice';
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
 const AgentsDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
-  const { agentTagsDropdown, loading, error } = useSelector((state) => state.agents);
+  const { agentDropList, loading, error } = useSelector((state) => state.dropdown);
   const [selectedAgentId, setSelectedAgentId] = useState([]);
   const [searchString, setSearchString] = useState('');
   const [senderId, setSenderId] = useState(0);
@@ -25,7 +25,7 @@ const AgentsDropdown = ({ name, value, onChange }) => {
   }, [selectedAgentId, onChange]);
 
   // Mapping the fetched agent data into the format that react-select expects
-  const Options = agentTagsDropdown?.map(agent => ({
+  const Options = agentDropList?.map(agent => ({
     value: agent.id,
     label: agent.name
   })) || [];

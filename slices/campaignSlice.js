@@ -14,7 +14,7 @@ export const fetchCampaign = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          campaigns: response.data,
+          campaignList: response.data,
           totalRecords: response.data.length > 0 ? response.data[0].totalRecords : 0,
          
         };
@@ -176,7 +176,7 @@ export const fetchCampaignDetail = createAsyncThunk(
   const campaignSlice = createSlice({
     name: 'campaign',
     initialState: {
-      campaigns: [],
+      campaignList: [],
       campaignContactState:[],
       campaignFreqDelete: [],
       campaigndetail:"",
@@ -211,7 +211,7 @@ export const fetchCampaignDetail = createAsyncThunk(
       },
       clearCampaignListState: (state) => {
        
-        state.campaigns=[];
+        state.campaignList=[];
         state.loading = false;
         state.error = null;
         state.success = false;
@@ -292,7 +292,7 @@ export const fetchCampaignDetail = createAsyncThunk(
         })
         .addCase( fetchCampaign.fulfilled, (state, action) => {
           
-          state.campaigns = action.payload.campaigns ;
+          state.campaignList = action.payload.campaignList ;
           state.loading = false;
           state.success = true;
           state.totalRecords = action.payload.totalRecords || 0;
@@ -300,7 +300,7 @@ export const fetchCampaignDetail = createAsyncThunk(
         state.message = action.payload.message || "";
         })
         .addCase( fetchCampaign.rejected, (state, action) => {
-          state.campaigns =[];
+          state.campaignList =[];
           state.loading = false;
           state.error = action.payload || action.error.message;
           state.message = action.payload?.message || action.error.message;
@@ -349,7 +349,7 @@ export const fetchCampaignDetail = createAsyncThunk(
           state.message = action.payload.message || 'Created Successfully';
         })
         .addCase( fetchCampaignDetail.rejected, (state, action) => {
-          state.campaigndetail ="";
+          state.campaigndetail = "";
           state.loading = false;
           state.error = action.payload || action.error.message;
           state.message = action.payload?.message || action.error.message;

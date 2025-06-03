@@ -7,7 +7,7 @@ import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
 const ChatReasonDropdown = ({ name, value, onChange, existingdata }) => {
   const dispatch = useDispatch();
-  const { masterData, loading, error } = useSelector((state) => state.agents);
+  const { masterDataList, loading, error } = useSelector((state) => state.agents);
   const [selectedId, setSelectedId] = useState([]);
   
   const [senderId, setSenderId] = useState(0);
@@ -31,7 +31,7 @@ const ChatReasonDropdown = ({ name, value, onChange, existingdata }) => {
         }
       }, [existingdata]);
   // Mapping the fetched agent data into the format that react-select expects
-  const Options = masterData.map(reason => ({
+  const Options = masterDataList.map(reason => ({
     value: reason.id,
     label: reason.name,
   })) || [];

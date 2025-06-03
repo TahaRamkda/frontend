@@ -22,7 +22,7 @@ const ChatsMonitor = () => {
   const dispatch = useDispatch();
   const [senderid, setsenderid] = useState(0);
   const [DetailModal, setDetailModal] = useState(false);
-  const { chatsMonitor, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.Supervisor);
+  const { chatsMonitorList, loading, error, currentPage, pageSize, totalRecords } = useSelector((state) => state.Supervisor);
   const [clientId, setClientId] = useState(null);
   const [showchat, setshowchat] = useState(false);
   const [srcStr, setsrcStr] = useState('');
@@ -169,7 +169,7 @@ const ChatsMonitor = () => {
       });
       if (result.isConfirmed) {
         const response = await dispatch(SupervisorCloseChat(ChatId)).unwrap();
-        debugger
+        
         if (response.status === 1) {
           showSweetAlert({
             title: "Closed Successfully",
@@ -242,10 +242,10 @@ const refreshPage = () => {
 }
 
   useEffect(() => {
-     if (!loading && chatsMonitor) {
+     if (!loading && chatsMonitorList) {
        setChatLoading(false);
      }
-   }, [loading, chatsMonitor]);
+   }, [loading, chatsMonitorList]);
  
   const handleSenderChange = (e) => {
     const senderId = e.target.value;
@@ -450,7 +450,7 @@ useEffect(() => {
         </div>
       </div>
       <DataTable
-        data={chatsMonitor}
+        data={chatsMonitorList}
         columns={ChatsReportColumn}
         highlightOnHover
         striped

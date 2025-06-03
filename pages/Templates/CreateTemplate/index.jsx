@@ -211,7 +211,7 @@ const TemplateCreationPage = () => {
     ) {
       toast.error("Please load all  header variables before proceeding.");
     }
-    debugger
+    
     const requestBody = {
       clientId: localStorage.getItem("clientId"),
       name: values.templateName,
@@ -261,7 +261,7 @@ const TemplateCreationPage = () => {
     }
     try {
       const response = await dispatch(createTemplates(requestBody)).unwrap();
-      debugger
+      
       if (response.status === 200) {
         clearTemplateCreateState();
         showSweetAlert({

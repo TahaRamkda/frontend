@@ -23,34 +23,11 @@ export const fetchSendernames = createAsyncThunk(
 
       if (response?.status === 200) {
         return {
-          sendernames: response?.data,
+          sendernameList: response?.data,
           totalRecords:
             response.data.length > 0
               ? response.data[0].totalRecords
               : 0,
-        };
-      } else {
-        throw new Error("Failed to fetch details");
-      }
-    } catch (err) {
-      const handledError = handleError(err);
-      return rejectWithValue(handledError);
-    }
-  }
-);
-
-export const fetchSendernamesDrop = createAsyncThunk(
-  "sendername/fetchSendernamesDrop",
-  async ({ clientId }, { rejectWithValue }) => {
-    try {
-      const response = await API.post("/api", {
-        endpoint: `${SENDERNAMEDROP}`,
-        method: "GET",
-        //payload: {},
-      });
-      if (response?.status === 200) {
-        return {
-          sendernameDrop: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -130,8 +107,7 @@ export const deleteSendername = createAsyncThunk(
 const sendernameSlice = createSlice({
   name: "sendername",
   initialState: {
-    sendernames: [],
-    sendernameDrop: [],
+    sendernameList: [],
     sendername: null,
     loading: false,
     error: null,
@@ -152,7 +128,7 @@ const sendernameSlice = createSlice({
       state.currentPage = action.payload;
     },
     clearSendernameState: (state) => {
-      state.sendernames = [];
+      state.sendernameList = [];
       state.sendername = null;
       state.loading = false;
       state.error = null;
@@ -161,12 +137,6 @@ const sendernameSlice = createSlice({
       state.totalPages = 1;
       state.pageSize = 10;
       state.totalRecords = 0;
-    },
-    clearSendernameDropState: (state) => {
-      state.sendernameDrop = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
     },
 
     clearSendernameDetailState: (state) => {
@@ -195,28 +165,12 @@ const sendernameSlice = createSlice({
       })
       .addCase(fetchSendernames.fulfilled, (state, action) => {
         state.loading = false;
-        state.sendernames = action.payload?.sendernames;
+        state.sendernameList = action.payload?.sendernameList;
         state.totalRecords = action.payload?.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || "";
       })
       .addCase(fetchSendernames.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
-
-      .addCase(fetchSendernamesDrop.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchSendernamesDrop.fulfilled, (state, action) => {
-        
-        state.loading = false;
-        state.sendernameDrop = action.payload.sendernameDrop;
-        state.message = action.payload.message || "";
-      })
-      .addCase(fetchSendernamesDrop.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;

@@ -37,8 +37,8 @@ import SearchBar from "@/components/SearchBar/SearchComponent";
 const UserList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { users, loading, error } = useSelector((state) => state.users);
-  const { user } = useSelector((state) => state.users);
+  const { userList, loading, error } = useSelector((state) => state.users);
+  const { userDetails } = useSelector((state) => state.users);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [CreateModalOpen, setCreateModalOpen] = useState(false);
   const [existingRoleId, setexistingRoleId] = useState([]);
@@ -228,10 +228,10 @@ const UserList = () => {
     };
   }, [dispatch]);
 
-  const filteredUsers = users?.filter(
-    (user) =>
-      user.userName.toLowerCase().includes(filterText.toLowerCase()) ||
-      user.fullName.toLowerCase().includes(filterText.toLowerCase())
+  const filteredUsers = userList?.filter(
+    (userDetails) =>
+      userDetails.userName.toLowerCase().includes(filterText.toLowerCase()) ||
+      userDetails.fullName.toLowerCase().includes(filterText.toLowerCase())
   );
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10;

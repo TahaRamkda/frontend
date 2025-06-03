@@ -1,18 +1,19 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Select from 'react-select';
 import {
     fetchInteractiveTemplateDrop,
-  clearInteractiveTemplateListState,
-} from "@/slices/TemplateSlice";
+  clearinteractiveTemplateDropdownDataState,
+} from "@/slices/DropdownSlice";
 import { FormGroup, Label, Input, FormText } from "reactstrap";
 import Loader from "../Layout/Loader";
-const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
+const IntTemplateDropdown = ({ name, value, onChange, TransactionType, SenderId }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
-  const { interactiveTemplateList, loading, error } = useSelector(
-    (state) => state.templates
+  const { interactiveTemplateDropdownData, loading, error } = useSelector(
+    (state) => state.dropdown
   );
+  
   const [transactionType, settransactionType] = useState(0);
 
   useEffect(() => {
@@ -24,13 +25,13 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
   useEffect(() => {
     dispatch(
         fetchInteractiveTemplateDrop({
-        clientId: localStorage.getItem("clientId"),
+        clientId: localStorage.getItem("clientId"),senderId:SenderId
       })
     );
 
   }, [dispatch, transactionType]);
 
-  const options = interactiveTemplateList?.map((item) => ({
+  const options = interactiveTemplateDropdownData?.map((item) => ({
     value: item.id,
     label: item.name,
   })) || [];
@@ -101,5 +102,5 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
   );
 };
 
-export default TemplateDropdown;
+export default IntTemplateDropdown;
 

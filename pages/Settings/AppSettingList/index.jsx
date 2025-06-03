@@ -40,7 +40,7 @@ import ClientDropdown from "@/components/Dropdowns/ClientDropdown";
 const AppSettings = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { settingList, loading, error, pageSize, totalRecords, currentPage } =
+  const { settingList, settingDetails, loading, error, pageSize, totalRecords, currentPage } =
     useSelector((state) => state.appsetting);
   const [senderId, setSelectedSenderId] = useState(0);
   const logger = new Logger();
@@ -86,6 +86,11 @@ const AppSettings = () => {
     },
   ];
 
+  useEffect(()=>{
+    if(settingDetails){
+      setSettingForm(settingDetails)
+    }
+  }, [settingDetails])
   const handleClientChange = (e) => {
     
     const id = e.target.value;
@@ -103,10 +108,7 @@ const AppSettings = () => {
     try {
       
       const response = await dispatch(fetchSettingById({ Id: id })).unwrap();
-      
       if (response) {
-        
-        setSettingForm(response);
         setIsModalOpen(true);
       } else {
         showSweetAlert({

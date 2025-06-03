@@ -37,7 +37,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
   const [showTemplateList, setShowTemplateList] = useState(true); // New state to control template list visibility
   const dispatch = useDispatch();
 
-  const agenttemplates = useSelector((state) => state.bridge.agenttemplates);
+  const agenttemplates = useSelector((state) => state.bridge.agentTemplatesList);
   const agenttemplatedetails = useSelector((state) => state.bridge.agenttemplatedetails);
   const [sending, setSending] = useState(false);
 
@@ -52,7 +52,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
   // Filter templates based on senderId and search query
   useEffect(() => {
     
-    const filtered = agenttemplates.filter((template) => {
+    const filtered = agenttemplates?.filter((template) => {
       const matchesSenderId = template.senderId === SenderId;
       const matchesSearchQuery = template.name
         .toLowerCase()
@@ -136,7 +136,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
     try {
       setSending(true);
       const response = await dispatch(SendInteractivetemp(formData)).unwrap();
-      debugger
+      
       if (response.success === true) {
         dispatch(clearAgentTemplateSentState());
         if (onSend && typeof onSend === "function") {
@@ -397,7 +397,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
                   <button
                     type="submit"
                     className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600"
-                    onClick={handleSend}
+                    onClick={sending ? null : handleSend}
                     disabled={sending}
                   >
                     <i className="fa fa-paper-plane-o"></i>

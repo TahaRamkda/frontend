@@ -44,28 +44,7 @@ export const fetchFlowsListData = createAsyncThunk(
   }
 );
 
-export const fetchFlowDropdown = createAsyncThunk(
-  "flowdropdown/fetchFlowDropdown",
-  async ({ clientId, SearchStr }, { rejectWithValue }) => {
-    try {
-      const response = await API.post("/api", {
-        endpoint: `${FLOWDROPDOWN}`,
-        method: "GET",
-        //payload: {},
-      });
-      if (response?.status === 200) {
-        return {
-          flowDropdownData: response.data,
-        };
-      } else {
-        throw new Error("Failed to fetch details");
-      }
-    } catch (err) {
-      const handledError = handleError(err);
-      return rejectWithValue(handledError);
-    }
-  }
-);
+
 
 // Fetch Group by ID
 export const fetchFlowDetailsById = createAsyncThunk(
@@ -168,8 +147,7 @@ const FlowSlice = createSlice({
   name: "flow",
   initialState: {
     flowsList: [],
-    flowDropdownData: [],
-    flow: null,
+    flowDetails: null,
     loading: false,
     error: null,
     success: false,
@@ -190,7 +168,7 @@ const FlowSlice = createSlice({
     },
     clearFlowListState: (state) => {
       state.flowsList = [];
-      state.flow = null;
+      state.flowDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -199,12 +177,6 @@ const FlowSlice = createSlice({
       state.pageSize = 10;
       state.totalRecords = 0;
     },
-    clearFlowDropdownState: (state) => {
-      state.flowDropdownData = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
-    },
     clearFlowPublishState: (state) => {
       state.loading = false;
       state.error = null;
@@ -212,7 +184,7 @@ const FlowSlice = createSlice({
     },
 
     clearFlowDetailState: (state) => {
-      state.flow = null;
+      state.flowDetails = null;
       state.loading = false;
       state.error = null;
     },
@@ -222,7 +194,7 @@ const FlowSlice = createSlice({
       state.success = false;
     },
     clearFlowDeleteState: (state) => {
-      state.flow = null;
+      state.flowDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -247,21 +219,6 @@ const FlowSlice = createSlice({
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
-      // Group Dropdowns
-      .addCase(fetchFlowDropdown.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchFlowDropdown.fulfilled, (state, action) => {
-        state.loading = false;
-        state.flowDropdownData = action.payload.flowDropdownData;
-        state.message = action.payload.message || "";
-      })
-      .addCase(fetchFlowDropdown.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
 
       // Fetch Client by ID
       .addCase(fetchFlowDetailsById.pending, (state) => {
@@ -270,7 +227,7 @@ const FlowSlice = createSlice({
       })
       .addCase(fetchFlowDetailsById.fulfilled, (state, action) => {
         state.loading = false;
-        state.flow = action.payload;
+        state.flowDetails = action.payload;
         state.message = action.payload?.message || "";
       })
       .addCase(fetchFlowDetailsById.rejected, (state, action) => {

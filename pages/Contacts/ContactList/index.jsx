@@ -26,7 +26,7 @@ const ContactList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { hasPermission } = usePermissions();
-  const { contacts, loading, error, pageSize, totalRecords, currentPage } =
+  const { contactList, loading, error, pageSize, totalRecords, currentPage } =
     useSelector((state) => state.contacts);
   const { client } = useSelector((state) => state.clients);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -293,7 +293,7 @@ const ContactList = () => {
     };
   }, [dispatch, GroupId]);
 
-  const filteredClients = contacts.filter((contact) =>
+  const filteredClients = contactList.filter((contact) =>
     contact.firstName.toLowerCase().includes(filterText.toLowerCase())
   );
   const handleCancel = () => {
@@ -360,7 +360,7 @@ const ContactList = () => {
       </div>
       <div className="overflow-auto">
         <DataTable
-          data={contacts}
+          data={contactList}
           columns={clientColumns}
           highlightOnHover
           striped

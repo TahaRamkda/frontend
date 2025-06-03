@@ -15,17 +15,17 @@ export const fetchLogin = createAsyncThunk(
   "auth/login",
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      debugger
+      
       const response = await API.post("/api", {
         endpoint: `${LOGINAPI}?Username=${email}&Password=${password}`,
         method: "GET",
         //payload: {},
       });
 
-      debugger;
+      ;
 
       if (response && response.status === 200) {
-        debugger;
+        ;
         const result = response.data;
         localStorage.setItem("permission", JSON.stringify(result.permission));
         localStorage.setItem("accessToken", result.accessToken);
@@ -59,7 +59,7 @@ export const changePassword = createAsyncThunk(
         method: "PUT",
         payload: changePass,
       });
-      debugger
+      
       return response.data;
     } catch (error) {
       const handledError = handleError(error);

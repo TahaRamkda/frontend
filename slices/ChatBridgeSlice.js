@@ -12,8 +12,8 @@ import { fetchAgentsById } from "./AgentSlice";
 import {setAgentStatus} from './AgentSlice';
 import { date } from "yup";
 const initialState = {
-  conversations: [],
-  agenttemplates: [],
+  conversationList: [],
+  agentTemplatesList: [],
   agenttemplatedetails: [],
   loading: false,
   error: null,
@@ -24,7 +24,7 @@ export const getAgentConversations = createAsyncThunk(
   async (agentId, { dispatch, getState }) => {
     
     const { bridge } = getState();
-    //if (bridge.conversations.length > 0) return bridge.conversations;
+    //if (bridge.conversationList.length > 0) return bridge.conversationList;
     const response = await dispatch(fetchConversationList({ AgentId: agentId })).unwrap();
     return response;
   }
@@ -36,7 +36,7 @@ export const getAgentMessages = createAsyncThunk(
     
     
     const { bridge } = getState();
-    const conversation = bridge.conversations.find(c => c.id === conversationId);
+    const conversation = bridge.conversationList.find(c => c.id === conversationId);
     if (conversation && conversation.messages?.length > 0) {
       return { conversationId, messages: conversation.messages };
     }
@@ -51,7 +51,7 @@ export const checkForExpiredConversations = createAsyncThunk(
     const state = getState();
     const currentTime = Date.now();
     const expiredConversationIds = [];
-    const updatedConversations = state.bridge.conversations.map((conversation) => {
+    const updatedConversations = state.bridge.conversationList.map((conversation) => {
       const { expireTime, expireType, expireTryCount = 0, id } = conversation;
       const timestamp = typeof expireTime === 'string' ? new Date(expireTime).getTime() : expireTime;
 
@@ -127,18 +127,19 @@ export const getAgentTemplate = createAsyncThunk(
   async ({ senderId }, { dispatch, getState }) => {
     const { bridge } = getState();
     
-    // Check if any template in the agenttemplates list has the given senderId
-    const templateExists = bridge.agenttemplates.some(
+    // Check if any template in the agentTemplatesList list has the given senderId
+    const templateExists = bridge.agentTemplatesList.some(
       (template) => template.senderId === senderId
     );
 
     if (templateExists) {
       // If a template with the senderId exists, return the existing templates
-      return { senderId, templates: bridge.agenttemplates };
+      return { senderId, templates: bridge.agentTemplatesList };
     }
 
     // If no template with the senderId exists, fetch the list of templates
     const response = await dispatch(fetchAgentTemplate({ senderId })).unwrap();
+    
     return { senderId, templates: response }; // Expecting response to be a list of templates
   }
 );
@@ -173,7 +174,7 @@ const bridgeSlice = createSlice({
     addConversation: (state, action) => {
       
       const newConversation = action.payload;
-      const existingConversation = state.conversations.find(c => c.id === newConversation.id);
+      const existingConversation = state.conversationList.find(c => c.id === newConversation.id);
       const currentTime = Date.now();
     
       if (!existingConversation) {
@@ -184,12 +185,12 @@ const bridgeSlice = createSlice({
             expireType: 1,
             expireTime: currentTime + ExpireTime_AssignedChat, // Ensure 'expireTime' is correctly named
           },
-          ...state.conversations
+          ...state.conversationList
         ];
     
         return {
           ...state,
-          conversations: updatedConversations
+          conversationList: updatedConversations
         };
       }
     
@@ -200,13 +201,13 @@ const bridgeSlice = createSlice({
 
     removeConversation: (state, action) => {
      
-      state.conversations = state.conversations.filter((c) => c.id !== action.payload);
+      state.conversationList = state.conversationList.filter((c) => c.id !== action.payload);
     },
     
     addMessageToConversation: (state, action) => {
       
       const { id, messageContent, typeId, createdDate } = action.payload;
-      const conversation = state.conversations.find(c => c.id === id);
+      const conversation = state.conversationList.find(c => c.id === id);
     
       if (conversation) {
         // Update the last message text
@@ -242,11 +243,11 @@ const bridgeSlice = createSlice({
         }
     
         // Move the updated conversation to the top of the list
-        state.conversations = [
+        state.conversationList = [
           conversation,
-          ...state.conversations.filter(c => c.id !== id),
+          ...state.conversationList.filter(c => c.id !== id),
         ];
-        console.log("Added message to conversation:", state.conversations);
+        console.log("Added message to conversation:", state.conversationList);
       }
     },
     
@@ -261,7 +262,7 @@ const bridgeSlice = createSlice({
       .addCase(getAgentConversations.fulfilled, (state, action) => {
         
         state.loading = false;
-        state.conversations = action.payload.conversations.map(conv => ({ ...conv, messages: [] }));
+        state.conversationList = action.payload.conversationList.map(conv => ({ ...conv, messages: [] }));
       })
       .addCase(getAgentConversations.rejected, (state, action) => {
         state.loading = false;
@@ -269,7 +270,7 @@ const bridgeSlice = createSlice({
       })
       .addCase(getAgentMessages.fulfilled, (state, action) => {
         const { conversationId, messages } = action.payload;
-        const conversation = state.conversations.find(c => c.id === conversationId);
+        const conversation = state.conversationList.find(c => c.id === conversationId);
         if (conversation) {
           conversation.messages = messages;
         }
@@ -277,7 +278,7 @@ const bridgeSlice = createSlice({
       .addCase(checkForExpiredConversations.fulfilled, (state, action) => {
         const {expiredConversationIds, updatedConversations} = action.payload;
           state.expiredConversationIds = expiredConversationIds;
-          state.conversations = updatedConversations;
+          state.conversationList = updatedConversations;
         })
 
         .addCase(getAgentTemplate.pending, (state) => {
@@ -290,18 +291,18 @@ const bridgeSlice = createSlice({
           const { senderId, templates } = action.payload;
   
           // Check if any template in the list has the given senderId
-          const templateExists = state.agenttemplates.some(
+          const templateExists = state.agentTemplatesList.some(
             (template) => template.senderId === senderId
           );
   
           if (!templateExists) {
             // If no template with the senderId exists, append the new list of templates
             // Ensure each template in the list has a senderId
-            const templatesWithSenderId = templates.agenttemplates.map((template) => ({
+            const templatesWithSenderId = templates.agentTemplatesList.map((template) => ({
               ...template,
               senderId: template.senderId || senderId, // Use the provided senderId if the template doesn't have one
             }));
-            state.agenttemplates = [...state.agenttemplates, ...templatesWithSenderId];
+            state.agentTemplatesList = [...state.agentTemplatesList, ...templatesWithSenderId];
           }
         })
         .addCase(getAgentTemplate.rejected, (state, action) => {
@@ -335,9 +336,8 @@ const bridgeSlice = createSlice({
   },
 });
 
-
 export const selectExpiredConversations = (state) =>
-  state.bridge.conversations.filter((conversation) =>
+  state.bridge.conversationList.filter((conversation) =>
     state.bridge.expiredConversationIds.includes(conversation.id)
   );
 

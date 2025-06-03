@@ -17,7 +17,7 @@ const SurveyDropdown = ({ name, value, onChange }) => {
 
   }, [dispatch]);
 
- const options = sendernameDrop?.map((item) => ({
+ const options = SurveyDropdown?.map((item) => ({
     value: item.id,
     label: item.name,
   })) || [];

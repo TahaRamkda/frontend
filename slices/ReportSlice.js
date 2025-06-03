@@ -61,18 +61,9 @@ export const fetchMessageReport = createAsyncThunk(
   "messagereport /fetchMessageReport",
   async (
     {
-      clientId,
       fromDate,
       toDate,
-      moduleId,
-      status,
-      senderid,
-      srcStr,
-      pageNo,
-      pageSize,
-    },
-    { rejectWithValue }
-  ) => {
+      moduleId,status,senderid,srcStr,pageNo,pageSize,},{ rejectWithValue }) => {
     try {
        const response = await API.post("/api", {
         endpoint: `${MESSAGEREPORT}?ModuleId=${moduleId}&SenderId=${senderid}&FromDate=${fromDate}&ToDate=${toDate}&CurrentStatus=${status}&SearchStr=${srcStr}&PageNo=${pageNo}&PageSize=${pageSize}`,
@@ -83,11 +74,8 @@ export const fetchMessageReport = createAsyncThunk(
         const obj = JSON.stringify(response.data, 2);
 
         return {
-          messagereport: response.data,
-          totalRecords:
-            response.data.length > 0
-              ? response.data[0].totalRecords
-              : 0,
+          messageReportList: response.data,
+          totalRecords: response.data.length > 0 ? response.data[0].totalRecords : 0,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -125,7 +113,7 @@ export const fetchConversationReport = createAsyncThunk(
       });
       if (response?.status === 200 && response.data) {
         return {
-          ConversationReport: response.data,
+          conversationReportList: response.data,
           totalRecords:
             response.data.length > 0
               ? response.data[0].totalRecords
@@ -179,7 +167,7 @@ export const fetchChatLogs = createAsyncThunk(
       });
       if (response?.status === 200 && response.data) {
         return {
-          chatLogs: response.data,
+          chatLogList: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -319,9 +307,11 @@ export const fetchSurveyDropdown = createAsyncThunk(
   "survey /fetchSurveyDropdown",
   async ({  }, { rejectWithValue }) => {
     try {
-      const response = await API.get(
-        `${SURVEYDROPDOWN}`
-      );
+      const response = await API.post("/api", {
+        endpoint: `${SURVEYDROPDOWN}`,
+        method: "GET",
+        //payload: {},
+      });
       if (response?.status === 200 && response.data) {
         return {
           SurveyDropdown: response.data,
@@ -341,9 +331,9 @@ const reportSlice = createSlice({
   name: "report",
   initialState: {
     messageSummary: [],
-    messagereport: [],
+    messageReportList: [],
     templateInsight: [],
-    ConversationReport: [],
+    conversationReportList: [],
     supervisorDashboard: [],
     AgentReportList: [],
     chatReportStats: [],
@@ -367,7 +357,7 @@ const reportSlice = createSlice({
       state.currentPage = action.payload;
     },
     clearMessageReportState: (state) => {
-      state.messagereport = [];
+      state.messageReportList = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -389,7 +379,7 @@ const reportSlice = createSlice({
       state.success = false;
     },
     clearChatLogsState: (state) => {
-      state.chatLogs = [];
+      state.chatLogList = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -402,7 +392,7 @@ const reportSlice = createSlice({
     },
 
     clearConversationReportState: (state) => {
-      state.ConversationReport = [];
+      state.conversationReportList = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -439,7 +429,7 @@ const reportSlice = createSlice({
     },
 
     clearMessageReportState: (state) => {
-      state.messagereport = [];
+      state.messageReportList = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -464,7 +454,7 @@ const reportSlice = createSlice({
       })
       .addCase(fetchMessageReport.fulfilled, (state, action) => {
         state.loading = false;
-        state.messagereport = action.payload.messagereport;
+        state.messageReportList = action.payload.messageReportList;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || "";
@@ -500,7 +490,7 @@ const reportSlice = createSlice({
       })
       .addCase(fetchChatLogs.fulfilled, (state, action) => {
         state.loading = false;
-        state.chatLogs = action.payload.chatLogs;
+        state.chatLogList = action.payload.chatLogList;
         state.message = action.payload.message || "";
       })
       .addCase(fetchChatLogs.rejected, (state, action) => {
@@ -516,7 +506,7 @@ const reportSlice = createSlice({
       })
       .addCase(fetchConversationReport.fulfilled, (state, action) => {
         state.loading = false;
-        state.ConversationReport = action.payload.ConversationReport;
+        state.conversationReportList = action.payload.conversationReportList;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || "";

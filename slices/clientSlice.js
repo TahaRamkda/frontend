@@ -17,7 +17,7 @@ export const fetchClients = createAsyncThunk(
                 });
       if (response?.status === 200) {
         return {
-          clients: response.data,
+          clientList: response.data,
           totalRecords: response.data.length > 0 ? response.data[0].totalRecords  : 0,
         };
       } else {
@@ -30,28 +30,7 @@ export const fetchClients = createAsyncThunk(
   }
 );
 
-export const fetchClientsDrop = createAsyncThunk(
-  'client/fetchClientsDrop',
-  async ({clientId,searchStr}, { rejectWithValue }) => {
-    try {
-      const response = await API.post("/api", {
-                  endpoint: `${CLIENTDROPDOWN}?${searchStr ?`SearchStr=${searchStr}`: ''}`,
-                  method: "GET",
-                  //payload: {},
-                });
-      if (response?.status === 200 ) {
-        return {
-          clientsDrop: response.data,
-        };
-      } else {
-        throw new Error('Failed to fetch details');
-      }
-    } catch (err) {
-      const handledError = handleError(err);
-      return rejectWithValue(handledError);
-    }
-  }
-);
+
 
 // Fetch Client by ID
 export const fetchClientById = createAsyncThunk(
@@ -114,9 +93,9 @@ export const deleteClient = createAsyncThunk(
 const clientSlice = createSlice({
   name: 'client',
   initialState: {
-    clients: [],
-    clientsDrop:[],
-    client: null,
+    clientList: [],
+    
+    clientDetails: null,
     loading: false,
     error: null,
     success: false,
@@ -136,8 +115,8 @@ const clientSlice = createSlice({
       state.currentPage = action.payload;
     },
     clearClientState: (state) => {
-      state.clients = [];
-      state.client = null;
+      state.clientList = [];
+      state.clientDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -146,14 +125,8 @@ const clientSlice = createSlice({
       state.pageSize = 10;
       state.totalRecords = 0;
     },
-    clearClientDropState: (state) => {
-      state.clientsDrop = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
-    },
     clearClientDetailState: (state) => {
-      state.client = null;
+      state.clientDetails = null;
       state.loading = false;
       state.error = null;
     },
@@ -163,7 +136,7 @@ const clientSlice = createSlice({
       state.success = false;
     },
     clearClientDeleteState: (state) => {
-      state.client = null;
+      state.clientDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -178,28 +151,12 @@ const clientSlice = createSlice({
       })
       .addCase(fetchClients.fulfilled, (state, action) => {
         state.loading = false;
-        state.clients = action.payload.clients;
+        state.clientList = action.payload.clientList;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
         state.message = action.payload.message || '';
       })
       .addCase(fetchClients.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
-
-      // Clients Dropdown
-      .addCase(fetchClientsDrop.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchClientsDrop.fulfilled, (state, action) => {
-        state.loading = false;
-        state.clientsDrop = action.payload.clientsDrop;
-        state.message = action.payload.message || '';
-      })
-      .addCase(fetchClientsDrop.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
@@ -213,7 +170,7 @@ const clientSlice = createSlice({
       })
       .addCase(fetchClientById.fulfilled, (state, action) => {
         state.loading = false;
-        state.client = action.payload;
+        state.clientDetails = action.payload;
         state.message = action.payload?.message || '';
       })
       .addCase(fetchClientById.rejected, (state, action) => {

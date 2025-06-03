@@ -7,7 +7,7 @@ const AgentStatusDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const [StatusClicked, SetStatusClicked] = useState(false);
   const dropdownRef = useRef(null);
-  const { masterData, loading, error } = useSelector((state) => state.agents);
+  const { masterDataList, loading, error } = useSelector((state) => state.agents);
 
   // Function to determine the icon based on status ID
   const getStatusIcon = (id) => {
@@ -35,12 +35,12 @@ const AgentStatusDropdown = ({ name, value, onChange }) => {
 
   // Reorder the options: selected option first, then the rest
   const sortedOptions = () => {
-    if (!value || !masterData || masterData.length === 0) return masterData || [];
+    if (!value || !masterDataList || masterDataList.length === 0) return masterDataList || [];
 
-    const selectedOption = masterData.find((option) => option.id === value);
-    const otherOptions = masterData.filter((option) => option.id !== value);
+    const selectedOption = masterDataList.find((option) => option.id === value);
+    const otherOptions = masterDataList.filter((option) => option.id !== value);
 
-    return selectedOption ? [selectedOption, ...otherOptions] : masterData;
+    return selectedOption ? [selectedOption, ...otherOptions] : masterDataList;
   };
 
   const orderedOptions = sortedOptions();
@@ -51,7 +51,7 @@ const AgentStatusDropdown = ({ name, value, onChange }) => {
   };
 
   // Get the name and icon of the selected option
-  const selectedOption = masterData?.find((option) => option.id === value);
+  const selectedOption = masterDataList?.find((option) => option.id === value);
   const buttonText = selectedOption?.name || "Select Status";
   const buttonIcon = getStatusIcon(value); // Use the function to get the icon
 

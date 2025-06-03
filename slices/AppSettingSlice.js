@@ -9,13 +9,13 @@ export const fetchSetting = createAsyncThunk(
     'appSettings/fetchSetting',
     async ({ pageNo, pageSize, SearchStr, senderId, clientId}, { rejectWithValue }) => {
       try {
-        debugger
+        
         const response = await API.post("/api", {
                   endpoint: `${SETTINGLIST}?PageNo=${pageNo}${ SearchStr? `&SearchStr=${SearchStr}`:''}&PageSize=${pageSize}&SenderId=${senderId}&ClientId=${clientId}`,
                   method: "GET",
                   //payload: {},
                 });
-                debugger
+                
         if (response?.status === 200) {
           return {
             settingList: response.data,
@@ -134,7 +134,7 @@ const AppSettingSlice = createSlice({
   initialState: {
     settingList: [],
     appSettingsData:[],
-    setting: null,
+    settingDetails: null,
     loading: false,
     error: null,
     success: false,
@@ -155,7 +155,7 @@ const AppSettingSlice = createSlice({
     },
     clearAppSettingState: (state) => {
       state.settingList = [];
-      state.setting = null;
+      state.settingDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -167,7 +167,7 @@ const AppSettingSlice = createSlice({
   
     
     clearAppSettingDetailState: (state) => {
-      state.setting = null;
+      state.settingDetails = null;
       state.loading = false;
       state.error = null;
     },
@@ -177,7 +177,7 @@ const AppSettingSlice = createSlice({
       state.success = false;
     },
     clearAppSettingDeleteState: (state) => {
-      state.setting = null;
+      state.settingDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -216,7 +216,7 @@ const AppSettingSlice = createSlice({
       })
       .addCase(fetchSettingById.fulfilled, (state, action) => {
         state.loading = false;
-        state.setting = action.payload;
+        state.settingDetails = action.payload;
         // state.message = action.payload || '';
       })
       .addCase(fetchSettingById.rejected, (state, action) => {

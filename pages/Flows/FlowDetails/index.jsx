@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import Loader from "@/components/Layout/Loader";
 import { BASE_URL } from "@/utils/apiConstants";
@@ -518,7 +518,9 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
   //const flowId = useRecoilValue(FlowState);
   const router = useRouter();
   const [SendernamesData, setSendernamesData] = useState([]);
-
+   const { flowDetails, totalRecords, loading, error } = useSelector(
+    (state) => state.flows
+  )
   const [flowData, setFlowData] = useState({
     senderId: "0",
     flowName: "",
@@ -538,6 +540,12 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
   const [currentQuestion, setCurrentQuestion] = useState(null);
 
   useEffect(() => {
+    if (flowDetails) {
+      setFlowData(flowDetails);
+    }
+  }, [flowDetails]);
+
+  useEffect(() => {
     const fetchFlowData = async () => {
       if (Flow_Id) {
         setIsLoading(true);
@@ -548,7 +556,6 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
 
           if (response) {
             setSenderId(response.senderId);
-            setFlowData(JSON.parse(JSON.stringify(response))); // Deep copy
           } else {
             showSweetAlert({
               title: "Error",
@@ -711,24 +718,33 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
   };
 
   const updateScreenField = (field, value) => {
-    const updatedScreens = [...flowData.flowScreens];
-    updatedScreens[currentEditScreenIndex][field] = value;
-    setFlowData({ ...flowData, flowScreens: updatedScreens });
-  };
-
+  const updatedScreens = flowData.flowScreens.map((screen, index) => {
+    if (index === currentEditScreenIndex) {
+      return { ...screen, [field]: value }; // Create a new object with updated field
+    }
+    return screen; // Return unchanged screen for other indices
+  });
+  setFlowData({ ...flowData, flowScreens: updatedScreens });
+};
   const updateQuestionField = (field, value) => {
     if (!currentQuestion) return;
     const updatedQuestion = { ...currentQuestion, [field]: value };
     setCurrentQuestion(updatedQuestion);
   };
 
-  const updateOptionField = (optionIndex, field, value) => {
-    if (!currentQuestion) return;
-    const updatedQuestion = { ...currentQuestion };
-    updatedQuestion.flowOptions[optionIndex][field] = value;
-    setCurrentQuestion(updatedQuestion);
+const updateOptionField = (optionIndex, field, value) => {
+  if (!currentQuestion) return;
+  const updatedQuestion = {
+    ...currentQuestion,
+    flowOptions: currentQuestion.flowOptions.map((option, idx) => {
+      if (idx === optionIndex) {
+        return { ...option, [field]: value };
+      }
+      return option;
+    }),
   };
-
+  setCurrentQuestion(updatedQuestion);
+};
   const handleSenderChange = async (e) => {
     const selectedSenderId = e.target.value;
     setFlowData({ ...flowData, senderId: selectedSenderId });
@@ -743,18 +759,22 @@ const UpdateFlowPage = ({ Flow_Id, onclose }) => {
     setFlowData({ ...flowData, publishToFB: !flowData.publishToFB });
   };
 
-  const handleSaveQuestion = () => {
-    if (selectedQuestionIndex !== null && currentQuestion) {
-      const updatedScreens = [...flowData.flowScreens];
-      updatedScreens[currentEditScreenIndex].flowChildren[
-        selectedQuestionIndex
-      ] = { ...currentQuestion };
-      setFlowData({ ...flowData, flowScreens: updatedScreens });
-      setModalOpen(false);
-      setCurrentQuestion(null);
-      setSelectedQuestionIndex(null);
-    }
-  };
+const handleSaveQuestion = () => {
+  if (selectedQuestionIndex !== null && currentQuestion) {
+    const updatedScreens = flowData.flowScreens.map((screen, index) => {
+      if (index === currentEditScreenIndex) {
+        const updatedFlowChildren = [...screen.flowChildren];
+        updatedFlowChildren[selectedQuestionIndex] = { ...currentQuestion };
+        return { ...screen, flowChildren: updatedFlowChildren };
+      }
+      return screen;
+    });
+    setFlowData({ ...flowData, flowScreens: updatedScreens });
+    setModalOpen(false);
+    setCurrentQuestion(null);
+    setSelectedQuestionIndex(null);
+  }
+};
   const handleCancel = () => {
     setIsLoading(true);
     onclose();

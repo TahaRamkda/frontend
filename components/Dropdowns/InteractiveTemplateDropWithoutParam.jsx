@@ -2,14 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Select from 'react-select';
 import Loader from "../Layout/Loader";
-import { fetchInteractiveTemplateDropWithoutParam,clearInteractiveTemplateDropStateState } from "@/slices/InteractiveTemplateSlice";
+import { fetchInteractiveTemplateDropWithoutParam,clearInteractiveTemplateDropStateState } from "@/slices/DropdownSlice";
 import { FormGroup, Label, Input, FormText } from "reactstrap";
 
 const InteractiveTemplateDropdown = ({ name, value, onChange, TransactionType, SenderId }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
-  const { interactiveTemplateDropList, loading, error } = useSelector(
-    (state) => state.interactiveTemplates
+  const { interactiveTempWithoutParamDropdownData, loading, error } = useSelector(
+    (state) => state.dropdown
   );
   const [transactionType, settransactionType] = useState(0);
 
@@ -28,7 +28,7 @@ const InteractiveTemplateDropdown = ({ name, value, onChange, TransactionType, S
     );
   }, [dispatch, transactionType]);
 
-  const options = interactiveTemplateDropList?.map((item) => ({
+  const options = interactiveTempWithoutParamDropdownData?.map((item) => ({
     value: item.id,
     label: item.name,
   })) || [];

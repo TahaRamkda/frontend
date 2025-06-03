@@ -5,13 +5,13 @@ import Loader from '../Layout/Loader';
 import Select from 'react-select';
 import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
-import { fetchClientsDrop, clearClientDropState } from "@/slices/clientSlice";
+import { fetchClientsDrop, clearClientDropState } from "@/slices/DropdownSlice";
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
 
 const ClientDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
-  const { clientsDrop, loading, error } = useSelector((state) => state.clients);
+  const { clientsDropList, loading, error } = useSelector((state) => state.dropdown);
   const [searchString, setsearchString] = useState("");
 
   useEffect(() => {
@@ -19,7 +19,7 @@ const ClientDropdown = ({ name, value, onChange }) => {
 
   }, [dispatch]);
 
-  const options = clientsDrop?.map((item) => ({
+  const options = clientsDropList?.map((item) => ({
     value: item.id,
     label: item.name,
   })) || [];

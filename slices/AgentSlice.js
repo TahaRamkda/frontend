@@ -33,7 +33,7 @@ export const fetchAgents = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          agents: response.data,
+          agentList: response.data,
           totalRecords:
             response.data.length > 0 ? response.data[0].totalRecords : 0,
         };
@@ -47,57 +47,8 @@ export const fetchAgents = createAsyncThunk(
   }
 );
 
-export const fetchActiveAgentsDrop = createAsyncThunk(
-  "agent/fetchActiveAgentsDrop",
-  async ({ clientId, senderId }, { rejectWithValue }) => {
-    try {
-      const response = await API.post("/api", {
-        endpoint: `${ACTIVEAGENTS}?senderId=${senderId}`,
-        method: "GET",
-        //payload: {},
-      });
 
-      if (response.status === 200) {
-        return {
-          activeAgentDrop: response.data,
-        };
-      } else {
-        throw new Error("Failed to fetch details");
-      }
-    } catch (err) {
-      const handledError = handleError(err);
-      return rejectWithValue(handledError);
-    }
-  }
-);
 
-export const fetchAgentsDrop = createAsyncThunk(
-  "agent/fetchAgentsDrop",
-  async (
-    { clientId, senderId, pageNo, pageSize, searchStr },
-    { rejectWithValue }
-  ) => {
-    try {
-      const response = await API.post("/api", {
-        endpoint: `${AGENTDROPDOWN}?senderId=${senderId}${
-          searchStr ? `&searchStr=${searchStr}` : ""
-        }`,
-        method: "GET",
-        //payload: {},
-      });
-      if (response?.status === 200) {
-        return {
-          agentDrop: response.data,
-        };
-      } else {
-        throw new Error("Failed to fetch details");
-      }
-    } catch (err) {
-      const handledError = handleError(err);
-      return rejectWithValue(handledError);
-    }
-  }
-);
 
 export const fetchMasterData = createAsyncThunk(
   "agent/fetchMasterData",
@@ -111,7 +62,7 @@ export const fetchMasterData = createAsyncThunk(
 
       if (response?.status === 200) {
         return {
-          masterData: response.data,
+          masterDataList: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -193,7 +144,7 @@ export const fetchAgentStats = createAsyncThunk(
       });
       if (response?.status === 200) {
         return {
-          AgentStats: response.data,
+          agentStatsList: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -312,14 +263,12 @@ export const deleteAgent = createAsyncThunk(
 const agentSlice = createSlice({
   name: "agent",
   initialState: {
-    agents: [],
-    agentDrop: [],
+    agentList: [],
     agentsTiming: [],
-    AgentStats: [],
-    masterData: [],
+    agentStatsList: [],
+    masterDataList: [],
     agentTagsDropdown: [],
-    activeAgentDrop: [],
-    agent: null,
+    agentDetails: null,
     loading: false,
     error: null,
     success: false,
@@ -339,8 +288,8 @@ const agentSlice = createSlice({
       state.currentPage = action.payload;
     },
     cleaAgentState: (state) => {
-      state.agents = [];
-      state.agent = null;
+      state.agentList = [];
+      state.agentDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -349,26 +298,8 @@ const agentSlice = createSlice({
       //state.pageSize = 10;
       state.totalRecords = 0;
     },
-    cleaAgenDroptState: (state) => {
-      state.agentDrop = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
-    },
-    cleaActiveAgenDroptState: (state) => {
-      state.activeAgentDrop = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
-    },
-    clearAgentTagsDroptState: (state) => {
-      state.activeAgentDrop = [];
-      state.loading = false;
-      state.error = null;
-      state.success = false;
-    },
     clearMasterDataState: (state) => {
-      state.masterData = [];
+      state.masterDataList = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -381,7 +312,7 @@ const agentSlice = createSlice({
     },
 
     cleaAgentStats: (state) => {
-      state.AgentStats = [];
+      state.agentStatsList = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -392,7 +323,7 @@ const agentSlice = createSlice({
       state.success = false;
     },
     clearAgentDetailState: (state) => {
-      state.agent = null;
+      state.agentDetails = null;
       state.loading = false;
       state.error = null;
     },
@@ -403,7 +334,7 @@ const agentSlice = createSlice({
     },
 
     clearAgentDeleteState: (state) => {
-      state.agent = null;
+      state.agentDetails = null;
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -423,7 +354,7 @@ const agentSlice = createSlice({
       })
       .addCase(fetchAgents.fulfilled, (state, action) => {
         state.loading = false;
-        state.agents = action.payload.agents;
+        state.agentList = action.payload.agentList;
         state.totalRecords = action.payload.totalRecords;
         state.totalPages = Math.ceil(state.totalRecords / state.pageSize);
       })
@@ -433,38 +364,7 @@ const agentSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
       // Fetch Agents Perfomance
-
-      // Agents Dropdown
-      .addCase(fetchAgentsDrop.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchAgentsDrop.fulfilled, (state, action) => {
-        state.loading = false;
-        state.agentDrop = action.payload.agentDrop;
-        state.message = action.payload.message || "";
-      })
-      .addCase(fetchAgentsDrop.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
-
-      // Active Agents Dropdown
-      .addCase(fetchActiveAgentsDrop.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchActiveAgentsDrop.fulfilled, (state, action) => {
-        state.loading = false;
-        state.activeAgentDrop = action.payload.activeAgentDrop;
-        state.message = action.payload.message || "";
-      })
-      .addCase(fetchActiveAgentsDrop.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || action.error.message;
-        state.message = action.payload?.message || action.error.message;
-      })
+      
       // Active Agents Reasons Dropdown
       .addCase(fetchMasterData.pending, (state) => {
         state.loading = true;
@@ -472,7 +372,7 @@ const agentSlice = createSlice({
       })
       .addCase(fetchMasterData.fulfilled, (state, action) => {
         state.loading = false;
-        state.masterData = action.payload.masterData;
+        state.masterDataList = action.payload.masterDataList;
         state.message = action.payload.message || "";
       })
       .addCase(fetchMasterData.rejected, (state, action) => {
@@ -521,7 +421,7 @@ const agentSlice = createSlice({
       })
       .addCase(fetchAgentStats.fulfilled, (state, action) => {
         state.loading = false;
-        state.AgentStats = action.payload.AgentStats; // Correct payload key
+        state.agentStatsList = action.payload.agentStatsList; // Correct payload key
         state.message = action.payload.message || "";
       })
       .addCase(fetchAgentStats.rejected, (state, action) => {
@@ -554,7 +454,7 @@ const agentSlice = createSlice({
       })
       .addCase(fetchAgentsById.fulfilled, (state, action) => {
         state.loading = false;
-        state.agent = action.payload;
+        state.agentDetails = action.payload;
         state.message = action.payload?.message || "";
       })
       .addCase(fetchAgentsById.rejected, (state, action) => {
@@ -627,7 +527,6 @@ export const {
   cleaAgentStats,
   clearMasterDataState,
   clearAgentDeleteState,
-  cleaActiveAgenDroptState,
   clearAgentTagsDroptState,
   cleaAgenDroptState,
   clearAgentTimingCreateState,
