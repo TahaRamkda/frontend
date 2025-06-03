@@ -1,63 +1,86 @@
+import {
+  HiHome,
+  HiSpeakerphone,
+  HiUserGroup,
+  HiUsers,
+  HiTemplate,
+  HiChartBar,
+  HiChatAlt2,
+  HiIdentification,
+  HiCloud,
+  HiDocumentReport,
+  HiCog,
+  HiLockClosed,
+  HiLogout,
+  HiViewGrid,
+  HiChatAlt,
+  HiClipboardList,
+  HiUserCircle,
+  HiPresentationChartBar,
+  HiCollection,
+  HiCube,
+} from "react-icons/hi";
+
 export const sidebarItems = [
     {
       href: '/Dashboard',
-      icon: 'ti-dashboard', // Dashboard icon
+      icon: <HiHome className="text-xl" />,
       text: 'Dashboard',
       module: 1,
       submenu: [],
     },
     {
       href: '/Campaigns/CampaignsList',
-      icon: 'ti-announcement', // Bullhorn icon for Campaigns
+      icon: <HiSpeakerphone className="text-xl" />,
       text: 'Campaigns',
       module: 1,
       submenu: [],
     },
     {
       href: '/Groups/GroupList',
-      icon: 'ti-layers', // Layers icon for Groups
+      icon: <HiUserGroup className="text-xl" />,
       text: 'Groups',
       module: 1,
       submenu: [],
     },
     {
       href: '/Contacts/ContactList',
-      icon: 'ti-book', // Address book icon for Contacts
+      icon: <HiUsers className="text-xl" />,
       text: 'Contacts',
       module: 1,
       submenu: [],
     },
     {
       href: '/Agents/AgentsList',
-      icon: 'ti-user', // User icon for Clients
+      icon: <HiUserCircle className="text-xl" />,
       text: 'Agents',
       module: 1,
       submenu: [],
     },
     {
       href: '/Templates/TemplatesList',
-      icon: 'ti-layout', // Layout icon for Templates
+      icon: <HiTemplate className="text-xl" />,
       text: 'Templates',
       module: 1,
       submenu: [],
     },
     {
       href: '/TemplateInsight',
-      icon: 'ti-bar-chart-alt', // Bar chart icon for Template Insight
+      icon: <HiChartBar className="text-xl" />,
       text: 'Template Insight',
       module: 1,
       submenu: [],
     },
     {
       href: '/InteractiveTemplates/InteractiveList',
-      icon: 'ti-layout', // Layout icon for Templates
+      icon: <HiCollection className="text-xl" />,
       text: 'Interactive Templates',
       module: 1,
       submenu: [],
     },
     {
       href: '/Flows/FlowList',
-      icon: 'ti-announcement', // Bullhorn icon for Campaigns
+      icon: <HiCube className="text-xl" />,
       text: 'Flows',
       module: 1,
       submenu: [],
@@ -71,21 +94,21 @@ export const sidebarItems = [
     // },
     {
       href: '/Clients/ClientsList',
-      icon: 'ti-user', // User icon for Clients
+      icon: <HiUsers className="text-xl" />,
       text: 'Clients',
       module: 1,
       submenu: [],
     },
     {
       href: '/Chats/ChatsList',
-      icon: 'ti-comments', // Chat bubble icon for Chats
+      icon: <HiChatAlt2 className="text-xl" />,
       text: 'Chats',
       module: 1,
       submenu: [],
     },
     {
       href: '/SenderNames/SenderNamelist',
-      icon: 'ti-id-badge', // ID badge icon for Sender Names
+      icon: <HiIdentification className="text-xl" />,
       text: 'Sender Names',
       module: 1,
       submenu: [],
@@ -93,28 +116,28 @@ export const sidebarItems = [
     
     {
       href: '/SenderNamesAdmin/SenderNamelist',
-      icon: 'ti-id-badge', // ID badge icon for Sender Names
+      icon: <HiIdentification className="text-xl" />,
       text: 'Sender Names Admin',
       module: 1,
       submenu: [],
     },
     {
       href: '/Media/MediaList',
-      icon: 'ti-cloud-up', // Cloud upload icon for Media Upload
+      icon: <HiCloud className="text-xl" />,
       text: 'Media',
       module: 1,
       submenu: [],
     },
     {
       href: '#',
-      icon: 'ti-bar-chart', // Chart icon for Reports
+      icon: <HiDocumentReport className="text-xl" />,
       text: 'Reports',
       module: 2,
       submenu: [
         {
           href: '/Reports/MessagesReports',
           text: 'Message Reports',
-          icon: 'ti-clipboard', // Clipboard icon for Message Reports
+          icon: <HiClipboardList className="text-lg" />,
         },
         // {
         //   href: '/Reports/MessageSummary',
@@ -124,54 +147,54 @@ export const sidebarItems = [
         {
           href: '/Reports/ChatsReport',
           text: 'Chat Report',
-          icon: 'ti-clipboard', // Pie chart icon for Message Summary
+          icon: <HiChatAlt className="text-lg" />,
         },
         {
           href: '/Reports/AgentReport',
           text: 'Agent Report',
-          icon: 'ti-clipboard', // Pie chart icon for Message Summary
+          icon: <HiUserCircle className="text-lg" />,
         },
         {
           href: '/Reports/SurveyReport',
           text: 'Survey Report',
-          icon: 'ti-clipboard', // Pie chart icon for Message Summary
+          icon: <HiClipboardList className="text-lg" />,
         },
       ],
     },
     {
       href: '#',
-      icon: 'ti-user', // Chart icon for Reports
+      icon: <HiUserCircle className="text-xl" />,
       text: 'Supervisor',
       module: 2,
       submenu: [
         {
           href: '/Supervisor/SupervisorDashboard',
           text: 'Dashboard',
-          icon: 'ti-dashboard', 
+          icon: <HiViewGrid className="text-lg" />,
         },
         {
           href: '/Supervisor/ChatsMonitor',
           text: 'Chats Monitor',
-          icon: 'ti-clipboard', // Clipboard icon for Message Reports
+          icon: <HiChatAlt2 className="text-lg" />,
         },
         {
           href: '/Supervisor/AgentsMonitor',
           text: 'Agents Monitor',
-          icon: 'ti-clipboard', // Pie chart icon for Message Summary
+          icon: <HiPresentationChartBar className="text-lg" />,
         },
        
       ],
     },
     {
       href: '/Roles/RolesList',
-      icon: 'ti-settings', // Settings icon for Roles
+      icon: <HiCog className="text-xl" />,
       text: 'Roles',
       module: 1,
       submenu: [],
     },
     {
       href: '/Users/UsersList',
-      icon: 'ti-user', // Settings icon for Roles
+      icon: <HiUsers className="text-xl" />,
       text: 'Users',
       module: 1,
       submenu: [],
@@ -179,21 +202,21 @@ export const sidebarItems = [
 
     {
       href: '/Permissions/PermissionList',
-      icon: 'ti-lock', // Lock icon for Permissions
+      icon: <HiLockClosed className="text-xl" />,
       text: 'Permissions',
       module: 1,
       submenu: [],
     },
     {
       href: '/Settings/AppSettingList',
-      icon: 'ti-settings', // Settings icon for Roles
+      icon: <HiCog className="text-xl" />,
       text: 'Settings',
       module: 1,
       submenu: [],
     },
     {
       href: '/dashboard',
-      icon: 'ti-power-off', // Power-off icon for Logout
+      icon: <HiLogout className="text-xl" />,
       text: 'Logout',
       module: 3,
       submenu: [],
