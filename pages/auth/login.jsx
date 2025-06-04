@@ -8,7 +8,7 @@ import imageOne from "@/public/images/logo.png";
 import { fetchLogin, blankAuthState } from "@/slices/AuthSlice";
 import { Image } from "react-bootstrap";
 import { sidebarItems } from "@/utils/sidebarItems";
-
+import { fetchMerchant } from "@/slices/MerchantSlice";
 const Login = () => {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -21,23 +21,30 @@ const Login = () => {
   const [logoSrc, setLogoSrc] = useState("");
   const [companyName, setCompanyName] = useState("");
   const logoMap = JSON.parse(process.env.NEXT_PUBLIC_LOGO_MAP || '{}');
-const companyNameMap = JSON.parse(process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || '{}');
+  const companyNameMap = JSON.parse(process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || '{}');
+  const {merchantData} = useSelector((state) => state.merchant);
 
-
-
-  // Handler for form submission
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
       const response = await dispatch(fetchLogin({ email, password })).unwrap();
       console.log("Auth data:", response);
-      if (rememberMe) {
+      if(response.status === 1){
+        if (rememberMe) {
         // Set remember me cookie
         Cookies.set("rememberMe", "true", { expires: 30 });
         Cookies.set("email", email, { expires: 30 });
       }
       blankAuthState();
       router.push("/");
+      }else{
+         SweetAlert.fire({
+        icon: "error",
+        title: "Oops...",
+        text: response.message || "Incorrect Username or Password!",
+      });
+      }
+      
     } catch (err) {
       console.error("Login error:", err);
       SweetAlert.fire({
@@ -49,35 +56,13 @@ const companyNameMap = JSON.parse(process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || '{
   };
 
   useEffect(() => {
-    
     if (typeof window !== "undefined") {
       const hostname = window.location.hostname;
-      setLogoSrc(logoMap[hostname]);
-      setCompanyName(companyNameMap[hostname]);
+      dispatch(fetchMerchant({domain: hostname}));
     }
-  }, [ logoMap, companyNameMap ]);
+  }, [dispatch]);
 
-  // useEffect(() => {
-
-  //   if (authData) {
-  //     // Set login cookie
-  //     blankAuthState();
-  //     // Redirect to dashboard
-  //     router.push("/Dashboard");
-
-  //   }
-
-  //   if (error) {
-  //     // Display an error if login fails
-  //     SweetAlert.fire({
-  //       icon: "error",
-  //       title: "Oops...",
-  //       text: "Incorrect Username or Password!",
-
-  //     });
-  //   }
-  // }, [ error, router]);
-
+  
   return (
     <div
       className="flex items-center justify-center min-h-screen"
@@ -128,14 +113,13 @@ const companyNameMap = JSON.parse(process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || '{
           <div className="relative w-[90px] h-[90px] flex items-center justify-center">
             <div className="absolute inset-0 blur-md bg-white/30 rounded-full"></div>
             <Image
-              src={logoSrc}
+              src={merchantData.logo}
               alt="Company Logo"
               width={80}
               height={80}
               className="relative drop-shadow-2xl transform hover:scale-105 transition-transform duration-300"
               style={{
-                filter:
-                  "brightness(1.05) drop-shadow(0 4px 6px rgba(0,0,0,0.1))",
+                filter:"brightness(1.05) drop-shadow(0 4px 6px rgba(0,0,0,0.1))",
               }}
             />
           </div>
@@ -143,7 +127,7 @@ const companyNameMap = JSON.parse(process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || '{
             className="text-2xl font-semibold text-white drop-shadow-xl tracking-wide mt-4"
             style={{ textShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
           >
-            {companyName}
+            {merchantData.name}
           </p>
         </div>
 
