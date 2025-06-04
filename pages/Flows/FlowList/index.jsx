@@ -311,7 +311,7 @@ const Flow = () => {
     <App>
       {loading && <Loader />}
       {showupdateflowmodel ? (
-        <UpdateFlow Flow_Id={flowId} onclose={handleClose} />
+        <UpdateFlow Flow_Id={flowId} onclose={handleClose} refresh={refreshFlowList} />
       ) : (
         <>
           <div className="flex items-center">

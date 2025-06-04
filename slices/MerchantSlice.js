@@ -1,26 +1,23 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from "../utils/api.axios";
 import handleError from "../utils/handleError";
-import { WALLETBALANCE } from "@/utils/apiConstants";
+import { MERCHANTDETAILS } from "@/utils/apiConstants";
 
 // Thunks
-// Fetch Data
-export const fetchWalletBalance = createAsyncThunk(
-  "wallet/fetchWalletBalance",
-  async ({ }, { rejectWithValue }) => {
+// Fetch Merchant
+export const fetchMerchant = createAsyncThunk(
+  "merchant/fetchMerchant",
+  async ({ domain }, { rejectWithValue }) => {
     try {
-        
       const response = await API.post("/api", {
-        endpoint: `${WALLETBALANCE}`,
+        endpoint: `${MERCHANTDETAILS}?domain=${domain}`,
         method: "GET",
         //payload: {},
       });
 
       if (response?.status === 200) {
         return {
-          WalletData: response.data,
-          totalRecords:
-            response.data.length > 0 ? response.data[0].totalRecords : 0,
+          merchantData: response.data,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -33,32 +30,40 @@ export const fetchWalletBalance = createAsyncThunk(
 );
 
 // Slice
-const WalletSlice = createSlice({
-  name: "wallet",
+const MerchantSlice = createSlice({
+  name: "merchant",
   initialState: {
-    WalletData: [],
+    merchantData: [],
+    loading: false,
+    error: null,
+    success: false,
+    message: "",
   },
   reducers: {
-    // Pagination and reset actions
-    clearWalletState: (state) => {
-      state.WalletData = [];
+    clearMerchantState: (state) => {
+      state.merchantList = [];
+      state.merchantData = null;
       state.loading = false;
       state.error = null;
       state.success = false;
+      state.currentPage = 1;
+      state.totalPages = 1;
+      state.pageSize = 10;
+      state.totalRecords = 0;
     },
   },
   extraReducers: (builder) => {
     builder
-      // Fetch Groups
-      .addCase(fetchWalletBalance.pending, (state) => {
+      // Fetch Merchants
+      .addCase(fetchMerchant.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchWalletBalance.fulfilled, (state, action) => {
+      .addCase(fetchMerchant.fulfilled, (state, action) => {
         state.loading = false;
-        state.WalletData = action.payload.WalletData;
+        state.merchantData = action.payload.merchantData;
       })
-      .addCase(fetchWalletBalance.rejected, (state, action) => {
+      .addCase(fetchMerchant.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
@@ -67,6 +72,6 @@ const WalletSlice = createSlice({
 });
 
 // Export actions
-export const { clearGroupState } = WalletSlice.actions;
+export const { clearMerchantState } = MerchantSlice.actions;
 
-export default WalletSlice.reducer;
+export default MerchantSlice.reducer;

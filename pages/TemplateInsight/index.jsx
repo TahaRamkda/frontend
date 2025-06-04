@@ -40,6 +40,12 @@ const TemplateInsight = () => {
   );
 
   useEffect(() => {
+    debugger
+    if(templateInsight){
+      console.log(templateInsight);
+    }
+  })
+  useEffect(() => {
     const today = new Date();
     const lastWeek = new Date(today);
     lastWeek.setDate(today.getDate() - 7);
@@ -49,9 +55,11 @@ const TemplateInsight = () => {
   }, []);
 
   useEffect(() => {
+    
     if (fromDate && toDate && TemplateId) {
       localStorage.setItem("activeModule", "0");
       const clientId = localStorage.getItem("clientId");
+      
       dispatch(
         fetchTemplateInsight({
           clientId,
