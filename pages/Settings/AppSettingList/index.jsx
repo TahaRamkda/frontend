@@ -24,12 +24,12 @@ import {
   setPageSize,
   setCurrentPage,
   updateAppSettings,
-  deleteAppSetting
+  deleteAppSetting,
 } from "@/slices/AppSettingSlice";
 import showSweetAlert from "@/components/Sweetalert";
-import { Logger } from 'next-axiom';
-import logChatDetails from '@/components/logger';
-import { LogerType } from '@/utils/constants';
+import { Logger } from "next-axiom";
+import logChatDetails from "@/components/logger";
+import { LogerType } from "@/utils/constants";
 import Loading from "@/components/Layout/Loader";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
 import SettingForm from "@/pages/Settings/CreateAppSetting";
@@ -40,8 +40,15 @@ import ClientDropdown from "@/components/Dropdowns/ClientDropdown";
 const AppSettings = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { settingList, settingDetails, loading, error, pageSize, totalRecords, currentPage } =
-    useSelector((state) => state.appsetting);
+  const {
+    settingList,
+    settingDetails,
+    loading,
+    error,
+    pageSize,
+    totalRecords,
+    currentPage,
+  } = useSelector((state) => state.appsetting);
   const [senderId, setSelectedSenderId] = useState(0);
   const logger = new Logger();
   const [clientId, setSelectedClientId] = useState(0);
@@ -50,7 +57,7 @@ const AppSettings = () => {
   const [settingForm, setSettingForm] = useState({});
   const [filterText, setFilterText] = useState("");
   const startTime = Date.now();
-  const [showSettingForm, setShowSettingForm] = useState(false)
+  const [showSettingForm, setShowSettingForm] = useState(false);
   const [CreateModalOpen, setCreateModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // Start as true since we're fetching data
   const settingColumns = [
@@ -86,27 +93,22 @@ const AppSettings = () => {
     },
   ];
 
-  useEffect(()=>{
-    if(settingDetails){
-      setSettingForm(settingDetails)
+  useEffect(() => {
+    if (settingDetails) {
+      setSettingForm(settingDetails);
     }
-  }, [settingDetails])
+  }, [settingDetails]);
   const handleClientChange = (e) => {
-    
     const id = e.target.value;
     setSelectedClientId(id);
   };
   const handleSenderChange = (e) => {
-    
     const id = e.target.value;
     setSelectedSenderId(id);
   };
 
-  
   const handleDetailClick = async (id) => {
-    
     try {
-      
       const response = await dispatch(fetchSettingById({ Id: id })).unwrap();
       if (response) {
         setIsModalOpen(true);
@@ -206,12 +208,12 @@ const AppSettings = () => {
     const timeout = setTimeout(() => {
       dispatch(
         fetchSetting({
-           clientId: localStorage.getItem("clientId"),
-        pageSize,
-        senderId: senderId,
-        clientId: clientId,
-        pageNo: currentPage,
-        SearchStr: searchValue,
+          clientId: localStorage.getItem("clientId"),
+          pageSize,
+          senderId: senderId,
+          clientId: clientId,
+          pageNo: currentPage,
+          SearchStr: searchValue,
         })
       );
     }, 500);
@@ -221,38 +223,52 @@ const AppSettings = () => {
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    try {
-      const requestBody = {
-        id: settingForm.id || 0,
-        keyName: settingForm.keyName || "string",
-        val: settingForm.val || "string",
-        senderId: settingForm.senderId || 0,
-      };
+    SweetAlert.fire({
+      title: "Are you sure?",
+      text: "",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const requestBody = {
+            id: settingForm.id || 0,
+            keyName: settingForm.keyName || "string",
+            val: settingForm.val || "string",
+            senderId: settingForm.senderId || 0,
+          };
 
-      const response = await dispatch(updateAppSettings(requestBody)).unwrap();
-      
-      if (response.status === 1) {
-        showSweetAlert({
-          title: "Updated Successfully",
-          text: "",
-          icon: "success",
-        });
-        setIsLoading(false);
-        setIsModalOpen(false);
-        refreshSettingList();
-      } else {
-        showSweetAlert({
-          title: "Error",
-          text: response.message,
-          icon: "error",
-        });
+          const response = await dispatch(
+            updateAppSettings(requestBody)
+          ).unwrap();
+
+          if (response.status === 1) {
+            showSweetAlert({
+              title: "Updated Successfully",
+              text: "",
+              icon: "success",
+            });
+            setIsLoading(false);
+            setIsModalOpen(false);
+            refreshSettingList();
+          } else {
+            showSweetAlert({
+              title: "Error",
+              text: response.message,
+              icon: "error",
+            });
+          }
+        } catch (error) {
+          alert("Failed to update group: " + error.message);
+          setIsLoading(false);
+        } finally {
+          setIsLoading(false);
+        }
       }
-    } catch (error) {
-      alert("Failed to update group: " + error.message);
-      setIsLoading(false);
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   const refreshSettingList = () => {
@@ -282,12 +298,11 @@ const AppSettings = () => {
     return () => {
       dispatch(clearAppSettingState());
     };
-  }, [dispatch,senderId,clientId]);
+  }, [dispatch, senderId, clientId]);
 
-  const handleCreate = async() => {
+  const handleCreate = async () => {
     setCreateModalOpen(true);
   };
-
 
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10;
@@ -303,13 +318,17 @@ const AppSettings = () => {
             />
           </div>
           <div className="flex flex-col space-y-1 text-start mb-1 ">
-          <label className="font-medium text-gray-700 text-sm ">
+            <label className="font-medium text-gray-700 text-sm ">
               Sender Name
             </label>
-            <SendernameDropdown name="senderId" value={senderId} onChange={handleSenderChange} />
+            <SendernameDropdown
+              name="senderId"
+              value={senderId}
+              onChange={handleSenderChange}
+            />
           </div>
           <div className="flex flex-col space-y-1 text-start mb-1 ">
-          <label className="font-medium text-gray-700 text-sm ">
+            <label className="font-medium text-gray-700 text-sm ">
               Client Name
             </label>
             <ClientDropdown
@@ -323,8 +342,6 @@ const AppSettings = () => {
       </div>
     );
   }, [filterText, clientId, senderId]);
-
-
 
   return (
     <App>
@@ -375,9 +392,15 @@ const AppSettings = () => {
               </ModalHeader>
               <ModalBody>
                 <form onSubmit={handleUpdateSubmit}>
-                  <div className="pointer-events-none"> 
-                    <label className="font-medium text-gray-700 text-sm">Sender Name</label>
-                    <SendernameDropdown name="senderId" value={settingForm.senderId} onChange={handleFormChange}  />
+                  <div className="pointer-events-none">
+                    <label className="font-medium text-gray-700 text-sm">
+                      Sender Name
+                    </label>
+                    <SendernameDropdown
+                      name="senderId"
+                      value={settingForm.senderId}
+                      onChange={handleFormChange}
+                    />
                   </div>
                   <div className="flex flex-col pointer-events-none">
                     <label
