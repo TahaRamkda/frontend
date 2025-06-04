@@ -27,6 +27,7 @@ import Loader from "./Loader";
 import { set } from "date-fns";
 import Setting from "../Settings/SettingDropdown";
 import showSweetAlert from "../Sweetalert";
+
 export function Header({ toggleSidebar }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -42,7 +43,7 @@ export function Header({ toggleSidebar }) {
   const companyNameMap = JSON.parse(process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || '{}');
   const {WalletData} = useSelector((state) => state.wallet);
   useEffect(() => {
-    debugger
+    
     if (WalletData?.length === 0) {
       dispatch(fetchWalletBalance({}));
     }

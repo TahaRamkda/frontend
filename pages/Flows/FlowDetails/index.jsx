@@ -513,7 +513,7 @@ const FlowPreview = ({
   );
 };
 
-const UpdateFlowPage = ({ Flow_Id, onclose }) => {
+const UpdateFlowPage = ({ Flow_Id, onclose, refresh }) => {
   const dispatch = useDispatch();
   //const flowId = useRecoilValue(FlowState);
   const router = useRouter();
@@ -796,7 +796,7 @@ const handleSaveQuestion = () => {
           icon: "success",
         });
         handleCancel();
-        //router.push("/Flows/FlowList");
+        refresh()
       })
       .catch((error) => {
         console.error("Failed to update flow:", error);

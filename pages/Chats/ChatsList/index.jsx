@@ -366,7 +366,8 @@ const ChatPage = () => {
             //logger.info("Received new message detail ADSFSD:",  extra={     "user_id": 5,response  } )
             // Remove specific session-related items instead of clearing everything
             localStorage.clear();
-            router.push("/auth/login");
+            window.location.href = "/auth/login";
+
           } else {
             SweetAlert.fire({
               title: "Logout Failed",

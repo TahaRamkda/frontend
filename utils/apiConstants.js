@@ -194,3 +194,6 @@ export const DELETEMENU = "#";
 
 // Wallet Endpoints
 export const WALLETBALANCE = "/Wallet/checkBalance";
+
+// White Labelling
+export const MERCHANTDETAILS = "/MerchantSettingInfo/getMerchantDetails"
