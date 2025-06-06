@@ -54,6 +54,7 @@ export const fetchMasterData = createAsyncThunk(
   "agent/fetchMasterData",
   async ({ type }, { rejectWithValue }) => {
     try {
+      debugger
       const response = await API.post("/api", {
         endpoint: `${MASTERDATA}?type=${type}`,
         method: "GET",
@@ -371,6 +372,7 @@ const agentSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchMasterData.fulfilled, (state, action) => {
+        debugger
         state.loading = false;
         state.masterDataList = action.payload.masterDataList;
         state.message = action.payload.message || "";
