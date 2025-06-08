@@ -40,7 +40,7 @@ const TemplateInsight = () => {
   );
 
   useEffect(() => {
-    debugger
+    
     if(templateInsight){
       console.log(templateInsight);
     }

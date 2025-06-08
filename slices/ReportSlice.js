@@ -593,7 +593,7 @@ const reportSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchTemplateInsight.fulfilled, (state, action) => {
-        debugger
+        
         state.loading = false;
         state.templateInsight = JSON.parse(action.payload.templateInsight); //action.payload.messagereportsummary;
         state.message = action.payload.message || "";

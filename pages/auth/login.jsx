@@ -20,31 +20,32 @@ const Login = () => {
   const { authData, loading, error } = useSelector((state) => state.authData);
   const [logoSrc, setLogoSrc] = useState("");
   const [companyName, setCompanyName] = useState("");
-  const logoMap = JSON.parse(process.env.NEXT_PUBLIC_LOGO_MAP || '{}');
-  const companyNameMap = JSON.parse(process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || '{}');
-  const {merchantData} = useSelector((state) => state.merchant);
+  const logoMap = JSON.parse(process.env.NEXT_PUBLIC_LOGO_MAP || "{}");
+  const companyNameMap = JSON.parse(
+    process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || "{}"
+  );
+  const { merchantData } = useSelector((state) => state.merchant);
 
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
       const response = await dispatch(fetchLogin({ email, password })).unwrap();
       console.log("Auth data:", response);
-      if(response.status === 1){
+      if (response.status === 1) {
         if (rememberMe) {
-        // Set remember me cookie
-        Cookies.set("rememberMe", "true", { expires: 30 });
-        Cookies.set("email", email, { expires: 30 });
+          // Set remember me cookie
+          Cookies.set("rememberMe", "true", { expires: 30 });
+          Cookies.set("email", email, { expires: 30 });
+        }
+        blankAuthState();
+        router.push("/");
+      } else {
+        SweetAlert.fire({
+          icon: "error",
+          title: "Oops...",
+          text: response.message || "Incorrect Username or Password!",
+        });
       }
-      blankAuthState();
-      router.push("/");
-      }else{
-         SweetAlert.fire({
-        icon: "error",
-        title: "Oops...",
-        text: response.message || "Incorrect Username or Password!",
-      });
-      }
-      
     } catch (err) {
       console.error("Login error:", err);
       SweetAlert.fire({
@@ -56,15 +57,13 @@ const Login = () => {
   };
 
   useEffect(() => {
-    
     if (typeof window !== "undefined") {
       const hostname = window.location.hostname;
       setLogoSrc(logoMap[hostname]);
       setCompanyName(companyNameMap[hostname]);
     }
-  }, [ logoMap, companyNameMap ]);
+  }, [logoMap, companyNameMap]);
 
-  
   return (
     <div
       className="flex items-center justify-center min-h-screen"
@@ -121,7 +120,8 @@ const Login = () => {
               height={80}
               className="relative drop-shadow-2xl transform hover:scale-105 transition-transform duration-300"
               style={{
-                filter:"brightness(1.05) drop-shadow(0 4px 6px rgba(0,0,0,0.1))",
+                filter:
+                  "brightness(1.05) drop-shadow(0 4px 6px rgba(0,0,0,0.1))",
               }}
             />
           </div>

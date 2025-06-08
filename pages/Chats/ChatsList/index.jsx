@@ -57,7 +57,6 @@ import showSweetAlert from "@/components/Sweetalert";
 import {
   fetchAgentsById,
   fetchAgentStats,
-  fetchMasterData,
 } from "@/slices/AgentSlice";
 import * as signalR from "@microsoft/signalr";
 import DefinedTemplates from "../../Chats/AgentDefinedTemplate";
@@ -224,10 +223,7 @@ const ChatPage = () => {
         return matchesSearch;
     }
   });
-  useEffect(() => {
-    debugger;
-    dispatch(fetchMasterData({ type: "AgentStatus" }));
-  }, [dispatch]);
+ 
 
   const sortedOptions = () => {
     if (!masterDataList || masterDataList.length === 0)
@@ -330,7 +326,9 @@ const ChatPage = () => {
   }, [expiredConversations]);
 
   useEffect(() => {
+    ;
     if (message.length > 0) {
+      ;
       // Reverse the order to maintain correct sequence
       setChatMessages([...message].reverse());
       setActiveSenderId(message[0].senderId);
@@ -637,7 +635,7 @@ const ChatPage = () => {
 
     const formData = new FormData();
     formData.append("ClientId", localStorage.getItem("clientId"));
-    formData.append("SenderId", message[0].senderId);
+    formData.append("SenderId", message[0]?.senderId);
     formData.append("Message", messageInput.trim());
     formData.append("ConversationId", Activechat);
 
@@ -1218,83 +1216,12 @@ const ChatPage = () => {
         <div className="h-full overflow-y-auto">
           <div className="p-3 space-y-3">
             {/* Agent Status Stats Item */}
-            <div>
-  <div
-    onClick={toggleStatusDropdown}
-    className="flex items-center md:flex-col group-hover:flex-row space-x-3 p-2 rounded-xl hover:bg-white transition-colors duration-200 cursor-pointer"
-  >
-    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-50">
-      <HiCog
-        className={`text-xl ${
-          AgentStatus === 1
-            ? "text-green-500"
-            : AgentStatus === 2
-            ? "text-yellow-500"
-            : AgentStatus === 3
-            ? "text-red-500"
-            : AgentStatus === 4
-            ? "text-purple-500"
-            : AgentStatus === 5
-            ? "text-blue-500"
-            : "text-gray-500"
-        }`}
-      />
-    </div>
-    <div className="hidden group-hover:flex items-center justify-between flex-1">
-      <div>
-        <p className="text-xs text-gray-500">Agent Status</p>
-        <p className="text-xs font-medium text-gray-700 mt-0.5">
-          {
-            orderedOptions.find((opt) => opt.id === AgentStatus)
-              ?.name || "Unknown"
-          }
-        </p>
-      </div>
-      <i
-        className={`fas fa-chevron-${
-          showStatusDropdown ? "up" : "down"
-        } text-xs text-gray-400`}
-      ></i>
-    </div>
-  </div>
 
-  {showStatusDropdown && orderedOptions?.length > 0 && (
-    <div className="mt-1 ml-12 group-hover:ml-2 overflow-hidden transition-all duration-200">
-      <div className="bg-white rounded-lg">
-        {orderedOptions.map((option, index) => {
-          let dotColor =
-            option.id === 1
-              ? "bg-green-500"
-              : option.id === 2
-              ? "bg-yellow-500"
-              : option.id === 3
-              ? "bg-red-500"
-              : option.id === 4
-              ? "bg-purple-500"
-              : option.id === 5
-              ? "bg-blue-500"
-              : "bg-gray-500";
-
-          return (
-            <div
-              key={index}
-              onClick={() => {
-                HandleAgentStatus({ target: { value: option.id } });
-                setShowStatusDropdown(false);
-              }}
-              className={`flex items-center space-x-2 px-3 py-2 hover:bg-gray-50 cursor-pointer ${
-                option.id === "0" ? "border-t border-gray-100" : ""
-              }`}
-            >
-              <div className={`w-2 h-2 rounded-full ${dotColor}`}></div>
-              <span className="text-xs text-gray-700">{option.name}</span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  )}
-</div>
+            <AgentStatusDropdown
+              name="agentStatusId"
+              onChange={HandleAgentStatus}
+              value={AgentStatus}
+            />
 
             {/* Assigned */}
             <div className="flex items-center md:flex-col group-hover:flex-row space-x-3 p-2 rounded-xl hover:bg-white transition-colors duration-200">
@@ -1431,6 +1358,7 @@ const ChatPage = () => {
                 maxWidth: "280px",
                 boxShadow: "none",
                 background: "#F8F9FA",
+                padding: "0px",
               }}
             >
               {/* Search Bar */}
@@ -1595,8 +1523,10 @@ const ChatPage = () => {
                   backgroundColor: "#F8F9FA",
                   boxShadow: "none",
                   maxWidth: "1200px",
-                  margin: "0 auto",
+                  margin: "0px",
                   width: "100%",
+                  padding: "0px"
+                  
                 }}
               >
                 {/* Chat Header */}
@@ -1975,8 +1905,8 @@ const ChatPage = () => {
                       <div ref={messagesEndRef} />
                     </div>
 
-                      {previewUrl && (
-                      <div className="absolute inset-0  flex items-center justify-center z-50">
+                    {previewUrl && (
+                      <div className="absolute inset-0  flex items-center justify-center z-900">
                         <div className="bg-transparent p-6 rounded w-2/5 ">
                           <div
                             style={{
@@ -2250,7 +2180,7 @@ const ChatPage = () => {
                         }
                       }}
                       placeholder="Type a message..."
-                      style={{ zIndex: "999" }}
+                      style={{ zIndex: 1000 }}
                       className="flex-1 rounded-lg border border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-300 px-3 py-2 text-sm bg-white"
                     />
 
@@ -2297,7 +2227,7 @@ const ChatPage = () => {
 
           {/* Right Templates Section */}
           <div
-            className="fixed right-0 top-16 h-[calc(100vh-4rem)] bg-[#F8F9FA] border-l overflow-y-auto"
+            className="fixed right-0 top-16 h-[calc(100vh-4rem)] bg-[#F8F9FA] border mt-3 overflow-y-auto"
             style={{
               width: "280px",
               borderColor: "rgba(229, 231, 235, 0.5)",
