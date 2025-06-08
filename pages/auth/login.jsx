@@ -56,11 +56,13 @@ const Login = () => {
   };
 
   useEffect(() => {
+    
     if (typeof window !== "undefined") {
       const hostname = window.location.hostname;
-      dispatch(fetchMerchant({domain: hostname}));
+      setLogoSrc(logoMap[hostname]);
+      setCompanyName(companyNameMap[hostname]);
     }
-  }, [dispatch]);
+  }, [ logoMap, companyNameMap ]);
 
   
   return (
@@ -113,7 +115,7 @@ const Login = () => {
           <div className="relative w-[90px] h-[90px] flex items-center justify-center">
             <div className="absolute inset-0 blur-md bg-white/30 rounded-full"></div>
             <Image
-              src={merchantData.logo}
+              src={logoSrc}
               alt="Company Logo"
               width={80}
               height={80}
@@ -127,7 +129,7 @@ const Login = () => {
             className="text-2xl font-semibold text-white drop-shadow-xl tracking-wide mt-4"
             style={{ textShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
           >
-            {merchantData.name}
+            {companyName}
           </p>
         </div>
 
