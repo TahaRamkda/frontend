@@ -7,8 +7,9 @@ import { useDispatch, useSelector } from "react-redux";
 import imageOne from "@/public/images/logo.png";
 import { fetchLogin, blankAuthState } from "@/slices/AuthSlice";
 import { Image } from "react-bootstrap";
-import { sidebarItems } from "@/utils/sidebarItems";
+import Logo from "@/components/Logo/Logo";
 import { fetchMerchant } from "@/slices/MerchantSlice";
+import { sidebarItems } from "@/utils/sidebarItems";
 const Login = () => {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -18,13 +19,14 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [authuserData, setauthuserData] = useState(null);
   const { authData, loading, error } = useSelector((state) => state.authData);
-  const [logoSrc, setLogoSrc] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const logoMap = JSON.parse(process.env.NEXT_PUBLIC_LOGO_MAP || "{}");
-  const companyNameMap = JSON.parse(
-    process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || "{}"
-  );
   const { merchantData } = useSelector((state) => state.merchant);
+  useEffect(() => {
+    const hostname = window.location.hostname;
+    debugger
+    if (merchantData.length === 0 && localStorage.getItem("LogoPath") === null) {
+      dispatch(fetchMerchant({ domain: hostname }));
+    }
+  }, [dispatch]);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -55,14 +57,6 @@ const Login = () => {
       });
     }
   };
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const hostname = window.location.hostname;
-      setLogoSrc(logoMap[hostname]);
-      setCompanyName(companyNameMap[hostname]);
-    }
-  }, [logoMap, companyNameMap]);
 
   return (
     <div
@@ -111,26 +105,22 @@ const Login = () => {
 
         {/* Company Logo and Name */}
         <div className="absolute left-[15%] top-[120px] text-white flex flex-col items-center">
-          <div className="relative w-[90px] h-[90px] flex items-center justify-center">
+          <div className="relative w-[90px] h-[90px] flex items-center justify-center ">
             <div className="absolute inset-0 blur-md bg-white/30 rounded-full"></div>
-            <Image
-              src={logoSrc}
-              alt="Company Logo"
-              width={80}
-              height={80}
-              className="relative drop-shadow-2xl transform hover:scale-105 transition-transform duration-300"
-              style={{
-                filter:
-                  "brightness(1.05) drop-shadow(0 4px 6px rgba(0,0,0,0.1))",
-              }}
-            />
+            <div>
+              <Logo
+                alt="Company Logo"
+                showName={true}
+                imageClassName="relative drop-shadow-2xl transform hover:scale-105 transition-transform duration-300 mt-16"
+                imageStyle={{
+                  filter:
+                    "brightness(1.05) drop-shadow(0 4px 6px rgba(0,0,0,0.1))",
+                }}
+                textClassName="text-2xl font-semibold text-white drop-shadow-xl tracking-wide mt-4"
+                textStyle={{ textShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
+              />
+            </div>
           </div>
-          <p
-            className="text-2xl font-semibold text-white drop-shadow-xl tracking-wide mt-4"
-            style={{ textShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
-          >
-            {companyName}
-          </p>
         </div>
 
         {/* Login Form */}
@@ -236,40 +226,7 @@ const Login = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-2">
-                  <div className="flex items-center">
-                    <input
-                      id="remember-me"
-                      name="remember-me"
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="h-4 w-4 rounded-md cursor-pointer"
-                      style={{
-                        accentColor: "#7391CE",
-                        backgroundColor: "#EDF4F2",
-                        borderColor: "#CADCFC",
-                        boxShadow: "inset 0 2px 4px rgba(202, 220, 252, 0.1)",
-                      }}
-                    />
-                    <label
-                      htmlFor="remember-me"
-                      className="ml-2 block text-sm cursor-pointer"
-                      style={{ color: "#4A6CA2" }}
-                    >
-                      Remember me
-                    </label>
-                  </div>
-                  <div className="text-sm">
-                    <a
-                      href="#"
-                      className="font-medium transition-colors duration-200 hover:opacity-80"
-                      style={{ color: "#7391CE" }}
-                    >
-                      Forgot password?
-                    </a>
-                  </div>
-                </div>
+                
 
                 <div className="pt-4">
                   <button

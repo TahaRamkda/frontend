@@ -1,21 +1,6 @@
 import React from "react";
-import { useState, useEffect } from "react";
-import { Image } from "react-bootstrap";
+import Logo from "@/components/Logo/logo";
 const Loader = () => {
-  const [logoSrc, setLogoSrc] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const logoMap = JSON.parse(process.env.NEXT_PUBLIC_LOGO_MAP || "{}");
-  const companyNameMap = JSON.parse(
-    process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || "{}"
-  );
-  useEffect(() => {
-    ;
-    if (typeof window !== "undefined") {
-      const hostname = window.location.hostname;
-      setLogoSrc(logoMap[hostname]);
-      setCompanyName(companyNameMap[hostname]);
-    }
-  }, [logoMap, companyNameMap]);
   return (
     <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50">
       {/* Loader Container */}
@@ -31,11 +16,7 @@ const Loader = () => {
         ></div>
         {/* Center Logo */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <Image
-            src={logoSrc} // Replace with your image path
-            alt="Loading"
-            className="w-10 h-10" // Adjust size as needed
-          />
+           <Logo alt="Loading" imageClassName="w-10 h-10" />
         </div>
       </div>
       {/* Keyframe Animation */}

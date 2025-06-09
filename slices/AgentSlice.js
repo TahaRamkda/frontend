@@ -79,7 +79,7 @@ export const setAgentStatus = createAsyncThunk(
   "agent/setAgentStatus",
   async ({ agentId, statusId }, { rejectWithValue }) => {
     try {
-      ;
+      
       const response = await API.post("/api", {
         endpoint: `${AGENTSTATUS}?agentId=${agentId}&status=${statusId}`,
         method: "GET",

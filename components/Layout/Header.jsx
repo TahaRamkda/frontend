@@ -21,13 +21,18 @@ import UserBadge from "@/public/images/User.jpg";
 import AppSettings from "@/pages/Settings/AppSettingList";
 import ChangePass from "./ChangePassword";
 import LiveReportingSwitch from "./LiveReportingSwitch";
-import { clearAPICache, clearAPICacheState,clearBridgeCache,clearBridgeCacheState } from "@/slices/CacheSlice";
+import {
+  clearAPICache,
+  clearAPICacheState,
+  clearBridgeCache,
+  clearBridgeCacheState,
+} from "@/slices/CacheSlice";
 import Switch from "react-switch";
 import Loader from "./Loader";
 import { set } from "date-fns";
 import Setting from "../Settings/SettingDropdown";
 import showSweetAlert from "../Sweetalert";
-
+import Logo from "@/components/Logo/Logo";
 export function Header({ toggleSidebar }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -36,27 +41,24 @@ export function Header({ toggleSidebar }) {
   const dispatch = useDispatch();
   const [settingModal, SetSettingModal] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { loading, error, success, message } = useSelector((state) => state.clearCache);
-  const [logoSrc, setLogoSrc] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const logoMap = JSON.parse(process.env.NEXT_PUBLIC_LOGO_MAP || '{}');
-  const companyNameMap = JSON.parse(process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || '{}');
-  const {WalletData} = useSelector((state) => state.wallet);
+  const { loading, error, success, message } = useSelector(
+    (state) => state.clearCache
+  );
+const [userName, setUserName] = useState("");
+  const { WalletData } = useSelector((state) => state.wallet);
   useEffect(() => {
-    
     if (WalletData?.length === 0) {
       dispatch(fetchWalletBalance({}));
     }
-  },[WalletData])
-   useEffect(() => {
-    
-    if (typeof window !== "undefined") {
-      const hostname = window.location.hostname;
-      setLogoSrc(logoMap[hostname]);
-      setCompanyName(companyNameMap[hostname]);
-    }
-  }, [ logoMap, companyNameMap ]);
+  }, [WalletData]);
 
+useEffect(() => {
+    if (typeof window !== "undefined") {
+      // Ensure code runs only in the browser
+      const name = localStorage.getItem("userName") || "User"; // Fallback if userName is not found
+      setUserName(name);
+    }
+  }, []);
   useEffect(() => {
     const checkFullScreen = () => {
       setIsFullScreen(
@@ -209,7 +211,14 @@ export function Header({ toggleSidebar }) {
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
-        localStorage.clear();
+       if (typeof window !== "undefined") {
+  const logoPath = localStorage.getItem("LogoPath");
+  const merchantName = localStorage.getItem("MerchantName");
+  localStorage.clear();
+  if (logoPath) localStorage.setItem("LogoPath", logoPath);
+  if (merchantName) localStorage.setItem("MerchantName", merchantName);
+}
+
         router.push("/auth/login");
       }
     });
@@ -220,10 +229,10 @@ export function Header({ toggleSidebar }) {
   };
 
   return (
-    <nav 
-      className="app-header fixed top-0 left-0 right-0 z-50" 
-      style={{ 
-        background: '#F8F9FA'
+    <nav
+      className="app-header fixed top-0 left-0 right-0 z-50"
+      style={{
+        background: "#F8F9FA",
       }}
     >
       {loading && <Loader />}
@@ -231,11 +240,7 @@ export function Header({ toggleSidebar }) {
         {/* Logo Section on the Left Side */}
         <div className="flex items-center space-x-4">
           <Link href="/Dashboard" className="flex items-center space-x-3">
-            <Image
-              className="h-8 w-auto"
-              src={logoSrc}
-              alt="Logo"
-            />
+            <Logo alt="Logo" imageClassName="h-8 w-auto" />
           </Link>
         </div>
 
@@ -252,16 +257,17 @@ export function Header({ toggleSidebar }) {
           {/* live reporting */}
           <div className="flex items-center space-x-3 md:space-x-4">
             <LiveReportingSwitch />
-            
-            
+
             {WalletData.subscriptionType === 1 && (
-<div className="flex items-center gap-2 p-2 bg-white text-gray-800 border rounded-xl shadow-sm">
-    {/* <span className="text-sm text-gray-600 font-medium">My Wallet:</span> */}
-    <HiOutlineCreditCard className="text-3xl text-blue-600" />
-    <span className="text-lg font-semibold text-gray-900">${WalletData.balance || 0}</span>
-  </div>
+              <div className="flex items-center gap-2 p-2 bg-white text-gray-800 border rounded-xl shadow-sm">
+                {/* <span className="text-sm text-gray-600 font-medium">My Wallet:</span> */}
+                <HiOutlineCreditCard className="text-3xl text-blue-600" />
+                <span className="text-lg font-semibold text-gray-900">
+                  ${WalletData.balance || 0}
+                </span>
+              </div>
             )}
-            
+
             {/* Fullscreen Toggle Icon */}
             <button
               onClick={toggleFullScreen}
@@ -285,7 +291,9 @@ export function Header({ toggleSidebar }) {
                   alt="User"
                   className="w-7 h-7 md:w-8 md:h-8 rounded-full"
                 />
-                <span className="hidden md:inline font-semibold">{localStorage.getItem("userName")}</span>
+                <span className="hidden md:inline font-semibold">
+                  {userName}
+                </span>
               </button>
 
               {/* Dropdown Menu */}

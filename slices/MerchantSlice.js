@@ -14,8 +14,10 @@ export const fetchMerchant = createAsyncThunk(
         method: "GET",
         //payload: {},
       });
-
+      
       if (response?.status === 200) {
+        localStorage.setItem("LogoPath", response.data.logo);
+        localStorage.setItem("MerchantName", response.data.name);
         return {
           merchantData: response.data,
         };

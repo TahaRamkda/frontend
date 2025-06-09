@@ -1,4 +1,4 @@
-export const BASE_URL = "https://qawhatsappapi.consulttechies.com";
+export const BASE_URL = "https://whatsappapi.consulttechies.com";
 export const LOGINAPI = "/User/Login";
 export const REFRESHTOKENAPI = "/Token/Refresh";
 export const DASHBOARDSUMMARY = "/Dashboard/getdashboardsummary";
@@ -174,7 +174,7 @@ export const APPSETTING = "/AppSettings/getappsettings";
 
 // Clear Cache
 export const CLEARAPICACHE = "/Cache/Clear";
-export const CLEARBRIDGECACHE = "/Cache/ClearByPrefix"
+export const CLEARBRIDGECACHE = "/Cache/ClearBridgeCache"
 
 // Order Endpoints
 export const ORDERLIST = "#";
