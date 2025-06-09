@@ -253,7 +253,7 @@ export const excelExportSurveyReport = createAsyncThunk(
       });
 
       // ✅ Extract filename from Content-Disposition
-      let fileName = "ChatReport.xlsx";
+      let fileName = "SurveyResponce.xlsx";
       const contentDisposition = response.headers["content-disposition"];
       if (contentDisposition && contentDisposition.includes("attachment")) {
         const fileNameMatch = contentDisposition.match(
