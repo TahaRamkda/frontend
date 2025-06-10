@@ -150,45 +150,7 @@ const CustomMagicEditor = ({
    //function to handel head content change
    const handleHeadChange = (e) => {
     const newValue = e.target.value;
-    if (showaddvarbutton === true) {
-      // // Extract all variable placeholders like {{1}}, {{2}}, etc.
-      // const existingPlaceholders = content.match(/\{\{\d+\}\}/g) || [];
-      // const newPlaceholders = newValue.match(/\{\{\d+\}\}/g) || [];
-
-      // // Check for removed placeholders
-      // const removedPlaceholders = existingPlaceholders.filter(
-      //   (placeholder) => !newPlaceholders.includes(placeholder)
-      // );
-
-      // if (removedPlaceholders.length > 0) {
-      //   toast.error("You cannot remove existing variable placeholders.");
-      //   return; // Prevent state update
-      // }
-
-      // // Check for duplicates in the new content
-      // const duplicates = newPlaceholders.filter(
-      //   (placeholder, index) => newPlaceholders.indexOf(placeholder) !== index
-      // );
-
-      // // Check if the user has moved an existing placeholder to a position where it already exists
-      // const hasInvalidChange = newPlaceholders.some((placeholder) => {
-      //   return (
-      //     existingPlaceholders.includes(placeholder) &&
-      //     newPlaceholders.indexOf(placeholder) !==
-      //       existingPlaceholders.indexOf(placeholder)
-      //   );
-      // });
-
-      // if (duplicates.length > 0 || hasInvalidChange) {
-      //   toast.error("You cannot change the variable placeholders in the body.");
-      //   return; // Do not update the state
-      // }
-
-      // Update the body content if validation passes
       setContent(newValue);
-    } else {
-      setContent(newValue);
-    }
   };
 
   //function to handkle body change

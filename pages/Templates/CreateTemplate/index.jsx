@@ -211,7 +211,7 @@ const TemplateCreationPage = () => {
     ) {
       toast.error("Please load all  header variables before proceeding.");
     }
-    
+
     const requestBody = {
       clientId: localStorage.getItem("clientId"),
       name: values.templateName,
@@ -261,14 +261,13 @@ const TemplateCreationPage = () => {
     }
     try {
       const response = await dispatch(createTemplates(requestBody)).unwrap();
-      
+
       if (response.status === 200) {
         clearTemplateCreateState();
         showSweetAlert({
           title: "Template Created",
           text:
-            response.message ||
-            "The Template has been successfully created.",
+            response.message || "The Template has been successfully created.",
           icon: "success",
         });
         await router.push("/Templates/TemplatesList");
@@ -869,10 +868,30 @@ const TemplateCreationPage = () => {
                 const ToggleModal = () => {
                   setShowMediaPopup(false);
                 };
-
+                const ClearMediaOnHeaderTypeChange = ({setSelectedMediaId,setSelectedMediaPath,setSelectedMediaType,setMessagePreview}) => {
+                  const { values } = useFormikContext();
+                  useEffect(() => {
+                    if (!["2", "3", "4"].includes(values.headerType)) {
+                      setSelectedMediaId(0);
+                      setSelectedMediaPath("");
+                      setSelectedMediaType("");
+                      setMessagePreview((prev) => ({
+                        ...prev,
+                        media: null,
+                      }));
+                    }
+                  }, [values.headerType,setSelectedMediaId,setSelectedMediaPath,setSelectedMediaType,setMessagePreview,]);
+                  return null; // This component renders nothing
+                };
                 return (
                   <Form>
                     <div className="">
+                      <ClearMediaOnHeaderTypeChange
+                        setSelectedMediaId={setSelectedMediaId}
+                        setSelectedMediaPath={setSelectedMediaPath}
+                        setSelectedMediaType={setSelectedMediaType}
+                        setMessagePreview={setMessagePreview}
+                      />
                       <FormGroup>
                         <Label
                           for="templateName"
@@ -1081,9 +1100,12 @@ const TemplateCreationPage = () => {
                           <DropdownItem header className="fw-bold">
                             Quick reply buttons
                           </DropdownItem>
-                          <DropdownItem onClick={() => handleButtonSelect("1")} className={
+                          <DropdownItem
+                            onClick={() => handleButtonSelect("1")}
+                            className={
                               locationButtonExists ? "bg-light text-muted" : ""
-                            }>
+                            }
+                          >
                             Quick Reply
                             <small className="text-muted d-block">
                               Recommended
@@ -1092,17 +1114,23 @@ const TemplateCreationPage = () => {
                           <DropdownItem header className="fw-bold">
                             Call-To-Action buttons
                           </DropdownItem>
-                          <DropdownItem onClick={() => handleButtonSelect("2")} className={
+                          <DropdownItem
+                            onClick={() => handleButtonSelect("2")}
+                            className={
                               locationButtonExists ? "bg-light text-muted" : ""
-                            }>
+                            }
+                          >
                             Call Phone Number
                             <small className="text-muted d-block">
                               1 button maximum
                             </small>
                           </DropdownItem>
-                          <DropdownItem onClick={() => handleButtonSelect("3")} className={
+                          <DropdownItem
+                            onClick={() => handleButtonSelect("3")}
+                            className={
                               locationButtonExists ? "bg-light text-muted" : ""
-                            }>
+                            }
+                          >
                             Visit website
                             <small className="text-muted d-block">
                               2 button maximum
@@ -1495,7 +1523,7 @@ const TemplateCreationPage = () => {
                     <h6
                       style={{ marginBottom: "5px" }}
                       dangerouslySetInnerHTML={{
-                         __html: messagePreview.header,
+                        __html: messagePreview.header,
                       }}
                     />
                   )}
@@ -1542,7 +1570,7 @@ const TemplateCreationPage = () => {
                             {button.text || "Button"}
                           </span>
                         )}
-                         {button.type == 7 && (
+                        {button.type == 7 && (
                           <span style={{ color: "#00a9ee" }}>
                             <i className="fa fa-map-pin me-2"></i>
                             {button.text || "Button"}

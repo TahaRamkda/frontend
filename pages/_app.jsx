@@ -110,7 +110,8 @@ function MyApp({ Component, pageProps }) {
   useEffect(() => {
     const checkPermissions = () => {
       const storedPermissions = localStorage.getItem("permission");
-      if (storedPermissions) {
+      
+      if (storedPermissions !== "undefined" && storedPermissions !== null) {
         setPermissions(JSON.parse(storedPermissions));
         setIsLoading(false); // Now we're ready to show the app
       } else {
@@ -122,26 +123,18 @@ function MyApp({ Component, pageProps }) {
     checkPermissions();
   }, []);
 
-  // Display a loading state until permissions are validated
-  if (isLoading) {
-    return (
-      <div>
-        <Loader />
-      </div>
-    ); // Replace with a loading spinner if needed
-  }
+  
 
   return (
     <ErrorBoundary>
       <RecoilRoot>
         <Provider store={store}>
-          {/* Wrap the app with PermissionsProvider */}
-          <PermissionsProvider permissions={permissions}>
-            <FaviconManager />
-            <Component {...pageProps} />
-            <ToastContainer autoClose={3000} />
-            <ErrorComponent />
-          </PermissionsProvider>
+            <PermissionsProvider permissions={permissions}>
+              <FaviconManager />
+              <Component {...pageProps} />
+              <ToastContainer autoClose={3000} />
+              <ErrorComponent />
+            </PermissionsProvider>
         </Provider>
       </RecoilRoot>
     </ErrorBoundary>

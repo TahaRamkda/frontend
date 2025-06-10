@@ -289,7 +289,7 @@ export const fetchTemplateInsight = createAsyncThunk(
       
       if (response?.status === 200 && response.data) {
         // const parseddata= JSON.parse(response.data, 2);
-
+        debugger
         return {
           templateInsight: response.data,
         };
@@ -595,7 +595,10 @@ const reportSlice = createSlice({
       .addCase(fetchTemplateInsight.fulfilled, (state, action) => {
         
         state.loading = false;
-        state.templateInsight = JSON.parse(action.payload.templateInsight); //action.payload.messagereportsummary;
+        state.templateInsight =
+    typeof action.payload?.templateInsight === "string"
+      ? JSON.parse(action.payload.templateInsight)
+      : action.payload?.templateInsight; //action.payload.messagereportsummary;
         state.message = action.payload.message || "";
       })
       .addCase(fetchTemplateInsight.rejected, (state, action) => {

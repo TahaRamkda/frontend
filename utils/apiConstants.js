@@ -174,7 +174,7 @@ export const APPSETTING = "/AppSettings/getappsettings";
 
 // Clear Cache
 export const CLEARAPICACHE = "/Cache/Clear";
-export const CLEARBRIDGECACHE = "/Cache/ClearByPrefix"
+export const CLEARBRIDGECACHE = "/Cache/ClearBridgeCache"
 
 // Order Endpoints
 export const ORDERLIST = "#";

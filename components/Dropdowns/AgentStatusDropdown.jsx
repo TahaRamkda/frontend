@@ -88,6 +88,7 @@ const AgentStatusDropdown = ({ name, value, onChange }) => {
               {orderedOptions.map((option) => {
                 return (
                   <div
+                  key={option.id}
                     onClick={() => handleStatusChange(option.id)}
                     className={`flex items-center space-x-2 px-3 py-2 hover:bg-gray-50 cursor-pointer ${
                       option.id === 0 ? "border-t border-gray-100" : ""

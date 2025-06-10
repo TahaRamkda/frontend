@@ -54,10 +54,7 @@ import {
 } from "@/slices/ConversationSlice";
 import SweetAlert from "sweetalert2";
 import showSweetAlert from "@/components/Sweetalert";
-import {
-  fetchAgentsById,
-  fetchAgentStats,
-} from "@/slices/AgentSlice";
+import { fetchAgentsById, fetchAgentStats } from "@/slices/AgentSlice";
 import * as signalR from "@microsoft/signalr";
 import DefinedTemplates from "../../Chats/AgentDefinedTemplate";
 import { toast } from "react-toastify";
@@ -81,6 +78,7 @@ import {
   BsCheckAll,
   BsCheck,
 } from "react-icons/bs";
+import Logo from "@/components/Logo/logo";
 
 const ChatPage = () => {
   const router = useRouter();
@@ -111,6 +109,7 @@ const ChatPage = () => {
   const [chatMessages, setChatMessages] = useState([]);
   const [AgentConversation, setAgentConversation] = useState([]);
   const [ShowDetailedTemplate, setShowDetailedTemplate] = useState(false);
+  const [showTemplate, setShowTemplate] = useState(false);
   const [messageInput, setMessageInput] = useState("");
   const [mediaFile, setMediaFile] = useState(null);
   const connectionRef = useRef(null);
@@ -121,6 +120,7 @@ const ChatPage = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [AgentStatus, setAgentStatus] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [customerSearchQuery, setCustomerSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [filteredTemplates, setFilteredTemplates] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -131,8 +131,10 @@ const ChatPage = () => {
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
   const [parameters, setParameters] = useState([]);
+  const activeChatRef = useRef(Activechat);
   const [parameterValues, setParameterValues] = useState([]);
   const [templateView, setTemplateView] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const agenttemplatedetails = useSelector(
     (state) => state.bridge.agenttemplatedetails
   );
@@ -205,14 +207,13 @@ const ChatPage = () => {
   const scrollContainerRef = useRef(null);
   const messagesEndRef = useRef(null);
   const timersRef = useRef({});
-  const [activeChatRef, setActiveChatRef] = useState(null);
   const agentChatRef = useRef([AgentConversation]);
-
+  const [userName, setUserName] = useState("");
   // Filter conversationList based on search and active tab
   const filteredConversations = AgentConversation?.filter((conversation) => {
     const matchesSearch = conversation.phoneNumber
       .toLowerCase()
-      .includes(searchQuery.toLowerCase());
+      .includes(customerSearchQuery.toLowerCase());
 
     switch (activeTab) {
       case "unread":
@@ -223,7 +224,13 @@ const ChatPage = () => {
         return matchesSearch;
     }
   });
- 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // Ensure code runs only in the browser
+      const name = localStorage.getItem("userName") || "User"; // Fallback if userName is not found
+      setUserName(name);
+    }
+  }, []);
 
   const sortedOptions = () => {
     if (!masterDataList || masterDataList.length === 0)
@@ -326,9 +333,7 @@ const ChatPage = () => {
   }, [expiredConversations]);
 
   useEffect(() => {
-    ;
     if (message.length > 0) {
-      ;
       // Reverse the order to maintain correct sequence
       setChatMessages([...message].reverse());
       setActiveSenderId(message[0].senderId);
@@ -407,8 +412,15 @@ const ChatPage = () => {
             }
             //logger.info("Received new message detail ADSFSD:",  extra={     "user_id": 5,response  } )
             // Remove specific session-related items instead of clearing everything
+            const logoPath = localStorage.getItem("LogoPath");
+            const merchantName = localStorage.getItem("MerchantName");
             localStorage.clear();
-            window.location.href = "/auth/login";
+            // ✅ Restore preserved values
+            if (logoPath) localStorage.setItem("LogoPath", logoPath);
+            if (merchantName)
+              localStorage.setItem("MerchantName", merchantName);
+
+            router.push("auth/login");
           } else {
             SweetAlert.fire({
               title: "Logout Failed",
@@ -603,11 +615,9 @@ const ChatPage = () => {
   const handleAgenttemplateclose = () => {
     setShowDetailedTemplate(false);
   };
-
-  //to set the activechat
-  useEffect(() => {
-    setActiveChatRef(Activechat);
-  }, [Activechat]);
+  const handletemplateclose = () => {
+    setShowTemplate(false);
+  };
 
   useEffect(() => {
     agentChatRef.current = AgentConversation;
@@ -622,6 +632,9 @@ const ChatPage = () => {
     setMediaFile(null);
     setPreviewUrl(null);
   };
+  useEffect(() => {
+    activeChatRef.current = Activechat;
+  }, [Activechat]);
 
   //called each time to send message
   const HandleSendMessage = async () => {
@@ -1101,7 +1114,7 @@ const ChatPage = () => {
 
   const handleSend = async (e) => {
     e.preventDefault();
-
+    setSubmitting(true);
     const values = parameterValues.map((val) => ({
       key: val.key,
       value: val.value,
@@ -1140,12 +1153,14 @@ const ChatPage = () => {
           };
           handleTemplateSend(messageDetails);
         }
-        handleAgenttemplateclose();
+        handletemplateclose();
       } else {
         toast.error(response.message || "Failed to send template");
       }
     } catch (err) {
       toast.error("Failed to send template");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -1165,11 +1180,10 @@ const ChatPage = () => {
             <div className="flex items-center space-x-2 md:space-x-3">
               <div className="relative w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
                 <div className="absolute inset-0 blur-md bg-gray-100 rounded-full"></div>
-                <Image
-                  className="relative drop-shadow-xl transform hover:scale-105 transition-transform duration-300 w-6 h-6 md:w-8 md:h-8"
-                  src={logoSrc}
+                <Logo
                   alt="Logo"
-                  style={{
+                  imageClassName="relative drop-shadow-xl transform hover:scale-105 transition-transform duration-300 w-6 h-6 md:w-8 md:h-8"
+                  imageStyle={{
                     filter:
                       "brightness(1.05) drop-shadow(0 4px 6px rgba(0,0,0,0.1))",
                   }}
@@ -1194,7 +1208,7 @@ const ChatPage = () => {
                       />
                     </div>
                     <span className="text-gray-700 text-xs md:text-sm whitespace-nowrap">
-                      {localStorage.getItem("userName")}
+                      {userName}
                     </span>
                   </button>
                 </div>
@@ -1367,8 +1381,7 @@ const ChatPage = () => {
                   <input
                     type="text"
                     placeholder="Search contacts..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => setCustomerSearchQuery(e.target.value)}
                     className="w-full pl-7 pr-2 py-1 text-xs rounded-lg border border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-300 outline-none transition-all duration-200 bg-white"
                   />
                   <HiSearch className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs" />
@@ -1440,7 +1453,7 @@ const ChatPage = () => {
                   >
                     {filteredConversations?.length === 0 && !loading && (
                       <div className="text-center py-6 text-gray-500 text-sm">
-                        {searchQuery
+                        {customerSearchQuery
                           ? "No matching conversations found"
                           : activeTab === "unread"
                           ? "No unread messages"
@@ -1525,8 +1538,7 @@ const ChatPage = () => {
                   maxWidth: "1200px",
                   margin: "0px",
                   width: "100%",
-                  padding: "0px"
-                  
+                  padding: "0px",
                 }}
               >
                 {/* Chat Header */}
@@ -2218,240 +2230,241 @@ const ChatPage = () => {
                 </div>
               </Card>
             )}
+            {/* Right Templates Section */}
+            <div
+              className="fixed right-0 top-16 h-[calc(100vh-4rem)] bg-[#F8F9FA] border mt-3 overflow-y-auto"
+              style={{
+                width: "280px",
+                borderColor: "rgba(229, 231, 235, 0.5)",
+                zIndex: 20,
+              }}
+            >
+              <div className="p-3">
+                <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
+                  <h3 className="text-sm font-medium text-gray-700">
+                    Quick Templates
+                  </h3>
+                </div>
+
+                {/* Search Bar */}
+                <div className="relative mb-3">
+                  <input
+                    type="text"
+                    placeholder="Search templates..."
+                    className="w-full bg-white text-gray-800 pl-8 py-2 text-sm rounded-lg border border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-300 outline-none"
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <HiSearch className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
+                </div>
+
+                {/* Template List */}
+                {Activechat !== 0 ? (
+                  <div className="space-y-1">
+                    {filteredTemplates?.length > 0 ? (
+                      filteredTemplates.map((template) => (
+                        <button
+                          key={template.id}
+                          onClick={() => {
+                            setShowTemplate(true);
+                            handleSelection(template.id);
+                          }}
+                          className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-white transition-colors duration-200"
+                        >
+                          {template.name}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="text-center py-4 text-sm text-gray-500">
+                        No templates found
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-4 text-sm text-gray-500">
+                    Select a chat to view templates
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Template Preview Popup */}
+            {showTemplate && selectedOption && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg shadow-xl w-[600px] max-h-[80vh] overflow-hidden">
+                  <div className="flex justify-between items-center px-4 py-3 border-b border-gray-100">
+                    <h3 className="text-lg font-medium text-gray-800">
+                      Template Preview
+                    </h3>
+                    <button
+                      onClick={handletemplateclose}
+                      className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                    >
+                      <i className="fa fa-times"></i>
+                    </button>
+                  </div>
+
+                  <div className="p-4 flex">
+                    {/* Parameters Section */}
+                    <div className="w-1/2 pr-4">
+                      {parameters.length > 0 && (
+                        <div className="space-y-3">
+                          <h4 className="text-sm font-medium text-gray-700 mb-2">
+                            Parameters
+                          </h4>
+                          {parameters.map((param) => (
+                            <div key={param.paramId} className="space-y-1">
+                              <label className="text-sm text-gray-600">
+                                {param.paramName}
+                              </label>
+                              <input
+                                type="text"
+                                value={
+                                  parameterValues.find(
+                                    (p) => p.key === param.paramName
+                                  )?.value || ""
+                                }
+                                onChange={(e) =>
+                                  handleParameterChange(
+                                    param.paramName,
+                                    e.target.value
+                                  )
+                                }
+                                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-gray-300 focus:ring-1 focus:ring-gray-300"
+                                placeholder="Enter value"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Preview Section */}
+                    <div className="w-1/2 pl-4 border-l border-gray-100">
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">
+                          Message Preview
+                        </h4>
+                        <div className="bg-[#ddffd9] rounded-lg p-3 max-h-[400px] overflow-y-auto">
+                          {selectedOption &&
+                            agenttemplatedetails.find(
+                              (detail) =>
+                                detail.templateId === selectedOption &&
+                                detail.senderId === ActiveSenderId
+                            ) && (
+                              <div>
+                                {/* Header Text */}
+                                {agenttemplatedetails.find(
+                                  (d) => d.templateId === selectedOption
+                                )?.headerText && (
+                                  <div className="mb-2 font-medium">
+                                    {
+                                      agenttemplatedetails.find(
+                                        (d) => d.templateId === selectedOption
+                                      )?.headerText
+                                    }
+                                  </div>
+                                )}
+
+                                {/* Media Content */}
+                                {agenttemplatedetails.find(
+                                  (d) => d.templateId === selectedOption
+                                )?.contentType && (
+                                  <div className="mb-2">
+                                    {agenttemplatedetails
+                                      .find(
+                                        (d) => d.templateId === selectedOption
+                                      )
+                                      ?.contentType.startsWith("image/") && (
+                                      <img
+                                        src={`${BASE_URL}${
+                                          agenttemplatedetails.find(
+                                            (d) =>
+                                              d.templateId === selectedOption
+                                          )?.mediaPath
+                                        }`}
+                                        alt="Template Media"
+                                        className="max-w-full rounded-lg"
+                                      />
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* Message Content */}
+                                <div className="whitespace-pre-wrap">
+                                  {templateView}
+                                </div>
+
+                                {/* Buttons */}
+                                {agenttemplatedetails.find(
+                                  (d) => d.templateId === selectedOption
+                                )?.buttonsJson && (
+                                  <div className="mt-3 space-y-2">
+                                    {(typeof agenttemplatedetails.find(
+                                      (d) => d.templateId === selectedOption
+                                    )?.buttonsJson === "string"
+                                      ? JSON.parse(
+                                          agenttemplatedetails.find(
+                                            (d) =>
+                                              d.templateId === selectedOption
+                                          )?.buttonsJson
+                                        )
+                                      : agenttemplatedetails.find(
+                                          (d) => d.templateId === selectedOption
+                                        )?.buttonsJson
+                                    )?.map((button, index) => (
+                                      <button
+                                        key={index}
+                                        className="w-full px-3 py-2 text-sm bg-white text-blue-600 rounded-lg border border-gray-200 hover:bg-gray-50"
+                                      >
+                                        {button.ButtonType === 1 && (
+                                          <i className="fa fa-share fa-flip-horizontal mr-2" />
+                                        )}
+                                        {button.ButtonType === 2 && (
+                                          <i className="fa fa-phone mr-2" />
+                                        )}
+                                        {button.ButtonType === 3 && (
+                                          <i className="fa fa-external-link mr-2" />
+                                        )}
+                                        {button.ButtonText || "Button"}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Send Button Section */}
+                  <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-end">
+                    <button
+                      onClick={submitting ? "" : handleSend}
+                      disabled={
+                        parameters.length > 0 &&
+                        parameterValues.length < parameters.length
+                      }
+                      className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
+                        parameters.length > 0 &&
+                        parameterValues.length < parameters.length
+                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          : "bg-blue-500 text-white hover:bg-blue-600"
+                      }`}
+                    >
+                      <i className="fa fa-paper-plane" />
+                      <span>{submitting ? "Sending..." : "Send"}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
             {Activechat === 0 && (
               <div className="font-bold text-center mt-[30%] text-gray-400 text-2xl">
                 Select a chat from left panel
               </div>
             )}
           </Col>
-
-          {/* Right Templates Section */}
-          <div
-            className="fixed right-0 top-16 h-[calc(100vh-4rem)] bg-[#F8F9FA] border mt-3 overflow-y-auto"
-            style={{
-              width: "280px",
-              borderColor: "rgba(229, 231, 235, 0.5)",
-              zIndex: 20,
-            }}
-          >
-            <div className="p-3">
-              <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
-                <h3 className="text-sm font-medium text-gray-700">
-                  Quick Templates
-                </h3>
-              </div>
-
-              {/* Search Bar */}
-              <div className="relative mb-3">
-                <input
-                  type="text"
-                  placeholder="Search templates..."
-                  className="w-full bg-white text-gray-800 pl-8 py-2 text-sm rounded-lg border border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-300 outline-none"
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <HiSearch className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
-              </div>
-
-              {/* Template List */}
-              {Activechat !== 0 ? (
-                <div className="space-y-1">
-                  {filteredTemplates?.length > 0 ? (
-                    filteredTemplates.map((template) => (
-                      <button
-                        key={template.id}
-                        onClick={() => {
-                          setShowDetailedTemplate(true);
-                          handleSelection(template.id);
-                        }}
-                        className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-white transition-colors duration-200"
-                      >
-                        {template.name}
-                      </button>
-                    ))
-                  ) : (
-                    <div className="text-center py-4 text-sm text-gray-500">
-                      No templates found
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-4 text-sm text-gray-500">
-                  Select a chat to view templates
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Template Preview Popup */}
-          {ShowDetailedTemplate && selectedOption && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-lg shadow-xl w-[600px] max-h-[80vh] overflow-hidden">
-                <div className="flex justify-between items-center px-4 py-3 border-b border-gray-100">
-                  <h3 className="text-lg font-medium text-gray-800">
-                    Template Preview
-                  </h3>
-                  <button
-                    onClick={handleAgenttemplateclose}
-                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                  >
-                    <i className="fa fa-times"></i>
-                  </button>
-                </div>
-
-                <div className="p-4 flex">
-                  {/* Parameters Section */}
-                  <div className="w-1/2 pr-4">
-                    {parameters.length > 0 && (
-                      <div className="space-y-3">
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">
-                          Parameters
-                        </h4>
-                        {parameters.map((param) => (
-                          <div key={param.paramId} className="space-y-1">
-                            <label className="text-sm text-gray-600">
-                              {param.paramName}
-                            </label>
-                            <input
-                              type="text"
-                              value={
-                                parameterValues.find(
-                                  (p) => p.key === param.paramName
-                                )?.value || ""
-                              }
-                              onChange={(e) =>
-                                handleParameterChange(
-                                  param.paramName,
-                                  e.target.value
-                                )
-                              }
-                              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-gray-300 focus:ring-1 focus:ring-gray-300"
-                              placeholder="Enter value"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Preview Section */}
-                  <div className="w-1/2 pl-4 border-l border-gray-100">
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">
-                        Message Preview
-                      </h4>
-                      <div className="bg-[#ddffd9] rounded-lg p-3 max-h-[400px] overflow-y-auto">
-                        {selectedOption &&
-                          agenttemplatedetails.find(
-                            (detail) =>
-                              detail.templateId === selectedOption &&
-                              detail.senderId === ActiveSenderId
-                          ) && (
-                            <div>
-                              {/* Header Text */}
-                              {agenttemplatedetails.find(
-                                (d) => d.templateId === selectedOption
-                              )?.headerText && (
-                                <div className="mb-2 font-medium">
-                                  {
-                                    agenttemplatedetails.find(
-                                      (d) => d.templateId === selectedOption
-                                    )?.headerText
-                                  }
-                                </div>
-                              )}
-
-                              {/* Media Content */}
-                              {agenttemplatedetails.find(
-                                (d) => d.templateId === selectedOption
-                              )?.contentType && (
-                                <div className="mb-2">
-                                  {agenttemplatedetails
-                                    .find(
-                                      (d) => d.templateId === selectedOption
-                                    )
-                                    ?.contentType.startsWith("image/") && (
-                                    <img
-                                      src={`${BASE_URL}${
-                                        agenttemplatedetails.find(
-                                          (d) => d.templateId === selectedOption
-                                        )?.mediaPath
-                                      }`}
-                                      alt="Template Media"
-                                      className="max-w-full rounded-lg"
-                                    />
-                                  )}
-                                </div>
-                              )}
-
-                              {/* Message Content */}
-                              <div className="whitespace-pre-wrap">
-                                {templateView}
-                              </div>
-
-                              {/* Buttons */}
-                              {agenttemplatedetails.find(
-                                (d) => d.templateId === selectedOption
-                              )?.buttonsJson && (
-                                <div className="mt-3 space-y-2">
-                                  {(typeof agenttemplatedetails.find(
-                                    (d) => d.templateId === selectedOption
-                                  )?.buttonsJson === "string"
-                                    ? JSON.parse(
-                                        agenttemplatedetails.find(
-                                          (d) => d.templateId === selectedOption
-                                        )?.buttonsJson
-                                      )
-                                    : agenttemplatedetails.find(
-                                        (d) => d.templateId === selectedOption
-                                      )?.buttonsJson
-                                  )?.map((button, index) => (
-                                    <button
-                                      key={index}
-                                      className="w-full px-3 py-2 text-sm bg-white text-blue-600 rounded-lg border border-gray-200 hover:bg-gray-50"
-                                    >
-                                      {button.ButtonType === 1 && (
-                                        <i className="fa fa-share fa-flip-horizontal mr-2" />
-                                      )}
-                                      {button.ButtonType === 2 && (
-                                        <i className="fa fa-phone mr-2" />
-                                      )}
-                                      {button.ButtonType === 3 && (
-                                        <i className="fa fa-external-link mr-2" />
-                                      )}
-                                      {button.ButtonText || "Button"}
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Send Button Section */}
-                <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-end">
-                  <button
-                    onClick={handleSend}
-                    disabled={
-                      parameters.length > 0 &&
-                      parameterValues.length < parameters.length
-                    }
-                    className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
-                      parameters.length > 0 &&
-                      parameterValues.length < parameters.length
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                        : "bg-blue-500 text-white hover:bg-blue-600"
-                    }`}
-                  >
-                    <i className="fa fa-paper-plane" />
-                    <span>Send Template</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
 
           <style jsx global>{`
             /* Add styles for templates sidebar */
