@@ -13,10 +13,11 @@ const GroupDropdown = ({ name, value, onChange }) => {
     dispatch(fetchGroupsDrop({ clientId: localStorage.getItem('clientId') }));
   }, [dispatch]);
 
- const options = groupDropdownData?.map((item) => ({
+ const options = Array.isArray(groupDropdownData) ?
+ groupDropdownData?.map((item) => ({
     value: item.id,
     label: item.name,
-  })) || [];
+  })) : [];
 
   const selectedOption = options.find((opt) => opt.value === value) || 0;
 
@@ -78,6 +79,7 @@ const GroupDropdown = ({ name, value, onChange }) => {
         isClearable
         styles={customStyles}
         classNamePrefix="react-select"
+        noOptionsMessage={() => "No record found"}
       />
     </div>
   );

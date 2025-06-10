@@ -17,10 +17,11 @@ const SurveyDropdown = ({ name, value, onChange }) => {
 
   }, [dispatch]);
 
- const options = SurveyDropdown?.map((item) => ({
+ const options = Array.isArray(SurveyDropdown) ?
+ SurveyDropdown?.map((item) => ({
     value: item.id,
     label: item.name,
-  })) || [];
+  })) : [];
 
   const selectedOption = options.find((opt) => opt.value === value) || null;
 
@@ -84,6 +85,7 @@ const SurveyDropdown = ({ name, value, onChange }) => {
         isClearable
         styles={customStyles}
         classNamePrefix="react-select"
+        noOptionsMessage={() => "No record found"}
       />
     </div>
   );

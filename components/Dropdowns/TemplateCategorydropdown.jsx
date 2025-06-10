@@ -14,10 +14,11 @@ const TemplateCategoryDropdown = ({ name, value, onChange, disabled }) => {
 
   }, [dispatch]);
 
- const options = templateCategoryList?.map((item) => ({
+ const options = Array.isArray(templateCategoryList)?
+ templateCategoryList?.map((item) => ({
     value: item.id,
     label: item.name,
-  })) || [];
+  })) : [];
 
   const selectedOption = options.find((opt) => opt.value === value) || 0;
 
@@ -80,6 +81,7 @@ const TemplateCategoryDropdown = ({ name, value, onChange, disabled }) => {
         isClearable
         styles={customStyles}
         classNamePrefix="react-select"
+        noOptionsMessage={() => "No record found"}
       />
     </div>
   );

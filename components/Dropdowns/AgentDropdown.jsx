@@ -16,10 +16,11 @@ const AgentDropdown = ({ name, value, onChange }) => {
 
   }, [dispatch]);
 
- const options = agentDropList?.map((item) => ({
+ const options = Array.isArray(agentDropList) ?
+ agentDropList?.map((item) => ({
     value: item.id,
     label: item.name,
-  })) || [];
+  })) : [];
 
   const selectedOption = options.find((opt) => opt.value === value) || null;
 
@@ -82,6 +83,7 @@ const AgentDropdown = ({ name, value, onChange }) => {
         isClearable
         styles={customStyles}
         classNamePrefix="react-select"
+        noOptionsMessage={() => "No record found"}
       />
     </div>
   );

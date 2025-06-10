@@ -15,11 +15,11 @@ const RoleDropdown = ({ name, value, onChange }) => {
 
   }, [dispatch]);
 
-  const options =
+  const options = Array.isArray(roleDrop) ?
     roleDrop?.map((item) => ({
       value: item.id,
       label: item.name,
-    })) || [];
+    })) : [];
 
   const selectedOption = options.find((opt) => opt.value === value) || 0;
 
@@ -81,6 +81,7 @@ const RoleDropdown = ({ name, value, onChange }) => {
         isClearable
         styles={customStyles}
         classNamePrefix="react-select"
+        noOptionsMessage={() => "No record found"}
       />
      
     </div>

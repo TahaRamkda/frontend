@@ -19,10 +19,11 @@ const ActiveAgentDropdown = ({ name, value, onChange,SenderId }) => {
   if (error) return <p className="text-danger">Error loading: {error}</p>;
 
   // Format sendername data for react-select
-  const options = activeAgentDropList?.map((item) => ({
+  const options = Array.isArray(activeAgentDropList) ?
+   activeAgentDropList?.map((item) => ({
     value: item.id,
     label: item.name,
-  })) || [];
+  })) : [];
 
   const selectedOption = options.find((opt) => opt.value === value) || null;
 
@@ -83,6 +84,7 @@ const ActiveAgentDropdown = ({ name, value, onChange,SenderId }) => {
         isClearable
         styles={customStyles}
         classNamePrefix="react-select"
+        noOptionsMessage={() => "No record found"}
       />
     </div>
   );

@@ -19,10 +19,11 @@ const ClientDropdown = ({ name, value, onChange }) => {
 
   }, [dispatch]);
 
-  const options = clientsDropList?.map((item) => ({
+  const options = Array.isArray(clientsDropList) ?
+  clientsDropList?.map((item) => ({
     value: item.id,
     label: item.name,
-  })) || [];
+  })) : [];
 
   const selectedOption = options.find((opt) => opt.value === value) || null;
 
@@ -84,6 +85,7 @@ const ClientDropdown = ({ name, value, onChange }) => {
         isClearable
         styles={customStyles}
         classNamePrefix="react-select"
+        noOptionsMessage={() => "No record found"}
       />
     </FormGroup>
   );

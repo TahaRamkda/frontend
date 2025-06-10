@@ -17,10 +17,11 @@ const SendernameDropdown = ({ name, value, onChange }) => {
   if (error) return <p className="text-danger">Error loading: {error}</p>;
 
   // Format sendername data for react-select
-  const options = sendernameDrop?.map((item) => ({
+  const options = Array.isArray(sendernameDrop)?
+  sendernameDrop?.map((item) => ({
     value: item.id,
     label: item.name,
-  })) || [];
+  })) : [];
 
   const selectedOption = options.find((opt) => opt.value === value) || null;
 
@@ -81,6 +82,7 @@ const SendernameDropdown = ({ name, value, onChange }) => {
         isClearable
         styles={customStyles}
         classNamePrefix="react-select"
+        noOptionsMessage={() => "No record found"}
       />
     </div>
   );

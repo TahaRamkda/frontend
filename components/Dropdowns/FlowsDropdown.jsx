@@ -20,10 +20,11 @@ const FlowDropdown = ({ name, value, onChange }) => {
 
   }, [dispatch]);
 
- const options = flowDropdownData?.map((item) => ({
+ const options = Array.isArray(flowDropdownData) ?
+ flowDropdownData?.map((item) => ({
     value: item.id,
     label: item.name,
-  })) || [];
+  })) : [];
 
   const selectedOption = options.find((opt) => opt.value === value) || null;
 
@@ -87,6 +88,7 @@ const FlowDropdown = ({ name, value, onChange }) => {
         isClearable
         styles={customStyles}
         classNamePrefix="react-select"
+        noOptionsMessage={() => "No record found"}
       />
     </div>
   );

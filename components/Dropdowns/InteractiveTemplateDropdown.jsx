@@ -31,10 +31,11 @@ const IntTemplateDropdown = ({ name, value, onChange, TransactionType, SenderId 
 
   }, [dispatch, transactionType]);
 
-  const options = interactiveTemplateDropdownData?.map((item) => ({
+  const options = Array.isArray(interactiveTemplateDropdownData)?
+  interactiveTemplateDropdownData?.map((item) => ({
     value: item.id,
     label: item.name,
-  })) || [];
+  })) :[];
 
   const selectedOption = options.find((opt) => opt.value === value) || null;
 
@@ -97,6 +98,7 @@ const IntTemplateDropdown = ({ name, value, onChange, TransactionType, SenderId 
         isClearable
         styles={customStyles}
         classNamePrefix="react-select"
+        noOptionsMessage={() => "No record found"}
       />
     </div>
   );
