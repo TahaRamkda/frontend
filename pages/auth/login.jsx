@@ -22,12 +22,13 @@ const Login = () => {
   const { merchantData } = useSelector((state) => state.merchant);
   useEffect(() => {
     const hostname = window.location.hostname;
-    debugger
+    
     if (merchantData.length === 0 && localStorage.getItem("LogoPath") === null) {
       dispatch(fetchMerchant({ domain: hostname }));
     }
-  }, [dispatch]);
+  }, [dispatch, merchantData]);
 
+  
   const handleLogin = async (event) => {
     event.preventDefault();
     try {

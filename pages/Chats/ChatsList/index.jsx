@@ -1535,7 +1535,7 @@ const ChatPage = () => {
                 style={{
                   backgroundColor: "#F8F9FA",
                   boxShadow: "none",
-                  maxWidth: "1200px",
+                  Width: "1200px",
                   margin: "0px",
                   width: "100%",
                   padding: "0px",

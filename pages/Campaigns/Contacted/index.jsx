@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { HiTrash } from "react-icons/hi";
 import {
   Modal,
@@ -14,17 +15,13 @@ import {
   fetchCampaignFrequentDelete,
   clearCampaignFreqDeleteState,
 } from "@/slices/campaignSlice";
-import { useDispatch, useSelector } from "react-redux";
-import showSweetAlert from "@/components/Sweetalert";
-import Loading from "@/components/Layout/Loader";
+import Loader from "@/components/Layout/Loader";
 
 
 const LastContactedList = ({ isVisible, onClose, onsuccess, campaignId }) => {
   // Hardcoded data for "Last Contacted"
-  const ClientId = localStorage.getItem("clientId");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const ClientId = typeof window !== "undefined" ? localStorage.getItem("clientId") : null;;
   const dispatch = useDispatch();
-  const [Form, setForm] = useState({});
   const [CampaignId, setCampaignId] = useState(0);
   const { campaignContactState, campaignFreqDelete, loading } = useSelector(
     (state) => state.campaigns
@@ -82,7 +79,7 @@ const LastContactedList = ({ isVisible, onClose, onsuccess, campaignId }) => {
         <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
           <ModalHeader toggle={onClose}>Last Contacted</ModalHeader>
           <ModalBody className="overflow-y-auto max-h-[75vh]">
-            {loading && <Loading />}
+            {loading && <Loader />}
             <div className="mt-4 w-full">
               <Table bordered responsive className="w-full text-center">
                 <thead>

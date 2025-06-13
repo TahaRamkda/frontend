@@ -289,7 +289,7 @@ export const fetchTemplateInsight = createAsyncThunk(
       
       if (response?.status === 200 && response.data) {
         // const parseddata= JSON.parse(response.data, 2);
-        debugger
+        
         return {
           templateInsight: response.data,
         };

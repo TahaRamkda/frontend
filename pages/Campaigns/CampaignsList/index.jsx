@@ -44,7 +44,7 @@ import { MdGroupRemove } from "react-icons/md";
 import { useSetRecoilState } from "recoil";
 import { CampaignState } from "@/components/recoil";
 import CampaignTest from "../CampaignTest";
-import LastContactedList from "../Contacted";
+import LastContactedList from "../Contacted/index";
 import { Tooltip } from "reactstrap";
 import { REFRESH_INTERVAL } from "@/utils/constants";
 import { set, toDate } from "date-fns";
