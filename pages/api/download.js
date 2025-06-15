@@ -1,5 +1,5 @@
 import https from "https";
-
+import { BASE_URL } from "@/utils/apiConstants";
 export default async function handler(req, res) {
   const { url } = req.query;
 
@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   const decodedUrl = decodeURIComponent(url);
 
   // Security: Only allow specific domains (optional but recommended)
-  if (!decodedUrl.startsWith("https://qawhatsappapi.consulttechies.com/")) {
+  if (!decodedUrl.startsWith(`${BASE_URL}`)) {
     return res.status(403).json({ error: "Forbidden media URL" });
   }
 
