@@ -14,10 +14,9 @@ import permissionSlice from "@/slices/PermissionSlice";
 import reportSlice from "@/slices/ReportSlice";
 import agentSlice from "@/slices/AgentSlice";
 import conversationSlice from "@/slices/ConversationSlice";
-import MasterSlice from "@/slices/MasterSlice";
 import SuperwiserSlice from "@/slices/SuperwiseSlice";
 import agentTemplateSlice from "@/slices/AgentTemplateSlice";
-import agentShiftSlice from "@/slices/AgentsShift"
+import agentShiftSlice from "@/slices/AgentsShift";
 import chatTestSlice from "@/slices/ChatTest";
 import ChatBridgeSlice from "@/slices/ChatBridgeSlice";
 import ClearCache from "@/slices/CacheSlice";
@@ -49,7 +48,6 @@ export const store = configureStore({
     reports:reportSlice,
     agents:agentSlice,
     conversations:conversationSlice,
-    Master:MasterSlice,
     Supervisor:SuperwiserSlice,
     agenttemplates:agentTemplateSlice,
     interactiveTemplates:interactiveTemplateSlice,

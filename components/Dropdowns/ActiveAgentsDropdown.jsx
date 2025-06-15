@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../Layout/Loader';
 import Select from 'react-select';
 import { fetchActiveAgentsDrop, cleaActiveAgenDroptState } from '@/slices/DropdownSlice';
-
+import { customStyles } from '@/utils/constants';
 const ActiveAgentDropdown = ({ name, value, onChange,SenderId }) => {
  
 
@@ -33,44 +33,7 @@ const ActiveAgentDropdown = ({ name, value, onChange,SenderId }) => {
   };
 
   // Inline styles for react-select
-  const customStyles = {
-  control: (base, state) => ({
-    ...base,
-    border: '1px solid #D1D5DB',
-    borderRadius: '0.375rem',
-    boxShadow: state.isFocused ? '0 0 0 1px #3B82F6' : 'none',
-    '&:hover': {
-      borderColor: '#3B82F6',
-    },
-    minHeight: '2.5rem',
-    outline: 'none',
-  }),
-  input: (base) => ({
-    ...base,
-    margin: 0,
-    padding: 0,
-    outline: 'none',
-    boxShadow: 'none',
-  }),
-  option: (base, state) => ({
-    ...base,
-    backgroundColor: state.isSelected
-      ? '#3B82F6'
-      : state.isFocused
-      ? '#DBEAFE'
-      : 'white',
-    color: state.isSelected ? 'white' : '#111827',
-    cursor: 'pointer',
-  }),
-  singleValue: (base) => ({
-    ...base,
-    color: '#111827',
-  }),
-  menu: (base) => ({
-    ...base,
-    zIndex: 9999,
-  }),
-};
+ 
 
 
   return (

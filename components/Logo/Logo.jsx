@@ -16,12 +16,24 @@ const Logo = ({
    const [logoPath, setLogoPath] = useState(null);
   const [merchantName, setMerchantName] = useState(null);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setLogoPath(localStorage.getItem("LogoPath"));
-      setMerchantName(localStorage.getItem("MerchantName"));
-    }
+ useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const interval = setInterval(() => {
+      
+      const storedLogoPath = localStorage.getItem("LogoPath");
+      const storedMerchantName = localStorage.getItem("MerchantName");
+      if (storedLogoPath) {
+        
+        setLogoPath(storedLogoPath);
+        setMerchantName(storedMerchantName);
+        clearInterval(interval); // Stop checking once we get the logoPath
+      }
+    }, 10); // 10 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
   }, []);
+
   return (
     <div className="flex flex-col items-center">
        {logoPath && (
