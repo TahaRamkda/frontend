@@ -12,6 +12,7 @@ import {
   ROLEDROP,
   SENDERNAMEDROP,
   TEMPLATEDROPDOWN,
+  TEMPLATECATEGORY, TEMPLATELANGUAGE
 } from "@/utils/apiConstants";
 
 export const fetchActiveAgentsDrop = createAsyncThunk(
@@ -256,6 +257,54 @@ export const fetchTemplatesDrop = createAsyncThunk(
     }
   }
 );
+
+export const fetchtemplatecategory = createAsyncThunk(
+  'master/fetchtemplatecategory',
+  async ({}, { rejectWithValue }) => {
+    try {
+       const response = await API.post("/api", {
+                endpoint: `${TEMPLATECATEGORY}`,
+                method: "GET",
+                //payload: {},
+              });
+      if (response?.status === 200) {
+        return {
+          templateCategoryList: response.data
+        };
+      } else {
+        throw new Error('Failed to fetch category');
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
+
+export const fetchlanguage = createAsyncThunk(
+  'master/fetchlanguage',
+  async ({}, { rejectWithValue }) => {
+    try {
+      const response = await API.post("/api", {
+                endpoint: `${TEMPLATELANGUAGE}`,
+                method: "GET",
+                //payload: {},
+              });
+      if (response?.status === 200) {
+        return {
+          languages: response.data
+        };
+      } else {
+        throw new Error('Failed to fetch category');
+      }
+    } catch (error) {
+      const handledError = handleError(error);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
 // Slice
 const DropdownSlice = createSlice({
   name: "dropdown",
@@ -270,6 +319,12 @@ const DropdownSlice = createSlice({
     roleDrop: [],
     sendernameDrop: [],
     templateDropdownData: [],
+    templateCategoryList: [],
+    languages:[],
+    loading: false,
+    error: null,
+    success: false,
+    message: '',
   },
   reducers: {
     // Pagination and reset actions
@@ -327,6 +382,19 @@ const DropdownSlice = createSlice({
       state.error = null;
       state.success = false;
       state.totalRecords = 0;
+    },
+     cleaTemplateCategoryState: (state) => {
+      state.templateCategoryList = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    },
+    clearLanguageState: (state) => {
+      state.languages = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+
     },
   },
   extraReducers: (builder) => {
@@ -488,6 +556,37 @@ const DropdownSlice = createSlice({
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
+      })
+        // Template Category
+       .addCase(fetchtemplatecategory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchtemplatecategory.fulfilled, (state, action) => {
+        state.loading = false;
+        state.templateCategoryList = action.payload.templateCategoryList;
+        state.message = action.payload.message || '';
+      })
+      .addCase(fetchtemplatecategory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+      
+      // Language 
+      .addCase(fetchlanguage.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchlanguage.fulfilled, (state, action) => {
+        state.loading = false;
+        state.languages = action.payload.languages;
+        state.message = action.payload.message || '';
+      })
+      .addCase(fetchlanguage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
       });
   },
 });
@@ -505,6 +604,8 @@ export const {
   clearSendernameDropState,
   clearTemplateDropState,
   clearInteractiveTemplateDropStateState,
+  cleaTemplateCategoryState,
+  clearLanguageState,
 } = DropdownSlice.actions;
 
 export default DropdownSlice.reducer;
