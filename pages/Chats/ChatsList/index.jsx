@@ -631,6 +631,11 @@ const ChatPage = () => {
   const handleImageclose = () => {
     setMediaFile(null);
     setPreviewUrl(null);
+    setFileType(null);
+    setIsImagePreviewOpen(false);
+  if (fileInputRef.current) {
+    fileInputRef.current.value = ""; // Reset the file input value
+  }
   };
   useEffect(() => {
     activeChatRef.current = Activechat;
@@ -663,8 +668,8 @@ const ChatPage = () => {
         messageId: messageId,
         typeId: 1,
         messageContent: messageInput.trim(),
-        sentcontentType: fileType ? fileType : "",
-        sentmediaPath: previewUrl ? previewUrl : "",
+        sentcontentType: mediaFile ? fileType : "",
+        sentmediaPath: mediaFile ? previewUrl : "",
         createdDate: new Date().toLocaleString(),
         sentime: new Date().toLocaleString(),
       };
@@ -675,6 +680,10 @@ const ChatPage = () => {
       setPreviewUrl(null);
       setFileType(null);
       setMessageInput("");
+      setMediaFile(null);
+      if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Reset the file input value
+    }
 
       await dispatch(NewAgentMessage(formData)).unwrap();
       setSendingMessages((prev) => {
@@ -970,21 +979,40 @@ const ChatPage = () => {
   //   window.location.reload();
   // };
 
-  const handleDownload = (mediapath) => {
-    const imageUrl = `${BASE_URL}${mediapath}`;
-    const fileName = `file.${mediapath.split(".")[1]}`;
+const handleDownload = async (mediaPath) => {
+  // Replace backslashes with forward slashes
+  const sanitizedMediaPath = mediaPath.replace(/\\/g, "/");
 
-    // Fetch the image as a blob
-    fetch(imageUrl)
-      .then((response) => response.blob())
-      .then((blob) => {
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob); // Create an object URL for the blob
-        link.download = fileName; // Specify the downloaded file's name
-        link.click(); // Trigger the download
-      })
-      .catch((error) => console.error("Download failed", error));
-  };
+  // Construct full media URL
+  const fullMediaUrl = `${BASE_URL}${sanitizedMediaPath}`;
+
+  // Create proxy URL with encoded full URL
+  const proxyUrl = `/api/download?url=${encodeURIComponent(fullMediaUrl)}`;
+
+  // Extract filename
+  const fileName = fullMediaUrl.split("/").pop();
+
+  try {
+    const response = await fetch(proxyUrl);
+    if (!response.ok) throw new Error("Download failed");
+
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
+    // Trigger download
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(blobUrl);
+  } catch (err) {
+    console.error("Error downloading:", err);
+  }
+};
+
+
 
   // Toggle sidebar
   const toggleSidebar = () => {
@@ -1643,6 +1671,7 @@ const ChatPage = () => {
                                           src={`${BASE_URL}${message.mediaPath}`}
                                           alt="Image"
                                           className=" max-h-50 w-80 rounded"
+                                          
                                         />
                                         <button
                                           onClick={() =>
@@ -1663,7 +1692,7 @@ const ChatPage = () => {
                                       <video
                                         controls
                                         src={`${BASE_URL}${message.mediaPath}`}
-                                        className="w-full h-auto rounded"
+                                        className=" max-h-50 w-80 rounded"
                                       />
                                     )}
                                     {message.contentType.startsWith(
@@ -1734,7 +1763,7 @@ const ChatPage = () => {
                                 )}
                               {/* //for sent content */}
                               {message.sentcontentType &&
-                                message.sentcontentType !== "" && (
+                                message.sentcontentType !== "" && message.sentmediaPath && (
                                   <>
                                     {message.sentcontentType.startsWith(
                                       "image"
@@ -1742,7 +1771,7 @@ const ChatPage = () => {
                                       <img
                                         src={`${message.sentmediaPath}`}
                                         alt="Image"
-                                        className="w-full h-auto rounded"
+                                         className=" max-h-50 w-80 rounded"
                                       />
                                     )}
                                     {message.sentcontentType.startsWith(
@@ -1751,7 +1780,7 @@ const ChatPage = () => {
                                       <video
                                         controls
                                         src={`${message.sentmediaPath}`}
-                                        className="w-full h-auto rounded"
+                                         className=" max-h-50 w-80 rounded"
                                       />
                                     )}
                                     {message.sentcontentType.startsWith(

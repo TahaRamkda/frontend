@@ -218,7 +218,7 @@ const PermissionList = () => {
         </div>
       </div>
       <DataTable
-        data={Data}
+        data={Array.isArray(Data) ? Data : []}
         columns={permissionColumns}
         highlightOnHover
         striped
