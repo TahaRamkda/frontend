@@ -6,7 +6,6 @@ import {
   fetchTemplatesDrop,
   clearTemplateDropState,
 } from "@/slices/DropdownSlice";
-import { customStyles } from '@/utils/constants';
 const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
   const dispatch = useDispatch();
   const { templateDropdownData, loading, error } = useSelector(
@@ -56,7 +55,6 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
         options={options}
         placeholder="Select"
         isClearable
-        styles={customStyles}
         classNamePrefix="react-select"
         noOptionsMessage={() => "No record found"}
       />

@@ -4,7 +4,6 @@ import Select from 'react-select';
 import Loader from "../Layout/Loader";
 import { fetchInteractiveTemplateDropWithoutParam,clearInteractiveTemplateDropStateState } from "@/slices/DropdownSlice";
 import { FormGroup, Label, Input, FormText } from "reactstrap";
-import { customStyles } from '@/utils/constants';
 const InteractiveTemplateDropdown = ({ name, value, onChange, TransactionType, SenderId }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
@@ -55,7 +54,6 @@ const InteractiveTemplateDropdown = ({ name, value, onChange, TransactionType, S
         options={options}
         placeholder="Select"
         isClearable
-        styles={customStyles}
         classNamePrefix="react-select"
         noOptionsMessage={() => "No record found"}
       />
