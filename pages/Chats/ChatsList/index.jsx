@@ -2469,7 +2469,7 @@ const handleDownload = async (mediaPath) => {
                   {/* Send Button Section */}
                   <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-end">
                     <button
-                      onClick={submitting ? "" : handleSend}
+                      onClick={submitting ? undefined : handleSend}
                       disabled={
                         parameters.length > 0 &&
                         parameterValues.length < parameters.length
