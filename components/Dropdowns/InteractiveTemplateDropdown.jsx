@@ -7,7 +7,7 @@ import {
 } from "@/slices/DropdownSlice";
 import { FormGroup, Label, Input, FormText } from "reactstrap";
 import Loader from "../Layout/Loader";
-import { customStyles } from '@/utils/constants';
+
 const IntTemplateDropdown = ({ name, value, onChange, TransactionType, SenderId }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
@@ -57,7 +57,6 @@ const IntTemplateDropdown = ({ name, value, onChange, TransactionType, SenderId 
         options={options}
         placeholder="Select"
         isClearable
-        styles={customStyles}
         classNamePrefix="react-select"
         noOptionsMessage={() => "No record found"}
       />

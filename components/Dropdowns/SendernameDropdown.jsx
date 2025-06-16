@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
 import Loader from '../Layout/Loader';
 import { fetchSendernamesDrop } from '@/slices/DropdownSlice';
-import { customStyles } from '@/utils/constants';
 const SendernameDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const [selectedSenderId, setSelectedSenderId] = useState(0);
@@ -41,7 +40,6 @@ const SendernameDropdown = ({ name, value, onChange }) => {
         options={options}
         placeholder="Select"
         isClearable
-        styles={customStyles}
         classNamePrefix="react-select"
         noOptionsMessage={() => "No record found"}
       />

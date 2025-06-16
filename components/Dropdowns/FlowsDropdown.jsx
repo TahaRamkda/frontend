@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import Select from 'react-select';
 import Loader from "../Layout/Loader";
 import { fetchFlowDropdown, clearFlowDropdownState } from "@/slices/DropdownSlice";
-import { customStyles } from '@/utils/constants';
 const FlowDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
@@ -46,7 +45,6 @@ const FlowDropdown = ({ name, value, onChange }) => {
         options={options}
         placeholder="Select"
         isClearable
-        styles={customStyles}
         classNamePrefix="react-select"
         noOptionsMessage={() => "No record found"}
       />

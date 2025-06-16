@@ -4,7 +4,6 @@ import { Input } from 'reactstrap';
 import Loader from '../Layout/Loader';
 import Select from "react-select";
 import { fetchRolesDrop, clearRoleDropState } from "@/slices/DropdownSlice";
-import { customStyles } from '@/utils/constants';
 const RoleDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const { roleDrop, loading, error } = useSelector((state) => state.dropdown);
@@ -42,7 +41,6 @@ const RoleDropdown = ({ name, value, onChange }) => {
         options={options}
         placeholder="Select"
         isClearable
-        styles={customStyles}
         classNamePrefix="react-select"
         noOptionsMessage={() => "No record found"}
       />

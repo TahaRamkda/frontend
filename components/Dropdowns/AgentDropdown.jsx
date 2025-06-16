@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../Layout/Loader';
 import Select from 'react-select';
 import { fetchAgentsDrop } from '@/slices/DropdownSlice';
-import { customStyles } from '@/utils/constants';
 const AgentDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
@@ -44,7 +43,6 @@ const AgentDropdown = ({ name, value, onChange }) => {
         options={options}
         placeholder="Select"
         isClearable
-        styles={customStyles}
         classNamePrefix="react-select"
         noOptionsMessage={() => "No record found"}
       />

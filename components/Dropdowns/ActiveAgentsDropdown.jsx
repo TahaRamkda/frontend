@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../Layout/Loader';
 import Select from 'react-select';
 import { fetchActiveAgentsDrop, cleaActiveAgenDroptState } from '@/slices/DropdownSlice';
-import { customStyles } from '@/utils/constants';
 const ActiveAgentDropdown = ({ name, value, onChange,SenderId }) => {
  
 
@@ -45,7 +44,6 @@ const ActiveAgentDropdown = ({ name, value, onChange,SenderId }) => {
         options={options}
         placeholder="Select"
         isClearable
-        styles={customStyles}
         classNamePrefix="react-select"
         noOptionsMessage={() => "No record found"}
       />
