@@ -240,7 +240,7 @@ useEffect(() => {
         {/* Logo Section on the Left Side */}
         <div className="flex items-center space-x-4">
           <Link href="/Dashboard" className="flex items-center space-x-3">
-            <Logo alt="Logo" imageClassName="h-8 w-auto" />
+            <Logo alt="Logo" imageClassName="h-[4rem] w-auto" />
           </Link>
         </div>
 

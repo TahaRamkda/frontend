@@ -1210,7 +1210,7 @@ const handleDownload = async (mediaPath) => {
                 <div className="absolute inset-0 blur-md bg-gray-100 rounded-full"></div>
                 <Logo
                   alt="Logo"
-                  imageClassName="relative drop-shadow-xl transform hover:scale-105 transition-transform duration-300 w-6 h-6 md:w-8 md:h-8"
+                  imageClassName="relative drop-shadow-xl transform hover:scale-105 transition-transform duration-300 w-6 h-6 md:w-8 md:h-[4rem]"
                   imageStyle={{
                     filter:
                       "brightness(1.05) drop-shadow(0 4px 6px rgba(0,0,0,0.1))",

@@ -105,7 +105,7 @@ const Login = () => {
         </div>
 
         {/* Company Logo and Name */}
-        <div className="absolute left-[15%] top-[120px] text-white flex flex-col items-center">
+        <div className="absolute left-[25%] top-[120px] text-white flex flex-col items-center">
           <div className="relative w-[90px] h-[90px] flex items-center justify-center ">
             <div className="absolute inset-0 blur-md bg-white/30 rounded-full"></div>
             <div>
