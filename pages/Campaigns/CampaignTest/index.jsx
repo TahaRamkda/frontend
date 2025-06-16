@@ -1,22 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, Label } from "reactstrap";
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  Input,
+  Label,
+} from "reactstrap";
 import showSweetAlert from "@/components/Sweetalert";
 import { sendCampaign, clearCampaignSendState } from "@/slices/campaignSlice";
 import Loader from "@/components/Layout/Loader";
-const CampaignTest = ({ isVisible, onClose, onsuccess, CampaignId }) => {
+const CampaignTest = ({
+  isVisible,
+  onClose,
+  onsuccess,
+  CampaignId,
+  refresh,
+}) => {
   const dispatch = useDispatch();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [activatecampaignId, setactivatecampaignId] = useState(0);
-  const { loading, error } =
-    useSelector((state) => state.campaigns);
-
+  const { loading, error } = useSelector((state) => state.campaigns);
 
   useEffect(() => {
     if (CampaignId) {
-      setactivatecampaignId(CampaignId)
+      setactivatecampaignId(CampaignId);
     }
-  }, [CampaignId])
+  }, [CampaignId]);
   //  useEffect(() => {
   //     if (clientId) {
 
@@ -31,12 +43,10 @@ const CampaignTest = ({ isVisible, onClose, onsuccess, CampaignId }) => {
     if (phoneNumber !== "") {
       const Requestbody = {
         campaignId: activatecampaignId,
-        phoneNumbers: [
-          phoneNumber
-        ]
-      }
+        phoneNumbers: [phoneNumber],
+      };
       const response = await dispatch(sendCampaign(Requestbody)).unwrap();
-      
+
       if (response[0].sent === true) {
         showSweetAlert({
           title: "Message Sent Successfully",
@@ -44,24 +54,22 @@ const CampaignTest = ({ isVisible, onClose, onsuccess, CampaignId }) => {
           icon: "success",
         });
         onClose();
+        refresh();
       } else {
         showSweetAlert({
           title: "Error",
-          text: response[0].errors ||"Failed to Send Message.",
+          text: response[0].errors || "Failed to Send Message.",
           icon: "error",
         });
       }
-
-
     }
   };
 
   return (
     <Modal isOpen={isVisible} toggle={onClose} fade={false}>
-      
       <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
-        {loading && <Loader />}
+          {loading && <Loader />}
           <ModalHeader toggle={onClose}>Test Campaign</ModalHeader>
           <ModalBody>
             <Label>Phone Number</Label>
@@ -72,13 +80,15 @@ const CampaignTest = ({ isVisible, onClose, onsuccess, CampaignId }) => {
               className="mb-4"
             />
             <div className="w-full mt-4 text-end">
-              <Button color="primary" onClick={() => handleSave()} className="uniform_btn">
+              <Button
+                color="primary"
+                onClick={() => handleSave()}
+                className="uniform_btn"
+              >
                 Send
               </Button>
             </div>
           </ModalBody>
-
-
         </div>
       </div>
     </Modal>

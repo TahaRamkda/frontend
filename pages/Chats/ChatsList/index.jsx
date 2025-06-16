@@ -420,7 +420,7 @@ const ChatPage = () => {
             if (merchantName)
               localStorage.setItem("MerchantName", merchantName);
 
-            router.push("auth/login");
+            router.push("/auth/login");
           } else {
             SweetAlert.fire({
               title: "Logout Failed",

@@ -570,6 +570,7 @@ const CampaignsList = () => {
             <CampaignTest
               isVisible={true}
               onClose={handelCloseClick}
+              refresh={refreshCampaignList}
               onsuccess={refreshCampaignList}
               CampaignId={activateCampaignId}
             />

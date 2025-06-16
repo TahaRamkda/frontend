@@ -4,7 +4,7 @@ import { useEffect } from "react";
 const FaviconManager = () => {
   useEffect(() => {
     // Read favicon path from localStorage
-    const faviconPath = localStorage.getItem("LogoPath") || "/favicons.ico";
+    const faviconPath = localStorage.getItem("LogoPath") ;
 
     // Remove existing favicons
     document.querySelectorAll("link[rel*='icon']").forEach((el) => el.remove());

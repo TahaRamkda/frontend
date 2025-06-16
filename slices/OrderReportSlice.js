@@ -1,7 +1,7 @@
   import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from '../utils/api.axios';
 import handleError from '../utils/handleError';
-import { ORDERLIST, ORDERDETAILS,  UPDATEORDER, DELETEORDER } from '@/utils/apiConstants';
+import { ORDERREPORTLIST, ORDERREPORTDETAILS,  UPDATEORDERREPORT, DELETEORDERREPORT } from '@/utils/apiConstants';
 
 // Thunks
 // Fetch OrderReport
@@ -9,7 +9,7 @@ export const fetchOrderReport = createAsyncThunk(
     'orderReport/fetchOrderReport',
     async ({clientId, pageNo, pageSize, SearchStr}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${ORDERLIST}?${ SearchStr? `SearchStr=${SearchStr}`:''}&PageNo=${pageNo}&PageSize=${pageSize}`);
+        const response = await API.get(`${ORDERREPORTLIST}?${ SearchStr? `SearchStr=${SearchStr}`:''}&PageNo=${pageNo}&PageSize=${pageSize}`);
         if (response?.status === 200) {
           return {
             orderReportsList: response.data.result,
@@ -31,7 +31,7 @@ export const fetchOrderReportById = createAsyncThunk(
     'orderReport/fetchOrderReportById',
     async ({orderReportId, clientId=localStorage.getItem("clientId")}, { rejectWithValue }) => {
       try {
-        const response = await API.get(`${ ORDERDETAILS}?Id=${orderReportId}`);
+        const response = await API.get(`${ ORDERREPORTDETAILS}?Id=${orderReportId}`);
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -46,7 +46,7 @@ export const updateOrderReport = createAsyncThunk(
     'orderReport/updateOrderReports',
     async (orderReportData, { rejectWithValue }) => {
       try {
-        const response = await API.put( UPDATEORDER, orderReportData);
+        const response = await API.put( UPDATEORDERREPORT, orderReportData);
         return response.data;
       } catch (error) {
         const handledError = handleError(error);
@@ -60,7 +60,7 @@ export const deleteOrderReport = createAsyncThunk(
   'orderReport/deleteOrderReport',
   async ({ orderReportId, onSuccess }, { rejectWithValue }) => {
     try {
-      const response = await API.delete(`${DELETEORDER}?OrderReportId=${orderReportId}`);
+      const response = await API.delete(`${DELETEORDERREPORT}?OrderReportId=${orderReportId}`);
       if (onSuccess) onSuccess(); // Handle success callback
       return response.data;
     } catch (error) {
