@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 import Loader from "../Layout/Loader";
+import { customStyles } from '@/utils/constants';
 import {
   fetchTemplatesDrop,
   clearTemplateDropState,
 } from "@/slices/DropdownSlice";
-const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
+const TemplateDropdown = ({ name, value, onChange, TransactionType, SenderId }) => {
   const dispatch = useDispatch();
   const { templateDropdownData, loading, error } = useSelector(
     (state) => state.dropdown
@@ -38,6 +39,7 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
       fetchTemplatesDrop({
         clientId: localStorage.getItem("clientId"),
         TransactionType: transactionType,
+        senderId: SenderId,
       })
     );
   }, [dispatch, transactionType]);
@@ -54,6 +56,7 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType }) => {
         onChange={handleChange}
         options={options}
         placeholder="Select"
+        styles={customStyles}
         isClearable
         classNamePrefix="react-select"
         noOptionsMessage={() => "No record found"}

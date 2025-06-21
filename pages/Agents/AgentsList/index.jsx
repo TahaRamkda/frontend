@@ -75,6 +75,7 @@ const AgentsList = () => {
   const [existingChatReasonId, SetExistingChatReasonId] = useState([]);
 
   const agentColumn = [
+    { name: "Agent Id", selector: (row) => row.id, sortable: true },
     { name: "User Name", selector: (row) => row.userName, sortable: true, minWidth: "200px" },
     {
       name: "Agent Name",
@@ -448,8 +449,6 @@ const AgentsList = () => {
           sortServer
           paginationTotalRows={totalRecords}
           onChangePage={handlePageChange}
-          fixedHeader
-          fixedHeaderScrollHeight="500px"
           onChangeRowsPerPage={handlePageSizeChange}
           paginationPerPage={defultpagessize} // Default number of rows per page
           paginationRowsPerPageOptions={customPageSizes} // Custom page size options

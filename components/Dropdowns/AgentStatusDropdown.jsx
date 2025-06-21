@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchMasterData } from "@/slices/AgentSlice";
 import { HiCog } from "react-icons/hi";
 import Loader from "../Layout/Loader";
+import { customStyles } from '@/utils/constants';
 
 const AgentStatusDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();

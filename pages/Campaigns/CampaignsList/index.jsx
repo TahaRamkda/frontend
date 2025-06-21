@@ -327,6 +327,12 @@ const CampaignsList = () => {
 
   const campaignColumns = [
     {
+      name: "Campaign Id",
+      selector: (row) => row.campaignId,
+      sortable: true,
+      // Prevents wrapping, forces width to fit content
+    },
+    {
       name: "Campaign Name",
       selector: (row) => row.campaignName,
       sortable: true,

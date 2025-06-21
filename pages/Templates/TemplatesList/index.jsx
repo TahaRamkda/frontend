@@ -74,6 +74,11 @@ const TemplateList = () => {
     { value: 2, label: "Utility" },
   ];
   const templateColumns = [
+     {
+      name: "Template Id",
+      selector: (row) => row.id,
+      sortable: true,
+    },
     {
       name: "Template",
       selector: (row) => row.templateName,
@@ -147,9 +152,6 @@ const TemplateList = () => {
     },
   ];
 
-  const selectedCategoryOption = categoryOptions.find(
-    (opt) => opt.value === catagoryId
-  );
   const handleDetailClick = (templates_Id) => {
     setTemplateLoading(true);
     try {
@@ -167,44 +169,7 @@ const TemplateList = () => {
       query: { Id: templates_Id, type: 1 },
     });
   };
-  const customStyles = {
-    control: (base, state) => ({
-      ...base,
-      border: "1px solid #D1D5DB",
-      borderRadius: "0.375rem",
-      boxShadow: state.isFocused ? "0 0 0 1px #3B82F6" : "none",
-      "&:hover": {
-        borderColor: "#3B82F6",
-      },
-      minHeight: "2.5rem",
-      outline: "none",
-    }),
-    input: (base) => ({
-      ...base,
-      margin: 0,
-      padding: 0,
-      outline: "none",
-      boxShadow: "none",
-    }),
-    option: (base, state) => ({
-      ...base,
-      backgroundColor: state.isSelected
-        ? "#3B82F6"
-        : state.isFocused
-        ? "#DBEAFE"
-        : "white",
-      color: state.isSelected ? "white" : "#111827",
-      cursor: "pointer",
-    }),
-    singleValue: (base) => ({
-      ...base,
-      color: "#111827",
-    }),
-    menu: (base) => ({
-      ...base,
-      zIndex: 9999,
-    }),
-  };
+
   const handleDeleteClick = (templateId) => {
     SweetAlert.fire({
       title: "Are you sure?",
@@ -233,36 +198,13 @@ const TemplateList = () => {
     });
   };
 
-  const handlePageSizeChange = async (newSize) => {
+  const handlePageSizeChange = (newSize) => {
     dispatch(setPageSize(newSize));
     dispatch(setCurrentPage(1));
-    await dispatch(
-      fetchTemplates({
-        TransactonType: transactonType,
-        senderId: SenderId,
-        searchStr: filterText,
-        Category: catagoryId,
-        Language: languageId,
-        pageNo: 1,
-        pageSize: newSize,
-      })
-    );
   };
 
-  const handlePageChange = async (page) => {
+  const handlePageChange = (page) => {
     dispatch(setCurrentPage(page));
-    await dispatch(
-      fetchTemplates({
-        clientId: localStorage.getItem("clientId"),
-        TransactonType: transactonType,
-        senderId: SenderId,
-        searchStr: filterText,
-        Category: catagoryId,
-        Language: languageId,
-        pageNo: page,
-        pageSize,
-      })
-    );
   };
 
   const refreshTemplateList = () => {
@@ -281,26 +223,38 @@ const TemplateList = () => {
   };
 
   useEffect(() => {
-    dispatch(
-      fetchTemplates({
-        clientId: localStorage.getItem("clientId"),
-        TransactonType: transactonType,
-        senderId: SenderId,
-        searchStr: filterText,
-        pageNo: currentPage,
-        Category: catagoryId,
-        Language: languageId,
-        pageSize,
-      })
-    );
-    return () => {
-      dispatch(clearTemplateState());
-    };
-  }, [dispatch, SenderId, transactonType, catagoryId, languageId]);
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
 
-  const filteredSendernames = templateList.filter((template) =>
-    template.templateName.toLowerCase().includes(filterText.toLowerCase())
-  );
+    const timeout = setTimeout(() => {
+      dispatch(
+        fetchTemplates({
+          clientId: localStorage.getItem("clientId"),
+          TransactonType: transactonType,
+          searchStr: filterText,
+          senderId: SenderId,
+          Category: catagoryId,
+          Language: languageId,
+          pageNo: currentPage,
+          pageSize,
+        })
+      );
+    }, 500); // debounce for search input
+
+    setSearchTimeout(timeout);
+
+    return () => clearTimeout(timeout);
+  }, [
+    dispatch,
+    filterText,
+    SenderId,
+    transactonType,
+    catagoryId,
+    languageId,
+    currentPage,
+    pageSize,
+  ]);
 
   const handleCreateClick = () => {
     setTemplateLoading(true);
@@ -314,37 +268,16 @@ const TemplateList = () => {
     setShowVisualizationModal(false);
     dispatch(clearTemplateVisualization());
   };
-  const handleSearchString = (setter) => (e) => {
-    const searchValue = e;
-    setFilterText(searchValue);
-    setter(e);
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
-    }
-    const timeout = setTimeout(() => {
-      dispatch(
-        fetchTemplates({
-          clientId: localStorage.getItem("clientId"),
-          TransactonType: transactonType,
-          searchStr: searchValue,
-          senderId: SenderId,
-          Category: catagoryId,
-          Language: languageId,
-          pageNo: currentPage,
-          pageSize,
-        })
-      );
-    }, 500);
-    setSearchTimeout(timeout);
+  const handleSearchString = (e) => {
+    setFilterText(e);
   };
+
   const handleCategoryChange = (e) => {
-    ;
     const categoryId = e?.target.value;
     setCatagoryId(categoryId ? categoryId : 0);
   };
 
   const handleLanguageChange = (e) => {
-    ;
     const languageId = e?.target.value;
     setLanguageId(languageId ? languageId : 0);
   };
@@ -365,7 +298,7 @@ const TemplateList = () => {
             <SearchBar
               label="Search"
               value={filterText}
-              onChange={handleSearchString(setFilterText)}
+              onChange={handleSearchString}
             />
           </div>
           <div className="flex flex-col text-start mb-1">
@@ -436,7 +369,7 @@ const TemplateList = () => {
 
           <div className="overflow-auto">
             <DataTable
-              data={filteredSendernames}
+              data={templateList}
               columns={templateColumns}
               highlightOnHover
               striped

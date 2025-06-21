@@ -66,6 +66,11 @@ const InteractiveTemplateList = () => {
   };
   const templateColumns = [
     {
+      name: "Template Id",
+      selector: (row) => row.interactiveTemplateId,
+      sortable: true,
+    },
+    {
       name: "Template",
       selector: (row) => row.templateName,
       sortable: true,

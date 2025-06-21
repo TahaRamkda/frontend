@@ -60,6 +60,19 @@ const performanceCards = [
     color: "bg-green-50",
     valueClass: "text-green-700",
   },
+  {
+    label: "Replies",
+    icon: <FaReply className="text-purple-500 text-2xl" />,
+    key: "totalReplies",
+    color: "bg-purple-50",
+    valueClass: "text-purple-700",
+  },
+];
+
+const pricingData = [
+  { label: "Amount Spent", value: "$29.27" },
+  { label: "Cost per Message Delivered", value: "$0.03" },
+  { label: "Cost per Website Click", value: "$2.09" },
 ];
 
 const TemplateInsight = () => {
@@ -116,13 +129,14 @@ const TemplateInsight = () => {
   useEffect(() => {
     if (fromDate && toDate && templateId) {
       localStorage.setItem("activeModule", "0");
+      debugger
       const clientId = localStorage.getItem("clientId");
       dispatch(
         fetchTemplateInsight({
           clientId,
           fromDate,
           toDate,
-          TemplateId: templateId,
+          TemplateId: 82,
           senderId: sendernameId,
         })
       );
@@ -141,11 +155,13 @@ const TemplateInsight = () => {
     (sum, item) => sum + item.readCount,
     0
   );
- 
+  const totalReplies = 7;
+
   const performanceValues = {
     totalSent,
     totalDelivered,
-    totalRead,
+    totalRead: `${totalRead} (${Math.round((totalRead / totalSent) * 100)}%)`,
+    totalReplies,
   };
 
   const lineChartData = {
@@ -236,6 +252,24 @@ const TemplateInsight = () => {
         </div>
       </div>
       <div className="w-full min-h-screen flex flex-col bg-gray-50">
+        {/* Pricing Info */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-2">
+          {pricingData.map((item, i) => (
+            <div
+              key={i}
+              className="bg-white px-4 py-3 border border-gray-200 rounded shadow-sm"
+            >
+              <div className="flex flex-col items-start gap-1">
+                <div className="text-xs text-gray-700 font-medium">
+                  {item.label}
+                </div>
+                <div className="text-2xl font-semibold text-gray-900">
+                  {item.value}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
 
         {/* Performance Summary */}
 
@@ -335,7 +369,7 @@ const TemplateInsight = () => {
               <tr>
                 <th className="px-2  font-medium">Label</th>
                 <th className="px-2 font-medium">Type</th>
-                <th className="px-2 font-medium">Total clicks </th>
+                <th className="px-2 font-medium">Total clicks</th>
               </tr>
             </thead>
             <tbody>

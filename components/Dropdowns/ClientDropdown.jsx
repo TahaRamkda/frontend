@@ -7,7 +7,7 @@ import 'select2/dist/css/select2.min.css';
 import 'select2/dist/js/select2.min.js';
 import { fetchClientsDrop, clearClientDropState } from "@/slices/DropdownSlice";
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
-
+import { customStyles } from '@/utils/constants';
 const ClientDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
@@ -43,6 +43,7 @@ const ClientDropdown = ({ name, value, onChange }) => {
         onChange={handleChange}
         options={options}
         placeholder="Select"
+        styles={customStyles}
         isClearable
         classNamePrefix="react-select"
         noOptionsMessage={() => "No record found"}

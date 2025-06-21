@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "../Layout/Loader";
 import Select from "react-select";
+import { customStyles } from '@/utils/constants';
 import { fetchlanguage } from "@/slices/DropdownSlice";
 const LanguageDropdown = ({ name, value, onChange, disabled }) => {
   const dispatch = useDispatch();
@@ -36,6 +37,7 @@ const LanguageDropdown = ({ name, value, onChange, disabled }) => {
         onChange={handleChange}
         options={options}
         placeholder="Select"
+        styles={customStyles}
         isClearable
         classNamePrefix="react-select"
         noOptionsMessage={() => "No record found"}

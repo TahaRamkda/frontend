@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
 import Loader from '../Layout/Loader';
+import { customStyles } from '@/utils/constants';
 import { fetchSendernamesDrop } from '@/slices/DropdownSlice';
 const SendernameDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
@@ -39,6 +40,7 @@ const SendernameDropdown = ({ name, value, onChange }) => {
         onChange={handleChange}
         options={options}
         placeholder="Select"
+        styles={customStyles}
         isClearable
         classNamePrefix="react-select"
         noOptionsMessage={() => "No record found"}

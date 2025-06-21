@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
 import Loader from '../Layout/Loader';
+import { customStyles } from '@/utils/constants';
 import { fetchSurveyDropdown } from '@/slices/ReportSlice';
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
 const SurveyDropdown = ({ name, value, onChange }) => {
@@ -44,6 +45,7 @@ const SurveyDropdown = ({ name, value, onChange }) => {
         options={options}
         placeholder="Select"
         isClearable
+        styles={customStyles}
         classNamePrefix="react-select"
         noOptionsMessage={() => "No record found"}
       />

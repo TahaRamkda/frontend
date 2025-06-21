@@ -11,7 +11,8 @@ import {
   AGENTREPORT,
   CHATREPORTSTATS,
   CHATREPORTLOGS,
-  SURVEYDROPDOWN
+  SURVEYDROPDOWN,
+  TEMPLATEANALYTICS
 } from "@/utils/apiConstants";
 
 // Thunks
@@ -278,15 +279,15 @@ export const fetchDashboardSummary = createAsyncThunk(
 // Fetch Template Insight
 export const fetchTemplateInsight = createAsyncThunk(
   "templateinsight /fetchTemplateInsight",
-  async ({ clientId, fromDate, toDate, TemplateId }, { rejectWithValue }) => {
+  async ({clientId, fromDate, toDate, TemplateId, senderId }, { rejectWithValue }) => {
     try {
-      
+      debugger
       const response = await API.post("/api", {
-        endpoint: `${TEMPLATEINSIGHT}?templateId=${TemplateId}&FromDate=${fromDate}&ToDate=${toDate}`,
+        endpoint: `${TEMPLATEANALYTICS}?clientId=${clientId}&templateId=${TemplateId}&FromDate=${fromDate}&ToDate=${toDate}&senderId=${senderId}`,
         method: "GET",
         //payload: {},
       });
-      
+      debugger
       if (response?.status === 200 && response.data) {
         // const parseddata= JSON.parse(response.data, 2);
         

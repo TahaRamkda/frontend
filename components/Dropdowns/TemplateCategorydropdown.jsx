@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../Layout/Loader';
 import Select from 'react-select';
+import { customStyles } from '@/utils/constants';
 import { fetchtemplatecategory } from '@/slices/DropdownSlice';
 const TemplateCategoryDropdown = ({ name, value, onChange, disabled }) => {
   const dispatch = useDispatch();
@@ -40,6 +41,7 @@ const TemplateCategoryDropdown = ({ name, value, onChange, disabled }) => {
         options={options}
         placeholder="Select"
         isClearable
+        styles={customStyles}
         classNamePrefix="react-select"
         noOptionsMessage={() => "No record found"}
       />

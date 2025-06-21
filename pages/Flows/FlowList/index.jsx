@@ -47,6 +47,11 @@ const Flow = () => {
   // const setFlowsId = useSetRecoilState(FlowState);
   const flowColumn = [
     {
+      name: "Flow Id",
+      selector: (row) => row.flowId,
+      sortable: true,
+    },
+    {
       name: "Flow Name",
       selector: (row) => row.flowName,
       sortable: true,

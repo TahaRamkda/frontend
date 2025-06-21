@@ -67,7 +67,7 @@ const App = (props) => {
             height: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden;
+            overflow-y: auto; /* Allow vertical scroll */
             background: #f0f2f5;
           }
 
@@ -134,17 +134,19 @@ const App = (props) => {
           }
 
           .main-content-wrapper {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
-            min-height: calc(100vh - var(--header-height));
-            transition: margin-left 0.3s ease;
-            overflow-y: auto;
-            height: calc(100vh - var(--header-height));
-            width: calc(100% - var(--sidebar-width));
-            position: fixed;
-            right: 0;
-            background: #f0f2f5;
-          }
+  margin-left: var(--sidebar-width);
+  margin-top: var(--header-height);
+  min-height: calc(100vh - var(--header-height));
+  transition: margin-left 0.3s ease;
+  overflow-y: auto;
+  width: calc(100% - var(--sidebar-width));
+  background: #f0f2f5;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+
 
           .main-content-wrapper.sidebar-collapsed {
             margin-left: var(--sidebar-collapsed-width);
@@ -230,7 +232,6 @@ const App = (props) => {
 
           .content-card {
             background: white;
-            border-radius: 8px;
             box-shadow: 0 1px 3px var(--shadow-color),
                        0 1px 2px var(--shadow-color);
             height: 100%;
@@ -353,7 +354,7 @@ const App = (props) => {
       />
 
       {/* Main container */}
-      <div className="flex flex-1 relative h-full">
+      <div className="flex flex-1 relative min-h-screen">
         {/* Sidebar */}
         <div
           className={`app-sidebar ${!isSidebarOpen ? 'collapsed' : ''} ${

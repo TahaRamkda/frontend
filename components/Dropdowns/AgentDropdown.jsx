@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../Layout/Loader';
 import Select from 'react-select';
 import { fetchAgentsDrop } from '@/slices/DropdownSlice';
+import { customStyles } from '@/utils/constants';
 const AgentDropdown = ({ name, value, onChange }) => {
   const dispatch = useDispatch();
   const selectRef = useRef(null);
@@ -29,7 +30,7 @@ const AgentDropdown = ({ name, value, onChange }) => {
   };
 
   // Inline styles for react-select
-
+ 
 
   if (loading) return <Loader />;
   if (error) return <p className="text-danger">Error loading: {error}</p>;
@@ -42,6 +43,7 @@ const AgentDropdown = ({ name, value, onChange }) => {
         onChange={handleChange}
         options={options}
         placeholder="Select"
+        styles={customStyles}
         isClearable
         classNamePrefix="react-select"
         noOptionsMessage={() => "No record found"}

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Select from 'react-select';
 import Loader from "../Layout/Loader";
 import { fetchInteractiveTemplateDropWithoutParam,clearInteractiveTemplateDropStateState } from "@/slices/DropdownSlice";
+import { customStyles } from '@/utils/constants';
 import { FormGroup, Label, Input, FormText } from "reactstrap";
 const InteractiveTemplateDropdown = ({ name, value, onChange, TransactionType, SenderId }) => {
   const dispatch = useDispatch();
@@ -52,6 +53,7 @@ const InteractiveTemplateDropdown = ({ name, value, onChange, TransactionType, S
         value={selectedOption}
         onChange={handleChange}
         options={options}
+        styles={customStyles}
         placeholder="Select"
         isClearable
         classNamePrefix="react-select"

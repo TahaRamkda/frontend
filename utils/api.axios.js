@@ -9,7 +9,7 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
   (config) => {
-    
+    debugger
     if (typeof window !== 'undefined') {
       const accessToken = localStorage.getItem('accessToken');
       if (accessToken) {
@@ -26,7 +26,7 @@ instance.interceptors.response.use(
     return response;
   },
   async (error) => {
-    
+    debugger
     if (typeof window !== 'undefined') {
 
       if (error.response?.status === 401) {

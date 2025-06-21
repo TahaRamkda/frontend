@@ -85,8 +85,8 @@ class ErrorBoundary extends React.Component {
         }
         return (
             <div>
-                {this.state.error}
-                {this.props.children}
+                {this?.state.error}
+                {this?.props.children}
             </div>
         )
     }

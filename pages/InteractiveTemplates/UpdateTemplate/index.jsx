@@ -295,7 +295,7 @@ const InteractiveTemplateUpdate = ({ Template_Id, onclose }) => {
         buttonText: button.buttonText,
         actionId: button.actionId,
         actionType: button.actionType,
-        systemActionId: button.systemActionId,
+        systemActionId: button.systemActionId ? button.systemActionId : 0,
         index: index,
         buttonValue: button.buttonValue,
       })),

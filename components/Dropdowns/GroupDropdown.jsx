@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
+import { customStyles } from '@/utils/constants';
 import Loader from '../Layout/Loader';
 import { fetchGroupsDrop, clearGroupDropState } from "@/slices/DropdownSlice";
 const GroupDropdown = ({ name, value, onChange }) => {
@@ -38,6 +39,7 @@ const GroupDropdown = ({ name, value, onChange }) => {
         onChange={handleChange}
         options={options}
         placeholder="Select"
+        styles={customStyles}
         isClearable
         classNamePrefix="react-select"
         noOptionsMessage={() => "No record found"}
