@@ -79,7 +79,7 @@ const TemplateInsight = () => {
   useEffect(() => {
     if (templateInsight) {
       console.log("Raw templateInsight:", templateInsight);
-      
+
       // Set the template data
       setTemplaterData(templateInsight);
 
@@ -96,7 +96,13 @@ const TemplateInsight = () => {
         console.error("Error parsing templateInsight.details:", error);
       }
     }
-  }, [templateInsight, parseData]);
+  }, [templateInsight]);
+  useEffect(() => {
+    // Clear state when filters change
+    setTemplaterData([]);
+    setParseData([]);
+    dispatch(clearTemplateInsightState());
+  }, [templateId, fromDate, toDate, sendernameId]);
   useEffect(() => {
     const today = new Date();
     const lastWeek = new Date(today);
@@ -141,7 +147,7 @@ const TemplateInsight = () => {
     (sum, item) => sum + item.readCount,
     0
   );
- 
+
   const performanceValues = {
     totalSent,
     totalDelivered,
@@ -212,17 +218,17 @@ const TemplateInsight = () => {
             />
           </div>
           {sendernameId && (
-             <div className="flex-1">
-            <label className="text-[11px] font-semibold text-gray-700">
-              Template
-            </label>
-            <TemplateDropdown
-              value={templateId}
-              onChange={handleTemplateChange}
-            />
-          </div>
+            <div className="flex-1">
+              <label className="text-[11px] font-semibold text-gray-700">
+                Template
+              </label>
+              <TemplateDropdown
+                value={templateId}
+                onChange={handleTemplateChange}
+              />
+            </div>
           )}
-         
+
           <div className="flex-1">
             <label className="text-[11px] font-semibold text-gray-700">
               SenderName
@@ -236,7 +242,6 @@ const TemplateInsight = () => {
         </div>
       </div>
       <div className="w-full min-h-screen flex flex-col bg-gray-50">
-
         {/* Performance Summary */}
 
         {/* Line Chart */}
@@ -339,13 +344,15 @@ const TemplateInsight = () => {
               </tr>
             </thead>
             <tbody>
-              {parseData.map((btn, i) => (
-                <tr key={i} className="hover:bg-gray-50 border-b border-gray-100">
+              {parseData?.map((btn, i) => (
+                <tr
+                  key={i}
+                  className="hover:bg-gray-50 border-b border-gray-100"
+                >
                   <td className="px-2 text-gray-800">{btn.ButtonText}</td>
                   <td className="px-2 text-gray-600">{btn.ButtonType}</td>
                   <td className="px-2 text-gray-800">{btn.ClickCount}</td>
                 </tr>
-               
               ))}
             </tbody>
           </table>

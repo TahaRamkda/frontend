@@ -281,13 +281,13 @@ export const fetchTemplateInsight = createAsyncThunk(
   "templateinsight /fetchTemplateInsight",
   async ({clientId, fromDate, toDate, TemplateId, senderId }, { rejectWithValue }) => {
     try {
-      debugger
+      
       const response = await API.post("/api", {
-        endpoint: `${TEMPLATEANALYTICS}?clientId=${clientId}&templateId=${TemplateId}&FromDate=${fromDate}&ToDate=${toDate}&senderId=${senderId}`,
+        endpoint: `${TEMPLATEANALYTICS}?clientId=${clientId}&templateId=${TemplateId}&startDate=${fromDate}&endDate=${toDate}&senderId=${senderId}`,
         method: "GET",
         //payload: {},
       });
-      debugger
+      
       if (response?.status === 200 && response.data) {
         // const parseddata= JSON.parse(response.data, 2);
         

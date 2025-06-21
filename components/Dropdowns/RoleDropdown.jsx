@@ -23,7 +23,7 @@ const RoleDropdown = ({ name, value, onChange }) => {
   const selectedOption = options.find((opt) => opt.value === value) || 0;
 
   const handleChange = (selected) => {
-    debugger
+    
     const selectedValue = selected ? selected.value : 0;
     onChange({ target: { name, value: selectedValue } });
   };

@@ -129,7 +129,7 @@ const TemplateInsight = () => {
   useEffect(() => {
     if (fromDate && toDate && templateId) {
       localStorage.setItem("activeModule", "0");
-      debugger
+      
       const clientId = localStorage.getItem("clientId");
       dispatch(
         fetchTemplateInsight({
