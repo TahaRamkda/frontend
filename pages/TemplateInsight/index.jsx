@@ -340,11 +340,12 @@ const TemplateInsight = () => {
             </thead>
             <tbody>
               {parseData.map((btn, i) => (
-                <tr className="hover:bg-gray-50 border-b border-gray-100">
+                <tr key={i} className="hover:bg-gray-50 border-b border-gray-100">
                   <td className="px-2 text-gray-800">{btn.ButtonText}</td>
                   <td className="px-2 text-gray-600">{btn.ButtonType}</td>
                   <td className="px-2 text-gray-800">{btn.ClickCount}</td>
                 </tr>
+               
               ))}
             </tbody>
           </table>
