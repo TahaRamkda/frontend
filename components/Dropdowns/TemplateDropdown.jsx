@@ -42,7 +42,7 @@ const TemplateDropdown = ({ name, value, onChange, TransactionType, SenderId }) 
         senderId: SenderId,
       })
     );
-  }, [dispatch, transactionType]);
+  }, [dispatch, transactionType, SenderId]);
 
 
   if (loading) return <Loader />;
