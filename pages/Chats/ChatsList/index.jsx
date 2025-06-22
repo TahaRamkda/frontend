@@ -391,6 +391,7 @@ const ChatPage = () => {
       cancelButtonText: "Cancel",
     }).then(async (result) => {
       if (result.isConfirmed) {
+        debugger
         try {
           const response = await dispatch(
             setAgentstatus({ agentId: UserId, statusId: "0" })
@@ -420,7 +421,8 @@ const ChatPage = () => {
             if (merchantName)
               localStorage.setItem("MerchantName", merchantName);
 
-            router.push("/auth/login");
+            // router.push("/auth/login");
+            window.location.href = "/auth/login";
           } else {
             SweetAlert.fire({
               title: "Logout Failed",
@@ -527,7 +529,6 @@ const ChatPage = () => {
           const response = await dispatch(
             fetchAgentsById({ agentId: AgentId })
           ).unwrap();
-
           if (response) {
             setAgentStatus(response.status);
           }
