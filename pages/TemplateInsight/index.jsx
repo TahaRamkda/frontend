@@ -225,6 +225,7 @@ const TemplateInsight = () => {
               <TemplateDropdown
                 value={templateId}
                 onChange={handleTemplateChange}
+                SenderId={sendernameId}
               />
             </div>
           )}
