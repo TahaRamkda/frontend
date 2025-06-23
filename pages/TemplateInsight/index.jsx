@@ -217,18 +217,6 @@ const TemplateInsight = () => {
               minDate={fromDate}
             />
           </div>
-          {sendernameId && (
-            <div className="flex-1">
-              <label className="text-[11px] font-semibold text-gray-700">
-                Template
-              </label>
-              <TemplateDropdown
-                value={templateId}
-                onChange={handleTemplateChange}
-                SenderId={sendernameId}
-              />
-            </div>
-          )}
 
           <div className="flex-1">
             <label className="text-[11px] font-semibold text-gray-700">
@@ -240,6 +228,18 @@ const TemplateInsight = () => {
               onChange={handleChange}
             />
           </div>
+           {sendernameId && (
+            <div className="flex-1">
+              <label className="text-[11px] font-semibold text-gray-700">
+                Template
+              </label>
+              <TemplateDropdown
+                value={templateId}
+                onChange={handleTemplateChange}
+                SenderId={sendernameId}
+              />
+            </div>
+          )}
         </div>
       </div>
       <div className="w-full min-h-screen flex flex-col bg-gray-50">
