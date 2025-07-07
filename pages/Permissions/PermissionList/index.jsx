@@ -128,7 +128,7 @@ const PermissionList = () => {
         clientId: localStorage["clientId"],
         roleId: selectedRole,
         actionBy: localStorage["userId"],
-        permissionList: Data,
+        permissions: Data,
       };
       const response = await dispatch(createPermission(requestBody)).unwrap();
       if (response.status === 1) {
