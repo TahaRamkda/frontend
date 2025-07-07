@@ -65,7 +65,7 @@ export const sidebarItems = [
       submenu: [],
     },
     {
-      href: '/TemplateInsight',
+      href: '/TemplateInsightDetails',
       icon: <HiChartBar className="text-xl" />,
       text: 'Template Insight',
       module: 1,

@@ -19,22 +19,26 @@ export const TemplatesDropdown = ({ onChange }) => {
     dispatch(fetchTemplatesDrop({ clientId: localStorage.getItem("clientId"), TransactonType: transactionType }));
 
   }, [dispatch]);
-
+const Options = templateDropdownData?.map(template => ({
+    value: template.id,
+    label: template.name
+  })) || [];
   // Notify parent of selected template changes
   useEffect(() => {
-    if (onChange) {
-      onChange(selectedTemplateId);
-    }
-  }, [selectedTemplateId, onChange]);
+  const selectedOptions = Options.filter(option =>
+    selectedTemplateId.includes(option.value)
+  );
+  if (onChange) {
+    onChange(selectedOptions); // ✅ Send the full selected option objects
+  }
+}, [selectedTemplateId, onChange, Options]);
+
 
   const handleSelectChange = (selectedOptions) => {
     const selectedIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
     setSelectedTemplateId(selectedIds);
   };
- const Options = templateDropdownData?.map(template => ({
-    value: template.id,
-    label: template.name
-  })) || [];
+ 
 
   if (loading) return <Loader />;
   if (error) return <p className="text-danger">Error loading: {error}</p>;

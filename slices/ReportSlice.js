@@ -12,7 +12,8 @@ import {
   CHATREPORTSTATS,
   CHATREPORTLOGS,
   SURVEYDROPDOWN,
-  TEMPLATEANALYTICS
+  TEMPLATEANALYTICS,
+  TEMPLATEANALYTICSDETAILS
 } from "@/utils/apiConstants";
 
 // Thunks
@@ -64,9 +65,9 @@ export const fetchMessageReport = createAsyncThunk(
     {
       fromDate,
       toDate,
-      moduleId,status,senderid,srcStr,pageNo,pageSize,},{ rejectWithValue }) => {
+      moduleId, status, senderid, srcStr, pageNo, pageSize, }, { rejectWithValue }) => {
     try {
-       const response = await API.post("/api", {
+      const response = await API.post("/api", {
         endpoint: `${MESSAGEREPORT}?ModuleId=${moduleId}&SenderId=${senderid}&FromDate=${fromDate}&ToDate=${toDate}&CurrentStatus=${status}&SearchStr=${srcStr}&PageNo=${pageNo}&PageSize=${pageSize}`,
         method: "GET",
         //payload: {},
@@ -107,8 +108,7 @@ export const fetchConversationReport = createAsyncThunk(
   ) => {
     try {
       const response = await API.post("/api", {
-        endpoint: `${CONVERSATIONREPORT}?senderId=${senderId}${
-          srcStr ? `&searchStr=${srcStr}` : ""}&status=${status}&agentId=${agentId}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}&fChatInitiated=${fChatInitiated}`,
+        endpoint: `${CONVERSATIONREPORT}?senderId=${senderId}${srcStr ? `&searchStr=${srcStr}` : ""}&status=${status}&agentId=${agentId}&pageSize=${pageSize}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}&fChatInitiated=${fChatInitiated}`,
         method: "GET",
         //payload: {},
       });
@@ -135,7 +135,7 @@ export const fetchSupervisorDashboard = createAsyncThunk(
   "supervisordashboard /fetchSupervisorDashboard",
   async ({ senderid }, { rejectWithValue }) => {
     try {
-       const response = await API.post("/api", {
+      const response = await API.post("/api", {
         endpoint: `${SUPERVISORDASHBOARD}?SenderId=${senderid}`,
         method: "GET",
         //payload: {},
@@ -162,7 +162,7 @@ export const fetchChatLogs = createAsyncThunk(
   async ({ conversationId }, { rejectWithValue }) => {
     try {
       const response = await API.post("/api", {
-        endpoint:`${CHATREPORTLOGS}?conversationId=${conversationId}`,
+        endpoint: `${CHATREPORTLOGS}?conversationId=${conversationId}`,
         method: "GET",
         //payload: {},
       });
@@ -188,13 +188,13 @@ export const fetchAgentReport = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      
+
       const response = await API.post("/api", {
-        endpoint:  `${AGENTREPORT}?pageSize=${pageSize}&senderId=${senderId}${srcStr ? `&searchStr=${srcStr}` : ""}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`,
+        endpoint: `${AGENTREPORT}?pageSize=${pageSize}&senderId=${senderId}${srcStr ? `&searchStr=${srcStr}` : ""}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}`,
         method: "GET",
         //payload: {},
       });
-      
+
       if (response?.status === 200 && response.data) {
         return {
           AgentReportList: response.data,
@@ -231,7 +231,7 @@ export const fetchChatReportStats = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-       const response = await API.post("/api", {
+      const response = await API.post("/api", {
         endpoint: `${CHATREPORTSTATS}?pageSize=${pageSize}&senderId=${senderId}${srcStr ? `&searchStr=${srcStr}` : ""}&fChatInitiated=${fChatInitiated}&pageNo=${pageNo}&ToDate=${ToDate}&FromDate=${FromDate}&agentId=${agentId}`,
         method: "GET",
         //payload: {},
@@ -279,18 +279,18 @@ export const fetchDashboardSummary = createAsyncThunk(
 // Fetch Template Insight
 export const fetchTemplateInsight = createAsyncThunk(
   "templateinsight /fetchTemplateInsight",
-  async ({clientId, fromDate, toDate, TemplateId, senderId }, { rejectWithValue }) => {
+  async ({ clientId, fromDate, toDate, TemplateId, senderId }, { rejectWithValue }) => {
     try {
-      
+
       const response = await API.post("/api", {
         endpoint: `${TEMPLATEANALYTICS}?clientId=${clientId}&templateId=${TemplateId}&startDate=${fromDate}&endDate=${toDate}&senderId=${senderId}`,
         method: "GET",
         //payload: {},
       });
-      
+
       if (response?.status === 200 && response.data) {
         // const parseddata= JSON.parse(response.data, 2);
-        
+
         return {
           templateInsight: response.data,
         };
@@ -304,9 +304,37 @@ export const fetchTemplateInsight = createAsyncThunk(
   }
 );
 
+export const fetchTemplateInsightDetails = createAsyncThunk(
+  "templateinsight /fetchTemplateInsightDetails",
+  async ({ clientId, fromDate, toDate, TemplateId, senderId }, { rejectWithValue }) => {
+    try {
+
+      const response = await API.post("/api", {
+        endpoint: `${TEMPLATEANALYTICSDETAILS}?clientId=${clientId}&templateId=${TemplateId}&startDate=${fromDate}&endDate=${toDate}&senderId=${senderId}`,
+        method: "GET",
+        //payload: {},
+      });
+
+      if (response?.status === 200 && response.data) {
+        // const parseddata= JSON.parse(response.data, 2);
+
+        return {
+          templateInsightDetails: response.data,
+        };
+      } else {
+        throw new Error("Failed to fetch details ");
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
+
 export const fetchSurveyDropdown = createAsyncThunk(
   "survey /fetchSurveyDropdown",
-  async ({  }, { rejectWithValue }) => {
+  async ({ }, { rejectWithValue }) => {
     try {
       const response = await API.post("/api", {
         endpoint: `${SURVEYDROPDOWN}`,
@@ -334,11 +362,12 @@ const reportSlice = createSlice({
     messageSummary: [],
     messageReportList: [],
     templateInsight: [],
+    templateInsightDetails:[],
     conversationReportList: [],
     supervisorDashboard: [],
     AgentReportList: [],
     chatReportStats: [],
-    SurveyDropdown:[],
+    SurveyDropdown: [],
     loading: false,
     error: null,
     success: false,
@@ -414,6 +443,12 @@ const reportSlice = createSlice({
     },
     clearTemplateInsightState: (state) => {
       state.templateInsight = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    },
+    clearTemplateInsighDetailstState: (state) => {
+      state.templateInsightDetails = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -594,15 +629,33 @@ const reportSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchTemplateInsight.fulfilled, (state, action) => {
-        
+
         state.loading = false;
         state.templateInsight =
-    typeof action.payload?.templateInsight === "string"
-      ? JSON.parse(action.payload.templateInsight)
-      : action.payload?.templateInsight; //action.payload.messagereportsummary;
+          typeof action.payload?.templateInsight === "string"
+            ? JSON.parse(action.payload.templateInsight)
+            : action.payload?.templateInsight; //action.payload.messagereportsummary;
         state.message = action.payload.message || "";
       })
       .addCase(fetchTemplateInsight.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+      .addCase(fetchTemplateInsightDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTemplateInsightDetails.fulfilled, (state, action) => {
+
+        state.loading = false;
+        state.templateInsightDetails =
+          typeof action.payload?.templateInsightDetails === "string"
+            ? JSON.parse(action.payload.templateInsightDetails)
+            : action.payload?.templateInsightDetails; //action.payload.messagereportsummary;
+        state.message = action.payload.message || "";
+      })
+      .addCase(fetchTemplateInsightDetails.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
@@ -640,6 +693,7 @@ export const {
   clearSurveyDropdownState,
   clearAgentReportState,
   clearChatLogsState,
+  clearTemplateInsighDetailstState
 } = reportSlice.actions;
 
 export default reportSlice.reducer;

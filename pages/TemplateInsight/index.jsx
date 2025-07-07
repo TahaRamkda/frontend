@@ -104,12 +104,15 @@ const TemplateInsight = () => {
     dispatch(clearTemplateInsightState());
   }, [templateId, fromDate, toDate, sendernameId]);
   useEffect(() => {
-    const today = new Date();
-    const lastWeek = new Date(today);
-    lastWeek.setDate(today.getDate() - 7);
-    setToDate(today.toISOString().split("T")[0]);
-    setFromDate(lastWeek.toISOString().split("T")[0]);
-  }, []);
+  const today = new Date();
+  const lastWeek = new Date(today);
+  lastWeek.setDate(today.getDate() - 7);
+
+  // Fix: convert to string format accepted by <input type="date" />
+  setToDate(today.toISOString().split("T")[0]);
+  setFromDate(lastWeek.toISOString().split("T")[0]);
+}, []);
+
 
   const handleDateChange = (setter) => (e) => {
     setter(e);
