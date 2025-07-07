@@ -125,7 +125,6 @@ const PermissionList = () => {
     try {
       
       const requestBody = {
-        clientId: localStorage["clientId"],
         roleId: selectedRole,
         actionBy: localStorage["userId"],
         permissions: Data,
