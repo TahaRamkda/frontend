@@ -289,7 +289,6 @@ const ChatPage = () => {
   useEffect(() => {
     // Dispatch an initial check
     dispatch(checkForExpiredConversations());
-
     // Set up the interval to dispatch the check every 10 seconds
     const intervalId = setInterval(() => {
       dispatch(checkForExpiredConversations());
@@ -792,6 +791,7 @@ const ChatPage = () => {
 
     // Message received handler
     const handleIncomingMessage = async (message) => {
+      console.log("Received message:", message);
       await loggerdetails(logger, "Agent received message:", "info", {
         Obj: message,
         conversationId: message.conversationId,
@@ -825,6 +825,7 @@ const ChatPage = () => {
 
     // Handles conversation assignment
     const handleConversationAssigned = async (notification) => {
+      console.log("Received notification:", notification);
       await loggerdetails(
         logger,
         "New Conversation assigned to agent:",
