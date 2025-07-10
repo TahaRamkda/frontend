@@ -8,6 +8,7 @@ import {
   EXCELEXPORTAGENTMONITOR,
   EXCELEXPORTAGENTREPORT,
   EXCELEXPORTSURVEYREPORT,
+  EXCELEXPORTTEMPLATEANALYTICS
 } from "@/utils/apiConstants";
 
 // Excel Export Chat Report
@@ -254,6 +255,58 @@ export const excelExportSurveyReport = createAsyncThunk(
 
       // ✅ Extract filename from Content-Disposition
       let fileName = "SurveyResponce.xlsx";
+      const contentDisposition = response.headers["content-disposition"];
+      if (contentDisposition && contentDisposition.includes("attachment")) {
+        const fileNameMatch = contentDisposition.match(
+          /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+        );
+        if (fileNameMatch && fileNameMatch[1]) {
+          fileName = fileNameMatch[1].replace(/['"]/g, "");
+        }
+      }
+
+      // ✅ Download via anchor element
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(fileBlob);
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      return { success: true }; // Return success status
+    } catch (err) {
+      handleError(err);
+      return rejectWithValue(err.response ? err.response.data : err.message);
+    }
+  }
+);
+
+// Export Excel Template Analytics Report
+export const excelExportTemplateAnalyticReport = createAsyncThunk(
+  "templateAnalyticReport/excelExportTemplateAnalyticReport",
+  async ({ senderId, startDate, endDate, templateId }, { rejectWithValue }) => {
+    ;
+    try {
+      const surveyReportUrl = `${EXCELEXPORTTEMPLATEANALYTICS}?senderId=${senderId}&startDate=${startDate}&endDate=${endDate}&templateId=${templateId}`;
+      // Make API request and get blob data for Excel file
+      
+      const response = await API.post(
+        "/api",
+        {
+          endpoint: surveyReportUrl,
+          method: "GET",
+        },
+        {
+          responseType: "blob", // ✅ Axios parses the blob correctly now
+        }
+      );
+      
+      const fileBlob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      });
+
+      // ✅ Extract filename from Content-Disposition
+      let fileName = "TemplateAnalyticsSummary.xlsx ";
       const contentDisposition = response.headers["content-disposition"];
       if (contentDisposition && contentDisposition.includes("attachment")) {
         const fileNameMatch = contentDisposition.match(

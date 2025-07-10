@@ -146,6 +146,7 @@ export const EXCELEXPORTCHATMONITOR = "/Conversation/exportconversationreportlis
 export const EXCELEXPORTAGENTMONITOR = "/Agents/exportagentsupervisorreport";
 export const EXCELEXPORTAGENTREPORT = "/Agents/getexportagentdetailsupervisorreport";
 export const EXCELEXPORTSURVEYREPORT = "/Flows/exportsurveyresponse";
+export const EXCELEXPORTTEMPLATEANALYTICS = "/TemplateAnalytics/ExportTemplateAnalyticsDetailsReport";
 
 // close chat template By supervisor
 export const SENDCLOSECHATTEMPLATE = "/Conversation/closechatbysupervisor";

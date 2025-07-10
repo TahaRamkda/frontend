@@ -33,12 +33,15 @@ export const callExternalApi = async ({
       headers: response.headers,
     };
    
-  } catch (error) {
-    const errorMsg =
-      error?.response?.data?.message ||
-      error?.message ||
-      "Failed to fetch data";
-    console.error("API Error:", errorMsg);
-    throw new Error(errorMsg);
-  }
+  }catch (error) {
+ 
+    const raw = Buffer.isBuffer(error.response?.data)
+      ? error.response.data.toString("utf-8")
+      : error.response?.data;
+
+    const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+    console.error("API Error:", parsed);
+    throw new Error(JSON.stringify(parsed));
+
+}
 };

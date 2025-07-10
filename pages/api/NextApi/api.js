@@ -48,10 +48,21 @@ export default async function handler(req, res) {
       // return res.status(200).json(data.result);
     } catch (error) {
       console.error("Error while calling external API:", error);
-      return res.status(500).json({
-        error: "Failed to call external API",
-        details:
-          error.message || "An unknown error occurred while fetching data.",
+
+      let statusCode = 500;
+      let details = error.message;
+      let title = "Failed to call external API";
+
+      try {
+        const parsed = JSON.parse(error.message);
+        statusCode = parsed.status || 500;
+        details = parsed;
+        title = parsed.title || title;
+      } catch {}
+
+      return res.status(statusCode).json({
+        error: title,
+        details,
       });
     }
   } else {

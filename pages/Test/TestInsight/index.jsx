@@ -1,16 +1,5 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
 import App from "@/components/Layout/App";
 import Loader from "@/components/Layout/Loader";
 import TemplatesDropdown from "@/components/MultiSelect/TemplateDropdown";
@@ -19,24 +8,8 @@ import {
   fetchTemplateInsightDetails,
   clearTemplateInsighDetailstState,
 } from "@/slices/ReportSlice";
+import { excelExportTemplateAnalyticReport } from "@/slices/ExportExcel";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
-import {
-  FaPaperPlane,
-  FaCheckCircle,
-  FaEye,
-  FaReply,
-  FaDollarSign,
-} from "react-icons/fa";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
 
 const TemplateInsight = () => {
   const [fromDate, setFromDate] = useState("");
@@ -101,6 +74,10 @@ const TemplateInsight = () => {
       setTemplateId(""); // Reset if no selection
     }
   };
+   const handleExportToExcel = () => {
+    dispatch(excelExportTemplateAnalyticReport({ senderId:sendernameId, templateId: templateId ,startDate: fromDate, endDate: toDate}));
+  };
+  
   useEffect(() => {
     localStorage.setItem("activeModule", "0");
     const clientId = localStorage.getItem("clientId");
@@ -122,6 +99,19 @@ const TemplateInsight = () => {
     <App>
       {/* Filters */}
       {loading && <Loader />}
+      <div className="flex items-center">
+        <div >
+          <h4 className="font-bold ">Template Insight </h4>
+        </div>
+        <div className="ml-auto mb-1">
+          <button className="uniform_btn" 
+          onClick={handleExportToExcel}
+          >
+            Export Report
+          </button>
+        
+        </div>
+      </div>
       <div className="mb-3">
         <div className="bg-white  rounded p-2 flex flex-col md:flex-row gap-2 items-stretch">
           <div className="flex-1">

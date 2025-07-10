@@ -296,17 +296,16 @@ const CampaignsList = () => {
         campaignId: CampaignId,
         scheduleDate: CampaignForm.scheduleDate,
       };
-      setIsModalOpen(false);
 
       const response = await dispatch(activateCampaign(requestBody)).unwrap();
       
       if (response.status === 1) {
-        refreshCampaignList();
         showSweetAlert({
           title: "Schedule Successfully",
           text: response.message,
           icon: "success",
         });
+        refreshCampaignList();
         setIsModalOpen(false);
       } else {
         showSweetAlert({
