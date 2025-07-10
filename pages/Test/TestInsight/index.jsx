@@ -8,8 +8,9 @@ import {
   fetchTemplateInsightDetails,
   clearTemplateInsighDetailstState,
 } from "@/slices/ReportSlice";
-import { excelExportTemplateAnalyticReport } from "@/slices/ExportExcel";
+import { exportToExcel } from "@/components/ExportExcel/excel";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
+import showSweetAlert from "@/components/Sweetalert";
 
 const TemplateInsight = () => {
   const [fromDate, setFromDate] = useState("");
@@ -74,9 +75,55 @@ const TemplateInsight = () => {
       setTemplateId(""); // Reset if no selection
     }
   };
-   const handleExportToExcel = () => {
-    dispatch(excelExportTemplateAnalyticReport({ senderId:sendernameId, templateId: templateId ,startDate: fromDate, endDate: toDate}));
-  };
+//   const handleExportToExcel = () => {
+//   if (!templateInsightDetails || templateInsightDetails.length === 0) {
+//     showSweetAlert({
+//       title: "Error",
+//       text: "No data to export.",
+//       icon: "error",
+//     })
+//     return;
+//   }
+
+//   const formattedData = templateInsightDetails.map((item) => {
+//     let orderNow = 0;
+//     let unsubscribe = 0;
+
+//     let buttons = [];
+//     try {
+//       buttons =
+//         typeof item.buttonDetails === "string"
+//           ? JSON.parse(item.buttonDetails)
+//           : item.buttonDetails || [];
+//     } catch (err) {
+//       console.error("Failed to parse buttonDetails", err);
+//     }
+
+//     // Sum up clicks
+//     for (const btn of buttons) {
+//       if (btn.ButtonText === "Order Now") {
+//         orderNow += btn.ClickCount;
+//       }
+//       if (btn.ButtonText === "Unsubscribe") {
+//         unsubscribe += btn.ClickCount;
+//       }
+//     }
+
+//     return {
+//       "Template Name": item.templateName || "-",
+//       "Brands": "Pizza Hut", // Or dynamic value if needed
+//       "Send Date": item.createdAt?.split("T")[0] || "N/A",
+//       "Message Send": item.sentCount || 0,
+//       "Message Delivered": item.deliveredCount || 0,
+//       "Message Read": item.readCount || 0,
+//       "Order Now": orderNow,
+//       "Unsubscribe": unsubscribe,
+//     };
+//   });
+
+//   exportToExcel(formattedData, "Template_Insight_Report");
+// };
+
   
   useEffect(() => {
     localStorage.setItem("activeModule", "0");
@@ -103,14 +150,14 @@ const TemplateInsight = () => {
         <div >
           <h4 className="font-bold ">Template Insight </h4>
         </div>
-        <div className="ml-auto mb-1">
+        {/* <div className="ml-auto mb-1">
           <button className="uniform_btn" 
           onClick={handleExportToExcel}
           >
             Export Report
           </button>
         
-        </div>
+        </div> */}
       </div>
       <div className="mb-3">
         <div className="bg-white  rounded p-2 flex flex-col md:flex-row gap-2 items-stretch">

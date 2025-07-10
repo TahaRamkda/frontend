@@ -52,12 +52,13 @@ export default async function handler(req, res) {
       let statusCode = 500;
       let details = error.message;
       let title = "Failed to call external API";
-
+      console.error("Error Your Message:", error.message);
       try {
         const parsed = JSON.parse(error.message);
         statusCode = parsed.status || 500;
         details = parsed;
         title = parsed.title || title;
+         console.error("Er Message:", parsed);
       } catch {}
 
       return res.status(statusCode).json({

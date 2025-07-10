@@ -391,7 +391,6 @@ const ChatPage = () => {
       cancelButtonText: "Cancel",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        debugger
         try {
           const response = await dispatch(
             setAgentstatus({ agentId: UserId, statusId: "0" })
