@@ -126,6 +126,7 @@ const PermissionList = () => {
       
       const requestBody = {
         roleId: selectedRole,
+        actionBy: localStorage["userId"],
         permissions: Data,
       };
       const response = await dispatch(createPermission(requestBody)).unwrap();

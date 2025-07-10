@@ -38,30 +38,6 @@ ChartJS.register(
   Legend
 );
 
-const performanceCards = [
-  {
-    label: "Messages Sent",
-    icon: <FaPaperPlane className="text-indigo-500 text-2xl" />,
-    key: "totalSent",
-    color: "bg-indigo-50",
-    valueClass: "text-indigo-700",
-  },
-  {
-    label: "Messages Delivered",
-    icon: <FaCheckCircle className="text-yellow-500 text-2xl" />,
-    key: "totalDelivered",
-    color: "bg-yellow-50",
-    valueClass: "text-yellow-700",
-  },
-  {
-    label: "Messages Read",
-    icon: <FaEye className="text-green-500 text-2xl" />,
-    key: "totalRead",
-    color: "bg-green-50",
-    valueClass: "text-green-700",
-  },
-];
-
 const TemplateInsight = () => {
   const [fromDate, setFromDate] = useState("");
   const dispatch = useDispatch();
@@ -85,7 +61,7 @@ const TemplateInsight = () => {
 
       // Parse the details safely
       try {
-        const rawDetails = templateInsightDetails[0].details;
+        const rawDetails = templateInsightDetails[0].buttonDetails;
         const parsedDetails =
           typeof rawDetails === "string"
             ? JSON.parse(rawDetails || "[]")
@@ -104,15 +80,14 @@ const TemplateInsight = () => {
     dispatch(clearTemplateInsighDetailstState());
   }, [templateId, fromDate, toDate, sendernameId]);
   useEffect(() => {
-  const today = new Date();
-  const lastWeek = new Date(today);
-  lastWeek.setDate(today.getDate() - 7);
+    const today = new Date();
+    const lastWeek = new Date(today);
+    lastWeek.setDate(today.getDate() - 7);
 
-  // Fix: convert to string format accepted by <input type="date" />
-  setToDate(today.toISOString().split("T")[0]);
-  setFromDate(lastWeek.toISOString().split("T")[0]);
-}, []);
-
+    // Fix: convert to string format accepted by <input type="date" />
+    setToDate(today.toISOString().split("T")[0]);
+    setFromDate(lastWeek.toISOString().split("T")[0]);
+  }, []);
 
   const handleDateChange = (setter) => (e) => {
     setter(e);
@@ -127,77 +102,21 @@ const TemplateInsight = () => {
     }
   };
   useEffect(() => {
-    if (fromDate && toDate) {
-      localStorage.setItem("activeModule", "0");
-      const clientId = localStorage.getItem("clientId");
-      dispatch(
-        fetchTemplateInsightDetails({
-          clientId,
-          fromDate,
-          toDate,
-          TemplateId: templateId,
-          senderId: sendernameId,
-        })
-      );
-    }
+    localStorage.setItem("activeModule", "0");
+    const clientId = localStorage.getItem("clientId");
+    dispatch(
+      fetchTemplateInsightDetails({
+        clientId,
+        fromDate,
+        toDate,
+        TemplateId: templateId,
+        senderId: sendernameId,
+      })
+    );
     return () => {
       clearTemplateInsighDetailstState();
     };
   }, [dispatch, fromDate, toDate, templateId, sendernameId]);
-
-  const totalSent = templateData.reduce((sum, item) => sum + item.sentCount, 0);
-  const totalDelivered = templateData?.reduce(
-    (sum, item) => sum + item.deliveredCount,
-    0
-  );
-  const totalRead = templateData?.reduce(
-    (sum, item) => sum + item.readCount,
-    0
-  );
-
-  const performanceValues = {
-    totalSent,
-    totalDelivered,
-    totalRead,
-  };
-
-  const lineChartData = {
-    labels:
-      Array.isArray(templateData) &&
-      templateData?.map((item) => item.recordDate),
-    datasets: [
-      {
-        label: "Messages Sent",
-        data:
-          Array.isArray(templateData) &&
-          templateData?.map((item) => item.sentCount),
-        borderColor: "#FF6384", // Red/Pink
-        backgroundColor: "rgba(0, 0, 0, 0.1)",
-        tension: 0.4,
-        fill: true,
-      },
-      {
-        label: "Messages Delivered",
-        data:
-          Array.isArray(templateData) &&
-          templateData?.map((item) => item.deliveredCount),
-        borderColor: "black", // Blue
-        backgroundColor: "rgba(54, 162, 235, 0.1)",
-        tension: 0.4,
-        fill: true,
-      },
-      {
-        label: "Messages Read",
-        data:
-          Array.isArray(templateData) &&
-          templateData?.map((item) => item.readCount),
-        borderColor: "green", // Teal
-        backgroundColor: "rgba(75, 192, 192, 0.1)",
-        tension: 0.4,
-        fill: true,
-      },
-    ],
-  };
 
   return (
     <App>
@@ -235,41 +154,68 @@ const TemplateInsight = () => {
               onChange={handleChange}
             />
           </div>
-            <div className="flex-1">
-              <label className="text-[11px] font-semibold text-gray-700">
-                Template
-              </label>
-              <TemplatesDropdown
-                value={templateId}
-                onChange={handleTemplateChange}
-                SenderId={sendernameId}
-              />
-            </div>
+          <div className="flex-1">
+            <label className="text-[11px] font-semibold text-gray-700">
+              Template
+            </label>
+            <TemplatesDropdown
+              value={templateId}
+              onChange={handleTemplateChange}
+              SenderId={sendernameId}
+            />
+          </div>
         </div>
       </div>
-      <div className="w-full min-h-screen flex flex-col bg-gray-50">
+      <div className="w-full  bg-gray-50">
         {/* Performance Summary */}
 
-        {/* Line Chart */}
-        <div className="bg-white border border-gray-200 p-3 rounded shadow-sm mb-6">
-          <div className="flex items-center justify-between mb-1">
+        <div className="bg-white border w-full border-gray-200 p-2 rounded shadow-sm mb-6">
+          <div className="flex items-center justify-between mb-3">
             <h3 className="text-base font-semibold text-gray-800">
               Performance
             </h3>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-3">
-            {performanceCards.map((card) => (
+          <div >
+            {templateData.map((item, index) => (
+              <div >
               <div
-                key={card.label}
-                className="flex flex-col items-start justify-center p-1"
+                key={index}
+                className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4"
               >
-                <div className="text-xs text-gray-500 font-medium mt-1">
-                  {card.label}
+                <div className="  rounded ">
+                  <div className="text-lg text-gray-500 font-medium">
+                    Sent Count
+                  </div>
+                  <div className="text-2xl font-bold text-gray-900">
+                    {item.sentCount}
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-gray-900">
-                  {performanceValues[card.key]}
+                <div className="rounded ">
+                  <div className="text-lg text-gray-500 font-medium">
+                    Delivered Count
+                  </div>
+                  <div className="text-2xl font-bold text-gray-900">
+                    {item.deliveredCount}
+                  </div>
                 </div>
+                <div className=" rounded ">
+                  <div className="text-lg text-gray-500 font-medium">
+                    Read Count
+                  </div>
+                  <div className="text-2xl font-bold text-gray-900">
+                    {item.readCount}
+                  </div>
+                </div>
+                <div className=" rounded ">
+                  <div className="text-lg text-gray-500 font-medium">
+                    Failed Count
+                  </div>
+                  <div className="text-2xl font-bold text-gray-900">
+                    {item.failedCount}
+                  </div>
+                </div>
+              </div>
               </div>
             ))}
           </div>

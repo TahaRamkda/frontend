@@ -95,7 +95,7 @@ export const CHATREPORTLOGS = "/Conversation/getconversationlogslist";
 export const AGENTSMONITOR ="/Agents/getagentsupervisorreport";
 export const AGENTREPORT = "/Agents/getagentdetailsupervisorreport";
 export const TEMPLATEANALYTICS = "/TemplateAnalytics/GetTemplateList"; 
-export const TEMPLATEANALYTICSDETAILS = "#"
+export const TEMPLATEANALYTICSDETAILS = "/TemplateAnalytics/GetTemplateAnalyticDetails"
 //agenst endpoints
 export const AGENTLIST = "/Agents/getagentlist";
 export const AGENTDETAILS = "/Agents/getagentbyid";
