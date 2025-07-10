@@ -26,9 +26,10 @@ const SendernameDropdown = ({ name, value, onChange }) => {
   const selectedOption = options.find((opt) => opt.value === value) || null;
 
   const handleChange = (selected) => {
+    const label = selected ? selected.label : '';
     const selectedValue = selected ? selected.value : '0';
     setSelectedSenderId(selectedValue);
-    onChange({ target: { name, value: selectedValue } });
+    onChange({ target: { name, value: selectedValue, label: label } });
   };
 
 

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import App from "@/components/Layout/App";
 import Loader from "@/components/Layout/Loader";
 import TemplatesDropdown from "@/components/MultiSelect/TemplateDropdown";
+import * as XLSX from "xlsx"; // Import xlsx library
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 import {
   fetchTemplateInsightDetails,
@@ -13,6 +14,50 @@ import DateTimePicker from "@/components/Timepicker/datetimepicker";
 import showSweetAlert from "@/components/Sweetalert";
 
 const TemplateInsight = () => {
+  const data = {
+    Templates: [
+      {
+        templateId: "1126450329101197",
+        templateName: "pizza_hut_trackinglink",
+        buttonText: "Track Order1111 / تابع طلبك",
+        buttonType: "url_button",
+        clickCount: 3,
+        sentCount: 8,
+        deliveredCount: 3,
+        readCount: 1,
+      },
+      {
+        templateId: "1126450329101197",
+        templateName: "pizza_hut_trackinglink",
+        buttonText: "Track Order / تابع طلبك",
+        buttonType: "url_button",
+        clickCount: 2,
+        sentCount: 5,
+        deliveredCount: 1,
+        readCount: 1,
+      },
+      {
+        templateId: "1126450329101197",
+        templateName: "pizza_hut_trackinglink",
+        buttonText: "Track Order1111 / تابع طلبك",
+        buttonType: "url_button",
+        clickCount: 3,
+        sentCount: 3,
+        deliveredCount: 3,
+        readCount: 1,
+      },
+    ],
+  };
+
+  const metadataRows = [
+  ["Date of Report", new Date().toLocaleDateString()],
+  ["Sender Names", "YourSenderName"], // Replace with dynamic value if needed
+  ["Template Name", "All Templates"], // Or a specific one
+  ["Start Date", "2025-07-01"],
+  ["End Date", "2025-07-10"],
+  [] // Empty row as spacer
+];
+const [sendername, setSendername] = useState("");
   const [fromDate, setFromDate] = useState("");
   const dispatch = useDispatch();
   const [toDate, setToDate] = useState("");
@@ -23,9 +68,14 @@ const TemplateInsight = () => {
     (state) => state.reports
   );
   const [parseData, setParseData] = useState([]);
+
   const handleChange = (e) => {
+    debugger
     setsendernameId(e.target.value);
+    setSendername(e.target.label)
+
   };
+
   useEffect(() => {
     if (templateInsightDetails) {
       console.log("Raw templateInsightDetails:", templateInsightDetails);
@@ -47,12 +97,14 @@ const TemplateInsight = () => {
       }
     }
   }, [templateInsightDetails]);
+
   useEffect(() => {
     // Clear state when filters change
     setTemplaterData([]);
     setParseData([]);
     dispatch(clearTemplateInsighDetailstState());
   }, [templateId, fromDate, toDate, sendernameId]);
+
   useEffect(() => {
     const today = new Date();
     const lastWeek = new Date(today);
@@ -68,6 +120,7 @@ const TemplateInsight = () => {
   };
 
   const handleTemplateChange = (selectedOptions) => {
+    debugger
     if (Array.isArray(selectedOptions)) {
       const values = selectedOptions.map((option) => option.value); // Extract values
       setTemplateId(values.join(",")); // Join as a comma-separated string
@@ -75,56 +128,76 @@ const TemplateInsight = () => {
       setTemplateId(""); // Reset if no selection
     }
   };
-//   const handleExportToExcel = () => {
-//   if (!templateInsightDetails || templateInsightDetails.length === 0) {
-//     showSweetAlert({
-//       title: "Error",
-//       text: "No data to export.",
-//       icon: "error",
-//     })
-//     return;
-//   }
 
-//   const formattedData = templateInsightDetails.map((item) => {
-//     let orderNow = 0;
-//     let unsubscribe = 0;
+  const handleExportToExcel = () => {
+    // if (!templateInsightDetails || !templateInsightDetails.Templates || templateInsightDetails.Templates.length === 0) {
+    //   showSweetAlert({
+    //     title: "Error",
+    //     text: "No data to export.",
+    //     icon: "error",
+    //   });
+    //   return;
+    // }
 
-//     let buttons = [];
-//     try {
-//       buttons =
-//         typeof item.buttonDetails === "string"
-//           ? JSON.parse(item.buttonDetails)
-//           : item.buttonDetails || [];
-//     } catch (err) {
-//       console.error("Failed to parse buttonDetails", err);
-//     }
+    // Step 1: Collect all unique button labels
+    const allButtonLabels = new Set();
+    data.Templates.forEach((item) => {
+      allButtonLabels.add(item.buttonText);
+    });
+    const buttonColumns = Array.from(allButtonLabels);
 
-//     // Sum up clicks
-//     for (const btn of buttons) {
-//       if (btn.ButtonText === "Order Now") {
-//         orderNow += btn.ClickCount;
-//       }
-//       if (btn.ButtonText === "Unsubscribe") {
-//         unsubscribe += btn.ClickCount;
-//       }
-//     }
+    // Step 2: Group templates by templateName
+    const groupedByTemplate = data.Templates.reduce((acc, item) => {
+      if (!acc[item.templateName]) {
+        acc[item.templateName] = {
+          templateName: item.templateName,
+          deliveredCount: item.deliveredCount,
+          sentCount: item.sentCount,
+          buttons: [],
+        };
+      }
+      acc[item.templateName].buttons.push({
+        ButtonText: item.buttonText,
+        ClickCount: item.clickCount,
+      });
+      return acc;
+    }, {});
 
-//     return {
-//       "Template Name": item.templateName || "-",
-//       "Brands": "Pizza Hut", // Or dynamic value if needed
-//       "Send Date": item.createdAt?.split("T")[0] || "N/A",
-//       "Message Send": item.sentCount || 0,
-//       "Message Delivered": item.deliveredCount || 0,
-//       "Message Read": item.readCount || 0,
-//       "Order Now": orderNow,
-//       "Unsubscribe": unsubscribe,
-//     };
-//   });
+    // Step 3: Build rows per template
+    const formattedData = Object.values(groupedByTemplate).map((template) => {
+      const row = {
+        "Template Name": template.templateName || "-",
+        "Brands": "Pizza Hut", // Hardcoded as per your example
+        "Send Date": "-", // Placeholder since createdAt is not in JSON
+        "Message Sent": template.sentCount || "-", // Placeholder since sentCount is not in JSON
+        "Message Delivered": template.deliveredCount, // Placeholder since deliveredCount is not in JSON
+        "Message Read": 0, // Placeholder since readCount is not in JSON
+      };
 
-//   exportToExcel(formattedData, "Template_Insight_Report");
-// };
+      // Initialize dynamic button columns
+      buttonColumns.forEach((label) => {
+        row[label] = 0;
+      });
 
-  
+      // Fill button click counts
+      template.buttons.forEach((btn) => {
+        if (btn.ButtonText in row) {
+          row[btn.ButtonText] = btn.ClickCount;
+        }
+      });
+
+      return row;
+    });
+
+    // Step 4: Create Excel worksheet
+    const worksheet = XLSX.utils.json_to_sheet(formattedData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
+
+    // Step 5: Export to Excel
+    XLSX.writeFile(workbook, "Template_Insight_Report.xlsx");
+  };
+
   useEffect(() => {
     localStorage.setItem("activeModule", "0");
     const clientId = localStorage.getItem("clientId");
@@ -147,17 +220,14 @@ const TemplateInsight = () => {
       {/* Filters */}
       {loading && <Loader />}
       <div className="flex items-center">
-        <div >
+        <div>
           <h4 className="font-bold ">Template Insight </h4>
         </div>
-        {/* <div className="ml-auto mb-1">
-          <button className="uniform_btn" 
-          onClick={handleExportToExcel}
-          >
+        <div className="ml-auto mb-1">
+          <button className="uniform_btn" onClick={handleExportToExcel}>
             Export Report
           </button>
-        
-        </div> */}
+        </div>
       </div>
       <div className="mb-3">
         <div className="bg-white  rounded p-2 flex flex-col md:flex-row gap-2 items-stretch">
@@ -213,46 +283,46 @@ const TemplateInsight = () => {
             </h3>
           </div>
 
-          <div >
+          <div>
             {templateData.map((item, index) => (
-              <div >
-              <div
-                key={index}
-                className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4"
-              >
-                <div className="  rounded ">
-                  <div className="text-lg text-gray-500 font-medium">
-                    Sent Count
+              <div>
+                <div
+                  key={index}
+                  className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4"
+                >
+                  <div className="  rounded ">
+                    <div className="text-lg text-gray-500 font-medium">
+                      Sent Count
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {item.sentCount}
+                    </div>
                   </div>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {item.sentCount}
+                  <div className="rounded ">
+                    <div className="text-lg text-gray-500 font-medium">
+                      Delivered Count
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {item.deliveredCount}
+                    </div>
+                  </div>
+                  <div className=" rounded ">
+                    <div className="text-lg text-gray-500 font-medium">
+                      Read Count
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {item.readCount}
+                    </div>
+                  </div>
+                  <div className=" rounded ">
+                    <div className="text-lg text-gray-500 font-medium">
+                      Failed Count
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {item.failedCount}
+                    </div>
                   </div>
                 </div>
-                <div className="rounded ">
-                  <div className="text-lg text-gray-500 font-medium">
-                    Delivered Count
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {item.deliveredCount}
-                  </div>
-                </div>
-                <div className=" rounded ">
-                  <div className="text-lg text-gray-500 font-medium">
-                    Read Count
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {item.readCount}
-                  </div>
-                </div>
-                <div className=" rounded ">
-                  <div className="text-lg text-gray-500 font-medium">
-                    Failed Count
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {item.failedCount}
-                  </div>
-                </div>
-              </div>
               </div>
             ))}
           </div>
