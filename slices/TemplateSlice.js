@@ -9,6 +9,7 @@ import {
   DELETETEMPLATE,
   SYNCTEMPLATE,
   TEMPLATEDROPDOWN,
+  EXCELEXPORTTEMPLATEANALYTICS
 } from "@/utils/apiConstants";
 
 // Thunks
@@ -141,11 +142,38 @@ export const deleteTemplates = createAsyncThunk(
   }
 );
 
+export const excelExportTemplateAnalyticReport = createAsyncThunk(
+  "templateAnalyticReport/excelExportTemplateAnalyticReport",
+  async ({ senderId, startDate, endDate, templateId }, { rejectWithValue }) => {
+    ;
+    try {
+      const surveyReportUrl = `${EXCELEXPORTTEMPLATEANALYTICS}?senderId=${senderId}&startDate=${startDate}&endDate=${endDate}&templateId=${templateId}`;
+      const response = await API.post("/api",{
+          endpoint: surveyReportUrl,
+          method: "GET",
+        },
+      );
+      if (response?.status === 200) {
+        return {
+          templateSummaryList: response.data,
+        };
+      } else {
+        throw new Error("Failed to fetch details");
+      }
+    } catch (err) {
+      handleError(err);
+      return rejectWithValue(err.response ? err.response.data : err.message);
+    }
+  }
+);
+
+
 // Slice
 const templateSlice = createSlice({
   name: "template",
   initialState: {
     templateList: [],
+    templateSummaryList: [],
     templateDetails: null,
     loading: false,
     error: null,
@@ -222,7 +250,21 @@ const templateSlice = createSlice({
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
       })
-
+      
+      .addCase(excelExportTemplateAnalyticReport.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(excelExportTemplateAnalyticReport.fulfilled, (state, action) => {
+        state.loading = false;
+        state.templateSummaryList = action.payload.templateSummaryList;
+        state.message = action.payload.message || "";
+      })
+      .addCase(excelExportTemplateAnalyticReport.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
       // Fetch Template by ID
       .addCase(fetchTemplatesById.pending, (state) => {
         

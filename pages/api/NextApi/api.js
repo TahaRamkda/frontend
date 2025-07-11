@@ -47,12 +47,9 @@ export default async function handler(req, res) {
       // Default JSON response
       // return res.status(200).json(data.result);
     } catch (error) {
-      console.error("Error while calling external API:", error);
-
       let statusCode = 500;
       let details = error.message;
       let title = "Failed to call external API";
-      console.error("Error Your Message:", error.message);
       try {
         const parsed = JSON.parse(error.message);
         statusCode = parsed.status || 500;
@@ -60,7 +57,6 @@ export default async function handler(req, res) {
         title = parsed.title || title;
          console.error("Er Message:", parsed);
       } catch {}
-
       return res.status(statusCode).json({
         error: title,
         details,

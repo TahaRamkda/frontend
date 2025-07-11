@@ -5,6 +5,7 @@ import Loader from "@/components/Layout/Loader";
 import TemplatesDropdown from "@/components/MultiSelect/TemplateDropdown";
 import * as XLSX from "xlsx"; // Import xlsx library
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
+import { excelExportTemplateAnalyticReport } from "@/slices/TemplateSlice";
 import {
   fetchTemplateInsightDetails,
   clearTemplateInsighDetailstState,
@@ -49,31 +50,25 @@ const TemplateInsight = () => {
     ],
   };
 
-  const metadataRows = [
-  ["Date of Report", new Date().toLocaleDateString()],
-  ["Sender Names", "YourSenderName"], // Replace with dynamic value if needed
-  ["Template Name", "All Templates"], // Or a specific one
-  ["Start Date", "2025-07-01"],
-  ["End Date", "2025-07-10"],
-  [] // Empty row as spacer
-];
-const [sendername, setSendername] = useState("");
+  const [sendername, setSendername] = useState("");
   const [fromDate, setFromDate] = useState("");
   const dispatch = useDispatch();
   const [toDate, setToDate] = useState("");
   const [templateId, setTemplateId] = useState([]);
+  const [shouldExport, setShouldExport] = useState(false);
   const [templateData, setTemplaterData] = useState([]);
+  const [templatesLabels, setTemplatesLabels] = useState([]);
   const [sendernameId, setsendernameId] = useState(0);
   const { templateInsightDetails, loading, error } = useSelector(
     (state) => state.reports
   );
+  const { templateSummaryList } = useSelector((state) => state.templates);
+
   const [parseData, setParseData] = useState([]);
 
   const handleChange = (e) => {
-    debugger
     setsendernameId(e.target.value);
-    setSendername(e.target.label)
-
+    setSendername(e.target.label);
   };
 
   useEffect(() => {
@@ -120,83 +115,127 @@ const [sendername, setSendername] = useState("");
   };
 
   const handleTemplateChange = (selectedOptions) => {
-    debugger
     if (Array.isArray(selectedOptions)) {
       const values = selectedOptions.map((option) => option.value); // Extract values
+      const labels = selectedOptions.map((option) => option.label);
       setTemplateId(values.join(",")); // Join as a comma-separated string
+      setTemplatesLabels(labels.join(","));
     } else {
       setTemplateId(""); // Reset if no selection
+      setTemplatesLabels("");
     }
   };
 
+  const metadataRows = [
+    ["Date of Report", new Date().toLocaleDateString()],
+    ["Sender Names", sendername || "Not Selected"], // Replace with dynamic value if needed
+    ["Template Name", templatesLabels || "Not Selected"], // Or a specific one
+    ["Start Date", fromDate || "Not Selected"],
+    ["End Date", toDate || "Not Selected"],
+    [], // Empty row as spacer
+  ];
+
   const handleExportToExcel = () => {
-    // if (!templateInsightDetails || !templateInsightDetails.Templates || templateInsightDetails.Templates.length === 0) {
-    //   showSweetAlert({
-    //     title: "Error",
-    //     text: "No data to export.",
-    //     icon: "error",
-    //   });
-    //   return;
-    // }
-
-    // Step 1: Collect all unique button labels
-    const allButtonLabels = new Set();
-    data.Templates.forEach((item) => {
-      allButtonLabels.add(item.buttonText);
-    });
-    const buttonColumns = Array.from(allButtonLabels);
-
-    // Step 2: Group templates by templateName
-    const groupedByTemplate = data.Templates.reduce((acc, item) => {
-      if (!acc[item.templateName]) {
-        acc[item.templateName] = {
-          templateName: item.templateName,
-          deliveredCount: item.deliveredCount,
-          sentCount: item.sentCount,
-          buttons: [],
-        };
-      }
-      acc[item.templateName].buttons.push({
-        ButtonText: item.buttonText,
-        ClickCount: item.clickCount,
-      });
-      return acc;
-    }, {});
-
-    // Step 3: Build rows per template
-    const formattedData = Object.values(groupedByTemplate).map((template) => {
-      const row = {
-        "Template Name": template.templateName || "-",
-        "Brands": "Pizza Hut", // Hardcoded as per your example
-        "Send Date": "-", // Placeholder since createdAt is not in JSON
-        "Message Sent": template.sentCount || "-", // Placeholder since sentCount is not in JSON
-        "Message Delivered": template.deliveredCount, // Placeholder since deliveredCount is not in JSON
-        "Message Read": 0, // Placeholder since readCount is not in JSON
-      };
-
-      // Initialize dynamic button columns
-      buttonColumns.forEach((label) => {
-        row[label] = 0;
-      });
-
-      // Fill button click counts
-      template.buttons.forEach((btn) => {
-        if (btn.ButtonText in row) {
-          row[btn.ButtonText] = btn.ClickCount;
-        }
-      });
-
-      return row;
-    });
-
-    // Step 4: Create Excel worksheet
-    const worksheet = XLSX.utils.json_to_sheet(formattedData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
-
-    // Step 5: Export to Excel
-    XLSX.writeFile(workbook, "Template_Insight_Report.xlsx");
+    dispatch(
+      excelExportTemplateAnalyticReport({
+        senderId: sendernameId,
+        startDate: fromDate,
+        endDate: toDate,
+        templateId: templateId,
+      })
+    );
+    setShouldExport(true); // Mark export request
   };
+  useEffect(() => {
+    if (shouldExport && templateSummaryList.length > 0) {
+      debugger
+      const allButtonLabels = new Set();
+      templateSummaryList?.forEach((item) => {
+        allButtonLabels.add(item.buttonText);
+      });
+      const buttonColumns = Array.from(allButtonLabels);
+
+      // Step 2: Group templates by templateName and senderName
+      const groupedByTemplate = templateSummaryList?.reduce((acc, item) => {
+        const key = `${item.templateName}_${item.senderName}`;
+        if (!acc[key]) {
+          acc[key] = {
+            templateName: item.templateName,
+            senderName: item.senderName,
+            sentCount: item.sentCount,
+            deliveredCount: item.deliveredCount,
+            readCount: item.readCount,
+            failedCount: item.failedCount,
+            buttons: [],
+          };
+        }
+        acc[key].buttons.push({
+          ButtonText: item.buttonText,
+          ClickCount: item.clickCount,
+        });
+        return acc;
+      }, {});
+
+      // Step 3: Build rows per template
+      const formattedData = Object.values(groupedByTemplate || {}).map(
+        (template) => {
+          const row = {
+            "Template Name": template.templateName || "-",
+            "Sender Name": template.senderName || "-",
+            "Message Sent": template.sentCount || 0,
+            "Message Delivered": template.deliveredCount || 0,
+            "Message Read": template.readCount || 0,
+            "Failed Count": template.failedCount || 0,
+          };
+
+          // Initialize dynamic button columns
+          buttonColumns.forEach((label) => {
+            row[label] = 0;
+          });
+
+          // Fill button click counts
+          template.buttons.forEach((btn) => {
+            if (btn.ButtonText in row) {
+              row[btn.ButtonText] = btn.ClickCount || 0;
+            }
+          });
+
+          return row;
+        }
+      );
+
+      let combinedRows = [];
+
+      if (formattedData.length > 0) {
+        combinedRows = [
+          ...metadataRows,
+          Object.keys(formattedData[0]), // Header row
+          ...formattedData.map(Object.values), // Table body
+        ];
+      } else {
+        combinedRows = [
+          ...metadataRows,
+          [
+            "Template Name",
+            "Sender Name",
+            "Message Sent",
+            "Message Delivered",
+            "Message Read",
+            "Failed Count",
+            ...buttonColumns,
+          ],
+        ];
+      }
+
+      // Step 4: Create Excel worksheet
+      const worksheet = XLSX.utils.aoa_to_sheet(combinedRows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
+
+      // Step 5: Export to Excel
+      XLSX.writeFile(workbook, "Template_Insight_Report.xlsx");
+    }
+  }, [shouldExport, templateSummaryList]);
 
   useEffect(() => {
     localStorage.setItem("activeModule", "0");

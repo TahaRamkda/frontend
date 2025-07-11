@@ -20,7 +20,7 @@ const Login = () => {
   const [authuserData, setauthuserData] = useState(null);
   const { authData, loading, error } = useSelector((state) => state.authData);
   const { merchantData } = useSelector((state) => state.merchant);
-  debugger
+  
   useEffect(() => {
     const hostname = window.location.hostname;
     

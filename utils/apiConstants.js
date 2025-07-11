@@ -146,7 +146,7 @@ export const EXCELEXPORTCHATMONITOR = "/Conversation/exportconversationreportlis
 export const EXCELEXPORTAGENTMONITOR = "/Agents/exportagentsupervisorreport";
 export const EXCELEXPORTAGENTREPORT = "/Agents/getexportagentdetailsupervisorreport";
 export const EXCELEXPORTSURVEYREPORT = "/Flows/exportsurveyresponse";
-export const EXCELEXPORTTEMPLATEANALYTICS = "/TemplateAnalytics/ExportTemplateAnalyticsDetailsReport";
+export const EXCELEXPORTTEMPLATEANALYTICS = "/TemplateAnalytics/exporttemplatetnalyticssummaryreport";
 
 // close chat template By supervisor
 export const SENDCLOSECHATTEMPLATE = "/Conversation/closechatbysupervisor";
@@ -199,3 +199,4 @@ export const WALLETBALANCE = "/Wallet/checkBalance";
 
 // White Labelling
 export const MERCHANTDETAILS = "/MerchantSettingInfo/getMerchantDetails"
+

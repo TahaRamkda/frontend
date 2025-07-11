@@ -91,10 +91,6 @@ const ChatPage = () => {
   const { conversationList } = useSelector((state) => state.bridge);
   const [logoSrc, setLogoSrc] = useState("");
   const [companyName, setCompanyName] = useState("");
-  const logoMap = JSON.parse(process.env.NEXT_PUBLIC_LOGO_MAP || "{}");
-  const companyNameMap = JSON.parse(
-    process.env.NEXT_PUBLIC_COMPANY_NAME_MAP || "{}"
-  );
   const { messages, currentPage, hasMore, loading } = useSelector(
     (state) => state.conversations
   );
@@ -143,16 +139,10 @@ const ChatPage = () => {
     loading: masterDataLoading,
     error,
   } = useSelector((state) => state.agents);
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const hostname = window.location.hostname;
-      setLogoSrc(logoMap[hostname]);
-      setCompanyName(companyNameMap[hostname]);
-    }
-  }, [logoMap, companyNameMap]);
-
+ 
   // Add debounce effect for search
   useEffect(() => {
+    console.log("2");
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
     }, 500);
@@ -161,6 +151,7 @@ const ChatPage = () => {
 
   // Add effect to filter templates
   useEffect(() => {
+    console.log("3");
     if (agenttemplates && ActiveSenderId) {
       const filtered = agenttemplates.filter((template) => {
         const matchesSenderId = template.senderId === ActiveSenderId;
@@ -177,6 +168,7 @@ const ChatPage = () => {
 
   // Add effect to fetch templates when sender changes
   useEffect(() => {
+    console.log("4");
     if (ActiveSenderId) {
       dispatch(getAgentTemplate({ senderId: ActiveSenderId }));
     }
@@ -225,6 +217,7 @@ const ChatPage = () => {
     }
   });
   useEffect(() => {
+    console.log("5");
     if (typeof window !== "undefined") {
       // Ensure code runs only in the browser
       const name = localStorage.getItem("userName") || "User"; // Fallback if userName is not found
@@ -287,6 +280,7 @@ const ChatPage = () => {
   };
 
   useEffect(() => {
+    console.log("6");
     // Dispatch an initial check
     dispatch(checkForExpiredConversations());
     // Set up the interval to dispatch the check every 10 seconds
@@ -299,6 +293,7 @@ const ChatPage = () => {
   }, [dispatch]);
 
   useEffect(() => {
+    console.log("7");
     // Handle expired conversationList
     expiredConversations.forEach((conversation) => {
       if (conversation.expireType === 1) {
@@ -332,6 +327,7 @@ const ChatPage = () => {
   }, [expiredConversations]);
 
   useEffect(() => {
+    console.log("8");
     if (message.length > 0) {
       // Reverse the order to maintain correct sequence
       setChatMessages([...message].reverse());
@@ -354,6 +350,7 @@ const ChatPage = () => {
   }, [message]);
 
   useEffect(() => {
+    console.log("9");
     // Initialize the audio object only once
     audioRef.current = new Audio("/assets/Notification/chatassigned.mp3");
 
@@ -448,6 +445,7 @@ const ChatPage = () => {
 
   // OneSignal initialization and setup
   useEffect(() => {
+    console.log("10");
     const setupOneSignal = async () => {
       const userId = localStorage.getItem("userId");
       if (!userId) {
@@ -491,6 +489,7 @@ const ChatPage = () => {
   }, []);
 
   useEffect(() => {
+    console.log("11");
     if (templateDetails) {
       const newMessage = {
         messageId: Date.now(),
@@ -515,6 +514,7 @@ const ChatPage = () => {
 
   //call the fetchConversationList action to fetch agents conversationList
   useEffect(() => {
+    console.log("12");
     const fetchData = async () => {
       const AgentId = localStorage.getItem("userId");
       const ClientId = localStorage.getItem("clientId");
@@ -553,6 +553,7 @@ const ChatPage = () => {
 
   // //triggered each time when conversationList changes and assign to local state
   useEffect(() => {
+    console.log("13");
     if (conversationList) {
       setContactsloading(false);
       setAgentConversation(conversationList);
@@ -619,6 +620,7 @@ const ChatPage = () => {
   };
 
   useEffect(() => {
+    console.log("14");
     agentChatRef.current = AgentConversation;
   }, [AgentConversation]);
 
@@ -637,6 +639,7 @@ const ChatPage = () => {
   }
   };
   useEffect(() => {
+    console.log("15");
     activeChatRef.current = Activechat;
   }, [Activechat]);
 
@@ -726,6 +729,7 @@ const ChatPage = () => {
   };
 
   useEffect(() => {
+    console.log("16");
     if (AgentConversation && AgentConversation.length > 0) {
       // Filter messages with unread count > 0
       const unreadMessages = AgentConversation.filter(
@@ -768,6 +772,7 @@ const ChatPage = () => {
   };
 
   useEffect(() => {
+    console.log("17");
     const userId = localStorage.getItem("userId");
     if (!userId) {
       console.error("UserId not found in localStorage");
@@ -952,6 +957,7 @@ const ChatPage = () => {
   }, []);
 
   useEffect(() => {
+    console.log("18");
     if (Errordisconnect && connectionRef.current) {
       loggerdetails(logger, "Reconnecting SignalR...", {
         type: LogerType.Error,
@@ -961,6 +967,7 @@ const ChatPage = () => {
   }, [Errordisconnect]);
 
   useEffect(() => {
+    console.log("19");
     if (heartbeatAttempts >= 2) {
       setErrordisconnect(true);
     }
@@ -1075,7 +1082,9 @@ const handleDownload = async (mediaPath) => {
 
   // Update preview when agenttemplatedetails, selectedOption, or parameterValues change
   useEffect(() => {
+    console.log("20");
     if (selectedOption) {
+      debugger
       const selectedDetail = agenttemplatedetails.find(
         (detail) =>
           detail.templateId === selectedOption &&
@@ -1126,6 +1135,7 @@ const handleDownload = async (mediaPath) => {
 
   // Add this effect to restore original messages when template preview is closed
   useEffect(() => {
+    console.log("21");
     if (!ShowDetailedTemplate) {
       // When template preview is closed, remove preview messages
       setChatMessages(

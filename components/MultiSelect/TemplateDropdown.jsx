@@ -6,7 +6,7 @@ import $ from 'jquery';
 import Select from 'react-select';
 import { fetchTemplatesDrop, clearTemplateDropState } from "@/slices/DropdownSlice";
 
-export const TemplatesDropdown = ({ onChange }) => {
+export const TemplatesDropdown = ({ onChange, SenderId }) => {
   const dispatch = useDispatch();
   const { templateDropdownData, loading, error } = useSelector((state) => state.dropdown);
   const [selectedTemplateId, setSelectedTemplateId] = useState([]);
@@ -16,9 +16,9 @@ export const TemplatesDropdown = ({ onChange }) => {
 
   // Fetch templates when the component mounts
   useEffect(() => {
-    dispatch(fetchTemplatesDrop({ clientId: localStorage.getItem("clientId"), TransactonType: transactionType }));
+    dispatch(fetchTemplatesDrop({ clientId: localStorage.getItem("clientId"), TransactonType: transactionType, senderId: SenderId }));
 
-  }, [dispatch]);
+  }, [dispatch, SenderId, transactionType]);
 const Options = templateDropdownData?.map(template => ({
     value: template.id,
     label: template.name
