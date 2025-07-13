@@ -5,7 +5,10 @@ import Loader from "@/components/Layout/Loader";
 import TemplatesDropdown from "@/components/MultiSelect/TemplateDropdown";
 import * as XLSX from "xlsx"; // Import xlsx library
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
-import { excelExportTemplateAnalyticReport } from "@/slices/TemplateSlice";
+import {
+  excelExportTemplateAnalyticReport,
+  clearTemplateAnalyticState,
+} from "@/slices/TemplateSlice";
 import {
   fetchTemplateInsightDetails,
   clearTemplateInsighDetailstState,
@@ -13,6 +16,7 @@ import {
 import { exportToExcel } from "@/components/ExportExcel/excel";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
 import showSweetAlert from "@/components/Sweetalert";
+import { toast } from "react-toastify";
 
 const TemplateInsight = () => {
   const data = {
@@ -62,7 +66,9 @@ const TemplateInsight = () => {
   const { templateInsightDetails, loading, error } = useSelector(
     (state) => state.reports
   );
-  const { templateSummaryList } = useSelector((state) => state.templates);
+  const { templateSummaryList, loading: dataLoading } = useSelector(
+    (state) => state.templates
+  );
 
   const [parseData, setParseData] = useState([]);
 
@@ -73,6 +79,7 @@ const TemplateInsight = () => {
 
   useEffect(() => {
     if (templateInsightDetails) {
+      ;
       console.log("Raw templateInsightDetails:", templateInsightDetails);
 
       // Set the template data
@@ -147,13 +154,12 @@ const TemplateInsight = () => {
     setShouldExport(true); // Mark export request
   };
   useEffect(() => {
-    if (shouldExport && templateSummaryList.length > 0) {
-      debugger
+    if (templateSummaryList.length > 0) {
       const allButtonLabels = new Set();
       templateSummaryList?.forEach((item) => {
         allButtonLabels.add(item.buttonText);
       });
-      const buttonColumns = Array.from(allButtonLabels);
+      const buttonColumns = Array.from(allButtonLabels).filter(Boolean);
 
       // Step 2: Group templates by templateName and senderName
       const groupedByTemplate = templateSummaryList?.reduce((acc, item) => {
@@ -234,8 +240,9 @@ const TemplateInsight = () => {
 
       // Step 5: Export to Excel
       XLSX.writeFile(workbook, "Template_Insight_Report.xlsx");
+      dispatch(clearTemplateAnalyticState());
     }
-  }, [shouldExport, templateSummaryList]);
+  }, [templateSummaryList]);
 
   useEffect(() => {
     localStorage.setItem("activeModule", "0");
@@ -324,7 +331,7 @@ const TemplateInsight = () => {
 
           <div>
             {templateData.map((item, index) => (
-              <div>
+              <div key={index}>
                 <div
                   key={index}
                   className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4"

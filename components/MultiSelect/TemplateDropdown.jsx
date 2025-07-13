@@ -19,10 +19,12 @@ export const TemplatesDropdown = ({ onChange, SenderId }) => {
     dispatch(fetchTemplatesDrop({ clientId: localStorage.getItem("clientId"), TransactonType: transactionType, senderId: SenderId }));
 
   }, [dispatch, SenderId, transactionType]);
-const Options = templateDropdownData?.map(template => ({
-    value: template.id,
-    label: template.name
-  })) || [];
+const Options = Array.isArray(templateDropdownData)
+  ? templateDropdownData.map((item) => ({
+      value: item.id,
+      label: item.name,
+    }))
+  : [];
   // Notify parent of selected template changes
   useEffect(() => {
   const selectedOptions = Options.filter(option =>

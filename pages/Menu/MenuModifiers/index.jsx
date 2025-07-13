@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { Modal, ModalBody, ModalHeader } from "reactstrap";
-
+import { fetchMenuById, clearMenuDetailState } from "@/slices/MenuSlice";
 const MenuSelection = ({isVisible, onClose}) => {
   const [quantity, setQuantity] = useState(1);
-
   const combos = [
     { name: "Go Mega", price: 0.0 },
     { name: "Go King", price: 0.2 },

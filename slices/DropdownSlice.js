@@ -549,7 +549,7 @@ const DropdownSlice = createSlice({
       })
       .addCase(fetchTemplatesDrop.fulfilled, (state, action) => {
         state.loading = false;
-        state.templateDropdownData = action.payload.templateDropdownData;
+        state.templateDropdownData = action.payload.templateDropdownData || [];
         state.message = action.payload.message || "";
       })
       .addCase(fetchTemplatesDrop.rejected, (state, action) => {

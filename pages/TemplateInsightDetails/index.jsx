@@ -1,59 +1,50 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
 import App from "@/components/Layout/App";
 import Loader from "@/components/Layout/Loader";
 import TemplatesDropdown from "@/components/MultiSelect/TemplateDropdown";
+import * as XLSX from "xlsx"; // Import xlsx library
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
+import {
+  excelExportTemplateAnalyticReport,
+  clearTemplateAnalyticState,
+} from "@/slices/TemplateSlice";
 import {
   fetchTemplateInsightDetails,
   clearTemplateInsighDetailstState,
 } from "@/slices/ReportSlice";
+import { exportToExcel } from "@/components/ExportExcel/excel";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
-import {
-  FaPaperPlane,
-  FaCheckCircle,
-  FaEye,
-  FaReply,
-  FaDollarSign,
-} from "react-icons/fa";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import showSweetAlert from "@/components/Sweetalert";
+import { toast } from "react-toastify";
 
 const TemplateInsight = () => {
+  const [sendername, setSendername] = useState("");
   const [fromDate, setFromDate] = useState("");
   const dispatch = useDispatch();
   const [toDate, setToDate] = useState("");
   const [templateId, setTemplateId] = useState([]);
+  const [shouldExport, setShouldExport] = useState(false);
   const [templateData, setTemplaterData] = useState([]);
+  const [templatesLabels, setTemplatesLabels] = useState([]);
   const [sendernameId, setsendernameId] = useState(0);
   const { templateInsightDetails, loading, error } = useSelector(
     (state) => state.reports
   );
+  const { templateSummaryList, loading: dataLoading } = useSelector(
+    (state) => state.templates
+  );
+
   const [parseData, setParseData] = useState([]);
+
   const handleChange = (e) => {
     setsendernameId(e.target.value);
+    setSendername(e.target.label);
   };
+
   useEffect(() => {
     if (templateInsightDetails) {
+      ;
       console.log("Raw templateInsightDetails:", templateInsightDetails);
 
       // Set the template data
@@ -73,12 +64,14 @@ const TemplateInsight = () => {
       }
     }
   }, [templateInsightDetails]);
+
   useEffect(() => {
     // Clear state when filters change
     setTemplaterData([]);
     setParseData([]);
     dispatch(clearTemplateInsighDetailstState());
   }, [templateId, fromDate, toDate, sendernameId]);
+
   useEffect(() => {
     const today = new Date();
     const lastWeek = new Date(today);
@@ -96,11 +89,126 @@ const TemplateInsight = () => {
   const handleTemplateChange = (selectedOptions) => {
     if (Array.isArray(selectedOptions)) {
       const values = selectedOptions.map((option) => option.value); // Extract values
+      const labels = selectedOptions.map((option) => option.label);
       setTemplateId(values.join(",")); // Join as a comma-separated string
+      setTemplatesLabels(labels.join(","));
     } else {
       setTemplateId(""); // Reset if no selection
+      setTemplatesLabels("");
     }
   };
+
+  const metadataRows = [
+    ["Date of Report", new Date().toLocaleDateString()],
+    ["Sender Names", sendername || "Not Selected"], // Replace with dynamic value if needed
+    ["Template Name", templatesLabels || "Not Selected"], // Or a specific one
+    ["Start Date", fromDate || "Not Selected"],
+    ["End Date", toDate || "Not Selected"],
+    [], // Empty row as spacer
+  ];
+
+  const handleExportToExcel = () => {
+    dispatch(
+      excelExportTemplateAnalyticReport({
+        senderId: sendernameId,
+        startDate: fromDate,
+        endDate: toDate,
+        templateId: templateId,
+      })
+    );
+    setShouldExport(true); // Mark export request
+  };
+  useEffect(() => {
+    if (templateSummaryList.length > 0) {
+      const allButtonLabels = new Set();
+      templateSummaryList?.forEach((item) => {
+        allButtonLabels.add(item.buttonText);
+      });
+      const buttonColumns = Array.from(allButtonLabels).filter(Boolean);
+
+      // Step 2: Group templates by templateName and senderName
+      const groupedByTemplate = templateSummaryList?.reduce((acc, item) => {
+        const key = `${item.templateName}_${item.senderName}`;
+        if (!acc[key]) {
+          acc[key] = {
+            templateName: item.templateName,
+            senderName: item.senderName,
+            sentCount: item.sentCount,
+            deliveredCount: item.deliveredCount,
+            readCount: item.readCount,
+            failedCount: item.failedCount,
+            buttons: [],
+          };
+        }
+        acc[key].buttons.push({
+          ButtonText: item.buttonText,
+          ClickCount: item.clickCount,
+        });
+        return acc;
+      }, {});
+
+      // Step 3: Build rows per template
+      const formattedData = Object.values(groupedByTemplate || {}).map(
+        (template) => {
+          const row = {
+            "Template Name": template.templateName || "-",
+            "Sender Name": template.senderName || "-",
+            "Message Sent": template.sentCount || 0,
+            "Message Delivered": template.deliveredCount || 0,
+            "Message Read": template.readCount || 0,
+            "Failed Count": template.failedCount || 0,
+          };
+
+          // Initialize dynamic button columns
+          buttonColumns.forEach((label) => {
+            row[label] = 0;
+          });
+
+          // Fill button click counts
+          template.buttons.forEach((btn) => {
+            if (btn.ButtonText in row) {
+              row[btn.ButtonText] = btn.ClickCount || 0;
+            }
+          });
+
+          return row;
+        }
+      );
+
+      let combinedRows = [];
+
+      if (formattedData.length > 0) {
+        combinedRows = [
+          ...metadataRows,
+          Object.keys(formattedData[0]), // Header row
+          ...formattedData.map(Object.values), // Table body
+        ];
+      } else {
+        combinedRows = [
+          ...metadataRows,
+          [
+            "Template Name",
+            "Sender Name",
+            "Message Sent",
+            "Message Delivered",
+            "Message Read",
+            "Failed Count",
+            ...buttonColumns,
+          ],
+        ];
+      }
+
+      // Step 4: Create Excel worksheet
+      const worksheet = XLSX.utils.aoa_to_sheet(combinedRows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
+
+      // Step 5: Export to Excel
+      XLSX.writeFile(workbook, "Template_Insight_Report.xlsx");
+      dispatch(clearTemplateAnalyticState());
+    }
+  }, [templateSummaryList]);
+
   useEffect(() => {
     localStorage.setItem("activeModule", "0");
     const clientId = localStorage.getItem("clientId");
@@ -122,6 +230,16 @@ const TemplateInsight = () => {
     <App>
       {/* Filters */}
       {loading && <Loader />}
+      <div className="flex items-center">
+        <div>
+          <h4 className="font-bold ">Template Insight </h4>
+        </div>
+        <div className="ml-auto mb-1">
+          <button className="uniform_btn" onClick={handleExportToExcel}>
+            Export Report
+          </button>
+        </div>
+      </div>
       <div className="mb-3">
         <div className="bg-white  rounded p-2 flex flex-col md:flex-row gap-2 items-stretch">
           <div className="flex-1">
@@ -176,46 +294,46 @@ const TemplateInsight = () => {
             </h3>
           </div>
 
-          <div >
+          <div>
             {templateData.map((item, index) => (
-              <div >
-              <div
-                key={index}
-                className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4"
-              >
-                <div className="  rounded ">
-                  <div className="text-lg text-gray-500 font-medium">
-                    Sent Count
+              <div key={index}>
+                <div
+                  key={index}
+                  className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4"
+                >
+                  <div className="  rounded ">
+                    <div className="text-lg text-gray-500 font-medium">
+                      Sent Count
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {item.sentCount}
+                    </div>
                   </div>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {item.sentCount}
+                  <div className="rounded ">
+                    <div className="text-lg text-gray-500 font-medium">
+                      Delivered Count
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {item.deliveredCount}
+                    </div>
+                  </div>
+                  <div className=" rounded ">
+                    <div className="text-lg text-gray-500 font-medium">
+                      Read Count
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {item.readCount}
+                    </div>
+                  </div>
+                  <div className=" rounded ">
+                    <div className="text-lg text-gray-500 font-medium">
+                      Failed Count
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {item.failedCount}
+                    </div>
                   </div>
                 </div>
-                <div className="rounded ">
-                  <div className="text-lg text-gray-500 font-medium">
-                    Delivered Count
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {item.deliveredCount}
-                  </div>
-                </div>
-                <div className=" rounded ">
-                  <div className="text-lg text-gray-500 font-medium">
-                    Read Count
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {item.readCount}
-                  </div>
-                </div>
-                <div className=" rounded ">
-                  <div className="text-lg text-gray-500 font-medium">
-                    Failed Count
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {item.failedCount}
-                  </div>
-                </div>
-              </div>
               </div>
             ))}
           </div>

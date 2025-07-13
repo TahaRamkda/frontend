@@ -1084,7 +1084,7 @@ const handleDownload = async (mediaPath) => {
   useEffect(() => {
     console.log("20");
     if (selectedOption) {
-      debugger
+      
       const selectedDetail = agenttemplatedetails.find(
         (detail) =>
           detail.templateId === selectedOption &&

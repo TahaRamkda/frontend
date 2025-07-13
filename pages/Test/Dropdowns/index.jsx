@@ -1,411 +1,119 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import SweetAlert from "sweetalert2";
-import DataTable from "react-data-table-component";
-import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-} from "reactstrap";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchSetting,
-  clearAppSettingState,
-  fetchSettingById,
-  clearAppSettingDetailState,
-  appSettings,
-  clearAppSettingDataState,
-  setPageSize,
-  setCurrentPage,
-  updateAppSettings,
-} from "@/slices/AppSettingSlice";
-import showSweetAlert from "@/components/Sweetalert";
-import Loading from "@/components/Layout/Loader";
-import { HiPencilAlt, HiTrash } from "react-icons/hi";
-import SettingForm from "@/pages/Settings/CreateAppSetting";
+import ActiveAgentDropdown from "@/components/Dropdowns/ActiveAgentsDropdown";
+import AgentDropdown from "@/components/Dropdowns/AgentDropdown";
+import AgentStatusDropdown from "@/components/Dropdowns/AgentStatusDropdown";
+import ClientDropdown from "@/components/Dropdowns/ClientDropdown";
+import FlowDropdown from "@/components/Dropdowns/FlowsDropdown";
+import GroupDropdown from "@/components/Dropdowns/GroupDropdown";
+import IntTemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropdown";
+import InteractiveTemplateDropdown from "@/components/Dropdowns/InteractiveTemplateDropWithoutParam";
+import LanguageDropdown from "@/components/Dropdowns/LanguageDropdown";
+import RoleDropdown from "@/components/Dropdowns/RoleDropdown";
+import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
+import SurveyDropdown from "@/components/Dropdowns/SurveyReportDropdown";
+import TemplateCategoryDropdown from "@/components/Dropdowns/TemplateCategorydropdown";
+import TemplateDropdown from "@/components/Dropdowns/TemplateDropdown";
+import AgentsDropdown from "@/components/MultiSelect/AgentDropdown";
+import ChatReasonDropdown from "@/components/MultiSelect/ChatReasonDropdown";
+import ClientsDropdown from "@/components/MultiSelect/ClientDropdown";
+import FlowsDropdown from "@/components/MultiSelect/FlowDropdown";
+import GroupDropdowns from "@/components/MultiSelect/GroupDropdown";
+import RolesDropdown from "@/components/MultiSelect/RoleDropdown";
+import SendernameDropdowns from "@/components/MultiSelect/SendernameDropdown";
+import TemplatesDropdown from "@/components/MultiSelect/TemplateDropdown";
 import App from "@/components/Layout/App";
-import SearchBar from "@/components/SearchBar/SearchComponent";
-
 const AppSettings = () => {
-  const router = useRouter();
-  const dispatch = useDispatch();
-  const { settingList, loading, error, pageSize, totalRecords, currentPage } =
-    useSelector((state) => state.appsetting);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
-  const [settingForm, setSettingForm] = useState({});
-  const [filterText, setFilterText] = useState("");
-  const [CreateModalOpen, setCreateModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // Start as true since we're fetching data
-  const settingColumns = [
-    { name: "Key Name", selector: (row) => row.keyName, sortable: true },
-    { name: "Value", selector: (row) => row.val, sortable: true },
-    {
-      name: "Action",
-      cell: (row) => (
-        <>
-          <div className="flex gap-2 justify-center w-full">
-            <button
-              title="Edit Group"
-              className="uniform_icon_btn"
-              onClick={() => handleDetailClick(row.id)}
-            >
-              <HiPencilAlt style={{ fontSize: "15px" }} />
-            </button>
-            <button
-              title="Delete Group"
-              className="uniform_icon_btn"
-              onClick={() => handleDeleteClick(row.groupId)}
-            >
-              <HiTrash style={{ fontSize: "15px" }} />
-            </button>
-          </div>
-        </>
-      ),
-      style: {
-        textAlign: "right", // Align the entire column content to the center
-      },
-    },
-  ];
-
-  const handleDetailClick = async (id) => {
-    try {
-      const response = await dispatch(fetchSettingById({ Id: id })).unwrap();
-      if (response) {
-        setSettingForm(response.result);
-        setIsModalOpen(true);
-      } else {
-        showSweetAlert({
-          title: "Error",
-          text: "Failed to fetch details",
-          icon: "error",
-        });
-      }
-    } catch (error) {
-      alert("Failed to fetch group details: " + error.message);
-    }
-  };
-  const handleCancel = () => {
-    setCreateModalOpen(false);
-  };
-  const handleDeleteClick = (groupId) => {
-    SweetAlert.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        try {
-          dispatch(deleteGroup({ groupId })).then(() => {
-            showSweetAlert({
-              title: "Deleted Successfully",
-              text: "",
-              icon: "success",
-            });
-            refreshSettingList();
-          });
-        } catch (error) {
-          alert("An unexpected error occurred: " + error.message);
-        }
-      }
-    });
-  };
-
-  const handlePageChange = async (page) => {
-    // Update current page state in Redux
-    dispatch(setCurrentPage(page));
-
-    // Fetch clients for the new page
-    await dispatch(
-      fetchSetting({
-        clientId: localStorage.getItem("clientId"),
-        pageSize,
-        pageNo: page,
-        SearchStr: filterText,
-      })
-    );
-  };
-
-  const handlePageSizeChange = async (newSize) => {
-    // Update page size and reset to the first page
-    dispatch(setPageSize(newSize));
-    dispatch(setCurrentPage(1)); // Reset to first page
-    await dispatch(
-      fetchSetting({
-        clientId: localStorage.getItem("clientId"),
-        pageSize: newSize,
-        pageNo: 1,
-        SearchStr: filterText,
-      })
-    );
-  };
-
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setSettingForm({ ...settingForm, [name]: value });
-  };
-  const toggleModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleSearchString = (setter) => (e) => {
-    const searchValue = e;
-    setFilterText(searchValue);
-    setter(e);
-
-    // Clear the previous timeout if any
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
-    }
-
-    // Set a new timeout for 0.5 seconds
-    const timeout = setTimeout(() => {
-      dispatch(
-        fetchSetting({
-          clientId: localStorage.getItem("clientId"),
-          pageSize,
-          pageNo: currentPage,
-          SearchStr: searchValue,
-        })
-      );
-    }, 500);
-
-    setSearchTimeout(timeout); // Save the timeout reference
-  };
-  const handleUpdateSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      const requestBody = {
-        id: settingForm.id || 0,
-        keyName: settingForm.keyName || "string",
-        val: settingForm.val || "string",
-        senderId: settingForm.senderId || 0,
-      };
-
-      const response = await dispatch(updateAppSettings(requestBody)).unwrap();
-      if (response.success) {
-        showSweetAlert({
-          title: "Updated Successfully",
-          text: "",
-          icon: "success",
-        });
-        setIsLoading(false);
-        setIsModalOpen(false);
-        refreshSettingList();
-      } else {
-        showSweetAlert({
-          title: "Error",
-          text: response.message,
-          icon: "error",
-        });
-      }
-    } catch (error) {
-      alert("Failed to update group: " + error.message);
-      setIsLoading(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const refreshSettingList = () => {
-    dispatch(
-      fetchSetting({
-        clientId: localStorage.getItem("clientId"),
-        pageSize,
-        pageNo: currentPage,
-        SearchStr: filterText,
-      })
-    );
-  };
-
-  useEffect(() => {
-    dispatch(
-      fetchSetting({
-        clientId: localStorage.getItem("clientId"),
-        pageSize,
-        pageNo: currentPage,
-        SearchStr: filterText,
-      })
-    );
-    return () => {
-      dispatch(clearAppSettingState());
-    };
-  }, [dispatch]);
-
-  const handleCreate = () => {
-    setCreateModalOpen(true);
-  };
-
-  const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
-  const defultpagessize = 10;
-  const subHeaderComponentMemo = useMemo(() => {
-    return (
-      <div className="w-full">
-        <div className="grid grid-cols-5 gap-4">
-          <div className="flex flex-col space-y-1 text-start mb-1 ">
-            <SearchBar
-              label="Search"
-              value={filterText}
-              onChange={handleSearchString(setFilterText)}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  }, [filterText]);
-
-  if (error) {
-    return <div className="text-red-500">{error}</div>;
-  }
-
+ 
   return (
     <App>
-      <div className="flex items-center">
-        {(loading || isLoading) && <Loading />}
-        <div className="">
-          <h4 className="font-bold">App Settings </h4>
-        </div>
-        <div className="ml-auto mb-1">
-          <button className="uniform_btn" onClick={handleCreate}>
-            Create Settings
-          </button>
-        </div>
+      <div className=" items-center">
+        <label htmlFor="">ActiveAgentDropdown</label>
+        <ActiveAgentDropdown SenderId = '1'  />
       </div>
-      <div className="overflow-auto">
-        <DataTable
-          data={settingList}
-          columns={settingColumns}
-          highlightOnHover
-          striped
-          pagination
-          paginationServer
-          paginationTotalRows={totalRecords}
-          sortIcon
-          sortServer
-          onChangePage={handlePageChange}
-          onChangeRowsPerPage={handlePageSizeChange}
-          paginationPerPage={defultpagessize} // Default number of rows per page
-          paginationRowsPerPageOptions={customPageSizes} // Custom page size options
-          subHeader
-          subHeaderComponent={subHeaderComponentMemo}
-          className="w-full border"
-          customStyles={{
-            table: {
-              style: {
-                width: "100%",
-                borderCollapse: "collapse", // Ensures borders collapse for proper grid appearance
-              },
-            },
-            headRow: {
-              style: {
-                borderBottom: "1px solid #ddd",
-                padding: "0px",
-              },
-            },
-            headCells: {
-              style: {
-                borderRight: "1px solid #ddd", // Grid line between columns
-                fontWeight: "bold",
-              },
-            },
-            rows: {
-              style: {
-                borderBottom: "1px solid #ddd", // Horizontal grid line between rows
-              },
-            },
-            cells: {
-              style: {
-                borderRight: "1px solid #ddd", // Vertical grid line between cells
-              },
-            },
-          }}
-        />
+      <div className=" items-center">
+        <label htmlFor="">AgentDropdown</label>
+        <AgentDropdown SenderId = '1'  />
       </div>
-
-      {isModalOpen && (
-        <Modal isOpen={true} toggle={() => toggleModal()} fade={false}>
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
-              {/* Loader for update operation */}
-              {isLoading && (
-                <div className="absolute inset-0 flex items-center justify-center z-50 ">
-                  <Loading />
-                </div>
-              )}
-              <ModalHeader toggle={() => toggleModal()}>
-                Edit Settings
-              </ModalHeader>
-              <ModalBody>
-                <form onSubmit={handleUpdateSubmit}>
-                  <div className="flex flex-col">
-                    <label
-                      htmlFor="keyName"
-                      className="font-medium text-gray-700 text-sm"
-                    >
-                      Key Name
-                    </label>
-                    <input
-                      type="text"
-                      id="keyName"
-                      name="keyName"
-                      value={settingForm.keyName || ""}
-                      onChange={handleFormChange}
-                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
-                      disabled={isLoading} // Disable input while loading
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <label
-                      htmlFor="val"
-                      className="font-medium text-gray-700 text-sm"
-                    >
-                      Value
-                    </label>
-                    <input
-                      type="text"
-                      id="val"
-                      name="val"
-                      value={settingForm.val || ""}
-                      onChange={handleFormChange}
-                      className="border rounded py-1 px-2 w-full mt-1 text-sm"
-                      disabled={isLoading} // Disable input while loading
-                    />
-                  </div>
-                  <div className="mt-4 w-full flex justify-end">
-                    <button
-                      type="submit"
-                      className="uniform_btn"
-                      disabled={isLoading} // Disable button while loading
-                    >
-                      Save
-                    </button>
-                  </div>
-                </form>
-              </ModalBody>
-            </div>
-          </div>
-        </Modal>
-      )}
-
-      {CreateModalOpen && (
-        <SettingForm
-          isVisible={true}
-          onClose={handleCancel}
-          onsuccess={refreshSettingList}
-        />
-      )}
+      <div className=" items-center">
+        <label htmlFor="">AgentStatusDropdown</label>
+        <AgentStatusDropdown SenderId = '1'  />
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">ClientDropdown</label>
+        <ClientDropdown SenderId = '1'  />
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">FlowDropdown</label>
+        <FlowDropdown SenderId = '1'  />
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">GroupDropdown</label>
+        <GroupDropdown SenderId = '1'  />
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">IntTemplateDropdown</label>
+        <IntTemplateDropdown SenderId = '1'  />
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">InteractiveTemplateDropdown</label>
+        <InteractiveTemplateDropdown SenderId = '1'  />
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">LanguageDropdown</label>
+        <LanguageDropdown SenderId = '1'  />
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">RoleDropdown</label>
+        <RoleDropdown SenderId = '1'  />
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">SendernameDropdown</label>
+        <SendernameDropdown SenderId = '1'  />
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">TemplateCategoryDropdown</label>
+        <TemplateCategoryDropdown SenderId = '1'  />
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">TemplateDropdown</label>
+        <TemplateDropdown SenderId = '1'  />
+      </div>
+      <div>
+        <h1>Multi Select</h1>
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">AgentsDropdown multi</label>
+        <AgentsDropdown SenderId = '1'  />
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">ChatReasonDropdown multi</label>
+        <ChatReasonDropdown SenderId = '1'  />
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">ClientsDropdown multi</label>
+        <ClientsDropdown SenderId = '1'  />
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">FlowsDropdown multi</label>
+        <FlowsDropdown SenderId = '1'  />
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">GroupDropdowns multi</label>
+        <GroupDropdowns SenderId = '1'  />
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">RolesDropdown multi</label>
+        <RolesDropdown SenderId = '1'  />
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">SendernameDropdowns multi</label>
+        <SendernameDropdowns SenderId = '1'  />
+      </div>
+      <div className=" items-center">
+        <label htmlFor="">TemplatesDropdown multi</label>
+        <TemplatesDropdown SenderId = '1'  />
+      </div>
     </App>
   );
 };

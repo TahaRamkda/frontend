@@ -179,20 +179,16 @@ export const CLEARAPICACHE = "/Cache/Clear";
 export const CLEARBRIDGECACHE = "/Cache/ClearBridgeCache"
 
 // Order Endpoints
-export const ORDERLIST = "#";
-export const ORDERDETAILS = "#";
-export const UPDATEORDER = "#";
-export const DELETEORDER = "#";
-// Order Report
-export const ORDERREPORTLIST = "#";
-export const ORDERREPORTDETAILS = "#";
-export const UPDATEORDERREPORT = "#";
-export const DELETEORDERREPORT = "#";
+export const ORDERLIST = "/OrderSummaryDetails/OrderSummaryList";
+export const ORDERDETAILS = "/OrderSummaryDetails/OrderDetails";
+// export const UPDATEORDER = "#";
+// export const DELETEORDER = "#";
+
 // Menu Endpoints
-export const MENULIST = "#";
-export const MENUDETAILS = "#";
-export const UPDATEMENU = "#";
-export const DELETEMENU = "#";
+export const MENULIST = "/CatalogItems/GetItemList";
+export const MENUDETAILS = "/CatalogItems/GetItemModifierDetails";
+// export const UPDATEMENU = "#";
+// export const DELETEMENU = "#";
 
 // Wallet Endpoints
 export const WALLETBALANCE = "/Wallet/checkBalance";

@@ -9,19 +9,10 @@ import {
   
 } from "reactstrap";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchOrderReport,
-  clearOrderReportState,
-  deleteOrderReport,
-  fetchOrderReportById,
-  updateOrderReport,
-  setPageSize,
-  setCurrentPage,
-} from "@/slices/OrderReportSlice";
+import { fetchOrder,fetchOrderById, clearOrderDetailState, clearOrderState } from "@/slices/OrderSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Layout/Loader";
 import { HiPencilAlt, HiTrash } from "react-icons/hi";
-import OrderReportForm from "../CreateOrderReport";
 import App from "@/components/Layout/App";
 import SearchBar from "@/components/SearchBar/SearchComponent";
 import { usePermissions } from "@/context/PermissionsContext";
@@ -29,8 +20,8 @@ import { usePermissions } from "@/context/PermissionsContext";
 const OrderReportList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { orderReports, loading, error, pageSize, totalRecords, currentPage } =
-    useSelector((state) => state.orderReports);
+  const { ordersList, loading, error, pageSize, totalRecords, currentPage } =
+    useSelector((state) => state.orders);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [orderReportForm, setOrderReportForm] = useState({});
@@ -257,7 +248,7 @@ const OrderReportList = () => {
     setCreateModalOpen(true);
   };
 
-  const filteredOrderReport = orderReports.filter(
+  const filteredOrderReport = ordersList.filter(
     (orderReport) =>
       orderReport.orderReportName &&
       orderReport.orderReportName.toLowerCase().includes(filterText.toLowerCase())
@@ -301,7 +292,7 @@ const OrderReportList = () => {
       </div>
       <div className="overflow-auto">
         <DataTable
-          data={filteredOrderReport}
+          data={ordersList}
           columns={orderReportColumns}
           highlightOnHover
           striped
@@ -368,13 +359,13 @@ const OrderReportList = () => {
         </Modal>
       )}
 
-      {CreateModalOpen && (
+      {/* {CreateModalOpen && (
         <OrderReportForm
           isVisible={true}
           onClose={handleCancel}
           onsuccess={refreshOrderReportList}
         />
-      )}
+      )} */}
     </App>
   );
 };

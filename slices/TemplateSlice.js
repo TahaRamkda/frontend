@@ -230,6 +230,12 @@ const templateSlice = createSlice({
       state.error = null;
       state.success = false;
     },
+    clearTemplateAnalyticState: (state) => {
+      state.templateSummaryList = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -345,6 +351,7 @@ export const {
   clearInteractiveTemplateListState,
   clearTemplateDetailState,
   clearTemplateCreateState,
+  clearTemplateAnalyticState,
   clearTemplateDeleteState,
 } = templateSlice.actions;
 
