@@ -10,27 +10,20 @@ import {
 // Fetch Menu
 export const fetchMenu = createAsyncThunk(
   "menu/fetchMenu",
-  async ({ clientId, pageNo, pageSize, SearchStr }, { rejectWithValue }) => {
-    
+  async (_, { rejectWithValue }) => {
     try {
       const response = await API.post("/api", {
-        endpoint: `${MENULIST}?${
-          SearchStr ? `SearchStr=${SearchStr}` : ""
-        }&PageNo=${pageNo}&PageSize=${pageSize}`,
+        endpoint: "/Media/Catalog/3/7/Menu.json", // Relative path for the external API
         method: "GET",
-        //payload: {},
       });
+      
       if (response?.status === 200) {
-        
         return {
-          menuList: response.data,
-          totalRecords:
-            response.data.length > 0
-              ? response.data[0].totalRecords
-              : 0,
+          menuList: response.data, // Assuming the response contains the menu data directly
+          totalRecords: response.data.length || 0,
         };
       } else {
-        throw new Error("Failed to fetch details");
+        throw new Error("Failed to fetch menu");
       }
     } catch (err) {
       const handledError = handleError(err);

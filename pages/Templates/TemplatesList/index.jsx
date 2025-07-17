@@ -154,12 +154,8 @@ const TemplateList = () => {
 
   const handleDetailClick = (templates_Id) => {
     setTemplateLoading(true);
-    try {
-      settemplateId(templates_Id);
-      setshowupdatemodel(true);
-    } catch (error) {
-      alert("Failed to fetch Template details: " + error.message);
-    }
+    settemplateId(templates_Id);
+    setshowupdatemodel(true);
   };
 
   const handleViualizationClick = (templates_Id) => {

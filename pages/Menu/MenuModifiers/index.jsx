@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Modal, ModalBody, ModalHeader } from "reactstrap";
 import { fetchMenuById, clearMenuDetailState } from "@/slices/MenuSlice";
-const MenuSelection = ({isVisible, onClose}) => {
+const MenuSelection = ({ isVisible, onClose }) => {
   const [quantity, setQuantity] = useState(1);
   const combos = [
     { name: "Go Mega", price: 0.0 },
@@ -45,8 +45,8 @@ const MenuSelection = ({isVisible, onClose}) => {
       <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white rounded shadow-lg w-2/5 relative max-h-[80vh] flex flex-col overflow-hidden">
           <div className="sticky bg-white ">
-        <ModalHeader toggle={onClose}>Modifiers</ModalHeader>
-      </div>
+            <ModalHeader toggle={onClose}>Modifiers</ModalHeader>
+          </div>
 
           <ModalBody className="overflow-auto">
             <div className="">

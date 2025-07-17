@@ -17,7 +17,7 @@ import { exportToExcel } from "@/components/ExportExcel/excel";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
 import showSweetAlert from "@/components/Sweetalert";
 import { toast } from "react-toastify";
-
+import TemplateCategoryDropdown from "@/components/Dropdowns/TemplateCategorydropdown";
 const TemplateInsight = () => {
   const data = {
     Templates: [
@@ -59,6 +59,7 @@ const TemplateInsight = () => {
   const dispatch = useDispatch();
   const [toDate, setToDate] = useState("");
   const [templateId, setTemplateId] = useState([]);
+  const [catagoryId, setCatagoryId] = useState(0);
   const [shouldExport, setShouldExport] = useState(false);
   const [templateData, setTemplaterData] = useState([]);
   const [templatesLabels, setTemplatesLabels] = useState([]);
@@ -76,7 +77,10 @@ const TemplateInsight = () => {
     setsendernameId(e.target.value);
     setSendername(e.target.label);
   };
-
+ const handleCategoryChange = (e) => {
+    const categoryId = e?.target.value;
+    setCatagoryId(categoryId ? categoryId : 0);
+  };
   useEffect(() => {
     if (templateInsightDetails) {
       ;
@@ -296,7 +300,7 @@ const TemplateInsight = () => {
               minDate={fromDate}
             />
           </div>
-
+          
           <div className="flex-1">
             <label className="text-[11px] font-semibold text-gray-700">
               SenderName
@@ -307,12 +311,30 @@ const TemplateInsight = () => {
               onChange={handleChange}
             />
           </div>
+           <div className="flex-1">
+  <label className="text-[11px] font-semibold text-gray-700">
+    Category
+  </label>
+  <select
+    name="catagoryId"
+    id="catagoryId"
+    className="border border-gray-300 rounded-lg py-1 px-2 text-sm w-full"
+    value={catagoryId}
+    onChange={handleCategoryChange}
+  >
+    <option value="0">Select</option>
+    <option value="1">Marketing</option>
+    <option value="2">Utility</option>
+  </select>
+</div>
+
           <div className="flex-1">
             <label className="text-[11px] font-semibold text-gray-700">
               Template
             </label>
             <TemplatesDropdown
               value={templateId}
+              CategoryId={catagoryId}
               onChange={handleTemplateChange}
               SenderId={sendernameId}
             />

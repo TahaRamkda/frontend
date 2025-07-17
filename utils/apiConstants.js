@@ -179,8 +179,8 @@ export const CLEARAPICACHE = "/Cache/Clear";
 export const CLEARBRIDGECACHE = "/Cache/ClearBridgeCache"
 
 // Order Endpoints
-export const ORDERLIST = "/OrderSummaryDetails/OrderSummaryList";
-export const ORDERDETAILS = "/OrderSummaryDetails/OrderDetails";
+export const ORDERLIST = "/OrderSummary/ordersummarylist";
+export const ORDERDETAILS = "/OrderSummary/ordersummarydetails";
 // export const UPDATEORDER = "#";
 // export const DELETEORDER = "#";
 

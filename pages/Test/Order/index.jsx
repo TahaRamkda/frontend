@@ -14,8 +14,10 @@ import {
 } from "@/slices/OrderSlice";
 import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Layout/Loader";
-// import OrderDetailsModal from "../OrderDetails";
-import { HiPencilAlt, HiTrash } from "react-icons/hi";
+import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
+import DateTimePicker from "@/components/Timepicker/datetimepicker";
+import OrderDetailsModal from "../OrderDetails";
+import { HiEye, HiPencilAlt, HiTrash } from "react-icons/hi";
 import App from "@/components/Layout/App";
 import SearchBar from "@/components/SearchBar/SearchComponent";
 import { usePermissions } from "@/context/PermissionsContext";
@@ -26,44 +28,60 @@ const OrderList = () => {
   const { ordersList, loading, error, pageSize, totalRecords, currentPage } =
     useSelector((state) => state.orders);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [orderDetailData, setOrderDetailData] = useState({});
   const [filterText, setFilterText] = useState("");
-
+  const [senderId, setSenderId] = useState(0);
+  const [orderId, setOrderId] = useState("");
+  const [status, setOrderStatus] = useState("");
+  const [phoneNo, setPhoneNo] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const { hasPermission } = usePermissions();
 
   const [isLoading, setIsLoading] = useState(false); // Start as true since we're fetching data
   const orderColumns = [
     { name: "Order Id", selector: (row) => row.orderId, sortable: true },
-    { name: "Order Name", selector: (row) => row.name, sortable: true },
-    { name: "Order Date", selector: (row) => row.orderDate, sortable: true },
+    {
+      name: "Customer Name",
+      selector: (row) => row.name,
+      sortable: true,
+      minWidth: "200px",
+    },
+    {
+      name: "Order Date",
+      selector: (row) => row.orderDate,
+      sortable: true,
+      minWidth: "200px",
+    },
     {
       name: "Phone Number",
       selector: (row) => row.phoneNumber,
       sortable: true,
+      minWidth: "150px",
     },
     {
-      name: "Status Name",
+      name: "Status",
       selector: (row) => row.statusName,
       sortable: true,
+      minWidth: "150px",
     },
     {
-      name: "subtotal",
+      name: "Sub Total",
       selector: (row) => row.subtotal,
       sortable: true,
     },
     {
-      name: "deliveryCharges",
+      name: "Delivery Charges",
       selector: (row) => row.deliveryCharges,
       sortable: true,
     },
     {
-      name: "discount",
+      name: "Discount",
       selector: (row) => row.discount,
       sortable: true,
     },
     {
-      name: "total",
+      name: "Total",
       selector: (row) => row.total,
       sortable: true,
     },
@@ -77,17 +95,8 @@ const OrderList = () => {
               className="uniform_icon_btn"
               onClick={() => handleDetailClick(row.orderId)}
             >
-              <HiPencilAlt style={{ fontSize: "15px" }} />
+              <HiEye style={{ fontSize: "15px" }} />
             </button>
-            {hasPermission("Order", "delete") && (
-              <button
-                title="Delete Order"
-                className="uniform_icon_btn"
-                //   onClick={() => handleDeleteClick(row.orderId)}
-              >
-                <HiTrash style={{ fontSize: "15px" }} />
-              </button>
-            )}
           </div>
         </>
       ),
@@ -100,7 +109,7 @@ const OrderList = () => {
   const handleDetailClick = async (orderId) => {
     try {
       const response = await dispatch(fetchOrderById({ orderId })).unwrap();
-      
+
       if (response) {
         setOrderDetailData(response);
         setIsModalOpen(true);
@@ -112,7 +121,11 @@ const OrderList = () => {
         });
       }
     } catch (error) {
-      alert("Failed to fetch order details: " + error.message);
+      showSweetAlert({
+        title: "Failed",
+        text: error.message || "",
+        icon: "error",
+      });
     }
   };
   const handleCancel = () => {
@@ -174,29 +187,22 @@ const OrderList = () => {
     );
   };
 
-  const handleSearchString = (setter) => (e) => {
-    const searchValue = e;
-    setFilterText(searchValue);
-    setter(e);
-
-    // Clear the previous timeout if any
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
-    }
-
-    // Set a new timeout for 0.5 seconds
-    const timeout = setTimeout(() => {
-      dispatch(
-        fetchOrder({
-          clientId: localStorage.getItem("clientId"),
-          pageSize,
-          pageNo: currentPage,
-          SearchStr: searchValue,
-        })
-      );
-    }, 500);
-
-    setSearchTimeout(timeout); // Save the timeout reference
+  const handleSearchString = () => {
+    dispatch(
+      fetchOrder({
+        clientId: localStorage.getItem("clientId"),
+        pageSize,
+        pageNo: 1,
+        SearchStr: filterText,
+        senderId: senderId,
+        orderId: orderId,
+        FromDate: fromDate,
+        ToDate: toDate,
+        searchPhoneNo: phoneNo,
+        searchStatus: status,
+      })
+    );
+    dispatch(setCurrentPage(1)); // Reset to first page
   };
 
   const refreshOrderList = () => {
@@ -210,6 +216,11 @@ const OrderList = () => {
     );
   };
 
+  const handleSenderChange = () => (e) => {
+    const senderId = e.target.value;
+    setSenderId(senderId);
+  };
+
   useEffect(() => {
     dispatch(
       fetchOrder({
@@ -217,6 +228,12 @@ const OrderList = () => {
         pageSize,
         pageNo: currentPage,
         SearchStr: filterText,
+        senderId: senderId,
+        orderId: orderId,
+        FromDate: fromDate,
+        ToDate: toDate,
+        searchPhoneNo: phoneNo,
+        searchStatus: status,
       })
     );
     return () => {
@@ -234,18 +251,109 @@ const OrderList = () => {
   const subHeaderComponentMemo = useMemo(() => {
     return (
       <div className="w-full">
-        <div className="grid grid-cols-5 gap-4">
-          <div className="flex flex-col space-y-1 text-start mb-1 ">
+        <div className="grid grid-cols-8 gap-4">
+          <div className="flex flex-col text-start mb-1">
+            <label
+              htmlFor="Phone Number"
+              className="font-medium text-gray-700 text-sm"
+            >
+              Order Id
+            </label>
+            <input
+              type="text"
+              value={orderId}
+              onChange={(e) => setOrderId(e.target.value)}
+              className="border rounded py-1 px-2 w-full mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <div className="flex flex-col text-start mb-1">
             <SearchBar
               label="Search"
               value={filterText}
-              onChange={handleSearchString(setFilterText)}
+              onChange={(e) => setFilterText(e)}
             />
+          </div>
+          <div className="flex flex-col text-start mb-1">
+            <label
+              htmlFor="Phone Number"
+              className="font-medium text-gray-700 text-sm"
+            >
+              Sender Name
+            </label>
+            <SendernameDropdown
+              value={senderId}
+              onChange={handleSenderChange()}
+            />
+          </div>
+
+          <div className="flex flex-col text-start mb-1">
+            <label
+              htmlFor="Phone Number"
+              className="font-medium text-gray-700 text-sm"
+            >
+              Phone Number
+            </label>
+            <input
+              type="text"
+              value={phoneNo}
+              onChange={(e) => setPhoneNo(e.target.value)}
+              className="border rounded py-1 px-2 w-full mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          <div className="flex flex-col text-start mb-1">
+            <label
+              htmlFor="Phone Number"
+              className="font-medium text-gray-700 text-sm"
+            >
+              Status
+            </label>
+            <input
+              type="text"
+              value={status}
+              onChange={(e) => setOrderStatus(e.target.value)}
+              className="border rounded py-1 px-2 w-full mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <div className="flex flex-col text-start mb-1">
+            <DateTimePicker
+              label="From Date"
+              value={fromDate}
+              onChange={setFromDate}
+            />
+          </div>
+          <div className="flex flex-col text-start mb-1">
+            <DateTimePicker
+              label="To Date"
+              value={toDate}
+              minDate={fromDate}
+              onChange={setToDate}
+            />
+          </div>
+          <div className="flex items-end mb-2 justify-end ">
+            <button
+              className="uniform_btn align-bottom"
+              onClick={() => {
+                handleSearchString();
+              }}
+            >
+              Search
+            </button>
           </div>
         </div>
       </div>
     );
-  }, [filterText]);
+  }, [
+    filterText,
+    phoneNo,
+    orderId,
+    status,
+    fromDate,
+    toDate,
+    senderId,
+    pageSize,
+    dispatch,
+  ]);
 
   return (
     <App>
@@ -283,7 +391,7 @@ const OrderList = () => {
         />
       </div>
 
-      {/* {isModalOpen && (
+      {isModalOpen && (
         <OrderDetailsModal
           isVisible={true}
           toggle={handleCancel}
@@ -291,7 +399,7 @@ const OrderList = () => {
           Data={orderDetailData}
           onsuccess={refreshOrderList}
         />
-      )} */}
+      )}
     </App>
   );
 };

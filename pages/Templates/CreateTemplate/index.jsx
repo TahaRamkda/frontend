@@ -75,12 +75,12 @@ const TemplateCreationPage = () => {
   const [urlerror, seturlerror] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [buttonType, setButtonType] = useState(null);
-  const locationButtonExists = messagePreview?.buttons?.some(
-    (btn) => btn.type === "7"
-  );
-  const otherButtonsExist = messagePreview?.buttons?.some(
-    (btn) => btn.type !== "7"
-  );
+  // const locationButtonExists = messagePreview?.buttons?.some(
+  //   (btn) => btn.type === "7"
+  // );
+  // const otherButtonsExist = messagePreview?.buttons?.some(
+  //   (btn) => btn.type !== "7"
+  // );
   const [buttonText, setButtonText] = useState("");
   const [ButtonSelected, setButtonSelected] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -270,7 +270,7 @@ const TemplateCreationPage = () => {
             response.message || "The Template has been successfully created.",
           icon: "success",
         });
-        await router.push("/Templates/TemplatesList");
+        window.location.href = "/Templates/TemplatesList";
       } else {
         showSweetAlert({
           title: "Creation Failed",
@@ -291,6 +291,7 @@ const TemplateCreationPage = () => {
   };
 
   const loadurlVariables = (index) => {
+    
     seturlerror("");
     const updatedButtons = [...messagePreview.buttons];
     const variablePattern = /{{(.*?)}}/g;
@@ -597,32 +598,29 @@ const TemplateCreationPage = () => {
       (button) => button.type === "3"
     ).length;
 
-    const locationButtonCount = messagePreview.buttons.filter(
-      (button) => button.type === "7"
-    ).length;
-    const otherButtonsExist = messagePreview.buttons.some(
-      (btn) => btn.type !== "7"
-    );
+    // const locationButtonCount = messagePreview.buttons.filter(
+    //   (button) => button.type === "7"
+    // ).length;
+    // const otherButtonsExist = messagePreview.buttons.some(
+    //   (btn) => btn.type !== "7"
+    // );
 
-    if (type === "7" && otherButtonsExist) {
-      toast.error(
-        "You cannot add a location button when other buttons already exist."
-      );
-      setButtonType(null);
-      return;
-    }
+    // if (type === "7" && otherButtonsExist) {
+    //   toast.error(
+    //     "You cannot add a location button when other buttons already exist."
+    //   );
+    //   setButtonType(null);
+    //   return;
+    // }
 
-    if (locationButtonCount >= 1 && type !== "7") {
-      toast.error(
-        "You cannot add other buttons when a location button is already added."
-      );
-      setButtonType(null);
-      return;
-    }
-    if (type === "7" && locationButtonCount >= 1) {
-      toast.error("You can only add one location button.");
-      setButtonType(null);
-    } else if (type === "2" && callPhoneNumberButtonCount >= 1) {
+    // if (locationButtonCount >= 1 && type !== "7") {
+    //   toast.error(
+    //     "You cannot add other buttons when a location button is already added."
+    //   );
+    //   setButtonType(null);
+    //   return;
+    // }
+    if (type === "2" && callPhoneNumberButtonCount >= 1) {
       toast.error("You can only add one call phone number button.");
       setButtonType(null);
     } else if (type === "3" && visitWebsiteButtonCount >= 2) {
@@ -663,7 +661,7 @@ const TemplateCreationPage = () => {
   };
   const handelCancel = () => {
     setLocalLoading(true);
-    router.push("/Templates/TemplatesList");
+    window.location.href = "/Templates/TemplatesList";
   };
 
   useEffect(() => {
@@ -868,7 +866,12 @@ const TemplateCreationPage = () => {
                 const ToggleModal = () => {
                   setShowMediaPopup(false);
                 };
-                const ClearMediaOnHeaderTypeChange = ({setSelectedMediaId,setSelectedMediaPath,setSelectedMediaType,setMessagePreview}) => {
+                const ClearMediaOnHeaderTypeChange = ({
+                  setSelectedMediaId,
+                  setSelectedMediaPath,
+                  setSelectedMediaType,
+                  setMessagePreview,
+                }) => {
                   const { values } = useFormikContext();
                   useEffect(() => {
                     if (!["2", "3", "4"].includes(values.headerType)) {
@@ -880,7 +883,13 @@ const TemplateCreationPage = () => {
                         media: null,
                       }));
                     }
-                  }, [values.headerType,setSelectedMediaId,setSelectedMediaPath,setSelectedMediaType,setMessagePreview,]);
+                  }, [
+                    values.headerType,
+                    setSelectedMediaId,
+                    setSelectedMediaPath,
+                    setSelectedMediaType,
+                    setMessagePreview,
+                  ]);
                   return null; // This component renders nothing
                 };
                 return (
@@ -1102,9 +1111,9 @@ const TemplateCreationPage = () => {
                           </DropdownItem>
                           <DropdownItem
                             onClick={() => handleButtonSelect("1")}
-                            className={
-                              locationButtonExists ? "bg-light text-muted" : ""
-                            }
+                            // className={
+                            //   locationButtonExists ? "bg-light text-muted" : ""
+                            // }
                           >
                             Quick Reply
                             <small className="text-muted d-block">
@@ -1116,9 +1125,6 @@ const TemplateCreationPage = () => {
                           </DropdownItem>
                           <DropdownItem
                             onClick={() => handleButtonSelect("2")}
-                            className={
-                              locationButtonExists ? "bg-light text-muted" : ""
-                            }
                           >
                             Call Phone Number
                             <small className="text-muted d-block">
@@ -1127,16 +1133,13 @@ const TemplateCreationPage = () => {
                           </DropdownItem>
                           <DropdownItem
                             onClick={() => handleButtonSelect("3")}
-                            className={
-                              locationButtonExists ? "bg-light text-muted" : ""
-                            }
                           >
                             Visit website
                             <small className="text-muted d-block">
                               2 button maximum
                             </small>
                           </DropdownItem>
-                          <DropdownItem
+                          {/* <DropdownItem
                             onClick={() => handleButtonSelect("7")}
                             className={
                               otherButtonsExist ? "bg-light text-muted" : ""
@@ -1146,7 +1149,7 @@ const TemplateCreationPage = () => {
                             <small className="text-muted d-block">
                               1 button maximum
                             </small>
-                          </DropdownItem>
+                          </DropdownItem> */}
                         </DropdownMenu>
                       </Dropdown>
                     </div>
@@ -1265,12 +1268,7 @@ const TemplateCreationPage = () => {
                                 <Button
                                   onClick={() => loadurlVariables(index)}
                                   className="bg-transparent border-0 text-primary"
-                                  style={{
-                                    flex: "0 0 auto",
-                                    minWidth: "max-content",
-                                    fontSize: "0.75rem",
-                                    padding: "5px 10px",
-                                  }}
+                                 style={{ minWidth: "max-content" }}
                                 >
                                   + Load Variable
                                 </Button>
@@ -1570,12 +1568,12 @@ const TemplateCreationPage = () => {
                             {button.text || "Button"}
                           </span>
                         )}
-                        {button.type == 7 && (
+                        {/* {button.type == 7 && (
                           <span style={{ color: "#00a9ee" }}>
                             <i className="fa fa-map-pin me-2"></i>
                             {button.text || "Button"}
                           </span>
-                        )}
+                        )} */}
                       </Button>
                     ))}
                   {TotalButtonCount > 3 && !Showallbutton && (

@@ -12,12 +12,32 @@ import {
 // Fetch Order
 export const fetchOrder = createAsyncThunk(
   "order/fetchOrder",
-  async ({ clientId, pageNo, pageSize, SearchStr, senderId=1 }, { rejectWithValue }) => {
+  async (
+    {
+      clientId,
+      pageNo,
+      pageSize,
+      SearchStr,
+      senderId,
+      orderId,
+      FromDate,
+      ToDate,
+      searchPhoneNo,
+      searchStatus,
+    },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await API.post("/api", {
-        endpoint: `${ORDERLIST}?${
-          SearchStr ? `SearchStr=${SearchStr}` : ""
-        }&PageNo=${pageNo}&PageSize=${pageSize}&senderId=${senderId}`,
+        endpoint: `${ORDERLIST}?${SearchStr ? `SearchStr=${SearchStr}&` : ""}${
+          senderId ? `senderId=${senderId}&` : ""
+        }${orderId ? `orderId=${orderId}&` : ""}${
+          FromDate ? `FromDate=${FromDate}&` : ""
+        }${ToDate ? `ToDate=${ToDate}&` : ""}${
+          searchPhoneNo ? `searchPhoneNo=${searchPhoneNo}&` : ""
+        }${
+          searchStatus ? `searchStatus=${searchStatus}&` : ""
+        }PageNo=${pageNo}&PageSize=${pageSize}`,
         method: "GET",
         //payload: {},
       });
@@ -25,9 +45,7 @@ export const fetchOrder = createAsyncThunk(
         return {
           ordersList: response.data,
           totalRecords:
-            response.data.length > 0
-              ? response.data[0].totalRecords
-              : 0,
+            response.data.length > 0 ? response.data[0].totalRecords : 0,
         };
       } else {
         throw new Error("Failed to fetch details");
@@ -47,7 +65,7 @@ export const fetchOrderById = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-       const response = await API.post("/api", {
+      const response = await API.post("/api", {
         endpoint: `${ORDERDETAILS}?orderId=${orderId}`,
         method: "GET",
         //payload: {},
@@ -172,41 +190,41 @@ const OrderSlice = createSlice({
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
-      })
+      });
 
-      // // Update Client
-      // .addCase(updateOrder.pending, (state) => {
-      //   state.loading = true;
-      //   state.error = null;
-      //   state.success = false;
-      // })
-      // .addCase(updateOrder.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.success = true;
-      //   state.message = action.payload.message || "Updated Successfully";
-      // })
-      // .addCase(updateOrder.rejected, (state, action) => {
-      //   state.loading = false;
-      //   state.error = action.payload || action.error.message;
-      //   state.message = action.payload?.message || action.error.message;
-      // })
+    // // Update Client
+    // .addCase(updateOrder.pending, (state) => {
+    //   state.loading = true;
+    //   state.error = null;
+    //   state.success = false;
+    // })
+    // .addCase(updateOrder.fulfilled, (state, action) => {
+    //   state.loading = false;
+    //   state.success = true;
+    //   state.message = action.payload.message || "Updated Successfully";
+    // })
+    // .addCase(updateOrder.rejected, (state, action) => {
+    //   state.loading = false;
+    //   state.error = action.payload || action.error.message;
+    //   state.message = action.payload?.message || action.error.message;
+    // })
 
-      // // Delete Client
-      // .addCase(deleteOrder.pending, (state) => {
-      //   state.loading = true;
-      //   state.error = null;
-      //   state.success = false;
-      // })
-      // .addCase(deleteOrder.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.success = true;
-      //   state.message = action.payload.message || "Deleted Successfully";
-      // })
-      // .addCase(deleteOrder.rejected, (state, action) => {
-      //   state.loading = false;
-      //   state.error = action.payload || action.error.message;
-      //   state.message = action.payload?.message || action.error.message;
-      // });
+    // // Delete Client
+    // .addCase(deleteOrder.pending, (state) => {
+    //   state.loading = true;
+    //   state.error = null;
+    //   state.success = false;
+    // })
+    // .addCase(deleteOrder.fulfilled, (state, action) => {
+    //   state.loading = false;
+    //   state.success = true;
+    //   state.message = action.payload.message || "Deleted Successfully";
+    // })
+    // .addCase(deleteOrder.rejected, (state, action) => {
+    //   state.loading = false;
+    //   state.error = action.payload || action.error.message;
+    //   state.message = action.payload?.message || action.error.message;
+    // });
   },
 });
 

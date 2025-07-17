@@ -17,13 +17,49 @@ import { exportToExcel } from "@/components/ExportExcel/excel";
 import DateTimePicker from "@/components/Timepicker/datetimepicker";
 import showSweetAlert from "@/components/Sweetalert";
 import { toast } from "react-toastify";
-
+import TemplateCategoryDropdown from "@/components/Dropdowns/TemplateCategorydropdown";
 const TemplateInsight = () => {
+  const data = {
+    Templates: [
+      {
+        templateId: "1126450329101197",
+        templateName: "pizza_hut_trackinglink",
+        buttonText: "Track Order1111 / تابع طلبك",
+        buttonType: "url_button",
+        clickCount: 3,
+        sentCount: 8,
+        deliveredCount: 3,
+        readCount: 1,
+      },
+      {
+        templateId: "1126450329101197",
+        templateName: "pizza_hut_trackinglink",
+        buttonText: "Track Order / تابع طلبك",
+        buttonType: "url_button",
+        clickCount: 2,
+        sentCount: 5,
+        deliveredCount: 1,
+        readCount: 1,
+      },
+      {
+        templateId: "1126450329101197",
+        templateName: "pizza_hut_trackinglink",
+        buttonText: "Track Order1111 / تابع طلبك",
+        buttonType: "url_button",
+        clickCount: 3,
+        sentCount: 3,
+        deliveredCount: 3,
+        readCount: 1,
+      },
+    ],
+  };
+
   const [sendername, setSendername] = useState("");
   const [fromDate, setFromDate] = useState("");
   const dispatch = useDispatch();
   const [toDate, setToDate] = useState("");
   const [templateId, setTemplateId] = useState([]);
+  const [catagoryId, setCatagoryId] = useState(0);
   const [shouldExport, setShouldExport] = useState(false);
   const [templateData, setTemplaterData] = useState([]);
   const [templatesLabels, setTemplatesLabels] = useState([]);
@@ -41,10 +77,12 @@ const TemplateInsight = () => {
     setsendernameId(e.target.value);
     setSendername(e.target.label);
   };
-
+  const handleCategoryChange = (e) => {
+    const categoryId = e?.target.value;
+    setCatagoryId(categoryId ? categoryId : 0);
+  };
   useEffect(() => {
     if (templateInsightDetails) {
-      ;
       console.log("Raw templateInsightDetails:", templateInsightDetails);
 
       // Set the template data
@@ -274,10 +312,28 @@ const TemplateInsight = () => {
           </div>
           <div className="flex-1">
             <label className="text-[11px] font-semibold text-gray-700">
+              Category
+            </label>
+            <select
+              name="catagoryId"
+              id="catagoryId"
+              className="border border-gray-300 rounded-lg py-1 px-2 text-sm w-full"
+              value={catagoryId}
+              onChange={handleCategoryChange}
+            >
+              <option value="0">Select</option>
+              <option value="1">Marketing</option>
+              <option value="2">Utility</option>
+            </select>
+          </div>
+
+          <div className="flex-1">
+            <label className="text-[11px] font-semibold text-gray-700">
               Template
             </label>
             <TemplatesDropdown
               value={templateId}
+              CategoryId={catagoryId}
               onChange={handleTemplateChange}
               SenderId={sendernameId}
             />

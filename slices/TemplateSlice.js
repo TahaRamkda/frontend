@@ -51,7 +51,7 @@ export const fetchTemplatesById = createAsyncThunk(
   "template/fetchTemplatesById",
  
   async ({ templateId, ClientId }, { rejectWithValue }) => {
-
+    
     try {
        const response = await API.post("/api", {
         endpoint: `${TEMPLATEDETAILS}?Id=${templateId}`,
