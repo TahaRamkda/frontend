@@ -129,6 +129,20 @@ export const sidebarItems = [
       submenu: [],
     },
     {
+      href: '/Menu',
+      icon: <HiCloud className="text-xl" />,
+      text: 'Menu',
+      module: 1,
+      submenu: [],
+    },
+    {
+      href: '/Order/OrdersList',
+      icon: <HiCloud className="text-xl" />,
+      text: 'Order',
+      module: 1,
+      submenu: [],
+    },
+    {
       href: '#',
       icon: <HiDocumentReport className="text-xl" />,
       text: 'Reports',
