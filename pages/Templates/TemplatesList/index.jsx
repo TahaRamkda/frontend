@@ -36,6 +36,7 @@ import {
   HiPencilAlt,
   HiTrash,
   HiRefresh,
+  HiPencil,
   HiEye,
   HiArrowsExpand,
 } from "react-icons/hi";
@@ -127,7 +128,7 @@ const TemplateList = () => {
               className="uniform_icon_btn"
               onClick={() => handleDetailClick(row.id)}
             >
-              <HiEye style={{ fontSize: "15px" }} />
+              <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
             <button
               title="Template Visualisation"

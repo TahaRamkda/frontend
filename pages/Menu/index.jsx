@@ -47,7 +47,6 @@ const MenuList = () => {
   const [quantity, setQuantity] = useState(1);
 
   const handleAddToCart = (item) => {
-    ;
     setSelectedItem(item);
   };
   const truncateWords = (text, wordLimit) => {
@@ -64,18 +63,18 @@ const MenuList = () => {
   };
 
   const getModifiersForItem = (itemId) => {
-    ;
     const item = mainItems.find((i) => i.id === itemId);
     if (!item || !item.modifier_ids) return [];
 
     const itemModifiers = menuData?.menu?.modifiers.filter((mod) =>
       item.modifier_ids.includes(mod.id)
     );
-    ;
+    
     return itemModifiers.map((mod) => ({
       ...mod,
       modifier_items: mod.modifier_items.map((modItem) => {
         const modifierItem = modifiers.find((m) => m.id === modItem.item_id);
+        
         return {
           ...modifierItem,
           is_default: modItem.is_default,
@@ -261,6 +260,7 @@ const MenuList = () => {
                                 : "checkbox"
                             }
                             name={modifier.id}
+                            checked={modItem.is_default}
                             className="mr-2"
                             disabled={true}
                           />
@@ -294,9 +294,13 @@ const MenuList = () => {
                                               : "checkbox"
                                           }
                                           name={nestedMod.id}
+                                          defaultChecked={
+                                            nestedModItem.is_default
+                                          } // Use defaultChecked for static UI
                                           className="mr-2"
                                           disabled={true}
                                         />
+
                                         <label>
                                           {nestedModItem.name.en}{" "}
                                           {nestedModItem.price_info.price > 0 &&

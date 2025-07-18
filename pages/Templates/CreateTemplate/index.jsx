@@ -256,6 +256,7 @@ const TemplateCreationPage = () => {
         buttonId: button.buttonValue,
       })),
     };
+    
     if (!language) {
       alert("Please select Languaage");
     }

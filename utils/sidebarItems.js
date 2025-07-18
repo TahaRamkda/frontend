@@ -14,10 +14,11 @@ import {
   HiLogout,
   HiViewGrid,
   HiChatAlt,
-  HiClipboardList,
   HiUserCircle,
   HiPresentationChartBar,
+  HiMenu ,
   HiCollection,
+  HiClipboardList ,
   HiCube,
 } from "react-icons/hi";
 
@@ -130,14 +131,14 @@ export const sidebarItems = [
     },
     {
       href: '/Menu',
-      icon: <HiCloud className="text-xl" />,
+      icon: <HiMenu  className="text-xl" />,
       text: 'Menu',
       module: 1,
       submenu: [],
     },
     {
       href: '/Order/OrdersList',
-      icon: <HiCloud className="text-xl" />,
+      icon: <HiClipboardList  className="text-xl" />,
       text: 'Order',
       module: 1,
       submenu: [],

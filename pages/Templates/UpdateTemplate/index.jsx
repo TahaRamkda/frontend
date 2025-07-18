@@ -127,6 +127,7 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
   const [language, setlanguage] = useState("");
   const [urlerror, seturlerror] = useState("");
   const [MessagePreviewupdated, setMessagePreviewupdated] = useState(false);
+  const [templateData, setTemplateData] = useState(null);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const replaceClosingPTagsWithNewline = (content) => {
     return content
@@ -142,14 +143,15 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
   useEffect(() => {
     if (Template_Id) {
       setLoading(true);
-      dispatch(
+     const response = dispatch(
         fetchTemplatesById({
           ClientId: localStorage.getItem("clientId"),
           templateId: Template_Id,
         })
       )
         .then((response) => {
-          setTemplate(response); // Assuming response is the templateDetails object
+          
+          setTemplateData(response.payload); // Assuming response is the templateData object
         })
         .catch((error) => {
           console.error("Error fetching template:", error);
@@ -163,35 +165,49 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
   }, [dispatch, Template_Id]);
 
   useEffect(() => {
-    
-    if (Loading || !templateDetails) return;
+    if (Loading || !templateData) return;
     // Map buttons with conditional logic for phoneNumber or URL
-     
+    
     const customButtons =
-      templateDetails.buttons?.map((button) => ({
-        actionId: button.actionId,
-        actionType: button.actionType,
-        buttonValue: button.buttonValue,
-        type: button.buttonType, // Copy over the type
-        text: button.buttonText, // Copy over the label
-        ...(button.buttonType === 2
-          ? { phoneNumber: button.buttonValue }
-          : button.buttonType === 3
-          ? { url: button.buttonValue }
-          : {}),
-      })) ?? [];
+  templateData.buttons?.map((button) => {
+    let phoneNumber = "";
+    let countryCode = "";
+
+    if (button.buttonType === 2 && button.buttonValue) {
+      const match = button.buttonValue.match(/^(\+\d{1,4})[-\s]?(\d{6,})$/);
+      if (match) {
+        countryCode = match[1];  // e.g. "+91"
+        phoneNumber = match[2];  // e.g. "7297005253"
+      } else {
+        phoneNumber = button.buttonValue; // fallback
+      }
+    }
+
+    return {
+      actionId: button.actionId,
+      actionType: button.actionType,
+      buttonValue: button.buttonValue,
+      type: button.buttonType,
+      text: button.buttonText,
+      ...(button.buttonType === 2
+        ? { phoneNumber, countryCode }
+        : button.buttonType === 3
+        ? { url: button.buttonValue }
+        : {}),
+    };
+  }) ?? [];
       
     // Construct the complete message preview locally
     const updatedMessagePreview = {
-      body: templateDetails.bodyText,
-      footer: templateDetails.footerText,
-      media: templateDetails.mediaPath,
+      body: templateData.bodyText,
+      footer: templateData.footerText,
+      media: templateData.mediaPath,
       buttons: customButtons,
-      templatename: templateDetails.templateName,
+      templatename: templateData.templateName,
       visitWebsiteButtonCount: 0,
       header:
-        templateDetails.headerType === 1
-          ? templateDetails.headerText
+        templateData.headerType === 1
+          ? templateData.headerText
           : undefined,
     };
 
@@ -206,31 +222,31 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
     if (!MessagePreviewupdated) {
       setMessagePreviewupdated(true);
     }
-    
+
     // Update Header State
-    if (templateDetails.headerType === 1) {
-      setHeadContent(templateDetails.headerText);
-      setupdatedheadvercontent(templateDetails.headerText);
-      setheaderTextCount(templateDetails.headerParamCount);
+    if (templateData.headerType === 1) {
+      setHeadContent(templateData.headerText);
+      setupdatedheadvercontent(templateData.headerText);
+      setheaderTextCount(templateData.headerParamCount);
     } else {
-      setSelectedMediaId(templateDetails.mediaId);
-      setSelectedMediaPath(templateDetails.mediaPath);
-      setSelectedMediaType(templateDetails.contentType);
+      setSelectedMediaId(templateData.mediaId);
+      setSelectedMediaPath(templateData.mediaPath);
+      setSelectedMediaType(templateData.contentType);
     }
 
     // Update Body State
-    setupdatedvercontent(templateDetails.bodyText);
-    setbodyTextCount(templateDetails.bodyParamCount);
+    setupdatedvercontent(templateData.bodyText);
+    setbodyTextCount(templateData.bodyParamCount);
 
     // Update Other Template-Related States
-    setSelectedSenderId(templateDetails.senderId);
-    setTemplatetype(templateDetails.category);
-    setlanguage(templateDetails.language);
+    setSelectedSenderId(templateData.senderId);
+    setTemplatetype(templateData.category);
+    setlanguage(templateData.language);
     setTotalButtonCount(updatedMessagePreview.buttons.length);
-  }, [Loading, templateDetails]);
+  }, [Loading, templateData]);
 
   useEffect(() => {
-    if (!MessagePreviewupdated || Loading || !templateDetails.parameters)
+    if (!MessagePreviewupdated || Loading || !templateData.parameters)
       return;
 
     // Use a flag to ensure this runs only once
@@ -238,7 +254,7 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
     if (parametersProcessed) return;
 
     // Process Parameters
-    const filteredHeaderValues = templateDetails.parameters.filter(
+    const filteredHeaderValues = templateData.parameters.filter(
       (variable) => variable?.paramType === 1
     );
     if (filteredHeaderValues.length > 0) {
@@ -256,7 +272,7 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
       });
     }
 
-    const filteredBodyValues = templateDetails.parameters.filter(
+    const filteredBodyValues = templateData.parameters.filter(
       (variable) => variable?.paramType === 2
     );
     if (filteredBodyValues.length > 0) {
@@ -271,7 +287,7 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
       });
     }
 
-    const filteredURLValues = templateDetails.parameters.filter(
+    const filteredURLValues = templateData.parameters.filter(
       (variable) => variable?.paramType === 3
     );
     if (filteredURLValues.length > 0) {
@@ -339,8 +355,6 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
   };
 
   const handleSubmit = async (values) => {
-    
-    
     // let trimmedBodyContent = APIbodyContent.replace(/\*\*/g, "*").trimEnd();
     // let APIbodyContent = "**Latest**<sub>Text</sub>*Example*   "; // Example content
 
@@ -360,20 +374,20 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
     const bodyreplaceX = bodysupresult.replace(/`/g, "_");
     const bodyfinalReplace = bodyreplaceX.replace(/\+/g, "*");
 
-     const variablePattern = /{{(.*?)}}/g;
-        const matches = bodyfinalReplace.match(variablePattern);
-        if (matches && variables && matches.length !== variables.length) {
-          toast.error("Please load all body variables before proceeding.");
-          return;
-        }
-        const headmatches = finalHeaderReplace.match(variablePattern);
-        if (
-          headmatches &&
-          headerVariable &&
-          headmatches.length !== headerVariable.length
-        ) {
-          toast.error("Please load all  header variables before proceeding.");
-        }
+    const variablePattern = /{{(.*?)}}/g;
+    const matches = bodyfinalReplace.match(variablePattern);
+    if (matches && variables && matches.length !== variables.length) {
+      toast.error("Please load all body variables before proceeding.");
+      return;
+    }
+    const headmatches = finalHeaderReplace.match(variablePattern);
+    if (
+      headmatches &&
+      headerVariable &&
+      headmatches.length !== headerVariable.length
+    ) {
+      toast.error("Please load all  header variables before proceeding.");
+    }
     
     const requestBody = {
       clientId: localStorage.getItem("clientId"),
@@ -419,11 +433,9 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
         },
         actionId: button.actionId,
         actionType: button.actionType,
-        buttonId: button.buttonValue,
       })),
     };
-
-    //console.log("TimingData", requestBody)
+    
 
     try {
       const response = await dispatch(updateTemplates(requestBody)).unwrap();
@@ -434,7 +446,7 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
           text: "",
           icon: "success",
         });
-        router.push("/Templates/Templateslist");
+        onclose()
       } else {
         showSweetAlert({
           title: "Failed",
@@ -538,7 +550,6 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
 
   //function to add url veriable
   const addURLVariable = (index, veriablename) => {
-    
     const newIndex = 1;
 
     const updatedButtons = [...messagePreview.buttons];
@@ -569,7 +580,6 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
   };
 
   const loadurlVariables = (index) => {
-    
     seturlerror("");
     const updatedButtons = [...messagePreview.buttons];
     const variablePattern = /{{(.*?)}}/g;
@@ -840,7 +850,7 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
       setwebsiteUrl("");
       setActionId(0);
       setActionType(0);
-     switch (type) {
+      switch (type) {
         case 1:
           setButtonText("");
           setMarketingOptOutAdded(true);
@@ -1026,13 +1036,13 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
 
             <Formik
               initialValues={{
-                templateName: templateDetails?.templateName,
-                headerType: templateDetails?.headerType,
-                headerContent: templateDetails?.headerText,
+                templateName: templateData?.templateName,
+                headerType: templateData?.headerType,
+                headerContent: templateData?.headerText,
                 headerMedia: null,
                 body: "",
-                footer: templateDetails?.footerText,
-                senderId: templateDetails?.senderId,
+                footer: templateData?.footerText,
+                senderId: templateData?.senderId,
                 buttons: [],
                 variables: [],
                 headerVariable: [],
@@ -1043,34 +1053,30 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
               onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
+                const handleHeaderTypeChange = (e) => {
+                  const newValue = e.target.value;
+                  setFieldValue("headerType", newValue);
+                  if (["2", "3", "4"].includes(newValue)) {
+                    setShowMediaPopup(true);
+                  }
+                };
                 const ToggleModal = () => {
                   setShowMediaPopup(false);
                 };
-                const ClearMediaOnHeaderTypeChange = ({
-                  setSelectedMediaId,
-                  setSelectedMediaPath,
-                  setSelectedMediaType,
-                  setMessagePreview,
-                }) => {
-                  const { values } = useFormikContext();
-                  useEffect(() => {
-                    if (![2, 3, 4].includes(values.headerType)) {
-                      setSelectedMediaId(0);
-                      setSelectedMediaPath("");
-                      setSelectedMediaType("");
-                      setMessagePreview((prev) => ({
-                        ...prev,
-                        media: null,
-                      }));
-                    }
-                  }, [
-                    values.headerType,
-                    setSelectedMediaId,
-                    setSelectedMediaPath,
-                    setSelectedMediaType,
-                    setMessagePreview,
-                  ]);
-                  return null; // This component renders nothing
+                const getMediaTypeText = (headerType) => {
+                  switch (headerType) {
+                    case "2":
+                    case 2:
+                      return "Image";
+                    case "3":
+                    case 3:
+                      return "Video";
+                    case "4":
+                    case 4:
+                      return "Document";
+                    default:
+                      return "";
+                  }
                 };
                 return (
                   <Form>
@@ -1118,6 +1124,7 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
                             type="select"
                             name="headerType"
                             className="form-control"
+                            onChange={handleHeaderTypeChange}
                             style={{ height: "46px" }}
                           >
                             {["none", "text", "image", "video", "document"].map(
@@ -1134,8 +1141,8 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
                         </div>
                       </FormGroup>
                       <div>
-                        {values.headerType === 1
-                         && (
+                        {(values.headerType === 1 ||
+                          values.headerType === "1") && (
                           <FormGroup>
                             <Label
                               for="headerContent"
@@ -1165,70 +1172,51 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
                           </FormGroup>
                         )}
                         {/* {console.log("Value Mania", ["2", "3", "4"].includes(values.headerType))} */}
-                        {[2, 3, 4].includes(values.headerType) && (
-                          <>
-                            <MediaPopUp
-                              key={values.headerType} // This forces re-rendering when headerType changes
-                              isPopup={true}
-                              senderId={selectedSenderId}
-                              contentTypeStr={
-                                values.headerType === 2
-                                  ? "image"
-                                  : values.headerType === 3
-                                  ? "video"
-                                  : "application"
-                              }
-                              onSelectMedia={(mediaId, mediaPath, mimeType) => {
-                                setSelectedMediaId(mediaId);
-                                setSelectedMediaPath(mediaPath);
-                                setSelectedMediaType(mimeType);
-                              }}
-                            />
 
-                            <div className="mt-3 text-sm">
-                              <button
-                                type="button" // Explicitly prevent form submission
-                                className="text-blue-500 hover:underline text-sm font-medium"
-                                onClick={(e) => {
-                                  e.preventDefault(); // Prevent default browser behavior
-                                  setShowMediaPopup(true); // Show the media popup
-                                }}
-                              >
-                                Change{" "}
-                                {values.headerType === 2
-                                  ? "Image"
-                                  : values.headerType === 3
-                                  ? "Video"
-                                  : "Document"}
-                              </button>
-
-                              {showMediaPopup && (
-                                <MediaPopUp
-                                  isPopup={true}
-                                  ToggleModal={ToggleModal}
-                                  senderId={selectedSenderId}
-                                  contentTypeStr={
-                                    values.headerType === 2
-                                      ? "image"
-                                      : values.headerType === 3
-                                      ? "video"
-                                      : "application"
-                                  }
-                                  onSelectMedia={(
-                                    mediaId,
-                                    mediaPath,
-                                    mimeType
-                                  ) => {
-                                    setSelectedMediaId(mediaId);
-                                    setSelectedMediaPath(mediaPath);
-                                    setSelectedMediaType(mimeType);
-                                    setShowMediaPopup(false); // Close the popup after selection
+                        {templateData &&
+                          [2, 3, 4].includes(Number(values.headerType)) && (
+                            <>
+                              <div className="mt-3 text-sm">
+                                <button
+                                  type="button" // Explicitly prevent form submission
+                                  className="text-blue-500 hover:underline text-sm font-medium"
+                                  onClick={(e) => {
+                                    e.preventDefault(); // Prevent default browser behavior
+                                    setShowMediaPopup(true); // Show the media popup
                                   }}
-                                />
-                              )}
-                            </div>
-                          </>
-                        )}
+                                >
+                                  Change {getMediaTypeText(values.headerType)}{" "}
+                                </button>
+
+                                {showMediaPopup && (
+                                  <MediaPopUp
+                                    isPopup={true}
+                                    ToggleModal={ToggleModal}
+                                    senderId={selectedSenderId}
+                                    contentTypeStr={
+                                      values.headerType === "2" ||
+                                      values.headerType === 2
+                                        ? "image"
+                                        : values.headerType === "3" ||
+                                          values.headerType === 3
+                                        ? "video"
+                                        : "application"
+                                    }
+                                    onSelectMedia={(
+                                      mediaId,
+                                      mediaPath,
+                                      mimeType
+                                    ) => {
+                                      setSelectedMediaId(mediaId);
+                                      setSelectedMediaPath(mediaPath);
+                                      setSelectedMediaType(mimeType);
+                                      setShowMediaPopup(false); // Close the popup after selection
+                                    }}
+                                  />
+                                )}
+                              </div>
+                            </>
+                          )}
                       </div>
                     </div>
 
@@ -1353,17 +1341,22 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
                             <Input
                               type="select"
                               value={button.countryCode}
-                              onChange={(e) => {
-                                const updatedButtons = [
-                                  ...messagePreview.buttons,
-                                ];
-                                updatedButtons[index].countryCode =
-                                  e.target.value;
+                               onChange={(e) => {
+                                const updatedButtons =
+                                  messagePreview.buttons.map(
+                                    (button, btnIndex) =>
+                                      btnIndex === index
+                                        ? {
+                                            ...button,
+                                            countryCode: e.target.value,
+                                          }
+                                        : button
+                                  );
+
                                 setMessagePreview({
                                   ...messagePreview,
                                   buttons: updatedButtons,
                                 });
-                                setCountryCode(e.target.value);
                               }}
                               style={{
                                 border: "none",
@@ -1380,18 +1373,19 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
                             </Input>
                             <Input
                               type="text"
-                              value={button.phoneNumber.replace(
-                                /^\+\d{1,4}-?/,
-                                ""
-                              )} // to display trimmed
+                              value={button.phoneNumber} // to display trimmed
                               placeholder="Phone Number"
-                              onChange={(e) => {
-                                const updatedButtons = [
-                                  ...messagePreview.buttons,
-                                ];
-
-                                updatedButtons[index].phoneNumber =
-                                  e.target.value;
+                             onChange={(e) => {
+                                const updatedButtons =
+                                  messagePreview.buttons.map(
+                                    (button, btnIndex) =>
+                                      btnIndex === index
+                                        ? {
+                                            ...button,
+                                            phoneNumber: e.target.value,
+                                          }
+                                        : button
+                                  );
 
                                 setMessagePreview({
                                   ...messagePreview,
@@ -1405,44 +1399,43 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
 
                         {/* Type 3: Website URL Input */}
                         {button.type === 3 && (
-                            <div className="mb-2" style={{ flex: "1 1 60%" }}>
-                              {/* Website URL Input */}
-                              <div className="d-flex flex-column">
-                                <div className="d-flex align-items-center">
-                                  <Input
-                                    type="text"
-                                    value={button.url}
-                                    placeholder="url"
-                                    onChange={(e) => {
-                                      const updatedButtons = [
-                                        ...messagePreview.buttons,
-                                      ];
-                                      updatedButtons[index].url =
-                                        e.target.value;
-                                      setMessagePreview({
-                                        ...messagePreview,
-                                        buttons: updatedButtons,
-                                      });
-                                    }}
-                                    style={{
-                                      flex: "2 1 auto",
-                                      minWidth: "250px",
-                                      marginRight: "10px",
-                                    }}
-                                  />
+                          <div className="mb-2" style={{ flex: "1 1 60%" }}>
+                            {/* Website URL Input */}
+                            <div className="d-flex flex-column">
+                              <div className="d-flex align-items-center">
+                                <Input
+                                  type="text"
+                                  value={button.url}
+                                  placeholder="url"
+                                  onChange={(e) => {
+                                    const updatedButtons = [
+                                      ...messagePreview.buttons,
+                                    ];
+                                    updatedButtons[index].url = e.target.value;
+                                    setMessagePreview({
+                                      ...messagePreview,
+                                      buttons: updatedButtons,
+                                    });
+                                  }}
+                                  style={{
+                                    flex: "2 1 auto",
+                                    minWidth: "250px",
+                                    marginRight: "10px",
+                                  }}
+                                />
 
-                                  <Button
-                                    onClick={() => loadurlVariables(index)}
-                                    className="bg-transparent border-0 text-primary"
-                                    style={{ minWidth: "max-content" }}
-                                  >
-                                    <span className="text-primary">
-                                      + Load Variable
-                                    </span>
-                                  </Button>
-                                </div>
-                                {/* URL Variable Input */}
-                                {button.urlveriablevalue != null && (
+                                <Button
+                                  onClick={() => loadurlVariables(index)}
+                                  className="bg-transparent border-0 text-primary"
+                                  style={{ minWidth: "max-content" }}
+                                >
+                                  <span className="text-primary">
+                                    + Load Variable
+                                  </span>
+                                </Button>
+                              </div>
+                              {/* URL Variable Input */}
+                              {button.urlveriablevalue != null && (
                                 <div className="mt-2" style={{ width: "100%" }}>
                                   <Row className="align-items-center">
                                     <Col>
@@ -1464,14 +1457,14 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
                                   </Row>
                                 </div>
                               )}
-                              </div>
-                              {urlerror && (
-                                <Alert color="danger" className="mt-2">
-                                  {urlerror}
-                                </Alert>
-                              )}
                             </div>
-                          )}
+                            {urlerror && (
+                              <Alert color="danger" className="mt-2">
+                                {urlerror}
+                              </Alert>
+                            )}
+                          </div>
+                        )}
                         {button.type === 1 && (
                           <Button
                             style={{
@@ -1507,7 +1500,7 @@ const TemplateUpdatePage = ({ Template_Id, onclose }) => {
                       <button
                         type="button"
                         className="flex items-center gap-2 text-gray-700 hover:text-whie font-medium transition-all Btn-Regular-1 "
-                        onClick={onclose}
+                        onClick={()=> onclose()}
                       >
                         Back
                       </button>
