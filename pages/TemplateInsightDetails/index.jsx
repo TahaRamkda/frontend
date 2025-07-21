@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import App from "@/components/Layout/App";
 import Loader from "@/components/Layout/Loader";
@@ -53,7 +53,8 @@ const TemplateInsight = () => {
       },
     ],
   };
-
+  const fromDateRef = useRef(null);
+  const toDateRef = useRef(null);
   const [sendername, setSendername] = useState("");
   const [fromDate, setFromDate] = useState("");
   const dispatch = useDispatch();
@@ -246,7 +247,11 @@ const TemplateInsight = () => {
       dispatch(clearTemplateAnalyticState());
     }
   }, [templateSummaryList]);
-
+  const handleClick = (ref) => {
+    if (ref.current?.showPicker) {
+      ref.current.showPicker();
+    }
+  };
   useEffect(() => {
     localStorage.setItem("activeModule", "0");
     const clientId = localStorage.getItem("clientId");
@@ -284,19 +289,27 @@ const TemplateInsight = () => {
             <label className="text-[11px] font-semibold text-gray-700">
               From Date
             </label>
-            <DateTimePicker
+            <input
+              type="date"
               value={fromDate}
-              onChange={handleDateChange(setFromDate)}
+              ref={fromDateRef}
+              onClick={() => handleClick(fromDateRef)}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="border border-gray-300 rounded-lg py-1 px-2 text-sm w-full"
             />
           </div>
           <div className="flex-1">
             <label className="text-[11px] font-semibold text-gray-700">
               To Date
             </label>
-            <DateTimePicker
+            <input
+              type="date"
               value={toDate}
-              onChange={handleDateChange(setToDate)}
-              minDate={fromDate}
+              ref={toDateRef}
+              onClick={() => handleClick(toDateRef)}
+              onChange={(e) => setToDate(e.target.value)}
+              min={fromDate}
+              className="border border-gray-300 rounded-lg py-1 px-2 text-sm w-full"
             />
           </div>
 
@@ -310,21 +323,17 @@ const TemplateInsight = () => {
               onChange={handleChange}
             />
           </div>
-          <div className="flex-1">
+           <div className="flex-1">
             <label className="text-[11px] font-semibold text-gray-700">
               Category
             </label>
-            <select
+
+            <TemplateCategoryDropdown
               name="catagoryId"
-              id="catagoryId"
-              className="border border-gray-300 rounded-lg py-1 px-2 text-sm w-full"
               value={catagoryId}
               onChange={handleCategoryChange}
-            >
-              <option value="0">Select</option>
-              <option value="1">Marketing</option>
-              <option value="2">Utility</option>
-            </select>
+              required
+            />
           </div>
 
           <div className="flex-1">

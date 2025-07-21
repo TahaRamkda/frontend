@@ -115,6 +115,7 @@ const MenuList = () => {
 
   return (
     <App>
+      {loading && <Loading />}
       <div className="max-w-4xl mx-auto mb-6">
         <SearchBar
           label="Search Items"
