@@ -60,7 +60,7 @@ const TemplateInsight = () => {
   const dispatch = useDispatch();
   const [toDate, setToDate] = useState("");
   const [templateId, setTemplateId] = useState([]);
-  const [catagoryId, setCatagoryId] = useState(0);
+  const [catagoryId, setCatagoryId] = useState("");
   const [shouldExport, setShouldExport] = useState(false);
   const [templateData, setTemplaterData] = useState([]);
   const [templatesLabels, setTemplatesLabels] = useState([]);
@@ -80,7 +80,7 @@ const TemplateInsight = () => {
   };
   const handleCategoryChange = (e) => {
     const categoryId = e?.target.value;
-    setCatagoryId(categoryId ? categoryId : 0);
+    setCatagoryId(categoryId ? categoryId : "");
   };
   useEffect(() => {
     if (templateInsightDetails) {

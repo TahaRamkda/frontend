@@ -32,6 +32,7 @@ import Loader from "./Loader";
 import { set } from "date-fns";
 import Setting from "../Settings/SettingDropdown";
 import showSweetAlert from "../Sweetalert";
+import { usePermissions } from "@/context/PermissionsContext";
 import Logo from "@/components/Logo/Logo";
 export function Header({ toggleSidebar }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -41,10 +42,12 @@ export function Header({ toggleSidebar }) {
   const dispatch = useDispatch();
   const [settingModal, SetSettingModal] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { hasPermission } = usePermissions();
+  
   const { loading, error, success, message } = useSelector(
     (state) => state.clearCache
   );
-const [userName, setUserName] = useState("");
+  const [userName, setUserName] = useState("");
   const { WalletData } = useSelector((state) => state.wallet);
   useEffect(() => {
     if (WalletData?.length === 0) {
@@ -52,7 +55,7 @@ const [userName, setUserName] = useState("");
     }
   }, [WalletData]);
 
-useEffect(() => {
+  useEffect(() => {
     if (typeof window !== "undefined") {
       // Ensure code runs only in the browser
       const name = localStorage.getItem("userName") || "User"; // Fallback if userName is not found
@@ -211,13 +214,13 @@ useEffect(() => {
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
-       if (typeof window !== "undefined") {
-  const logoPath = localStorage.getItem("LogoPath");
-  const merchantName = localStorage.getItem("MerchantName");
-  localStorage.clear();
-  if (logoPath) localStorage.setItem("LogoPath", logoPath);
-  if (merchantName) localStorage.setItem("MerchantName", merchantName);
-}
+        if (typeof window !== "undefined") {
+          const logoPath = localStorage.getItem("LogoPath");
+          const merchantName = localStorage.getItem("MerchantName");
+          localStorage.clear();
+          if (logoPath) localStorage.setItem("LogoPath", logoPath);
+          if (merchantName) localStorage.setItem("MerchantName", merchantName);
+        }
 
         router.push("/auth/login");
       }
@@ -263,7 +266,7 @@ useEffect(() => {
                 {/* <span className="text-sm text-gray-600 font-medium">My Wallet:</span> */}
                 <HiOutlineCreditCard className="text-3xl text-blue-600" />
                 <span className="text-lg font-semibold text-gray-900">
-                  ${WalletData.balance || 0}
+                  {WalletData.balance || 0}
                 </span>
               </div>
             )}
@@ -314,22 +317,25 @@ useEffect(() => {
                     <HiShieldExclamation className="mr-3 w-5 h-5" />
                     <span>Change Password</span>
                   </button>
+                  {hasPermission("ClearCache", "view") && (
+                    <div>
+                      <button
+                        onClick={handleClearApiCacheClick}
+                        className="flex items-center w-full text-left px-4 py-2.5 text-gray-700 hover:bg-gray-50 border-b border-gray-100 transition-colors duration-200 font-medium"
+                      >
+                        <HiCog className="mr-3 w-5 h-5" />
+                        <span>Clear API Cache</span>
+                      </button>
 
-                  <button
-                    onClick={handleClearApiCacheClick}
-                    className="flex items-center w-full text-left px-4 py-2.5 text-gray-700 hover:bg-gray-50 border-b border-gray-100 transition-colors duration-200 font-medium"
-                  >
-                    <HiCog className="mr-3 w-5 h-5" />
-                    <span>Clear API Cache</span>
-                  </button>
-
-                  <button
-                    onClick={handleClearBridgeCacheClick}
-                    className="flex items-center w-full text-left px-4 py-2.5 text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium"
-                  >
-                    <HiCog className="mr-3 w-5 h-5" />
-                    <span>Clear Bridge Cache</span>
-                  </button>
+                      <button
+                        onClick={handleClearBridgeCacheClick}
+                        className="flex items-center w-full text-left px-4 py-2.5 text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium"
+                      >
+                        <HiCog className="mr-3 w-5 h-5" />
+                        <span>Clear Bridge Cache</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

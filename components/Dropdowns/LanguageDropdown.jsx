@@ -18,10 +18,10 @@ const LanguageDropdown = ({ name, value, onChange, disabled }) => {
       label: item.name,
     })) : [];
 
-  const selectedOption = options.find((opt) => opt.value === value) || 0;
+  const selectedOption = options.find((opt) => opt.value === value) || "";
 
   const handleChange = (selected) => {
-    const selectedValue = selected ? selected.value : 0;
+    const selectedValue = selected ? selected.value : "";
     onChange({ target: { name, value: selectedValue } });
   };
 

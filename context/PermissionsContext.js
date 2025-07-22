@@ -9,6 +9,7 @@ export const usePermissions = () => {
   
 
   const hasPermission = (taskName, action) => {
+    debugger
     if (!permissions || !Array.isArray(permissions)) return false;
     const permission = permissions.find(
       (perm) => perm.permissionTaskName.toLowerCase() === taskName.toLowerCase()

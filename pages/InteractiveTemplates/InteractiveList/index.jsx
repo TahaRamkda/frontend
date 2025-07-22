@@ -51,7 +51,7 @@ const InteractiveTemplateList = () => {
   const [TemplateLoading, setTemplateLoading] = useState(false);
   const [templateId, settemplateId] = useState(0);
   const [senderId, setsenderId] = useState(0);
-  const [languageId, setlanguageId] = useState(0);
+  const [languageId, setlanguageId] = useState("");
 
   const handleViualizationClick = (templates_Id) => {
     settemplateId(templates_Id);

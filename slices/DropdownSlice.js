@@ -234,7 +234,7 @@ export const fetchSendernamesDrop = createAsyncThunk(
 export const fetchTemplatesDrop = createAsyncThunk(
   "template/fetchTemplatesDrop",
 
-  async ({ senderId=0, TransactionType=0, Category=0 }, { rejectWithValue }) => {
+  async ({ senderId=0, TransactionType=0, Category="" }, { rejectWithValue }) => {
     try {
       const response = await API.post("/api", {
         endpoint: `${TEMPLATEDROPDOWN}?transactionType=${TransactionType}&senderId=${senderId}&category=${Category}`,

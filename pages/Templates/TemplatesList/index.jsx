@@ -62,8 +62,8 @@ const TemplateList = () => {
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
   const [filterText, setFilterText] = useState("");
   const [transactonType, setTransactonType] = useState(0);
-  const [catagoryId, setCatagoryId] = useState(0);
-  const [languageId, setLanguageId] = useState(0);
+  const [catagoryId, setCatagoryId] = useState("");
+  const [languageId, setLanguageId] = useState("");
   const [showupdatemodel, setshowupdatemodel] = useState(false);
   const [showVisualizationModal, setShowVisualizationModal] = useState(false);
   const [templateId, settemplateId] = useState(0);
@@ -271,12 +271,12 @@ const TemplateList = () => {
 
   const handleCategoryChange = (e) => {
     const categoryId = e?.target.value;
-    setCatagoryId(categoryId ? categoryId : 0);
+    setCatagoryId(categoryId ? categoryId : "");
   };
 
   const handleLanguageChange = (e) => {
     const languageId = e?.target.value;
-    setLanguageId(languageId ? languageId : 0);
+    setLanguageId(languageId ? languageId : "");
   };
 
   const handleSenderChange = () => (e) => {

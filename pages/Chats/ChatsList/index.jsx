@@ -655,6 +655,7 @@ const ChatPage = () => {
 
     const formData = new FormData();
     formData.append("ClientId", localStorage.getItem("clientId"));
+    formData.append("AgentId", localStorage.getItem("userId"));
     formData.append("SenderId", message[0]?.senderId);
     formData.append("Message", messageInput.trim());
     formData.append("ConversationId", Activechat);
