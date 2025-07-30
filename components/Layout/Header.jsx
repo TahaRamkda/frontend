@@ -14,6 +14,7 @@ import {
   HiCog,
   HiSett,
 } from "react-icons/hi";
+import { FaCoins } from "react-icons/fa";
 import { fetchWalletBalance } from "@/slices/WalletSlice";
 import { useRouter } from "next/router";
 import SweetAlert from "sweetalert2";
@@ -43,7 +44,7 @@ export function Header({ toggleSidebar }) {
   const [settingModal, SetSettingModal] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { hasPermission } = usePermissions();
-  
+
   const { loading, error, success, message } = useSelector(
     (state) => state.clearCache
   );
@@ -260,16 +261,13 @@ export function Header({ toggleSidebar }) {
           {/* live reporting */}
           <div className="flex items-center space-x-3 md:space-x-4">
             <LiveReportingSwitch />
-
-            {WalletData.subscriptionType === 1 && (
-              <div className="flex items-center gap-2 p-2 bg-white text-gray-800 border rounded-xl shadow-sm">
-                {/* <span className="text-sm text-gray-600 font-medium">My Wallet:</span> */}
-                <HiOutlineCreditCard className="text-3xl text-blue-600" />
-                <span className="text-lg font-semibold text-gray-900">
-                  {WalletData.balance || 0}
-                </span>
+            <div className="flex items-center gap-2 p-2 bg-white text-gray-800 border rounded-xl shadow-sm">
+              <HiOutlineCreditCard className="text-3xl text-blue-600" />
+              <div className="flex items-center text-lg font-semibold text-gray-900">
+                {WalletData.balance || 0}
+                <FaCoins className="ml-1 text-yellow-500" />
               </div>
-            )}
+            </div>
 
             {/* Fullscreen Toggle Icon */}
             <button

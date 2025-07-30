@@ -26,6 +26,7 @@ export const getAgentConversations = createAsyncThunk(
     const { bridge } = getState();
     //if (bridge.conversationList.length > 0) return bridge.conversationList;
     const response = await dispatch(fetchConversationList({ AgentId: agentId })).unwrap();
+    debugger
     return response;
   }
 );
@@ -205,6 +206,7 @@ const bridgeSlice = createSlice({
     },
     
     addMessageToConversation: (state, action) => {
+      debugger
       
       const { id, messageContent, typeId, createdDate } = action.payload;
       const conversation = state.conversationList.find(c => c.id === id);

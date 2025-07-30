@@ -52,6 +52,7 @@ import {
   clearconversationstate,
   NewAgentMessage,
 } from "@/slices/ConversationSlice";
+import { FiRotateCw } from "react-icons/fi";
 import SweetAlert from "sweetalert2";
 import showSweetAlert from "@/components/Sweetalert";
 import { fetchAgentsById, fetchAgentStats } from "@/slices/AgentSlice";
@@ -139,7 +140,7 @@ const ChatPage = () => {
     loading: masterDataLoading,
     error,
   } = useSelector((state) => state.agents);
- 
+
   // Add debounce effect for search
   useEffect(() => {
     console.log("2");
@@ -358,6 +359,7 @@ const ChatPage = () => {
   }, []);
 
   const handleTemplateSend = async (details) => {
+    debugger
     await loggerdetails(logger, `agent sent template :`, "info", {
       Obj: details,
       conversationId: details?.ChatId,
@@ -489,6 +491,7 @@ const ChatPage = () => {
   }, []);
 
   useEffect(() => {
+    debugger
     console.log("11");
     if (templateDetails) {
       const newMessage = {
@@ -505,6 +508,7 @@ const ChatPage = () => {
           ? templateDetails.buttonJson
           : "",
         createdDate: new Date().toLocaleString(),
+        TemplateId : templateDetails.TemplateId
       };
       removeUnrepliedMark(templateDetails.ChatId);
       dispatch(addMessageToConversation(newMessage));
@@ -634,9 +638,9 @@ const ChatPage = () => {
     setPreviewUrl(null);
     setFileType(null);
     setIsImagePreviewOpen(false);
-  if (fileInputRef.current) {
-    fileInputRef.current.value = ""; // Reset the file input value
-  }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Reset the file input value
+    }
   };
   useEffect(() => {
     console.log("15");
@@ -685,8 +689,8 @@ const ChatPage = () => {
       setMessageInput("");
       setMediaFile(null);
       if (fileInputRef.current) {
-      fileInputRef.current.value = ""; // Reset the file input value
-    }
+        fileInputRef.current.value = ""; // Reset the file input value
+      }
 
       await dispatch(NewAgentMessage(formData)).unwrap();
       setSendingMessages((prev) => {
@@ -904,7 +908,12 @@ const ChatPage = () => {
     const handleDisconnect = (info) => {
       console.log(info);
     };
+  
 
+    const Handlestatusupdate = (status) => {
+      debugger
+      console.log(status);
+    };
     // Setup event listeners
     newConnection.on("MessageReceived", handleIncomingMessage);
     newConnection.on("ConversationAssigned", handleConversationAssigned);
@@ -912,7 +921,7 @@ const ChatPage = () => {
     newConnection.on("HeartbeatAcknowledged", handleHeartbeatAcknowledged);
     newConnection.on("Connected", handleConnected);
     newConnection.on("DisConnected", handleDisconnect);
-
+    newConnection.on("StatusUpdate",Handlestatusupdate);
     newConnection.onreconnecting((error) => {
       loggerdetails(logger, "Reconnecting signalR:", {
         Obj: error,
@@ -988,40 +997,38 @@ const ChatPage = () => {
   //   window.location.reload();
   // };
 
-const handleDownload = async (mediaPath) => {
-  // Replace backslashes with forward slashes
-  const sanitizedMediaPath = mediaPath.replace(/\\/g, "/");
+  const handleDownload = async (mediaPath) => {
+    // Replace backslashes with forward slashes
+    const sanitizedMediaPath = mediaPath.replace(/\\/g, "/");
 
-  // Construct full media URL
-  const fullMediaUrl = `${BASE_URL}${sanitizedMediaPath}`;
+    // Construct full media URL
+    const fullMediaUrl = `${BASE_URL}${sanitizedMediaPath}`;
 
-  // Create proxy URL with encoded full URL
-  const proxyUrl = `/api/download?url=${encodeURIComponent(fullMediaUrl)}`;
+    // Create proxy URL with encoded full URL
+    const proxyUrl = `/api/download?url=${encodeURIComponent(fullMediaUrl)}`;
 
-  // Extract filename
-  const fileName = fullMediaUrl.split("/").pop();
+    // Extract filename
+    const fileName = fullMediaUrl.split("/").pop();
 
-  try {
-    const response = await fetch(proxyUrl);
-    if (!response.ok) throw new Error("Download failed");
+    try {
+      const response = await fetch(proxyUrl);
+      if (!response.ok) throw new Error("Download failed");
 
-    const blob = await response.blob();
-    const blobUrl = URL.createObjectURL(blob);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
 
-    // Trigger download
-    const link = document.createElement("a");
-    link.href = blobUrl;
-    link.setAttribute("download", fileName);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(blobUrl);
-  } catch (err) {
-    console.error("Error downloading:", err);
-  }
-};
-
-
+      // Trigger download
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error("Error downloading:", err);
+    }
+  };
 
   // Toggle sidebar
   const toggleSidebar = () => {
@@ -1080,12 +1087,51 @@ const handleDownload = async (mediaPath) => {
       }
     }
   };
+ const handleResendClick = (index) => {
+  debugger;
+
+  const message = chatMessages[index];
+
+  if (!message) {
+    console.warn(`No message found at index ${index}`);
+    return;
+  }
+
+  console.log("message.messageId", message.messageId);
+
+  // Dispatch action to get agent template details
+  if(message.TemplateId){
+  dispatch(
+    getAgentTemplateDetail({
+      templateId: message.TemplateId,
+      senderId: ActiveSenderId,
+    })
+  ).then((response) => {
+    debugger
+    if (response) {
+      debugger
+      const cachedDetail = response.payload.templatedetail.find(
+        (detail) =>
+          detail.templateId === message.TemplateId &&
+          detail.senderId === ActiveSenderId
+      );
+      if (cachedDetail) {
+        setSelectedOption(message.id);
+        setShowTemplate(true);
+      } else {
+        setMessageInput(message.messageContent);
+      }
+    }
+  })
+}else{
+  setMessageInput(message.messageContent);
+}
+};
 
   // Update preview when agenttemplatedetails, selectedOption, or parameterValues change
   useEffect(() => {
     console.log("20");
     if (selectedOption) {
-      
       const selectedDetail = agenttemplatedetails.find(
         (detail) =>
           detail.templateId === selectedOption &&
@@ -1153,6 +1199,7 @@ const handleDownload = async (mediaPath) => {
   };
 
   const handleSend = async (e) => {
+    debugger
     e.preventDefault();
     setSubmitting(true);
     const values = parameterValues.map((val) => ({
@@ -1190,6 +1237,7 @@ const handleDownload = async (mediaPath) => {
             mediaPath: selectedDetail.mediaPath || "",
             buttonJson: selectedDetail.buttonsJson || "",
             createdDate: new Date().toLocaleString(),
+            TemplateId : selectedOption,
           };
           handleTemplateSend(messageDetails);
         }
@@ -1637,7 +1685,7 @@ const handleDownload = async (mediaPath) => {
                         previewUrl ? "hide-messages" : ""
                       }`}
                     >
-                      {chatMessages?.map((message) => (
+                      {chatMessages?.map((message, index) => (
                         <div
                           key={message.messageId}
                           className={`mt-2 flex ${
@@ -1646,6 +1694,15 @@ const handleDownload = async (mediaPath) => {
                               : "justify-start"
                           }`}
                         >
+                          {message.typeId === 1 && (
+                            <div className="relative flex items-center gap-2  mr-3 ">
+                              <FiRotateCw
+                                onClick={() => handleResendClick(index)}
+                                className="text-grey-500 cursor-pointer"
+                                size={20}
+                              />
+                            </div>
+                          )}
                           <div
                             className={`max-w-2xl p-2 rounded-lg shadow-sm 
                               md:max-w-xl md:p-1.5 md:rounded-md md:shadow-xs 
@@ -1683,7 +1740,6 @@ const handleDownload = async (mediaPath) => {
                                           src={`${BASE_URL}${message.mediaPath}`}
                                           alt="Image"
                                           className=" max-h-50 w-80 rounded"
-                                          
                                         />
                                         <button
                                           onClick={() =>
@@ -1775,7 +1831,8 @@ const handleDownload = async (mediaPath) => {
                                 )}
                               {/* //for sent content */}
                               {message.sentcontentType &&
-                                message.sentcontentType !== "" && message.sentmediaPath && (
+                                message.sentcontentType !== "" &&
+                                message.sentmediaPath && (
                                   <>
                                     {message.sentcontentType.startsWith(
                                       "image"
@@ -1783,7 +1840,7 @@ const handleDownload = async (mediaPath) => {
                                       <img
                                         src={`${message.sentmediaPath}`}
                                         alt="Image"
-                                         className=" max-h-50 w-80 rounded"
+                                        className=" max-h-50 w-80 rounded"
                                       />
                                     )}
                                     {message.sentcontentType.startsWith(
@@ -1792,7 +1849,7 @@ const handleDownload = async (mediaPath) => {
                                       <video
                                         controls
                                         src={`${message.sentmediaPath}`}
-                                         className=" max-h-50 w-80 rounded"
+                                        className=" max-h-50 w-80 rounded"
                                       />
                                     )}
                                     {message.sentcontentType.startsWith(
