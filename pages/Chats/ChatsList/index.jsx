@@ -179,7 +179,6 @@ const ChatPage = () => {
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const [unrepliedChats, setUnrepliedChats] = useState([]);
   const [templateDetails, setTemplateDetails] = useState([]);
-  const [messageStatus, SetMessageStatus] = useState(null);
   const [heartbeatAttempts, setheartbeatAttempts] = useState(0);
   const [tryReconnect, settryReconnect] = useState(false);
   const lastScrollTop = useRef(0);
@@ -909,7 +908,6 @@ const ChatPage = () => {
     };
 
     const Handlestatusupdate = (status) => {
-      SetMessageStatus(status)
       console.log(status);
     };
     // Setup event listeners
@@ -1945,9 +1943,9 @@ const ChatPage = () => {
                                   >
                                     {extractTime(message.createdDate)}
                                   </span>
-                                  {messageStatus && (
+                                  {message.typeId === 1 && (
                                     <span className="message-status">
-                                      {messageStatus === 1 (
+                                      {sendingMessages.has(
                                         message.messageId
                                       ) ? (
                                         <BsCheck
