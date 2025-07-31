@@ -106,6 +106,7 @@ const ChatPage = () => {
   const [chatMessages, setChatMessages] = useState([]);
   const [AgentConversation, setAgentConversation] = useState([]);
   const [ShowDetailedTemplate, setShowDetailedTemplate] = useState(false);
+  const [messageStatus, SetMessageStatus] = useState([]);
   const [showTemplate, setShowTemplate] = useState(false);
   const [messageInput, setMessageInput] = useState("");
   const [mediaFile, setMediaFile] = useState(null);
@@ -677,6 +678,7 @@ const ChatPage = () => {
         sentmediaPath: mediaFile ? previewUrl : "",
         createdDate: new Date().toLocaleString(),
         sentime: new Date().toLocaleString(),
+        Status: 0,
       };
 
       setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
@@ -907,9 +909,22 @@ const ChatPage = () => {
       console.log(info);
     };
 
-    const Handlestatusupdate = (status) => {
-      console.log(status);
+    const HandleStatusUpdate = (status) => {
+      debugger;
+      if (status && status.messageID && status.messagestatus) {
+        const updatedMessageIndex = chatMessages.findIndex(
+          (item) => item.messageId === status.messageID
+        );
+
+        if (updatedMessageIndex !== -1) {
+          chatMessages[updatedMessageIndex] = {
+            ...chatMessages[updatedMessageIndex],
+            Status: status.messagestatus,
+          };
+        }
+      }
     };
+
     // Setup event listeners
     newConnection.on("MessageReceived", handleIncomingMessage);
     newConnection.on("ConversationAssigned", handleConversationAssigned);
@@ -917,7 +932,7 @@ const ChatPage = () => {
     newConnection.on("HeartbeatAcknowledged", handleHeartbeatAcknowledged);
     newConnection.on("Connected", handleConnected);
     newConnection.on("DisConnected", handleDisconnect);
-    newConnection.on("StatusUpdate", Handlestatusupdate);
+    newConnection.on("StatusUpdate", HandleStatusUpdate);
     newConnection.onreconnecting((error) => {
       loggerdetails(logger, "Reconnecting signalR:", {
         Obj: error,
@@ -1083,9 +1098,10 @@ const ChatPage = () => {
       }
     }
   };
+
   const handleResendClick = (index) => {
-    const message = chatMessages[index];
     debugger;
+    const message = chatMessages[index];
     if (!message) {
       console.warn(`No message found at index ${index}`);
       return;
@@ -1109,7 +1125,6 @@ const ChatPage = () => {
           )
             ? response.payload.templatedetail
             : [response.payload.templatedetail];
-          debugger;
           const cachedDetail = templatedetails.find((detail) =>
             detail.id === message.TemplateId
               ? message.TemplateId
