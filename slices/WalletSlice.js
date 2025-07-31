@@ -15,7 +15,7 @@ export const fetchWalletBalance = createAsyncThunk(
         method: "GET",
         //payload: {},
       });
-      debugger
+      
       if (response?.status === 200) {
         return {
           WalletData: response.data,

@@ -179,6 +179,7 @@ const ChatPage = () => {
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const [unrepliedChats, setUnrepliedChats] = useState([]);
   const [templateDetails, setTemplateDetails] = useState([]);
+  const [messageStatus, SetMessageStatus] = useState(null);
   const [heartbeatAttempts, setheartbeatAttempts] = useState(0);
   const [tryReconnect, settryReconnect] = useState(false);
   const lastScrollTop = useRef(0);
@@ -359,7 +360,6 @@ const ChatPage = () => {
   }, []);
 
   const handleTemplateSend = async (details) => {
-    debugger
     await loggerdetails(logger, `agent sent template :`, "info", {
       Obj: details,
       conversationId: details?.ChatId,
@@ -491,7 +491,6 @@ const ChatPage = () => {
   }, []);
 
   useEffect(() => {
-    debugger
     console.log("11");
     if (templateDetails) {
       const newMessage = {
@@ -508,7 +507,7 @@ const ChatPage = () => {
           ? templateDetails.buttonJson
           : "",
         createdDate: new Date().toLocaleString(),
-        TemplateId : templateDetails.TemplateId
+        TemplateId: templateDetails.TemplateId,
       };
       removeUnrepliedMark(templateDetails.ChatId);
       dispatch(addMessageToConversation(newMessage));
@@ -908,10 +907,9 @@ const ChatPage = () => {
     const handleDisconnect = (info) => {
       console.log(info);
     };
-  
 
     const Handlestatusupdate = (status) => {
-      debugger
+      SetMessageStatus(status)
       console.log(status);
     };
     // Setup event listeners
@@ -921,7 +919,7 @@ const ChatPage = () => {
     newConnection.on("HeartbeatAcknowledged", handleHeartbeatAcknowledged);
     newConnection.on("Connected", handleConnected);
     newConnection.on("DisConnected", handleDisconnect);
-    newConnection.on("StatusUpdate",Handlestatusupdate);
+    newConnection.on("StatusUpdate", Handlestatusupdate);
     newConnection.onreconnecting((error) => {
       loggerdetails(logger, "Reconnecting signalR:", {
         Obj: error,
@@ -1087,46 +1085,54 @@ const ChatPage = () => {
       }
     }
   };
- const handleResendClick = (index) => {
-  debugger;
-
-  const message = chatMessages[index];
-
-  if (!message) {
-    console.warn(`No message found at index ${index}`);
-    return;
-  }
-
-  console.log("message.messageId", message.messageId);
-
-  // Dispatch action to get agent template details
-  if(message.TemplateId){
-  dispatch(
-    getAgentTemplateDetail({
-      templateId: message.TemplateId,
-      senderId: ActiveSenderId,
-    })
-  ).then((response) => {
-    debugger
-    if (response) {
-      debugger
-      const cachedDetail = response.payload.templatedetail.find(
-        (detail) =>
-          detail.templateId === message.TemplateId &&
-          detail.senderId === ActiveSenderId
-      );
-      if (cachedDetail) {
-        setSelectedOption(message.id);
-        setShowTemplate(true);
-      } else {
-        setMessageInput(message.messageContent);
-      }
+  const handleResendClick = (index) => {
+    const message = chatMessages[index];
+    debugger;
+    if (!message) {
+      console.warn(`No message found at index ${index}`);
+      return;
     }
-  })
-}else{
-  setMessageInput(message.messageContent);
-}
-};
+
+    console.log("message.messageId", message.messageId);
+
+    // Dispatch action to get agent template details
+    if (message.TemplateId || message.messageReferenceId) {
+      dispatch(
+        getAgentTemplateDetail({
+          templateId: message.TemplateId
+            ? message.TemplateId
+            : message.messageReferenceId,
+          senderId: ActiveSenderId,
+        })
+      ).then((response) => {
+        if (response) {
+          const templatedetails = Array.isArray(
+            response.payload?.templatedetail
+          )
+            ? response.payload.templatedetail
+            : [response.payload.templatedetail];
+          debugger;
+          const cachedDetail = templatedetails.find((detail) =>
+            detail.id === message.TemplateId
+              ? message.TemplateId
+              : message.messageReferenceId && detail.senderId === ActiveSenderId
+          );
+          if (cachedDetail) {
+            setSelectedOption(
+              message.TemplateId
+                ? message.TemplateId
+                : message.messageReferenceId
+            );
+            setShowTemplate(true);
+          } else {
+            setMessageInput(message.messageContent);
+          }
+        }
+      });
+    } else {
+      setMessageInput(message.messageContent);
+    }
+  };
 
   // Update preview when agenttemplatedetails, selectedOption, or parameterValues change
   useEffect(() => {
@@ -1199,7 +1205,6 @@ const ChatPage = () => {
   };
 
   const handleSend = async (e) => {
-    debugger
     e.preventDefault();
     setSubmitting(true);
     const values = parameterValues.map((val) => ({
@@ -1237,7 +1242,7 @@ const ChatPage = () => {
             mediaPath: selectedDetail.mediaPath || "",
             buttonJson: selectedDetail.buttonsJson || "",
             createdDate: new Date().toLocaleString(),
-            TemplateId : selectedOption,
+            TemplateId: selectedOption,
           };
           handleTemplateSend(messageDetails);
         }
@@ -1940,9 +1945,9 @@ const ChatPage = () => {
                                   >
                                     {extractTime(message.createdDate)}
                                   </span>
-                                  {message.typeId === 1 && (
+                                  {messageStatus && (
                                     <span className="message-status">
-                                      {sendingMessages.has(
+                                      {messageStatus === 1 (
                                         message.messageId
                                       ) ? (
                                         <BsCheck
