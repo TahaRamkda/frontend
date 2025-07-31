@@ -646,6 +646,7 @@ const ChatPage = () => {
 
   //called each time to send message
   const HandleSendMessage = async () => {
+    debugger
     if (!messageInput.trim() && !mediaFile) {
       toast.error("Message cannot be empty!");
       return;
@@ -690,7 +691,19 @@ const ChatPage = () => {
         fileInputRef.current.value = ""; // Reset the file input value
       }
 
-      await dispatch(NewAgentMessage(formData)).unwrap();
+   const response = await dispatch(NewAgentMessage(formData)).unwrap();
+  const newServerMessageId = response;
+
+  if (newServerMessageId) {
+    setChatMessages((prevMessages) =>
+      prevMessages.map((msg) =>
+        msg.messageId === messageId
+          ? { ...msg, messageId: newServerMessageId }
+          : msg
+      )
+    );
+  }
+
       setSendingMessages((prev) => {
         const newSet = new Set(prev);
         newSet.delete(messageId);
