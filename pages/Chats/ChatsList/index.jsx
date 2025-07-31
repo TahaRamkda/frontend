@@ -101,7 +101,7 @@ const ChatPage = () => {
   const agenttemplates = useSelector(
     (state) => state.bridge.agentTemplatesList
   );
-
+  const chatMessagesRef = useRef([]);
   const inputRef = useRef(null);
   const [chatMessages, setChatMessages] = useState([]);
   const [AgentConversation, setAgentConversation] = useState([]);
@@ -141,6 +141,9 @@ const ChatPage = () => {
     loading: masterDataLoading,
     error,
   } = useSelector((state) => state.agents);
+  useEffect(() => {
+  chatMessagesRef.current = chatMessages;
+}, [chatMessages]);
 
   // Add debounce effect for search
   useEffect(() => {
@@ -922,12 +925,13 @@ const ChatPage = () => {
     const HandleStatusUpdate = (status) => {
       debugger;
       if (status && status.messageID && status.messagestatus) {
-        const updatedMessageIndex = chatMessages.findIndex(
+         const currentMessages = chatMessagesRef.current;
+        const updatedMessageIndex = currentMessages.findIndex(
           (item) => item.messageId === status.messageID
         );
         if (updatedMessageIndex !== -1) {
-          chatMessages[updatedMessageIndex] = {
-            ...chatMessages[updatedMessageIndex],
+          currentMessages[updatedMessageIndex] = {
+            ...currentMessages[updatedMessageIndex],
             Status: status.messagestatus,
           };
         }
