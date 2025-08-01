@@ -5,6 +5,7 @@ import oneSignalService from "@/components/OneSignalService";
 import OneSignal from "react-onesignal";
 //import { ClipboardCopy } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
+import { store } from "@/store/store";
 import {
   FaComments,
   FaCheckCircle,
@@ -23,6 +24,7 @@ import {
   addConversation,
   addMessageToConversation,
   removeConversation,
+  updateConversationMessage,
   selectExpiredConversations,
   checkForExpiredConversations,
   setAgentstatus,
@@ -69,7 +71,7 @@ import {
   HEARTBEAT_CHECK_INTERVAL,
 } from "@/utils/constants";
 
-import { HiLogout, HiMenuAlt2, HiSearch, HiCog } from "react-icons/hi";
+import { HiLogout, HiMenuAlt2, HiSearch, HiCog, HiClock } from "react-icons/hi";
 import { sendPushNotification } from "@/components/SendPushNotification";
 import { AppId } from "@/utils/constants";
 import { LogerType } from "@/utils/constants";
@@ -124,7 +126,6 @@ const ChatPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
   const [sendingMessages, setSendingMessages] = useState(new Set());
-  const [repliedMessages, setRepliedMessages] = useState(new Set());
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -142,8 +143,8 @@ const ChatPage = () => {
     error,
   } = useSelector((state) => state.agents);
   useEffect(() => {
-  chatMessagesRef.current = chatMessages;
-}, [chatMessages]);
+  chatMessagesRef.current = conversationList;
+}, [conversationList]);
 
   // Add debounce effect for search
   useEffect(() => {
@@ -332,25 +333,12 @@ const ChatPage = () => {
   useEffect(() => {
    
     if (message.length > 0) {
-      // Reverse the order to maintain correct sequence
+      // Only update chatMessages when the conversation changes (Activechat changes)
+      // This prevents overwriting local state when new messages are added
       setChatMessages([...message].reverse());
       setActiveSenderId(message[0].senderId);
-
-      // Check for existing replies and update repliedMessages
-      const newRepliedMessages = new Set();
-      message.forEach((msg, index) => {
-        if (msg.typeId === 2) {
-          // If it's a user message
-          // Mark all previous agent messages as replied
-          message
-            .slice(index + 1)
-            .filter((m) => m.typeId === 1)
-            .forEach((m) => newRepliedMessages.add(m.messageId));
-        }
-      });
-      setRepliedMessages(newRepliedMessages);
     }
-  }, [message]);
+  }, [Activechat]); // Changed dependency from [message] to [Activechat]
 
   useEffect(() => {
  
@@ -572,40 +560,23 @@ const ChatPage = () => {
       (conv) => conv.id === conversationId
     );
     if (conversation?.messages?.length > 0) {
-      const messages = [...conversation.messages].reverse();
+      // Normalize status property
+      const messages = [...conversation.messages].reverse().map(msg => ({
+        ...msg,
+        status: msg.status !== undefined ? msg.status : msg.Status
+      }));
       setChatMessages(messages);
       setActiveSenderId(conversation.messages[0].senderId);
-
-      // Check for existing replies in this conversation
-      const newRepliedMessages = new Set();
-      messages.forEach((msg, index) => {
-        if (msg.typeId === 2) {
-          messages
-            .slice(index + 1)
-            .filter((m) => m.typeId === 1)
-            .forEach((m) => newRepliedMessages.add(m.messageId));
-        }
-      });
-      setRepliedMessages(newRepliedMessages);
     } else {
       setChatsloading(true);
       dispatch(getAgentMessages(conversationId))
         .then((response) => {
-          const messages = [...response.payload.messages].reverse();
+          // Normalize status property
+          const messages = [...response.payload.messages].reverse().map(msg => ({
+            ...msg,
+            status: msg.status !== undefined ? msg.status : msg.Status
+          }));
           setChatMessages(messages);
-
-          // Check for replies in fetched messages
-          const newRepliedMessages = new Set();
-          messages.forEach((msg, index) => {
-            if (msg.typeId === 2) {
-              messages
-                .slice(index + 1)
-                .filter((m) => m.typeId === 1)
-                .forEach((m) => newRepliedMessages.add(m.messageId));
-            }
-          });
-          setRepliedMessages(newRepliedMessages);
-
           setChatsloading(false);
         })
         .catch(() => {
@@ -680,10 +651,10 @@ const ChatPage = () => {
         sentmediaPath: mediaFile ? previewUrl : "",
         createdDate: new Date().toLocaleString(),
         sentime: new Date().toLocaleString(),
-        Status: 0,
+        status: 0,
       };
 
-      setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
+      setChatMessages((prevMessages) => [...prevMessages ,newMessage]);
       dispatch(addMessageToConversation(newMessage));
 
       setPreviewUrl(null);
@@ -698,13 +669,50 @@ const ChatPage = () => {
   const newServerMessageId = response;
 
   if (newServerMessageId) {
-    setChatMessages((prevMessages) =>
-      prevMessages.map((msg) =>
-        msg.messageId === messageId
-          ? { ...msg, messageId: newServerMessageId }
-          : msg
-      )
-    );
+    // First find the conversation using conversationId (Activechat)
+    const conversation = chatMessagesRef.current.find((conv) => conv.id === Activechat);
+    
+    if (conversation && conversation.messages) {
+      // Find the specific message within that conversation's message array
+      const messageIndex = conversation.messages.findIndex(
+        (message) => message.messageId === messageId
+      );
+      
+      if (messageIndex !== -1) {
+        console.log("Found message at index:", messageIndex, "in conversation:", Activechat);
+        console.log("Updating message ID from:", messageId, "to:", newServerMessageId);
+        
+        // Update the message ID in the conversation
+        const updatedConversation = {
+          ...conversation,
+          messages: conversation.messages.map((message, index) => {
+            if (index === messageIndex) {
+              return { ...message, messageId: newServerMessageId };
+            }
+            return message;
+          })
+        };
+        
+        // Update the conversation in the Redux store
+        dispatch(updateConversationMessage({
+          conversationId: Activechat,
+          updatedConversation
+        }));
+        
+        // Also update the local chatMessages state for immediate UI update
+        setChatMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg.messageId === messageId
+              ? { ...msg, messageId: newServerMessageId }
+              : msg
+          )
+        );
+      } else {
+        console.log("Message not found in conversation:", messageId);
+      }
+    } else {
+      console.log("Conversation not found:", Activechat);
+    }
   }
 
       setSendingMessages((prev) => {
@@ -814,6 +822,16 @@ const ChatPage = () => {
     // Message received handler
     const handleIncomingMessage = async (message) => {
       console.log("Received message:", message);
+      console.log("Message structure:", {
+        conversationId: message.conversationId,
+        messageContent: message.messageContent,
+        message: message.message,
+        typeId: message.typeId,
+        status: message.status,
+        Status: message.Status,
+        createdDate: message.createdDate,
+        createddate: message.createddate
+      });
       await loggerdetails(logger, "Agent received message:", "info", {
         Obj: message,
         conversationId: message.conversationId,
@@ -826,23 +844,21 @@ const ChatPage = () => {
           console.error("Failed to play notification sound:", err)
         );
 
-      // If this is a user message (typeId === 2), mark previous agent messages as replied
-      if (message.typeId === 2) {
-        setRepliedMessages((prev) => {
-          const newSet = new Set(prev);
-          // Find all agent messages sent before this reply
-          chatMessages
-            .filter(
-              (m) =>
-                m.typeId === 1 &&
-                new Date(m.createdDate) < new Date(message.createdDate)
-            )
-            .forEach((m) => newSet.add(m.messageId));
-          return newSet;
-        });
-      }
-
       dispatch(addMessageToConversation(message));
+      
+      // If this message is for the currently active chat, update the local state
+      if (message.conversationId === activeChatRef.current) {
+        // Normalize the incoming message to match the expected structure
+        const normalizedMessage = {
+          ...message,
+          status: message.status !== undefined ? message.status : message.Status,
+          // Ensure required properties exist
+          messageContent: message.messageContent || message.message || "",
+          typeId: message.typeId || 2, // Default to customer message (typeId 2)
+          createdDate: message.createdDate || message.createddate || new Date().toLocaleString(),
+        };
+        setChatMessages((prevMessages) => [ ...prevMessages,normalizedMessage]);
+      }
     };
 
     // Handles conversation assignment
@@ -923,21 +939,76 @@ const ChatPage = () => {
     };
 
     const HandleStatusUpdate = (status) => {
-      debugger;
+      debugger
+      console.log("HandleStatusUpdate called with:", status);
+      console.log("Active chat:", activeChatRef.current);
+      console.log("Status conversationId:", status.conversationId);
+      
       if (status && status.messageID && status.messagestatus) {
-         const currentMessages = chatMessagesRef.current;
-        const updatedMessageIndex = currentMessages.findIndex(
-          (item) => item.messageId === status.messageID
-        );
-        if (updatedMessageIndex !== -1) {
-          currentMessages[updatedMessageIndex] = {
-            ...currentMessages[updatedMessageIndex],
-            Status: status.messagestatus,
-          };
+        // Get the latest conversationList from Redux store
+        const currentState = store.getState();
+        const conversationList = currentState.bridge.conversationList;
+        console.log("Current conversationList from Redux:", conversationList);
+        
+        // First find the conversation using conversationId from the status
+        const conversation = conversationList.find((conv) => conv.id === status.conversationId);
+        
+        if (conversation && conversation.messages) {
+          // Find the specific message within that conversation's message array
+          const messageIndex = conversation.messages.findIndex(
+            (message) => message.messageId === status.messageID
+          );
+          
+          if (messageIndex !== -1) {
+            console.log("Found message at index:", messageIndex, "in conversation:", status.conversationId);
+            console.log("Updating message:", status.messageID, "to status:", status.messagestatus);
+            
+            // Update the message status in the conversation
+            const updatedConversation = {
+              ...conversation,
+              messages: conversation.messages.map((message, index) => {
+                if (index === messageIndex) {
+                  return { ...message, status: status.messagestatus };
+                }
+                return message;
+              })
+            };
+            
+            // Update the conversation in the Redux store using the correct conversationId
+            dispatch(updateConversationMessage({
+              conversationId: status.conversationId,
+              updatedConversation
+            }));
+            
+            // Only update the local chatMessages state if this is the currently active chat
+            if (status.conversationId === activeChatRef.current) {
+              setChatMessages((prevMessages) => {
+                const updatedMessages = prevMessages.map((message) => {
+                  if (message.messageId === status.messageID) {
+                    return { ...message, status: status.messagestatus };
+                  }
+                  return message;
+                });
+                return updatedMessages;
+              });
+            }
+          } else {
+            console.log("Message not found in conversation:", status.messageID);
+          }
+        } else {
+          console.log("Conversation not found:", status.conversationId);
         }
+        
+        // Remove the message from sendingMessages when status is updated
+        setSendingMessages((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(status.messageID);
+          console.log("Removed from sendingMessages:", status.messageID);
+          return newSet;
+        });
       }
     };
-
+ 
     // Setup event listeners
     newConnection.on("MessageReceived", handleIncomingMessage);
     newConnection.on("ConversationAssigned", handleConversationAssigned);
@@ -1725,15 +1796,15 @@ const ChatPage = () => {
                               : "justify-start"
                           }`}
                         >
-                          {message.typeId === 1 && (
-                            <div className="relative flex items-center gap-2  mr-3 ">
-                              <FiRotateCw
-                                onClick={() => handleResendClick(index)}
-                                className="text-grey-500 cursor-pointer"
-                                size={20}
-                              />
-                            </div>
-                          )}
+                          {message.typeId === 1 && ![1, 2, 3, 7, 0].includes(message.status) && (
+  <div className="relative flex items-center gap-2 mr-3">
+    <FiRotateCw
+      onClick={() => handleResendClick(index)}
+      className="text-grey-500 cursor-pointer"
+      size={20}
+    />
+  </div>
+)}
                           <div
                             className={`max-w-2xl p-2 rounded-lg shadow-sm 
                               md:max-w-xl md:p-1.5 md:rounded-md md:shadow-xs 
@@ -1973,24 +2044,28 @@ const ChatPage = () => {
                                   </span>
                                   {message.typeId === 1 && (
                                     <span className="message-status">
-                                      {sendingMessages.has(
-                                        message.messageId
-                                      ) ? (
+                                      {message.status === 0 ? (
+                                        <HiClock
+                                          className="text-gray-400"
+                                          size={14}
+                                        />
+                                       ) : message.status === 7 ? (
                                         <BsCheck
                                           className="text-gray-400"
                                           size={20}
                                         />
-                                      ) : (
+                                      ) : message.status === 2 ? (
                                         <BsCheckAll
-                                          className={
-                                            repliedMessages.has(
-                                              message.messageId
-                                            )
-                                              ? "text-blue-500"
-                                              : "text-gray-400"
-                                          }
+                                          className="text-gray-400"
                                           size={20}
                                         />
+                                      ) : message.status === 3 ? (
+                                        <BsCheckAll
+                                          className="text-blue-500"
+                                          size={20}
+                                        />
+                                      ) : (
+                                        <div/>
                                       )}
                                     </span>
                                   )}

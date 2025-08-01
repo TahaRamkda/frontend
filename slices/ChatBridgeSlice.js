@@ -252,6 +252,14 @@ const bridgeSlice = createSlice({
         console.log("Added message to conversation:", state.conversationList);
       }
     },
+    updateConversationMessage: (state, action) => {
+      const { conversationId, updatedConversation } = action.payload;
+      const conversationIndex = state.conversationList.findIndex(c => c.id === conversationId);
+      if (conversationIndex !== -1) {
+        state.conversationList[conversationIndex] = updatedConversation;
+        console.log("Updated conversation message:", conversationId);
+      }
+    },
     
     
   },
@@ -343,6 +351,6 @@ export const selectExpiredConversations = (state) =>
     state.bridge.expiredConversationIds.includes(conversation.id)
   );
 
-export const { addConversation, addMessageToConversation ,removeConversation  } = bridgeSlice.actions;
+export const { addConversation, addMessageToConversation, removeConversation, updateConversationMessage } = bridgeSlice.actions;
 
 export default bridgeSlice.reducer;
