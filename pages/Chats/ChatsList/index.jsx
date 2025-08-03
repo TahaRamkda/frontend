@@ -125,7 +125,6 @@ const ChatPage = () => {
   const [filteredTemplates, setFilteredTemplates] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
-  const [sendingMessages, setSendingMessages] = useState(new Set());
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -175,6 +174,7 @@ const ChatPage = () => {
   // Add effect to fetch templates when sender changes
   useEffect(() => {
     if (ActiveSenderId) {
+      debugger
       dispatch(getAgentTemplate({ senderId: ActiveSenderId }));
     }
   }, [dispatch, ActiveSenderId]);
@@ -356,7 +356,6 @@ const ChatPage = () => {
       type: LogerType.messagesent,
     });
     setTemplateDetails(details); // Update parent state
-    console.log("Received template details:", details);
   };
 
   const handleCopy = (text) => {
@@ -483,11 +482,11 @@ const ChatPage = () => {
    
     if (templateDetails) {
       const newMessage = {
-        messageId: Date.now(),
+        messageId:templateDetails.messageId,
         id: templateDetails.conversationID,
         senderId: message[0]?.senderId,
         typeId: 1,
-        messageContent: templateDetails.messageContent,
+        messageContent:  templateDetails.messageContent,
         contentType: templateDetails.contentType
           ? templateDetails.contentType
           : "", // Set content type if there's media
@@ -497,10 +496,11 @@ const ChatPage = () => {
           : "",
         createdDate: new Date().toLocaleString(),
         TemplateId: templateDetails.TemplateId,
+        status: templateDetails.status,
       };
       removeUnrepliedMark(templateDetails.ChatId);
       dispatch(addMessageToConversation(newMessage));
-      //setChatMessages((prevMessages) => [newMessage, ...prevMessages]);
+      setChatMessages((prevMessages) => [...prevMessages,newMessage]);
     }
   }, [templateDetails]);
 
@@ -577,6 +577,7 @@ const ChatPage = () => {
             status: msg.status !== undefined ? msg.status : msg.Status
           }));
           setChatMessages(messages);
+           setActiveSenderId(messages[0].senderId);
           setChatsloading(false);
         })
         .catch(() => {
@@ -627,8 +628,6 @@ const ChatPage = () => {
     }
 
     const messageId = Date.now();
-    setSendingMessages((prev) => new Set([...prev, messageId]));
-
     const formData = new FormData();
     formData.append("ClientId", localStorage.getItem("clientId"));
     formData.append("AgentId", localStorage.getItem("userId"));
@@ -714,13 +713,6 @@ const ChatPage = () => {
       console.log("Conversation not found:", Activechat);
     }
   }
-
-      setSendingMessages((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(messageId);
-        return newSet;
-      });
-
       await loggerdetails(
         logger,
         "Message sent successfully on time :",
@@ -738,11 +730,7 @@ const ChatPage = () => {
       setFileType(null);
       removeUnrepliedMark(Activechat);
     } catch (error) {
-      setSendingMessages((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(messageId);
-        return newSet;
-      });
+    
       await loggerdetails(logger, " Error while sending message:", "error", {
         Obj: error,
         logtype: "error",
@@ -999,13 +987,7 @@ const ChatPage = () => {
           console.log("Conversation not found:", status.conversationId);
         }
         
-        // Remove the message from sendingMessages when status is updated
-        setSendingMessages((prev) => {
-          const newSet = new Set(prev);
-          newSet.delete(status.messageID);
-          console.log("Removed from sendingMessages:", status.messageID);
-          return newSet;
-        });
+      
       }
     };
  
@@ -1302,6 +1284,7 @@ const ChatPage = () => {
   };
 
   const handleSend = async (e) => {
+    debugger
     e.preventDefault();
     setSubmitting(true);
     const values = parameterValues.map((val) => ({
@@ -1323,7 +1306,7 @@ const ChatPage = () => {
     try {
       const response = await dispatch(SendInteractivetemp(formData)).unwrap();
 
-      if (response.success) {
+      if (response) {
         dispatch(clearAgentTemplateSentState());
         const selectedDetail = agenttemplatedetails.find(
           (detail) =>
@@ -1332,7 +1315,7 @@ const ChatPage = () => {
         );
         if (selectedDetail) {
           const messageDetails = {
-            messageId: Date.now(),
+            messageId: response,
             conversationID: Activechat,
             messageContent: templateView,
             contentType: selectedDetail.contentType || "",
@@ -1340,6 +1323,7 @@ const ChatPage = () => {
             buttonJson: selectedDetail.buttonsJson || "",
             createdDate: new Date().toLocaleString(),
             TemplateId: selectedOption,
+            status: 0,
           };
           handleTemplateSend(messageDetails);
         }

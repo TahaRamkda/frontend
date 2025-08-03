@@ -104,14 +104,12 @@ export const checkForExpiredConversations = createAsyncThunk(
     return { expiredConversationIds, updatedConversations };
   }
 );
-
 export const setAgentById = createAsyncThunk(
   "bridge/setAgentById",
   async ({agentId}, { dispatch }) => {
     const response = await dispatch(fetchAgentsById({ agentId: agentId })).unwrap();
   }
 );
-
 export const setAgentstatus = createAsyncThunk(
   "bridge/setAgentstatus",
   async ({agentId,statusId}, { rejectWithValue ,dispatch }) => {
@@ -126,6 +124,7 @@ export const setAgentstatus = createAsyncThunk(
 export const getAgentTemplate = createAsyncThunk(
   "bridge/getAgentTemplate",
   async ({ senderId }, { dispatch, getState }) => {
+    debugger
     const { bridge } = getState();
     
     // Check if any template in the agentTemplatesList list has the given senderId
