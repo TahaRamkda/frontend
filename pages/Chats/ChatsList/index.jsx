@@ -142,12 +142,11 @@ const ChatPage = () => {
     error,
   } = useSelector((state) => state.agents);
   useEffect(() => {
-  chatMessagesRef.current = conversationList;
-}, [conversationList]);
+    chatMessagesRef.current = conversationList;
+  }, [conversationList]);
 
   // Add debounce effect for search
   useEffect(() => {
-    
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
     }, 500);
@@ -156,7 +155,6 @@ const ChatPage = () => {
 
   // Add effect to filter templates
   useEffect(() => {
-    
     if (agenttemplates && ActiveSenderId) {
       const filtered = agenttemplates.filter((template) => {
         const matchesSenderId = template.senderId === ActiveSenderId;
@@ -174,7 +172,7 @@ const ChatPage = () => {
   // Add effect to fetch templates when sender changes
   useEffect(() => {
     if (ActiveSenderId) {
-      debugger
+      debugger;
       dispatch(getAgentTemplate({ senderId: ActiveSenderId }));
     }
   }, [dispatch, ActiveSenderId]);
@@ -222,7 +220,6 @@ const ChatPage = () => {
     }
   });
   useEffect(() => {
-    
     if (typeof window !== "undefined") {
       // Ensure code runs only in the browser
       const name = localStorage.getItem("userName") || "User"; // Fallback if userName is not found
@@ -297,7 +294,6 @@ const ChatPage = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    
     // Handle expired conversationList
     expiredConversations.forEach((conversation) => {
       if (conversation.expireType === 1) {
@@ -331,7 +327,6 @@ const ChatPage = () => {
   }, [expiredConversations]);
 
   useEffect(() => {
-   
     if (message.length > 0) {
       // Only update chatMessages when the conversation changes (Activechat changes)
       // This prevents overwriting local state when new messages are added
@@ -341,7 +336,6 @@ const ChatPage = () => {
   }, [Activechat]); // Changed dependency from [message] to [Activechat]
 
   useEffect(() => {
- 
     // Initialize the audio object only once
     audioRef.current = new Audio("/assets/Notification/chatassigned.mp3");
 
@@ -435,7 +429,6 @@ const ChatPage = () => {
 
   // OneSignal initialization and setup
   useEffect(() => {
- 
     const setupOneSignal = async () => {
       const userId = localStorage.getItem("userId");
       if (!userId) {
@@ -479,14 +472,13 @@ const ChatPage = () => {
   }, []);
 
   useEffect(() => {
-   
     if (templateDetails) {
       const newMessage = {
-        messageId:templateDetails.messageId,
+        messageId: templateDetails.messageId,
         id: templateDetails.conversationID,
         senderId: message[0]?.senderId,
         typeId: 1,
-        messageContent:  templateDetails.messageContent,
+        messageContent: templateDetails.messageContent,
         contentType: templateDetails.contentType
           ? templateDetails.contentType
           : "", // Set content type if there's media
@@ -500,13 +492,12 @@ const ChatPage = () => {
       };
       removeUnrepliedMark(templateDetails.ChatId);
       dispatch(addMessageToConversation(newMessage));
-      setChatMessages((prevMessages) => [...prevMessages,newMessage]);
+      setChatMessages((prevMessages) => [...prevMessages, newMessage]);
     }
   }, [templateDetails]);
 
   //call the fetchConversationList action to fetch agents conversationList
   useEffect(() => {
-    
     const fetchData = async () => {
       const AgentId = localStorage.getItem("userId");
       const ClientId = localStorage.getItem("clientId");
@@ -545,7 +536,6 @@ const ChatPage = () => {
 
   // //triggered each time when conversationList changes and assign to local state
   useEffect(() => {
-
     if (conversationList) {
       setContactsloading(false);
       setAgentConversation(conversationList);
@@ -561,9 +551,9 @@ const ChatPage = () => {
     );
     if (conversation?.messages?.length > 0) {
       // Normalize status property
-      const messages = [...conversation.messages].reverse().map(msg => ({
+      const messages = [...conversation.messages].reverse().map((msg) => ({
         ...msg,
-        status: msg.status !== undefined ? msg.status : msg.Status
+        status: msg.status !== undefined ? msg.status : msg.Status,
       }));
       setChatMessages(messages);
       setActiveSenderId(conversation.messages[0].senderId);
@@ -572,12 +562,14 @@ const ChatPage = () => {
       dispatch(getAgentMessages(conversationId))
         .then((response) => {
           // Normalize status property
-          const messages = [...response.payload.messages].reverse().map(msg => ({
-            ...msg,
-            status: msg.status !== undefined ? msg.status : msg.Status
-          }));
+          const messages = [...response.payload.messages]
+            .reverse()
+            .map((msg) => ({
+              ...msg,
+              status: msg.status !== undefined ? msg.status : msg.Status,
+            }));
           setChatMessages(messages);
-           setActiveSenderId(messages[0].senderId);
+          setActiveSenderId(messages[0].senderId);
           setChatsloading(false);
         })
         .catch(() => {
@@ -596,7 +588,6 @@ const ChatPage = () => {
   };
 
   useEffect(() => {
- 
     agentChatRef.current = AgentConversation;
   }, [AgentConversation]);
 
@@ -615,13 +606,12 @@ const ChatPage = () => {
     }
   };
   useEffect(() => {
-   
     activeChatRef.current = Activechat;
   }, [Activechat]);
 
   //called each time to send message
   const HandleSendMessage = async () => {
-    debugger
+    debugger;
     if (!messageInput.trim() && !mediaFile) {
       toast.error("Message cannot be empty!");
       return;
@@ -653,7 +643,7 @@ const ChatPage = () => {
         status: 0,
       };
 
-      setChatMessages((prevMessages) => [...prevMessages ,newMessage]);
+      setChatMessages((prevMessages) => [...prevMessages, newMessage]);
       dispatch(addMessageToConversation(newMessage));
 
       setPreviewUrl(null);
@@ -664,55 +654,69 @@ const ChatPage = () => {
         fileInputRef.current.value = ""; // Reset the file input value
       }
 
-   const response = await dispatch(NewAgentMessage(formData)).unwrap();
-  const newServerMessageId = response;
+      const response = await dispatch(NewAgentMessage(formData)).unwrap();
+      const newServerMessageId = response;
 
-  if (newServerMessageId) {
-    // First find the conversation using conversationId (Activechat)
-    const conversation = chatMessagesRef.current.find((conv) => conv.id === Activechat);
-    
-    if (conversation && conversation.messages) {
-      // Find the specific message within that conversation's message array
-      const messageIndex = conversation.messages.findIndex(
-        (message) => message.messageId === messageId
-      );
-      
-      if (messageIndex !== -1) {
-        console.log("Found message at index:", messageIndex, "in conversation:", Activechat);
-        console.log("Updating message ID from:", messageId, "to:", newServerMessageId);
-        
-        // Update the message ID in the conversation
-        const updatedConversation = {
-          ...conversation,
-          messages: conversation.messages.map((message, index) => {
-            if (index === messageIndex) {
-              return { ...message, messageId: newServerMessageId };
-            }
-            return message;
-          })
-        };
-        
-        // Update the conversation in the Redux store
-        dispatch(updateConversationMessage({
-          conversationId: Activechat,
-          updatedConversation
-        }));
-        
-        // Also update the local chatMessages state for immediate UI update
-        setChatMessages((prevMessages) =>
-          prevMessages.map((msg) =>
-            msg.messageId === messageId
-              ? { ...msg, messageId: newServerMessageId }
-              : msg
-          )
+      if (newServerMessageId) {
+        // First find the conversation using conversationId (Activechat)
+        const conversation = chatMessagesRef.current.find(
+          (conv) => conv.id === Activechat
         );
-      } else {
-        console.log("Message not found in conversation:", messageId);
+
+        if (conversation && conversation.messages) {
+          // Find the specific message within that conversation's message array
+          const messageIndex = conversation.messages.findIndex(
+            (message) => message.messageId === messageId
+          );
+
+          if (messageIndex !== -1) {
+            console.log(
+              "Found message at index:",
+              messageIndex,
+              "in conversation:",
+              Activechat
+            );
+            console.log(
+              "Updating message ID from:",
+              messageId,
+              "to:",
+              newServerMessageId
+            );
+
+            // Update the message ID in the conversation
+            const updatedConversation = {
+              ...conversation,
+              messages: conversation.messages.map((message, index) => {
+                if (index === messageIndex) {
+                  return { ...message, messageId: newServerMessageId };
+                }
+                return message;
+              }),
+            };
+
+            // Update the conversation in the Redux store
+            dispatch(
+              updateConversationMessage({
+                conversationId: Activechat,
+                updatedConversation,
+              })
+            );
+
+            // Also update the local chatMessages state for immediate UI update
+            setChatMessages((prevMessages) =>
+              prevMessages.map((msg) =>
+                msg.messageId === messageId
+                  ? { ...msg, messageId: newServerMessageId }
+                  : msg
+              )
+            );
+          } else {
+            console.log("Message not found in conversation:", messageId);
+          }
+        } else {
+          console.log("Conversation not found:", Activechat);
+        }
       }
-    } else {
-      console.log("Conversation not found:", Activechat);
-    }
-  }
       await loggerdetails(
         logger,
         "Message sent successfully on time :",
@@ -730,7 +734,6 @@ const ChatPage = () => {
       setFileType(null);
       removeUnrepliedMark(Activechat);
     } catch (error) {
-    
       await loggerdetails(logger, " Error while sending message:", "error", {
         Obj: error,
         logtype: "error",
@@ -744,7 +747,6 @@ const ChatPage = () => {
   };
 
   useEffect(() => {
-
     if (AgentConversation && AgentConversation.length > 0) {
       // Filter messages with unread count > 0
       const unreadMessages = AgentConversation.filter(
@@ -818,7 +820,7 @@ const ChatPage = () => {
         status: message.status,
         Status: message.Status,
         createdDate: message.createdDate,
-        createddate: message.createddate
+        createddate: message.createddate,
       });
       await loggerdetails(logger, "Agent received message:", "info", {
         Obj: message,
@@ -833,19 +835,23 @@ const ChatPage = () => {
         );
 
       dispatch(addMessageToConversation(message));
-      
+
       // If this message is for the currently active chat, update the local state
       if (message.conversationId === activeChatRef.current) {
         // Normalize the incoming message to match the expected structure
         const normalizedMessage = {
           ...message,
-          status: message.status !== undefined ? message.status : message.Status,
+          status:
+            message.status !== undefined ? message.status : message.Status,
           // Ensure required properties exist
           messageContent: message.messageContent || message.message || "",
           typeId: message.typeId || 2, // Default to customer message (typeId 2)
-          createdDate: message.createdDate || message.createddate || new Date().toLocaleString(),
+          createdDate:
+            message.createdDate ||
+            message.createddate ||
+            new Date().toLocaleString(),
         };
-        setChatMessages((prevMessages) => [ ...prevMessages,normalizedMessage]);
+        setChatMessages((prevMessages) => [...prevMessages, normalizedMessage]);
       }
     };
 
@@ -927,30 +933,42 @@ const ChatPage = () => {
     };
 
     const HandleStatusUpdate = (status) => {
-      debugger
+      debugger;
       console.log("HandleStatusUpdate called with:", status);
       console.log("Active chat:", activeChatRef.current);
       console.log("Status conversationId:", status.conversationId);
-      
+
       if (status && status.messageID && status.messagestatus) {
         // Get the latest conversationList from Redux store
         const currentState = store.getState();
         const conversationList = currentState.bridge.conversationList;
         console.log("Current conversationList from Redux:", conversationList);
-        
+
         // First find the conversation using conversationId from the status
-        const conversation = conversationList.find((conv) => conv.id === status.conversationId);
-        
+        const conversation = conversationList.find(
+          (conv) => conv.id === status.conversationId
+        );
+
         if (conversation && conversation.messages) {
           // Find the specific message within that conversation's message array
           const messageIndex = conversation.messages.findIndex(
             (message) => message.messageId === status.messageID
           );
-          
+
           if (messageIndex !== -1) {
-            console.log("Found message at index:", messageIndex, "in conversation:", status.conversationId);
-            console.log("Updating message:", status.messageID, "to status:", status.messagestatus);
-            
+            console.log(
+              "Found message at index:",
+              messageIndex,
+              "in conversation:",
+              status.conversationId
+            );
+            console.log(
+              "Updating message:",
+              status.messageID,
+              "to status:",
+              status.messagestatus
+            );
+
             // Update the message status in the conversation
             const updatedConversation = {
               ...conversation,
@@ -959,15 +977,17 @@ const ChatPage = () => {
                   return { ...message, status: status.messagestatus };
                 }
                 return message;
-              })
+              }),
             };
-            
+
             // Update the conversation in the Redux store using the correct conversationId
-            dispatch(updateConversationMessage({
-              conversationId: status.conversationId,
-              updatedConversation
-            }));
-            
+            dispatch(
+              updateConversationMessage({
+                conversationId: status.conversationId,
+                updatedConversation,
+              })
+            );
+
             // Only update the local chatMessages state if this is the currently active chat
             if (status.conversationId === activeChatRef.current) {
               setChatMessages((prevMessages) => {
@@ -986,11 +1006,9 @@ const ChatPage = () => {
         } else {
           console.log("Conversation not found:", status.conversationId);
         }
-        
-      
       }
     };
- 
+
     // Setup event listeners
     newConnection.on("MessageReceived", handleIncomingMessage);
     newConnection.on("ConversationAssigned", handleConversationAssigned);
@@ -1044,7 +1062,6 @@ const ChatPage = () => {
   }, []);
 
   useEffect(() => {
-    
     if (Errordisconnect && connectionRef.current) {
       loggerdetails(logger, "Reconnecting SignalR...", {
         type: LogerType.Error,
@@ -1054,7 +1071,6 @@ const ChatPage = () => {
   }, [Errordisconnect]);
 
   useEffect(() => {
-    
     if (heartbeatAttempts >= 2) {
       setErrordisconnect(true);
     }
@@ -1215,7 +1231,6 @@ const ChatPage = () => {
 
   // Update preview when agenttemplatedetails, selectedOption, or parameterValues change
   useEffect(() => {
-  
     if (selectedOption) {
       const selectedDetail = agenttemplatedetails.find(
         (detail) =>
@@ -1267,7 +1282,6 @@ const ChatPage = () => {
 
   // Add this effect to restore original messages when template preview is closed
   useEffect(() => {
-   
     if (!ShowDetailedTemplate) {
       // When template preview is closed, remove preview messages
       setChatMessages(
@@ -1284,7 +1298,7 @@ const ChatPage = () => {
   };
 
   const handleSend = async (e) => {
-    debugger
+    debugger;
     e.preventDefault();
     setSubmitting(true);
     const values = parameterValues.map((val) => ({
@@ -1305,7 +1319,7 @@ const ChatPage = () => {
 
     try {
       const response = await dispatch(SendInteractivetemp(formData)).unwrap();
-
+      
       if (response) {
         dispatch(clearAgentTemplateSentState());
         const selectedDetail = agenttemplatedetails.find(
@@ -1780,15 +1794,16 @@ const ChatPage = () => {
                               : "justify-start"
                           }`}
                         >
-                          {message.typeId === 1 && ![1, 2, 3, 7, 0].includes(message.status) && (
-  <div className="relative flex items-center gap-2 mr-3">
-    <FiRotateCw
-      onClick={() => handleResendClick(index)}
-      className="text-grey-500 cursor-pointer"
-      size={20}
-    />
-  </div>
-)}
+                          {message.typeId === 1 &&
+                            ![1, 2, 3, 7, 0].includes(message.status) && (
+                              <div className="relative flex items-center gap-2 mr-3">
+                                <FiRotateCw
+                                  onClick={() => handleResendClick(index)}
+                                  className="text-grey-500 cursor-pointer"
+                                  size={20}
+                                />
+                              </div>
+                            )}
                           <div
                             className={`max-w-2xl p-2 rounded-lg shadow-sm 
                               md:max-w-xl md:p-1.5 md:rounded-md md:shadow-xs 
@@ -2033,7 +2048,7 @@ const ChatPage = () => {
                                           className="text-gray-400"
                                           size={14}
                                         />
-                                       ) : message.status === 7 ? (
+                                      ) : message.status === 7 ? (
                                         <BsCheck
                                           className="text-gray-400"
                                           size={20}
@@ -2049,7 +2064,7 @@ const ChatPage = () => {
                                           size={20}
                                         />
                                       ) : (
-                                        <div/>
+                                        <div />
                                       )}
                                     </span>
                                   )}

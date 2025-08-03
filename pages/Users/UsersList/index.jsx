@@ -40,6 +40,7 @@ const UserList = () => {
   const { userList, loading, error } = useSelector((state) => state.users);
   const { userDetails } = useSelector((state) => state.users);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [userData, setUserData] = useState([]);
   const [CreateModalOpen, setCreateModalOpen] = useState(false);
   const [existingRoleId, setexistingRoleId] = useState([]);
   const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
@@ -228,11 +229,11 @@ const UserList = () => {
     };
   }, [dispatch]);
 
-  const filteredUsers = userList?.filter(
-    (userDetails) =>
-      userDetails.userName.toLowerCase().includes(filterText.toLowerCase()) ||
-      userDetails.fullName.toLowerCase().includes(filterText.toLowerCase())
-  );
+  useEffect(() => {
+    if(userList){
+      setUserData(userList ? userList : []);
+    }
+  },[userList]);
   const customPageSizes = [1, 5, 10, 20, 50, 100]; // Custom page size options
   const defultpagessize = 10;
   const subHeaderComponentMemo = useMemo(
@@ -269,7 +270,7 @@ const UserList = () => {
       </div>
 
       <DataTable
-  data={filteredUsers}
+  data={userList}
   columns={userColumns}
   highlightOnHover
   striped
