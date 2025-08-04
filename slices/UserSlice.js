@@ -23,7 +23,7 @@ export const fetchUser = createAsyncThunk(
         method: "GET",
         //payload: {},
       });
-      debugger
+      
       if (response?.status === 200) {
         if(response.data.result === null){
           return {
@@ -184,7 +184,7 @@ const UserSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
-        debugger
+        
         state.loading = false;
         state.userList = action.payload.userList || [];
         state.totalRecords = action.payload.totalRecords;

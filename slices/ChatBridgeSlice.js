@@ -124,7 +124,7 @@ export const setAgentstatus = createAsyncThunk(
 export const getAgentTemplate = createAsyncThunk(
   "bridge/getAgentTemplate",
   async ({ senderId }, { dispatch, getState }) => {
-    debugger
+    
     const { bridge } = getState();
     
     // Check if any template in the agentTemplatesList list has the given senderId

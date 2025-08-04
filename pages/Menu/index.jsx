@@ -113,7 +113,7 @@ const MenuList = () => {
     }
   }, [senderId]);
   const handleButtonCLick = () => {
-    debugger;
+    ;
     if (senderId == 0 || !senderId || senderId === null) {
       return toast.error("Please select a sender");
     }

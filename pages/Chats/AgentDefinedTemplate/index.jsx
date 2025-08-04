@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { getAgentTemplate, getAgentTemplateDetail } from "@/slices/ChatBridgeSlice";
+import {
+  getAgentTemplate,
+  getAgentTemplateDetail,
+} from "@/slices/ChatBridgeSlice";
 import {
   SendInteractivetemp,
   clearAgentTemplateSentState,
@@ -37,8 +40,12 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
   const [showTemplateList, setShowTemplateList] = useState(true); // New state to control template list visibility
   const dispatch = useDispatch();
 
-  const agenttemplates = useSelector((state) => state.bridge.agentTemplatesList);
-  const agenttemplatedetails = useSelector((state) => state.bridge.agenttemplatedetails);
+  const agenttemplates = useSelector(
+    (state) => state.bridge.agentTemplatesList
+  );
+  const agenttemplatedetails = useSelector(
+    (state) => state.bridge.agenttemplatedetails
+  );
   const [sending, setSending] = useState(false);
 
   // Debounce the search query
@@ -51,7 +58,6 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
 
   // Filter templates based on senderId and search query
   useEffect(() => {
-    
     const filtered = agenttemplates?.filter((template) => {
       const matchesSenderId = template.senderId === SenderId;
       const matchesSearchQuery = template.name
@@ -77,7 +83,8 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
 
     if (templateId) {
       const cachedDetail = agenttemplatedetails.find(
-        (detail) => detail.templateId === templateId && detail.senderId === SenderId
+        (detail) =>
+          detail.templateId === templateId && detail.senderId === SenderId
       );
       if (!cachedDetail) {
         dispatch(getAgentTemplateDetail({ templateId, senderId: SenderId }));
@@ -88,15 +95,18 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
   // Update preview when agenttemplatedetails, selectedOption, or parameterValues change
   useEffect(() => {
     if (selectedOption) {
-      
       const selectedDetail = agenttemplatedetails.find(
-        (detail) => detail.templateId === selectedOption && detail.senderId === SenderId
+        (detail) =>
+          detail.templateId === selectedOption && detail.senderId === SenderId
       );
       if (selectedDetail) {
         setParameters(selectedDetail.parameters || []);
         let updatedView = selectedDetail.bodyText || "";
         parameterValues.forEach((param) => {
-          updatedView = updatedView.replace(new RegExp(`{{${param.key}}}`, "g"), param.value);
+          updatedView = updatedView.replace(
+            new RegExp(`{{${param.key}}}`, "g"),
+            param.value
+          );
         });
         setTemplateView(updatedView);
         setChatMessages({
@@ -115,7 +125,6 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
   }, [agenttemplatedetails, selectedOption, SenderId, parameterValues]);
 
   const handleSend = async (e) => {
-    
     e.preventDefault();
     const values = parameterValues.map((val) => ({
       key: val.key,
@@ -136,7 +145,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
     try {
       setSending(true);
       const response = await dispatch(SendInteractivetemp(formData)).unwrap();
-      debugger
+
       if (response) {
         dispatch(clearAgentTemplateSentState());
         if (onSend && typeof onSend === "function") {
@@ -159,12 +168,16 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
       const newValues = [...updatedValues, { key: paramName, value }];
 
       const selectedDetail = agenttemplatedetails.find(
-        (detail) => detail.templateId === selectedOption && detail.senderId === SenderId
+        (detail) =>
+          detail.templateId === selectedOption && detail.senderId === SenderId
       );
       if (selectedDetail) {
         let updatedView = selectedDetail.bodyText || "";
         newValues.forEach((item) => {
-          updatedView = updatedView.replace(new RegExp(`{{${item.key}}}`, "g"), item.value);
+          updatedView = updatedView.replace(
+            new RegExp(`{{${item.key}}}`, "g"),
+            item.value
+          );
         });
         setTemplateView(updatedView);
         setChatMessages({
@@ -175,6 +188,8 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
           messageContent: updatedView,
           headerText: selectedDetail.headerText || "",
           buttonJson: selectedDetail.buttonsJson || [],
+          TemplateId: selectedOption,
+          status: 0,
         });
       }
       return newValues;
@@ -204,7 +219,10 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
           className="absolute bottom-[1.5rem] bg-white text-gray-800 shadow-2xl rounded-lg z-50 ChatPopUpFull"
           style={{ right: "-20px", bottom: "50px" }}
         >
-          <div className="absolute top-2 right-2 text-end w-full cursor-pointer" onClick={onClose}>
+          <div
+            className="absolute top-2 right-2 text-end w-full cursor-pointer"
+            onClick={onClose}
+          >
             <i className="fa fa-times"></i>
           </div>
           <div className="flex ChatPopUp">
@@ -241,7 +259,9 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
                       </div>
                     ))
                   ) : (
-                    <div className="max-h-60 overflow-y-auto">No templates found</div>
+                    <div className="max-h-60 overflow-y-auto">
+                      No templates found
+                    </div>
                   )}
                 </div>
               ) : (
@@ -249,16 +269,26 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
                   <div className="overflow-auto max-h-[300px] bg-gray-100 p-1">
                     {parameters.map((option) => (
                       <div key={option.paramId} className="mb-2">
-                        <label htmlFor={option.paramId} className="block text-sm text-gray-700">
+                        <label
+                          htmlFor={option.paramId}
+                          className="block text-sm text-gray-700"
+                        >
                           {option.paramName}
                         </label>
                         <input
                           id={option.paramId}
                           type="text"
                           value={
-                            parameterValues.find((item) => item.key === option.paramName)?.value || ""
+                            parameterValues.find(
+                              (item) => item.key === option.paramName
+                            )?.value || ""
                           }
-                          onChange={(e) => handleParameterChange(option.paramName, e.target.value)}
+                          onChange={(e) =>
+                            handleParameterChange(
+                              option.paramName,
+                              e.target.value
+                            )
+                          }
                           className="w-full mt-1 px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                           placeholder={`Enter Value`}
                           required
@@ -277,7 +307,11 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
                   <div className="preview-content">
                     <div
                       key={chatMessages.messageId}
-                      className={`flex ${chatMessages.typeId === 1 ? "justify-end" : "justify-start"}`}
+                      className={`flex ${
+                        chatMessages.typeId === 1
+                          ? "justify-end"
+                          : "justify-start"
+                      }`}
                     >
                       <div
                         className={`max-w-xs p-2 rounded-2xl shadow-sm ${
@@ -300,41 +334,51 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
                               {chatMessages.parentMessageContent}
                             </div>
                           )}
-                        {chatMessages.contentType && chatMessages.contentType !== "" && (
-                          <>
-                            {chatMessages.contentType.startsWith("image/") && (
-                              <Image
-                                src={`${BASE_URL}${chatMessages.mediaPath}`}
-                                alt="Image"
-                                className="max-w-full rounded"
-                              />
-                            )}
-                            {chatMessages.contentType.startsWith("video/") && (
-                              <video
-                                controls
-                                src={`${BASE_URL}${chatMessages.mediaPath}`}
-                                className="max-w-full rounded"
-                              />
-                            )}
-                            {chatMessages.contentType.startsWith("audio/") && (
-                              <audio
-                                controls
-                                src={`${BASE_URL}${chatMessages.mediaPath}`}
-                                className="max-w-full rounded"
-                              />
-                            )}
-                          </>
-                        )}
-                        {chatMessages.headerText && chatMessages.headerText !== "" && (
-                          <>
-                            {chatMessages.headerText.split("\n").map((line, index) => (
-                              <span key={index}>
-                                {line}
-                                <br />
-                              </span>
-                            ))}
-                          </>
-                        )}
+                        {chatMessages.contentType &&
+                          chatMessages.contentType !== "" && (
+                            <>
+                              {chatMessages.contentType.startsWith(
+                                "image/"
+                              ) && (
+                                <Image
+                                  src={`${BASE_URL}${chatMessages.mediaPath}`}
+                                  alt="Image"
+                                  className="max-w-full rounded"
+                                />
+                              )}
+                              {chatMessages.contentType.startsWith(
+                                "video/"
+                              ) && (
+                                <video
+                                  controls
+                                  src={`${BASE_URL}${chatMessages.mediaPath}`}
+                                  className="max-w-full rounded"
+                                />
+                              )}
+                              {chatMessages.contentType.startsWith(
+                                "audio/"
+                              ) && (
+                                <audio
+                                  controls
+                                  src={`${BASE_URL}${chatMessages.mediaPath}`}
+                                  className="max-w-full rounded"
+                                />
+                              )}
+                            </>
+                          )}
+                        {chatMessages.headerText &&
+                          chatMessages.headerText !== "" && (
+                            <>
+                              {chatMessages.headerText
+                                .split("\n")
+                                .map((line, index) => (
+                                  <span key={index}>
+                                    {line}
+                                    <br />
+                                  </span>
+                                ))}
+                            </>
+                          )}
                         <p>
                           {templateView.split("\n").map((line, index) => (
                             <span key={index}>
@@ -343,49 +387,52 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
                             </span>
                           ))}
                         </p>
-                        {chatMessages.buttonJson && chatMessages.buttonJson.length > 0 && (
-                          <div className="mt-2">
-                            {(typeof chatMessages.buttonJson === "string"
-                              ? JSON.parse(chatMessages.buttonJson)
-                              : chatMessages.buttonJson
-                            ).map((button, index) => (
-                              <Button
-                                key={index}
-                                className="w-100 mb-2"
-                                style={{
-                                  color: "#00a9ee",
-                                  backgroundColor: "#ddffd9",
-                                  borderColor: "#ffffff",
-                                  borderStyle: "solid",
-                                  borderWidth: "2px 2px 2px 2px",
-                                  borderTopWidth: "0.5px",
-                                  borderTopStyle: "solid",
-                                  borderTopColor: "#e1e1e1",
-                                }}
-                              >
-                                {button.ButtonType == 1 && (
-                                  <span>
-                                    <i className="fa fa-share fa-flip-horizontal me-2"></i>
-                                    {button.ButtonText || "Button"}
-                                  </span>
-                                )}
-                                {button.ButtonType == 2 && (
-                                  <span>
-                                    <i className="fa fa-phone me-2"></i>
-                                    {button.ButtonText || "Button"}
-                                  </span>
-                                )}
-                                {button.ButtonType == 3 && (
-                                  <span>
-                                    <i className="fa fa-external-link me-2"></i>
-                                    {button.ButtonText || "Button"}
-                                  </span>
-                                )}
-                              </Button>
-                            ))}
-                          </div>
-                        )}
-                        <p className="text-xs text-gray-500">{extractTime(chatMessages.createdDate)}</p>
+                        {chatMessages.buttonJson &&
+                          chatMessages.buttonJson.length > 0 && (
+                            <div className="mt-2">
+                              {(typeof chatMessages.buttonJson === "string"
+                                ? JSON.parse(chatMessages.buttonJson)
+                                : chatMessages.buttonJson
+                              ).map((button, index) => (
+                                <Button
+                                  key={index}
+                                  className="w-100 mb-2"
+                                  style={{
+                                    color: "#00a9ee",
+                                    backgroundColor: "#ddffd9",
+                                    borderColor: "#ffffff",
+                                    borderStyle: "solid",
+                                    borderWidth: "2px 2px 2px 2px",
+                                    borderTopWidth: "0.5px",
+                                    borderTopStyle: "solid",
+                                    borderTopColor: "#e1e1e1",
+                                  }}
+                                >
+                                  {button.ButtonType == 1 && (
+                                    <span>
+                                      <i className="fa fa-share fa-flip-horizontal me-2"></i>
+                                      {button.ButtonText || "Button"}
+                                    </span>
+                                  )}
+                                  {button.ButtonType == 2 && (
+                                    <span>
+                                      <i className="fa fa-phone me-2"></i>
+                                      {button.ButtonText || "Button"}
+                                    </span>
+                                  )}
+                                  {button.ButtonType == 3 && (
+                                    <span>
+                                      <i className="fa fa-external-link me-2"></i>
+                                      {button.ButtonText || "Button"}
+                                    </span>
+                                  )}
+                                </Button>
+                              ))}
+                            </div>
+                          )}
+                        <p className="text-xs text-gray-500">
+                          {extractTime(chatMessages.createdDate)}
+                        </p>
                       </div>
                     </div>
                   </div>

@@ -172,7 +172,7 @@ const ChatPage = () => {
   // Add effect to fetch templates when sender changes
   useEffect(() => {
     if (ActiveSenderId) {
-      debugger;
+      ;
       dispatch(getAgentTemplate({ senderId: ActiveSenderId }));
     }
   }, [dispatch, ActiveSenderId]);
@@ -611,7 +611,7 @@ const ChatPage = () => {
 
   //called each time to send message
   const HandleSendMessage = async () => {
-    debugger;
+    ;
     if (!messageInput.trim() && !mediaFile) {
       toast.error("Message cannot be empty!");
       return;
@@ -933,7 +933,7 @@ const ChatPage = () => {
     };
 
     const HandleStatusUpdate = (status) => {
-      debugger;
+      ;
       console.log("HandleStatusUpdate called with:", status);
       console.log("Active chat:", activeChatRef.current);
       console.log("Status conversationId:", status.conversationId);
@@ -1182,7 +1182,7 @@ const ChatPage = () => {
   };
 
   const handleResendClick = (index) => {
-    debugger;
+    debugger
     const message = chatMessages[index];
     if (!message) {
       console.warn(`No message found at index ${index}`);
@@ -1298,7 +1298,7 @@ const ChatPage = () => {
   };
 
   const handleSend = async (e) => {
-    debugger;
+    ;
     e.preventDefault();
     setSubmitting(true);
     const values = parameterValues.map((val) => ({
