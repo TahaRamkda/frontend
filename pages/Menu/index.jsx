@@ -10,6 +10,9 @@ import {
   setPageSize,
   setCurrentPage,
 } from "@/slices/MenuSlice";
+import ClientDropdown from "@/components/Dropdowns/ClientDropdown";
+import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
+import { HiSearch } from "react-icons/hi";
 import showSweetAlert from "@/components/Sweetalert";
 import Loading from "@/components/Layout/Loader";
 import {
@@ -23,12 +26,14 @@ import SearchBar from "@/components/SearchBar/SearchComponent";
 
 import { usePermissions } from "@/context/PermissionsContext";
 import { BASE_URL } from "@/utils/apiConstants";
+import { toast } from "react-toastify";
 
 const MenuList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-
+  const [buttonClicked, setButtonClicked] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [senderId, setSenderId] = useState(0);
   const [menuData, setMenuData] = useState({
     categories: [],
     items: [],
@@ -69,12 +74,12 @@ const MenuList = () => {
     const itemModifiers = menuData?.menu?.modifiers.filter((mod) =>
       item.modifier_ids.includes(mod.id)
     );
-    
+
     return itemModifiers.map((mod) => ({
       ...mod,
       modifier_items: mod.modifier_items.map((modItem) => {
         const modifierItem = modifiers.find((m) => m.id === modItem.item_id);
-        
+
         return {
           ...modifierItem,
           is_default: modItem.is_default,
@@ -99,9 +104,40 @@ const MenuList = () => {
       }),
     }));
   };
+  const handleSenderChange = (e) => {
+    setSenderId(e.target.value);
+  };
+  useEffect(() => {
+    if (senderId) {
+      setSenderId(senderId);
+    }
+  }, [senderId]);
+  const handleButtonCLick = () => {
+    debugger;
+    if (senderId == 0 || !senderId || senderId === null) {
+      return toast.error("Please select a sender");
+    }
+
+    try {
+      dispatch(
+        fetchMenu({
+          ClientId: localStorage.getItem("clientId"),
+          SenderId: senderId,
+        })
+      ).unwrap();
+    } catch (error) {
+      console.error("Error fetching menu:", error);
+      showSweetAlert({
+        type: "error",
+        title: "Error",
+        text: error || "Error fetching menu",
+      });
+    }
+  };
 
   useEffect(() => {
-    dispatch(fetchMenu());
+    if (senderId) {
+    }
     return () => {
       dispatch(clearMenuState());
     };
@@ -122,6 +158,28 @@ const MenuList = () => {
           value={filterText}
           onChange={(val) => setFilterText(val)}
         />
+        <div className="grid grid-cols-5 gap-4">
+          <div className="col-span-2 flex flex-col mb-4">
+            <label className="font-medium text-gray-700 text-sm mb-1">
+              Sender Names
+            </label>
+
+            <div className="flex gap-2 items-center">
+              <div className="flex-1">
+                <SendernameDropdown
+                  name="senderId"
+                  value={senderId}
+                  onChange={handleSenderChange}
+                />
+              </div>
+
+              <button className="uniform_icon_btn" onClick={handleButtonCLick}>
+                <HiSearch style={{ fontSize: "15px" }} />
+              </button>
+            </div>
+          </div>
+          <div className="col-span-2"></div>
+        </div>
       </div>
 
       {menuData?.menu?.categories.map((category) => (

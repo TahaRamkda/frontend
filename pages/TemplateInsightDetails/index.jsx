@@ -19,40 +19,7 @@ import showSweetAlert from "@/components/Sweetalert";
 import { toast } from "react-toastify";
 import TemplateCategoryDropdown from "@/components/Dropdowns/TemplateCategorydropdown";
 const TemplateInsight = () => {
-  const data = {
-    Templates: [
-      {
-        templateId: "1126450329101197",
-        templateName: "pizza_hut_trackinglink",
-        buttonText: "Track Order1111 / تابع طلبك",
-        buttonType: "url_button",
-        clickCount: 3,
-        sentCount: 8,
-        deliveredCount: 3,
-        readCount: 1,
-      },
-      {
-        templateId: "1126450329101197",
-        templateName: "pizza_hut_trackinglink",
-        buttonText: "Track Order / تابع طلبك",
-        buttonType: "url_button",
-        clickCount: 2,
-        sentCount: 5,
-        deliveredCount: 1,
-        readCount: 1,
-      },
-      {
-        templateId: "1126450329101197",
-        templateName: "pizza_hut_trackinglink",
-        buttonText: "Track Order1111 / تابع طلبك",
-        buttonType: "url_button",
-        clickCount: 3,
-        sentCount: 3,
-        deliveredCount: 3,
-        readCount: 1,
-      },
-    ],
-  };
+  
   const fromDateRef = useRef(null);
   const toDateRef = useRef(null);
   const [sendername, setSendername] = useState("");
@@ -171,6 +138,7 @@ const TemplateInsight = () => {
         if (!acc[key]) {
           acc[key] = {
             templateName: item.templateName,
+            Date: item.date,
             senderName: item.senderName,
             sentCount: item.sentCount,
             deliveredCount: item.deliveredCount,
@@ -192,6 +160,7 @@ const TemplateInsight = () => {
           const row = {
             "Template Name": template.templateName || "-",
             "Sender Name": template.senderName || "-",
+            "Date": template.Date || "-",
             "Message Sent": template.sentCount || 0,
             "Message Delivered": template.deliveredCount || 0,
             "Message Read": template.readCount || 0,

@@ -10,10 +10,10 @@ import {
 // Fetch Menu
 export const fetchMenu = createAsyncThunk(
   "menu/fetchMenu",
-  async (_, { rejectWithValue }) => {
+  async ({ ClientId, SenderId }, { rejectWithValue }) => {
     try {
       const response = await API.post("/api", {
-        endpoint: "/Media/Catalog/3/7/Menu.json", // Relative path for the external API
+        endpoint: `/Media/Catalog/${ClientId}/${SenderId}/Menu.json`, // Relative path for the external API
         method: "GET",
       });
       
