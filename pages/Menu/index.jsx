@@ -152,13 +152,17 @@ const MenuList = () => {
   return (
     <App>
       {loading && <Loading />}
-      <div className="max-w-4xl mx-auto mb-6">
-        <SearchBar
+      <div className="max-w-4xl mx-auto ">
+       
+        <div className="grid grid-cols-5 gap-4">
+          <div className="col-span-2">
+             <SearchBar
           label="Search Items"
           value={filterText}
           onChange={(val) => setFilterText(val)}
         />
-        <div className="grid grid-cols-5 gap-4">
+          </div>
+          
           <div className="col-span-2 flex flex-col mb-4">
             <label className="font-medium text-gray-700 text-sm mb-1">
               Sender Names
