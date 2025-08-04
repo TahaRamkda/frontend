@@ -150,7 +150,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
       if (response) {
         dispatch(clearAgentTemplateSentState());
         if (onSend && typeof onSend === "function") {
-          debugger;
+          ;
           const updatedMessage = {
             ...chatMessages,
             messageId: response,
