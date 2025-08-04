@@ -110,7 +110,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
         });
         setTemplateView(updatedView);
         setChatMessages({
-          messageId: `preview-${selectedOption}`,
+          messageId: 0,
           typeId: 1,
           contentType: selectedDetail.contentType || "",
           mediaPath: selectedDetail.mediaPath || "",
