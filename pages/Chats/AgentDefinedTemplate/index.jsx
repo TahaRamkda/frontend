@@ -149,6 +149,10 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
       if (response) {
         dispatch(clearAgentTemplateSentState());
         if (onSend && typeof onSend === "function") {
+          setChatMessages((prev) => ({
+            ...prev,
+            messageId: response,
+          }));
           onSend(chatMessages);
         }
         onClose();
