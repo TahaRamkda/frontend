@@ -34,7 +34,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [parameterValues, setParameterValues] = useState([]);
   const [templateView, setTemplateView] = useState("");
-  const [chatMessages, setChatMessages] = useState(null);
+  const [chatMessages, setChatMessages] = useState({ messageId: null });
   const [filteredTemplates, setFilteredTemplates] = useState([]);
   const [parameters, setParameters] = useState([]);
   const [showTemplateList, setShowTemplateList] = useState(true); // New state to control template list visibility
@@ -110,7 +110,6 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
         });
         setTemplateView(updatedView);
         setChatMessages({
-          messageId: 0,
           typeId: 1,
           contentType: selectedDetail.contentType || "",
           mediaPath: selectedDetail.mediaPath || "",
@@ -119,6 +118,8 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
           messageContent: updatedView,
           headerText: selectedDetail.headerText || "",
           buttonJson: selectedDetail.buttonsJson || [],
+          TemplateId: selectedOption,
+          status: 0,
         });
       }
     }
@@ -149,11 +150,16 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
       if (response) {
         dispatch(clearAgentTemplateSentState());
         if (onSend && typeof onSend === "function") {
-          setChatMessages((prev) => ({
-            ...prev,
+          debugger;
+          const updatedMessage = {
+            ...chatMessages,
             messageId: response,
-          }));
-          onSend(chatMessages);
+            TemplateId: selectedOption,
+            status: 0,
+          };
+
+          setChatMessages(updatedMessage);
+          onSend(updatedMessage);
         }
         onClose();
       } else {
@@ -185,7 +191,6 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
         });
         setTemplateView(updatedView);
         setChatMessages({
-          messageId: `preview-${selectedOption}`,
           typeId: 1,
           contentType: "",
           createdDate: new Date().toISOString(),

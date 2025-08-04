@@ -1182,7 +1182,7 @@ const ChatPage = () => {
   };
 
   const handleResendClick = (index) => {
-    debugger
+    
     const message = chatMessages[index];
     if (!message) {
       console.warn(`No message found at index ${index}`);
