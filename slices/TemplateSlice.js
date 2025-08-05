@@ -144,10 +144,10 @@ export const deleteTemplates = createAsyncThunk(
 
 export const excelExportTemplateAnalyticReport = createAsyncThunk(
   "templateAnalyticReport/excelExportTemplateAnalyticReport",
-  async ({ senderId, startDate, endDate, templateId }, { rejectWithValue }) => {
+  async ({ senderId, startDate, endDate, templateId,frequency }, { rejectWithValue }) => {
     ;
     try {
-      const surveyReportUrl = `${EXCELEXPORTTEMPLATEANALYTICS}?senderId=${senderId}&startDate=${startDate}&endDate=${endDate}&templateId=${templateId}`;
+      const surveyReportUrl = `${EXCELEXPORTTEMPLATEANALYTICS}?senderId=${senderId}&startDate=${startDate}&endDate=${endDate}&templateId=${templateId}&frequency=${frequency}`;
       const response = await API.post("/api",{
           endpoint: surveyReportUrl,
           method: "GET",

@@ -9,6 +9,7 @@ import {
   excelExportTemplateAnalyticReport,
   clearTemplateAnalyticState,
 } from "@/slices/TemplateSlice";
+import Select from "react-select";
 import {
   fetchTemplateInsightDetails,
   clearTemplateInsighDetailstState,
@@ -19,7 +20,6 @@ import showSweetAlert from "@/components/Sweetalert";
 import { toast } from "react-toastify";
 import TemplateCategoryDropdown from "@/components/Dropdowns/TemplateCategorydropdown";
 const TemplateInsight = () => {
-  
   const fromDateRef = useRef(null);
   const toDateRef = useRef(null);
   const [sendername, setSendername] = useState("");
@@ -30,6 +30,7 @@ const TemplateInsight = () => {
   const [catagoryId, setCatagoryId] = useState("");
   const [shouldExport, setShouldExport] = useState(false);
   const [templateData, setTemplaterData] = useState([]);
+  const [frequency, setFrequency] = useState("");
   const [templatesLabels, setTemplatesLabels] = useState([]);
   const [sendernameId, setsendernameId] = useState(0);
   const { templateInsightDetails, loading, error } = useSelector(
@@ -40,6 +41,16 @@ const TemplateInsight = () => {
   );
 
   const [parseData, setParseData] = useState([]);
+  const formatDate = (dateString) => {
+    debugger;
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short", // e.g., "Jul"
+      year: "numeric",
+    });
+  };
 
   const handleChange = (e) => {
     setsendernameId(e.target.value);
@@ -120,47 +131,111 @@ const TemplateInsight = () => {
         startDate: fromDate,
         endDate: toDate,
         templateId: templateId,
+        frequency: frequency,
       })
     );
     setShouldExport(true); // Mark export request
   };
+  const customStyles = {
+    control: (base, state) => ({
+      ...base,
+      border: "1px solid #D1D5DB",
+      borderRadius: "0.375rem",
+      boxShadow: state.isFocused ? "0 0 0 1px #3B82F6" : "none",
+      "&:hover": {
+        borderColor: "#3B82F6",
+      },
+      minHeight: "2.5rem",
+      outline: "none",
+    }),
+    input: (base) => ({
+      ...base,
+      margin: 0,
+      padding: 0,
+      outline: "none",
+      boxShadow: "none",
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? "#3B82F6"
+        : state.isFocused
+        ? "#DBEAFE"
+        : "white",
+      color: state.isSelected ? "white" : "#111827",
+      cursor: "pointer",
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: "#111827",
+    }),
+    menu: (base) => ({
+      ...base,
+      zIndex: 9999,
+    }),
+  };
   useEffect(() => {
     if (templateSummaryList.length > 0) {
+      debugger;
       const allButtonLabels = new Set();
       templateSummaryList?.forEach((item) => {
         allButtonLabels.add(item.buttonText);
       });
       const buttonColumns = Array.from(allButtonLabels).filter(Boolean);
-
+      let groupedTemplates;
       // Step 2: Group templates by templateName and senderName
-      const groupedByTemplate = templateSummaryList?.reduce((acc, item) => {
-        const key = `${item.templateName}_${item.senderName}`;
-        if (!acc[key]) {
+      if (frequency === "cumulative") {
+        groupedTemplates = templateSummaryList.reduce((acc, item) => {
+          const key = `${item.templateName}_${item.senderName}`;
+          if (!acc[key]) {
+            acc[key] = {
+              templateName: item.templateName,
+              Date: item.recordDate,
+              senderName: item.senderName,
+              sentCount: item.sentCount,
+              deliveredCount: item.deliveredCount,
+              readCount: item.readCount,
+              failedCount: item.failedCount,
+              buttons: [],
+            };
+          }
+          acc[key].buttons.push({
+            ButtonText: item.buttonText,
+            ClickCount: item.clickCount,
+          });
+          return acc;
+        }, {});
+      } else {
+        // Fallback: treat each item individually
+        groupedTemplates = templateSummaryList.reduce((acc, item, idx) => {
+          const key = `row_${idx}`;
           acc[key] = {
             templateName: item.templateName,
-            Date: item.date,
+            Date: item.recordDate,
             senderName: item.senderName,
             sentCount: item.sentCount,
             deliveredCount: item.deliveredCount,
             readCount: item.readCount,
             failedCount: item.failedCount,
-            buttons: [],
+            buttons: [
+              {
+                ButtonText: item.buttonText,
+                ClickCount: item.clickCount,
+              },
+            ],
           };
-        }
-        acc[key].buttons.push({
-          ButtonText: item.buttonText,
-          ClickCount: item.clickCount,
-        });
-        return acc;
-      }, {});
+          return acc;
+        }, {});
+      }
 
       // Step 3: Build rows per template
-      const formattedData = Object.values(groupedByTemplate || {}).map(
+      const formattedData = Object.values(groupedTemplates || {}).map(
         (template) => {
+          debugger;
           const row = {
             "Template Name": template.templateName || "-",
             "Sender Name": template.senderName || "-",
-            "Date": template.Date || "-",
+            ...(template.Date && { Date: formatDate(template.Date) }),
             "Message Sent": template.sentCount || 0,
             "Message Delivered": template.deliveredCount || 0,
             "Message Read": template.readCount || 0,
@@ -220,6 +295,18 @@ const TemplateInsight = () => {
     if (ref.current?.showPicker) {
       ref.current.showPicker();
     }
+  };
+  const reportTypeOptions = [
+    { value: "cumulative", label: "Commulative" },
+    { value: "daily", label: "Daily" },
+  ];
+
+  const selectedOption =
+    reportTypeOptions.find((opt) => opt.value === frequency) || null;
+
+  // Handle change
+  const HandleFrequencyChange = (selected) => {
+    setFrequency(selected ? selected.value : ""); // Or null if you prefer
   };
   useEffect(() => {
     localStorage.setItem("activeModule", "0");
@@ -292,7 +379,7 @@ const TemplateInsight = () => {
               onChange={handleChange}
             />
           </div>
-           <div className="flex-1">
+          <div className="flex-1">
             <label className="text-[11px] font-semibold text-gray-700">
               Category
             </label>
@@ -314,6 +401,20 @@ const TemplateInsight = () => {
               CategoryId={catagoryId}
               onChange={handleTemplateChange}
               SenderId={sendernameId}
+            />
+          </div>
+          <div className="flex-1">
+            <label className="text-[11px] font-semibold text-gray-700">
+              Report Type
+            </label>
+            <Select
+              id="ModuleId"
+              value={selectedOption}
+              onChange={HandleFrequencyChange}
+              options={reportTypeOptions}
+              isClearable
+              classNamePrefix="react-select"
+              styles={customStyles}
             />
           </div>
         </div>
