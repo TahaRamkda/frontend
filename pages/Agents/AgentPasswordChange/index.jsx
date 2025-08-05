@@ -13,11 +13,10 @@ import {
   FormFeedback,
 } from "reactstrap";
 import { FaEyeSlash, FaEye } from "react-icons/fa";
-import { changePassword } from "@/slices/AuthSlice";
+import { agentChangePassword } from "@/slices/AgentSlice";
 
-const ChangePass = ({ isVisible, onClose, onsuccess }) => {
+const AgentChangePass = ({ isVisible, onClose, agentId,clientId }) => {
   const [formData, setFormData] = useState({
-    oldPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
@@ -38,22 +37,18 @@ const ChangePass = ({ isVisible, onClose, onsuccess }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.oldPassword) {
-      newErrors.oldPassword = "Old password is required.";
-    }
+   
     if (!formData.newPassword) {
       newErrors.newPassword = "New password is required.";
     } else if (formData.newPassword.length < 6) {
       newErrors.newPassword = "New password must be at least 6 characters long.";
-    }
-    if (formData.newPassword !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match.";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
+    debugger
     e.preventDefault();
 
     if (!validateForm()) {
@@ -62,14 +57,14 @@ const ChangePass = ({ isVisible, onClose, onsuccess }) => {
 
     setIsSubmitting(true);
     const requestBody = {
-      clientId: localStorage.getItem("clientId"),
-      userId: localStorage.getItem("userId"),
-      oldPassword: formData.oldPassword,
-      password: formData.newPassword,
+      clientId: clientId,
+      userId:agentId,
+      newPassword: formData.newPassword,
+      actionBy:0
     };
 
     try {
-      const response = await dispatch(changePassword(requestBody));
+      const response = await dispatch(agentChangePassword(requestBody));
       if (response.payload.status === 1) {
         showSweetAlert({
           title: "Success",
@@ -107,32 +102,10 @@ const ChangePass = ({ isVisible, onClose, onsuccess }) => {
 
   return (
     <Modal isOpen={isVisible} fade={false} centered>
-      <ModalHeader>Change Password</ModalHeader>
+      <ModalHeader toggle={onClose}>Change Password</ModalHeader>
       <ModalBody>
         <form onSubmit={handleSubmit}>
-          <FormGroup>
-            <Label for="oldPassword">Old Password</Label>
-            <div style={inputContainerStyle}>
-              <Input
-                type={showOld ? "text" : "password"}
-                name="oldPassword"
-                id="oldPassword"
-                placeholder="*******"
-                value={formData.oldPassword}
-                onChange={handleChange}
-                invalid={!!errors.oldPassword}
-              />
-              <FaEyeSlash
-                style={showOld ? { ...eyeIconStyle, display: "none" } : eyeIconStyle}
-                onClick={() => setShowOld(!showOld)}
-              />
-              <FaEye
-                style={!showOld ? { ...eyeIconStyle, display: "none" } : eyeIconStyle}
-                onClick={() => setShowOld(!showOld)}
-              />
-              <FormFeedback>{errors.oldPassword}</FormFeedback>
-            </div>
-          </FormGroup>
+          
           <FormGroup>
             <Label for="newPassword">New Password</Label>
             <div style={inputContainerStyle}>
@@ -156,36 +129,10 @@ const ChangePass = ({ isVisible, onClose, onsuccess }) => {
               <FormFeedback>{errors.newPassword}</FormFeedback>
             </div>
           </FormGroup>
-          <FormGroup>
-            <Label for="confirmPassword">Confirm Password</Label>
-            <div style={inputContainerStyle}>
-              <Input
-                type={showConfirm ? "text" : "password"}
-                name="confirmPassword"
-                id="confirmPassword"
-                placeholder="*******"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                invalid={!!errors.confirmPassword}
-              />
-              <FaEyeSlash
-                style={showConfirm ? { ...eyeIconStyle, display: "none" } : eyeIconStyle}
-                onClick={() => setShowConfirm(!showConfirm)}
-              />
-              <FaEye
-                style={!showConfirm ? { ...eyeIconStyle, display: "none" } : eyeIconStyle}
-                onClick={() => setShowConfirm(!showConfirm)}
-              />
-              <FormFeedback>{errors.confirmPassword}</FormFeedback>
-            </div>
-          </FormGroup>
           <ModalFooter>
-            <Button color="primary" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Submitting..." : "Change Password"}
-            </Button>
-            <Button color="secondary" onClick={onClose}>
-              Cancel
-            </Button>
+            <button className="uniform_btn" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Submitting..." : "Submit"}
+            </button>
           </ModalFooter>
         </form>
       </ModalBody>
@@ -193,4 +140,4 @@ const ChangePass = ({ isVisible, onClose, onsuccess }) => {
   );
 };
 
-export default ChangePass;
+export default AgentChangePass;

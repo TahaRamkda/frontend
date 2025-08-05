@@ -16,6 +16,7 @@ import {
 } from "react-icons/fa";
 import { useLogger } from "next-axiom"; // Import Axiom logger
 import loggerdetails from "@/components/logger";
+import { BsExclamationCircle } from "react-icons/bs";
 import { Image } from "react-bootstrap";
 import AgentStatusDropdown from "@/components/Dropdowns/AgentStatusDropdown";
 import {
@@ -86,6 +87,7 @@ import Logo from "@/components/Logo/logo";
 const ChatPage = () => {
   const router = useRouter();
   const logger = useLogger();
+  const [selectedErrorMessageId, setSelectedErrorMessageId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [tempMessages, setTempMessages] = useState([]);
   const dispatch = useDispatch();
@@ -104,6 +106,7 @@ const ChatPage = () => {
     (state) => state.bridge.agentTemplatesList
   );
   const chatMessagesRef = useRef([]);
+  const [showErrorDescription, setShowErrorDescription] = useState(false);
   const inputRef = useRef(null);
   const [chatMessages, setChatMessages] = useState([]);
   const [AgentConversation, setAgentConversation] = useState([]);
@@ -172,7 +175,6 @@ const ChatPage = () => {
   // Add effect to fetch templates when sender changes
   useEffect(() => {
     if (ActiveSenderId) {
-      ;
       dispatch(getAgentTemplate({ senderId: ActiveSenderId }));
     }
   }, [dispatch, ActiveSenderId]);
@@ -489,6 +491,7 @@ const ChatPage = () => {
         createdDate: new Date().toLocaleString(),
         TemplateId: templateDetails.TemplateId,
         status: templateDetails.status,
+        statusMessage: templateDetails.statusMessage,
       };
       removeUnrepliedMark(templateDetails.ChatId);
       dispatch(addMessageToConversation(newMessage));
@@ -611,7 +614,6 @@ const ChatPage = () => {
 
   //called each time to send message
   const HandleSendMessage = async () => {
-    ;
     if (!messageInput.trim() && !mediaFile) {
       toast.error("Message cannot be empty!");
       return;
@@ -641,6 +643,7 @@ const ChatPage = () => {
         createdDate: new Date().toLocaleString(),
         sentime: new Date().toLocaleString(),
         status: 0,
+        statusMessage: "",
       };
 
       setChatMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -771,7 +774,15 @@ const ChatPage = () => {
       setIsImagePreviewOpen(true);
     }
   };
+  const handleShowErrorDescription = (id) => {
+    debugger
+    setSelectedErrorMessageId(id);
+    setShowErrorDescription(true);
+  };
 
+  const handleHideErrorDescription = () => {
+    setShowErrorDescription(false);
+  };
   const openFileManager = () => {
     fileInputRef.current.click(); // Trigger the file input click event
   };
@@ -933,7 +944,7 @@ const ChatPage = () => {
     };
 
     const HandleStatusUpdate = (status) => {
-      ;
+      debugger;
       console.log("HandleStatusUpdate called with:", status);
       console.log("Active chat:", activeChatRef.current);
       console.log("Status conversationId:", status.conversationId);
@@ -974,7 +985,11 @@ const ChatPage = () => {
               ...conversation,
               messages: conversation.messages.map((message, index) => {
                 if (index === messageIndex) {
-                  return { ...message, status: status.messagestatus };
+                  return {
+                    ...message,
+                    status: status.messagestatus,
+                    statusMessage: status.eventMessage,
+                  };
                 }
                 return message;
               }),
@@ -1182,7 +1197,7 @@ const ChatPage = () => {
   };
 
   const handleResendClick = (index) => {
-    
+    debugger
     const message = chatMessages[index];
     if (!message) {
       console.warn(`No message found at index ${index}`);
@@ -1298,7 +1313,6 @@ const ChatPage = () => {
   };
 
   const handleSend = async (e) => {
-    ;
     e.preventDefault();
     setSubmitting(true);
     const values = parameterValues.map((val) => ({
@@ -1319,7 +1333,7 @@ const ChatPage = () => {
 
     try {
       const response = await dispatch(SendInteractivetemp(formData)).unwrap();
-      
+
       if (response) {
         dispatch(clearAgentTemplateSentState());
         const selectedDetail = agenttemplatedetails.find(
@@ -1338,6 +1352,7 @@ const ChatPage = () => {
             createdDate: new Date().toLocaleString(),
             TemplateId: selectedOption,
             status: 0,
+            statusMessage: "",
           };
           handleTemplateSend(messageDetails);
         }
@@ -2064,7 +2079,28 @@ const ChatPage = () => {
                                           size={20}
                                         />
                                       ) : (
-                                        <div />
+                                        <div/>
+                                      )}
+                                      {![1, 2, 3, 7, 0].includes(message.status) && (
+                                        <div key={message.id} className="relative flex items-center gap-2 mr-3">
+                                          <BsExclamationCircle
+                                            onMouseEnter={() => handleShowErrorDescription(message.messageId)}
+                                            onMouseLeave={
+                                              handleHideErrorDescription
+                                            }
+                                            className="text-red-500 cursor-pointer"
+                                            size={20}
+                                          />
+
+                                          {showErrorDescription && (selectedErrorMessageId === message.messageId) && (
+                                            <div className="absolute bottom-full right-0 translate-x-[3%] mb-2 z-50 flex flex-col items-end">
+                                              <div className="bg-red-800 text-white text-xs rounded py-1 px-2 text-left shadow-lg max-w-[250px] w-max break-words whitespace-pre-wrap ">
+                                                {message.statusMessage || message.failedMessage || "Error"}
+                                              </div>
+                                              <div className="w-2 h-2 bg-red-800 rotate-45 mt-[-4px] mr-3" />
+                                            </div>
+                                          )}
+                                        </div>
                                       )}
                                     </span>
                                   )}

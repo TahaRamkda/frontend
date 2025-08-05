@@ -31,12 +31,19 @@ import {
   Input,
 } from "reactstrap";
 import showSweetAlert from "@/components/Sweetalert";
-import { HiPencilAlt, HiTrash, HiLightningBolt, HiClock } from "react-icons/hi";
+import {
+  HiPencilAlt,
+  HiTrash,
+  HiLightningBolt,
+  HiClock,
+  HiOutlineKey,
+} from "react-icons/hi";
 import SendernamesDropdown from "@/components/MultiSelect/SendernameDropdown";
 import SendernameDropdown from "@/components/Dropdowns/SendernameDropdown";
 import AgentsForm from "../CreateAgents";
 import App from "@/components/Layout/App";
 import SearchBar from "@/components/SearchBar/SearchComponent";
+import AgentChangePass from "../AgentPasswordChange";
 import { usePermissions } from "@/context/PermissionsContext";
 import ChatReasonDropdown from "@/components/MultiSelect/ChatReasonDropdown";
 //import AgentTiming from "../AgentsTiming/index";
@@ -58,6 +65,7 @@ const AgentsList = () => {
     loading: DetailLoading,
     error: DetailError,
   } = useSelector((state) => state.agents);
+
   const [timeModalOpen, setTimeModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [agentForm, setagentForm] = useState({});
@@ -70,14 +78,21 @@ const AgentsList = () => {
   const [chatReasonIds, SetAgentChatReasonId] = useState(null);
   const [filterText, setFilterText] = useState("");
   const [showagenttiming, setshowagenttiming] = useState("");
+  const [showAgentPasswordChangeModal, setShowAgentPasswordChangeModal] =
+    useState(false);
   const [FieldValue, setFieldValue] = useState(null); // Track uploaded file URL
   const [CreateModalOpen, setCreateModalOpen] = useState("");
   const [existinSenderId, setexistingSenderId] = useState([]);
   const [existingChatReasonId, SetExistingChatReasonId] = useState([]);
-
+  const [clientId, setClientId] = useState(0);
   const agentColumn = [
     { name: "Agent Id", selector: (row) => row.id, sortable: true },
-    { name: "User Name", selector: (row) => row.userName, sortable: true, minWidth: "200px" },
+    {
+      name: "User Name",
+      selector: (row) => row.userName,
+      sortable: true,
+      minWidth: "200px",
+    },
     {
       name: "Agent Name",
       selector: (row) => `${row.agentFName} ${row.agentLName}`,
@@ -86,7 +101,8 @@ const AgentsList = () => {
         <div style={{ width: "100%" }}>
           {row.agentFName} {row.agentLName}
         </div>
-      ), minWidth: "200px"
+      ),
+      minWidth: "200px",
     },
 
     {
@@ -112,31 +128,37 @@ const AgentsList = () => {
             >
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
-            {/* <button
-              onClick={() => handleTime(row)}
-              title="Agents Timming"
-              className="uniform_icon_btn"
-            >
-              <HiClock style={{ fontSize: "15px" }} />
-            </button> */}
-            {hasPermission("Agents", "delete") && (
             <button
-              onClick={() => handleDeleteClick(row.id)}
-              title="Delete Agent"
+              onClick={() => handleAgentPasswordChangeClick(row)}
+              title="Agents Password Change"
               className="uniform_icon_btn"
             >
-              <HiTrash style={{ fontSize: "15px" }} />
+              <HiOutlineKey style={{ fontSize: "15px" }} />
             </button>
+            {hasPermission("Agents", "delete") && (
+              <button
+                onClick={() => handleDeleteClick(row.id)}
+                title="Delete Agent"
+                className="uniform_icon_btn"
+              >
+                <HiTrash style={{ fontSize: "15px" }} />
+              </button>
             )}
           </div>
         </>
       ),
     },
   ];
-
+  const handleAgentPasswordChangeClick = (data) => {
+    setClientId(data.clientId)
+    setAgentId(data.id);
+    setShowAgentPasswordChangeModal(true);
+  };
+  const handleAgentPasswordChangeClose = () => {
+    setShowAgentPasswordChangeModal(false);
+  };
   useEffect(() => {
     if (agentDetails) {
-      
       setagentForm(agentDetails);
       setexistingSenderId(
         agentDetails.senderIds?.replace(/['"]+/g, "").split(",").map(Number)
@@ -251,7 +273,7 @@ const AgentsList = () => {
 
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       const requestBody = {
         id: AgentId || 0,
@@ -408,7 +430,11 @@ const AgentsList = () => {
             <label className="font-medium text-gray-700 text-sm mb-1">
               Sender Names
             </label>
-            <SendernameDropdown name="senderId" value={SenderId} onChange={handleChange} />
+            <SendernameDropdown
+              name="senderId"
+              value={SenderId}
+              onChange={handleChange}
+            />
           </div>
         </div>
       </div>
@@ -424,14 +450,14 @@ const AgentsList = () => {
           <h4 className="font-bold ">Agents</h4>
         </div>
         <div className="flex ml-auto mb-1 gap-4">
-        {hasPermission("Agents", "create") && (
-          <button
-            className="uniform_btn"
-            onClick={() => setCreateModalOpen(true)}
-          >
-            Create Agent
-          </button>
-        )}
+          {hasPermission("Agents", "create") && (
+            <button
+              className="uniform_btn"
+              onClick={() => setCreateModalOpen(true)}
+            >
+              Create Agent
+            </button>
+          )}
           {/* <button className="uniform_btn" onClick={HandelClickModal}>
             Bulk Shift Upload
           </button> */}
@@ -546,11 +572,11 @@ const AgentsList = () => {
                     />
                   </div>
                   {hasPermission("Agents", "update") && (
-                  <div className="flex mt-6 justify-end">
-                    <button className="uniform_btn" type="submit">
-                      Save
-                    </button>
-                  </div>
+                    <div className="flex mt-6 justify-end">
+                      <button className="uniform_btn" type="submit">
+                        Save
+                      </button>
+                    </div>
                   )}
                 </form>
               </ModalBody>
@@ -558,7 +584,7 @@ const AgentsList = () => {
           </div>
         </Modal>
       )}
-      {showagenttiming && (
+      {/* {showagenttiming && (
         <AgentTiming
           agentId={AgentId}
           isVisible={true}
@@ -566,8 +592,15 @@ const AgentsList = () => {
           AgentFirstName={AgentFirstName}
           AgentLastName={AgentLastName}
         />
+      )} */}
+      {showAgentPasswordChangeModal && (
+        <AgentChangePass
+          agentId={AgentId}
+          clientId={clientId}
+          isVisible={true}
+          onClose={handleAgentPasswordChangeClose}
+        />
       )}
-
       {CreateModalOpen && (
         <AgentsForm
           onsuccess={refreshAgentList}

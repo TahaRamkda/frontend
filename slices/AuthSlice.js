@@ -22,10 +22,7 @@ export const fetchLogin = createAsyncThunk(
         //payload: {},
       });
 
-      ;
-
       if (response && response.status === 200) {
-        ;
         const result = response.data;
         localStorage.setItem("permission", JSON.stringify(result.permission));
         localStorage.setItem("accessToken", result.accessToken);

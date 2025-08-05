@@ -15,6 +15,7 @@ import {
   AGENTSHIFTBULKUPLOAD,
   MASTERDATA,
   AGENTSTATUS,
+  AGENTCHANGERPASS,
 } from "@/utils/apiConstants";
 
 // Thunks
@@ -47,14 +48,10 @@ export const fetchAgents = createAsyncThunk(
   }
 );
 
-
-
-
 export const fetchMasterData = createAsyncThunk(
   "agent/fetchMasterData",
   async ({ type }, { rejectWithValue }) => {
     try {
-      
       const response = await API.post("/api", {
         endpoint: `${MASTERDATA}?type=${type}`,
         method: "GET",
@@ -79,14 +76,11 @@ export const setAgentStatus = createAsyncThunk(
   "agent/setAgentStatus",
   async ({ agentId, statusId }, { rejectWithValue }) => {
     try {
-      
       const response = await API.post("/api", {
         endpoint: `${AGENTSTATUS}?agentId=${agentId}&status=${statusId}`,
         method: "GET",
         //payload: {},
       });
-      ;
-
       if (response.status === 200) {
         return response.data;
       } else {
@@ -260,6 +254,23 @@ export const deleteAgent = createAsyncThunk(
   }
 );
 
+export const agentChangePassword = createAsyncThunk(
+  "agent/agentChangePassword",
+  async (changePass, { rejectWithValue }) => {
+    try {
+      const response = await API.post("/api", {
+        endpoint: `${AGENTCHANGERPASS}`,
+        method: "PUT",
+        payload: changePass,
+      });
+
+      return response.data;
+    } catch (error) {
+      const handledError = handleError(error);
+      return rejectWithValue(handledError);
+    }
+  }
+);
 // Slice
 const agentSlice = createSlice({
   name: "agent",
@@ -365,14 +376,13 @@ const agentSlice = createSlice({
         state.message = action.payload?.message || action.error.message;
       })
       // Fetch Agents Perfomance
-      
+
       // Active Agents Reasons Dropdown
       .addCase(fetchMasterData.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchMasterData.fulfilled, (state, action) => {
-        
         state.loading = false;
         state.masterDataList = action.payload.masterDataList;
         state.message = action.payload.message || "";
@@ -511,6 +521,21 @@ const agentSlice = createSlice({
         state.message = action.payload.message || "Deleted Successfully";
       })
       .addCase(deleteAgent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+      .addCase(agentChangePassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(agentChangePassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.message = action.payload.message || "Changed Successfully";
+      })
+      .addCase(agentChangePassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;

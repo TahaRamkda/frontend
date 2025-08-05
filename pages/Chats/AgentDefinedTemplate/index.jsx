@@ -120,6 +120,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
           buttonJson: selectedDetail.buttonsJson || [],
           TemplateId: selectedOption,
           status: 0,
+          statusMessage: "",
         });
       }
     }
@@ -155,6 +156,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
             ...chatMessages,
             messageId: response,
             TemplateId: selectedOption,
+            statusMessage: "",
             status: 0,
           };
 
@@ -199,6 +201,7 @@ const DefinedTemplates = ({ isVisible, onClose, SenderId, ChatId, onSend }) => {
           buttonJson: selectedDetail.buttonsJson || [],
           TemplateId: selectedOption,
           status: 0,
+          statusMessage: "",
         });
       }
       return newValues;
