@@ -65,7 +65,7 @@ const AgentsForm = ({ onClose, isVisible, onsuccess }) => {
       if (response.status === 1) {
         showSweetAlert({
           title: "Created Successfully",
-          text: "",
+          text: response.message|| "",
           icon: "success",
         });
         clearAgentCreateState()

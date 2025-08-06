@@ -449,6 +449,7 @@ const agentSlice = createSlice({
         state.success = false;
       })
       .addCase(createAgentTiming.fulfilled, (state, action) => {
+        debugger
         state.loading = false;
         state.success = true;
         state.message = action.payload.message || "Created Successfully";
@@ -482,9 +483,10 @@ const agentSlice = createSlice({
         state.success = false;
       })
       .addCase(createAgent.fulfilled, (state, action) => {
+        debugger
         state.loading = false;
         state.success = true;
-        state.message = action.payload.message || "Updated Successfully";
+        state.message = action.payload.message || "Created Successfully";
       })
       .addCase(createAgent.rejected, (state, action) => {
         state.loading = false;
