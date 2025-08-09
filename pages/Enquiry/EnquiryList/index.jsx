@@ -31,6 +31,7 @@ import DateTimePicker from "@/components/Timepicker/datetimepicker";
 import { toast } from "react-toastify";
 import EnquiryDropdown from "@/components/Dropdowns/InquiryDropdown";
 import { from } from "form-data";
+import { toDate } from "date-fns";
 const EnquiryList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -47,19 +48,54 @@ const EnquiryList = () => {
   const [isLoading, setIsLoading] = useState(false); // Start as true since we're fetching data
   const enquiryColumns = [
     {
+      name: "Id",
+      selector: (row) => row.submissionId,
+      sortable: true,
+    },
+    {
       name: "Enquiry Name",
       selector: (row) => row.enquiryName,
       sortable: true,
+      minWidth: "200px"
+    },
+    {
+      name: "Phone Number",
+      selector: (row) => row.phoneNumber,
+      sortable: true,
+      minWidth: "150px"
     },
     {
       name: "Created Date",
       selector: (row) => row.createdDate,
       sortable: true,
+      minWidth: "200px"
     },
     {
-      name: "Total Contacts",
-      selector: (row) => row.totalContacts,
+      name: "Status",
+      selector: (row) => {
+        if (row) {
+          return row.status === 1
+            ? "Completed"
+            : row.status === 2
+              ? "Pending"
+              : "Canceled";
+        }
+        return "Canceled"; // fallback if row is undefined/null
+      },
       sortable: true,
+    }
+    ,
+    {
+      name: "Submission Name",
+      selector: (row) => row.submissionName,
+      sortable: true,
+      minWidth: "150px"
+    },
+    {
+      name: "Enquiry Date",
+      selector: (row) => row.enquiryCreatedDate,
+      sortable: true,
+      minWidth: "200px"
     },
     {
       name: "Action",
@@ -83,7 +119,20 @@ const EnquiryList = () => {
   ];
 
   const handleDetailClick = async (data) => {
-
+    if (data) {
+      const parsedData = JSON.parse(data.enquiryData)
+      if (parsedData) {
+        const filteredData = parsedData.map((item) => {
+          return {
+            ...item,
+            TemplateName: item.TemplateName === item.Question ? "-" : item.TemplateName
+          };
+        });
+         setEnquiryDetails(filteredData)
+      setIsModalOpen(true)
+      }
+     
+    }
   };
 
   const handlePageChange = async (page) => {
@@ -95,6 +144,8 @@ const EnquiryList = () => {
       fetchEnquiry({
         senderId: senderId,
         enquiryId: enquiryId,
+        fromDate: FromDate,
+        toDate: ToDate,
         pageSize,
         pageNo: page,
       })
@@ -111,7 +162,9 @@ const EnquiryList = () => {
       fetchEnquiry({
         senderId: senderId,
         enquiryId: enquiryId,
-        pageSize,
+        fromDate: FromDate,
+        toDate: ToDate,
+        pageSize: newSize,
         pageNo: 1,
       })
     );
@@ -127,6 +180,8 @@ const EnquiryList = () => {
         enquiryId: enquiryId,
         pageSize,
         pageNo: currentPage,
+        fromDate: FromDate,
+        toDate: ToDate,
       })
     );
   };
@@ -236,38 +291,51 @@ const EnquiryList = () => {
 
       {isModalOpen && (
         <Modal isOpen={true} toggle={() => toggleModal()} fade={false}>
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-2/5 relative">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl  overflow-scroll">
+
+              {/* Header */}
               <ModalHeader toggle={() => toggleModal()}>
-                Edit Enquiry
+                <h2 className="text-lg font-semibold">Enquiry Details</h2>
               </ModalHeader>
-              <ModalBody>
-                <table className="min-w-full max-w-full  overflow-auto bg-white border border-gray-200 rounded-md ">
-                  <thead>
-                    <tr className="bg-gray-100 text-left text-sm uppercase text-gray-600">
-                      <th className="py-2 px-4">Agent Full Name</th>
-                      <th className="py-2 px-4">Status</th>
-                      <th className="py-2 px-4">Created Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {chatLogList?.map((message, index) => (
-                      <tr key={index} className="border-b hover:bg-gray-50">
-                        <td className="py-2 px-4">
-                          {message.agentFullName || "-"}
-                        </td>
-                        <td className="py-2 px-4">{message.name || "-"}</td>
-                        <td className="py-2 px-4">
-                          {message.createdDate || "-"}
-                        </td>
+
+              {/* Body */}
+              <ModalBody className="p-4">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full bg-white border border-gray-200 rounded-md">
+                    <thead>
+                      <tr className="bg-gray-100 text-left text-sm uppercase text-gray-600">
+                        <th className="py-2 px-4 border-b">Template ID</th>
+                        <th className="py-2 px-4 border-b">Question</th>
+                        <th className="py-2 px-4 border-b">Answer</th>
+                        <th className="py-2 px-4 border-b">Template Name</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {enquiryDetails?.map((enquiry, index) => (
+                        <tr key={index} className="hover:bg-gray-50 text-sm">
+                          <td className="py-2 px-4 border-b">
+                            {enquiry.TemplateId || "-"}
+                          </td>
+                          <td className="py-2 px-4 border-b">
+                            {enquiry.Question || "-"}
+                          </td>
+                          <td className="py-2 px-4 border-b">
+                            {enquiry.Answer || "-"}
+                          </td>
+                          <td className="py-2 px-4 border-b">
+                            {enquiry.TemplateName || "-"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </ModalBody>
             </div>
           </div>
         </Modal>
+
       )}
     </App>
   );

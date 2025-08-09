@@ -8,11 +8,11 @@ import { ENQUIRYLIST } from '@/utils/apiConstants';
 // Fetch Enquiry
 export const fetchEnquiry = createAsyncThunk(
     'enquiry/fetchEnquiry',
-    async ({senderId,enquiryId, pageNo, pageSize}, { rejectWithValue }) => {
+    async ({senderId,enquiryId, pageNo, pageSize, toDate, fromDate}, { rejectWithValue }) => {
       try {
         
         const response = await API.post("/api", {
-          endpoint: `${ENQUIRYLIST}?senderId=${senderId}&enquiryId=${enquiryId}&PageNo=${pageNo}&PageSize=${pageSize}`,
+          endpoint: `${ENQUIRYLIST}?senderId=${senderId}&enquiryId=${enquiryId}&PageNo=${pageNo}&PageSize=${pageSize}&FromDate=${fromDate}&ToDate=${toDate}`,
           method: "GET",
           //payload: {},
         });
