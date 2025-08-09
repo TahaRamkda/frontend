@@ -211,3 +211,9 @@ export const WALLETBALANCE = "/Wallet/checkBalance";
 export const MERCHANTDETAILS = "/MerchantSettingInfo/getMerchantDetails";
 
 export const CONVERSATIONANALYTICS = "/Analytic/getConversationAnalyticsList";
+
+export const APPSETTINGDROPDOWN = "/AppSettings/getappsettingsdropdown";
+
+export const ENQUIRYLIST ="/EnquirySubmission/GetEnquiryList";
+
+export const ENQUIRYDROPDOWN ="/EnquirySubmission/GetEnquiryDetails";

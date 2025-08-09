@@ -144,6 +144,13 @@ export const sidebarItems = [
       submenu: [],
     },
     {
+      href: '/Enquiry/EnquiryList',
+      icon: <HiClipboardList  className="text-xl" />,
+      text: 'Enquiry',
+      module: 1,
+      submenu: [],
+    },
+    {
       href: '#',
       icon: <HiDocumentReport className="text-xl" />,
       text: 'Reports',

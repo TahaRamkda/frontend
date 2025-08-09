@@ -12,7 +12,9 @@ import {
   ROLEDROP,
   SENDERNAMEDROP,
   TEMPLATEDROPDOWN,
-  TEMPLATECATEGORY, TEMPLATELANGUAGE
+  TEMPLATECATEGORY, TEMPLATELANGUAGE,
+  APPSETTINGDROPDOWN,
+  ENQUIRYDROPDOWN,
 } from "@/utils/apiConstants";
 
 export const fetchActiveAgentsDrop = createAsyncThunk(
@@ -303,6 +305,52 @@ export const fetchlanguage = createAsyncThunk(
   }
 );
 
+export const fetchAppSettingDrop = createAsyncThunk(
+  "appSettings/fetchAppSettingDrop",
+  async ({ keyName }, { rejectWithValue }) => {
+    try {
+      const response = await API.post("/api", {
+        endpoint: `${APPSETTINGDROPDOWN}?searchStr=${keyName}`,
+        method: "GET",
+        //payload: {},
+      });
+      if (response?.status === 200) {
+        return {
+          appSettingDropdownData: response.data,
+        };
+      } else {
+        throw new Error("Failed to fetch details");
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
+
+// Enquiry 
+export const fetchEnquiryDrop = createAsyncThunk(
+  "enquiry/fetchEnquiryDrop",
+  async ({searchStr=""}, { rejectWithValue }) => {
+    try {
+      const response = await API.post("/api", {
+        endpoint: `${ENQUIRYDROPDOWN}?searchStr=${searchStr}`,
+        method: "GET",
+        //payload: {},
+      });
+      if (response?.status === 200) {
+        return {
+          enquiryDropdownData: response.data,
+        };
+      } else {
+        throw new Error("Failed to fetch details");
+      }
+    } catch (err) {
+      const handledError = handleError(err);
+      return rejectWithValue(handledError);
+    }
+  }
+);
 // Slice
 const DropdownSlice = createSlice({
   name: "dropdown",
@@ -311,6 +359,7 @@ const DropdownSlice = createSlice({
     agentDropList: [],
     clientsDropList: [],
     flowDropdownData: [],
+    appSettingDropdownData: [],
     groupDropdownData: [],
     interactiveTemplateDropdownData: [],
     interactiveTempWithoutParamDropdownData: [],
@@ -319,6 +368,7 @@ const DropdownSlice = createSlice({
     templateDropdownData: [],
     templateCategoryList: [],
     languages:[],
+    enquiryDropdownData:[],
     loading: false,
     error: null,
     success: false,
@@ -328,6 +378,12 @@ const DropdownSlice = createSlice({
     // Pagination and reset actions
     cleaActiveAgenDroptState: (state) => {
       state.activeAgentDropList = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+    },
+     clearAppSettingByKeyNameState: (state) => {
+      state.appSettingDropdownData = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -389,6 +445,13 @@ const DropdownSlice = createSlice({
     },
     clearLanguageState: (state) => {
       state.languages = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+
+    },
+    clearEnquiryDropState: (state) => {
+      state.enquiryDropdownData = [];
       state.loading = false;
       state.error = null;
       state.success = false;
@@ -585,6 +648,36 @@ const DropdownSlice = createSlice({
         state.loading = false;
         state.error = action.payload || action.error.message;
         state.message = action.payload?.message || action.error.message;
+      })
+      // App Settings
+       .addCase(fetchAppSettingDrop.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAppSettingDrop.fulfilled, (state, action) => {
+        state.loading = false;
+        state.appSettingDropdownData = action.payload.appSettingDropdownData;
+        state.message = action.payload.message || "";
+      })
+      .addCase(fetchAppSettingDrop.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
+      })
+      // App Settings
+       .addCase(fetchEnquiryDrop.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchEnquiryDrop.fulfilled, (state, action) => {
+        state.loading = false;
+        state.enquiryDropdownData = action.payload.enquiryDropdownData;
+        state.message = action.payload.message || "";
+      })
+      .addCase(fetchEnquiryDrop.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+        state.message = action.payload?.message || action.error.message;
       });
   },
 });
@@ -595,6 +688,7 @@ export const {
   cleaAgenDroptState,
   clearClientDropState,
   clearFlowDropdownState,
+  clearAppSettingByKeyNameState,
   clearGroupDropState,
   clearInteractiveTemplateDropState,
   clearInteractiveTemplateDropWithoutParamState,
@@ -604,6 +698,7 @@ export const {
   clearInteractiveTemplateDropStateState,
   cleaTemplateCategoryState,
   clearLanguageState,
+  clearEnquiryDropState,
 } = DropdownSlice.actions;
 
 export default DropdownSlice.reducer;

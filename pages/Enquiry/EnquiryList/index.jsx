@@ -37,12 +37,9 @@ const EnquiryList = () => {
   const { enquiryList, loading, error, pageSize, totalRecords, currentPage } =
     useSelector((state) => state.enquiry);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchTimeout, setSearchTimeout] = useState(null); // State for managing debounce timeout
-  const [enquiryForm, setEnquiryForm] = useState({});
   const [senderId, setSenderId] = useState(0);
   const [enquiryId, setEnquiryId] = useState(0);
   const [filterText, setFilterText] = useState("");
-  const [CreateModalOpen, setCreateModalOpen] = useState(false);
   const [FromDate, setFromDate] = useState("");
   const [ToDate, setToDate] = useState("");
   const { hasPermission } = usePermissions();
@@ -72,19 +69,10 @@ const EnquiryList = () => {
             <button
               title="Edit Enquiry"
               className="uniform_icon_btn"
-              onClick={() => handleDetailClick(row.enquiryId)}
+              onClick={() => handleDetailClick(row)}
             >
               <HiPencilAlt style={{ fontSize: "15px" }} />
             </button>
-            {hasPermission("Enquirys", "delete") && (
-              <button
-                title="Delete Enquiry"
-                className="uniform_icon_btn"
-                onClick={() => handleDeleteClick(row.enquiryId)}
-              >
-                <HiTrash style={{ fontSize: "15px" }} />
-              </button>
-            )}
           </div>
         </>
       ),
@@ -94,7 +82,9 @@ const EnquiryList = () => {
     },
   ];
 
-  const handleDetailClick = async (enquiryId) => {};
+  const handleDetailClick = async (data) => {
+
+  };
 
   const handlePageChange = async (page) => {
     // Update current page state in Redux
@@ -191,7 +181,7 @@ const EnquiryList = () => {
             </label>
             <EnquiryDropdown
               name="Enquiry"
-              value={filterText}
+              value={enquiryId}
               onChange={handleEnquiryChange}
             />
           </div>
@@ -251,7 +241,30 @@ const EnquiryList = () => {
               <ModalHeader toggle={() => toggleModal()}>
                 Edit Enquiry
               </ModalHeader>
-              <ModalBody></ModalBody>
+              <ModalBody>
+                <table className="min-w-full max-w-full  overflow-auto bg-white border border-gray-200 rounded-md ">
+                  <thead>
+                    <tr className="bg-gray-100 text-left text-sm uppercase text-gray-600">
+                      <th className="py-2 px-4">Agent Full Name</th>
+                      <th className="py-2 px-4">Status</th>
+                      <th className="py-2 px-4">Created Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {chatLogList?.map((message, index) => (
+                      <tr key={index} className="border-b hover:bg-gray-50">
+                        <td className="py-2 px-4">
+                          {message.agentFullName || "-"}
+                        </td>
+                        <td className="py-2 px-4">{message.name || "-"}</td>
+                        <td className="py-2 px-4">
+                          {message.createdDate || "-"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </ModalBody>
             </div>
           </div>
         </Modal>

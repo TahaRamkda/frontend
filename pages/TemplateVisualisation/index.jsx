@@ -699,12 +699,16 @@ const TemplateVisualisation = () => {
       setInitialData(null);
 
       try {
-        dispatch(
+        
+        if(Id && type){
+         dispatch(
           fetchTemplateVisualization({
             templateId: Id,
             templatetype: type,
           })
         );
+        }
+        
          return () => {
               dispatch(clearTemplateVisualization());
             };
@@ -721,7 +725,7 @@ const TemplateVisualisation = () => {
       }
     };
     fetchData();
-  }, [templateId, dispatch]);
+  }, [Id, type, dispatch]);
 
   useEffect(() => {
     

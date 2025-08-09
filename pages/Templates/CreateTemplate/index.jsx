@@ -216,6 +216,7 @@ const TemplateCreationPage = () => {
       clientId: localStorage.getItem("clientId"),
       name: values.templateName,
       category: Templatetype,
+      type: 1,
       language: language,
       senderNameId: selectedSenderId,
       mediaId: selectedMediaId,

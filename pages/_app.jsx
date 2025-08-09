@@ -36,7 +36,7 @@ function MyApp({ Component, pageProps }) {
   };
 
   const hasPermission = (path, action = "view") => {
-    ;
+    debugger
     const permissions = fetchPermissions();
     const basePath = normalizeString(path.split("/")[1]);
     const isCreateAction = action.toLowerCase().includes("create");
@@ -86,6 +86,7 @@ function MyApp({ Component, pageProps }) {
           });
         }
       } else {
+        debugger
         const basePath = normalizeString(router.pathname.split("/")[1]);
         const currentAction = normalizeString(router.pathname.split("/")[2]) || "view";
         const permissionExists = hasPermission(router.pathname, currentAction);

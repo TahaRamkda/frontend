@@ -29,6 +29,7 @@ import dropdownSlice from "@/slices/DropdownSlice";
 import walletSlice from "@/slices/WalletSlice";
 import merchantSlice from "@/slices/MerchantSlice";
 import conversationAnalyticsSlice from "@/slices/ConversationAnalyticsSlice"
+import enquirySlice from "@/slices/EnquirySlice";
 import { configureStore } from "@reduxjs/toolkit";
 
 export const store = configureStore({
@@ -64,5 +65,6 @@ export const store = configureStore({
     wallet:walletSlice,
     merchant:merchantSlice,
     conversationAnalytic:conversationAnalyticsSlice,
+    enquiry:enquirySlice,
     }
 })

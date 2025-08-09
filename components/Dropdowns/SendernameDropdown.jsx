@@ -14,7 +14,7 @@ const SendernameDropdown = ({ name, value, onChange }) => {
   }, [dispatch]);
 
   if (loading) return <Loader />;
-  if (error) return <p className="text-danger">Error loading: {error}</p>;
+  // if (error) return <p className="text-danger">Error loading: {error}</p>;
 
   // Format sendername data for react-select
   const options = Array.isArray(sendernameDrop)?
