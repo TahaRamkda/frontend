@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'Devops-Branch', url: 'https://github.com/TahaRamkda/frontend.git'
+                git branch: 'devops-branch', url: 'https://github.com/TahaRamkda/frontend.git'
             }
         }
 
