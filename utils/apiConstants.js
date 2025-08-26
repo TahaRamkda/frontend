@@ -1,4 +1,4 @@
-export const BASE_URL = "https://qawhatsappapi.consulttechies.com";
+export const BASE_URL = "http://api-svc:5214";
 export const LOGINAPI = "/User/Login";
 export const REFRESHTOKENAPI = "/Token/Refresh";
 export const DASHBOARDSUMMARY = "/Dashboard/getdashboardsummary";

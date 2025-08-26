@@ -1,5 +1,5 @@
 import React from "react";
-import Logo from "@/components/Logo/logo";
+import Logo from "@/components/Logo/Logo";
 const Loader = () => {
   return (
     <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50">

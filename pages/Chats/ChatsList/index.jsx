@@ -82,7 +82,7 @@ import {
   BsCheckAll,
   BsCheck,
 } from "react-icons/bs";
-import Logo from "@/components/Logo/logo";
+import Logo from "@/components/Logo/Logo";
 
 const ChatPage = () => {
   const router = useRouter();

@@ -61,6 +61,7 @@
     "recoil": "^0.7.7",
     "recoil-persist": "^5.1.0",
     "select2": "^4.1.0-rc.0",
+    "sharp": "^0.34.3",
     "styled-components": "^6.1.11",
     "sweetalert2": "^11.14.3",
     "swiper": "^11.2.2",
